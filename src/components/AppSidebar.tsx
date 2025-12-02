@@ -19,9 +19,9 @@ const menuItems = [
 export function AppSidebar() {
   return (
     <Sidebar collapsible="none" className="w-20 border-r-0">
-      <SidebarContent className="flex flex-col h-full py-2">
+      <SidebarContent className="flex flex-col h-full py-4 gap-2">
         {menuItems.map((item, index) => (
-          <div key={item.title} className="flex-1 flex items-center justify-center px-2">
+          <div key={item.title} className="flex items-center justify-center px-2">
             {item.isLogo ? (
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center border border-sidebar-border">
                 <span className="text-white font-bold text-xl">🍽</span>

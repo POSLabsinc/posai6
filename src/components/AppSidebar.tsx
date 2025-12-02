@@ -11,9 +11,12 @@ import {
   SidebarMenuButton,
 } from "@/components/ui/sidebar";
 
-const menuItems = [
+const topMenuItems = [
   { title: "Dashboard", url: "/", icon: LayoutGrid },
   { title: "Orders", url: "/orders", icon: FileText },
+];
+
+const middleMenuItems = [
   { title: "POS", url: "/pos", icon: Tablet },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "Reports", url: "/reports", icon: Receipt },
@@ -28,9 +31,10 @@ export function AppSidebar() {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="items-center">
+      <SidebarContent className="items-center justify-between py-4">
+        {/* Top buttons */}
         <SidebarMenu className="gap-2 px-2">
-          {menuItems.map((item) => (
+          {topMenuItems.map((item) => (
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild tooltip={item.title} className="h-12 w-12 justify-center rounded-xl">
                 <NavLink
@@ -44,12 +48,41 @@ export function AppSidebar() {
             </SidebarMenuItem>
           ))}
         </SidebarMenu>
+
+        {/* Middle buttons */}
+        <SidebarMenu className="gap-2 px-2">
+          {middleMenuItems.map((item) => (
+            <SidebarMenuItem key={item.title}>
+              <SidebarMenuButton asChild tooltip={item.title} className="h-12 w-12 justify-center rounded-xl">
+                <NavLink
+                  to={item.url}
+                  className="flex items-center justify-center hover:bg-sidebar-accent"
+                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                >
+                  <item.icon className="h-5 w-5" />
+                </NavLink>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          ))}
+        </SidebarMenu>
+
+        {/* Bottom button */}
+        <SidebarMenu className="gap-2 px-2">
+          <SidebarMenuItem>
+            <SidebarMenuButton asChild tooltip="Globe" className="h-12 w-12 justify-center rounded-xl">
+              <NavLink
+                to="/globe"
+                className="flex items-center justify-center hover:bg-sidebar-accent"
+                activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+              >
+                <Globe className="h-5 w-5" />
+              </NavLink>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarContent>
 
-      <SidebarFooter className="items-center py-4 gap-3">
-        <div className="w-10 h-10 rounded-full border border-sidebar-border flex items-center justify-center">
-          <Globe className="h-5 w-5 text-sidebar-foreground/70" />
-        </div>
+      <SidebarFooter className="items-center py-4">
         <div className="text-[10px] text-sidebar-foreground/50 text-center leading-tight">
           <div>Ver 4.9</div>
           <div>FL 3.3.6</div>

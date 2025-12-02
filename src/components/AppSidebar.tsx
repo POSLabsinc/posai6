@@ -23,7 +23,7 @@ export function AppSidebar() {
         {menuItems.map((item) => (
           <div key={item.title} className="flex-1 flex items-center justify-center px-2">
             {item.isLogo ? (
-              <div className="w-14 h-full max-h-20 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center border border-sidebar-border">
+              <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center border border-sidebar-border">
                 <span className="text-white font-bold text-xl">🍽</span>
               </div>
             ) : item.isLast ? (

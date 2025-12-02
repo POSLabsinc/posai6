@@ -34,7 +34,7 @@ export function AppSidebar() {
               >
                 <item.icon className="h-6 w-6" />
                 <div className="text-[8px] text-sidebar-foreground/50 leading-tight mt-1 text-center">
-                  <div>Ver 4.9</div>
+                  <div>Ver 6.0</div>
                   <div>FL 3.3.6</div>
                 </div>
               </NavLink>

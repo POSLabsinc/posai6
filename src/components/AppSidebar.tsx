@@ -33,16 +33,16 @@ export function AppSidebar() {
 
       <SidebarContent className="items-center justify-between py-4">
         {/* Top buttons */}
-        <SidebarMenu className="gap-2 px-2">
+        <SidebarMenu className="gap-3 px-2">
           {topMenuItems.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title} className="h-12 w-12 justify-center rounded-xl">
+              <SidebarMenuButton asChild tooltip={item.title} className="!h-14 !w-14 justify-center rounded-xl">
                 <NavLink
                   to={item.url}
-                  className="flex items-center justify-center hover:bg-sidebar-accent"
+                  className="flex items-center justify-center hover:bg-sidebar-accent !h-14 !w-14"
                   activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className="!h-6 !w-6" />
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -50,16 +50,16 @@ export function AppSidebar() {
         </SidebarMenu>
 
         {/* Middle buttons */}
-        <SidebarMenu className="gap-2 px-2">
+        <SidebarMenu className="gap-3 px-2">
           {middleMenuItems.map((item) => (
             <SidebarMenuItem key={item.title}>
-              <SidebarMenuButton asChild tooltip={item.title} className="h-12 w-12 justify-center rounded-xl">
+              <SidebarMenuButton asChild tooltip={item.title} className="!h-14 !w-14 justify-center rounded-xl">
                 <NavLink
                   to={item.url}
-                  className="flex items-center justify-center hover:bg-sidebar-accent"
+                  className="flex items-center justify-center hover:bg-sidebar-accent !h-14 !w-14"
                   activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
                 >
-                  <item.icon className="h-5 w-5" />
+                  <item.icon className="!h-6 !w-6" />
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>
@@ -67,15 +67,15 @@ export function AppSidebar() {
         </SidebarMenu>
 
         {/* Bottom button */}
-        <SidebarMenu className="gap-2 px-2">
+        <SidebarMenu className="gap-3 px-2">
           <SidebarMenuItem>
-            <SidebarMenuButton asChild tooltip="Globe" className="h-12 w-12 justify-center rounded-xl">
+            <SidebarMenuButton asChild tooltip="Globe" className="!h-14 !w-14 justify-center rounded-xl">
               <NavLink
                 to="/globe"
-                className="flex items-center justify-center hover:bg-sidebar-accent"
+                className="flex items-center justify-center hover:bg-sidebar-accent !h-14 !w-14"
                 activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
               >
-                <Globe className="h-5 w-5" />
+                <Globe className="!h-6 !w-6" />
               </NavLink>
             </SidebarMenuButton>
           </SidebarMenuItem>

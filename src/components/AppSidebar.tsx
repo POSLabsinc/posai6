@@ -13,19 +13,31 @@ const menuItems = [
   { title: "POS", url: "/pos", icon: Tablet },
   { title: "Settings", url: "/settings", icon: Settings },
   { title: "Reports", url: "/reports", icon: Receipt },
-  { title: "Globe", url: "/globe", icon: Globe },
+  { title: "Globe", url: "/globe", icon: Globe, isLast: true },
 ];
 
 export function AppSidebar() {
   return (
     <Sidebar collapsible="none" className="w-20 border-r-0">
       <SidebarContent className="flex flex-col h-full">
-        {menuItems.map((item, index) => (
+        {menuItems.map((item) => (
           <div key={item.title} className="flex-1 flex items-center justify-center px-2">
             {item.isLogo ? (
               <div className="w-14 h-full max-h-20 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center border border-sidebar-border">
                 <span className="text-white font-bold text-xl">🍽</span>
               </div>
+            ) : item.isLast ? (
+              <NavLink
+                to={item.url}
+                className="w-14 h-full max-h-24 flex flex-col items-center justify-center rounded-xl border border-sidebar-border hover:bg-sidebar-accent transition-colors"
+                activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+              >
+                <item.icon className="h-6 w-6" />
+                <div className="text-[8px] text-sidebar-foreground/50 leading-tight mt-1 text-center">
+                  <div>Ver 4.9</div>
+                  <div>FL 3.3.6</div>
+                </div>
+              </NavLink>
             ) : (
               <NavLink
                 to={item.url}
@@ -37,14 +49,6 @@ export function AppSidebar() {
             )}
           </div>
         ))}
-        
-        {/* Version info at bottom */}
-        <div className="py-2 text-center">
-          <div className="text-[10px] text-sidebar-foreground/50 leading-tight">
-            <div>Ver 4.9</div>
-            <div>FL 3.3.6</div>
-          </div>
-        </div>
       </SidebarContent>
     </Sidebar>
   );

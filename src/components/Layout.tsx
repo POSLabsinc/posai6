@@ -8,16 +8,16 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <SidebarProvider defaultOpen={true}>
-      <div className="min-h-screen flex w-full">
-        <AppSidebar />
-        <div className="flex-1 flex flex-col">
-          <Header />
+    <div className="min-h-screen flex flex-col w-full">
+      <Header />
+      <div className="flex flex-1">
+        <SidebarProvider defaultOpen={true}>
+          <AppSidebar />
           <main className="flex-1 p-6">
             {children}
           </main>
-        </div>
+        </SidebarProvider>
       </div>
-    </SidebarProvider>
+    </div>
   );
 }

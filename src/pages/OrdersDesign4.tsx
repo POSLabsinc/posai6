@@ -124,7 +124,7 @@ const OrdersDesign4 = () => {
 
           {/* Main Categories - Flex Wrap with Floating Badges */}
           <div className="max-h-[120px] overflow-y-auto scrollbar-hide">
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-3 pt-3">
               {categories.map((cat) => {
                 const itemCount = categorySubcategories[cat]?.length || 0;
                 return (

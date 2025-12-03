@@ -247,8 +247,8 @@ const OrdersDesign4 = () => {
                     {item.name}
                   </span>
                 </div>
-                <div className="w-10 h-full min-h-[52px] bg-orange-500 flex items-center justify-center hover:bg-orange-600 transition-colors">
-                  <Plus className="w-5 h-5 text-white" />
+                <div className="w-9 h-9 m-2 rounded-lg bg-orange-500 flex items-center justify-center hover:bg-orange-600 transition-colors flex-shrink-0">
+                  <Plus className="w-4 h-4 text-white" />
                 </div>
               </div>
             ))}

@@ -207,19 +207,23 @@ const OrdersDesign4 = () => {
 
         {/* Menu Items Grid */}
         <ScrollArea className="flex-1 p-3">
-          <div className="grid grid-cols-3 gap-2">
-            {menuItems.map((item) => (
+          <div 
+            key={`${activeCategory}-${activeSubcategory}`}
+            className="grid grid-cols-3 gap-2 animate-fade-in"
+          >
+            {menuItems.map((item, index) => (
               <div
                 key={item.id}
                 onClick={() => addToCart(item)}
-                className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border"
+                className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-all duration-200 cursor-pointer border border-sidebar-border hover:scale-[1.02] active:scale-[0.98]"
+                style={{ animationDelay: `${index * 30}ms` }}
               >
                 <span className="flex-1 text-xs font-bold leading-tight uppercase text-foreground p-3">
                   {item.name}
                 </span>
                 <button
                   onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                  className="w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center"
+                  className="w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center transition-colors"
                 >
                   <Plus className="w-4 h-4" />
                 </button>

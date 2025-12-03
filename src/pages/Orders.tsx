@@ -173,18 +173,30 @@ const Orders = () => {
         {/* Main Categories */}
         <div className="flex items-start gap-2">
           {isMenuSelectOpen ? (
-            <Select value={selectedMenu} onValueChange={handleMenuSelect} open={true} onOpenChange={(open) => !open && setIsMenuSelectOpen(false)}>
-              <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-9">
-                <SelectValue placeholder="Select Menu" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-sidebar-border">
-                {menuList.map((menu) => (
-                  <SelectItem key={menu} value={menu} className="text-foreground">
-                    {menu}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="flex flex-col gap-1 bg-popover border border-sidebar-border rounded-lg p-2 min-w-[180px]">
+              {menuList.map((menu) => (
+                <Button
+                  key={menu}
+                  variant={selectedMenu === menu ? "secondary" : "ghost"}
+                  className="justify-start text-sm h-8"
+                  onClick={() => handleMenuSelect(menu)}
+                >
+                  {menu}
+                </Button>
+              ))}
+              <div className="h-px bg-sidebar-border my-1" />
+              <Button
+                variant="ghost"
+                className="justify-start text-sm h-8 gap-2"
+                onClick={() => {
+                  setHorizontalScrollMode(!horizontalScrollMode);
+                  setIsMenuSelectOpen(false);
+                }}
+              >
+                {horizontalScrollMode ? <LayoutGrid className="w-4 h-4" /> : <LayoutList className="w-4 h-4" />}
+                {horizontalScrollMode ? "Grid View" : "Scroll View"}
+              </Button>
+            </div>
           ) : (
             <Button 
               variant="ghost" 
@@ -220,33 +232,22 @@ const Orders = () => {
         <div className="h-px bg-sidebar-border" />
 
         {/* Subcategories based on selected category */}
-        <div className="flex items-start gap-2">
-          <Button
-            variant="ghost"
-            size="icon"
-            className="rounded-full border border-white/50 flex-shrink-0 h-10 w-10"
-            onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
-            title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
-          >
-            {horizontalScrollMode ? <LayoutGrid className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
-          </Button>
-          <div className={`flex-1 overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[8.5rem]'}`}>
-            <div className={`flex gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
-              {(categorySubcategories[activeCategory] || []).map((sub) => (
-                <Button
-                  key={sub}
-                  variant="outline"
-                  className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
-                    activeSubcategory === sub 
-                      ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500" 
-                      : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
-                  }`}
-                  onClick={() => setActiveSubcategory(sub)}
-                >
-                  {sub}
-                </Button>
-              ))}
-            </div>
+        <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[8.5rem]'}`}>
+          <div className={`flex gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
+            {(categorySubcategories[activeCategory] || []).map((sub) => (
+              <Button
+                key={sub}
+                variant="outline"
+                className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
+                  activeSubcategory === sub 
+                    ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500" 
+                    : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
+                }`}
+                onClick={() => setActiveSubcategory(sub)}
+              >
+                {sub}
+              </Button>
+            ))}
           </div>
         </div>
 

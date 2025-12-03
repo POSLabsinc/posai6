@@ -187,21 +187,23 @@ const Orders = () => {
               </svg>
             </Button>
           )}
-          <div className="flex-1 flex flex-wrap gap-2">
-            {menuCategories[selectedMenu].map((cat) => (
-              <Button
-                key={cat}
-                variant={activeCategory === cat ? "default" : "outline"}
-                className={`rounded-full px-6 ${
-                  activeCategory === cat 
-                    ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
-                    : "border-sidebar-border text-foreground hover:bg-sidebar-accent"
-                }`}
-                onClick={() => setActiveCategory(cat)}
-              >
-                {cat}
-              </Button>
-            ))}
+          <div className="flex-1 overflow-x-auto min-w-0">
+            <div className="grid grid-rows-2 grid-flow-col gap-2 w-max">
+              {menuCategories[selectedMenu].map((cat) => (
+                <Button
+                  key={cat}
+                  variant={activeCategory === cat ? "default" : "outline"}
+                  className={`rounded-full px-6 whitespace-nowrap ${
+                    activeCategory === cat 
+                      ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
+                      : "border-sidebar-border text-foreground hover:bg-sidebar-accent"
+                  }`}
+                  onClick={() => setActiveCategory(cat)}
+                >
+                  {cat}
+                </Button>
+              ))}
+            </div>
           </div>
           <Button variant="ghost" size="icon" className="rounded-full border border-sidebar-border flex-shrink-0">
             <span className="w-1 h-1 bg-current rounded-full" />

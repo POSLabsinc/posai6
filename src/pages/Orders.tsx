@@ -201,12 +201,12 @@ const Orders = () => {
                 )}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
-                <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-neutral-800 text-foreground h-10">
+                <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-10">
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
-                <SelectContent className="bg-neutral-800 border-sidebar-border">
+                <SelectContent className="bg-popover border-sidebar-border">
                   {menuList.map((menu) => (
-                    <SelectItem key={menu} value={menu} className="text-foreground hover:bg-neutral-700 focus:bg-neutral-700">
+                    <SelectItem key={menu} value={menu} className="text-foreground">
                       {menu}
                     </SelectItem>
                   ))}

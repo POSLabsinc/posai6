@@ -239,12 +239,17 @@ const OrdersDesign4 = () => {
               <div
                 key={item.id}
                 onClick={() => addToCart(item)}
-                className="bg-sidebar-accent rounded-lg p-3 cursor-pointer transition-all duration-200 border border-sidebar-border hover:border-orange-500/50 hover:bg-sidebar-accent/80 active:scale-95"
+                className="flex items-center bg-sidebar-accent rounded-lg cursor-pointer transition-all duration-200 border border-sidebar-border hover:border-orange-500/50 active:scale-95 overflow-hidden"
                 style={{ animationDelay: `${index * 30}ms` }}
               >
-                <span className="text-xs font-bold leading-tight uppercase text-foreground">
-                  {item.name}
-                </span>
+                <div className="flex-1 p-3">
+                  <span className="text-xs font-bold leading-tight uppercase text-foreground">
+                    {item.name}
+                  </span>
+                </div>
+                <div className="w-10 h-full min-h-[52px] bg-orange-500 flex items-center justify-center hover:bg-orange-600 transition-colors">
+                  <Plus className="w-5 h-5 text-white" />
+                </div>
               </div>
             ))}
           </div>

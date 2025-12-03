@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Save, Flame, Receipt, ArrowRightLeft, X, FileText, ChevronDown } from "lucide-react";
+import { Plus, Save, Flame, Receipt, ArrowRightLeft, X, FileText, ChevronDown, LayoutList, LayoutGrid } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -142,6 +142,7 @@ const Orders = () => {
   const [selectedMenu, setSelectedMenu] = useState("BAR MENU");
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
+  const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
 
   const addToCart = (item: { id: number; name: string }) => {
     setOrderItems(prev => {
@@ -219,22 +220,33 @@ const Orders = () => {
         <div className="h-px bg-sidebar-border" />
 
         {/* Subcategories based on selected category */}
-        <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex flex-row flex-wrap gap-2 max-h-[8.5rem]">
-            {(categorySubcategories[activeCategory] || []).map((sub) => (
-              <Button
-                key={sub}
-                variant="outline"
-                className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
-                  activeSubcategory === sub 
-                    ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500" 
-                    : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
-                }`}
-                onClick={() => setActiveSubcategory(sub)}
-              >
-                {sub}
-              </Button>
-            ))}
+        <div className="flex items-start gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="rounded-full border border-white/50 flex-shrink-0 h-10 w-10"
+            onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
+            title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
+          >
+            {horizontalScrollMode ? <LayoutGrid className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
+          </Button>
+          <div className={`flex-1 overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[8.5rem]'}`}>
+            <div className={`flex gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
+              {(categorySubcategories[activeCategory] || []).map((sub) => (
+                <Button
+                  key={sub}
+                  variant="outline"
+                  className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
+                    activeSubcategory === sub 
+                      ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500" 
+                      : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
+                  }`}
+                  onClick={() => setActiveSubcategory(sub)}
+                >
+                  {sub}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
 

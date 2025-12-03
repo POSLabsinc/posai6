@@ -78,34 +78,57 @@ const Orders = () => {
       {/* Left Panel - Menu */}
       <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden">
         {/* Main Categories */}
-        <div className="flex items-start gap-2">
-          {isMenuSelectOpen ? (
-            <Select value={selectedMenu} onValueChange={handleMenuSelect} open={true} onOpenChange={(open) => !open && setIsMenuSelectOpen(false)}>
-              <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-9">
-                <SelectValue placeholder="Select Menu" />
-              </SelectTrigger>
-              <SelectContent className="bg-popover border-sidebar-border">
-                {menuList.map((menu) => (
-                  <SelectItem key={menu} value={menu} className="text-foreground">
-                    {menu}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          ) : (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-full border border-sidebar-border"
-              onClick={() => setIsMenuSelectOpen(true)}
-            >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+        <div className="flex flex-col gap-2">
+          {/* First Row */}
+          <div className="flex items-center gap-2">
+            {isMenuSelectOpen ? (
+              <Select value={selectedMenu} onValueChange={handleMenuSelect} open={true} onOpenChange={(open) => !open && setIsMenuSelectOpen(false)}>
+                <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-9">
+                  <SelectValue placeholder="Select Menu" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-sidebar-border">
+                  {menuList.map((menu) => (
+                    <SelectItem key={menu} value={menu} className="text-foreground">
+                      {menu}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="rounded-full border border-sidebar-border"
+                onClick={() => setIsMenuSelectOpen(true)}
+              >
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </Button>
+            )}
+            {menuCategories[selectedMenu].slice(0, 4).map((cat) => (
+              <Button
+                key={cat}
+                variant={activeCategory === cat ? "default" : "outline"}
+                className={`rounded-full px-6 ${
+                  activeCategory === cat 
+                    ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
+                    : "border-sidebar-border text-foreground hover:bg-sidebar-accent"
+                }`}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {cat}
+              </Button>
+            ))}
+            <Button variant="ghost" size="icon" className="rounded-full border border-sidebar-border ml-auto">
+              <span className="w-1 h-1 bg-current rounded-full" />
+              <span className="w-1 h-1 bg-current rounded-full" />
+              <span className="w-1 h-1 bg-current rounded-full" />
             </Button>
-          )}
-          <div className="flex-1 grid grid-cols-4 gap-2">
-            {menuCategories[selectedMenu].map((cat) => (
+          </div>
+          {/* Second Row */}
+          <div className="flex items-center gap-2">
+            {menuCategories[selectedMenu].slice(4).map((cat) => (
               <Button
                 key={cat}
                 variant={activeCategory === cat ? "default" : "outline"}
@@ -120,11 +143,6 @@ const Orders = () => {
               </Button>
             ))}
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full border border-sidebar-border">
-            <span className="w-1 h-1 bg-current rounded-full" />
-            <span className="w-1 h-1 bg-current rounded-full" />
-            <span className="w-1 h-1 bg-current rounded-full" />
-          </Button>
         </div>
 
         {/* Subcategories */}

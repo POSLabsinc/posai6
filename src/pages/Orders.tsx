@@ -171,63 +171,58 @@ const Orders = () => {
       {/* Left Panel - Menu */}
       <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden bg-neutral-900 rounded-lg p-3">
         {/* Main Categories */}
-        <div className="flex items-start gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           {/* Menu Controls Group */}
-          <div className="flex items-center gap-1 flex-shrink-0">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="rounded-full border border-sidebar-border h-10 w-10"
-              onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="rounded-full border border-sidebar-border h-10 w-10"
+            onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
+          >
+            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </Button>
+          {isMenuSelectOpen && (
+            <>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="rounded-full border border-sidebar-border h-10 w-10"
+                onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
+                title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
+              >
+                {horizontalScrollMode ? <LayoutGrid className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
+              </Button>
+              <Select value={selectedMenu} onValueChange={handleMenuSelect}>
+                <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-10">
+                  <SelectValue placeholder="Select Menu" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-sidebar-border">
+                  {menuList.map((menu) => (
+                    <SelectItem key={menu} value={menu} className="text-foreground">
+                      {menu}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </>
+          )}
+          {/* Categories */}
+          {menuCategories[selectedMenu].map((cat) => (
+            <Button
+              key={cat}
+              variant={activeCategory === cat ? "default" : "outline"}
+              className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
+                activeCategory === cat 
+                  ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
+                  : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
+              }`}
+              onClick={() => setActiveCategory(cat)}
             >
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              {cat}
             </Button>
-            {isMenuSelectOpen && (
-              <>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="rounded-full border border-sidebar-border h-10 w-10"
-                  onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
-                  title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
-                >
-                  {horizontalScrollMode ? <LayoutGrid className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
-                </Button>
-                <Select value={selectedMenu} onValueChange={handleMenuSelect}>
-                  <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-10">
-                    <SelectValue placeholder="Select Menu" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover border-sidebar-border">
-                    {menuList.map((menu) => (
-                      <SelectItem key={menu} value={menu} className="text-foreground">
-                        {menu}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </>
-            )}
-          </div>
-          <div className="flex-1 overflow-x-auto min-w-0 scrollbar-hide">
-            <div className="flex flex-wrap gap-2">
-              {menuCategories[selectedMenu].map((cat) => (
-                <Button
-                  key={cat}
-                  variant={activeCategory === cat ? "default" : "outline"}
-                  className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
-                    activeCategory === cat 
-                      ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
-                      : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
-                  }`}
-                  onClick={() => setActiveCategory(cat)}
-                >
-                  {cat}
-                </Button>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
 
         <div className="h-px bg-sidebar-border" />

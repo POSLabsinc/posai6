@@ -204,7 +204,7 @@ const Orders = () => {
                   className={`rounded-full px-8 h-10 text-sm whitespace-nowrap ${
                     activeCategory === cat 
                       ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
-                      : "border-sidebar-border text-foreground hover:bg-sidebar-accent"
+                      : "bg-white text-black border-white hover:bg-gray-100"
                   }`}
                   onClick={() => setActiveCategory(cat)}
                 >
@@ -232,7 +232,7 @@ const Orders = () => {
                 className={`rounded-full px-8 h-10 text-sm whitespace-nowrap ${
                   activeSubcategory === sub 
                     ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500" 
-                    : "border-sidebar-border text-foreground hover:bg-sidebar-accent"
+                    : "bg-white text-black border-white hover:bg-gray-100"
                 }`}
                 onClick={() => setActiveSubcategory(sub)}
               >

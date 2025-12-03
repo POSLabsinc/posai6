@@ -342,11 +342,11 @@ const Orders = () => {
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
-                    <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center flex-shrink-0">
+                    <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center flex-shrink-0 mt-px">
                       {item.qty}
                     </span>
                     <div>
-                      <span className="text-xs font-medium">{item.name}</span>
+                      <span className="text-xs font-medium leading-4">{item.name}</span>
                       {item.modifiers && (
                         <div className="mt-0.5 text-[10px] text-muted-foreground space-y-0">
                           {item.modifiers.map((mod, idx) => (

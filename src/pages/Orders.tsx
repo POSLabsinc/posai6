@@ -178,13 +178,13 @@ const Orders = () => {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="rounded-full border border-sidebar-border h-10 w-10"
+            className="h-10 w-10 p-0"
             onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
           >
             {isMenuSelectOpen ? (
-              <img src={burgerCloseIcon} alt="Close menu" className="w-5 h-5" />
+              <img src={burgerCloseIcon} alt="Close menu" className="w-10 h-10" />
             ) : (
-              <img src={burgerOpenIcon} alt="Open menu" className="w-5 h-5" />
+              <img src={burgerOpenIcon} alt="Open menu" className="w-10 h-10" />
             )}
           </Button>
           {isMenuSelectOpen && (

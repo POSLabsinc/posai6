@@ -275,18 +275,18 @@ const Orders = () => {
             <span>🕐 10:20 PM</span>
           </div>
           
-          <div className="flex items-center gap-1 mb-2">
-            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border h-7 px-2">
-              <span className="text-green-500 mr-1">%</span> Discount
+          <div className="flex items-center gap-2 mb-2">
+            <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
+              <span className="text-muted-foreground">%</span> Discount
             </Button>
-            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border h-7 px-2">
-              <ArrowRightLeft className="w-3 h-3 mr-1" /> Transfer
+            <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
+              <span className="text-muted-foreground">🚫</span> No Tax
             </Button>
-            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border h-7 px-2">
-              <Receipt className="w-3 h-3 mr-1" /> Receipt
+            <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
+              <span className="text-muted-foreground">$</span> Cash Register
             </Button>
-            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border h-7 px-2">
-              <X className="w-3 h-3 mr-1" /> Cancel
+            <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
+              <Receipt className="w-3 h-3 text-muted-foreground" /> Receipt
             </Button>
           </div>
 

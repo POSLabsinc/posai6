@@ -177,20 +177,16 @@ const Orders = () => {
         {/* Main Categories */}
         <div className="flex flex-wrap items-center gap-2">
           {/* Menu Controls Group */}
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="h-10 w-10 p-0"
-            onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
-          >
-            {isMenuSelectOpen ? (
-              <img src={burgerCloseIcon} alt="Close menu" className="w-7 h-7" />
-            ) : (
-              <img src={burgerOpenIcon} alt="Open menu" className="w-10 h-10" />
-            )}
-          </Button>
-          {isMenuSelectOpen && (
-            <>
+          {isMenuSelectOpen ? (
+            <div className="flex items-center gap-2 bg-sidebar-accent rounded-full px-2 py-1">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-10 w-10 p-0"
+                onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
+              >
+                <img src={burgerCloseIcon} alt="Close menu" className="w-7 h-7" />
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -216,7 +212,16 @@ const Orders = () => {
                   ))}
                 </SelectContent>
               </Select>
-            </>
+            </div>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-10 w-10 p-0"
+              onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
+            >
+              <img src={burgerOpenIcon} alt="Open menu" className="w-10 h-10" />
+            </Button>
           )}
           {/* Categories */}
           {menuCategories[selectedMenu].map((cat) => (

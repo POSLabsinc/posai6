@@ -202,10 +202,10 @@ const Orders = () => {
                 <Button
                   key={cat}
                   variant={activeCategory === cat ? "default" : "outline"}
-                  className={`rounded-full px-8 h-10 text-sm whitespace-nowrap ${
+                  className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
                     activeCategory === cat 
                       ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
-                      : "bg-header text-header-foreground border-header hover:bg-header/80"
+                      : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
                   }`}
                   onClick={() => setActiveCategory(cat)}
                 >
@@ -225,10 +225,10 @@ const Orders = () => {
               <Button
                 key={sub}
                 variant="outline"
-                className={`rounded-full px-8 h-10 text-sm whitespace-nowrap ${
+                className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
                   activeSubcategory === sub 
                     ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500" 
-                    : "bg-header text-header-foreground border-header hover:bg-header/80"
+                    : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
                 }`}
                 onClick={() => setActiveSubcategory(sub)}
               >

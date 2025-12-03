@@ -126,24 +126,24 @@ const OrdersDesign4 = () => {
           <div className="max-h-[120px] overflow-y-auto scrollbar-hide">
             <div className="flex flex-wrap items-center">
               {categories.map((cat, index) => (
-                <div key={cat} className="flex items-center">
+                <div key={cat} className="flex items-center group">
                   <button
                     onClick={() => {
                       setActiveCategory(cat);
                       setActiveSubcategory(categorySubcategories[cat]?.[0] || "");
                       setIsDrawerOpen(true);
                     }}
-                    className={`px-4 py-2 text-sm font-bold rounded-xl text-center leading-tight max-w-[140px] min-h-[48px] flex items-center justify-center transition-colors ${
+                    className={`px-4 py-2 text-sm font-bold rounded-xl text-center leading-tight max-w-[140px] min-h-[48px] flex items-center justify-center transition-all duration-200 ${
                       activeCategory === cat 
-                        ? "bg-orange-500 text-white" 
-                        : "bg-transparent text-foreground hover:bg-sidebar-accent"
+                        ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30 scale-105" 
+                        : "bg-transparent text-foreground hover:bg-white/10 hover:scale-105 active:scale-95"
                     }`}
                   >
                     {cat}
                   </button>
-                  {/* Separator */}
+                  {/* Subtle Separator */}
                   {index < categories.length - 1 && (
-                    <div className="w-px h-8 bg-white/30 mx-1 flex-shrink-0" />
+                    <div className="w-px h-6 bg-white/15 mx-0.5 flex-shrink-0 transition-opacity duration-200 group-hover:opacity-50" />
                   )}
                 </div>
               ))}

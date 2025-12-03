@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Save, Flame, Receipt, ArrowRightLeft, X, FileText, ChevronDown, LayoutList, LayoutGrid } from "lucide-react";
+import { Plus, Save, Flame, Receipt, ArrowRightLeft, X, FileText, ChevronDown } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -11,6 +11,8 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import burgerCloseIcon from "@/assets/icons/burger-close.png";
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
+import gridViewIcon from "@/assets/icons/grid-view.png";
+import scrollViewIcon from "@/assets/icons/scroll-view.png";
 
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 
@@ -192,11 +194,15 @@ const Orders = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="rounded-full border border-sidebar-border h-10 w-10"
+                className="h-10 w-10 p-0"
                 onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
                 title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
               >
-                {horizontalScrollMode ? <LayoutGrid className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
+                {horizontalScrollMode ? (
+                  <img src={gridViewIcon} alt="Grid view" className="w-7 h-7" />
+                ) : (
+                  <img src={scrollViewIcon} alt="Scroll view" className="w-7 h-7" />
+                )}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
                 <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-10">

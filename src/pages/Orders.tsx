@@ -167,7 +167,7 @@ const Orders = () => {
   return (
     <div className="flex gap-3 overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>
       {/* Left Panel - Menu */}
-      <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden bg-neutral-900 rounded-lg p-3">
         {/* Main Categories */}
         <div className="flex items-start gap-2">
           {isMenuSelectOpen ? (

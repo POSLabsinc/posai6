@@ -187,7 +187,7 @@ const Orders = () => {
               </svg>
             </Button>
           )}
-          <div className="flex-1 overflow-x-auto min-w-0">
+          <div className="flex-1 overflow-x-auto min-w-0 scrollbar-hide">
             <div className="grid grid-rows-2 grid-flow-col gap-2 w-max">
               {menuCategories[selectedMenu].map((cat) => (
                 <Button

@@ -182,7 +182,7 @@ const Orders = () => {
             onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
           >
             {isMenuSelectOpen ? (
-              <img src={burgerCloseIcon} alt="Close menu" className="w-10 h-10" />
+              <img src={burgerCloseIcon} alt="Close menu" className="w-7 h-7" />
             ) : (
               <img src={burgerOpenIcon} alt="Open menu" className="w-10 h-10" />
             )}

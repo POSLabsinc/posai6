@@ -46,6 +46,10 @@ const Header = () => {
           <img src={refreshIcon} alt="Refresh" className="w-5 h-5" />
         </button>
         
+        <button className="p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
+          <img src={supportIcon} alt="Support" className="w-5 h-5" />
+        </button>
+        
         <button className="p-1 hover:bg-sidebar-accent rounded transition-colors">
           <img src={notificationIcon} alt="Notifications" className="w-5 h-5" />
         </button>
@@ -53,10 +57,6 @@ const Header = () => {
         <img src={wifiIcon} alt="Wifi" className="w-5 h-5" />
         
         <span className="text-sm font-medium">10:20 AM</span>
-        
-        <button className="p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
-          <img src={supportIcon} alt="Support" className="w-5 h-5" />
-        </button>
       </div>
     </header>
   );

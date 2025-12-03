@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Plus, Save, Flame, Receipt, ArrowRightLeft, X, FileText, ChevronDown } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Plus, Save, Flame, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreHorizontal } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -9,6 +9,11 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 
@@ -144,6 +149,37 @@ const Orders = () => {
   const [activeFoodCategory, setActiveFoodCategory] = useState("Appetizer");
   const [selectedMenu, setSelectedMenu] = useState("BAR MENU");
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
+  const [visibleCategoryCount, setVisibleCategoryCount] = useState(14);
+  const categoriesContainerRef = useRef<HTMLDivElement>(null);
+
+  const categories = menuCategories[selectedMenu];
+  const visibleCategories = categories.slice(0, visibleCategoryCount);
+  const overflowCategories = categories.slice(visibleCategoryCount);
+  const hasOverflow = overflowCategories.length > 0;
+
+  // Calculate how many categories fit in two rows
+  useEffect(() => {
+    const calculateVisibleCategories = () => {
+      const container = categoriesContainerRef.current;
+      if (!container) return;
+
+      const containerWidth = container.offsetWidth;
+      const buttonGap = 8; // gap-2 = 8px
+      const moreButtonWidth = 80; // approximate width for "More" button
+      const availableWidth = containerWidth - moreButtonWidth;
+      
+      // Approximate button width (average category name length * char width + padding)
+      const avgButtonWidth = 90;
+      const buttonsPerRow = Math.floor((availableWidth + buttonGap) / (avgButtonWidth + buttonGap));
+      const maxVisible = buttonsPerRow * 2; // Two rows
+      
+      setVisibleCategoryCount(Math.max(4, maxVisible));
+    };
+
+    calculateVisibleCategories();
+    window.addEventListener('resize', calculateVisibleCategories);
+    return () => window.removeEventListener('resize', calculateVisibleCategories);
+  }, [selectedMenu]);
 
   const handleMenuSelect = (value: string) => {
     setSelectedMenu(value);
@@ -187,8 +223,8 @@ const Orders = () => {
               </svg>
             </Button>
           )}
-          <div className="flex-1 flex flex-wrap gap-2">
-            {menuCategories[selectedMenu].map((cat) => (
+          <div ref={categoriesContainerRef} className="flex-1 flex flex-wrap gap-2 max-h-[76px] overflow-hidden">
+            {visibleCategories.map((cat) => (
               <Button
                 key={cat}
                 variant={activeCategory === cat ? "default" : "outline"}
@@ -202,6 +238,38 @@ const Orders = () => {
                 {cat}
               </Button>
             ))}
+            {hasOverflow && (
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className="rounded-full px-4 border-sidebar-border text-foreground hover:bg-sidebar-accent"
+                  >
+                    <MoreHorizontal className="w-4 h-4 mr-1" />
+                    More
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-64 p-2 bg-popover border-sidebar-border">
+                  <div className="flex flex-wrap gap-2">
+                    {overflowCategories.map((cat) => (
+                      <Button
+                        key={cat}
+                        variant={activeCategory === cat ? "default" : "outline"}
+                        size="sm"
+                        className={`rounded-full ${
+                          activeCategory === cat 
+                            ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
+                            : "border-sidebar-border text-foreground hover:bg-sidebar-accent"
+                        }`}
+                        onClick={() => setActiveCategory(cat)}
+                      >
+                        {cat}
+                      </Button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
+            )}
           </div>
           <Button variant="ghost" size="icon" className="rounded-full border border-sidebar-border flex-shrink-0">
             <span className="w-1 h-1 bg-current rounded-full" />

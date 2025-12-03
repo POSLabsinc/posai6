@@ -196,7 +196,7 @@ const Orders = () => {
             </Button>
           )}
           <div className="flex-1 overflow-x-auto min-w-0 scrollbar-hide">
-            <div className="grid grid-rows-2 grid-flow-col gap-2 auto-cols-max">
+            <div className="flex flex-wrap gap-2">
               {menuCategories[selectedMenu].map((cat) => (
                 <Button
                   key={cat}

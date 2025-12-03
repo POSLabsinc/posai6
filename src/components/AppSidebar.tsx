@@ -1,4 +1,4 @@
-import { LayoutGrid, FileText, Tablet, Settings, Receipt, Globe, Utensils } from "lucide-react";
+import { Settings } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 import {
@@ -6,14 +6,21 @@ import {
   SidebarContent,
 } from "@/components/ui/sidebar";
 
+import logoIcon from "@/assets/icons/logo.png";
+import dashboardIcon from "@/assets/icons/dashboard.png";
+import orderIcon from "@/assets/icons/order.png";
+import tableManagementIcon from "@/assets/icons/table-management.png";
+import ticketIcon from "@/assets/icons/ticket.png";
+import versionIcon from "@/assets/icons/version.png";
+
 const menuItems = [
-  { title: "Home", url: "/home", icon: Utensils, isLogo: true },
-  { title: "Dashboard", url: "/", icon: LayoutGrid },
-  { title: "Orders", url: "/orders", icon: FileText },
-  { title: "POS", url: "/pos", icon: Tablet },
-  { title: "Settings", url: "/settings", icon: Settings },
-  { title: "Reports", url: "/reports", icon: Receipt },
-  { title: "Globe", url: "/globe", icon: Globe, isLast: true },
+  { title: "Home", url: "/home", icon: logoIcon, isLogo: true },
+  { title: "Dashboard", url: "/", icon: dashboardIcon },
+  { title: "Orders", url: "/orders", icon: orderIcon },
+  { title: "POS", url: "/pos", icon: tableManagementIcon },
+  { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings },
+  { title: "Reports", url: "/reports", icon: ticketIcon },
+  { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
 
 export function AppSidebar() {
@@ -24,7 +31,7 @@ export function AppSidebar() {
           <div key={item.title} className={`flex items-center justify-center px-2 ${item.isLogo ? 'h-14 shrink-0' : 'flex-1 min-h-0'}`}>
             {item.isLogo ? (
               <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center border border-sidebar-border">
-                <span className="text-white font-bold text-xl">🍽</span>
+                <img src={item.icon} alt={item.title} className="w-10 h-10" />
               </div>
             ) : item.isLast ? (
               <NavLink
@@ -32,11 +39,7 @@ export function AppSidebar() {
                 className="w-14 h-full flex flex-col items-center justify-center rounded-xl border border-sidebar-border hover:bg-sidebar-accent transition-colors"
                 activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
               >
-                <item.icon className="h-5 w-5" />
-                <div className="text-[7px] text-sidebar-foreground/50 leading-tight mt-0.5 text-center">
-                  <div>Ver 6.0</div>
-                  <div>FL 3.3.6</div>
-                </div>
+                <img src={item.icon} alt={item.title} className="w-10 h-10" />
               </NavLink>
             ) : (
               <NavLink
@@ -44,7 +47,11 @@ export function AppSidebar() {
                 className="w-14 h-full flex items-center justify-center rounded-xl border border-sidebar-border hover:bg-sidebar-accent transition-colors"
                 activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
               >
-                <item.icon className="h-5 w-5" />
+                {item.lucideIcon ? (
+                  <item.lucideIcon className="h-5 w-5" />
+                ) : (
+                  <img src={item.icon as string} alt={item.title} className="w-6 h-6" />
+                )}
               </NavLink>
             )}
           </div>

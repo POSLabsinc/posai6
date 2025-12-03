@@ -50,9 +50,9 @@ const Orders = () => {
   const total = 59.00;
 
   return (
-    <div className="flex h-[calc(100vh-120px)] gap-4">
+    <div className="flex h-full gap-3 overflow-hidden">
       {/* Left Panel - Menu */}
-      <div className="flex-1 flex flex-col gap-3">
+      <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden">
         {/* Main Categories */}
         <div className="flex items-center gap-2">
           <Button variant="ghost" size="icon" className="rounded-full border border-sidebar-border">
@@ -146,16 +146,6 @@ const Orders = () => {
             ))}
           </div>
         </ScrollArea>
-
-        {/* Search Button */}
-        <div className="flex justify-center">
-          <Button
-            size="icon"
-            className="w-12 h-12 rounded-full bg-sidebar-accent hover:bg-sidebar-accent/80"
-          >
-            <Search className="w-5 h-5" />
-          </Button>
-        </div>
       </div>
 
       {/* Right Panel - Order */}

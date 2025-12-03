@@ -8,12 +8,12 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   return (
-    <div className="min-h-screen flex flex-col w-full">
+    <div className="h-screen flex flex-col w-full overflow-hidden">
       <Header />
-      <div className="flex flex-1">
+      <div className="flex flex-1 overflow-hidden">
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
-          <main className="flex-1 p-6">
+          <main className="flex-1 p-4 overflow-hidden">
             {children}
           </main>
         </SidebarProvider>

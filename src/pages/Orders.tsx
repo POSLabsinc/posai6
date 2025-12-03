@@ -172,43 +172,42 @@ const Orders = () => {
       <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden bg-neutral-900 rounded-lg p-3">
         {/* Main Categories */}
         <div className="flex items-start gap-2">
-          {isMenuSelectOpen ? (
-            <div className="flex flex-col gap-1 bg-popover border border-sidebar-border rounded-lg p-2 min-w-[180px]">
-              {menuList.map((menu) => (
-                <Button
-                  key={menu}
-                  variant={selectedMenu === menu ? "secondary" : "ghost"}
-                  className="justify-start text-sm h-8"
-                  onClick={() => handleMenuSelect(menu)}
-                >
-                  {menu}
-                </Button>
-              ))}
-              <div className="h-px bg-sidebar-border my-1" />
-              <Button
-                variant="ghost"
-                className="justify-start text-sm h-8 gap-2"
-                onClick={() => {
-                  setHorizontalScrollMode(!horizontalScrollMode);
-                  setIsMenuSelectOpen(false);
-                }}
-              >
-                {horizontalScrollMode ? <LayoutGrid className="w-4 h-4" /> : <LayoutList className="w-4 h-4" />}
-                {horizontalScrollMode ? "Grid View" : "Scroll View"}
-              </Button>
-            </div>
-          ) : (
+          {/* Menu Controls Group */}
+          <div className="flex items-center gap-1 flex-shrink-0">
             <Button 
               variant="ghost" 
               size="icon" 
-              className="rounded-full border border-sidebar-border flex-shrink-0"
-              onClick={() => setIsMenuSelectOpen(true)}
+              className="rounded-full border border-sidebar-border h-10 w-10"
+              onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </Button>
-          )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="rounded-full border border-sidebar-border h-10 w-10"
+              onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
+              title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
+            >
+              {horizontalScrollMode ? <LayoutGrid className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
+            </Button>
+            {isMenuSelectOpen && (
+              <Select value={selectedMenu} onValueChange={handleMenuSelect} open={true} onOpenChange={(open) => !open && setIsMenuSelectOpen(false)}>
+                <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-10">
+                  <SelectValue placeholder="Select Menu" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-sidebar-border">
+                  {menuList.map((menu) => (
+                    <SelectItem key={menu} value={menu} className="text-foreground">
+                      {menu}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
           <div className="flex-1 overflow-x-auto min-w-0 scrollbar-hide">
             <div className="flex flex-wrap gap-2">
               {menuCategories[selectedMenu].map((cat) => (

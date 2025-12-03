@@ -213,7 +213,7 @@ const Orders = () => {
         </div>
 
         {/* Subcategories based on selected category */}
-        <div className="flex-1 overflow-x-auto scrollbar-hide">
+        <div className="overflow-x-auto scrollbar-hide">
           <div className="flex flex-col flex-wrap gap-2 h-[7.5rem] w-max">
             {(categorySubcategories[activeCategory] || []).map((sub) => (
               <Button

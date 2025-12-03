@@ -1,11 +1,19 @@
 import { useState } from "react";
-import { Search, Plus, Save, Flame, Receipt, ArrowRightLeft, X, FileText } from "lucide-react";
+import { Plus, Save, Flame, Receipt, ArrowRightLeft, X, FileText, ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const categories = ["Food", "Desserts", "Drinks", "Beer"];
 const subcategories = ["Iced Tea", "Soda", "Lemonade", "Sparkling", "Coffee"];
 const foodCategories = ["Appetizer", "Soup", "Entrees", "Pastas", "Pizzas", "Snacks", "Steak", "Fish", "Chicken", "Burgers", "Pan Cakes", "Vegan", "Waffles", "Pastries"];
+const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 
 const menuItems = [
   { id: 1, name: "Almond Crusted Salmon", image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=100&h=100&fit=crop" },
@@ -42,6 +50,7 @@ const Orders = () => {
   const [activeCategory, setActiveCategory] = useState("Food");
   const [activeSubcategory, setActiveSubcategory] = useState("Lemonade");
   const [activeFoodCategory, setActiveFoodCategory] = useState("Appetizer");
+  const [selectedMenu, setSelectedMenu] = useState("BAR MENU");
 
   const subtotal = 56.00;
   const discount = 0.00;
@@ -55,12 +64,18 @@ const Orders = () => {
       <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden">
         {/* Main Categories */}
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" className="rounded-full border border-sidebar-border">
-            <span className="sr-only">Menu</span>
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </Button>
+          <Select value={selectedMenu} onValueChange={setSelectedMenu}>
+            <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-9">
+              <SelectValue placeholder="Select Menu" />
+            </SelectTrigger>
+            <SelectContent className="bg-popover border-sidebar-border">
+              {menuList.map((menu) => (
+                <SelectItem key={menu} value={menu} className="text-foreground">
+                  {menu}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
           {categories.map((cat) => (
             <Button
               key={cat}

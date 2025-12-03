@@ -10,10 +10,10 @@ export function Layout({ children }: LayoutProps) {
   return (
     <div className="h-screen flex flex-col w-full overflow-hidden">
       <Header />
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 min-h-0 overflow-hidden">
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
-          <main className="flex-1 p-4 overflow-hidden">
+          <main className="flex-1 p-3 overflow-hidden">
             {children}
           </main>
         </SidebarProvider>

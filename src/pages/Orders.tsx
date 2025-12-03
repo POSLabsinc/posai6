@@ -34,7 +34,7 @@ const orderItems = [
     qty: 1, 
     name: "Alomd crusted salmon", 
     price: 20.00,
-    modifiers: ["Salad", "Balsamic Vinaigrette", "Medium Rare", "W/ Potato Wedges", "large", "W/ Extra Cheese"]
+    modifiers: ["Salad", "Medium Rare", "W/ Potato Wedges"]
   },
 ];
 
@@ -50,7 +50,7 @@ const Orders = () => {
   const total = 59.00;
 
   return (
-    <div className="flex h-full gap-3 overflow-hidden">
+    <div className="flex gap-3 overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>
       {/* Left Panel - Menu */}
       <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden">
         {/* Main Categories */}
@@ -149,10 +149,10 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order */}
-      <div className="w-80 flex flex-col bg-sidebar-accent/30 rounded-lg">
+      <div className="w-80 flex flex-col bg-sidebar-accent/30 rounded-lg overflow-hidden flex-shrink-0">
         {/* Order Header */}
-        <div className="p-3 border-b border-sidebar-border">
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+        <div className="p-2 border-b border-sidebar-border flex-shrink-0">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
             <div className="flex items-center gap-2">
               <span>GUEST NAME</span>
               <span>📞 (XXX)XXX-XXXX</span>
@@ -160,17 +160,17 @@ const Orders = () => {
             <span>🕐 10:20 PM</span>
           </div>
           
-          <div className="flex items-center gap-2 mb-3">
-            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border">
+          <div className="flex items-center gap-1 mb-2">
+            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border h-7 px-2">
               <span className="text-green-500 mr-1">%</span> Discount
             </Button>
-            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border">
+            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border h-7 px-2">
               <ArrowRightLeft className="w-3 h-3 mr-1" /> Transfer
             </Button>
-            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border">
+            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border h-7 px-2">
               <Receipt className="w-3 h-3 mr-1" /> Receipt
             </Button>
-            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border">
+            <Button variant="outline" size="sm" className="text-xs rounded border-sidebar-border h-7 px-2">
               <X className="w-3 h-3 mr-1" /> Cancel
             </Button>
           </div>
@@ -178,7 +178,7 @@ const Orders = () => {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="text-xs">DINE IN</span>
-              <span className="bg-sidebar-accent px-3 py-1 rounded text-lg font-bold">20</span>
+              <span className="bg-sidebar-accent px-2 py-0.5 rounded text-base font-bold">20</span>
             </div>
             <div className="flex items-center gap-2 text-xs">
               <span>👤</span>
@@ -188,30 +188,30 @@ const Orders = () => {
         </div>
 
         {/* Order Notes */}
-        <div className="px-3 py-2 border-b border-sidebar-border">
+        <div className="px-2 py-1 border-b border-sidebar-border flex-shrink-0">
           <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <FileText className="w-4 h-4" />
+            <FileText className="w-3 h-3" />
             <span>Order notes</span>
           </div>
         </div>
 
         {/* Order Items */}
-        <ScrollArea className="flex-1 px-3">
-          <div className="py-2 space-y-2">
+        <ScrollArea className="flex-1 min-h-0 px-2">
+          <div className="py-1 space-y-1">
             {orderItems.map((item) => (
               <div
                 key={item.id}
-                className="bg-sidebar-accent rounded-lg p-3"
+                className="bg-sidebar-accent rounded-lg p-2"
               >
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center flex-shrink-0">
+                    <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center flex-shrink-0">
                       {item.qty}
                     </span>
                     <div>
-                      <span className="text-sm font-medium">{item.name}</span>
+                      <span className="text-xs font-medium">{item.name}</span>
                       {item.modifiers && (
-                        <div className="mt-1 text-xs text-muted-foreground space-y-0.5">
+                        <div className="mt-0.5 text-[10px] text-muted-foreground space-y-0">
                           {item.modifiers.map((mod, idx) => (
                             <div key={idx} className="flex items-center gap-1">
                               <span>{mod.startsWith("W/") ? "+" : "-"}</span>
@@ -222,7 +222,7 @@ const Orders = () => {
                       )}
                     </div>
                   </div>
-                  <span className="text-sm font-medium">$ {item.price.toFixed(2)}</span>
+                  <span className="text-xs font-medium">$ {item.price.toFixed(2)}</span>
                 </div>
               </div>
             ))}
@@ -230,8 +230,8 @@ const Orders = () => {
         </ScrollArea>
 
         {/* Order Summary */}
-        <div className="p-3 border-t border-sidebar-border">
-          <div className="space-y-1 text-sm">
+        <div className="p-2 border-t border-sidebar-border flex-shrink-0">
+          <div className="space-y-0.5 text-xs">
             <div className="flex justify-between">
               <span className="text-muted-foreground">Sub Total</span>
               <span>$ {subtotal.toFixed(2)}</span>
@@ -248,7 +248,7 @@ const Orders = () => {
               <span className="text-muted-foreground">Tax 2%</span>
               <span>$ {tax.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-lg font-bold pt-2 border-t border-sidebar-border">
+            <div className="flex justify-between text-sm font-bold pt-1 border-t border-sidebar-border">
               <span>Total</span>
               <span>$ {total.toFixed(2)}</span>
             </div>
@@ -256,23 +256,23 @@ const Orders = () => {
         </div>
 
         {/* Action Buttons */}
-        <div className="p-3 flex items-center gap-2">
+        <div className="p-2 flex items-center gap-2 flex-shrink-0">
           <Button
             variant="outline"
             size="icon"
-            className="w-12 h-12 rounded-lg border-sidebar-border"
+            className="w-10 h-10 rounded-lg border-sidebar-border"
           >
-            <Save className="w-5 h-5" />
+            <Save className="w-4 h-4" />
           </Button>
           <Button
             variant="outline"
             size="icon"
-            className="w-12 h-12 rounded-lg border-sidebar-border text-orange-500"
+            className="w-10 h-10 rounded-lg border-sidebar-border text-orange-500"
           >
-            <Flame className="w-5 h-5" />
+            <Flame className="w-4 h-4" />
           </Button>
           <Button
-            className="flex-1 h-12 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold"
+            className="flex-1 h-10 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm"
           >
             CHARGE $ {total.toFixed(2)}
           </Button>

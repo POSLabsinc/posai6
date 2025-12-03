@@ -184,28 +184,30 @@ const Orders = () => {
                 <path d="M4 6h16M4 12h16M4 18h16" />
               </svg>
             </Button>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="rounded-full border border-sidebar-border h-10 w-10"
-              onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
-              title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
-            >
-              {horizontalScrollMode ? <LayoutGrid className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
-            </Button>
             {isMenuSelectOpen && (
-              <Select value={selectedMenu} onValueChange={handleMenuSelect} open={true} onOpenChange={(open) => !open && setIsMenuSelectOpen(false)}>
-                <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-10">
-                  <SelectValue placeholder="Select Menu" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-sidebar-border">
-                  {menuList.map((menu) => (
-                    <SelectItem key={menu} value={menu} className="text-foreground">
-                      {menu}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="rounded-full border border-sidebar-border h-10 w-10"
+                  onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
+                  title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
+                >
+                  {horizontalScrollMode ? <LayoutGrid className="w-5 h-5" /> : <LayoutList className="w-5 h-5" />}
+                </Button>
+                <Select value={selectedMenu} onValueChange={handleMenuSelect}>
+                  <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-10">
+                    <SelectValue placeholder="Select Menu" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-sidebar-border">
+                    {menuList.map((menu) => (
+                      <SelectItem key={menu} value={menu} className="text-foreground">
+                        {menu}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
             )}
           </div>
           <div className="flex-1 overflow-x-auto min-w-0 scrollbar-hide">

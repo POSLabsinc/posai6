@@ -133,18 +133,7 @@ interface OrderItem {
   modifiers?: string[];
 }
 
-const initialOrderItems: OrderItem[] = [
-  { id: 1, qty: 1, name: "Classic Crispy Burger", price: 12.00 },
-  { id: 2, qty: 1, name: "Meatballs", price: 16.00 },
-  { id: 3, qty: 2, name: "Rigatoni Pasta", price: 8.00 },
-  { 
-    id: 4, 
-    qty: 1, 
-    name: "Almond crusted salmon", 
-    price: 20.00,
-    modifiers: ["Salad", "Medium Rare", "W/ Potato Wedges"]
-  },
-];
+const initialOrderItems: OrderItem[] = [];
 
 const Orders = () => {
   const [activeCategory, setActiveCategory] = useState("Food");

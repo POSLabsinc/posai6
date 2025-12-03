@@ -1,4 +1,4 @@
-import { Settings } from "lucide-react";
+import { Settings, Sparkles } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 import {
@@ -20,6 +20,7 @@ const menuItems = [
   { title: "POS", url: "/pos", icon: tableManagementIcon },
   { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings },
   { title: "Reports", url: "/reports", icon: ticketIcon },
+  { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Sparkles, isGlass: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
 
@@ -40,6 +41,14 @@ export function AppSidebar() {
                 activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
               >
                 <img src={item.icon} alt={item.title} className="w-10 h-10" />
+              </NavLink>
+            ) : item.isGlass ? (
+              <NavLink
+                to={item.url}
+                className="w-14 h-full flex items-center justify-center rounded-xl border border-sidebar-border hover:bg-gradient-to-br hover:from-orange-500/20 hover:to-amber-400/20 transition-all"
+                activeClassName="bg-gradient-to-br from-orange-500/30 to-amber-400/30 text-orange-400"
+              >
+                <item.lucideIcon className="h-5 w-5" />
               </NavLink>
             ) : (
               <NavLink

@@ -158,11 +158,12 @@ const Orders = () => {
     setIsMenuSelectOpen(false);
   };
 
-  const subtotal = 56.00;
+  const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const discount = 0.00;
   const serviceCharge = 0.00;
-  const tax = 3.00;
-  const total = 59.00;
+  const taxRate = 0.02;
+  const tax = subtotal * taxRate;
+  const total = subtotal - discount + serviceCharge + tax;
 
   return (
     <div className="flex gap-3 overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>

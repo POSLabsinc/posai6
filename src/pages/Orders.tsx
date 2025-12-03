@@ -10,10 +10,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
-const categories = ["Food", "Desserts", "Drinks", "Beer"];
+const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
+
+const menuCategories: Record<string, string[]> = {
+  "BAKERY MENU": ["Breads", "Pastries", "Cakes", "Cookies", "Croissants", "Muffins", "Donuts", "Pies"],
+  "BAR MENU": ["Food", "Desserts", "Drinks", "Beer", "Wine", "Cocktails", "Spirits", "Mocktails"],
+  "HAPPY HOUR M/W": ["Appetizers", "Wings", "Sliders", "Nachos", "Beer", "Wine", "Cocktails", "Shots"],
+  "Holiday Menu": ["Starters", "Mains", "Sides", "Desserts", "Drinks", "Specials", "Platters", "Combos"],
+  "LE BRUNCH MENU": ["Eggs", "Pancakes", "Waffles", "Omelettes", "Juice", "Coffee", "Mimosas", "Pastries"],
+  "LE DINER MENU": ["Appetizers", "Soups", "Salads", "Entrees", "Steaks", "Seafood", "Pasta", "Desserts"],
+};
+
 const subcategories = ["Iced Tea", "Soda", "Lemonade", "Sparkling", "Coffee"];
 const foodCategories = ["Appetizer", "Soup", "Entrees", "Pastas", "Pizzas", "Snacks", "Steak", "Fish", "Chicken", "Burgers", "Pan Cakes", "Vegan", "Waffles", "Pastries"];
-const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 
 const menuItems = [
   { id: 1, name: "Almond Crusted Salmon", image: "https://images.unsplash.com/photo-1467003909585-2f8a72700288?w=100&h=100&fit=crop" },
@@ -95,8 +104,8 @@ const Orders = () => {
               </svg>
             </Button>
           )}
-          <div className="flex-1 grid grid-cols-2 gap-2">
-            {categories.map((cat) => (
+          <div className="flex-1 grid grid-cols-4 gap-2">
+            {menuCategories[selectedMenu].map((cat) => (
               <Button
                 key={cat}
                 variant={activeCategory === cat ? "default" : "outline"}

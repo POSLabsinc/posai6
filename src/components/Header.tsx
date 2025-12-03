@@ -3,7 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const Header = () => {
   return (
-    <header className="flex items-center justify-between px-4 py-2 bg-sidebar text-sidebar-foreground">
+    <header className="flex items-center justify-between px-4 py-2 bg-sidebar text-sidebar-foreground h-12 flex-shrink-0">
       {/* Left Section */}
       <div className="flex items-center gap-3">
         <button className="p-1 hover:bg-sidebar-accent rounded transition-colors">

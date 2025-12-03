@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Save, Flame, Receipt, FileText, ChevronUp, ChevronDown, Search } from "lucide-react";
+import { Plus, Save, Flame, Receipt, FileText, ChevronUp, ChevronDown } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -74,7 +74,6 @@ const OrdersDesign4 = () => {
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
 
   const addToCart = (item: { id: number; name: string }) => {
     setOrderItems(prev => {
@@ -85,10 +84,6 @@ const OrdersDesign4 = () => {
       return [...prev, { id: Date.now(), qty: 1, name: item.name, price: 15.00 }];
     });
   };
-
-  const filteredMenuItems = menuItems.filter(item =>
-    item.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const tax = subtotal * 0.02;
@@ -127,34 +122,39 @@ const OrdersDesign4 = () => {
             )}
           </div>
 
-          {/* Main Categories - Flex Wrap */}
-          <div className="max-h-[140px] overflow-y-auto scrollbar-hide pt-2">
-            <div className="flex flex-wrap gap-x-3 gap-y-4">
-              {categories.map((cat) => {
+          {/* Main Categories - Flex Wrap with Separators */}
+          <div className="max-h-[120px] overflow-y-auto scrollbar-hide">
+            <div className="flex flex-wrap items-center">
+              {categories.map((cat, index) => {
                 const itemCount = categorySubcategories[cat]?.length || 0;
                 return (
-                  <button
-                    key={cat}
-                    onClick={() => {
-                      setActiveCategory(cat);
-                      setActiveSubcategory(categorySubcategories[cat]?.[0] || "");
-                      setIsDrawerOpen(true);
-                    }}
-                    className={`relative px-4 py-2 text-sm font-bold rounded-xl text-center leading-tight max-w-[140px] min-h-[44px] flex items-center justify-center transition-all duration-200 ${
-                      activeCategory === cat 
-                        ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30" 
-                        : "bg-neutral-800 text-foreground hover:bg-neutral-700"
-                    }`}
-                  >
-                    {cat}
-                    <span className={`absolute -top-2 -right-2 text-[10px] font-medium min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center ${
-                      activeCategory === cat 
-                        ? "bg-white text-orange-500" 
-                        : "bg-neutral-700 text-neutral-400"
-                    }`}>
-                      {itemCount}
-                    </span>
-                  </button>
+                  <div key={cat} className="flex items-center group">
+                    <button
+                      onClick={() => {
+                        setActiveCategory(cat);
+                        setActiveSubcategory(categorySubcategories[cat]?.[0] || "");
+                        setIsDrawerOpen(true);
+                      }}
+                      className={`px-4 py-2 text-sm font-bold rounded-xl text-center leading-tight max-w-[140px] min-h-[48px] flex flex-col items-center justify-center gap-0.5 transition-all duration-200 ${
+                        activeCategory === cat 
+                          ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30 scale-105" 
+                          : "bg-transparent text-foreground hover:bg-white/10 hover:scale-105 active:scale-95"
+                      }`}
+                    >
+                      <span>{cat}</span>
+                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
+                        activeCategory === cat 
+                          ? "bg-white/20 text-white" 
+                          : "bg-white/10 text-muted-foreground"
+                      }`}>
+                        {itemCount}
+                      </span>
+                    </button>
+                    {/* Subtle Separator */}
+                    {index < categories.length - 1 && (
+                      <div className="w-px h-6 bg-white/15 mx-0.5 flex-shrink-0 transition-opacity duration-200 group-hover:opacity-50" />
+                    )}
+                  </div>
                 );
               })}
             </div>
@@ -215,36 +215,28 @@ const OrdersDesign4 = () => {
           </div>
         )}
 
-        {/* Search Input */}
-        <div className="flex-shrink-0 px-3 py-2 border-b border-sidebar-border">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <input
-              type="text"
-              placeholder="Search menu items..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 pr-3 py-2 text-sm bg-sidebar-accent border border-sidebar-border rounded-lg text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-orange-500"
-            />
-          </div>
-        </div>
-
         {/* Menu Items Grid */}
         <ScrollArea className="flex-1 p-3">
           <div 
-            key={`${activeCategory}-${activeSubcategory}-${searchQuery}`}
+            key={`${activeCategory}-${activeSubcategory}`}
             className="grid grid-cols-3 gap-2 animate-fade-in"
           >
-            {filteredMenuItems.map((item, index) => (
+            {menuItems.map((item, index) => (
               <div
                 key={item.id}
                 onClick={() => addToCart(item)}
-                className="bg-sidebar-accent rounded-lg p-3 cursor-pointer transition-all duration-200 border border-sidebar-border hover:border-orange-500/50 hover:bg-sidebar-accent/80 active:scale-95"
+                className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-all duration-200 cursor-pointer border border-sidebar-border hover:scale-[1.02] active:scale-[0.98]"
                 style={{ animationDelay: `${index * 30}ms` }}
               >
-                <span className="text-xs font-bold leading-tight uppercase text-foreground">
+                <span className="flex-1 text-xs font-bold leading-tight uppercase text-foreground p-3">
                   {item.name}
                 </span>
+                <button
+                  onClick={(e) => { e.stopPropagation(); addToCart(item); }}
+                  className="w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
               </div>
             ))}
           </div>

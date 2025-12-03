@@ -65,8 +65,10 @@ const Orders = () => {
         {/* Main Categories */}
         <div className="flex items-center gap-2">
           <Select value={selectedMenu} onValueChange={setSelectedMenu}>
-            <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-9">
-              <SelectValue placeholder="Select Menu" />
+            <SelectTrigger className="w-10 h-10 rounded-full border-sidebar-border bg-background text-foreground p-0 justify-center [&>svg]:hidden">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
             </SelectTrigger>
             <SelectContent className="bg-popover border-sidebar-border">
               {menuList.map((menu) => (

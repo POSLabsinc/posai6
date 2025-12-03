@@ -125,14 +125,22 @@ const menuItems = [
   { id: 15, name: "Nacho Supreme", image: "https://images.unsplash.com/photo-1513456852971-30c0b8199d4d?w=100&h=100&fit=crop" },
 ];
 
-const orderItems = [
+interface OrderItem {
+  id: number;
+  qty: number;
+  name: string;
+  price: number;
+  modifiers?: string[];
+}
+
+const initialOrderItems: OrderItem[] = [
   { id: 1, qty: 1, name: "Classic Crispy Burger", price: 12.00 },
   { id: 2, qty: 1, name: "Meatballs", price: 16.00 },
   { id: 3, qty: 2, name: "Rigatoni Pasta", price: 8.00 },
   { 
     id: 4, 
     qty: 1, 
-    name: "Alomd crusted salmon", 
+    name: "Almond crusted salmon", 
     price: 20.00,
     modifiers: ["Salad", "Medium Rare", "W/ Potato Wedges"]
   },
@@ -144,6 +152,17 @@ const Orders = () => {
   const [activeFoodCategory, setActiveFoodCategory] = useState("Appetizer");
   const [selectedMenu, setSelectedMenu] = useState("BAR MENU");
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
+  const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
+
+  const addToCart = (item: { id: number; name: string }) => {
+    setOrderItems(prev => {
+      const existing = prev.find(o => o.name === item.name);
+      if (existing) {
+        return prev.map(o => o.name === item.name ? { ...o, qty: o.qty + 1 } : o);
+      }
+      return [...prev, { id: Date.now(), qty: 1, name: item.name, price: 15.00 }];
+    });
+  };
 
   const handleMenuSelect = (value: string) => {
     setSelectedMenu(value);
@@ -242,6 +261,7 @@ const Orders = () => {
             {menuItems.map((item) => (
               <div
                 key={item.id}
+                onClick={() => addToCart(item)}
                 className="flex items-center gap-2 bg-sidebar-accent/50 rounded-lg p-2 hover:bg-sidebar-accent transition-colors cursor-pointer"
               >
                 <img
@@ -254,6 +274,7 @@ const Orders = () => {
                 </span>
                 <Button
                   size="icon"
+                  onClick={(e) => { e.stopPropagation(); addToCart(item); }}
                   className="w-6 h-6 rounded-full bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0"
                 >
                   <Plus className="w-4 h-4" />

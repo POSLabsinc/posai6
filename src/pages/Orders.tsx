@@ -212,6 +212,8 @@ const Orders = () => {
           </Button>
         </div>
 
+        <div className="h-px bg-sidebar-border" />
+
         {/* Subcategories based on selected category */}
         <div className="overflow-x-auto scrollbar-hide">
           <div className="flex flex-col flex-wrap gap-2 h-[7.5rem] w-max">
@@ -231,6 +233,8 @@ const Orders = () => {
             ))}
           </div>
         </div>
+
+        <div className="h-px bg-sidebar-border" />
 
         {/* Menu Items Grid */}
         <ScrollArea className="flex-1">

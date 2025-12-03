@@ -14,6 +14,16 @@ import LiquidGlassDashboard from "./pages/LiquidGlassDashboard";
 import LiquidGlassOrders from "./pages/LiquidGlassOrders";
 import LiquidGlassMenu from "./pages/LiquidGlassMenu";
 import LiquidGlassCheckout from "./pages/LiquidGlassCheckout";
+import LiquidGlassOrders1A from "./pages/LiquidGlassOrders1A";
+import LiquidGlassOrders1B from "./pages/LiquidGlassOrders1B";
+import LiquidGlassOrders2A from "./pages/LiquidGlassOrders2A";
+import LiquidGlassOrders2B from "./pages/LiquidGlassOrders2B";
+import LiquidGlassOrders3A from "./pages/LiquidGlassOrders3A";
+import LiquidGlassOrders3B from "./pages/LiquidGlassOrders3B";
+import LiquidGlassOrders4A from "./pages/LiquidGlassOrders4A";
+import LiquidGlassOrders4B from "./pages/LiquidGlassOrders4B";
+import LiquidGlassOrders5A from "./pages/LiquidGlassOrders5A";
+import LiquidGlassOrders5B from "./pages/LiquidGlassOrders5B";
 import POS from "./pages/POS";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
@@ -39,6 +49,16 @@ const App = () => (
             <Route path="/liquid-orders" element={<LiquidGlassOrders />} />
             <Route path="/liquid-menu" element={<LiquidGlassMenu />} />
             <Route path="/liquid-checkout" element={<LiquidGlassCheckout />} />
+            <Route path="/liquid-orders-1a" element={<LiquidGlassOrders1A />} />
+            <Route path="/liquid-orders-1b" element={<LiquidGlassOrders1B />} />
+            <Route path="/liquid-orders-2a" element={<LiquidGlassOrders2A />} />
+            <Route path="/liquid-orders-2b" element={<LiquidGlassOrders2B />} />
+            <Route path="/liquid-orders-3a" element={<LiquidGlassOrders3A />} />
+            <Route path="/liquid-orders-3b" element={<LiquidGlassOrders3B />} />
+            <Route path="/liquid-orders-4a" element={<LiquidGlassOrders4A />} />
+            <Route path="/liquid-orders-4b" element={<LiquidGlassOrders4B />} />
+            <Route path="/liquid-orders-5a" element={<LiquidGlassOrders5A />} />
+            <Route path="/liquid-orders-5b" element={<LiquidGlassOrders5B />} />
             <Route path="/pos" element={<POS />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/reports" element={<Reports />} />

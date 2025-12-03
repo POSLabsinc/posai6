@@ -213,11 +213,6 @@ const Orders = () => {
               ))}
             </div>
           </div>
-          <Button variant="ghost" size="icon" className="rounded-full border border-sidebar-border flex-shrink-0">
-            <span className="w-1 h-1 bg-current rounded-full" />
-            <span className="w-1 h-1 bg-current rounded-full" />
-            <span className="w-1 h-1 bg-current rounded-full" />
-          </Button>
         </div>
 
         <div className="h-px bg-sidebar-border" />

@@ -90,7 +90,6 @@ const OrdersDesign4 = () => {
   const total = subtotal + tax;
 
   const categories = menuCategories[selectedMenu];
-  const activeIndex = categories.indexOf(activeCategory);
 
   return (
     <div className="flex gap-3 overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>
@@ -121,64 +120,35 @@ const OrdersDesign4 = () => {
                 </SelectContent>
               </Select>
             )}
-            <span className="text-sm text-muted-foreground ml-auto">Design 4: Segmented Control + Drawer</span>
           </div>
 
-          {/* Segmented Control */}
-          <div className="relative bg-sidebar-accent rounded-2xl p-1.5 overflow-x-auto scrollbar-hide">
-            <div className="flex gap-1 relative">
-              {/* Sliding Indicator */}
-              <div 
-                className="absolute top-0 bottom-0 bg-gradient-to-r from-orange-500 to-orange-600 rounded-xl transition-all duration-300 ease-out shadow-lg shadow-orange-500/40"
-                style={{
-                  width: `${100 / Math.min(categories.length, 7)}%`,
-                  left: `${(activeIndex / Math.min(categories.length, 7)) * 100}%`,
-                  maxWidth: '140px'
-                }}
-              />
-              
-              {categories.slice(0, 7).map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => {
-                    setActiveCategory(cat);
-                    setActiveSubcategory(categorySubcategories[cat]?.[0] || "");
-                    setIsDrawerOpen(true);
-                  }}
-                  className={`relative z-10 flex-1 min-w-[100px] py-3 px-4 text-sm font-bold rounded-xl transition-colors whitespace-nowrap ${
-                    activeCategory === cat 
-                      ? "text-white" 
-                      : "text-foreground hover:text-foreground/80"
-                  }`}
-                >
-                  {cat}
-                </button>
+          {/* Main Categories - Flex Wrap with Separators */}
+          <div className="max-h-[120px] overflow-y-auto scrollbar-hide">
+            <div className="flex flex-wrap items-center">
+              {categories.map((cat, index) => (
+                <div key={cat} className="flex items-center">
+                  <button
+                    onClick={() => {
+                      setActiveCategory(cat);
+                      setActiveSubcategory(categorySubcategories[cat]?.[0] || "");
+                      setIsDrawerOpen(true);
+                    }}
+                    className={`px-4 py-2 text-sm font-bold rounded-xl text-center leading-tight max-w-[140px] min-h-[48px] flex items-center justify-center transition-colors ${
+                      activeCategory === cat 
+                        ? "bg-orange-500 text-white" 
+                        : "bg-transparent text-foreground hover:bg-sidebar-accent"
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                  {/* Separator */}
+                  {index < categories.length - 1 && (
+                    <div className="w-px h-8 bg-white/30 mx-1 flex-shrink-0" />
+                  )}
+                </div>
               ))}
             </div>
           </div>
-
-          {/* More categories overflow */}
-          {categories.length > 7 && (
-            <div className="flex gap-2 mt-2 overflow-x-auto scrollbar-hide">
-              {categories.slice(7).map((cat) => (
-                <Button
-                  key={cat}
-                  onClick={() => {
-                    setActiveCategory(cat);
-                    setActiveSubcategory(categorySubcategories[cat]?.[0] || "");
-                    setIsDrawerOpen(true);
-                  }}
-                  className={`rounded-full px-4 h-9 text-sm font-medium whitespace-nowrap flex-shrink-0 ${
-                    activeCategory === cat 
-                      ? "bg-orange-500 hover:bg-orange-600 text-white" 
-                      : "bg-sidebar-accent text-foreground border border-white/30 hover:bg-sidebar-accent/80"
-                  }`}
-                >
-                  {cat}
-                </Button>
-              ))}
-            </div>
-          )}
         </div>
 
         {/* Subcategory Drawer */}

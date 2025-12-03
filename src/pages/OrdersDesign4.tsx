@@ -184,7 +184,7 @@ const OrdersDesign4 = () => {
         {/* Subcategory Drawer */}
         <div 
           className={`flex-shrink-0 bg-neutral-800/50 border-b border-sidebar-border overflow-hidden transition-all duration-300 ${
-            isDrawerOpen ? 'max-h-[200px] opacity-100' : 'max-h-0 opacity-0'
+            isDrawerOpen ? 'max-h-[320px] opacity-100' : 'max-h-0 opacity-0'
           }`}
         >
           <div className="p-3">
@@ -207,7 +207,6 @@ const OrdersDesign4 = () => {
                   variant="outline"
                   onClick={() => {
                     setActiveSubcategory(sub);
-                    setIsDrawerOpen(false);
                   }}
                   className={`rounded-xl px-3 py-2 h-auto min-h-[48px] text-sm font-medium whitespace-normal text-center leading-tight border line-clamp-3 ${
                     activeSubcategory === sub 

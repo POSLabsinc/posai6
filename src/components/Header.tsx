@@ -1,5 +1,10 @@
-import { ChevronDown, ArrowLeft, Clock, MessageSquare, RefreshCw, Bell, Wifi, Headphones } from "lucide-react";
+import { ChevronDown, ArrowLeft, Clock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import localHostIcon from "@/assets/icons/local-host.png";
+import refreshIcon from "@/assets/icons/refresh.png";
+import notificationIcon from "@/assets/icons/notification.png";
+import wifiIcon from "@/assets/icons/wifi.png";
+import supportIcon from "@/assets/icons/support.png";
 
 const Header = () => {
   return (
@@ -33,24 +38,24 @@ const Header = () => {
       {/* Right Section */}
       <div className="flex items-center gap-4">
         <button className="relative p-1 hover:bg-sidebar-accent rounded transition-colors">
-          <MessageSquare className="w-5 h-5" />
+          <img src={localHostIcon} alt="Local Host" className="w-5 h-5" />
           <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-green-500 rounded-full border border-sidebar" />
         </button>
         
         <button className="p-1 hover:bg-sidebar-accent rounded transition-colors">
-          <RefreshCw className="w-5 h-5" />
+          <img src={refreshIcon} alt="Refresh" className="w-5 h-5" />
         </button>
         
         <button className="p-1 hover:bg-sidebar-accent rounded transition-colors">
-          <Bell className="w-5 h-5" />
+          <img src={notificationIcon} alt="Notifications" className="w-5 h-5" />
         </button>
         
-        <Wifi className="w-5 h-5" />
+        <img src={wifiIcon} alt="Wifi" className="w-5 h-5" />
         
         <span className="text-sm font-medium">10:20 AM</span>
         
         <button className="p-1.5 bg-sidebar-accent rounded-md hover:bg-sidebar-accent/80 transition-colors">
-          <Headphones className="w-5 h-5 text-sidebar-foreground" />
+          <img src={supportIcon} alt="Support" className="w-5 h-5" />
         </button>
       </div>
     </header>

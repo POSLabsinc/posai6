@@ -251,18 +251,17 @@ const Orders = () => {
               <div
                 key={item.id}
                 onClick={() => addToCart(item)}
-                className="flex items-center justify-between bg-sidebar-accent rounded-lg p-3 hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border"
+                className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border"
               >
-                <span className="flex-1 text-xs font-bold leading-tight uppercase text-foreground">
+                <span className="flex-1 text-xs font-bold leading-tight uppercase text-foreground p-3">
                   {item.name}
                 </span>
-                <Button
-                  size="icon"
+                <button
                   onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                  className="w-7 h-7 rounded bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 ml-2"
+                  className="w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center"
                 >
                   <Plus className="w-4 h-4" />
-                </Button>
+                </button>
               </div>
             ))}
           </div>

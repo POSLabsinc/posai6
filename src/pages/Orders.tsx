@@ -69,7 +69,7 @@ const Orders = () => {
       {/* Left Panel - Menu */}
       <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden">
         {/* Main Categories */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-start gap-2">
           {isMenuSelectOpen ? (
             <Select value={selectedMenu} onValueChange={handleMenuSelect} open={true} onOpenChange={(open) => !open && setIsMenuSelectOpen(false)}>
               <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-9">
@@ -95,21 +95,23 @@ const Orders = () => {
               </svg>
             </Button>
           )}
-          {categories.map((cat) => (
-            <Button
-              key={cat}
-              variant={activeCategory === cat ? "default" : "outline"}
-              className={`rounded-full px-6 ${
-                activeCategory === cat 
-                  ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
-                  : "border-sidebar-border text-foreground hover:bg-sidebar-accent"
-              }`}
-              onClick={() => setActiveCategory(cat)}
-            >
-              {cat}
-            </Button>
-          ))}
-          <Button variant="ghost" size="icon" className="rounded-full border border-sidebar-border ml-auto">
+          <div className="flex-1 grid grid-cols-2 gap-2">
+            {categories.map((cat) => (
+              <Button
+                key={cat}
+                variant={activeCategory === cat ? "default" : "outline"}
+                className={`rounded-full px-6 ${
+                  activeCategory === cat 
+                    ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
+                    : "border-sidebar-border text-foreground hover:bg-sidebar-accent"
+                }`}
+                onClick={() => setActiveCategory(cat)}
+              >
+                {cat}
+              </Button>
+            ))}
+          </div>
+          <Button variant="ghost" size="icon" className="rounded-full border border-sidebar-border">
             <span className="w-1 h-1 bg-current rounded-full" />
             <span className="w-1 h-1 bg-current rounded-full" />
             <span className="w-1 h-1 bg-current rounded-full" />

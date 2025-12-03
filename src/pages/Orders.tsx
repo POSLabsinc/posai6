@@ -213,14 +213,13 @@ const Orders = () => {
         </div>
 
         {/* Subcategories based on selected category */}
-        <div className="overflow-x-auto scrollbar-hide">
+        <div className="flex-1 overflow-x-auto scrollbar-hide">
           <div className="grid grid-rows-3 grid-flow-col gap-2 w-max">
             {(categorySubcategories[activeCategory] || []).map((sub) => (
               <Button
                 key={sub}
                 variant="outline"
-                size="sm"
-                className={`rounded-full px-4 whitespace-nowrap ${
+                className={`rounded-full px-6 whitespace-nowrap ${
                   activeSubcategory === sub 
                     ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500" 
                     : "border-sidebar-border text-foreground hover:bg-sidebar-accent"

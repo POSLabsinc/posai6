@@ -122,38 +122,30 @@ const OrdersDesign4 = () => {
             )}
           </div>
 
-          {/* Main Categories - Flex Wrap with Separators */}
+          {/* Main Categories - Flex Wrap with Floating Badges */}
           <div className="max-h-[120px] overflow-y-auto scrollbar-hide">
-            <div className="flex flex-wrap items-center">
-              {categories.map((cat, index) => {
+            <div className="flex flex-wrap gap-3">
+              {categories.map((cat) => {
                 const itemCount = categorySubcategories[cat]?.length || 0;
                 return (
-                  <div key={cat} className="flex items-center group">
+                  <div key={cat} className="relative">
                     <button
                       onClick={() => {
                         setActiveCategory(cat);
                         setActiveSubcategory(categorySubcategories[cat]?.[0] || "");
                         setIsDrawerOpen(true);
                       }}
-                      className={`px-4 py-2 text-sm font-bold rounded-xl text-center leading-tight max-w-[140px] min-h-[48px] flex flex-col items-center justify-center gap-0.5 transition-all duration-200 ${
+                      className={`px-5 py-2.5 text-sm font-semibold rounded-2xl transition-all duration-200 ${
                         activeCategory === cat 
-                          ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30 scale-105" 
-                          : "bg-transparent text-foreground hover:bg-white/10 hover:scale-105 active:scale-95"
+                          ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30" 
+                          : "bg-neutral-800 text-white border border-neutral-700 hover:bg-neutral-700"
                       }`}
                     >
-                      <span>{cat}</span>
-                      <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full ${
-                        activeCategory === cat 
-                          ? "bg-white/20 text-white" 
-                          : "bg-white/10 text-muted-foreground"
-                      }`}>
-                        {itemCount}
-                      </span>
+                      {cat}
                     </button>
-                    {/* Subtle Separator */}
-                    {index < categories.length - 1 && (
-                      <div className="w-px h-6 bg-white/15 mx-0.5 flex-shrink-0 transition-opacity duration-200 group-hover:opacity-50" />
-                    )}
+                    <span className="absolute -top-2 -right-1 min-w-[22px] h-[22px] rounded-full bg-orange-500 text-white text-xs font-bold flex items-center justify-center px-1">
+                      {itemCount}
+                    </span>
                   </div>
                 );
               })}

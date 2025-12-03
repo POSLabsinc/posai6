@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Minus, Save, Flame, Receipt, FileText, ChevronUp, ChevronDown, Search } from "lucide-react";
+import { Plus, Save, Flame, Receipt, FileText, ChevronUp, ChevronDown, Search } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -86,20 +86,6 @@ const OrdersDesign4 = () => {
     });
   };
 
-  const removeFromCart = (itemName: string) => {
-    setOrderItems(prev => {
-      const existing = prev.find(o => o.name === itemName);
-      if (existing && existing.qty > 1) {
-        return prev.map(o => o.name === itemName ? { ...o, qty: o.qty - 1 } : o);
-      }
-      return prev.filter(o => o.name !== itemName);
-    });
-  };
-
-  const getItemQty = (itemName: string) => {
-    return orderItems.find(o => o.name === itemName)?.qty || 0;
-  };
-
   const filteredMenuItems = menuItems.filter(item =>
     item.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
@@ -141,39 +127,34 @@ const OrdersDesign4 = () => {
             )}
           </div>
 
-          {/* Main Categories - Flex Wrap with Separators */}
-          <div className="max-h-[120px] overflow-y-auto scrollbar-hide">
-            <div className="flex flex-wrap items-center">
-              {categories.map((cat, index) => {
+          {/* Main Categories - Flex Wrap */}
+          <div className="max-h-[140px] overflow-y-auto scrollbar-hide pt-2">
+            <div className="flex flex-wrap gap-x-3 gap-y-4">
+              {categories.map((cat) => {
                 const itemCount = categorySubcategories[cat]?.length || 0;
                 return (
-                  <div key={cat} className="flex items-center group">
-                    <button
-                      onClick={() => {
-                        setActiveCategory(cat);
-                        setActiveSubcategory(categorySubcategories[cat]?.[0] || "");
-                        setIsDrawerOpen(true);
-                      }}
-                      className={`relative px-4 py-2 text-sm font-bold rounded-xl text-center leading-tight max-w-[140px] min-h-[44px] flex items-center justify-center transition-all duration-200 ${
-                        activeCategory === cat 
-                          ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30 scale-105" 
-                          : "bg-transparent text-foreground hover:bg-white/10 hover:scale-105 active:scale-95"
-                      }`}
-                    >
-                      {cat}
-                      <span className={`absolute -top-1 -right-1 text-[9px] font-medium w-4 h-4 rounded-full flex items-center justify-center ${
-                        activeCategory === cat 
-                          ? "bg-white/30 text-white" 
-                          : "bg-white/10 text-muted-foreground"
-                      }`}>
-                        {itemCount}
-                      </span>
-                    </button>
-                    {/* Subtle Separator */}
-                    {index < categories.length - 1 && (
-                      <div className="w-px h-6 bg-white/15 mx-0.5 flex-shrink-0 transition-opacity duration-200 group-hover:opacity-50" />
-                    )}
-                  </div>
+                  <button
+                    key={cat}
+                    onClick={() => {
+                      setActiveCategory(cat);
+                      setActiveSubcategory(categorySubcategories[cat]?.[0] || "");
+                      setIsDrawerOpen(true);
+                    }}
+                    className={`relative px-4 py-2 text-sm font-bold rounded-xl text-center leading-tight max-w-[140px] min-h-[44px] flex items-center justify-center transition-all duration-200 ${
+                      activeCategory === cat 
+                        ? "bg-orange-500 text-white shadow-lg shadow-orange-500/30" 
+                        : "bg-neutral-800 text-foreground hover:bg-neutral-700"
+                    }`}
+                  >
+                    {cat}
+                    <span className={`absolute -top-2 -right-2 text-[10px] font-medium min-w-[18px] h-[18px] px-1 rounded-full flex items-center justify-center ${
+                      activeCategory === cat 
+                        ? "bg-white text-orange-500" 
+                        : "bg-neutral-700 text-neutral-400"
+                    }`}>
+                      {itemCount}
+                    </span>
+                  </button>
                 );
               })}
             </div>
@@ -254,41 +235,18 @@ const OrdersDesign4 = () => {
             key={`${activeCategory}-${activeSubcategory}-${searchQuery}`}
             className="grid grid-cols-3 gap-2 animate-fade-in"
           >
-            {filteredMenuItems.map((item, index) => {
-              const qty = getItemQty(item.name);
-              return (
-                <div
-                  key={item.id}
-                  className="flex flex-col bg-sidebar-accent rounded-lg overflow-hidden transition-all duration-200 border border-sidebar-border hover:border-orange-500/50"
-                  style={{ animationDelay: `${index * 30}ms` }}
-                >
-                  <span 
-                    onClick={() => addToCart(item)}
-                    className="flex-1 text-xs font-bold leading-tight uppercase text-foreground p-3 cursor-pointer hover:bg-sidebar-accent/80"
-                  >
-                    {item.name}
-                  </span>
-                  <div className="flex items-center border-t border-sidebar-border">
-                    <button
-                      onClick={() => removeFromCart(item.name)}
-                      disabled={qty === 0}
-                      className="flex-1 py-2 flex items-center justify-center text-muted-foreground hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                    >
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className={`w-8 text-center text-sm font-bold ${qty > 0 ? 'text-orange-500' : 'text-muted-foreground'}`}>
-                      {qty}
-                    </span>
-                    <button
-                      onClick={() => addToCart(item)}
-                      className="flex-1 py-2 flex items-center justify-center bg-orange-500 hover:bg-orange-600 text-white transition-colors"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
+            {filteredMenuItems.map((item, index) => (
+              <div
+                key={item.id}
+                onClick={() => addToCart(item)}
+                className="bg-sidebar-accent rounded-lg p-3 cursor-pointer transition-all duration-200 border border-sidebar-border hover:border-orange-500/50 hover:bg-sidebar-accent/80 active:scale-95"
+                style={{ animationDelay: `${index * 30}ms` }}
+              >
+                <span className="text-xs font-bold leading-tight uppercase text-foreground">
+                  {item.name}
+                </span>
+              </div>
+            ))}
           </div>
         </ScrollArea>
       </div>

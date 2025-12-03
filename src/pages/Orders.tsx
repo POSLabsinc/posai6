@@ -10,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import burgerCloseIcon from "@/assets/icons/burger-close.png";
+import burgerOpenIcon from "@/assets/icons/burger-open.png";
 
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 
@@ -183,9 +184,7 @@ const Orders = () => {
             {isMenuSelectOpen ? (
               <img src={burgerCloseIcon} alt="Close menu" className="w-5 h-5" />
             ) : (
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
+              <img src={burgerOpenIcon} alt="Open menu" className="w-5 h-5" />
             )}
           </Button>
           {isMenuSelectOpen && (

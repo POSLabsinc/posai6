@@ -1,4 +1,4 @@
-import { ChevronDown, Clock } from "lucide-react";
+import { Clock } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import localHostIcon from "@/assets/icons/local-host.png";
 import refreshIcon from "@/assets/icons/refresh.png";
@@ -16,7 +16,7 @@ const Header = () => {
           <img src={switchUserIcon} alt="Switch User" className="w-5 h-5" />
         </button>
         
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 bg-sidebar-accent/50 px-3 py-1.5 rounded-lg">
           <Avatar className="w-8 h-8 border-2 border-sidebar-border">
             <AvatarImage src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" alt="Mia Jone" />
             <AvatarFallback>MJ</AvatarFallback>
@@ -29,10 +29,6 @@ const Header = () => {
           <Clock className="w-4 h-4" />
           
           <span className="text-sm">Dinner Service (7:00 PM)</span>
-          
-          <button className="p-1 hover:bg-sidebar-accent rounded transition-colors">
-            <ChevronDown className="w-4 h-4" />
-          </button>
         </div>
       </div>
       

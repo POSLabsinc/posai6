@@ -295,7 +295,7 @@ const Orders = () => {
         <div className="h-px bg-sidebar-border" />
 
         {/* Menu Items Grid */}
-        <ScrollArea className="flex-1">
+        <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
           <div className="grid grid-cols-3 gap-2">
             {menuItems.map((item) => (
               <div

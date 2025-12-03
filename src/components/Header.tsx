@@ -16,7 +16,7 @@ const Header = () => {
           <img src={switchUserIcon} alt="Switch User" className="w-5 h-5" />
         </button>
         
-        <div className="flex items-center gap-2 bg-sidebar-accent/50 pl-0 pr-3 rounded-full">
+        <div className="flex items-center gap-2 bg-white/10 pl-0 pr-3 rounded-full">
           <Avatar className="w-8 h-8 border-0">
             <AvatarImage src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face" alt="Mia Jone" />
             <AvatarFallback>MJ</AvatarFallback>

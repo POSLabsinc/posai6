@@ -188,12 +188,12 @@ const Orders = () => {
             </Button>
           )}
           <div className="flex-1 overflow-x-auto min-w-0 scrollbar-hide">
-            <div className="grid grid-rows-2 grid-flow-col gap-2 w-max">
+            <div className="flex flex-col flex-wrap gap-2 h-[5.5rem] w-max">
               {menuCategories[selectedMenu].map((cat) => (
                 <Button
                   key={cat}
                   variant={activeCategory === cat ? "default" : "outline"}
-                  className={`rounded-full px-6 whitespace-nowrap ${
+                  className={`rounded-full px-8 h-10 text-sm whitespace-nowrap ${
                     activeCategory === cat 
                       ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
                       : "border-sidebar-border text-foreground hover:bg-sidebar-accent"
@@ -216,12 +216,12 @@ const Orders = () => {
 
         {/* Subcategories based on selected category */}
         <div className="overflow-x-auto scrollbar-hide">
-          <div className="flex flex-col flex-wrap gap-2 h-[7.5rem] w-max">
+          <div className="flex flex-col flex-wrap gap-2 h-[8.5rem] w-max">
             {(categorySubcategories[activeCategory] || []).map((sub) => (
               <Button
                 key={sub}
                 variant="outline"
-                className={`rounded-full px-6 whitespace-nowrap ${
+                className={`rounded-full px-8 h-10 text-sm whitespace-nowrap ${
                   activeSubcategory === sub 
                     ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500" 
                     : "border-sidebar-border text-foreground hover:bg-sidebar-accent"

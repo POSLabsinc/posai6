@@ -51,6 +51,12 @@ const Orders = () => {
   const [activeSubcategory, setActiveSubcategory] = useState("Lemonade");
   const [activeFoodCategory, setActiveFoodCategory] = useState("Appetizer");
   const [selectedMenu, setSelectedMenu] = useState("BAR MENU");
+  const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
+
+  const handleMenuSelect = (value: string) => {
+    setSelectedMenu(value);
+    setIsMenuSelectOpen(false);
+  };
 
   const subtotal = 56.00;
   const discount = 0.00;
@@ -64,20 +70,31 @@ const Orders = () => {
       <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden">
         {/* Main Categories */}
         <div className="flex items-center gap-2">
-          <Select value={selectedMenu} onValueChange={setSelectedMenu}>
-            <SelectTrigger className="w-10 h-10 rounded-full border-sidebar-border bg-background text-foreground p-0 justify-center [&>svg]:hidden">
+          {isMenuSelectOpen ? (
+            <Select value={selectedMenu} onValueChange={handleMenuSelect} open={true} onOpenChange={(open) => !open && setIsMenuSelectOpen(false)}>
+              <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-9">
+                <SelectValue placeholder="Select Menu" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover border-sidebar-border">
+                {menuList.map((menu) => (
+                  <SelectItem key={menu} value={menu} className="text-foreground">
+                    {menu}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          ) : (
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="rounded-full border border-sidebar-border"
+              onClick={() => setIsMenuSelectOpen(true)}
+            >
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M4 6h16M4 12h16M4 18h16" />
               </svg>
-            </SelectTrigger>
-            <SelectContent className="bg-popover border-sidebar-border">
-              {menuList.map((menu) => (
-                <SelectItem key={menu} value={menu} className="text-foreground">
-                  {menu}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            </Button>
+          )}
           {categories.map((cat) => (
             <Button
               key={cat}

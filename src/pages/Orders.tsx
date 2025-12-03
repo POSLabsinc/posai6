@@ -341,23 +341,23 @@ const Orders = () => {
                 className="bg-sidebar-accent rounded-lg p-2"
               >
                 <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center flex-shrink-0">
-                      {item.qty}
-                    </span>
-                    <div>
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2">
+                      <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center flex-shrink-0">
+                        {item.qty}
+                      </span>
                       <span className="text-xs font-medium">{item.name}</span>
-                      {item.modifiers && (
-                        <div className="mt-0.5 text-[10px] text-muted-foreground space-y-0">
-                          {item.modifiers.map((mod, idx) => (
-                            <div key={idx} className="flex items-center gap-1">
-                              <span>{mod.startsWith("W/") ? "+" : "-"}</span>
-                              <span>{mod}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
                     </div>
+                    {item.modifiers && (
+                      <div className="mt-0.5 ml-6 text-[10px] text-muted-foreground space-y-0">
+                        {item.modifiers.map((mod, idx) => (
+                          <div key={idx} className="flex items-center gap-1">
+                            <span>{mod.startsWith("W/") ? "+" : "-"}</span>
+                            <span>{mod}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <span className="text-xs font-medium">$ {item.price.toFixed(2)}</span>
                 </div>

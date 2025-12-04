@@ -527,6 +527,13 @@ const Orders = () => {
                   <img src={scrollViewIcon} alt="Scroll view" className="w-7 h-7" />
                 )}
               </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 p-0"
+              >
+                <img src={gridViewIcon} alt="Grid view" className="w-7 h-7" />
+              </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
                 <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-10">
                   <SelectValue placeholder="Select Menu" />

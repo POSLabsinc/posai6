@@ -343,26 +343,24 @@ const Orders = () => {
         {/* Order Header - Outside background container */}
         <div className="p-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1 gap-2">
-            <div className="flex items-center gap-2 flex-shrink min-w-0">
+            <input 
+              type="text" 
+              value={guestName} 
+              onChange={(e) => setGuestName(e.target.value)}
+              placeholder="GUEST NAME"
+              className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0"
+            />
+            <div className="flex items-center gap-1">
+              <span>📞</span>
               <input 
-                type="text" 
-                value={guestName} 
-                onChange={(e) => setGuestName(e.target.value)}
-                placeholder="GUEST NAME"
-                className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-20 min-w-0"
+                type="tel" 
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={guestPhone} 
+                onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))}
+                placeholder="XXX-XXX-XXXX"
+                className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0 text-center"
               />
-              <div className="flex items-center gap-1">
-                <span>📞</span>
-                <input 
-                  type="tel" 
-                  inputMode="numeric"
-                  pattern="[0-9]*"
-                  value={guestPhone} 
-                  onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))}
-                  placeholder="XXX-XXX-XXXX"
-                  className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0"
-                />
-              </div>
             </div>
             <span className="whitespace-nowrap flex-shrink-0">🕐 10:20 PM</span>
           </div>

@@ -538,12 +538,12 @@ const Orders = () => {
                 <img src={listViewIcon} alt="List view" className="w-5 h-5" />
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
-                <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-10">
+                <SelectTrigger className="w-[160px] rounded bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-10">
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover border-sidebar-border">
+                <SelectContent className="bg-neutral-800 border-neutral-700">
                   {menuList.map((menu) => (
-                    <SelectItem key={menu} value={menu} className="text-foreground">
+                    <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
                       {menu}
                     </SelectItem>
                   ))}

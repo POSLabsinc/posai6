@@ -695,7 +695,7 @@ const Orders = () => {
       <div className="w-[340px] flex flex-col overflow-hidden flex-shrink-0">
         {/* Order Header - Outside background container */}
         <div className="p-2 flex-shrink-0">
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-1 gap-2">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-3 gap-2">
             <input 
               type="text" 
               value={guestName} 

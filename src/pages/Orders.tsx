@@ -333,7 +333,7 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order */}
-      <div className="w-80 flex flex-col bg-sidebar-accent/30 rounded-lg overflow-hidden flex-shrink-0">
+      <div className="w-96 flex flex-col bg-sidebar-accent/30 rounded-lg overflow-hidden flex-shrink-0">
         {/* Order Header */}
         <div className="p-2 border-b border-sidebar-border flex-shrink-0">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1 gap-2">

@@ -22,7 +22,6 @@ import burgerCloseIcon from "@/assets/icons/burger-close.png";
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
 import gridViewIcon from "@/assets/icons/grid-view.png";
 import scrollViewIcon from "@/assets/icons/scroll-view.png";
-import listViewIcon from "@/assets/icons/list-view.png";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
@@ -542,29 +541,14 @@ const Orders = () => {
               </Select>
             </div>
           ) : (
-            <div className="flex items-center gap-1">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-10 w-10 p-0"
-                onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
-              >
-                <img src={burgerOpenIcon} alt="Open menu" className="w-10 h-10" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-10 w-10 p-0"
-                onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
-                title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
-              >
-                {horizontalScrollMode ? (
-                  <img src={listViewIcon} alt="List view" className="w-7 h-7" />
-                ) : (
-                  <img src={gridViewIcon} alt="Grid view" className="w-7 h-7" />
-                )}
-              </Button>
-            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-10 w-10 p-0"
+              onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
+            >
+              <img src={burgerOpenIcon} alt="Open menu" className="w-10 h-10" />
+            </Button>
           )}
           {/* Categories */}
           {menuCategories[selectedMenu].map((cat) => (

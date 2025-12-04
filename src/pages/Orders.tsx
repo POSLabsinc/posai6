@@ -531,7 +531,7 @@ const Orders = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 p-0 bg-white border border-white rounded-full"
+                className="h-10 w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
               >
                 <img src={listViewIcon} alt="List view" className="w-5 h-5" />
               </Button>

@@ -23,6 +23,7 @@ import burgerOpenIcon from "@/assets/icons/burger-open.png";
 import gridViewIcon from "@/assets/icons/grid-view.png";
 import scrollViewIcon from "@/assets/icons/scroll-view.png";
 import listViewIcon from "@/assets/icons/list-view.png";
+import thumbnailViewIcon from "@/assets/icons/thumbnail-view.png";
 import horizontalScrollIcon from "@/assets/icons/horizontal-scroll.png";
 import verticalScrollIcon from "@/assets/icons/vertical-scroll.png";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
@@ -570,7 +571,7 @@ const Orders = () => {
                 {thumbnailViewMode ? (
                   <img src={listViewIcon} alt="List view" className="w-5 h-5" />
                 ) : (
-                  <img src={burgerOpenIcon} alt="Thumbnail view" className="w-5 h-5" />
+                  <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-5 h-5" />
                 )}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>

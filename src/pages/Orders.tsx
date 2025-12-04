@@ -27,6 +27,35 @@ import horizontalScrollIcon from "@/assets/icons/horizontal-scroll.png";
 import verticalScrollIcon from "@/assets/icons/vertical-scroll.png";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
+// Food images
+import salmonImg from "@/assets/food/salmon.jpg";
+import macCheeseImg from "@/assets/food/mac-cheese.jpg";
+import ravioliImg from "@/assets/food/ravioli.jpg";
+import turkeyImg from "@/assets/food/turkey.jpg";
+import gnocchiImg from "@/assets/food/gnocchi.jpg";
+import asparagusImg from "@/assets/food/asparagus.jpg";
+import chickenBreastImg from "@/assets/food/chicken-breast.jpg";
+import paniniImg from "@/assets/food/panini.jpg";
+import fettucciniImg from "@/assets/food/fettuccini.jpg";
+import chickenParmesanImg from "@/assets/food/chicken-parmesan.jpg";
+import steakImg from "@/assets/food/steak.jpg";
+import ribsImg from "@/assets/food/ribs.jpg";
+import shrimpImg from "@/assets/food/shrimp.jpg";
+import soupImg from "@/assets/food/soup.jpg";
+import saladImg from "@/assets/food/salad.jpg";
+import pizzaImg from "@/assets/food/pizza.jpg";
+import burgerImg from "@/assets/food/burger.jpg";
+import seafoodImg from "@/assets/food/seafood.jpg";
+import pastaImg from "@/assets/food/pasta.jpg";
+import pancakesImg from "@/assets/food/pancakes.jpg";
+
+const foodImages = [
+  salmonImg, macCheeseImg, ravioliImg, turkeyImg, gnocchiImg,
+  asparagusImg, chickenBreastImg, paniniImg, fettucciniImg, chickenParmesanImg,
+  steakImg, ribsImg, shrimpImg, soupImg, saladImg,
+  pizzaImg, burgerImg, seafoodImg, pastaImg, pancakesImg
+];
+
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 
 const menuCategories: Record<string, string[]> = {
@@ -612,58 +641,31 @@ const Orders = () => {
         <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
           {thumbnailViewMode ? (
             <div className="grid grid-cols-5 gap-3">
-              {menuItems.map((item, index) => {
-                // Food-specific image IDs from Unsplash
-                const foodImageIds = [
-                  '1546069901-ba9599a7e63c', // salmon
-                  '1555939594-58d7cb561ad1', // pasta
-                  '1565299624946-b28f40a0ae38', // pizza
-                  '1540189549336-e6e99c3679fe', // chicken
-                  '1567620905732-2d1ec7ab7445', // pancakes
-                  '1565958011703-44f9829ba187', // steak
-                  '1529042410759-befb1204b468', // burger
-                  '1484723091739-30a097e8f929', // french toast
-                  '1512621776951-a57141f2eefd', // salad
-                  '1473093295043-cdd812d0e601', // pasta dish
-                  '1504674900247-0877df9cc836', // grilled meat
-                  '1476224203421-9ac39bcb3327', // food plate
-                  '1432139509613-5c4255815697', // appetizer
-                  '1559847844-5315695dadae', // shrimp
-                  '1551183053-bf91a1d81141', // soup
-                  '1544025162-d76694265947', // dessert
-                  '1482049016530-d79ae5f1639f', // seafood
-                  '1485963631004-f2f00b1d6571', // pancake stack
-                  '1571091718767-18b5b1457add', // burger close
-                  '1414235077428-338989a2e8c0', // grilled fish
-                ];
-                const imageId = foodImageIds[index % foodImageIds.length];
-                
-                return (
-                  <div
-                    key={item.id}
-                    className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700"
-                  >
-                    <div className="relative aspect-[4/3] bg-neutral-800">
-                      <img 
-                        src={`https://images.unsplash.com/photo-${imageId}?w=300&h=200&fit=crop`}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                      <button
-                        onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                        className="absolute top-2 left-2 w-8 h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors"
-                      >
-                        <Plus className="w-4 h-4 text-white" />
-                      </button>
-                    </div>
-                    <div className="p-2 bg-neutral-900" onClick={() => addToCart(item)}>
-                      <span className="text-xs font-medium text-white uppercase leading-tight line-clamp-2">
-                        {item.name}
-                      </span>
-                    </div>
+              {menuItems.map((item, index) => (
+                <div
+                  key={item.id}
+                  className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700"
+                >
+                  <div className="relative aspect-[4/3] bg-neutral-800">
+                    <img 
+                      src={foodImages[index % foodImages.length]}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); addToCart(item); }}
+                      className="absolute top-2 left-2 w-8 h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors"
+                    >
+                      <Plus className="w-4 h-4 text-white" />
+                    </button>
                   </div>
-                );
-              })}
+                  <div className="p-2 bg-neutral-900" onClick={() => addToCart(item)}>
+                    <span className="text-xs font-medium text-white uppercase leading-tight line-clamp-2">
+                      {item.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-2">

@@ -458,7 +458,7 @@ const Orders = () => {
               variant={activeCategory === cat ? "default" : "outline"}
               className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border-2 ${
                 activeCategory === cat 
-                  ? `${getCategoryBgColor(cat)} hover:opacity-90 text-white ${getCategoryBorderColor(cat)}` 
+                  ? `${getCategoryBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` 
                   : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`
               }`}
               onClick={() => setActiveCategory(cat)}

@@ -22,6 +22,7 @@ import burgerCloseIcon from "@/assets/icons/burger-close.png";
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
 import gridViewIcon from "@/assets/icons/grid-view.png";
 import scrollViewIcon from "@/assets/icons/scroll-view.png";
+import SwipeableCartItem from "@/components/SwipeableCartItem";
 
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 
@@ -200,6 +201,10 @@ const Orders = () => {
       }
       return [...prev, { id: Date.now(), qty: 1, name: item.name, price: 15.00 }];
     });
+  };
+
+  const removeFromCart = (itemId: number) => {
+    setOrderItems(prev => prev.filter(item => item.id !== itemId));
   };
 
   const handleMenuSelect = (value: string) => {
@@ -422,32 +427,31 @@ const Orders = () => {
         <ScrollArea className="flex-1 min-h-0 px-2">
           <div className="py-1 space-y-1">
             {orderItems.map((item) => (
-              <div
-                key={item.id}
-                className="bg-sidebar-accent rounded-lg p-2"
-              >
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center flex-shrink-0">
-                        {item.qty}
-                      </span>
-                      <span className="text-xs font-medium">{item.name}</span>
-                    </div>
-                    {item.modifiers && (
-                      <div className="mt-0.5 ml-6 text-[10px] text-muted-foreground space-y-0">
-                        {item.modifiers.map((mod, idx) => (
-                          <div key={idx} className="flex items-center gap-1">
-                            <span>{mod.startsWith("W/") ? "+" : "-"}</span>
-                            <span>{mod}</span>
-                          </div>
-                        ))}
+              <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
+                <div className="p-2">
+                  <div className="flex items-start justify-between">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center flex-shrink-0">
+                          {item.qty}
+                        </span>
+                        <span className="text-xs font-medium">{item.name}</span>
                       </div>
-                    )}
+                      {item.modifiers && (
+                        <div className="mt-0.5 ml-6 text-[10px] text-muted-foreground space-y-0">
+                          {item.modifiers.map((mod, idx) => (
+                            <div key={idx} className="flex items-center gap-1">
+                              <span>{mod.startsWith("W/") ? "+" : "-"}</span>
+                              <span>{mod}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-xs font-medium">$ {item.price.toFixed(2)}</span>
                   </div>
-                  <span className="text-xs font-medium">$ {item.price.toFixed(2)}</span>
                 </div>
-              </div>
+              </SwipeableCartItem>
             ))}
           </div>
         </ScrollArea>

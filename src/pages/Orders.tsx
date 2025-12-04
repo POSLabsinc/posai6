@@ -469,6 +469,7 @@ const Orders = () => {
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
+  const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
   const [orderType, setOrderType] = useState("DINE IN");
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
@@ -534,6 +535,8 @@ const Orders = () => {
                 variant="ghost"
                 size="icon"
                 className="h-10 w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
+                onClick={() => setThumbnailViewMode(!thumbnailViewMode)}
+                title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}
               >
                 <img src={listViewIcon} alt="List view" className="w-5 h-5" />
               </Button>
@@ -603,25 +606,55 @@ const Orders = () => {
 
         {/* Menu Items Grid */}
         <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
-          <div className="grid grid-cols-3 gap-2">
-            {menuItems.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => addToCart(item)}
-                className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border"
-              >
-                <span className="flex-1 text-xs font-bold leading-tight uppercase text-foreground p-3">
-                  {item.name}
-                </span>
-                <button
-                  onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                  className="w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center"
+          {thumbnailViewMode ? (
+            <div className="grid grid-cols-5 gap-3">
+              {menuItems.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex flex-col bg-white rounded-lg overflow-hidden cursor-pointer group"
                 >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            ))}
-          </div>
+                  <div className="relative aspect-[4/3] bg-gray-100">
+                    <img 
+                      src={`https://source.unsplash.com/300x200/?${encodeURIComponent(item.name.split(' ')[0])},food`}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <button
+                      onClick={(e) => { e.stopPropagation(); addToCart(item); }}
+                      className="absolute top-2 left-2 w-8 h-8 bg-white border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 transition-colors"
+                    >
+                      <Plus className="w-4 h-4 text-gray-600" />
+                    </button>
+                  </div>
+                  <div className="p-2 bg-white" onClick={() => addToCart(item)}>
+                    <span className="text-xs font-medium text-gray-800 uppercase leading-tight line-clamp-2">
+                      {item.name}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="grid grid-cols-3 gap-2">
+              {menuItems.map((item) => (
+                <div
+                  key={item.id}
+                  onClick={() => addToCart(item)}
+                  className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border"
+                >
+                  <span className="flex-1 text-xs font-bold leading-tight uppercase text-foreground p-3">
+                    {item.name}
+                  </span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); addToCart(item); }}
+                    className="w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center"
+                  >
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </ScrollArea>
       </div>
 

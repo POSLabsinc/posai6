@@ -22,6 +22,7 @@ import burgerCloseIcon from "@/assets/icons/burger-close.png";
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
 import gridViewIcon from "@/assets/icons/grid-view.png";
 import scrollViewIcon from "@/assets/icons/scroll-view.png";
+import listViewIcon from "@/assets/icons/list-view.png";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
@@ -532,7 +533,7 @@ const Orders = () => {
                 size="icon"
                 className="h-10 w-10 p-0"
               >
-                <img src={gridViewIcon} alt="Grid view" className="w-7 h-7" />
+                <img src={listViewIcon} alt="List view" className="w-7 h-7" />
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
                 <SelectTrigger className="w-[160px] rounded-full border-sidebar-border bg-background text-foreground h-10">

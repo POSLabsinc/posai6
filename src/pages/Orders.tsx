@@ -210,7 +210,7 @@ const categoryBorderColors: Record<string, string> = {
   "Tarts": "border-rose-400",
   "Scones": "border-stone-400",
   "Bagels": "border-yellow-500",
-  "Danish": "border-coral-400",
+  "Danish": "border-orange-400",
   "Baguettes": "border-amber-300",
   "Rolls": "border-orange-300",
   // HAPPY HOUR
@@ -258,7 +258,7 @@ const categoryBorderColors: Record<string, string> = {
   "Steaks": "border-red-600",
   "Seafood": "border-blue-400",
   "Pasta": "border-yellow-500",
-  "Risotto": "border-cream-400",
+  "Risotto": "border-amber-200",
   "Duck": "border-orange-600",
   "Lamb": "border-rose-500",
   "Veal": "border-pink-400",
@@ -266,8 +266,97 @@ const categoryBorderColors: Record<string, string> = {
   "Caviar": "border-slate-500",
 };
 
+// Category background colors for active state (matching border colors)
+const categoryBgColors: Record<string, string> = {
+  // BAR MENU
+  "Food": "bg-pink-500",
+  "Desserts": "bg-yellow-400",
+  "Drinks": "bg-green-500",
+  "Beer": "bg-amber-600",
+  "Wine": "bg-purple-500",
+  "Cocktails": "bg-cyan-400",
+  "Spirits": "bg-orange-500",
+  "Mocktails": "bg-lime-400",
+  "Whiskey": "bg-amber-700",
+  "Vodka": "bg-sky-400",
+  "Rum": "bg-rose-500",
+  "Tequila": "bg-emerald-500",
+  "Gin": "bg-blue-400",
+  "Brandy": "bg-amber-500",
+  // BAKERY MENU
+  "Breads": "bg-yellow-600",
+  "Pastries": "bg-pink-400",
+  "Cakes": "bg-fuchsia-500",
+  "Cookies": "bg-amber-400",
+  "Croissants": "bg-orange-400",
+  "Muffins": "bg-violet-400",
+  "Donuts": "bg-pink-300",
+  "Pies": "bg-red-400",
+  "Tarts": "bg-rose-400",
+  "Scones": "bg-stone-400",
+  "Bagels": "bg-yellow-500",
+  "Danish": "bg-orange-400",
+  "Baguettes": "bg-amber-300",
+  "Rolls": "bg-orange-300",
+  // HAPPY HOUR
+  "Appetizers": "bg-purple-400",
+  "Wings": "bg-red-500",
+  "Sliders": "bg-orange-600",
+  "Nachos": "bg-yellow-500",
+  "Shots": "bg-red-600",
+  "Tacos": "bg-green-400",
+  "Quesadillas": "bg-yellow-400",
+  "Dips": "bg-teal-400",
+  "Fries": "bg-amber-500",
+  "Pretzels": "bg-yellow-700",
+  "Poppers": "bg-lime-500",
+  // Holiday Menu
+  "Starters": "bg-cyan-500",
+  "Mains": "bg-indigo-500",
+  "Sides": "bg-teal-500",
+  "Specials": "bg-fuchsia-500",
+  "Platters": "bg-violet-500",
+  "Combos": "bg-blue-500",
+  "Turkey": "bg-orange-500",
+  "Ham": "bg-pink-500",
+  "Roasts": "bg-red-500",
+  "Stuffing": "bg-yellow-600",
+  "Gravies": "bg-amber-600",
+  // LE BRUNCH MENU
+  "Eggs": "bg-yellow-300",
+  "Pancakes": "bg-amber-400",
+  "Waffles": "bg-yellow-500",
+  "Omelettes": "bg-yellow-400",
+  "Juice": "bg-orange-400",
+  "Coffee": "bg-amber-700",
+  "Mimosas": "bg-yellow-300",
+  "Bacon": "bg-red-400",
+  "Sausage": "bg-rose-600",
+  "Toast": "bg-amber-300",
+  "Fruits": "bg-green-400",
+  "Yogurt": "bg-pink-200",
+  "Granola": "bg-amber-500",
+  // LE DINER MENU
+  "Soups": "bg-orange-300",
+  "Salads": "bg-lime-500",
+  "Entrees": "bg-indigo-500",
+  "Steaks": "bg-red-600",
+  "Seafood": "bg-blue-400",
+  "Pasta": "bg-yellow-500",
+  "Risotto": "bg-amber-200",
+  "Duck": "bg-orange-600",
+  "Lamb": "bg-rose-500",
+  "Veal": "bg-pink-400",
+  "Lobster": "bg-red-500",
+  "Caviar": "bg-slate-500",
+};
+
 const getCategoryBorderColor = (category: string) => {
   return categoryBorderColors[category] || "border-white/50";
+};
+
+const getCategoryBgColor = (category: string) => {
+  return categoryBgColors[category] || "bg-orange-500";
 };
 
 const Orders = () => {
@@ -369,7 +458,7 @@ const Orders = () => {
               variant={activeCategory === cat ? "default" : "outline"}
               className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border-2 ${
                 activeCategory === cat 
-                  ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
+                  ? `${getCategoryBgColor(cat)} hover:opacity-90 text-white ${getCategoryBorderColor(cat)}` 
                   : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`
               }`}
               onClick={() => setActiveCategory(cat)}

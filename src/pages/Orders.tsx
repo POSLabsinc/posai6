@@ -608,26 +608,29 @@ const Orders = () => {
         <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
           {thumbnailViewMode ? (
             <div className="grid grid-cols-5 gap-3">
-              {menuItems.map((item) => (
+              {menuItems.map((item, index) => (
                 <div
                   key={item.id}
-                  className="flex flex-col bg-white rounded-lg overflow-hidden cursor-pointer group"
+                  className="flex flex-col rounded-lg overflow-hidden cursor-pointer group"
                 >
-                  <div className="relative aspect-[4/3] bg-gray-100">
+                  <div className="relative aspect-[4/3] bg-neutral-800">
                     <img 
-                      src={`https://source.unsplash.com/300x200/?${encodeURIComponent(item.name.split(' ')[0])},food`}
+                      src={`https://images.unsplash.com/photo-${1546069901 + (index % 20) * 1000}-d5bdc52598d4?w=300&h=200&fit=crop`}
                       alt={item.name}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = `https://picsum.photos/seed/${item.id}/300/200`;
+                      }}
                     />
                     <button
                       onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                      className="absolute top-2 left-2 w-8 h-8 bg-white border border-gray-300 rounded flex items-center justify-center hover:bg-gray-50 transition-colors"
+                      className="absolute top-2 left-2 w-8 h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors"
                     >
-                      <Plus className="w-4 h-4 text-gray-600" />
+                      <Plus className="w-4 h-4 text-white" />
                     </button>
                   </div>
-                  <div className="p-2 bg-white" onClick={() => addToCart(item)}>
-                    <span className="text-xs font-medium text-gray-800 uppercase leading-tight line-clamp-2">
+                  <div className="p-2 bg-neutral-900" onClick={() => addToCart(item)}>
+                    <span className="text-xs font-medium text-white uppercase leading-tight line-clamp-2">
                       {item.name}
                     </span>
                   </div>

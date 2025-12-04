@@ -486,19 +486,19 @@ const Orders = () => {
             size="icon"
             className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 border-red-600"
           >
-            <img src={clearIcon} alt="Clear" className="w-5 h-5 invert" />
+            <img src={clearIcon} alt="Clear" className="w-5 h-5" />
           </Button>
           <Button
             variant="outline"
             size="icon"
             className="w-10 h-10 rounded-lg border-sidebar-border bg-sidebar"
           >
-            <img src={saveIcon} alt="Save" className="w-5 h-5 invert" />
+            <img src={saveIcon} alt="Save" className="w-5 h-5" />
           </Button>
           <Button
             className="h-10 px-4 rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-sm gap-1.5"
           >
-            <img src={fireIcon} alt="Fire" className="w-4 h-4 invert" /> FIRE
+            <img src={fireIcon} alt="Fire" className="w-4 h-4" /> FIRE
           </Button>
           <Button
             className="flex-1 h-10 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm border border-neutral-600"

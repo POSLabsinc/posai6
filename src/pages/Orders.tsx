@@ -23,6 +23,8 @@ import burgerOpenIcon from "@/assets/icons/burger-open.png";
 import gridViewIcon from "@/assets/icons/grid-view.png";
 import scrollViewIcon from "@/assets/icons/scroll-view.png";
 import listViewIcon from "@/assets/icons/list-view.png";
+import horizontalScrollIcon from "@/assets/icons/horizontal-scroll.png";
+import verticalScrollIcon from "@/assets/icons/vertical-scroll.png";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
@@ -518,14 +520,14 @@ const Orders = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 p-0"
+                className="h-10 w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
                 onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
                 title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
               >
                 {horizontalScrollMode ? (
-                  <img src={gridViewIcon} alt="Grid view" className="w-7 h-7" />
+                  <img src={verticalScrollIcon} alt="All view" className="w-5 h-5" />
                 ) : (
-                  <img src={scrollViewIcon} alt="Scroll view" className="w-7 h-7" />
+                  <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-5 h-5" />
                 )}
               </Button>
               <Button

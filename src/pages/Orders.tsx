@@ -450,25 +450,26 @@ const Orders = () => {
         </ScrollArea>
 
         {/* Order Summary */}
-        <div className="p-2 border-t border-sidebar-border flex-shrink-0">
-          <div className="space-y-0.5 text-xs">
+        <div className="p-3 border-t border-sidebar-border flex-shrink-0">
+          <div className="space-y-1.5 text-sm">
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Sub Total</span>
-              <span>$ {subtotal.toFixed(2)}</span>
+              <span className="text-foreground">Sub Total</span>
+              <span className="text-foreground">$ {subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Discount</span>
-              <span>$ {discount.toFixed(2)}</span>
+              <span className="text-red-500">Discount</span>
+              <span className="text-red-500">$ {discount.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Service Charge</span>
-              <span>$ {serviceCharge.toFixed(2)}</span>
+              <span className="text-foreground">Service Charge</span>
+              <span className="text-foreground">$ {serviceCharge.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Tax 2%</span>
-              <span>$ {tax.toFixed(2)}</span>
+              <span className="text-foreground">Tax</span>
+              <span className="text-foreground">$ {tax.toFixed(2)}</span>
             </div>
-            <div className="flex justify-between text-sm font-bold pt-1 border-t border-sidebar-border">
+            <div className="border-t border-dashed border-sidebar-border my-2" />
+            <div className="flex justify-between text-base font-bold">
               <span>Total</span>
               <span>$ {total.toFixed(2)}</span>
             </div>
@@ -480,19 +481,24 @@ const Orders = () => {
           <Button
             variant="outline"
             size="icon"
-            className="w-10 h-10 rounded-lg border-sidebar-border"
+            className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 border-red-600 text-white font-bold"
           >
-            <Save className="w-4 h-4" />
+            C
           </Button>
           <Button
             variant="outline"
             size="icon"
-            className="w-10 h-10 rounded-lg border-sidebar-border text-orange-500"
+            className="w-10 h-10 rounded-lg border-sidebar-border bg-sidebar"
           >
-            <Flame className="w-4 h-4" />
+            <Save className="w-4 h-4" />
           </Button>
           <Button
-            className="flex-1 h-10 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm"
+            className="h-10 px-4 rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-sm gap-1.5"
+          >
+            <Flame className="w-4 h-4" /> FIRE
+          </Button>
+          <Button
+            className="flex-1 h-10 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm border border-neutral-600"
           >
             CHARGE $ {total.toFixed(2)}
           </Button>

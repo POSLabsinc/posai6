@@ -436,6 +436,85 @@ const categoryTextColors: Record<string, string> = {
   "Caviar": "text-slate-500",
 };
 
+// Category hover background colors for selected subcategory
+const categoryHoverBgColors: Record<string, string> = {
+  "Food": "hover:bg-pink-500",
+  "Desserts": "hover:bg-yellow-400",
+  "Drinks": "hover:bg-green-500",
+  "Beer": "hover:bg-amber-600",
+  "Wine": "hover:bg-purple-500",
+  "Cocktails": "hover:bg-cyan-400",
+  "Spirits": "hover:bg-orange-500",
+  "Mocktails": "hover:bg-lime-400",
+  "Whiskey": "hover:bg-amber-700",
+  "Vodka": "hover:bg-sky-400",
+  "Rum": "hover:bg-rose-500",
+  "Tequila": "hover:bg-emerald-500",
+  "Gin": "hover:bg-blue-400",
+  "Brandy": "hover:bg-amber-500",
+  "Breads": "hover:bg-yellow-600",
+  "Pastries": "hover:bg-pink-400",
+  "Cakes": "hover:bg-fuchsia-500",
+  "Cookies": "hover:bg-amber-400",
+  "Croissants": "hover:bg-orange-400",
+  "Muffins": "hover:bg-violet-400",
+  "Donuts": "hover:bg-pink-300",
+  "Pies": "hover:bg-red-400",
+  "Tarts": "hover:bg-rose-400",
+  "Scones": "hover:bg-stone-400",
+  "Bagels": "hover:bg-yellow-500",
+  "Danish": "hover:bg-orange-400",
+  "Baguettes": "hover:bg-amber-300",
+  "Rolls": "hover:bg-orange-300",
+  "Appetizers": "hover:bg-purple-400",
+  "Wings": "hover:bg-red-500",
+  "Sliders": "hover:bg-orange-600",
+  "Nachos": "hover:bg-yellow-500",
+  "Shots": "hover:bg-red-600",
+  "Tacos": "hover:bg-green-400",
+  "Quesadillas": "hover:bg-yellow-400",
+  "Dips": "hover:bg-teal-400",
+  "Fries": "hover:bg-amber-500",
+  "Pretzels": "hover:bg-yellow-700",
+  "Poppers": "hover:bg-lime-500",
+  "Starters": "hover:bg-cyan-500",
+  "Mains": "hover:bg-indigo-500",
+  "Sides": "hover:bg-teal-500",
+  "Specials": "hover:bg-fuchsia-500",
+  "Platters": "hover:bg-violet-500",
+  "Combos": "hover:bg-blue-500",
+  "Turkey": "hover:bg-orange-500",
+  "Ham": "hover:bg-pink-500",
+  "Roasts": "hover:bg-red-500",
+  "Stuffing": "hover:bg-yellow-600",
+  "Gravies": "hover:bg-amber-600",
+  "Eggs": "hover:bg-yellow-300",
+  "Pancakes": "hover:bg-amber-400",
+  "Waffles": "hover:bg-yellow-500",
+  "Omelettes": "hover:bg-yellow-400",
+  "Juice": "hover:bg-orange-400",
+  "Coffee": "hover:bg-amber-700",
+  "Mimosas": "hover:bg-yellow-300",
+  "Bacon": "hover:bg-red-400",
+  "Sausage": "hover:bg-rose-600",
+  "Toast": "hover:bg-amber-300",
+  "Fruits": "hover:bg-green-400",
+  "Yogurt": "hover:bg-pink-200",
+  "Granola": "hover:bg-amber-500",
+  "Soups": "hover:bg-orange-300",
+  "Salads": "hover:bg-lime-500",
+  "Entrees": "hover:bg-indigo-500",
+  "Steaks": "hover:bg-red-600",
+  "Seafood": "hover:bg-blue-400",
+  "Pasta": "hover:bg-yellow-500",
+  "Risotto": "hover:bg-amber-200",
+  "Duck": "hover:bg-orange-600",
+  "Lamb": "hover:bg-rose-500",
+  "Veal": "hover:bg-pink-400",
+  "Lobster": "hover:bg-red-500",
+  "Caviar": "hover:bg-slate-500",
+};
+
 const getCategoryBorderColor = (category: string) => {
   return categoryBorderColors[category] || "border-white/50";
 };
@@ -446,6 +525,10 @@ const getCategoryBgColor = (category: string) => {
 
 const getCategoryTextColor = (category: string) => {
   return categoryTextColors[category] || "text-orange-500";
+};
+
+const getCategoryHoverBgColor = (category: string) => {
+  return categoryHoverBgColors[category] || "hover:bg-orange-500";
 };
 
 const Orders = () => {
@@ -568,7 +651,7 @@ const Orders = () => {
                 variant="outline"
                 className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
                   activeSubcategory === sub 
-                    ? `bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-header` 
+                    ? `bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold ${getCategoryHoverBgColor(activeCategory)} hover:text-white` 
                     : `bg-header text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-header/80`
                 }`}
                 onClick={() => setActiveSubcategory(sub)}

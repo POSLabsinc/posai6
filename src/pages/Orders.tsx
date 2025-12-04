@@ -344,7 +344,10 @@ const Orders = () => {
               <span className="text-muted-foreground">%</span> Discount
             </Button>
             <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
-              <span className="text-muted-foreground">🚫</span> No Tax
+              <ArrowRightLeft className="w-3 h-3 text-muted-foreground" /> Transfer
+            </Button>
+            <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
+              <X className="w-3 h-3 text-muted-foreground" /> No Tax
             </Button>
             <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
               <span className="text-muted-foreground">$</span> Cash Register

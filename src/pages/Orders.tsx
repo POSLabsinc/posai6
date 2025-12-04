@@ -538,7 +538,11 @@ const Orders = () => {
                 onClick={() => setThumbnailViewMode(!thumbnailViewMode)}
                 title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}
               >
-                <img src={listViewIcon} alt="List view" className="w-5 h-5" />
+                {thumbnailViewMode ? (
+                  <img src={listViewIcon} alt="List view" className="w-5 h-5" />
+                ) : (
+                  <img src={gridViewIcon} alt="Thumbnail view" className="w-5 h-5" />
+                )}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
                 <SelectTrigger className="w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-10">

@@ -192,6 +192,7 @@ const Orders = () => {
   const [orderType, setOrderType] = useState("DINE IN");
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
+  const [orderNotes, setOrderNotes] = useState("");
 
   const addToCart = (item: { id: number; name: string }) => {
     setOrderItems(prev => {
@@ -416,10 +417,16 @@ const Orders = () => {
         </div>
 
         {/* Order Notes */}
-        <div className="px-2 py-1 border-b border-sidebar-border flex-shrink-0">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-            <FileText className="w-3 h-3" />
-            <span>Order notes</span>
+        <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
+          <div className="flex items-center gap-2 bg-neutral-700 rounded px-3 py-2">
+            <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+            <input
+              type="text"
+              placeholder="Order notes"
+              value={orderNotes}
+              onChange={(e) => setOrderNotes(e.target.value)}
+              className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
+            />
           </div>
         </div>
 

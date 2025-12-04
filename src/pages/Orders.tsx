@@ -221,7 +221,7 @@ const Orders = () => {
   const total = subtotal - discount + serviceCharge + tax;
 
   return (
-    <div className="flex gap-3 overflow-hidden" style={{ height: 'calc(100vh - 60px)' }}>
+    <div className="flex gap-3 h-full overflow-hidden">
       {/* Left Panel - Menu */}
       <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden bg-neutral-900 rounded-lg p-3">
         {/* Main Categories */}

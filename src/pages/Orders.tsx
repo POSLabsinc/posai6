@@ -351,12 +351,101 @@ const categoryBgColors: Record<string, string> = {
   "Caviar": "bg-slate-500",
 };
 
+// Category text colors for selected subcategory (matching border colors)
+const categoryTextColors: Record<string, string> = {
+  // BAR MENU
+  "Food": "text-pink-500",
+  "Desserts": "text-yellow-400",
+  "Drinks": "text-green-500",
+  "Beer": "text-amber-600",
+  "Wine": "text-purple-500",
+  "Cocktails": "text-cyan-400",
+  "Spirits": "text-orange-500",
+  "Mocktails": "text-lime-400",
+  "Whiskey": "text-amber-700",
+  "Vodka": "text-sky-400",
+  "Rum": "text-rose-500",
+  "Tequila": "text-emerald-500",
+  "Gin": "text-blue-400",
+  "Brandy": "text-amber-500",
+  // BAKERY MENU
+  "Breads": "text-yellow-600",
+  "Pastries": "text-pink-400",
+  "Cakes": "text-fuchsia-500",
+  "Cookies": "text-amber-400",
+  "Croissants": "text-orange-400",
+  "Muffins": "text-violet-400",
+  "Donuts": "text-pink-300",
+  "Pies": "text-red-400",
+  "Tarts": "text-rose-400",
+  "Scones": "text-stone-400",
+  "Bagels": "text-yellow-500",
+  "Danish": "text-orange-400",
+  "Baguettes": "text-amber-300",
+  "Rolls": "text-orange-300",
+  // HAPPY HOUR
+  "Appetizers": "text-purple-400",
+  "Wings": "text-red-500",
+  "Sliders": "text-orange-600",
+  "Nachos": "text-yellow-500",
+  "Shots": "text-red-600",
+  "Tacos": "text-green-400",
+  "Quesadillas": "text-yellow-400",
+  "Dips": "text-teal-400",
+  "Fries": "text-amber-500",
+  "Pretzels": "text-yellow-700",
+  "Poppers": "text-lime-500",
+  // Holiday Menu
+  "Starters": "text-cyan-500",
+  "Mains": "text-indigo-500",
+  "Sides": "text-teal-500",
+  "Specials": "text-fuchsia-500",
+  "Platters": "text-violet-500",
+  "Combos": "text-blue-500",
+  "Turkey": "text-orange-500",
+  "Ham": "text-pink-500",
+  "Roasts": "text-red-500",
+  "Stuffing": "text-yellow-600",
+  "Gravies": "text-amber-600",
+  // LE BRUNCH MENU
+  "Eggs": "text-yellow-300",
+  "Pancakes": "text-amber-400",
+  "Waffles": "text-yellow-500",
+  "Omelettes": "text-yellow-400",
+  "Juice": "text-orange-400",
+  "Coffee": "text-amber-700",
+  "Mimosas": "text-yellow-300",
+  "Bacon": "text-red-400",
+  "Sausage": "text-rose-600",
+  "Toast": "text-amber-300",
+  "Fruits": "text-green-400",
+  "Yogurt": "text-pink-200",
+  "Granola": "text-amber-500",
+  // LE DINER MENU
+  "Soups": "text-orange-300",
+  "Salads": "text-lime-500",
+  "Entrees": "text-indigo-500",
+  "Steaks": "text-red-600",
+  "Seafood": "text-blue-400",
+  "Pasta": "text-yellow-500",
+  "Risotto": "text-amber-200",
+  "Duck": "text-orange-600",
+  "Lamb": "text-rose-500",
+  "Veal": "text-pink-400",
+  "Lobster": "text-red-500",
+  "Caviar": "text-slate-500",
+};
+
 const getCategoryBorderColor = (category: string) => {
   return categoryBorderColors[category] || "border-white/50";
 };
 
 const getCategoryBgColor = (category: string) => {
   return categoryBgColors[category] || "bg-orange-500";
+};
+
+const getCategoryTextColor = (category: string) => {
+  return categoryTextColors[category] || "text-orange-500";
 };
 
 const Orders = () => {
@@ -479,8 +568,8 @@ const Orders = () => {
                 variant="outline"
                 className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
                   activeSubcategory === sub 
-                    ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500" 
-                    : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
+                    ? `bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold` 
+                    : `bg-header text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-header/80`
                 }`}
                 onClick={() => setActiveSubcategory(sub)}
               >

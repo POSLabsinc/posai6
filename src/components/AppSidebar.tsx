@@ -27,16 +27,17 @@ const menuItems = [
 export function AppSidebar() {
   return (
     <Sidebar collapsible="none" className="w-20 border-r-0">
-      <SidebarContent className="flex flex-col h-full py-2 gap-2 px-2">
-        {/* Logo - outside container */}
-        <div className="flex items-center justify-center h-14 shrink-0">
-          <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center border border-sidebar-border">
-            <img src={logoItem.icon} alt={logoItem.title} className="w-10 h-10" />
-          </div>
-        </div>
-
-        {/* Buttons container with rounded background */}
+      <SidebarContent className="flex flex-col h-full py-2 px-2">
+        {/* All items container with rounded background */}
         <div className="flex-1 bg-neutral-900 rounded-2xl flex flex-col gap-1 p-1.5">
+          {/* Logo */}
+          <div className="flex items-center justify-center h-14 shrink-0">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+              <img src={logoItem.icon} alt={logoItem.title} className="w-10 h-10" />
+            </div>
+          </div>
+
+          {/* Menu items */}
           {menuItems.map((item) => (
             <div key={item.title} className="flex items-center justify-center flex-1 min-h-0">
               {item.isLast ? (

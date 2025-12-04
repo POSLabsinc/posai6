@@ -568,7 +568,7 @@ const Orders = () => {
                 variant="outline"
                 className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
                   activeSubcategory === sub 
-                    ? `bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold` 
+                    ? `bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-header` 
                     : `bg-header text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-header/80`
                 }`}
                 onClick={() => setActiveSubcategory(sub)}

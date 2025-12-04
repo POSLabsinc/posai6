@@ -339,22 +339,24 @@ const Orders = () => {
             <span>🕐 10:20 PM</span>
           </div>
           
-          <div className="flex items-center gap-2 mb-2">
-            <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
-              <span className="text-muted-foreground">%</span> Discount
-            </Button>
-            <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
-              <ArrowRightLeft className="w-3 h-3 text-muted-foreground" /> Transfer
-            </Button>
-            <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
-              <X className="w-3 h-3 text-muted-foreground" /> No Tax
-            </Button>
-            <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
-              <span className="text-muted-foreground">$</span> Cash Register
-            </Button>
-            <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5">
-              <Receipt className="w-3 h-3 text-muted-foreground" /> Receipt
-            </Button>
+          <div className="overflow-x-auto scrollbar-hide mb-2">
+            <div className="flex items-center gap-2 w-max">
+              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+                <span className="text-muted-foreground">%</span> Discount
+              </Button>
+              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+                <ArrowRightLeft className="w-3 h-3 text-muted-foreground" /> Transfer
+              </Button>
+              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+                <X className="w-3 h-3 text-muted-foreground" /> No Tax
+              </Button>
+              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+                <span className="text-muted-foreground">$</span> Cash Register
+              </Button>
+              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+                <Receipt className="w-3 h-3 text-muted-foreground" /> Receipt
+              </Button>
+            </div>
           </div>
 
           <div className="flex items-center justify-between">

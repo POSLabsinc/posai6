@@ -181,6 +181,31 @@ const initialOrderItems: OrderItem[] = [];
 
 const orderTypes = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE", "SCHEDULED", "PHONE-IN", "CUSTOM"];
 
+// Category border colors based on reference design
+const categoryBorderColors: Record<string, string> = {
+  "Food": "border-pink-500",
+  "Desserts": "border-yellow-400",
+  "Drinks": "border-green-500",
+  "Beer": "border-neutral-600",
+  "Soda": "border-pink-400",
+  "Lemonade": "border-yellow-400",
+  "Sparkling": "border-green-400",
+  "Coffee": "border-amber-700",
+  "Tea": "border-orange-500",
+  "Appetizer": "border-purple-500",
+  "Main Course": "border-blue-500",
+  "Salads": "border-lime-500",
+  "Soup": "border-rose-500",
+  "Starters": "border-cyan-500",
+  "Entrees": "border-indigo-500",
+  "Sides": "border-teal-500",
+  "Specials": "border-fuchsia-500",
+};
+
+const getCategoryBorderColor = (category: string) => {
+  return categoryBorderColors[category] || "border-white/50";
+};
+
 const Orders = () => {
   const [activeCategory, setActiveCategory] = useState("Food");
   const [activeSubcategory, setActiveSubcategory] = useState("Lemonade");
@@ -278,10 +303,10 @@ const Orders = () => {
             <Button
               key={cat}
               variant={activeCategory === cat ? "default" : "outline"}
-              className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
+              className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border-2 ${
                 activeCategory === cat 
                   ? "bg-orange-500 hover:bg-orange-600 text-white border-orange-500" 
-                  : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
+                  : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`
               }`}
               onClick={() => setActiveCategory(cat)}
             >
@@ -299,10 +324,10 @@ const Orders = () => {
               <Button
                 key={sub}
                 variant="outline"
-                className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
+                className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border-2 ${
                   activeSubcategory === sub 
                     ? "bg-amber-500 hover:bg-amber-600 text-black border-amber-500" 
-                    : "bg-header text-header-foreground border-white/50 hover:bg-header/80"
+                    : `bg-header text-header-foreground ${getCategoryBorderColor(sub)} hover:bg-header/80`
                 }`}
                 onClick={() => setActiveSubcategory(sub)}
               >

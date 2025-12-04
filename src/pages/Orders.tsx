@@ -339,9 +339,9 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order */}
-      <div className="w-[340px] flex flex-col bg-sidebar-accent/30 rounded-lg overflow-hidden flex-shrink-0">
-        {/* Order Header */}
-        <div className="p-2 border-b border-sidebar-border flex-shrink-0">
+      <div className="w-[340px] flex flex-col overflow-hidden flex-shrink-0">
+        {/* Order Header - Outside background container */}
+        <div className="p-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1 gap-2">
             <div className="flex items-center gap-2 flex-shrink min-w-0">
               <input 
@@ -416,8 +416,10 @@ const Orders = () => {
           </div>
         </div>
 
-        {/* Order Notes */}
-        <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
+        {/* Background Container for Order Content */}
+        <div className="flex-1 flex flex-col bg-sidebar-accent/30 rounded-lg overflow-hidden min-h-0">
+          {/* Order Notes */}
+          <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
           <div className="flex items-center gap-2 bg-neutral-700 rounded px-3 py-2">
             <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             <input
@@ -486,9 +488,10 @@ const Orders = () => {
               <span>$ {total.toFixed(2)}</span>
             </div>
           </div>
+          </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Action Buttons - Outside background container */}
         <div className="p-2 flex items-center gap-2 flex-shrink-0">
           <Button
             variant="outline"

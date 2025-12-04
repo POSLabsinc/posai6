@@ -432,31 +432,29 @@ const Orders = () => {
 
         {/* Order Items */}
         <ScrollArea className="flex-1 min-h-0 px-2">
-          <div className="py-1 space-y-1">
+          <div className="py-1 space-y-2">
             {orderItems.map((item) => (
               <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
-                <div className="p-2">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center gap-2">
-                        <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] flex items-center justify-center flex-shrink-0">
-                          {item.qty}
-                        </span>
-                        <span className="text-xs font-medium">{item.name}</span>
-                      </div>
-                      {item.modifiers && (
-                        <div className="mt-0.5 ml-6 text-[10px] text-muted-foreground space-y-0">
-                          {item.modifiers.map((mod, idx) => (
-                            <div key={idx} className="flex items-center gap-1">
-                              <span>{mod.startsWith("W/") ? "+" : "-"}</span>
-                              <span>{mod}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                <div className="p-3 border border-sidebar-border rounded-lg">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                        {item.qty}
+                      </span>
+                      <span className="text-sm font-medium text-foreground">{item.name}</span>
                     </div>
-                    <span className="text-xs font-medium">$ {item.price.toFixed(2)}</span>
+                    <span className="text-sm font-medium text-foreground">$ {item.price.toFixed(2)}</span>
                   </div>
+                  {item.modifiers && item.modifiers.length > 0 && (
+                    <div className="mt-2 ml-8 space-y-0.5">
+                      {item.modifiers.map((mod, idx) => (
+                        <div key={idx} className="flex items-center gap-1 text-xs text-muted-foreground">
+                          <span>{mod.startsWith("W/") ? "+" : "-"}</span>
+                          <span>{mod}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </SwipeableCartItem>
             ))}

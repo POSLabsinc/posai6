@@ -652,46 +652,46 @@ const Orders = () => {
       {/* Left Panel - Menu */}
       <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden bg-neutral-900 rounded-lg p-3">
         {/* Main Categories */}
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-1 md:gap-2">
           {/* Menu Controls Group */}
           {isMenuSelectOpen ? (
-            <div className="flex items-center gap-2 bg-sidebar-accent rounded-full px-2 py-1">
+            <div className="flex items-center gap-1 md:gap-2 bg-sidebar-accent rounded-full px-1 md:px-2 py-1">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-10 w-10 p-0"
+                className="h-7 md:h-10 w-7 md:w-10 p-0"
                 onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
               >
-                <img src={burgerCloseIcon} alt="Close menu" className="w-7 h-7" />
+                <img src={burgerCloseIcon} alt="Close menu" className="w-5 md:w-7 h-5 md:h-7" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
+                className="h-7 md:h-10 w-7 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
                 onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
                 title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
               >
                 {horizontalScrollMode ? (
-                  <img src={verticalScrollIcon} alt="All view" className="w-5 h-5" />
+                  <img src={verticalScrollIcon} alt="All view" className="w-4 md:w-5 h-4 md:h-5" />
                 ) : (
-                  <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-5 h-5" />
+                  <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-4 md:w-5 h-4 md:h-5" />
                 )}
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
+                className="h-7 md:h-10 w-7 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
                 onClick={() => setThumbnailViewMode(!thumbnailViewMode)}
                 title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}
               >
                 {thumbnailViewMode ? (
-                  <img src={listViewIcon} alt="List view" className="w-5 h-5" />
+                  <img src={listViewIcon} alt="List view" className="w-4 md:w-5 h-4 md:h-5" />
                 ) : (
-                  <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-5 h-5" />
+                  <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-4 md:w-5 h-4 md:h-5" />
                 )}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
-                <SelectTrigger className="w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-10">
+                <SelectTrigger className="w-[120px] md:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-7 md:h-10 text-xs md:text-sm">
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-neutral-700">
@@ -707,10 +707,10 @@ const Orders = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-10 w-10 p-0"
+              className="h-7 md:h-10 w-7 md:w-10 p-0"
               onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
             >
-              <img src={burgerOpenIcon} alt="Open menu" className="w-10 h-10" />
+              <img src={burgerOpenIcon} alt="Open menu" className="w-7 md:w-10 h-7 md:h-10" />
             </Button>
           )}
           {/* Categories */}
@@ -718,7 +718,7 @@ const Orders = () => {
             <Button
               key={cat}
               variant={activeCategory === cat ? "default" : "outline"}
-              className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border-2 ${
+              className={`rounded-full px-3 md:px-8 h-7 md:h-10 text-xs md:text-sm whitespace-nowrap border-2 ${
                 activeCategory === cat 
                   ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` 
                   : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`
@@ -733,13 +733,13 @@ const Orders = () => {
         <div className="h-px bg-sidebar-border" />
 
         {/* Subcategories based on selected category */}
-        <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[8.5rem]'}`}>
-          <div className={`flex gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
+        <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[8.5rem]'}`}>
+          <div className={`flex gap-1 md:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
             {(categorySubcategories[activeCategory] || []).map((sub) => (
               <Button
                 key={sub}
                 variant="outline"
-                className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border ${
+                className={`rounded-full px-3 md:px-8 h-7 md:h-10 text-xs md:text-sm whitespace-nowrap border ${
                   activeSubcategory === sub 
                     ? `bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-header` 
                     : `bg-header text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-header/80`

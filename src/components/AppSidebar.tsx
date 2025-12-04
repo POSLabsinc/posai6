@@ -1,4 +1,4 @@
-import { Settings, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 
 import {
@@ -18,7 +18,6 @@ const menuItems = [
   { title: "Dashboard", url: "/", icon: dashboardIcon },
   { title: "Orders", url: "/orders", icon: orderIcon },
   { title: "POS", url: "/pos", icon: tableManagementIcon },
-  { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings },
   { title: "Reports", url: "/reports", icon: ticketIcon },
   { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Sparkles, isGlass: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },

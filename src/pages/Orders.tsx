@@ -444,6 +444,11 @@ const getCategoryBgColor = (category: string) => {
   return categoryBgColors[category] || "bg-orange-500";
 };
 
+const getCategoryHoverBgColor = (category: string) => {
+  const bgColor = categoryBgColors[category] || "bg-orange-500";
+  return bgColor.replace("bg-", "hover:bg-");
+};
+
 const getCategoryTextColor = (category: string) => {
   return categoryTextColors[category] || "text-orange-500";
 };
@@ -552,7 +557,7 @@ const Orders = () => {
               variant={activeCategory === cat ? "default" : "outline"}
               className={`rounded-full px-8 h-10 text-sm whitespace-nowrap border-2 ${
                 activeCategory === cat 
-                  ? `${getCategoryBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` 
+                  ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` 
                   : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`
               }`}
               onClick={() => setActiveCategory(cat)}

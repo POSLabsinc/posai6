@@ -538,7 +538,7 @@ const Orders = () => {
                 <img src={listViewIcon} alt="List view" className="w-5 h-5" />
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
-                <SelectTrigger className="w-[160px] rounded bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-10">
+                <SelectTrigger className="w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-10">
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-neutral-700">

@@ -7,6 +7,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import burgerCloseIcon from "@/assets/icons/burger-close.png";
@@ -169,6 +175,8 @@ interface OrderItem {
 
 const initialOrderItems: OrderItem[] = [];
 
+const orderTypes = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE", "SCHEDULED", "PHONE-IN", "CUSTOM"];
+
 const Orders = () => {
   const [activeCategory, setActiveCategory] = useState("Food");
   const [activeSubcategory, setActiveSubcategory] = useState("Lemonade");
@@ -177,6 +185,7 @@ const Orders = () => {
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
+  const [orderType, setOrderType] = useState("DINE IN");
 
   const addToCart = (item: { id: number; name: string }) => {
     setOrderItems(prev => {
@@ -347,7 +356,24 @@ const Orders = () => {
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-xs">DINE IN</span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-1 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
+                    {orderType} <ChevronDown className="w-3 h-3" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
+                  {orderTypes.map((type) => (
+                    <DropdownMenuItem
+                      key={type}
+                      onClick={() => setOrderType(type)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer"
+                    >
+                      {type}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
               <span className="bg-sidebar-accent px-2 py-0.5 rounded text-base font-bold">20</span>
             </div>
             <div className="flex items-center gap-2 text-xs">

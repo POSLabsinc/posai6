@@ -435,9 +435,9 @@ const Orders = () => {
           <div className="py-1 space-y-2">
             {orderItems.map((item) => (
               <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
-                <div className="p-3 border border-sidebar-border rounded-lg relative">
-                  {/* Swipe hint gradient */}
-                  <div className="absolute right-0 top-0 bottom-0 w-6 bg-gradient-to-l from-white/10 to-transparent rounded-r-lg pointer-events-none" />
+                <div className="p-3 border border-sidebar-border rounded-lg relative overflow-hidden">
+                  {/* Swipe hint bar */}
+                  <div className="absolute right-0 top-0 bottom-0 w-1.5 bg-white/20 rounded-r-lg" />
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">

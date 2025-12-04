@@ -13,7 +13,7 @@ export function Layout({ children }: LayoutProps) {
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <SidebarProvider defaultOpen={true}>
           <AppSidebar />
-          <main className="flex-1 p-3 overflow-hidden bg-neutral-900">
+          <main className="flex-1 p-3 overflow-hidden bg-black">
             {children}
           </main>
         </SidebarProvider>

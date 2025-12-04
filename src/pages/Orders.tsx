@@ -186,6 +186,8 @@ const Orders = () => {
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [orderType, setOrderType] = useState("DINE IN");
+  const [guestName, setGuestName] = useState("");
+  const [guestPhone, setGuestPhone] = useState("");
 
   const addToCart = (item: { id: number; name: string }) => {
     setOrderItems(prev => {
@@ -333,8 +335,23 @@ const Orders = () => {
         <div className="p-2 border-b border-sidebar-border flex-shrink-0">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-1">
             <div className="flex items-center gap-2">
-              <span>GUEST NAME</span>
-              <span>📞 (XXX)XXX-XXXX</span>
+              <input 
+                type="text" 
+                value={guestName} 
+                onChange={(e) => setGuestName(e.target.value)}
+                placeholder="GUEST NAME"
+                className="bg-transparent border-b border-sidebar-border focus:border-orange-500 outline-none text-foreground placeholder:text-muted-foreground w-24"
+              />
+              <div className="flex items-center gap-1">
+                <span>📞</span>
+                <input 
+                  type="tel" 
+                  value={guestPhone} 
+                  onChange={(e) => setGuestPhone(e.target.value)}
+                  placeholder="(XXX)XXX-XXXX"
+                  className="bg-transparent border-b border-sidebar-border focus:border-orange-500 outline-none text-foreground placeholder:text-muted-foreground w-28"
+                />
+              </div>
             </div>
             <span>🕐 10:20 PM</span>
           </div>

@@ -1,5 +1,8 @@
 import { useState } from "react";
-import { Plus, Save, Flame, Receipt, ArrowRightLeft, X, FileText, ChevronDown } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown } from "lucide-react";
+import clearIcon from "@/assets/icons/clear.png";
+import saveIcon from "@/assets/icons/save.png";
+import fireIcon from "@/assets/icons/fire.png";
 import {
   Select,
   SelectContent,
@@ -481,21 +484,21 @@ const Orders = () => {
           <Button
             variant="outline"
             size="icon"
-            className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 border-red-600 text-white font-bold"
+            className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 border-red-600"
           >
-            C
+            <img src={clearIcon} alt="Clear" className="w-5 h-5 invert" />
           </Button>
           <Button
             variant="outline"
             size="icon"
             className="w-10 h-10 rounded-lg border-sidebar-border bg-sidebar"
           >
-            <Save className="w-4 h-4" />
+            <img src={saveIcon} alt="Save" className="w-5 h-5 invert" />
           </Button>
           <Button
             className="h-10 px-4 rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-sm gap-1.5"
           >
-            <Flame className="w-4 h-4" /> FIRE
+            <img src={fireIcon} alt="Fire" className="w-4 h-4 invert" /> FIRE
           </Button>
           <Button
             className="flex-1 h-10 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm border border-neutral-600"

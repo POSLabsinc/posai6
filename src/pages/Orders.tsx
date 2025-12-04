@@ -533,7 +533,122 @@ const Orders = () => {
   const total = subtotal - discount + serviceCharge + tax;
 
   return (
-    <div className="flex gap-3 h-full overflow-hidden">
+    <div className="flex flex-col md:flex-row gap-3 h-full overflow-hidden pb-16 md:pb-0">
+      {/* Right Panel - Order (Shows first on mobile) */}
+      <div className="md:hidden flex flex-col overflow-hidden flex-shrink-0">
+        {/* Order Header - Outside background container */}
+        <div className="p-2 flex-shrink-0">
+          <div className="flex items-center justify-between text-xs text-muted-foreground mb-2 gap-2">
+            <input 
+              type="text" 
+              value={guestName} 
+              onChange={(e) => setGuestName(e.target.value)}
+              placeholder="GUEST NAME"
+              className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0 font-medium"
+            />
+            <div className="flex items-center gap-1">
+              <span>📞</span>
+              <input 
+                type="tel" 
+                inputMode="numeric"
+                pattern="[0-9]*"
+                value={guestPhone} 
+                onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))}
+                placeholder="(XXX) XXX-XXXX"
+                className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-28 min-w-0 text-center"
+              />
+            </div>
+            <span className="whitespace-nowrap flex-shrink-0">🕐 12:30 PM</span>
+          </div>
+          
+          <div className="overflow-x-auto scrollbar-hide mb-2">
+            <div className="flex items-center gap-2 w-max">
+              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+                <span className="text-muted-foreground">%</span> Discount
+              </Button>
+              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+                <X className="w-3 h-3 text-muted-foreground" /> No Tax
+              </Button>
+              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+                <span className="text-muted-foreground">$</span> Open Register
+              </Button>
+              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+                <Receipt className="w-3 h-3 text-muted-foreground" /> Gift Card
+              </Button>
+              <Button variant="secondary" size="icon" className="h-7 w-7 rounded-full bg-sidebar border border-sidebar-border">
+                <Plus className="w-3 h-3" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Background Container for Order Content */}
+        <div className="flex flex-col bg-sidebar-accent/30 rounded-lg overflow-hidden min-h-0 mx-2">
+          {/* Order Type & Guest Info */}
+          <div className="flex items-center justify-between px-3 py-2 border-b border-sidebar-border">
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-1 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
+                    {orderType} <ChevronDown className="w-3 h-3" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
+                  {orderTypes.map((type) => (
+                    <DropdownMenuItem
+                      key={type}
+                      onClick={() => setOrderType(type)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer"
+                    >
+                      {type}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+            <div className="flex items-center gap-2 text-xs">
+              <span>👤</span>
+              <span>Dustin H</span>
+              <button className="ml-1 p-1">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          {/* Mobile Empty Order State */}
+          <div className="flex flex-col items-center justify-center py-6">
+            {orderItems.length === 0 ? (
+              <>
+                <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
+                <span className="text-muted-foreground text-sm">Let's create an order</span>
+              </>
+            ) : (
+              <ScrollArea className="w-full max-h-32 px-2">
+                <div className="py-1 space-y-2">
+                  {orderItems.map((item) => (
+                    <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
+                      <div className="p-2 border border-sidebar-border rounded-lg">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                              {item.qty}
+                            </span>
+                            <span className="text-sm font-medium text-foreground">{item.name}</span>
+                          </div>
+                          <span className="text-sm font-medium text-foreground">$ {item.price.toFixed(2)}</span>
+                        </div>
+                      </div>
+                    </SwipeableCartItem>
+                  ))}
+                </div>
+              </ScrollArea>
+            )}
+          </div>
+        </div>
+      </div>
+
       {/* Left Panel - Menu */}
       <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden bg-neutral-900 rounded-lg p-3">
         {/* Main Categories */}
@@ -642,7 +757,7 @@ const Orders = () => {
         {/* Menu Items Grid */}
         <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
           {thumbnailViewMode ? (
-            <div className="grid grid-cols-5 gap-3">
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
               {menuItems.map((item, index) => (
                 <div
                   key={item.id}
@@ -670,19 +785,19 @@ const Orders = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
               {menuItems.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => addToCart(item)}
                   className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border"
                 >
-                  <span className="flex-1 text-xs font-bold leading-tight uppercase text-foreground p-3">
+                  <span className="flex-1 text-xs font-bold leading-tight uppercase text-foreground p-2 md:p-3">
                     {item.name}
                   </span>
                   <button
                     onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                    className="w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center"
+                    className="w-8 md:w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center"
                   >
                     <Plus className="w-4 h-4" />
                   </button>
@@ -693,8 +808,8 @@ const Orders = () => {
         </ScrollArea>
       </div>
 
-      {/* Right Panel - Order */}
-      <div className="w-[340px] flex flex-col overflow-hidden flex-shrink-0">
+      {/* Right Panel - Order (Desktop only) */}
+      <div className="hidden md:flex w-[340px] flex-col overflow-hidden flex-shrink-0">
         {/* Order Header - Outside background container */}
         <div className="p-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-3 gap-2">
@@ -880,6 +995,34 @@ const Orders = () => {
           </div>
           </div>
         </div>
+      </div>
+
+      {/* Bottom Navigation - Mobile Only */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-neutral-900 border-t border-neutral-700 flex items-center justify-around py-2 px-4 z-50">
+        <button className="flex flex-col items-center gap-1 px-4 py-1 rounded-lg bg-neutral-800 border border-neutral-600">
+          <Plus className="w-5 h-5" />
+          <span className="text-xs">New Order</span>
+        </button>
+        <button className="flex flex-col items-center gap-1 px-4 py-1">
+          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <rect x="3" y="3" width="7" height="7" />
+            <rect x="14" y="3" width="7" height="7" />
+            <rect x="3" y="14" width="7" height="7" />
+            <rect x="14" y="14" width="7" height="7" />
+          </svg>
+          <span className="text-xs text-muted-foreground">Table Order</span>
+        </button>
+        <button className="flex flex-col items-center gap-1 px-4 py-1">
+          <Receipt className="w-5 h-5 text-muted-foreground" />
+          <span className="text-xs text-muted-foreground">Tickets</span>
+        </button>
+        <button className="flex flex-col items-center gap-1 px-4 py-1">
+          <svg className="w-5 h-5 text-muted-foreground" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z" />
+          </svg>
+          <span className="text-xs text-muted-foreground">Settings</span>
+        </button>
       </div>
     </div>
   );

@@ -349,7 +349,7 @@ const Orders = () => {
                 value={guestName} 
                 onChange={(e) => setGuestName(e.target.value)}
                 placeholder="GUEST NAME"
-                className="bg-transparent border-b border-sidebar-border focus:border-orange-500 outline-none text-foreground placeholder:text-muted-foreground w-20 min-w-0"
+                className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-20 min-w-0"
               />
               <div className="flex items-center gap-1">
                 <span>📞</span>
@@ -360,7 +360,7 @@ const Orders = () => {
                   value={guestPhone} 
                   onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))}
                   placeholder="XXX-XXX-XXXX"
-                  className="bg-transparent border-b border-sidebar-border focus:border-orange-500 outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0"
+                  className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0"
                 />
               </div>
             </div>

@@ -491,7 +491,7 @@ const Orders = () => {
           <Button
             variant="outline"
             size="icon"
-            className="w-10 h-10 rounded-lg border-sidebar-border bg-sidebar"
+            className="w-10 h-10 rounded-lg border-sidebar-border bg-white/20"
           >
             <img src={saveIcon} alt="Save" className="w-5 h-5" />
           </Button>

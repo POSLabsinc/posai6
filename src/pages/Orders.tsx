@@ -485,6 +485,7 @@ const Orders = () => {
             variant="outline"
             size="icon"
             className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 border-red-600"
+            onClick={() => setOrderItems([])}
           >
             <img src={clearIcon} alt="Clear" className="w-5 h-5" />
           </Button>

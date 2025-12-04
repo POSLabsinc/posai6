@@ -1,4 +1,4 @@
-import { Clock } from "lucide-react";
+import dinnerIcon from "@/assets/icons/dinner.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import localHostIcon from "@/assets/icons/local-host.png";
 import refreshIcon from "@/assets/icons/refresh.png";
@@ -26,7 +26,7 @@ const Header = () => {
           
           <div className="w-px h-4 bg-sidebar-foreground/30 mx-1" />
           
-          <Clock className="w-4 h-4" />
+          <img src={dinnerIcon} alt="Dinner" className="w-4 h-4" />
           
           <span className="text-sm">Dinner Service (7:00 PM)</span>
         </div>

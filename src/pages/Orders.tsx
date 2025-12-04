@@ -541,7 +541,7 @@ const Orders = () => {
                 {thumbnailViewMode ? (
                   <img src={listViewIcon} alt="List view" className="w-5 h-5" />
                 ) : (
-                  <img src={gridViewIcon} alt="Thumbnail view" className="w-5 h-5" />
+                  <img src={burgerOpenIcon} alt="Thumbnail view" className="w-5 h-5" />
                 )}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>

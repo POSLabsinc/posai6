@@ -103,6 +103,11 @@ const SwipeableCartItem = ({ children, onDelete }: SwipeableCartItemProps) => {
         onMouseLeave={handleMouseLeave}
       >
         {children}
+        {/* Swipe hint bar - hides when swiping */}
+        <div 
+          className="absolute right-0 top-0 bottom-0 w-1.5 bg-white/20 rounded-r-lg transition-opacity duration-200"
+          style={{ opacity: translateX < 0 ? 0 : 1 }}
+        />
       </div>
     </div>
   );

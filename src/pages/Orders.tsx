@@ -20,6 +20,7 @@ import SwipeableCartItem from "@/components/SwipeableCartItem";
 import grabberIcon from "@/assets/icons/grabber.png";
 import phoneIcon from "@/assets/icons/phone-icon.png";
 import timeIcon from "@/assets/icons/time-icon.png";
+import runnerIcon from "@/assets/icons/runner.png";
 
 // Food images
 import salmonImg from "@/assets/food/salmon.jpg";
@@ -755,13 +756,13 @@ const Orders = () => {
         </div>
 
         {/* Background Container for Order Content */}
-        <div className="flex flex-col bg-sidebar-accent/30 rounded-lg overflow-hidden min-h-0 mx-2">
+        <div className="flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden min-h-0 mx-2">
           {/* Order Type & Guest Info */}
           <div className="flex items-center justify-between px-3 py-2 border-b border-sidebar-border">
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
+                  <button className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}>
                     {orderType} <ChevronDown className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
@@ -773,7 +774,7 @@ const Orders = () => {
               </DropdownMenu>
             </div>
             <div className="flex items-center gap-2 text-xs">
-              <span>👤</span>
+              <img src={runnerIcon} alt="User" className="w-4 h-4" />
               <span>Dustin H</span>
               <button className="ml-1 p-1" onClick={() => setIsOrderPanelExpanded(true)}>
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

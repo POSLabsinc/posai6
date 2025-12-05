@@ -788,29 +788,65 @@ const Orders = () => {
             </div>
           </div>
 
-          {/* Mobile Empty Order State */}
-          <div className="flex flex-col items-center justify-center py-6">
-            {orderItems.length === 0 ? <>
+          {/* Order Notes */}
+          <div className="px-2 py-1.5 border-b border-sidebar-border">
+            <div className="flex items-center gap-2 bg-neutral-700 rounded px-2 py-1.5">
+              <FileText className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <input
+                type="text"
+                value={orderNotes}
+                onChange={(e) => setOrderNotes(e.target.value)}
+                placeholder="Order notes"
+                className="bg-transparent outline-none text-xs placeholder:text-muted-foreground flex-1 min-w-0"
+              />
+            </div>
+          </div>
+
+          {/* Mobile Cart Items */}
+          <div className="flex-1 min-h-0 overflow-hidden">
+            {orderItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-6">
                 <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                 <span className="text-muted-foreground text-sm">Let's create an order</span>
-              </> : <ScrollArea className="w-full max-h-32 px-2">
-                <div className="py-1 space-y-2">
-                  {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
-                      <div className="p-2 border border-sidebar-border rounded-lg">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
-                              {item.qty}
-                            </span>
-                            <span className="text-sm font-medium text-foreground">{item.name}</span>
-                          </div>
-                          <span className="text-sm font-medium text-foreground">$ {item.price.toFixed(2)}</span>
+              </div>
+            ) : (
+              <ScrollArea className="h-full max-h-28">
+                <div className="px-2 py-1 space-y-1">
+                  {orderItems.map(item => (
+                    <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
+                      <div className="flex items-center justify-between bg-neutral-800 rounded-lg px-2 py-1.5">
+                        <div className="flex items-center gap-2">
+                          <span className="w-5 h-5 rounded-md border border-white/50 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                            {item.qty}
+                          </span>
+                          <span className="text-xs font-medium text-foreground">{item.name}</span>
                         </div>
+                        <span className="text-xs font-medium text-foreground">$ {item.price.toFixed(2)}</span>
                       </div>
-                    </SwipeableCartItem>)}
+                    </SwipeableCartItem>
+                  ))}
                 </div>
-              </ScrollArea>}
+              </ScrollArea>
+            )}
           </div>
+
+          {/* Order Summary - Only show when items exist */}
+          {orderItems.length > 0 && (
+            <div className="px-2 py-1.5 border-t border-sidebar-border space-y-0.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Sub Total</span>
+                <span className="text-foreground">$ {subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-orange-500">Discount</span>
+                <span className="text-orange-500">$ {discount.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Service Charge</span>
+                <span className="text-foreground">$ {serviceCharge.toFixed(2)}</span>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

@@ -25,6 +25,7 @@ import discountIcon from "@/assets/icons/discount.png";
 import noTaxIcon from "@/assets/icons/no-tax.png";
 import cashRegisterIcon from "@/assets/icons/cash-register.png";
 import giftCardIcon from "@/assets/icons/gift-card.png";
+import itemNotesIcon from "@/assets/icons/item-notes.png";
 
 // Food images
 import salmonImg from "@/assets/food/salmon.jpg";
@@ -791,13 +792,13 @@ const Orders = () => {
           {/* Order Notes */}
           <div className="px-2 py-1.5 border-b border-sidebar-border">
             <div className="flex items-center gap-2 bg-neutral-700 rounded px-2 py-1.5">
-              <FileText className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+              <img src={itemNotesIcon} alt="Notes" className="w-3.5 h-3.5 flex-shrink-0" />
               <input
                 type="text"
                 value={orderNotes}
                 onChange={(e) => setOrderNotes(e.target.value)}
                 placeholder="Order notes"
-                className="bg-transparent outline-none text-xs placeholder:text-muted-foreground flex-1 min-w-0"
+                className="bg-transparent outline-none text-xs text-white placeholder:text-muted-foreground flex-1 min-w-0"
               />
             </div>
           </div>

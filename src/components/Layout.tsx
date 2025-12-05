@@ -20,16 +20,16 @@ export function Layout({ children }: LayoutProps) {
           <Header />
         </div>
         
-        {/* Mobile Header Toggle - Inside header area */}
-        <div className="md:hidden flex justify-center bg-header">
+        {/* Mobile Header Toggle - Below header */}
+        <div className="md:hidden flex justify-center">
           <button 
             onClick={() => setIsHeaderVisible(!isHeaderVisible)}
-            className="bg-neutral-600 hover:bg-neutral-500 px-6 py-0.5 rounded-b-lg transition-colors"
+            className="bg-neutral-700 hover:bg-neutral-600 px-8 py-px rounded-b-md transition-colors"
           >
             {isHeaderVisible ? (
-              <ChevronUp className="w-3 h-3 text-muted-foreground" />
+              <ChevronUp className="w-2.5 h-2.5 text-muted-foreground" />
             ) : (
-              <ChevronDown className="w-3 h-3 text-muted-foreground" />
+              <ChevronDown className="w-2.5 h-2.5 text-muted-foreground" />
             )}
           </button>
         </div>

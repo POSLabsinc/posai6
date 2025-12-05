@@ -803,9 +803,9 @@ const Orders = () => {
           </div>
 
           {/* Mobile Cart Items */}
-          <div className="flex-1 min-h-0 overflow-hidden">
+          <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
             {orderItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-6">
+              <div className="flex-1 flex flex-col items-center justify-center">
                 <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                 <span className="text-muted-foreground text-sm">Let's create an order</span>
               </div>

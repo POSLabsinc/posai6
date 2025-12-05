@@ -962,32 +962,35 @@ const Orders = () => {
       {/* Right Panel - Order (Desktop only) */}
       <div className="hidden md:flex w-[300px] flex-col overflow-hidden flex-shrink-0">
         {/* Order Header - Outside background container */}
-        <div className="p-2 flex-shrink-0">
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-3 gap-2">
-            <input type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0" />
-            <div className="flex items-center gap-1">
-              <span>📞</span>
-              <input type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="XXX-XXX-XXXX" className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0 text-center" />
+        <div className="px-1 pb-2 flex-shrink-0">
+          <div className="flex items-center justify-between text-xs mb-2 gap-2">
+            <input type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-[#808080]" />
+            <div className="flex items-center gap-0.5">
+              <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
+              <input type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-16 min-w-0 text-[#808080]" />
             </div>
-            <span className="whitespace-nowrap flex-shrink-0">🕐 10:20 PM</span>
+            <div className="flex items-center gap-0.5 whitespace-nowrap flex-shrink-0">
+              <img src={timeIcon} alt="Time" className="w-3 h-3" />
+              <span className="text-white text-[10px]">12:30 PM</span>
+            </div>
           </div>
           
           <div className="overflow-x-auto scrollbar-hide mb-2">
-            <div className="flex items-center gap-2 w-max">
-              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
-                <span className="text-muted-foreground">%</span> Discount
+            <div className="flex items-center gap-1.5 w-max">
+              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 gap-1 whitespace-nowrap">
+                <img src={discountIcon} alt="Discount" className="w-3 h-3" /> Discount
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
-                <ArrowRightLeft className="w-3 h-3 text-muted-foreground" /> Transfer
+              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 gap-1 whitespace-nowrap">
+                <img src={noTaxIcon} alt="No Tax" className="w-3 h-3" /> No Tax
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
-                <X className="w-3 h-3 text-muted-foreground" /> No Tax
+              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 gap-1 whitespace-nowrap">
+                <img src={cashRegisterIcon} alt="Cash Register" className="w-3 h-3" /> Register
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
-                <span className="text-muted-foreground">$</span> Cash Register
+              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 gap-1 whitespace-nowrap">
+                <img src={giftCardIcon} alt="Gift Card" className="w-3 h-3" /> Gift
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
-                <Receipt className="w-3 h-3 text-muted-foreground" /> Receipt
+              <Button variant="secondary" size="icon" className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border">
+                <Plus className="w-3 h-3" />
               </Button>
             </div>
           </div>

@@ -655,43 +655,43 @@ const Orders = () => {
         <div className="flex flex-wrap items-center gap-1 md:gap-2">
           {/* Menu Controls Group */}
           {isMenuSelectOpen ? (
-            <div className="flex items-center gap-1 md:gap-2 bg-sidebar-accent rounded-full px-1 md:px-2 py-1">
+            <div className="flex items-center gap-1 md:gap-2 bg-sidebar-accent rounded-full px-1 md:px-2 py-0.5 md:py-1">
               <Button 
                 variant="ghost" 
                 size="icon" 
-                className="h-7 md:h-10 w-7 md:w-10 p-0"
+                className="h-6 md:h-10 w-6 md:w-10 p-0"
                 onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
               >
-                <img src={burgerCloseIcon} alt="Close menu" className="w-5 md:w-7 h-5 md:h-7" />
+                <img src={burgerCloseIcon} alt="Close menu" className="w-4 md:w-7 h-4 md:h-7" />
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 md:h-10 w-7 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
+                className="h-6 md:h-10 w-6 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
                 onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
                 title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
               >
                 {horizontalScrollMode ? (
-                  <img src={verticalScrollIcon} alt="All view" className="w-4 md:w-5 h-4 md:h-5" />
+                  <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-5 h-3 md:h-5" />
                 ) : (
-                  <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-4 md:w-5 h-4 md:h-5" />
+                  <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-5 h-3 md:h-5" />
                 )}
               </Button>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-7 md:h-10 w-7 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
+                className="h-6 md:h-10 w-6 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
                 onClick={() => setThumbnailViewMode(!thumbnailViewMode)}
                 title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}
               >
                 {thumbnailViewMode ? (
-                  <img src={listViewIcon} alt="List view" className="w-4 md:w-5 h-4 md:h-5" />
+                  <img src={listViewIcon} alt="List view" className="w-3 md:w-5 h-3 md:h-5" />
                 ) : (
-                  <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-4 md:w-5 h-4 md:h-5" />
+                  <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-5 h-3 md:h-5" />
                 )}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
-                <SelectTrigger className="w-[120px] md:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-7 md:h-10 text-xs md:text-sm">
+                <SelectTrigger className="w-[100px] md:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-6 md:h-10 text-[10px] md:text-sm">
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-neutral-700">
@@ -707,10 +707,10 @@ const Orders = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="h-7 md:h-10 w-7 md:w-10 p-0"
+              className="h-6 md:h-10 w-6 md:w-10 p-0"
               onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
             >
-              <img src={burgerOpenIcon} alt="Open menu" className="w-7 md:w-10 h-7 md:h-10" />
+              <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-10 h-6 md:h-10" />
             </Button>
           )}
           {/* Categories */}

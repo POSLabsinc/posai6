@@ -847,6 +847,26 @@ const Orders = () => {
               </div>
             </div>
           )}
+
+          {/* Action Buttons */}
+          <div className="px-2 py-2 flex items-center gap-2">
+            <button 
+              onClick={() => setOrderItems([])}
+              className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0"
+            >
+              <span className="text-white font-bold text-sm">C</span>
+            </button>
+            <button className="w-8 h-8 rounded-md bg-neutral-600 hover:bg-neutral-500 flex items-center justify-center flex-shrink-0">
+              <img src={saveIcon} alt="Save" className="w-4 h-4 brightness-200" />
+            </button>
+            <button className="flex-1 h-8 rounded-full bg-orange-500 hover:bg-orange-600 flex items-center justify-center gap-1.5">
+              <img src={fireIcon} alt="Fire" className="w-4 h-4" />
+              <span className="text-white font-semibold text-sm">FIRE</span>
+            </button>
+            <button className="flex-1 h-8 rounded-md bg-neutral-700 hover:bg-neutral-600 border border-neutral-500 flex items-center justify-center">
+              <span className="text-white font-semibold text-xs">CHARGE $ {total.toFixed(2)}</span>
+            </button>
+          </div>
         </div>
       </div>
 

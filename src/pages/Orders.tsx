@@ -757,7 +757,7 @@ const Orders = () => {
         {/* Menu Items Grid */}
         <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
           {thumbnailViewMode ? (
-            <div className="grid grid-cols-3 md:grid-cols-5 gap-2 md:gap-3">
+            <div className="grid grid-cols-3 md:grid-cols-5 gap-1 md:gap-3">
               {menuItems.map((item, index) => (
                 <div
                   key={item.id}
@@ -771,13 +771,13 @@ const Orders = () => {
                     />
                     <button
                       onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                      className="absolute top-2 left-2 w-8 h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors"
+                      className="absolute top-1 md:top-2 left-1 md:left-2 w-6 md:w-8 h-6 md:h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors"
                     >
-                      <Plus className="w-4 h-4 text-white" />
+                      <Plus className="w-3 md:w-4 h-3 md:h-4 text-white" />
                     </button>
                   </div>
-                  <div className="p-2 bg-neutral-900" onClick={() => addToCart(item)}>
-                    <span className="text-xs font-medium text-white uppercase leading-tight line-clamp-2">
+                  <div className="p-1 md:p-2 bg-neutral-900" onClick={() => addToCart(item)}>
+                    <span className="text-[10px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-2">
                       {item.name}
                     </span>
                   </div>
@@ -785,21 +785,21 @@ const Orders = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
               {menuItems.map((item) => (
                 <div
                   key={item.id}
                   onClick={() => addToCart(item)}
                   className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border"
                 >
-                  <span className="flex-1 text-xs font-bold leading-tight uppercase text-foreground p-2 md:p-3">
+                  <span className="flex-1 text-[10px] md:text-xs font-bold leading-tight uppercase text-foreground p-1.5 md:p-3">
                     {item.name}
                   </span>
                   <button
                     onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                    className="w-8 md:w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center"
+                    className="w-6 md:w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center"
                   >
-                    <Plus className="w-4 h-4" />
+                    <Plus className="w-3 md:w-4 h-3 md:h-4" />
                   </button>
                 </div>
               ))}

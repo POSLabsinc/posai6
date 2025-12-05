@@ -12,23 +12,30 @@ export function Layout({ children }: LayoutProps) {
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
 
   return (
-    <div className="h-screen flex flex-col w-full overflow-hidden bg-black">
+    <div 
+      className="h-screen flex flex-col w-full overflow-hidden bg-black"
+      onClick={() => isHeaderVisible && setIsHeaderVisible(false)}
+    >
       {/* Header - Hidden by default on mobile, shown when toggled */}
-      <div className={`${isHeaderVisible ? 'block' : 'hidden'} md:block flex-shrink-0`}>
+      <div 
+        className={`${isHeaderVisible ? 'block' : 'hidden'} md:block flex-shrink-0`}
+        onClick={(e) => e.stopPropagation()}
+      >
         <Header />
       </div>
       
-      {/* Mobile Header Toggle */}
-      <button 
-        onClick={() => setIsHeaderVisible(!isHeaderVisible)}
-        className="md:hidden mx-auto bg-neutral-700 hover:bg-neutral-600 px-8 py-px rounded-b-md transition-colors"
-      >
-        {isHeaderVisible ? (
-          <ChevronUp className="w-2.5 h-2.5 text-muted-foreground" />
-        ) : (
+      {/* Mobile Header Toggle - Only shown when header is hidden */}
+      {!isHeaderVisible && (
+        <button 
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsHeaderVisible(true);
+          }}
+          className="md:hidden mx-auto bg-neutral-700 hover:bg-neutral-600 px-8 py-px rounded-b-md transition-colors"
+        >
           <ChevronDown className="w-2.5 h-2.5 text-muted-foreground" />
-        )}
-      </button>
+        </button>
+      )}
 
       <div className="flex flex-1 min-h-0 overflow-hidden">
         <SidebarProvider defaultOpen={true}>

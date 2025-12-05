@@ -577,6 +577,54 @@ const Orders = () => {
     setTouchStartTime(null);
   };
 
+  // Mouse/Pointer event handlers for desktop
+  const handleMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startY = e.clientY;
+    const startTime = Date.now();
+    setTouchStart(startY);
+    setTouchStartTime(startTime);
+    setIsDragging(true);
+    
+    // Add global listeners for mouse move and up
+    const handleGlobalMouseMove = (e: MouseEvent) => {
+      const diff = startY - e.clientY;
+      setDragOffset(diff);
+    };
+    
+    const handleGlobalMouseUp = (e: MouseEvent) => {
+      document.removeEventListener('mousemove', handleGlobalMouseMove);
+      document.removeEventListener('mouseup', handleGlobalMouseUp);
+      
+      const diff = startY - e.clientY;
+      const timeDiff = Date.now() - startTime;
+      const velocity = Math.abs(diff) / timeDiff;
+      
+      if (velocity > 0.5) {
+        if (diff > 20) {
+          setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
+        } else if (diff < -20) {
+          setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
+        }
+      } else {
+        // Snap based on final position
+        if (diff > 80) {
+          setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
+        } else if (diff < -80) {
+          setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
+        }
+      }
+      
+      setDragOffset(0);
+      setIsDragging(false);
+      setTouchStart(null);
+      setTouchStartTime(null);
+    };
+    
+    document.addEventListener('mousemove', handleGlobalMouseMove);
+    document.addEventListener('mouseup', handleGlobalMouseUp);
+  };
+
   const addToCart = (item: { id: number; name: string }) => {
     setOrderItems(prev => {
       const existing = prev.find(o => o.name === item.name);
@@ -741,7 +789,7 @@ const Orders = () => {
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
-          onClick={() => setMenuPosition(prev => prev === 'minimized' ? 'center' : prev === 'center' ? 'full' : 'minimized')}
+          onMouseDown={handleMouseDown}
         >
           <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
         </div>

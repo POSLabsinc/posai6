@@ -28,6 +28,7 @@ import emptyOrderIcon from "@/assets/icons/empty-order.png";
 import horizontalScrollIcon from "@/assets/icons/horizontal-scroll.png";
 import verticalScrollIcon from "@/assets/icons/vertical-scroll.png";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
+import grabberIcon from "@/assets/icons/grabber.png";
 
 // Food images
 import salmonImg from "@/assets/food/salmon.jpg";
@@ -506,6 +507,8 @@ const Orders = () => {
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [isOrderPanelExpanded, setIsOrderPanelExpanded] = useState(false);
+  const [isMenuMinimized, setIsMenuMinimized] = useState(false);
+  const [touchStart, setTouchStart] = useState<number | null>(null);
 
   const addToCart = (item: { id: number; name: string }) => {
     setOrderItems(prev => {
@@ -651,7 +654,26 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-y-auto md:overflow-hidden bg-neutral-900 rounded-lg p-2 md:p-3 scrollbar-hide">
+      <div className={`flex-1 flex flex-col gap-2 min-w-0 overflow-y-auto md:overflow-hidden bg-neutral-900 rounded-lg p-2 md:p-3 scrollbar-hide transition-all duration-300 ${isMenuMinimized ? 'max-h-16' : ''}`}>
+        {/* Grabber for minimize/maximize */}
+        <div 
+          className="flex justify-center cursor-grab active:cursor-grabbing select-none"
+          onTouchStart={(e) => setTouchStart(e.touches[0].clientY)}
+          onTouchEnd={(e) => {
+            if (touchStart !== null) {
+              const touchEnd = e.changedTouches[0].clientY;
+              const diff = touchStart - touchEnd;
+              if (diff > 50) setIsMenuMinimized(true);
+              if (diff < -50) setIsMenuMinimized(false);
+              setTouchStart(null);
+            }
+          }}
+          onClick={() => setIsMenuMinimized(!isMenuMinimized)}
+        >
+          <img src={grabberIcon} alt="Drag to resize" className="w-8 h-2 opacity-60 hover:opacity-100 transition-opacity" />
+        </div>
+        {/* Menu Content - Hidden when minimized */}
+        <div className={`flex flex-col gap-2 overflow-hidden transition-all duration-300 ${isMenuMinimized ? 'max-h-0 opacity-0' : 'flex-1 opacity-100'}`}>
         {/* Main Categories */}
         <div className="flex flex-wrap items-center gap-1 md:gap-2">
           {/* Menu Controls Group */}
@@ -807,6 +829,7 @@ const Orders = () => {
             </div>
           )}
         </ScrollArea>
+        </div>
       </div>
 
       {/* Right Panel - Order (Desktop only) */}

@@ -783,7 +783,13 @@ const Orders = () => {
             <div className="flex items-center gap-2 text-xs">
               <img src={runnerIcon} alt="User" className="w-4 h-4" />
               <span>Dustin H</span>
-              <button className="ml-1 p-1" onClick={() => setIsOrderPanelExpanded(true)}>
+              <button className="ml-1 p-1" onClick={() => {
+                if (menuPosition !== 'minimized') {
+                  setMenuPosition('minimized');
+                } else {
+                  setIsOrderPanelExpanded(true);
+                }
+              }}>
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
                 </svg>

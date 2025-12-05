@@ -509,6 +509,73 @@ const Orders = () => {
   const [isOrderPanelExpanded, setIsOrderPanelExpanded] = useState(false);
   const [menuPosition, setMenuPosition] = useState<'minimized' | 'center' | 'full'>('center');
   const [touchStart, setTouchStart] = useState<number | null>(null);
+  const [touchStartTime, setTouchStartTime] = useState<number | null>(null);
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+
+  // Get base height in pixels for each menu position
+  const getMenuHeight = (position: 'minimized' | 'center' | 'full') => {
+    if (typeof window === 'undefined') return 48;
+    if (position === 'minimized') return 48; // h-12 = 3rem = 48px
+    if (position === 'center') return window.innerHeight * 0.4; // 40% of screen
+    return window.innerHeight - 64 - 64; // full minus bottom nav and header
+  };
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.touches[0].clientY);
+    setTouchStartTime(Date.now());
+    setIsDragging(true);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (touchStart === null) return;
+    const currentY = e.touches[0].clientY;
+    const diff = touchStart - currentY; // positive = swiping up
+    setDragOffset(diff);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStart === null || touchStartTime === null) {
+      setIsDragging(false);
+      return;
+    }
+    
+    const touchEnd = e.changedTouches[0].clientY;
+    const diff = touchStart - touchEnd;
+    const timeDiff = Date.now() - touchStartTime;
+    const velocity = Math.abs(diff) / timeDiff; // pixels per millisecond
+    
+    // Fast swipe (velocity > 0.5) - snap to next/previous state
+    if (velocity > 0.5) {
+      if (diff > 20) { // Swipe up
+        setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
+      } else if (diff < -20) { // Swipe down
+        setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
+      }
+    } else {
+      // Slow drag - snap based on current visual height
+      const baseHeight = getMenuHeight(menuPosition);
+      const currentHeight = baseHeight + dragOffset;
+      const minimizedH = getMenuHeight('minimized');
+      const centerH = getMenuHeight('center');
+      const fullH = getMenuHeight('full');
+      
+      // Find nearest position
+      const distances = [
+        { pos: 'minimized' as const, dist: Math.abs(currentHeight - minimizedH) },
+        { pos: 'center' as const, dist: Math.abs(currentHeight - centerH) },
+        { pos: 'full' as const, dist: Math.abs(currentHeight - fullH) },
+      ];
+      const nearest = distances.reduce((a, b) => a.dist < b.dist ? a : b);
+      setMenuPosition(nearest.pos);
+    }
+    
+    // Reset drag states
+    setDragOffset(0);
+    setIsDragging(false);
+    setTouchStart(null);
+    setTouchStartTime(null);
+  };
 
   const addToCart = (item: { id: number; name: string }) => {
     setOrderItems(prev => {
@@ -654,30 +721,26 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 bg-sidebar-accent/30 border border-sidebar-border md:border-0 rounded-t-2xl md:rounded-lg transition-all duration-300 ease-out fixed md:relative bottom-16 md:bottom-auto left-2 right-2 md:left-0 md:right-0 md:left-auto md:right-auto z-10 ${
-        menuPosition === 'minimized' ? 'h-12' : 
-        menuPosition === 'center' ? 'h-[40%]' : 
-        'h-[calc(100%-4rem)]'
-      } md:h-auto md:top-auto`}>
+      <div 
+        className={`md:flex-1 flex flex-col min-w-0 bg-sidebar-accent/30 border border-sidebar-border md:border-0 rounded-t-2xl md:rounded-lg fixed md:relative bottom-16 md:bottom-auto left-2 right-2 md:left-0 md:right-0 md:left-auto md:right-auto z-10 ${
+          !isDragging ? 'transition-all duration-300 ease-out' : ''
+        } ${
+          !isDragging ? (
+            menuPosition === 'minimized' ? 'h-12' : 
+            menuPosition === 'center' ? 'h-[40%]' : 
+            'h-[calc(100%-4rem)]'
+          ) : ''
+        } md:h-auto md:top-auto`}
+        style={isDragging ? {
+          height: `${Math.max(48, Math.min(window.innerHeight - 128, getMenuHeight(menuPosition) + dragOffset))}px`
+        } : undefined}
+      >
         {/* Grabber for minimize/maximize */}
         <div 
-          className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none md:hidden"
-          onTouchStart={(e) => setTouchStart(e.touches[0].clientY)}
-          onTouchEnd={(e) => {
-            if (touchStart !== null) {
-              const touchEnd = e.changedTouches[0].clientY;
-              const diff = touchStart - touchEnd;
-              // Swipe up = expand to next state
-              if (diff > 50) {
-                setMenuPosition(prev => prev === 'minimized' ? 'center' : prev === 'center' ? 'full' : 'full');
-              }
-              // Swipe down = collapse to previous state
-              if (diff < -50) {
-                setMenuPosition(prev => prev === 'full' ? 'center' : prev === 'center' ? 'minimized' : 'minimized');
-              }
-              setTouchStart(null);
-            }
-          }}
+          className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
           onClick={() => setMenuPosition(prev => prev === 'minimized' ? 'center' : prev === 'center' ? 'full' : 'minimized')}
         >
           <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />

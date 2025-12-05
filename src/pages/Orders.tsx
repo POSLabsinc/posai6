@@ -829,7 +829,7 @@ const Orders = () => {
               </div>
               <div className="flex justify-between">
                 <span className="text-red-500">Discount</span>
-                <span className="text-orange-500">$ {discount.toFixed(2)}</span>
+                <span className="text-red-500">$ {discount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Service Charge</span>

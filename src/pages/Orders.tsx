@@ -656,7 +656,7 @@ const Orders = () => {
       {/* Right Panel - Order (Shows first on mobile) */}
       <div className="md:hidden flex flex-col overflow-hidden flex-shrink-0">
         {/* Order Header - Outside background container */}
-        <div className="px-2 pt-0.5 pb-2 flex-shrink-0">
+        <div className="px-2 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-2 gap-2">
             <input 
               type="text" 

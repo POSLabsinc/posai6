@@ -3,19 +3,8 @@ import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown } from "lucide-
 import clearIcon from "@/assets/icons/clear.png";
 import saveIcon from "@/assets/icons/save.png";
 import fireIcon from "@/assets/icons/fire.png";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import burgerCloseIcon from "@/assets/icons/burger-close.png";
@@ -53,25 +42,16 @@ import burgerImg from "@/assets/food/burger.jpg";
 import seafoodImg from "@/assets/food/seafood.jpg";
 import pastaImg from "@/assets/food/pasta.jpg";
 import pancakesImg from "@/assets/food/pancakes.jpg";
-
-const foodImages = [
-  salmonImg, macCheeseImg, ravioliImg, turkeyImg, gnocchiImg,
-  asparagusImg, chickenBreastImg, paniniImg, fettucciniImg, chickenParmesanImg,
-  steakImg, ribsImg, shrimpImg, soupImg, saladImg,
-  pizzaImg, burgerImg, seafoodImg, pastaImg, pancakesImg
-];
-
+const foodImages = [salmonImg, macCheeseImg, ravioliImg, turkeyImg, gnocchiImg, asparagusImg, chickenBreastImg, paniniImg, fettucciniImg, chickenParmesanImg, steakImg, ribsImg, shrimpImg, soupImg, saladImg, pizzaImg, burgerImg, seafoodImg, pastaImg, pancakesImg];
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
-
 const menuCategories: Record<string, string[]> = {
   "BAKERY MENU": ["Breads", "Pastries", "Cakes", "Cookies", "Croissants", "Muffins", "Donuts", "Pies", "Tarts", "Scones", "Bagels", "Danish", "Baguettes", "Rolls"],
   "BAR MENU": ["Food", "Desserts", "Drinks", "Beer", "Wine", "Cocktails", "Spirits", "Mocktails", "Whiskey", "Vodka", "Rum", "Tequila", "Gin", "Brandy"],
   "HAPPY HOUR M/W": ["Appetizers", "Wings", "Sliders", "Nachos", "Beer", "Wine", "Cocktails", "Shots", "Tacos", "Quesadillas", "Dips", "Fries", "Pretzels", "Poppers"],
   "Holiday Menu": ["Starters", "Mains", "Sides", "Desserts", "Drinks", "Specials", "Platters", "Combos", "Turkey", "Ham", "Roasts", "Pies", "Stuffing", "Gravies"],
   "LE BRUNCH MENU": ["Eggs", "Pancakes", "Waffles", "Omelettes", "Juice", "Coffee", "Mimosas", "Pastries", "Bacon", "Sausage", "Toast", "Fruits", "Yogurt", "Granola"],
-  "LE DINER MENU": ["Appetizers", "Soups", "Salads", "Entrees", "Steaks", "Seafood", "Pasta", "Desserts", "Risotto", "Duck", "Lamb", "Veal", "Lobster", "Caviar"],
+  "LE DINER MENU": ["Appetizers", "Soups", "Salads", "Entrees", "Steaks", "Seafood", "Pasta", "Desserts", "Risotto", "Duck", "Lamb", "Veal", "Lobster", "Caviar"]
 };
-
 const categorySubcategories: Record<string, string[]> = {
   // BAR MENU categories
   "Food": ["Appetizers", "Mains", "Sides", "Salads", "Soups", "Sandwiches", "Burgers", "Wraps", "Tacos", "Platters", "Kids Menu", "Specials"],
@@ -155,57 +135,144 @@ const categorySubcategories: Record<string, string[]> = {
   "Rum": ["White", "Dark", "Spiced", "Aged", "Coconut", "Banana", "Pineapple", "Overproof", "Gold", "Navy", "Añejo", "Premium"],
   "Tequila": ["Blanco", "Reposado", "Añejo", "Extra Añejo", "Gold", "Silver", "Mezcal", "Cristalino", "Joven", "Premium", "Ultra Premium", "Organic"],
   "Gin": ["London Dry", "Old Tom", "Plymouth", "Navy Strength", "Sloe", "Barrel Aged", "Flavored", "Contemporary", "Classic", "Botanical", "Pink", "Premium"],
-  "Brandy": ["Cognac", "Armagnac", "Calvados", "Pisco", "Grappa", "VS", "VSOP", "XO", "Napoleon", "Fruit", "Spanish", "American"],
+  "Brandy": ["Cognac", "Armagnac", "Calvados", "Pisco", "Grappa", "VS", "VSOP", "XO", "Napoleon", "Fruit", "Spanish", "American"]
 };
-
-const menuItems = [
-  { id: 1, name: "Almond Crusted Salmon" },
-  { id: 2, name: "Hand Cut Fettuccini Alfredo" },
-  { id: 3, name: "Four Cheese Ravioli" },
-  { id: 4, name: "Grilled Organic Chicken Panini" },
-  { id: 5, name: "Grilled Asparagus" },
-  { id: 6, name: "Jidori Chicken Parmesan" },
-  { id: 7, name: "Prime London Sirloin" },
-  { id: 8, name: "Pan Roasted Salmon Sandwich" },
-  { id: 9, name: "Oven Roasted Free Range Chicken" },
-  { id: 10, name: "Crispy Calamari" },
-  { id: 11, name: "Spinach & Artichoke Dip" },
-  { id: 12, name: "Loaded Potato Skins" },
-  { id: 13, name: "Mozzarella Sticks" },
-  { id: 14, name: "Chicken Wings" },
-  { id: 15, name: "Nacho Supreme" },
-  { id: 16, name: "Garlic Bread" },
-  { id: 17, name: "Caesar Salad" },
-  { id: 18, name: "Greek Salad" },
-  { id: 19, name: "Tomato Basil Soup" },
-  { id: 20, name: "French Onion Soup" },
-  { id: 21, name: "Ribeye Steak" },
-  { id: 22, name: "Filet Mignon" },
-  { id: 23, name: "Grilled Salmon" },
-  { id: 24, name: "Shrimp Scampi" },
-  { id: 25, name: "Lobster Tail" },
-  { id: 26, name: "Lamb Chops" },
-  { id: 27, name: "BBQ Ribs" },
-  { id: 28, name: "Pork Tenderloin" },
-  { id: 29, name: "Duck Breast" },
-  { id: 30, name: "Beef Wellington" },
-  { id: 31, name: "Mushroom Risotto" },
-  { id: 32, name: "Truffle Pasta" },
-  { id: 33, name: "Spaghetti Carbonara" },
-  { id: 34, name: "Lasagna Bolognese" },
-  { id: 35, name: "Chicken Marsala" },
-  { id: 36, name: "Eggplant Parmesan" },
-  { id: 37, name: "Seafood Platter" },
-  { id: 38, name: "Fish & Chips" },
-  { id: 39, name: "Crab Cakes" },
-  { id: 40, name: "Oysters Rockefeller" },
-  { id: 41, name: "Tiramisu" },
-  { id: 42, name: "Chocolate Lava Cake" },
-  { id: 43, name: "Cheesecake" },
-  { id: 44, name: "Crème Brûlée" },
-  { id: 45, name: "Apple Pie" },
-];
-
+const menuItems = [{
+  id: 1,
+  name: "Almond Crusted Salmon"
+}, {
+  id: 2,
+  name: "Hand Cut Fettuccini Alfredo"
+}, {
+  id: 3,
+  name: "Four Cheese Ravioli"
+}, {
+  id: 4,
+  name: "Grilled Organic Chicken Panini"
+}, {
+  id: 5,
+  name: "Grilled Asparagus"
+}, {
+  id: 6,
+  name: "Jidori Chicken Parmesan"
+}, {
+  id: 7,
+  name: "Prime London Sirloin"
+}, {
+  id: 8,
+  name: "Pan Roasted Salmon Sandwich"
+}, {
+  id: 9,
+  name: "Oven Roasted Free Range Chicken"
+}, {
+  id: 10,
+  name: "Crispy Calamari"
+}, {
+  id: 11,
+  name: "Spinach & Artichoke Dip"
+}, {
+  id: 12,
+  name: "Loaded Potato Skins"
+}, {
+  id: 13,
+  name: "Mozzarella Sticks"
+}, {
+  id: 14,
+  name: "Chicken Wings"
+}, {
+  id: 15,
+  name: "Nacho Supreme"
+}, {
+  id: 16,
+  name: "Garlic Bread"
+}, {
+  id: 17,
+  name: "Caesar Salad"
+}, {
+  id: 18,
+  name: "Greek Salad"
+}, {
+  id: 19,
+  name: "Tomato Basil Soup"
+}, {
+  id: 20,
+  name: "French Onion Soup"
+}, {
+  id: 21,
+  name: "Ribeye Steak"
+}, {
+  id: 22,
+  name: "Filet Mignon"
+}, {
+  id: 23,
+  name: "Grilled Salmon"
+}, {
+  id: 24,
+  name: "Shrimp Scampi"
+}, {
+  id: 25,
+  name: "Lobster Tail"
+}, {
+  id: 26,
+  name: "Lamb Chops"
+}, {
+  id: 27,
+  name: "BBQ Ribs"
+}, {
+  id: 28,
+  name: "Pork Tenderloin"
+}, {
+  id: 29,
+  name: "Duck Breast"
+}, {
+  id: 30,
+  name: "Beef Wellington"
+}, {
+  id: 31,
+  name: "Mushroom Risotto"
+}, {
+  id: 32,
+  name: "Truffle Pasta"
+}, {
+  id: 33,
+  name: "Spaghetti Carbonara"
+}, {
+  id: 34,
+  name: "Lasagna Bolognese"
+}, {
+  id: 35,
+  name: "Chicken Marsala"
+}, {
+  id: 36,
+  name: "Eggplant Parmesan"
+}, {
+  id: 37,
+  name: "Seafood Platter"
+}, {
+  id: 38,
+  name: "Fish & Chips"
+}, {
+  id: 39,
+  name: "Crab Cakes"
+}, {
+  id: 40,
+  name: "Oysters Rockefeller"
+}, {
+  id: 41,
+  name: "Tiramisu"
+}, {
+  id: 42,
+  name: "Chocolate Lava Cake"
+}, {
+  id: 43,
+  name: "Cheesecake"
+}, {
+  id: 44,
+  name: "Crème Brûlée"
+}, {
+  id: 45,
+  name: "Apple Pie"
+}];
 interface OrderItem {
   id: number;
   qty: number;
@@ -213,9 +280,7 @@ interface OrderItem {
   price: number;
   modifiers?: string[];
 }
-
 const initialOrderItems: OrderItem[] = [];
-
 const orderTypes = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE", "SCHEDULED", "PHONE-IN", "CUSTOM"];
 
 // Category border colors based on reference design
@@ -300,7 +365,7 @@ const categoryBorderColors: Record<string, string> = {
   "Lamb": "border-rose-500",
   "Veal": "border-pink-400",
   "Lobster": "border-red-500",
-  "Caviar": "border-slate-500",
+  "Caviar": "border-slate-500"
 };
 
 // Category background colors for active state (matching border colors)
@@ -385,7 +450,7 @@ const categoryBgColors: Record<string, string> = {
   "Lamb": "bg-rose-500",
   "Veal": "bg-pink-400",
   "Lobster": "bg-red-500",
-  "Caviar": "bg-slate-500",
+  "Caviar": "bg-slate-500"
 };
 
 // Category text colors for selected subcategory (matching border colors)
@@ -470,31 +535,25 @@ const categoryTextColors: Record<string, string> = {
   "Lamb": "text-rose-500",
   "Veal": "text-pink-400",
   "Lobster": "text-red-500",
-  "Caviar": "text-slate-500",
+  "Caviar": "text-slate-500"
 };
-
 const getCategoryBorderColor = (category: string) => {
   return categoryBorderColors[category] || "border-white/50";
 };
-
 const getCategoryBgColor = (category: string) => {
   return categoryBgColors[category] || "bg-orange-500";
 };
-
 const getCategoryHoverBgColor = (category: string) => {
   const bgColor = categoryBgColors[category] || "bg-orange-500";
   return bgColor.replace("bg-", "hover:bg-");
 };
-
 const getCategoryTextColor = (category: string) => {
   return categoryTextColors[category] || "text-orange-500";
 };
-
 const getCategoryHoverTextColor = (category: string) => {
   const textColor = categoryTextColors[category] || "text-orange-500";
   return textColor.replace("text-", "hover:text-");
 };
-
 const Orders = () => {
   const [activeCategory, setActiveCategory] = useState("Food");
   const [activeSubcategory, setActiveSubcategory] = useState("Lemonade");
@@ -522,36 +581,34 @@ const Orders = () => {
     if (position === 'center') return window.innerHeight * 0.4; // 40% of screen
     return window.innerHeight - 64 - 64; // full minus bottom nav and header
   };
-
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientY);
     setTouchStartTime(Date.now());
     setIsDragging(true);
   };
-
   const handleTouchMove = (e: React.TouchEvent) => {
     if (touchStart === null) return;
     const currentY = e.touches[0].clientY;
     const diff = touchStart - currentY; // positive = swiping up
     setDragOffset(diff);
   };
-
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (touchStart === null || touchStartTime === null) {
       setIsDragging(false);
       return;
     }
-    
     const touchEnd = e.changedTouches[0].clientY;
     const diff = touchStart - touchEnd;
     const timeDiff = Date.now() - touchStartTime;
     const velocity = Math.abs(diff) / timeDiff; // pixels per millisecond
-    
+
     // Fast swipe (velocity > 0.5) - snap to next/previous state
     if (velocity > 0.5) {
-      if (diff > 20) { // Swipe up
+      if (diff > 20) {
+        // Swipe up
         setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
-      } else if (diff < -20) { // Swipe down
+      } else if (diff < -20) {
+        // Swipe down
         setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
       }
     } else {
@@ -561,17 +618,22 @@ const Orders = () => {
       const minimizedH = getMenuHeight('minimized');
       const centerH = getMenuHeight('center');
       const fullH = getMenuHeight('full');
-      
+
       // Find nearest position
-      const distances = [
-        { pos: 'minimized' as const, dist: Math.abs(currentHeight - minimizedH) },
-        { pos: 'center' as const, dist: Math.abs(currentHeight - centerH) },
-        { pos: 'full' as const, dist: Math.abs(currentHeight - fullH) },
-      ];
+      const distances = [{
+        pos: 'minimized' as const,
+        dist: Math.abs(currentHeight - minimizedH)
+      }, {
+        pos: 'center' as const,
+        dist: Math.abs(currentHeight - centerH)
+      }, {
+        pos: 'full' as const,
+        dist: Math.abs(currentHeight - fullH)
+      }];
       const nearest = distances.reduce((a, b) => a.dist < b.dist ? a : b);
       setMenuPosition(nearest.pos);
     }
-    
+
     // Reset drag states
     setDragOffset(0);
     setIsDragging(false);
@@ -587,21 +649,18 @@ const Orders = () => {
     setTouchStart(startY);
     setTouchStartTime(startTime);
     setIsDragging(true);
-    
+
     // Add global listeners for mouse move and up
     const handleGlobalMouseMove = (e: MouseEvent) => {
       const diff = startY - e.clientY;
       setDragOffset(diff);
     };
-    
     const handleGlobalMouseUp = (e: MouseEvent) => {
       document.removeEventListener('mousemove', handleGlobalMouseMove);
       document.removeEventListener('mouseup', handleGlobalMouseUp);
-      
       const diff = startY - e.clientY;
       const timeDiff = Date.now() - startTime;
       const velocity = Math.abs(diff) / timeDiff;
-      
       if (velocity > 0.5) {
         if (diff > 20) {
           setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
@@ -616,72 +675,61 @@ const Orders = () => {
           setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
         }
       }
-      
       setDragOffset(0);
       setIsDragging(false);
       setTouchStart(null);
       setTouchStartTime(null);
     };
-    
     document.addEventListener('mousemove', handleGlobalMouseMove);
     document.addEventListener('mouseup', handleGlobalMouseUp);
   };
-
-  const addToCart = (item: { id: number; name: string }) => {
+  const addToCart = (item: {
+    id: number;
+    name: string;
+  }) => {
     setOrderItems(prev => {
       const existing = prev.find(o => o.name === item.name);
       if (existing) {
-        return prev.map(o => o.name === item.name ? { ...o, qty: o.qty + 1 } : o);
+        return prev.map(o => o.name === item.name ? {
+          ...o,
+          qty: o.qty + 1
+        } : o);
       }
-      return [...prev, { id: Date.now(), qty: 1, name: item.name, price: 15.00 }];
+      return [...prev, {
+        id: Date.now(),
+        qty: 1,
+        name: item.name,
+        price: 15.00
+      }];
     });
   };
-
   const removeFromCart = (itemId: number) => {
     setOrderItems(prev => prev.filter(item => item.id !== itemId));
   };
-
   const handleMenuSelect = (value: string) => {
     setSelectedMenu(value);
     setIsMenuSelectOpen(false);
   };
-
-  const subtotal = orderItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const discount = 0.00;
   const serviceCharge = 0.00;
   const taxRate = 0.02;
   const tax = subtotal * taxRate;
   const total = subtotal - discount + serviceCharge + tax;
-
-  return (
-    <div className="flex flex-col md:flex-row gap-3 h-full overflow-hidden pb-16 md:pb-0">
+  return <div className="flex flex-col md:flex-row gap-3 h-full overflow-hidden pb-16 md:pb-0">
       {/* Right Panel - Order (Shows first on mobile) */}
       <div className="md:hidden flex flex-col overflow-hidden flex-shrink-0">
         {/* Order Header - Outside background container */}
         <div className="px-2 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
-            <input 
-              type="text" 
-              value={guestName} 
-              onChange={(e) => setGuestName(e.target.value)}
-              placeholder="GUEST NAME"
-              className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]"
-            />
+            <input type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]" />
             <div className="flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
-              <input 
-                type="tel" 
-                inputMode="numeric"
-                pattern="[0-9]*"
-                value={guestPhone} 
-                onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))}
-                placeholder="(XXX) XXX-XXXX"
-                className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080]"
-              />
+              <input type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080]" />
             </div>
             <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
               <img src={timeIcon} alt="Time" className="w-4 h-4" />
-              <span className="text-white">12:30 PM</span>
+              <span className="text-white bg-[#666666]">12:30 PM</span>
             </div>
           </div>
           
@@ -718,15 +766,9 @@ const Orders = () => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
-                  {orderTypes.map((type) => (
-                    <DropdownMenuItem
-                      key={type}
-                      onClick={() => setOrderType(type)}
-                      className="text-white hover:bg-neutral-700 cursor-pointer"
-                    >
+                  {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-white hover:bg-neutral-700 cursor-pointer">
                       {type}
-                    </DropdownMenuItem>
-                  ))}
+                    </DropdownMenuItem>)}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -743,16 +785,12 @@ const Orders = () => {
 
           {/* Mobile Empty Order State */}
           <div className="flex flex-col items-center justify-center py-6">
-            {orderItems.length === 0 ? (
-              <>
+            {orderItems.length === 0 ? <>
                 <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                 <span className="text-muted-foreground text-sm">Let's create an order</span>
-              </>
-            ) : (
-              <ScrollArea className="w-full max-h-32 px-2">
+              </> : <ScrollArea className="w-full max-h-32 px-2">
                 <div className="py-1 space-y-2">
-                  {orderItems.map((item) => (
-                    <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
+                  {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
                       <div className="p-2 border border-sidebar-border rounded-lg">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-2">
@@ -764,38 +802,19 @@ const Orders = () => {
                           <span className="text-sm font-medium text-foreground">$ {item.price.toFixed(2)}</span>
                         </div>
                       </div>
-                    </SwipeableCartItem>
-                  ))}
+                    </SwipeableCartItem>)}
                 </div>
-              </ScrollArea>
-            )}
+              </ScrollArea>}
           </div>
         </div>
       </div>
 
       {/* Left Panel - Menu */}
-      <div 
-        className={`md:flex-1 flex flex-col min-w-0 bg-sidebar-accent/30 border border-sidebar-border md:border-0 rounded-t-2xl md:rounded-lg fixed md:relative bottom-16 md:bottom-auto left-2 right-2 md:left-0 md:right-0 md:left-auto md:right-auto z-10 ${
-          !isDragging ? 'transition-all duration-300 ease-out' : ''
-        } ${
-          !isDragging ? (
-            menuPosition === 'minimized' ? 'h-12' : 
-            menuPosition === 'center' ? 'h-[40%]' : 
-            'h-[calc(100%-4rem)]'
-          ) : ''
-        } md:h-auto md:top-auto`}
-        style={isDragging ? {
-          height: `${Math.max(48, Math.min(window.innerHeight - 128, getMenuHeight(menuPosition) + dragOffset))}px`
-        } : undefined}
-      >
+      <div className={`md:flex-1 flex flex-col min-w-0 bg-sidebar-accent/30 border border-sidebar-border md:border-0 rounded-t-2xl md:rounded-lg fixed md:relative bottom-16 md:bottom-auto left-2 right-2 md:left-0 md:right-0 md:left-auto md:right-auto z-10 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${!isDragging ? menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[40%]' : 'h-[calc(100%-4rem)]' : ''} md:h-auto md:top-auto`} style={isDragging ? {
+      height: `${Math.max(48, Math.min(window.innerHeight - 128, getMenuHeight(menuPosition) + dragOffset))}px`
+    } : undefined}>
         {/* Grabber for minimize/maximize */}
-        <div 
-          className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-2xl"
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-          onMouseDown={handleMouseDown}
-        >
+        <div className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-2xl" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
           <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
         </div>
         {/* Menu Content - Hidden when minimized */}
@@ -803,80 +822,33 @@ const Orders = () => {
         {/* Main Categories */}
         <div className="flex flex-wrap items-center gap-1 md:gap-2">
           {/* Menu Controls Group */}
-          {isMenuSelectOpen ? (
-            <div className="flex items-center gap-1 md:gap-2 bg-sidebar-accent rounded-full px-1 md:px-2 py-0.5 md:py-1">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-6 md:h-10 w-6 md:w-10 p-0"
-                onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
-              >
+          {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-2 bg-sidebar-accent rounded-full px-1 md:px-2 py-0.5 md:py-1">
+              <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
                 <img src={burgerCloseIcon} alt="Close menu" className="w-4 md:w-7 h-4 md:h-7" />
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 md:h-10 w-6 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
-                onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
-                title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
-              >
-                {horizontalScrollMode ? (
-                  <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-5 h-3 md:h-5" />
-                ) : (
-                  <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-5 h-3 md:h-5" />
-                )}
+              <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setHorizontalScrollMode(!horizontalScrollMode)} title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}>
+                {horizontalScrollMode ? <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-5 h-3 md:h-5" /> : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-5 h-3 md:h-5" />}
               </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                className="h-6 md:h-10 w-6 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full"
-                onClick={() => setThumbnailViewMode(!thumbnailViewMode)}
-                title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}
-              >
-                {thumbnailViewMode ? (
-                  <img src={listViewIcon} alt="List view" className="w-3 md:w-5 h-3 md:h-5" />
-                ) : (
-                  <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-5 h-3 md:h-5" />
-                )}
+              <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setThumbnailViewMode(!thumbnailViewMode)} title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}>
+                {thumbnailViewMode ? <img src={listViewIcon} alt="List view" className="w-3 md:w-5 h-3 md:h-5" /> : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-5 h-3 md:h-5" />}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
                 <SelectTrigger className="w-[100px] md:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-6 md:h-10 text-[10px] md:text-sm">
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-neutral-700">
-                  {menuList.map((menu) => (
-                    <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
+                  {menuList.map(menu => <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
                       {menu}
-                    </SelectItem>
-                  ))}
+                    </SelectItem>)}
                 </SelectContent>
               </Select>
-            </div>
-          ) : (
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 md:h-10 w-6 md:w-10 p-0"
-              onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}
-            >
+            </div> : <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
               <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-10 h-6 md:h-10" />
-            </Button>
-          )}
+            </Button>}
           {/* Categories */}
-          {menuCategories[selectedMenu].map((cat) => (
-            <Button
-              key={cat}
-              variant={activeCategory === cat ? "default" : "outline"}
-              className={`rounded-full px-2 md:px-8 h-6 md:h-10 text-[10px] md:text-sm whitespace-nowrap border-2 ${
-                activeCategory === cat 
-                  ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` 
-                  : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`
-              }`}
-              onClick={() => setActiveCategory(cat)}
-            >
+          {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2 md:px-8 h-6 md:h-10 text-[10px] md:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => setActiveCategory(cat)}>
               {cat}
-            </Button>
-          ))}
+            </Button>)}
         </div>
 
         <div className="h-px bg-sidebar-border" />
@@ -884,20 +856,9 @@ const Orders = () => {
         {/* Subcategories based on selected category */}
         <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[8.5rem]'}`}>
           <div className={`flex gap-1 md:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
-            {(categorySubcategories[activeCategory] || []).map((sub) => (
-              <Button
-                key={sub}
-                variant="outline"
-                className={`rounded-full px-2 md:px-8 h-6 md:h-10 text-[10px] md:text-sm whitespace-nowrap border ${
-                  activeSubcategory === sub 
-                    ? `bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-header` 
-                    : `bg-header text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-header/80`
-                }`}
-                onClick={() => setActiveSubcategory(sub)}
-              >
+            {(categorySubcategories[activeCategory] || []).map(sub => <Button key={sub} variant="outline" className={`rounded-full px-2 md:px-8 h-6 md:h-10 text-[10px] md:text-sm whitespace-nowrap border ${activeSubcategory === sub ? `bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-header` : `bg-header text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-header/80`}`} onClick={() => setActiveSubcategory(sub)}>
                 {sub}
-              </Button>
-            ))}
+              </Button>)}
           </div>
         </div>
 
@@ -905,23 +866,14 @@ const Orders = () => {
 
         {/* Menu Items Grid */}
         <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
-          {thumbnailViewMode ? (
-            <div className="grid grid-cols-3 md:grid-cols-5 gap-1 md:gap-3">
-              {menuItems.map((item, index) => (
-                <div
-                  key={item.id}
-                  className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700"
-                >
+          {thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 gap-1 md:gap-3">
+              {menuItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700">
                   <div className="relative aspect-[4/3] bg-neutral-800">
-                    <img 
-                      src={foodImages[index % foodImages.length]}
-                      alt={item.name}
-                      className="w-full h-full object-cover"
-                    />
-                    <button
-                      onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                      className="absolute top-1 md:top-2 left-1 md:left-2 w-6 md:w-8 h-6 md:h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors"
-                    >
+                    <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
+                    <button onClick={e => {
+                  e.stopPropagation();
+                  addToCart(item);
+                }} className="absolute top-1 md:top-2 left-1 md:left-2 w-6 md:w-8 h-6 md:h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
                       <Plus className="w-3 md:w-4 h-3 md:h-4 text-white" />
                     </button>
                   </div>
@@ -930,30 +882,20 @@ const Orders = () => {
                       {item.name}
                     </span>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
-              {menuItems.map((item) => (
-                <div
-                  key={item.id}
-                  onClick={() => addToCart(item)}
-                  className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border"
-                >
+                </div>)}
+            </div> : <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
+              {menuItems.map(item => <div key={item.id} onClick={() => addToCart(item)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
                   <span className="flex-1 text-[10px] md:text-xs font-bold leading-tight uppercase text-foreground p-1.5 md:p-3">
                     {item.name}
                   </span>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); addToCart(item); }}
-                    className="w-6 md:w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center"
-                  >
+                  <button onClick={e => {
+                e.stopPropagation();
+                addToCart(item);
+              }} className="w-6 md:w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center">
                     <Plus className="w-3 md:w-4 h-3 md:h-4" />
                   </button>
-                </div>
-              ))}
-            </div>
-          )}
+                </div>)}
+            </div>}
         </ScrollArea>
         </div>
       </div>
@@ -963,24 +905,10 @@ const Orders = () => {
         {/* Order Header - Outside background container */}
         <div className="p-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs text-muted-foreground mb-3 gap-2">
-            <input 
-              type="text" 
-              value={guestName} 
-              onChange={(e) => setGuestName(e.target.value)}
-              placeholder="GUEST NAME"
-              className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0"
-            />
+            <input type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0" />
             <div className="flex items-center gap-1">
               <span>📞</span>
-              <input 
-                type="tel" 
-                inputMode="numeric"
-                pattern="[0-9]*"
-                value={guestPhone} 
-                onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))}
-                placeholder="XXX-XXX-XXXX"
-                className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0 text-center"
-              />
+              <input type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="XXX-XXX-XXXX" className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0 text-center" />
             </div>
             <span className="whitespace-nowrap flex-shrink-0">🕐 10:20 PM</span>
           </div>
@@ -1018,15 +946,9 @@ const Orders = () => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
-                  {orderTypes.map((type) => (
-                    <DropdownMenuItem
-                      key={type}
-                      onClick={() => setOrderType(type)}
-                      className="text-white hover:bg-neutral-700 cursor-pointer"
-                    >
+                  {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-white hover:bg-neutral-700 cursor-pointer">
                       {type}
-                    </DropdownMenuItem>
-                  ))}
+                    </DropdownMenuItem>)}
                 </DropdownMenuContent>
               </DropdownMenu>
               <span className="bg-sidebar-accent px-2 py-0.5 rounded text-base font-bold">20</span>
@@ -1041,27 +963,17 @@ const Orders = () => {
           <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
           <div className="flex items-center gap-2 bg-neutral-700 rounded px-3 py-2">
             <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            <input
-              type="text"
-              placeholder="Order notes"
-              value={orderNotes}
-              onChange={(e) => setOrderNotes(e.target.value)}
-              className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
-            />
+            <input type="text" placeholder="Order notes" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none" />
           </div>
         </div>
 
         {/* Order Items */}
         <ScrollArea className="flex-1 min-h-0 px-2">
-          {orderItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full py-8">
+          {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center h-full py-8">
               <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
               <span className="text-muted-foreground text-sm">Let's create an order</span>
-            </div>
-          ) : (
-            <div className="py-1 space-y-2">
-              {orderItems.map((item) => (
-                <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
+            </div> : <div className="py-1 space-y-2">
+              {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
                   <div className="p-3 border border-sidebar-border rounded-lg">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -1072,21 +984,15 @@ const Orders = () => {
                       </div>
                       <span className="text-sm font-medium text-foreground">$ {item.price.toFixed(2)}</span>
                     </div>
-                    {item.modifiers && item.modifiers.length > 0 && (
-                      <div className="mt-2 ml-8 space-y-0.5">
-                        {item.modifiers.map((mod, idx) => (
-                          <div key={idx} className="flex items-center gap-1 text-xs text-muted-foreground">
+                    {item.modifiers && item.modifiers.length > 0 && <div className="mt-2 ml-8 space-y-0.5">
+                        {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs text-muted-foreground">
                             <span>{mod.startsWith("W/") ? "+" : "-"}</span>
                             <span>{mod}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                          </div>)}
+                      </div>}
                   </div>
-                </SwipeableCartItem>
-              ))}
-            </div>
-          )}
+                </SwipeableCartItem>)}
+            </div>}
         </ScrollArea>
 
         {/* Order Summary */}
@@ -1117,29 +1023,16 @@ const Orders = () => {
 
           {/* Action Buttons - Inside background container */}
           <div className="p-2 flex items-center gap-2 flex-shrink-0">
-            <Button
-              variant="outline"
-              size="icon"
-              className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 border-red-600"
-              onClick={() => setOrderItems([])}
-            >
+            <Button variant="outline" size="icon" className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 border-red-600" onClick={() => setOrderItems([])}>
               <img src={clearIcon} alt="Clear" className="w-5 h-5" />
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="w-10 h-10 rounded-lg border-sidebar-border bg-white/20"
-            >
+            <Button variant="outline" size="icon" className="w-10 h-10 rounded-lg border-sidebar-border bg-white/20">
               <img src={saveIcon} alt="Save" className="w-5 h-5" />
             </Button>
-            <Button
-              className="h-10 px-4 rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-sm gap-1.5"
-            >
+            <Button className="h-10 px-4 rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-sm gap-1.5">
               <img src={fireIcon} alt="Fire" className="w-4 h-4" /> FIRE
             </Button>
-            <Button
-              className="flex-1 h-10 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm border border-neutral-600"
-            >
+            <Button className="flex-1 h-10 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm border border-neutral-600">
               CHARGE $ {total.toFixed(2)}
             </Button>
           </div>
@@ -1148,30 +1041,15 @@ const Orders = () => {
       </div>
 
       {/* Expanded Order Panel - Mobile Only */}
-      {isOrderPanelExpanded && (
-        <div className="md:hidden fixed inset-0 bg-black z-50 flex flex-col">
+      {isOrderPanelExpanded && <div className="md:hidden fixed inset-0 bg-black z-50 flex flex-col">
           {/* Header with collapse button */}
           <div className="flex items-center justify-between p-3 border-b border-neutral-700">
             <div className="flex items-center gap-2">
-              <input 
-                type="text" 
-                value={guestName} 
-                onChange={(e) => setGuestName(e.target.value)}
-                placeholder="GUEST NAME"
-                className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 text-sm font-medium"
-              />
+              <input type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 text-sm font-medium" />
             </div>
             <div className="flex items-center gap-2 text-xs">
               <span>📞</span>
-              <input 
-                type="tel" 
-                inputMode="numeric"
-                pattern="[0-9]*"
-                value={guestPhone} 
-                onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))}
-                placeholder="(XXX) XXX-XXXX"
-                className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-28"
-              />
+              <input type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-28" />
             </div>
             <div className="flex items-center gap-2 text-xs">
               <span>🕐 12:30 PM</span>
@@ -1214,15 +1092,9 @@ const Orders = () => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
-                  {orderTypes.map((type) => (
-                    <DropdownMenuItem
-                      key={type}
-                      onClick={() => setOrderType(type)}
-                      className="text-white hover:bg-neutral-700 cursor-pointer"
-                    >
+                  {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-white hover:bg-neutral-700 cursor-pointer">
                       {type}
-                    </DropdownMenuItem>
-                  ))}
+                    </DropdownMenuItem>)}
                 </DropdownMenuContent>
               </DropdownMenu>
               <span className="bg-neutral-700 px-2 py-0.5 rounded text-sm font-bold">20</span>
@@ -1237,27 +1109,17 @@ const Orders = () => {
           <div className="px-3 py-2 border-b border-neutral-700">
             <div className="flex items-center gap-2 bg-neutral-800 rounded px-3 py-2">
               <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-              <input
-                type="text"
-                placeholder="Order notes"
-                value={orderNotes}
-                onChange={(e) => setOrderNotes(e.target.value)}
-                className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
-              />
+              <input type="text" placeholder="Order notes" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none" />
             </div>
           </div>
 
           {/* Order Items */}
           <ScrollArea className="flex-1 min-h-0 px-3">
-            {orderItems.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full py-8">
+            {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center h-full py-8">
                 <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                 <span className="text-muted-foreground text-sm">Let's create an order</span>
-              </div>
-            ) : (
-              <div className="py-2 space-y-2">
-                {orderItems.map((item) => (
-                  <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
+              </div> : <div className="py-2 space-y-2">
+                {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
                     <div className="p-3 bg-neutral-900 rounded-lg">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-3">
@@ -1268,21 +1130,15 @@ const Orders = () => {
                         </div>
                         <span className="text-sm font-medium text-foreground">$ {(item.price * item.qty).toFixed(2)}</span>
                       </div>
-                      {item.modifiers && item.modifiers.length > 0 && (
-                        <div className="mt-2 ml-9 space-y-0.5">
-                          {item.modifiers.map((mod, idx) => (
-                            <div key={idx} className="flex items-center gap-1 text-xs text-muted-foreground">
+                      {item.modifiers && item.modifiers.length > 0 && <div className="mt-2 ml-9 space-y-0.5">
+                          {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs text-muted-foreground">
                               <span>{mod.startsWith("W/") ? "+" : "-"}</span>
                               <span>{mod}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                            </div>)}
+                        </div>}
                     </div>
-                  </SwipeableCartItem>
-                ))}
-              </div>
-            )}
+                  </SwipeableCartItem>)}
+              </div>}
           </ScrollArea>
 
           {/* Order Summary */}
@@ -1309,29 +1165,16 @@ const Orders = () => {
 
           {/* Action Buttons */}
           <div className="p-3 flex items-center gap-2 border-t border-neutral-700">
-            <Button
-              variant="outline"
-              size="icon"
-              className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 border-red-600"
-              onClick={() => setOrderItems([])}
-            >
+            <Button variant="outline" size="icon" className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 border-red-600" onClick={() => setOrderItems([])}>
               <img src={clearIcon} alt="Clear" className="w-5 h-5" />
             </Button>
-            <Button
-              variant="outline"
-              size="icon"
-              className="w-10 h-10 rounded-lg border-sidebar-border bg-white/20"
-            >
+            <Button variant="outline" size="icon" className="w-10 h-10 rounded-lg border-sidebar-border bg-white/20">
               <img src={saveIcon} alt="Save" className="w-5 h-5" />
             </Button>
-            <Button
-              className="h-10 px-4 rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-sm gap-1.5"
-            >
+            <Button className="h-10 px-4 rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-sm gap-1.5">
               <img src={fireIcon} alt="Fire" className="w-4 h-4" /> FIRE
             </Button>
-            <Button
-              className="flex-1 h-10 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm border border-neutral-600"
-            >
+            <Button className="flex-1 h-10 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm border border-neutral-600">
               CHARGE $ {total.toFixed(2)}
             </Button>
           </div>
@@ -1363,12 +1206,10 @@ const Orders = () => {
               <span className="text-xs text-muted-foreground">Settings</span>
             </button>
           </div>
-        </div>
-      )}
+        </div>}
 
       {/* Bottom Navigation - Mobile Only */}
-      {!isOrderPanelExpanded && (
-        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-neutral-900 border-t border-neutral-700 flex items-center justify-around py-2 px-4 z-50">
+      {!isOrderPanelExpanded && <div className="md:hidden fixed bottom-0 left-0 right-0 bg-neutral-900 border-t border-neutral-700 flex items-center justify-around py-2 px-4 z-50">
           <button className="flex flex-col items-center gap-1 px-4 py-1 rounded-lg bg-neutral-800 border border-neutral-600">
             <Plus className="w-5 h-5" />
             <span className="text-xs">New Order</span>
@@ -1393,10 +1234,7 @@ const Orders = () => {
             </svg>
             <span className="text-xs text-muted-foreground">Settings</span>
           </button>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };
-
 export default Orders;

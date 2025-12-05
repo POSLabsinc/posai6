@@ -724,7 +724,7 @@ const Orders = () => {
   const total = subtotal - discount + serviceCharge + tax;
   return <div className="flex flex-col md:flex-row gap-3 h-full overflow-hidden pb-16 md:pb-0">
       {/* Right Panel - Order (Shows first on mobile) */}
-      <div className="md:hidden flex flex-col overflow-hidden flex-shrink-0">
+      <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1' : 'flex-shrink-0'}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
@@ -761,7 +761,7 @@ const Orders = () => {
         </div>
 
         {/* Background Container for Order Content */}
-        <div className="flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden min-h-0 mx-1">
+        <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden min-h-0 mx-1 ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
           {/* Order Type & Guest Info */}
           <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
             <div className="flex items-center gap-2">
@@ -784,14 +784,20 @@ const Orders = () => {
               <img src={runnerIcon} alt="User" className="w-4 h-4" />
               <span>Dustin H</span>
               <button className="ml-1 p-1" onClick={() => {
-                if (menuPosition !== 'minimized') {
+                if (!isOrderPanelExpanded) {
+                  setIsOrderPanelExpanded(true);
                   setMenuPosition('minimized');
                 } else {
-                  setIsOrderPanelExpanded(true);
+                  setIsOrderPanelExpanded(false);
+                  setMenuPosition('center');
                 }
               }}>
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                  {isOrderPanelExpanded ? (
+                    <path d="M4 14h6v6M20 10h-6V4M4 14l7-7M20 10l-7 7" />
+                  ) : (
+                    <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+                  )}
                 </svg>
               </button>
             </div>
@@ -810,7 +816,7 @@ const Orders = () => {
             {orderItems.length === 0 ? <div className="flex-1 flex flex-col items-center justify-center">
                 <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                 <span className="text-muted-foreground text-sm">Let's create an order</span>
-              </div> : <ScrollArea className="h-full max-h-28">
+              </div> : <ScrollArea className={`h-full ${isOrderPanelExpanded ? '' : 'max-h-28'}`}>
                 <div className="px-2 py-1 space-y-1">
                   {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
                       <div className="flex items-center justify-between bg-neutral-800 rounded-lg px-2 py-1.5">

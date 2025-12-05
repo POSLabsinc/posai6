@@ -735,19 +735,19 @@ const Orders = () => {
           
           <div className="overflow-x-auto scrollbar-hide mb-2">
             <div className="flex items-center gap-2 w-max">
-              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
                 <span className="text-muted-foreground">%</span> Discount
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
                 <X className="w-3 h-3 text-muted-foreground" /> No Tax
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
                 <span className="text-muted-foreground">$</span> Open Register
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-full bg-sidebar border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
+              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
                 <Receipt className="w-3 h-3 text-muted-foreground" /> Gift Card
               </Button>
-              <Button variant="secondary" size="icon" className="h-7 w-7 rounded-full bg-sidebar border border-sidebar-border">
+              <Button variant="secondary" size="icon" className="h-7 w-7 rounded-[10px] bg-[#666666] border border-sidebar-border">
                 <Plus className="w-3 h-3" />
               </Button>
             </div>

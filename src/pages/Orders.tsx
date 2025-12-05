@@ -507,7 +507,7 @@ const Orders = () => {
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [isOrderPanelExpanded, setIsOrderPanelExpanded] = useState(false);
-  const [isMenuMinimized, setIsMenuMinimized] = useState(false);
+  const [isMenuMinimized, setIsMenuMinimized] = useState(true);
   const [touchStart, setTouchStart] = useState<number | null>(null);
 
   const addToCart = (item: { id: number; name: string }) => {
@@ -654,26 +654,26 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`flex-1 flex flex-col gap-2 min-w-0 overflow-y-auto md:overflow-hidden bg-neutral-900 rounded-lg p-2 md:p-3 scrollbar-hide transition-all duration-300 ${isMenuMinimized ? 'max-h-16' : ''}`}>
+      <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 rounded-t-2xl md:rounded-lg transition-all duration-300 ease-out ${isMenuMinimized ? 'h-12 flex-shrink-0' : 'flex-1 overflow-hidden'}`}>
         {/* Grabber for minimize/maximize */}
         <div 
-          className="flex justify-center cursor-grab active:cursor-grabbing select-none"
+          className="flex justify-center py-2 cursor-grab active:cursor-grabbing select-none md:hidden"
           onTouchStart={(e) => setTouchStart(e.touches[0].clientY)}
           onTouchEnd={(e) => {
             if (touchStart !== null) {
               const touchEnd = e.changedTouches[0].clientY;
               const diff = touchStart - touchEnd;
-              if (diff > 50) setIsMenuMinimized(true);
-              if (diff < -50) setIsMenuMinimized(false);
+              if (diff > 50) setIsMenuMinimized(false); // Swipe up = expand
+              if (diff < -50) setIsMenuMinimized(true);  // Swipe down = minimize
               setTouchStart(null);
             }
           }}
           onClick={() => setIsMenuMinimized(!isMenuMinimized)}
         >
-          <img src={grabberIcon} alt="Drag to resize" className="w-8 h-2 opacity-60 hover:opacity-100 transition-opacity" />
+          <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
         </div>
         {/* Menu Content - Hidden when minimized */}
-        <div className={`flex flex-col gap-2 overflow-hidden transition-all duration-300 ${isMenuMinimized ? 'max-h-0 opacity-0' : 'flex-1 opacity-100'}`}>
+        <div className={`flex flex-col gap-2 p-2 md:p-3 overflow-hidden transition-all duration-300 ${isMenuMinimized ? 'h-0 opacity-0 p-0' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
         {/* Main Categories */}
         <div className="flex flex-wrap items-center gap-1 md:gap-2">
           {/* Menu Controls Group */}

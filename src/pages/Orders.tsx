@@ -654,9 +654,9 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 rounded-t-2xl md:rounded-lg transition-all duration-300 ease-out fixed md:relative bottom-16 md:bottom-auto left-0 right-0 md:left-auto md:right-auto z-10 ${
+      <div className={`md:flex-1 flex flex-col min-w-0 bg-sidebar-accent/30 border border-sidebar-border md:border-0 rounded-t-2xl md:rounded-lg transition-all duration-300 ease-out fixed md:relative bottom-16 md:bottom-auto left-2 right-2 md:left-0 md:right-0 md:left-auto md:right-auto z-10 ${
         menuPosition === 'minimized' ? 'h-12' : 
-        menuPosition === 'center' ? 'h-[50%]' : 
+        menuPosition === 'center' ? 'h-[40%]' : 
         'h-[calc(100%-4rem)]'
       } md:h-auto md:top-auto`}>
         {/* Grabber for minimize/maximize */}

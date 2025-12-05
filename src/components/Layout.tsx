@@ -21,7 +21,7 @@ export function Layout({ children }: LayoutProps) {
       {/* Mobile Header Toggle */}
       <button 
         onClick={() => setIsHeaderVisible(!isHeaderVisible)}
-        className="md:hidden mx-auto bg-black hover:bg-neutral-800 px-8 py-px rounded-b-md transition-colors"
+        className="md:hidden mx-auto bg-neutral-700 hover:bg-neutral-600 px-8 py-px rounded-b-md transition-colors"
       >
         {isHeaderVisible ? (
           <ChevronUp className="w-2.5 h-2.5 text-muted-foreground" />

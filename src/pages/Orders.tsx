@@ -29,6 +29,8 @@ import horizontalScrollIcon from "@/assets/icons/horizontal-scroll.png";
 import verticalScrollIcon from "@/assets/icons/vertical-scroll.png";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 import grabberIcon from "@/assets/icons/grabber.png";
+import phoneIcon from "@/assets/icons/phone-icon.png";
+import timeIcon from "@/assets/icons/time-icon.png";
 
 // Food images
 import salmonImg from "@/assets/food/salmon.jpg";
@@ -657,16 +659,16 @@ const Orders = () => {
       <div className="md:hidden flex flex-col overflow-hidden flex-shrink-0">
         {/* Order Header - Outside background container */}
         <div className="px-2 pb-2 flex-shrink-0">
-          <div className="flex items-center justify-between text-xs text-muted-foreground mb-2 gap-2">
+          <div className="flex items-center justify-between text-xs mb-2 gap-2">
             <input 
               type="text" 
               value={guestName} 
               onChange={(e) => setGuestName(e.target.value)}
               placeholder="GUEST NAME"
-              className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-24 min-w-0 font-medium"
+              className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]"
             />
-            <div className="flex items-center gap-1">
-              <span>📞</span>
+            <div className="flex items-center gap-0.5">
+              <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
               <input 
                 type="tel" 
                 inputMode="numeric"
@@ -674,10 +676,13 @@ const Orders = () => {
                 value={guestPhone} 
                 onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))}
                 placeholder="(XXX) XXX-XXXX"
-                className="bg-transparent outline-none text-foreground placeholder:text-muted-foreground w-28 min-w-0 text-center"
+                className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080]"
               />
             </div>
-            <span className="whitespace-nowrap flex-shrink-0">🕐 12:30 PM</span>
+            <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
+              <img src={timeIcon} alt="Time" className="w-4 h-4" />
+              <span className="text-white">12:30 PM</span>
+            </div>
           </div>
           
           <div className="overflow-x-auto scrollbar-hide mb-2">

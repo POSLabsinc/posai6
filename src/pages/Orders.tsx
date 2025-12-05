@@ -650,7 +650,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-hidden bg-neutral-900 rounded-lg p-3">
+      <div className="flex-1 flex flex-col gap-2 min-w-0 overflow-y-auto md:overflow-hidden bg-neutral-900 rounded-lg p-2 md:p-3 scrollbar-hide">
         {/* Main Categories */}
         <div className="flex flex-wrap items-center gap-1 md:gap-2">
           {/* Menu Controls Group */}

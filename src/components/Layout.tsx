@@ -10,6 +10,20 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
+  const [headerTouchStart, setHeaderTouchStart] = useState<number | null>(null);
+
+  const handleHeaderTouchStart = (e: React.TouchEvent) => {
+    setHeaderTouchStart(e.touches[0].clientY);
+  };
+
+  const handleHeaderTouchEnd = (e: React.TouchEvent) => {
+    if (headerTouchStart === null) return;
+    const diff = e.changedTouches[0].clientY - headerTouchStart;
+    if (diff < -30) {
+      setIsHeaderVisible(false);
+    }
+    setHeaderTouchStart(null);
+  };
 
   return (
     <div 
@@ -20,6 +34,8 @@ export function Layout({ children }: LayoutProps) {
       <div 
         className={`${isHeaderVisible ? 'block' : 'hidden'} md:block flex-shrink-0`}
         onClick={(e) => e.stopPropagation()}
+        onTouchStart={handleHeaderTouchStart}
+        onTouchEnd={handleHeaderTouchEnd}
       >
         <Header />
       </div>

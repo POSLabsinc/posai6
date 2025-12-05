@@ -1081,17 +1081,19 @@ const Orders = () => {
           </div>
 
           {/* Action Buttons - Inside background container */}
-          <div className="p-2 flex items-center gap-2 flex-shrink-0">
-            <Button variant="outline" size="icon" className="w-10 h-10 rounded-full bg-red-600 hover:bg-red-700 border-red-600" onClick={() => setOrderItems([])}>
-              <img src={clearIcon} alt="Clear" className="w-5 h-5" />
-            </Button>
-            <Button variant="outline" size="icon" className="w-10 h-10 rounded-lg border-sidebar-border bg-white/20">
-              <img src={saveIcon} alt="Save" className="w-5 h-5" />
-            </Button>
-            <Button className="h-10 px-4 rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-sm gap-1.5">
-              <img src={fireIcon} alt="Fire" className="w-4 h-4" /> FIRE
-            </Button>
-            <Button className="flex-1 h-10 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-sm border border-neutral-600">
+          <div className="p-2 flex flex-col gap-2 flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <Button variant="outline" size="icon" className="w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 border-red-600 flex-shrink-0" onClick={() => setOrderItems([])}>
+                <img src={clearIcon} alt="Clear" className="w-4 h-4" />
+              </Button>
+              <Button variant="outline" size="icon" className="w-8 h-8 rounded-lg border-sidebar-border bg-white/20 flex-shrink-0">
+                <img src={saveIcon} alt="Save" className="w-4 h-4" />
+              </Button>
+              <Button className="flex-1 h-8 rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-xs gap-1">
+                <img src={fireIcon} alt="Fire" className="w-3 h-3" /> FIRE
+              </Button>
+            </div>
+            <Button className="w-full h-8 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs border border-neutral-600">
               CHARGE $ {total.toFixed(2)}
             </Button>
           </div>

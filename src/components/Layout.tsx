@@ -13,23 +13,26 @@ export function Layout({ children }: LayoutProps) {
 
   return (
     <div className="h-screen flex flex-col w-full overflow-hidden">
-      {/* Mobile Header Toggle */}
-      <div className="md:hidden flex justify-center">
-        <button 
-          onClick={() => setIsHeaderVisible(!isHeaderVisible)}
-          className="bg-neutral-700 hover:bg-neutral-600 px-8 py-1 rounded-b-xl transition-colors"
-        >
-          {isHeaderVisible ? (
-            <ChevronUp className="w-4 h-4 text-muted-foreground" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
-          )}
-        </button>
-      </div>
-
-      {/* Header - Hidden by default on mobile, shown when toggled */}
-      <div className={`${isHeaderVisible ? 'block' : 'hidden'} md:block`}>
-        <Header />
+      {/* Header area */}
+      <div className="flex-shrink-0">
+        {/* Header - Hidden by default on mobile, shown when toggled */}
+        <div className={`${isHeaderVisible ? 'block' : 'hidden'} md:block`}>
+          <Header />
+        </div>
+        
+        {/* Mobile Header Toggle - Inside header area */}
+        <div className="md:hidden flex justify-center bg-header">
+          <button 
+            onClick={() => setIsHeaderVisible(!isHeaderVisible)}
+            className="bg-neutral-600 hover:bg-neutral-500 px-6 py-0.5 rounded-b-lg transition-colors"
+          >
+            {isHeaderVisible ? (
+              <ChevronUp className="w-3 h-3 text-muted-foreground" />
+            ) : (
+              <ChevronDown className="w-3 h-3 text-muted-foreground" />
+            )}
+          </button>
+        </div>
       </div>
 
       <div className="flex flex-1 min-h-0 overflow-hidden">

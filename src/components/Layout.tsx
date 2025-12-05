@@ -12,7 +12,7 @@ export function Layout({ children }: LayoutProps) {
   const [isHeaderVisible, setIsHeaderVisible] = useState(false);
 
   return (
-    <div className="h-screen flex flex-col w-full overflow-hidden">
+    <div className="h-screen flex flex-col w-full overflow-hidden bg-black">
       {/* Header - Hidden by default on mobile, shown when toggled */}
       <div className={`${isHeaderVisible ? 'block' : 'hidden'} md:block flex-shrink-0`}>
         <Header />

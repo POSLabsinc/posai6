@@ -718,7 +718,7 @@ const Orders = () => {
             <Button
               key={cat}
               variant={activeCategory === cat ? "default" : "outline"}
-              className={`rounded-full px-3 md:px-8 h-7 md:h-10 text-xs md:text-sm whitespace-nowrap border-2 ${
+              className={`rounded-full px-2 md:px-8 h-6 md:h-10 text-[10px] md:text-sm whitespace-nowrap border-2 ${
                 activeCategory === cat 
                   ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` 
                   : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`
@@ -739,7 +739,7 @@ const Orders = () => {
               <Button
                 key={sub}
                 variant="outline"
-                className={`rounded-full px-3 md:px-8 h-7 md:h-10 text-xs md:text-sm whitespace-nowrap border ${
+                className={`rounded-full px-2 md:px-8 h-6 md:h-10 text-[10px] md:text-sm whitespace-nowrap border ${
                   activeSubcategory === sub 
                     ? `bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-header` 
                     : `bg-header text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-header/80`

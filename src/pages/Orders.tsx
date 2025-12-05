@@ -737,7 +737,7 @@ const Orders = () => {
       >
         {/* Grabber for minimize/maximize */}
         <div 
-          className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none"
+          className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-2xl"
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}

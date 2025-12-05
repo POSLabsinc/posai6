@@ -746,7 +746,7 @@ const Orders = () => {
           <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
         </div>
         {/* Menu Content - Hidden when minimized */}
-        <div className={`flex flex-col gap-2 p-2 md:p-3 transition-all duration-300 ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
+        <div className={`flex flex-col gap-2 p-2 md:p-3 transition-all duration-300 bg-neutral-900 rounded-b-2xl md:rounded-b-lg ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
         {/* Main Categories */}
         <div className="flex flex-wrap items-center gap-1 md:gap-2">
           {/* Menu Controls Group */}

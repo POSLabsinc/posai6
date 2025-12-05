@@ -721,7 +721,7 @@ const Orders = () => {
       {/* Right Panel - Order (Shows first on mobile) */}
       <div className="md:hidden flex flex-col overflow-hidden flex-shrink-0">
         {/* Order Header - Outside background container */}
-        <div className="px-2 pb-2 flex-shrink-0">
+        <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
             <input type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]" />
             <div className="flex items-center gap-0.5">
@@ -730,7 +730,7 @@ const Orders = () => {
             </div>
             <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
               <img src={timeIcon} alt="Time" className="w-4 h-4" />
-              <span className="text-white bg-[#666666]">12:30 PM</span>
+              <span className="text-white">12:30 PM</span>
             </div>
           </div>
           
@@ -756,9 +756,9 @@ const Orders = () => {
         </div>
 
         {/* Background Container for Order Content */}
-        <div className="flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden min-h-0 mx-2">
+        <div className="flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden min-h-0 mx-1">
           {/* Order Type & Guest Info */}
-          <div className="flex items-center justify-between px-3 py-2 border-b border-sidebar-border">
+          <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

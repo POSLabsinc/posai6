@@ -654,10 +654,10 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 rounded-t-2xl md:rounded-lg transition-all duration-300 ease-out ${isMenuMinimized ? 'h-12 flex-shrink-0' : 'flex-1 overflow-hidden'}`}>
+      <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 rounded-t-2xl md:rounded-lg transition-all duration-300 ease-out fixed md:relative bottom-16 md:bottom-auto left-0 right-0 md:left-auto md:right-auto z-10 ${isMenuMinimized ? 'h-12' : 'top-0 md:top-auto h-[calc(100%-4rem)] md:h-auto md:flex-1'}`}>
         {/* Grabber for minimize/maximize */}
         <div 
-          className="flex justify-center py-2 cursor-grab active:cursor-grabbing select-none md:hidden"
+          className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none md:hidden"
           onTouchStart={(e) => setTouchStart(e.touches[0].clientY)}
           onTouchEnd={(e) => {
             if (touchStart !== null) {
@@ -673,7 +673,7 @@ const Orders = () => {
           <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
         </div>
         {/* Menu Content - Hidden when minimized */}
-        <div className={`flex flex-col gap-2 p-2 md:p-3 overflow-hidden transition-all duration-300 ${isMenuMinimized ? 'h-0 opacity-0 p-0' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
+        <div className={`flex flex-col gap-2 p-2 md:p-3 transition-all duration-300 ${isMenuMinimized ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
         {/* Main Categories */}
         <div className="flex flex-wrap items-center gap-1 md:gap-2">
           {/* Menu Controls Group */}

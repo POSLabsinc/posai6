@@ -1291,7 +1291,7 @@ const Orders = () => {
               <span className="text-muted-foreground text-sm">Let's create an order</span>
             </div> : <div className="py-1 space-y-2">
               {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
-                  <div className="p-3 border border-sidebar-border rounded-lg">
+                  <div className="p-3 border border-sidebar-border rounded-lg" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">

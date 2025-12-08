@@ -1132,7 +1132,7 @@ const Orders = () => {
                   <button onClick={e => {
                 e.stopPropagation();
                 addToCart(item);
-              }} className="w-6 md:w-10 bg-orange-500 hover:bg-orange-600 text-white flex-shrink-0 flex items-center justify-center">
+              }} className="w-6 md:w-10 text-white flex-shrink-0 flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
                     <Plus className="w-3 md:w-4 h-3 md:h-4" />
                   </button>
                 </div>)}

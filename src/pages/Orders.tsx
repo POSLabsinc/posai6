@@ -573,7 +573,7 @@ const Orders = () => {
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
-  // Order panel expansion removed
+  const [isOrderPanelExpanded, setIsOrderPanelExpanded] = useState(false);
   const [menuPosition, setMenuPosition] = useState<'minimized' | 'center' | 'full'>('center');
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchStartTime, setTouchStartTime] = useState<number | null>(null);
@@ -761,7 +761,9 @@ const Orders = () => {
         </div>
 
         {/* Background Container for Order Content */}
-        <div className="flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden min-h-0 mx-1">
+        <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden mx-1 transition-all duration-300 ${
+          isOrderPanelExpanded ? 'flex-1' : 'min-h-0'
+        }`}>
           {/* Order Type & Guest Info */}
           <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
             <div className="flex items-center gap-2">
@@ -783,6 +785,12 @@ const Orders = () => {
             <div className="flex items-center gap-2 text-xs">
               <img src={runnerIcon} alt="User" className="w-4 h-4" />
               <span>Dustin H</span>
+              <button 
+                onClick={() => setIsOrderPanelExpanded(!isOrderPanelExpanded)}
+                className="ml-2 p-1 rounded hover:bg-neutral-700 transition-colors"
+              >
+                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isOrderPanelExpanded ? 'rotate-180' : ''}`} />
+              </button>
             </div>
           </div>
 
@@ -799,7 +807,7 @@ const Orders = () => {
             {orderItems.length === 0 ? <div className="flex-1 flex flex-col items-center justify-center">
                 <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                 <span className="text-muted-foreground text-sm">Let's create an order</span>
-              </div> : <ScrollArea className="h-full max-h-28">
+              </div> : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-28'}`}>
                 <div className="px-2 py-1 space-y-1">
                   {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
                       <div className="flex items-center justify-between bg-neutral-800 rounded-lg px-2 py-1.5">

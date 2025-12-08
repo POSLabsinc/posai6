@@ -606,6 +606,7 @@ const Orders = () => {
   const [showPhoneDropdown, setShowPhoneDropdown] = useState(false);
   const [filteredGuests, setFilteredGuests] = useState<GuestUser[]>([]);
   const [filteredByPhone, setFilteredByPhone] = useState<GuestUser[]>([]);
+  const [isGuestSelected, setIsGuestSelected] = useState(false);
   const guestInputRef = useRef<HTMLInputElement>(null);
   const guestDropdownRef = useRef<HTMLDivElement>(null);
   const mobileGuestInputRef = useRef<HTMLInputElement>(null);
@@ -617,6 +618,10 @@ const Orders = () => {
 
   // Filter guests based on name input
   useEffect(() => {
+    if (isGuestSelected) {
+      setIsGuestSelected(false);
+      return;
+    }
     if (guestName.trim().length > 0) {
       const filtered = mockGuestUsers.filter(user =>
         user.name.toLowerCase().includes(guestName.toLowerCase())
@@ -631,6 +636,9 @@ const Orders = () => {
 
   // Filter guests based on phone input
   useEffect(() => {
+    if (isGuestSelected) {
+      return;
+    }
     if (guestPhone.trim().length > 0) {
       const filtered = mockGuestUsers.filter(user =>
         user.phone.replace(/\D/g, '').includes(guestPhone)
@@ -671,6 +679,7 @@ const Orders = () => {
   }, []);
 
   const selectGuest = (guest: GuestUser) => {
+    setIsGuestSelected(true);
     setGuestName(guest.name);
     setGuestPhone(guest.phone.replace(/\D/g, ''));
     setShowGuestDropdown(false);

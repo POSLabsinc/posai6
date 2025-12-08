@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown } from "lucide-react";
 import clearIcon from "@/assets/icons/clear.png";
+import clearCIcon from "@/assets/icons/clear-c.png";
 import saveIcon from "@/assets/icons/save.png";
 import fireIcon from "@/assets/icons/fire.png";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -860,17 +861,17 @@ const Orders = () => {
           {/* Action Buttons */}
           <div className="px-2 py-2 flex items-center gap-2">
             <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
-              <span className="text-white font-bold text-sm">C</span>
+              <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
             </button>
-            <button className="w-8 h-8 rounded-md bg-neutral-600 hover:bg-neutral-500 flex items-center justify-center flex-shrink-0">
-              <img src={saveIcon} alt="Save" className="w-4 h-4 brightness-200" />
+            <button className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#C9C9C9' }}>
+              <img src={saveIcon} alt="Save" className="w-4 h-4" />
             </button>
-            <button className="flex-1 h-8 rounded-full bg-orange-500 hover:bg-orange-600 flex items-center justify-center gap-1.5">
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
               <img src={fireIcon} alt="Fire" className="w-4 h-4" />
               <span className="text-white font-semibold text-sm">FIRE</span>
             </button>
-            <button className="flex-1 h-8 rounded-md bg-neutral-700 hover:bg-neutral-600 border border-neutral-500 flex items-center justify-center">
-              <span className="text-white font-semibold text-xs">CHARGE $ {total.toFixed(2)}</span>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}>
+              <span className="text-black font-semibold text-xs">CHARGE $ {total.toFixed(2)}</span>
             </button>
           </div>
         </div>

@@ -1055,11 +1055,11 @@ const Orders = () => {
       height: `${Math.max(48, Math.min(window.innerHeight - 128, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize */}
-        <div className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-black rounded-t-2xl" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
+        <div className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-2xl" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
           <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
         </div>
         {/* Menu Content - Hidden when minimized */}
-        <div className={`flex flex-col gap-2 p-2 md:p-3 transition-all duration-300 bg-black rounded-b-2xl md:rounded-b-lg ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
+        <div className={`flex flex-col gap-2 p-2 md:p-3 transition-all duration-300 bg-neutral-900 rounded-b-2xl md:rounded-b-lg ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
         {/* Main Categories */}
         <div className="flex flex-wrap items-center gap-1 md:gap-2">
           {/* Menu Controls Group */}

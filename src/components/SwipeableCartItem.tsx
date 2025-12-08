@@ -1,4 +1,7 @@
 import { useState, useRef } from "react";
+import moneyOffIcon from "@/assets/icons/money-off.png";
+import clearCIcon from "@/assets/icons/clear-c.png";
+import fireVectorIcon from "@/assets/icons/fire-vector.png";
 
 interface SwipeableCartItemProps {
   children: React.ReactNode;
@@ -82,36 +85,29 @@ const SwipeableCartItem = ({ children, onDelete, onDiscount, onFire }: Swipeable
   return (
     <div className="relative overflow-hidden rounded-lg">
       {/* Action buttons behind */}
-      <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1">
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 py-1">
         {/* No Price / Discount button - Gray circular */}
         <button
           onClick={() => onDiscount?.()}
-          className="w-10 h-10 flex items-center justify-center bg-[#6B6B6B] rounded-full transition-colors"
+          className="w-9 h-9 flex items-center justify-center bg-[#6B6B6B] rounded-full transition-colors"
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M11.5 6V8.5M11.5 15.5V18M8.5 9.5L10 11M13 13L14.5 14.5" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M7 17L17 7" stroke="white" strokeWidth="2" strokeLinecap="round"/>
-            <path d="M11.5 8.5C12.5 8.5 13.5 9 13.5 10C13.5 11 12.5 11.5 11.5 11.5H9.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <path d="M9.5 11.5H12C13 11.5 14 12 14 13C14 14 13 14.5 12 14.5H11.5" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-          </svg>
+          <img src={moneyOffIcon} alt="Discount" className="w-5 h-5 invert" />
         </button>
         
         {/* Clear button - Red circular */}
         <button
           onClick={onDelete}
-          className="w-10 h-10 flex items-center justify-center bg-[#E53935] rounded-full transition-colors"
+          className="w-9 h-9 flex items-center justify-center bg-[#E53935] rounded-full transition-colors"
         >
-          <span className="text-white text-lg font-bold">C</span>
+          <img src={clearCIcon} alt="Clear" className="w-4 h-4" />
         </button>
         
         {/* Fire button - Orange circular */}
         <button
           onClick={() => onFire?.()}
-          className="w-10 h-10 flex items-center justify-center bg-[#F57C00] rounded-full transition-colors"
+          className="w-9 h-9 flex items-center justify-center bg-[#F57C00] rounded-full transition-colors"
         >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
-            <path d="M13.5 0.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67zM11.71 19c-1.78 0-3.22-1.4-3.22-3.14 0-1.62 1.05-2.76 2.81-3.12 1.77-.36 3.6-1.21 4.62-2.58.39 1.29.59 2.65.59 4.04 0 2.65-2.15 4.8-4.8 4.8z"/>
-          </svg>
+          <img src={fireVectorIcon} alt="Fire" className="w-4 h-4" />
         </button>
       </div>
 

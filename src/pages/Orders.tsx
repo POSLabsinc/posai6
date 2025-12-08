@@ -726,7 +726,7 @@ const Orders = () => {
       {/* Right Panel - Order (Shows first on mobile) */}
       <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${
         isOrderPanelExpanded 
-          ? 'flex-1' 
+          ? 'flex-1 pb-14' 
           : 'flex-shrink-0'
       }`}>
         {/* Order Header - Outside background container */}

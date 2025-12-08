@@ -29,7 +29,7 @@ export function AppSidebar() {
     <Sidebar collapsible="none" className="w-20 border-r-0">
       <SidebarContent className="flex flex-col h-full py-2 px-2">
         {/* All items container with rounded background */}
-        <div className="flex-1 bg-neutral-900 rounded-2xl flex flex-col gap-1 p-1.5">
+        <div className="flex-1 rounded-2xl flex flex-col gap-1 p-1.5" style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
           {/* Logo */}
           <div className="flex items-center justify-center h-14 shrink-0">
             <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">

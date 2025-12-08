@@ -113,7 +113,7 @@ const SwipeableCartItem = ({ children, onDelete, onDiscount, onFire }: Swipeable
 
       {/* Swipeable content */}
       <div
-        className="relative bg-sidebar-accent transition-transform duration-200 ease-out cursor-grab active:cursor-grabbing"
+        className="relative bg-sidebar-accent transition-transform duration-200 ease-out cursor-grab active:cursor-grabbing rounded-lg"
         style={{
           transform: `translateX(${translateX}px)`,
           transition: isDragging ? "none" : "transform 0.2s ease-out",

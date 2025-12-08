@@ -724,7 +724,11 @@ const Orders = () => {
   const total = subtotal - discount + serviceCharge + tax;
   return <div className="flex flex-col md:flex-row gap-3 h-full overflow-hidden pb-16 md:pb-0 relative">
       {/* Right Panel - Order (Shows first on mobile) */}
-      <div className="md:hidden flex flex-col overflow-hidden flex-shrink-0">
+      <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${
+        isOrderPanelExpanded 
+          ? 'flex-1' 
+          : 'flex-shrink-0'
+      }`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
@@ -762,7 +766,7 @@ const Orders = () => {
 
         {/* Background Container for Order Content */}
         <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden mx-1 transition-all duration-300 ${
-          isOrderPanelExpanded ? 'flex-1' : 'min-h-0'
+          isOrderPanelExpanded ? 'flex-1 h-full' : 'min-h-0'
         }`}>
           {/* Order Type & Guest Info */}
           <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
@@ -811,7 +815,7 @@ const Orders = () => {
           </div>
 
           {/* Mobile Cart Items */}
-          <div className="flex-1 min-h-0 overflow-hidden flex flex-col">
+          <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? <div className="flex-1 flex flex-col items-center justify-center">
                 <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                 <span className="text-muted-foreground text-sm">Let's create an order</span>

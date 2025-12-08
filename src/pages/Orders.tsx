@@ -969,7 +969,7 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order (Desktop only) */}
-      <div className="hidden md:flex w-[300px] flex-col overflow-hidden flex-shrink-0">
+      <div className="hidden md:flex w-[345px] flex-col overflow-hidden flex-shrink-0">
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">

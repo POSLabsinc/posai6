@@ -17,7 +17,7 @@ const SwipeableCartItem = ({ children, onDelete, onDiscount, onFire }: Swipeable
   const currentX = useRef(0);
 
   // Width for 3 buttons
-  const swipeWidth = -144;
+  const swipeWidth = -168;
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
@@ -85,29 +85,29 @@ const SwipeableCartItem = ({ children, onDelete, onDiscount, onFire }: Swipeable
   return (
     <div className="relative overflow-hidden rounded-lg">
       {/* Action buttons behind */}
-      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 py-1">
+      <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 py-1">
         {/* No Price / Discount button - Gray circular */}
         <button
           onClick={() => onDiscount?.()}
-          className="w-7 h-7 flex items-center justify-center bg-[#6B6B6B] rounded-full transition-colors"
+          className="w-12 h-8 flex items-center justify-center bg-[#6B6B6B] rounded-full transition-colors"
         >
-          <img src={moneyOffIcon} alt="Discount" className="w-4 h-4 invert" />
+          <img src={moneyOffIcon} alt="Discount" className="w-5 h-5 invert" />
         </button>
         
         {/* Clear button - Red circular */}
         <button
           onClick={onDelete}
-          className="w-7 h-7 flex items-center justify-center bg-[#E53935] rounded-full transition-colors"
+          className="w-12 h-8 flex items-center justify-center bg-[#E53935] rounded-full transition-colors"
         >
-          <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
+          <img src={clearCIcon} alt="Clear" className="w-4 h-4" />
         </button>
         
         {/* Fire button - Orange circular */}
         <button
           onClick={() => onFire?.()}
-          className="w-7 h-7 flex items-center justify-center bg-[#F57C00] rounded-full transition-colors"
+          className="w-12 h-8 flex items-center justify-center bg-[#F57C00] rounded-full transition-colors"
         >
-          <img src={fireVectorIcon} alt="Fire" className="w-3 h-3" />
+          <img src={fireVectorIcon} alt="Fire" className="w-4 h-4" />
         </button>
       </div>
 

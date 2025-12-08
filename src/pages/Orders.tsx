@@ -1115,7 +1115,7 @@ const Orders = () => {
                   e.stopPropagation();
                   addToCart(item);
                 }} className="absolute top-1 md:top-2 left-1 md:left-2 w-6 md:w-8 h-6 md:h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
-                      <Plus className="w-3 md:w-4 h-3 md:h-4 text-white" />
+                      <Plus className="w-3 md:w-4 h-3 md:h-4 text-white" strokeWidth={3} />
                     </button>
                   </div>
                   <div className="p-1 md:p-2 bg-neutral-900" onClick={() => addToCart(item)}>
@@ -1133,7 +1133,7 @@ const Orders = () => {
                 e.stopPropagation();
                 addToCart(item);
               }} className="w-6 md:w-10 text-white flex-shrink-0 flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
-                    <Plus className="w-3 md:w-4 h-3 md:h-4" />
+                    <Plus className="w-3 md:w-4 h-3 md:h-4" strokeWidth={3} />
                   </button>
                 </div>)}
             </div>}

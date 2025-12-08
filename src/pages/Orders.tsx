@@ -1171,11 +1171,11 @@ const Orders = () => {
                 </div>)}
             </div> : <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
               {menuItems.map(item => <div key={item.id} onClick={() => addToCart(item)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
-                  <div className="flex-1 flex flex-col justify-between p-1.5 md:p-3" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
-                    <span className="text-[10px] md:text-xs font-bold leading-tight uppercase text-foreground">
+                  <div className="flex-1 flex flex-col p-1.5 md:p-3" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
+                    <span className="text-[10px] md:text-xs font-bold leading-tight uppercase text-foreground line-clamp-2">
                       {item.name}
                     </span>
-                    <span className="text-[9px] md:text-xs text-white/80 text-right mt-1">
+                    <span className="text-[9px] md:text-xs text-white/80 text-right mt-auto pt-1">
                       ${item.price.toFixed(2)}
                     </span>
                   </div>

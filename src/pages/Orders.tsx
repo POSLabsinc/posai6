@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown } from "lucide-react";
 import clearIcon from "@/assets/icons/clear.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
@@ -292,6 +292,26 @@ interface OrderItem {
 const initialOrderItems: OrderItem[] = [];
 const orderTypes = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE", "SCHEDULED", "PHONE-IN", "CUSTOM"];
 
+// Mock user data for guest name dropdown
+interface GuestUser {
+  id: number;
+  name: string;
+  phone: string;
+  avatar?: string;
+  initials: string;
+}
+
+const mockGuestUsers: GuestUser[] = [
+  { id: 1, name: "John Doe", phone: "(122) 456-7890", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face", initials: "JD" },
+  { id: 2, name: "Nancy John", phone: "(123) 454-7890", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face", initials: "NJ" },
+  { id: 3, name: "Jonathan Byers", phone: "(123) 454-7890", initials: "JB" },
+  { id: 4, name: "Jane Smith", phone: "(555) 123-4567", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face", initials: "JS" },
+  { id: 5, name: "Michael Brown", phone: "(555) 987-6543", initials: "MB" },
+  { id: 6, name: "Sarah Johnson", phone: "(555) 246-8135", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face", initials: "SJ" },
+  { id: 7, name: "David Wilson", phone: "(555) 369-2580", initials: "DW" },
+  { id: 8, name: "Emily Davis", phone: "(555) 147-2583", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=40&h=40&fit=crop&crop=face", initials: "ED" },
+];
+
 // Category border colors based on reference design
 const categoryBorderColors: Record<string, string> = {
   // BAR MENU
@@ -582,6 +602,48 @@ const Orders = () => {
   const [touchStartTime, setTouchStartTime] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [showGuestDropdown, setShowGuestDropdown] = useState(false);
+  const [filteredGuests, setFilteredGuests] = useState<GuestUser[]>([]);
+  const guestInputRef = useRef<HTMLInputElement>(null);
+  const guestDropdownRef = useRef<HTMLDivElement>(null);
+  const mobileGuestInputRef = useRef<HTMLInputElement>(null);
+  const mobileGuestDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Filter guests based on input
+  useEffect(() => {
+    if (guestName.trim().length > 0) {
+      const filtered = mockGuestUsers.filter(user =>
+        user.name.toLowerCase().includes(guestName.toLowerCase())
+      );
+      setFilteredGuests(filtered);
+      setShowGuestDropdown(filtered.length > 0);
+    } else {
+      setFilteredGuests([]);
+      setShowGuestDropdown(false);
+    }
+  }, [guestName]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (
+        guestDropdownRef.current && !guestDropdownRef.current.contains(e.target as Node) &&
+        guestInputRef.current && !guestInputRef.current.contains(e.target as Node) &&
+        mobileGuestDropdownRef.current && !mobileGuestDropdownRef.current.contains(e.target as Node) &&
+        mobileGuestInputRef.current && !mobileGuestInputRef.current.contains(e.target as Node)
+      ) {
+        setShowGuestDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const selectGuest = (guest: GuestUser) => {
+    setGuestName(guest.name);
+    setGuestPhone(guest.phone.replace(/\D/g, ''));
+    setShowGuestDropdown(false);
+  };
 
   // Get base height in pixels for each menu position
   const getMenuHeight = (position: 'minimized' | 'center' | 'full') => {
@@ -735,7 +797,42 @@ const Orders = () => {
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
-            <input type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]" />
+            <div className="relative">
+              <input 
+                ref={mobileGuestInputRef}
+                type="text" 
+                value={guestName} 
+                onChange={e => setGuestName(e.target.value)} 
+                placeholder="GUEST NAME" 
+                className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]" 
+              />
+              {showGuestDropdown && filteredGuests.length > 0 && (
+                <div 
+                  ref={mobileGuestDropdownRef}
+                  className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden"
+                >
+                  {filteredGuests.map(guest => (
+                    <button
+                      key={guest.id}
+                      onClick={() => selectGuest(guest)}
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
+                    >
+                      {guest.avatar ? (
+                        <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                          {guest.initials}
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-white font-medium text-sm">{guest.name}</span>
+                        <span className="text-neutral-400 text-xs">{guest.phone}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
               <input type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080]" />
@@ -973,7 +1070,42 @@ const Orders = () => {
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
-            <input type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-[#808080]" />
+            <div className="relative">
+              <input 
+                ref={guestInputRef}
+                type="text" 
+                value={guestName} 
+                onChange={e => setGuestName(e.target.value)} 
+                placeholder="GUEST NAME" 
+                className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-[#808080]" 
+              />
+              {showGuestDropdown && filteredGuests.length > 0 && (
+                <div 
+                  ref={guestDropdownRef}
+                  className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden"
+                >
+                  {filteredGuests.map(guest => (
+                    <button
+                      key={guest.id}
+                      onClick={() => selectGuest(guest)}
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
+                    >
+                      {guest.avatar ? (
+                        <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                          {guest.initials}
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-white font-medium text-sm">{guest.name}</span>
+                        <span className="text-neutral-400 text-xs">{guest.phone}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <div className="flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
               <input type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-16 min-w-0 text-[#808080]" />

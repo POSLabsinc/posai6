@@ -786,7 +786,15 @@ const Orders = () => {
               <img src={runnerIcon} alt="User" className="w-4 h-4" />
               <span>Dustin H</span>
               <button 
-                onClick={() => setIsOrderPanelExpanded(!isOrderPanelExpanded)}
+                onClick={() => {
+                  const newExpanded = !isOrderPanelExpanded;
+                  setIsOrderPanelExpanded(newExpanded);
+                  if (newExpanded) {
+                    setMenuPosition('minimized');
+                  } else {
+                    setMenuPosition('center');
+                  }
+                }}
                 className="ml-2 p-1 rounded hover:bg-neutral-700 transition-colors"
               >
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isOrderPanelExpanded ? 'rotate-180' : ''}`} />

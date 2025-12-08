@@ -745,17 +745,20 @@ const Orders = () => {
           
           <div className="overflow-x-auto scrollbar-hide mb-2">
             <div className="flex items-center gap-2 w-max">
-              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
-                <img src={discountIcon} alt="Discount" className="w-3 h-3" /> Discount
+              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
+                Custom Item
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
-                <img src={noTaxIcon} alt="No Tax" className="w-3 h-3" /> No Tax
+              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
+                Discount
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
-                <img src={cashRegisterIcon} alt="Cash Register" className="w-3 h-3" /> Open Register
+              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
+                No Tax
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 gap-1.5 whitespace-nowrap">
-                <img src={giftCardIcon} alt="Gift Card" className="w-3 h-3" /> Gift Card
+              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
+                Register
+              </Button>
+              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
+                Gift
               </Button>
               <Button variant="secondary" size="icon" className="h-7 w-7 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border">
                 <Plus className="w-3 h-3" />

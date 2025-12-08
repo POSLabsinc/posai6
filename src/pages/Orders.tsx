@@ -1096,21 +1096,20 @@ const Orders = () => {
           </div>
 
           {/* Action Buttons - Inside background container */}
-          <div className="p-2 flex flex-col gap-2 flex-shrink-0">
-            <div className="flex items-center gap-2">
-              <Button variant="outline" size="icon" className="w-8 h-8 rounded-full bg-red-600 hover:bg-red-700 border-red-600 flex-shrink-0" onClick={() => setOrderItems([])}>
-                <img src={clearIcon} alt="Clear" className="w-4 h-4" />
-              </Button>
-              <Button variant="outline" size="icon" className="w-8 h-8 rounded-lg border-sidebar-border bg-white/20 flex-shrink-0">
-                <img src={saveIcon} alt="Save" className="w-4 h-4" />
-              </Button>
-              <Button className="flex-1 h-8 rounded-lg bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-700 hover:to-orange-600 text-white font-bold text-xs gap-1">
-                <img src={fireIcon} alt="Fire" className="w-3 h-3" /> FIRE
-              </Button>
-            </div>
-            <Button className="w-full h-8 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white font-bold text-xs border border-neutral-600">
-              CHARGE $ {total.toFixed(2)}
-            </Button>
+          <div className="px-2 py-2 flex items-center gap-2 flex-shrink-0">
+            <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+              <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
+            </button>
+            <button className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#C9C9C9' }}>
+              <img src={saveIcon} alt="Save" className="w-4 h-4" />
+            </button>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+              <img src={fireIcon} alt="Fire" className="w-4 h-4" />
+              <span className="text-white font-semibold text-sm">FIRE</span>
+            </button>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}>
+              <span className="text-black font-semibold text-xs">CHARGE $ {total.toFixed(2)}</span>
+            </button>
           </div>
           </div>
         </div>

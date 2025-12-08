@@ -26,6 +26,8 @@ import noTaxIcon from "@/assets/icons/no-tax.png";
 import cashRegisterIcon from "@/assets/icons/cash-register.png";
 import giftCardIcon from "@/assets/icons/gift-card.png";
 import itemNotesIcon from "@/assets/icons/item-notes.png";
+import expandPanelIcon from "@/assets/icons/expand-panel.png";
+import collapsePanelIcon from "@/assets/icons/collapse-panel.png";
 
 // Food images
 import salmonImg from "@/assets/food/salmon.jpg";
@@ -804,7 +806,7 @@ const Orders = () => {
                 }}
                 className="ml-2 p-1 rounded hover:bg-neutral-700 transition-colors"
               >
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isOrderPanelExpanded ? 'rotate-180' : ''}`} />
+                <img src={isOrderPanelExpanded ? collapsePanelIcon : expandPanelIcon} alt="Toggle panel" className="w-4 h-4" />
               </button>
             </div>
           </div>

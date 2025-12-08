@@ -148,139 +148,184 @@ const categorySubcategories: Record<string, string[]> = {
 };
 const menuItems = [{
   id: 1,
-  name: "Almond Crusted Salmon"
+  name: "Almond Crusted Salmon",
+  price: 28.99
 }, {
   id: 2,
-  name: "Hand Cut Fettuccini Alfredo"
+  name: "Hand Cut Fettuccini Alfredo",
+  price: 18.99
 }, {
   id: 3,
-  name: "Four Cheese Ravioli"
+  name: "Four Cheese Ravioli",
+  price: 19.99
 }, {
   id: 4,
-  name: "Grilled Organic Chicken Panini"
+  name: "Grilled Organic Chicken Panini",
+  price: 14.99
 }, {
   id: 5,
-  name: "Grilled Asparagus"
+  name: "Grilled Asparagus",
+  price: 8.99
 }, {
   id: 6,
-  name: "Jidori Chicken Parmesan"
+  name: "Jidori Chicken Parmesan",
+  price: 24.99
 }, {
   id: 7,
-  name: "Prime London Sirloin"
+  name: "Prime London Sirloin",
+  price: 34.99
 }, {
   id: 8,
-  name: "Pan Roasted Salmon Sandwich"
+  name: "Pan Roasted Salmon Sandwich",
+  price: 16.99
 }, {
   id: 9,
-  name: "Oven Roasted Free Range Chicken"
+  name: "Oven Roasted Free Range Chicken",
+  price: 22.99
 }, {
   id: 10,
-  name: "Crispy Calamari"
+  name: "Crispy Calamari",
+  price: 12.99
 }, {
   id: 11,
-  name: "Spinach & Artichoke Dip"
+  name: "Spinach & Artichoke Dip",
+  price: 10.99
 }, {
   id: 12,
-  name: "Loaded Potato Skins"
+  name: "Loaded Potato Skins",
+  price: 9.99
 }, {
   id: 13,
-  name: "Mozzarella Sticks"
+  name: "Mozzarella Sticks",
+  price: 8.99
 }, {
   id: 14,
-  name: "Chicken Wings"
+  name: "Chicken Wings",
+  price: 13.99
 }, {
   id: 15,
-  name: "Nacho Supreme"
+  name: "Nacho Supreme",
+  price: 11.99
 }, {
   id: 16,
-  name: "Garlic Bread"
+  name: "Garlic Bread",
+  price: 5.99
 }, {
   id: 17,
-  name: "Caesar Salad"
+  name: "Caesar Salad",
+  price: 10.99
 }, {
   id: 18,
-  name: "Greek Salad"
+  name: "Greek Salad",
+  price: 11.99
 }, {
   id: 19,
-  name: "Tomato Basil Soup"
+  name: "Tomato Basil Soup",
+  price: 7.99
 }, {
   id: 20,
-  name: "French Onion Soup"
+  name: "French Onion Soup",
+  price: 8.99
 }, {
   id: 21,
-  name: "Ribeye Steak"
+  name: "Ribeye Steak",
+  price: 38.99
 }, {
   id: 22,
-  name: "Filet Mignon"
+  name: "Filet Mignon",
+  price: 44.99
 }, {
   id: 23,
-  name: "Grilled Salmon"
+  name: "Grilled Salmon",
+  price: 26.99
 }, {
   id: 24,
-  name: "Shrimp Scampi"
+  name: "Shrimp Scampi",
+  price: 23.99
 }, {
   id: 25,
-  name: "Lobster Tail"
+  name: "Lobster Tail",
+  price: 49.99
 }, {
   id: 26,
-  name: "Lamb Chops"
+  name: "Lamb Chops",
+  price: 36.99
 }, {
   id: 27,
-  name: "BBQ Ribs"
+  name: "BBQ Ribs",
+  price: 24.99
 }, {
   id: 28,
-  name: "Pork Tenderloin"
+  name: "Pork Tenderloin",
+  price: 21.99
 }, {
   id: 29,
-  name: "Duck Breast"
+  name: "Duck Breast",
+  price: 32.99
 }, {
   id: 30,
-  name: "Beef Wellington"
+  name: "Beef Wellington",
+  price: 52.99
 }, {
   id: 31,
-  name: "Mushroom Risotto"
+  name: "Mushroom Risotto",
+  price: 17.99
 }, {
   id: 32,
-  name: "Truffle Pasta"
+  name: "Truffle Pasta",
+  price: 28.99
 }, {
   id: 33,
-  name: "Spaghetti Carbonara"
+  name: "Spaghetti Carbonara",
+  price: 16.99
 }, {
   id: 34,
-  name: "Lasagna Bolognese"
+  name: "Lasagna Bolognese",
+  price: 18.99
 }, {
   id: 35,
-  name: "Chicken Marsala"
+  name: "Chicken Marsala",
+  price: 22.99
 }, {
   id: 36,
-  name: "Eggplant Parmesan"
+  name: "Eggplant Parmesan",
+  price: 17.99
 }, {
   id: 37,
-  name: "Seafood Platter"
+  name: "Seafood Platter",
+  price: 54.99
 }, {
   id: 38,
-  name: "Fish & Chips"
+  name: "Fish & Chips",
+  price: 15.99
 }, {
   id: 39,
-  name: "Crab Cakes"
+  name: "Crab Cakes",
+  price: 19.99
 }, {
   id: 40,
-  name: "Oysters Rockefeller"
+  name: "Oysters Rockefeller",
+  price: 24.99
 }, {
   id: 41,
-  name: "Tiramisu"
+  name: "Tiramisu",
+  price: 9.99
 }, {
   id: 42,
-  name: "Chocolate Lava Cake"
+  name: "Chocolate Lava Cake",
+  price: 10.99
 }, {
   id: 43,
-  name: "Cheesecake"
+  name: "Cheesecake",
+  price: 8.99
 }, {
   id: 44,
-  name: "Crème Brûlée"
+  name: "Crème Brûlée",
+  price: 9.99
 }, {
   id: 45,
-  name: "Apple Pie"
+  name: "Apple Pie",
+  price: 7.99
 }];
 interface OrderItem {
   id: number;
@@ -1126,9 +1171,14 @@ const Orders = () => {
                 </div>)}
             </div> : <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
               {menuItems.map(item => <div key={item.id} onClick={() => addToCart(item)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
-                  <span className="flex-1 text-[10px] md:text-xs font-bold leading-tight uppercase text-foreground p-1.5 md:p-3" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
-                    {item.name}
-                  </span>
+                  <div className="flex-1 flex flex-col justify-between p-1.5 md:p-3" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
+                    <span className="text-[10px] md:text-xs font-bold leading-tight uppercase text-foreground">
+                      {item.name}
+                    </span>
+                    <span className="text-[9px] md:text-xs text-white/80 text-right mt-1">
+                      ${item.price.toFixed(2)}
+                    </span>
+                  </div>
                   <button onClick={e => {
                 e.stopPropagation();
                 addToCart(item);

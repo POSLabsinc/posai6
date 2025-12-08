@@ -1175,7 +1175,7 @@ const Orders = () => {
                     <span className="text-[10px] md:text-xs font-bold leading-tight uppercase text-foreground line-clamp-2">
                       {item.name}
                     </span>
-                    <span className="text-[9px] md:text-xs text-white/80 text-left">
+                    <span className="text-[9px] md:text-xs text-white/80 text-right">
                       ${item.price.toFixed(2)}
                     </span>
                   </div>

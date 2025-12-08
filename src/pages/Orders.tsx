@@ -603,13 +603,19 @@ const Orders = () => {
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [showGuestDropdown, setShowGuestDropdown] = useState(false);
+  const [showPhoneDropdown, setShowPhoneDropdown] = useState(false);
   const [filteredGuests, setFilteredGuests] = useState<GuestUser[]>([]);
+  const [filteredByPhone, setFilteredByPhone] = useState<GuestUser[]>([]);
   const guestInputRef = useRef<HTMLInputElement>(null);
   const guestDropdownRef = useRef<HTMLDivElement>(null);
   const mobileGuestInputRef = useRef<HTMLInputElement>(null);
   const mobileGuestDropdownRef = useRef<HTMLDivElement>(null);
+  const phoneInputRef = useRef<HTMLInputElement>(null);
+  const phoneDropdownRef = useRef<HTMLDivElement>(null);
+  const mobilePhoneInputRef = useRef<HTMLInputElement>(null);
+  const mobilePhoneDropdownRef = useRef<HTMLDivElement>(null);
 
-  // Filter guests based on input
+  // Filter guests based on name input
   useEffect(() => {
     if (guestName.trim().length > 0) {
       const filtered = mockGuestUsers.filter(user =>
@@ -623,16 +629,41 @@ const Orders = () => {
     }
   }, [guestName]);
 
+  // Filter guests based on phone input
+  useEffect(() => {
+    if (guestPhone.trim().length > 0) {
+      const filtered = mockGuestUsers.filter(user =>
+        user.phone.replace(/\D/g, '').includes(guestPhone)
+      );
+      setFilteredByPhone(filtered);
+      setShowPhoneDropdown(filtered.length > 0);
+    } else {
+      setFilteredByPhone([]);
+      setShowPhoneDropdown(false);
+    }
+  }, [guestPhone]);
+
   // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
+      const target = e.target as Node;
+      // Close guest name dropdown
       if (
-        guestDropdownRef.current && !guestDropdownRef.current.contains(e.target as Node) &&
-        guestInputRef.current && !guestInputRef.current.contains(e.target as Node) &&
-        mobileGuestDropdownRef.current && !mobileGuestDropdownRef.current.contains(e.target as Node) &&
-        mobileGuestInputRef.current && !mobileGuestInputRef.current.contains(e.target as Node)
+        guestDropdownRef.current && !guestDropdownRef.current.contains(target) &&
+        guestInputRef.current && !guestInputRef.current.contains(target) &&
+        mobileGuestDropdownRef.current && !mobileGuestDropdownRef.current.contains(target) &&
+        mobileGuestInputRef.current && !mobileGuestInputRef.current.contains(target)
       ) {
         setShowGuestDropdown(false);
+      }
+      // Close phone dropdown
+      if (
+        phoneDropdownRef.current && !phoneDropdownRef.current.contains(target) &&
+        phoneInputRef.current && !phoneInputRef.current.contains(target) &&
+        mobilePhoneDropdownRef.current && !mobilePhoneDropdownRef.current.contains(target) &&
+        mobilePhoneInputRef.current && !mobilePhoneInputRef.current.contains(target)
+      ) {
+        setShowPhoneDropdown(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -643,6 +674,7 @@ const Orders = () => {
     setGuestName(guest.name);
     setGuestPhone(guest.phone.replace(/\D/g, ''));
     setShowGuestDropdown(false);
+    setShowPhoneDropdown(false);
   };
 
   // Get base height in pixels for each menu position
@@ -833,9 +865,44 @@ const Orders = () => {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-0.5">
+            <div className="relative flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
-              <input type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080]" />
+              <input 
+                ref={mobilePhoneInputRef}
+                type="tel" 
+                inputMode="numeric" 
+                pattern="[0-9]*" 
+                value={guestPhone} 
+                onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} 
+                placeholder="(XXX) XXX-XXXX" 
+                className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080]" 
+              />
+              {showPhoneDropdown && filteredByPhone.length > 0 && (
+                <div 
+                  ref={mobilePhoneDropdownRef}
+                  className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden"
+                >
+                  {filteredByPhone.map(guest => (
+                    <button
+                      key={guest.id}
+                      onClick={() => selectGuest(guest)}
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
+                    >
+                      {guest.avatar ? (
+                        <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                          {guest.initials}
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-white font-medium text-sm">{guest.name}</span>
+                        <span className="text-neutral-400 text-xs">{guest.phone}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
               <img src={timeIcon} alt="Time" className="w-4 h-4" />
@@ -1106,9 +1173,44 @@ const Orders = () => {
                 </div>
               )}
             </div>
-            <div className="flex items-center gap-0.5">
+            <div className="relative flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
-              <input type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-16 min-w-0 text-[#808080]" />
+              <input 
+                ref={phoneInputRef}
+                type="tel" 
+                inputMode="numeric" 
+                pattern="[0-9]*" 
+                value={guestPhone} 
+                onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} 
+                placeholder="XXX-XXXX" 
+                className="bg-transparent outline-none placeholder:text-[#808080] w-16 min-w-0 text-[#808080]" 
+              />
+              {showPhoneDropdown && filteredByPhone.length > 0 && (
+                <div 
+                  ref={phoneDropdownRef}
+                  className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden"
+                >
+                  {filteredByPhone.map(guest => (
+                    <button
+                      key={guest.id}
+                      onClick={() => selectGuest(guest)}
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
+                    >
+                      {guest.avatar ? (
+                        <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                          {guest.initials}
+                        </div>
+                      )}
+                      <div className="flex flex-col">
+                        <span className="text-white font-medium text-sm">{guest.name}</span>
+                        <span className="text-neutral-400 text-xs">{guest.phone}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
             <div className="flex items-center gap-0.5 whitespace-nowrap flex-shrink-0">
               <img src={timeIcon} alt="Time" className="w-3 h-3" />
@@ -1243,7 +1345,7 @@ const Orders = () => {
               <span className="text-black font-semibold text-xs">CHARGE $ {total.toFixed(2)}</span>
             </button>
           </div>
-          </div>
+        </div>
         </div>
       </div>
 

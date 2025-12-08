@@ -86,26 +86,28 @@ const SwipeableCartItem = ({ children, onDelete, onDiscount, onFire }: Swipeable
     <div className="relative overflow-hidden rounded-lg">
       {/* Action buttons behind */}
       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 py-1">
-        {/* No Price / Discount button - Gray circular */}
+        {/* No Price / Discount button - Gray with black icon */}
         <button
           onClick={() => onDiscount?.()}
-          className="w-12 h-8 flex items-center justify-center bg-[#6B6B6B] rounded-full transition-colors"
+          className="w-12 h-8 flex items-center justify-center rounded-full transition-colors"
+          style={{ backgroundColor: '#C9C9C9' }}
         >
-          <img src={moneyOffIcon} alt="Discount" className="w-5 h-5 invert" />
+          <img src={moneyOffIcon} alt="Discount" className="w-5 h-5" />
         </button>
         
-        {/* Clear button - Red circular */}
+        {/* Clear button - Red */}
         <button
           onClick={onDelete}
-          className="w-12 h-8 flex items-center justify-center bg-[#E53935] rounded-full transition-colors"
+          className="w-12 h-8 flex items-center justify-center bg-red-500 rounded-full transition-colors"
         >
           <img src={clearCIcon} alt="Clear" className="w-4 h-4" />
         </button>
         
-        {/* Fire button - Orange circular */}
+        {/* Fire button - Orange gradient */}
         <button
           onClick={() => onFire?.()}
-          className="w-12 h-8 flex items-center justify-center bg-[#F57C00] rounded-full transition-colors"
+          className="w-12 h-8 flex items-center justify-center rounded-full transition-colors"
+          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
         >
           <img src={fireVectorIcon} alt="Fire" className="w-4 h-4" />
         </button>

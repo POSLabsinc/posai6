@@ -1278,7 +1278,7 @@ const Orders = () => {
 
           {/* Order Notes */}
           <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
-          <div className="flex items-center gap-2 bg-neutral-700 rounded px-3 py-2">
+          <div className="flex items-center gap-2 rounded px-3 py-2" style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
             <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             <input type="text" placeholder="Order notes" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none" />
           </div>

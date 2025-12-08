@@ -1314,7 +1314,7 @@ const Orders = () => {
 
         {/* Order Summary */}
         <div className="p-3 border-t border-sidebar-border flex-shrink-0">
-          <div className="space-y-1.5 text-sm">
+          <div className="space-y-1.5 text-sm rounded px-3 py-2" style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
             <div className="flex justify-between">
               <span className="text-foreground">Sub Total</span>
               <span className="text-foreground">$ {subtotal.toFixed(2)}</span>

@@ -995,7 +995,8 @@ const Orders = () => {
             </div>
           </div>
           
-          <div className="overflow-x-auto scrollbar-hide mb-2">
+          {/* Action buttons - hidden on mobile, shown via three-dot dropdown */}
+          <div className="hidden md:block overflow-x-auto scrollbar-hide mb-2">
             <div className="flex items-center gap-2 w-max">
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
                 Custom Item
@@ -1044,9 +1045,36 @@ const Orders = () => {
             <div className="flex items-center gap-2 text-xs">
               <img src={runnerIcon} alt="User" className="w-4 h-4" />
               <span>Dustin H</span>
-              <button className="w-5 h-5 bg-white rounded-full flex items-center justify-center ml-2">
-                <MoreVertical className="w-3 h-3 text-black" />
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="w-5 h-5 bg-white rounded-full flex items-center justify-center ml-2">
+                    <MoreVertical className="w-3 h-3 text-black" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="bg-neutral-800 border-neutral-700 min-w-[140px] p-1 z-50">
+                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3">
+                    Custom Item
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3">
+                    Discount
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3">
+                    No Tax
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3">
+                    Open Register
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3">
+                    Gift Card
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3">
+                    Service Charge
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3">
+                    Add Guest
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <button 
                 onClick={() => {
                   const newExpanded = !isOrderPanelExpanded;

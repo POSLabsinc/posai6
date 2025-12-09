@@ -1252,7 +1252,7 @@ const Orders = () => {
         {/* Subcategories based on selected category - Hidden in search mode on mobile */}
         <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
           <div className={`flex gap-1 md:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
-            {(categorySubcategories[activeCategory] || []).map(sub => <Button key={sub} variant="outline" className={`rounded-full px-2 md:px-8 h-6 md:h-10 text-[10px] md:text-sm whitespace-nowrap border ${activeSubcategory === sub ? `bg-black md:bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black md:hover:bg-header` : `bg-black md:bg-header text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80 md:hover:bg-header/80`}`} onClick={() => setActiveSubcategory(sub)}>
+            {(categorySubcategories[activeCategory] || []).map(sub => <Button key={sub} variant="outline" className={`rounded-lg md:rounded-full px-2 md:px-8 h-6 md:h-10 text-[10px] md:text-sm whitespace-nowrap border ${activeSubcategory === sub ? `bg-black md:bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black md:hover:bg-header` : `bg-black md:bg-header text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80 md:hover:bg-header/80`}`} onClick={() => setActiveSubcategory(sub)}>
                 {sub}
               </Button>)}
           </div>

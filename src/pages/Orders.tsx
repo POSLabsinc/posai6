@@ -2778,42 +2778,42 @@ const Orders = () => {
             const filteredItems = isSearchMode && searchQuery.trim() 
               ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) 
               : currentItems;
-            return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 md:gap-2 lg:gap-3">
-                {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700">
-                    <div className="relative aspect-[4/3] bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
+            return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2">
+                {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700">
+                    <div className="relative aspect-square bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
                       <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
                       <button onClick={e => {
                     e.stopPropagation();
                     addToCart(item);
-                  }} className="absolute top-1 md:top-2 left-1 md:left-2 w-6 md:w-8 h-6 md:h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
-                        <Plus className="w-3 md:w-4 h-3 md:h-4 text-white" strokeWidth={3} />
+                  }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
+                        <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
                       </button>
                     </div>
-                    <div className="p-1 md:p-2 bg-neutral-900" onClick={() => openCustomizationDialog(item, index)}>
-                      <span className="text-[10px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-2">
+                    <div className="p-0.5 md:p-1 bg-neutral-900" onClick={() => openCustomizationDialog(item, index)}>
+                      <span className="text-[8px] md:text-[10px] font-medium text-white uppercase leading-tight line-clamp-2">
                         {item.name}
                       </span>
                     </div>
                   </div>)}
-              </div> : <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-2">
-                {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
-                    <div className="flex-1 p-1.5 md:p-3" style={{
+              </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5">
+                {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
+                    <div className="flex-1 p-1 md:p-2" style={{
                   background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
                 }}>
-                      <span className="float-right text-[9px] md:text-xs text-white/80 ml-2">
+                      <span className="float-right text-[8px] md:text-[10px] text-white/80 ml-1">
                         ${item.price.toFixed(2)}
                       </span>
-                      <span className="text-[10px] md:text-xs font-bold leading-tight uppercase text-foreground line-clamp-2">
+                      <span className="text-[9px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2">
                         {item.name}
                       </span>
                     </div>
                     <button onClick={e => {
                   e.stopPropagation();
                   addToCart(item);
-                }} className="w-6 md:w-10 text-white flex-shrink-0 flex items-center justify-center" style={{
+                }} className="w-5 md:w-8 text-white flex-shrink-0 flex items-center justify-center" style={{
                   background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
                 }}>
-                      <Plus className="w-3 md:w-4 h-3 md:h-4" strokeWidth={4} />
+                      <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" strokeWidth={4} />
                     </button>
                   </div>)}
               </div>;

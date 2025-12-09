@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, Search, MoreVertical } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, Search, MoreVertical, Settings2 } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 import clearIcon from "@/assets/icons/clear.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
@@ -694,6 +696,7 @@ const Orders = () => {
   const [isGuestSelected, setIsGuestSelected] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [panelGap, setPanelGap] = useState(4); // Gap in pixels (1 = 0.25rem)
   const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
     id: number;
@@ -933,7 +936,7 @@ const Orders = () => {
   const taxRate = 0.02;
   const tax = subtotal * taxRate;
   const total = subtotal - discount + serviceCharge + tax;
-  return <div className="flex flex-col md:flex-row gap-1 h-full overflow-hidden pb-16 md:pb-0 relative">
+  return <div className="flex flex-col md:flex-row h-full overflow-hidden pb-16 md:pb-0 relative" style={{ gap: `${panelGap * 0.25}rem` }}>
       {/* Right Panel - Order (Shows first on mobile) */}
       <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 pb-14' : 'flex-shrink-0'}`}>
         {/* Order Header - Outside background container */}
@@ -1194,6 +1197,30 @@ const Orders = () => {
                     </SelectItem>)}
                 </SelectContent>
               </Select>
+              {/* Gap Settings Popover */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full hidden md:flex" title="Panel gap settings">
+                    <Settings2 className="w-3 md:w-5 h-3 md:h-5 text-neutral-800" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-48 bg-neutral-800 border-neutral-700 p-3" side="bottom" align="start">
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-white">Panel Gap</span>
+                      <span className="text-xs text-neutral-400">{panelGap}</span>
+                    </div>
+                    <Slider
+                      value={[panelGap]}
+                      onValueChange={(value) => setPanelGap(value[0])}
+                      min={0}
+                      max={16}
+                      step={1}
+                      className="w-full"
+                    />
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div> : <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
               <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-10 h-6 md:h-10" />
             </Button>}

@@ -2190,10 +2190,22 @@ const getCategoryHoverTextColor = (category: string) => {
   return textColor.replace("text-", "hover:text-");
 };
 const Orders = () => {
-  const [activeCategory, setActiveCategory] = useState("Food");
-  const [activeSubcategory, setActiveSubcategory] = useState("Lemonade");
+  // Helper to get first category and subcategory for a menu
+  const getFirstCategoryAndSubcategory = (menu: string) => {
+    const categories = menuCategories[menu] || [];
+    const firstCategory = categories[0] || "";
+    const subcategories = categorySubcategories[firstCategory] || [];
+    const firstSubcategory = subcategories[0] || "";
+    return { firstCategory, firstSubcategory };
+  };
+
+  const defaultMenu = "BAR MENU";
+  const { firstCategory: defaultCategory, firstSubcategory: defaultSubcategory } = getFirstCategoryAndSubcategory(defaultMenu);
+
+  const [activeCategory, setActiveCategory] = useState(defaultCategory);
+  const [activeSubcategory, setActiveSubcategory] = useState(defaultSubcategory);
   const [activeFoodCategory, setActiveFoodCategory] = useState("Appetizer");
-  const [selectedMenu, setSelectedMenu] = useState("BAR MENU");
+  const [selectedMenu, setSelectedMenu] = useState(defaultMenu);
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
@@ -2447,6 +2459,18 @@ const Orders = () => {
   const handleMenuSelect = (value: string) => {
     setSelectedMenu(value);
     setIsMenuSelectOpen(false);
+    // Auto-select first category and subcategory for the new menu
+    const { firstCategory, firstSubcategory } = getFirstCategoryAndSubcategory(value);
+    setActiveCategory(firstCategory);
+    setActiveSubcategory(firstSubcategory);
+  };
+  
+  // Handle category change - auto-select first subcategory
+  const handleCategoryChange = (category: string) => {
+    setActiveCategory(category);
+    const subcategories = categorySubcategories[category] || [];
+    const firstSubcategory = subcategories[0] || "";
+    setActiveSubcategory(firstSubcategory);
   };
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const discount = 0.00;
@@ -2719,7 +2743,7 @@ const Orders = () => {
               <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-10 h-6 md:h-10" />
             </Button>}
           {/* Categories */}
-          {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-1.5 md:px-8 h-5 md:h-10 text-[9px] md:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => setActiveCategory(cat)}>
+          {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-1.5 md:px-8 h-5 md:h-10 text-[9px] md:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
         </div>

@@ -46,7 +46,7 @@ const SwipeableCartItem = ({
 
   // Width for buttons on each side
   const rightSwipeWidth = -112; // 2 buttons on right (swipe left to reveal)
-  const leftSwipeWidth = 140; // buttons on left (swipe right to reveal)
+  const leftSwipeWidth = 160; // buttons on left (swipe right to reveal)
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
@@ -116,7 +116,7 @@ const SwipeableCartItem = ({
         {/* No Tax button */}
         <button
           onClick={() => onNoTax?.()}
-          className="px-3 h-8 flex items-center justify-center rounded-lg transition-colors text-xs font-medium text-white"
+          className="px-3 h-8 flex items-center justify-center rounded-full transition-colors text-xs font-medium text-white"
           style={{ backgroundColor: '#666666' }}
         >
           No Tax
@@ -126,7 +126,7 @@ const SwipeableCartItem = ({
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <button
-              className="px-2 h-8 flex items-center gap-1 rounded-lg transition-colors text-xs font-medium text-black"
+              className="px-3 h-8 flex items-center gap-1 rounded-full transition-colors text-xs font-medium text-black"
               style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
             >
               {itemOrderType}

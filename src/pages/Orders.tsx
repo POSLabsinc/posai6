@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, Search } from "lucide-react";
+import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 import clearIcon from "@/assets/icons/clear.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
 import saveIcon from "@/assets/icons/save.png";
@@ -654,6 +655,9 @@ const Orders = () => {
   const [isGuestSelected, setIsGuestSelected] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
+  const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{ id: number; name: string; price: number } | null>(null);
+  const [selectedItemImage, setSelectedItemImage] = useState<string | undefined>(undefined);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const guestInputRef = useRef<HTMLInputElement>(null);
   const guestDropdownRef = useRef<HTMLDivElement>(null);
@@ -846,11 +850,12 @@ const Orders = () => {
   const addToCart = (item: {
     id: number;
     name: string;
+    price: number;
   }) => {
     setOrderItems(prev => {
-      const existing = prev.find(o => o.name === item.name);
+      const existing = prev.find(o => o.name === item.name && (!o.modifiers || o.modifiers.length === 0));
       if (existing) {
-        return prev.map(o => o.name === item.name ? {
+        return prev.map(o => o.name === item.name && (!o.modifiers || o.modifiers.length === 0) ? {
           ...o,
           qty: o.qty + 1
         } : o);
@@ -859,9 +864,32 @@ const Orders = () => {
         id: Date.now(),
         qty: 1,
         name: item.name,
-        price: 15.00
+        price: item.price
       }];
     });
+  };
+
+  const addToCartWithModifiers = (
+    item: { id: number; name: string; price: number },
+    quantity: number,
+    modifiers: string[],
+    notes: string
+  ) => {
+    setOrderItems(prev => {
+      return [...prev, {
+        id: Date.now(),
+        qty: quantity,
+        name: item.name,
+        price: item.price,
+        modifiers: modifiers.length > 0 ? modifiers : undefined
+      }];
+    });
+  };
+
+  const openCustomizationDialog = (item: { id: number; name: string; price: number }, imageIndex: number) => {
+    setSelectedItemForCustomization(item);
+    setSelectedItemImage(foodImages[imageIndex % foodImages.length]);
+    setCustomizationDialogOpen(true);
   };
   const removeFromCart = (itemId: number) => {
     setOrderItems(prev => prev.filter(item => item.id !== itemId));
@@ -1213,7 +1241,7 @@ const Orders = () => {
               <div className="grid grid-cols-3 md:grid-cols-5 gap-1 md:gap-3">
                 {filteredItems.map((item, index) => (
                   <div key={item.id} className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700">
-                    <div className="relative aspect-[4/3] bg-neutral-800">
+                    <div className="relative aspect-[4/3] bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
                       <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
                       <button onClick={e => {
                         e.stopPropagation();
@@ -1222,7 +1250,7 @@ const Orders = () => {
                         <Plus className="w-3 md:w-4 h-3 md:h-4 text-white" strokeWidth={3} />
                       </button>
                     </div>
-                    <div className="p-1 md:p-2 bg-neutral-900" onClick={() => addToCart(item)}>
+                    <div className="p-1 md:p-2 bg-neutral-900" onClick={() => openCustomizationDialog(item, index)}>
                       <span className="text-[10px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-2">
                         {item.name}
                       </span>
@@ -1232,8 +1260,8 @@ const Orders = () => {
               </div>
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
-                {filteredItems.map(item => (
-                  <div key={item.id} onClick={() => addToCart(item)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
+                {filteredItems.map((item, index) => (
+                  <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
                     <div className="flex-1 p-1.5 md:p-3" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
                       <span className="float-right text-[9px] md:text-xs text-white/80 ml-2">
                         ${item.price.toFixed(2)}
@@ -1514,6 +1542,14 @@ const Orders = () => {
           </button>
         </div>
       </div>
+      {/* Item Customization Dialog */}
+      <ItemCustomizationDialog
+        open={customizationDialogOpen}
+        onOpenChange={setCustomizationDialogOpen}
+        item={selectedItemForCustomization}
+        itemImage={selectedItemImage}
+        onAddToCart={addToCartWithModifiers}
+      />
     </div>;
 };
 export default Orders;

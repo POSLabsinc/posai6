@@ -652,6 +652,9 @@ const Orders = () => {
   const [filteredGuests, setFilteredGuests] = useState<GuestUser[]>([]);
   const [filteredByPhone, setFilteredByPhone] = useState<GuestUser[]>([]);
   const [isGuestSelected, setIsGuestSelected] = useState(false);
+  const [isSearchMode, setIsSearchMode] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
   const guestInputRef = useRef<HTMLInputElement>(null);
   const guestDropdownRef = useRef<HTMLDivElement>(null);
   const mobileGuestInputRef = useRef<HTMLInputElement>(null);
@@ -1099,18 +1102,62 @@ const Orders = () => {
       <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 rounded-[20px] fixed md:relative bottom-16 md:bottom-auto left-2 right-2 md:left-0 md:right-0 md:left-auto md:right-auto z-10 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${!isDragging ? menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[40%]' : 'h-[calc(100%-4rem)]' : ''} md:h-auto md:top-auto`} style={isDragging ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 128, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
-        {/* Grabber for minimize/maximize */}
-        <div className="flex items-center justify-between px-3 py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
-          <div className="w-8" /> {/* Spacer for balance */}
-          <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
-          <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-white/90 hover:bg-white p-0">
-            <Search className="w-4 h-4 text-neutral-800" />
-          </Button>
-        </div>
+        {/* Grabber for minimize/maximize OR Search Bar */}
+        {isSearchMode ? (
+          <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 rounded-t-[20px]">
+            <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+              <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                placeholder="Chicken"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none"
+                autoFocus
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="p-0.5">
+                  <X className="w-4 h-4 text-neutral-400" />
+                </button>
+              )}
+            </div>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 p-0 flex-shrink-0"
+              onClick={() => {
+                setIsSearchMode(false);
+                setSearchQuery('');
+                setMenuPosition('center');
+              }}
+            >
+              <X className="w-4 h-4 text-white" />
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between px-3 py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
+            <div className="w-8" /> {/* Spacer for balance */}
+            <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="w-8 h-8 rounded-full bg-white/90 hover:bg-white p-0"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsSearchMode(true);
+                setMenuPosition('full');
+                setTimeout(() => searchInputRef.current?.focus(), 100);
+              }}
+            >
+              <Search className="w-4 h-4 text-neutral-800" />
+            </Button>
+          </div>
+        )}
         {/* Menu Content - Hidden when minimized */}
         <div className={`flex flex-col gap-2 p-2 md:p-3 transition-all duration-300 bg-neutral-900 rounded-b-[20px] ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
-        {/* Main Categories */}
-        <div className="flex flex-wrap items-center gap-1 md:gap-2">
+        {/* Main Categories - Hidden in search mode on mobile */}
+        <div className={`flex flex-wrap items-center gap-1 md:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Menu Controls Group */}
           {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-2 bg-sidebar-accent rounded-full px-1 md:px-2 py-0.5 md:py-1">
               <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
@@ -1141,10 +1188,10 @@ const Orders = () => {
             </Button>)}
         </div>
 
-        <div className="h-px bg-sidebar-border" />
+        <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />
 
-        {/* Subcategories based on selected category */}
-        <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[8.5rem]'}`}>
+        {/* Subcategories based on selected category - Hidden in search mode on mobile */}
+        <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
           <div className={`flex gap-1 md:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
             {(categorySubcategories[activeCategory] || []).map(sub => <Button key={sub} variant="outline" className={`rounded-full px-2 md:px-8 h-6 md:h-10 text-[10px] md:text-sm whitespace-nowrap border ${activeSubcategory === sub ? `bg-black md:bg-header ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black md:hover:bg-header` : `bg-black md:bg-header text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80 md:hover:bg-header/80`}`} onClick={() => setActiveSubcategory(sub)}>
                 {sub}
@@ -1152,45 +1199,60 @@ const Orders = () => {
           </div>
         </div>
 
-        <div className="h-px bg-sidebar-border" />
+        <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />
 
         {/* Menu Items Grid */}
         <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
-          {thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 gap-1 md:gap-3">
-              {menuItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700">
-                  <div className="relative aspect-[4/3] bg-neutral-800">
-                    <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
+          {(() => {
+            // Filter items based on search query (mobile only)
+            const filteredItems = isSearchMode && searchQuery.trim()
+              ? menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+              : menuItems;
+            
+            return thumbnailViewMode ? (
+              <div className="grid grid-cols-3 md:grid-cols-5 gap-1 md:gap-3">
+                {filteredItems.map((item, index) => (
+                  <div key={item.id} className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700">
+                    <div className="relative aspect-[4/3] bg-neutral-800">
+                      <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
+                      <button onClick={e => {
+                        e.stopPropagation();
+                        addToCart(item);
+                      }} className="absolute top-1 md:top-2 left-1 md:left-2 w-6 md:w-8 h-6 md:h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
+                        <Plus className="w-3 md:w-4 h-3 md:h-4 text-white" strokeWidth={3} />
+                      </button>
+                    </div>
+                    <div className="p-1 md:p-2 bg-neutral-900" onClick={() => addToCart(item)}>
+                      <span className="text-[10px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-2">
+                        {item.name}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
+                {filteredItems.map(item => (
+                  <div key={item.id} onClick={() => addToCart(item)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
+                    <div className="flex-1 p-1.5 md:p-3" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
+                      <span className="float-right text-[9px] md:text-xs text-white/80 ml-2">
+                        ${item.price.toFixed(2)}
+                      </span>
+                      <span className="text-[10px] md:text-xs font-bold leading-tight uppercase text-foreground line-clamp-2">
+                        {item.name}
+                      </span>
+                    </div>
                     <button onClick={e => {
-                  e.stopPropagation();
-                  addToCart(item);
-                }} className="absolute top-1 md:top-2 left-1 md:left-2 w-6 md:w-8 h-6 md:h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
-                      <Plus className="w-3 md:w-4 h-3 md:h-4 text-white" strokeWidth={3} />
+                      e.stopPropagation();
+                      addToCart(item);
+                    }} className="w-6 md:w-10 text-white flex-shrink-0 flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+                      <Plus className="w-3 md:w-4 h-3 md:h-4" strokeWidth={4} />
                     </button>
                   </div>
-                  <div className="p-1 md:p-2 bg-neutral-900" onClick={() => addToCart(item)}>
-                    <span className="text-[10px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-2">
-                      {item.name}
-                    </span>
-                  </div>
-                </div>)}
-            </div> : <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
-              {menuItems.map(item => <div key={item.id} onClick={() => addToCart(item)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
-                  <div className="flex-1 p-1.5 md:p-3" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
-                    <span className="float-right text-[9px] md:text-xs text-white/80 ml-2">
-                      ${item.price.toFixed(2)}
-                    </span>
-                    <span className="text-[10px] md:text-xs font-bold leading-tight uppercase text-foreground line-clamp-2">
-                      {item.name}
-                    </span>
-                  </div>
-                  <button onClick={e => {
-                e.stopPropagation();
-                addToCart(item);
-              }} className="w-6 md:w-10 text-white flex-shrink-0 flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
-                    <Plus className="w-3 md:w-4 h-3 md:h-4" strokeWidth={4} />
-                  </button>
-                </div>)}
-            </div>}
+                ))}
+              </div>
+            );
+          })()}
         </ScrollArea>
         </div>
       </div>

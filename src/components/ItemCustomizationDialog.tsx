@@ -137,14 +137,14 @@ export const ItemCustomizationDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full max-h-[90vh] overflow-hidden rounded-2xl">
+      <DialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full max-h-[90vh] overflow-hidden rounded-2xl flex flex-col">
         {/* Grabber Handle */}
-        <div className="flex justify-center pt-3 pb-1">
+        <div className="flex justify-center pt-2 pb-1">
           <div className="w-12 h-1 bg-neutral-600 rounded-full" />
         </div>
 
         {/* Item Header */}
-        <div className="px-4 pb-3">
+        <div className="px-4 pb-2">
           <div className="flex items-center gap-3">
             {itemImage && (
               <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
@@ -183,7 +183,7 @@ export const ItemCustomizationDialog = ({
         )}
 
         {/* Item Notes */}
-        <div className="px-4 pb-3">
+        <div className="px-4 pb-2">
           <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
             <FileText className="w-4 h-4 text-neutral-400" />
             <input
@@ -197,7 +197,7 @@ export const ItemCustomizationDialog = ({
         </div>
 
         {/* Tabs */}
-        <div className="px-4">
+        <div className="px-4 pb-2">
           <div className="flex gap-2">
             <button
               onClick={() => setActiveTab('item')}
@@ -223,9 +223,9 @@ export const ItemCustomizationDialog = ({
         </div>
 
         {activeTab === 'item' ? (
-          <>
+          <div className="flex-1 flex flex-col min-h-0">
             {/* Required Modifiers Label */}
-            <div className="px-4 pt-3 pb-2">
+            <div className="px-4 pb-2">
               <span className="text-white text-sm font-medium">Required Modifiers</span>
               <span className="text-red-500 ml-0.5">*</span>
             </div>
@@ -250,8 +250,8 @@ export const ItemCustomizationDialog = ({
             </div>
 
             {/* Modifier Options */}
-            <ScrollArea className="flex-1 max-h-[200px]">
-              <div className="px-4 pb-4">
+            <ScrollArea className="flex-1 min-h-0 max-h-[180px]">
+              <div className="px-4 pb-3">
                 <div className="flex flex-wrap gap-2">
                   {activeCategory?.options.map(option => (
                     <button
@@ -270,10 +270,10 @@ export const ItemCustomizationDialog = ({
                 </div>
               </div>
             </ScrollArea>
-          </>
+          </div>
         ) : (
-          <ScrollArea className="flex-1 max-h-[280px]">
-            <div className="px-4 py-3">
+          <ScrollArea className="flex-1 min-h-0 max-h-[250px]">
+            <div className="px-4 py-2">
               <div className="flex flex-wrap gap-2">
                 {addOnItems.map(addOn => (
                   <button
@@ -295,7 +295,7 @@ export const ItemCustomizationDialog = ({
         )}
 
         {/* Add to Cart Button */}
-        <div className="p-4 border-t border-neutral-700">
+        <div className="p-4 pt-2 border-t border-neutral-700 mt-auto">
           <Button
             onClick={handleAddToCart}
             className="w-full py-3 rounded-xl text-white font-bold text-base"

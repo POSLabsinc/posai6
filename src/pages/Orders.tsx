@@ -2715,22 +2715,22 @@ const Orders = () => {
             </Button>
           </div>}
         {/* Menu Content - Hidden when minimized */}
-        <div className={`flex flex-col gap-2 p-2 md:p-3 transition-all duration-300 bg-neutral-900 rounded-b-[20px] ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
+        <div className={`flex flex-col gap-2 p-2 md:p-2 lg:p-3 transition-all duration-300 bg-neutral-900 rounded-b-[20px] ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
         {/* Main Categories - Hidden in search mode on mobile */}
-        <div className={`flex flex-wrap items-center gap-1 md:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
+        <div className={`flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Menu Controls Group */}
-          {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-2 bg-sidebar-accent rounded-full px-1 md:px-2 py-0.5 md:py-1">
-              <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
-                <img src={burgerCloseIcon} alt="Close menu" className="w-4 md:w-7 h-4 md:h-7" />
+          {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1.5 lg:gap-2 bg-sidebar-accent rounded-full px-1 md:px-1.5 lg:px-2 py-0.5 md:py-0.5 lg:py-1">
+              <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-10 w-6 md:w-8 lg:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
+                <img src={burgerCloseIcon} alt="Close menu" className="w-4 md:w-5 lg:w-7 h-4 md:h-5 lg:h-7" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setHorizontalScrollMode(!horizontalScrollMode)} title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}>
-                {horizontalScrollMode ? <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-5 h-3 md:h-5" /> : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-5 h-3 md:h-5" />}
+              <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-10 w-6 md:w-8 lg:w-10 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setHorizontalScrollMode(!horizontalScrollMode)} title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}>
+                {horizontalScrollMode ? <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
               </Button>
-              <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setThumbnailViewMode(!thumbnailViewMode)} title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}>
-                {thumbnailViewMode ? <img src={listViewIcon} alt="List view" className="w-3 md:w-5 h-3 md:h-5" /> : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-5 h-3 md:h-5" />}
+              <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-10 w-6 md:w-8 lg:w-10 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setThumbnailViewMode(!thumbnailViewMode)} title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}>
+                {thumbnailViewMode ? <img src={listViewIcon} alt="List view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
-                <SelectTrigger className="w-[100px] md:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-6 md:h-10 text-[10px] md:text-sm">
+                <SelectTrigger className="w-[100px] md:w-[130px] lg:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-6 md:h-8 lg:h-10 text-[10px] md:text-xs lg:text-sm">
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-neutral-700">
@@ -2739,11 +2739,11 @@ const Orders = () => {
                     </SelectItem>)}
                 </SelectContent>
               </Select>
-            </div> : <Button variant="ghost" size="icon" className="h-6 md:h-10 w-6 md:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
-              <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-10 h-6 md:h-10" />
+            </div> : <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-10 w-6 md:w-8 lg:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
+              <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-8 lg:w-10 h-6 md:h-8 lg:h-10" />
             </Button>}
           {/* Categories */}
-          {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-1 md:px-6 h-5 md:h-8 text-[9px] md:text-xs whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
+          {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-1 md:px-4 lg:px-6 h-5 md:h-7 lg:h-8 text-[9px] md:text-[10px] lg:text-xs whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
         </div>
@@ -2751,9 +2751,9 @@ const Orders = () => {
         <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />
 
         {/* Subcategories based on selected category - Hidden in search mode on mobile */}
-        <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
-          <div className={`flex gap-1 md:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
-            {(categorySubcategories[activeCategory] || []).map(sub => <Button key={sub} variant="outline" className={`rounded-md px-2 md:px-6 h-6 md:h-8 text-[10px] md:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
+        <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[7rem] lg:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
+          <div className={`flex gap-1 md:gap-1.5 lg:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
+            {(categorySubcategories[activeCategory] || []).map(sub => <Button key={sub} variant="outline" className={`rounded-md px-2 md:px-4 lg:px-6 h-6 md:h-7 lg:h-8 text-[10px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
                 {sub}
               </Button>)}
           </div>
@@ -2778,7 +2778,7 @@ const Orders = () => {
             const filteredItems = isSearchMode && searchQuery.trim() 
               ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) 
               : currentItems;
-            return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 gap-1 md:gap-3">
+            return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-1 md:gap-2 lg:gap-3">
                 {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700">
                     <div className="relative aspect-[4/3] bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
                       <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
@@ -2795,7 +2795,7 @@ const Orders = () => {
                       </span>
                     </div>
                   </div>)}
-              </div> : <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
+              </div> : <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-1 md:gap-2">
                 {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
                     <div className="flex-1 p-1.5 md:p-3" style={{
                   background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
@@ -2823,7 +2823,7 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order (Desktop only) */}
-      <div className="hidden md:flex w-[345px] flex-col overflow-hidden flex-shrink-0">
+      <div className="hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0">
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">

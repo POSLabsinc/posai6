@@ -1170,7 +1170,7 @@ const Orders = () => {
             <Button 
               variant="ghost" 
               size="icon" 
-              className="w-8 h-8 rounded-full bg-white/90 hover:bg-white p-0"
+              className="w-6 h-6 rounded-full bg-white/90 hover:bg-white p-0"
               onClick={(e) => {
                 e.stopPropagation();
                 setIsSearchMode(true);
@@ -1178,7 +1178,7 @@ const Orders = () => {
                 setTimeout(() => searchInputRef.current?.focus(), 100);
               }}
             >
-              <Search className="w-4 h-4 text-neutral-800" />
+              <Search className="w-3 h-3 text-neutral-800" />
             </Button>
           </div>
         )}

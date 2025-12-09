@@ -1115,7 +1115,7 @@ const Orders = () => {
                           </span>
                           <span className="text-xs font-medium text-foreground">{item.name}</span>
                         </div>
-                        <span className="text-xs font-medium text-foreground">$ {item.price.toFixed(2)}</span>
+                        <span className="text-xs font-medium text-foreground">${item.price.toFixed(2)}</span>
                       </div>
                     </SwipeableCartItem>)}
                 </div>
@@ -1126,15 +1126,15 @@ const Orders = () => {
           {orderItems.length > 0 && <div className="px-2 py-1.5 border-t border-sidebar-border space-y-0.5 text-xs">
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Sub Total</span>
-                <span className="text-foreground">$ {subtotal.toFixed(2)}</span>
+                <span className="text-foreground">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-red-500">Discount</span>
-                <span className="text-red-500">$ {discount.toFixed(2)}</span>
+                <span className="text-red-500">${discount.toFixed(2)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Service Charge</span>
-                <span className="text-foreground">$ {serviceCharge.toFixed(2)}</span>
+                <span className="text-foreground">${serviceCharge.toFixed(2)}</span>
               </div>
             </div>}
 
@@ -1151,7 +1151,7 @@ const Orders = () => {
               <span className="text-white font-semibold text-sm">FIRE</span>
             </button>
             <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}>
-              <span className="text-black font-semibold text-xs">CHARGE $ {total.toFixed(2)}</span>
+              <span className="text-black font-semibold text-xs">CHARGE ${total.toFixed(2)}</span>
             </button>
           </div>
         </div>
@@ -1474,7 +1474,7 @@ const Orders = () => {
                         </span>
                         <span className="text-sm font-medium text-foreground">{item.name}</span>
                       </div>
-                      <span className="text-sm font-medium text-foreground">$ {item.price.toFixed(2)}</span>
+                      <span className="text-sm font-medium text-foreground">${item.price.toFixed(2)}</span>
                     </div>
                     {item.modifiers && item.modifiers.length > 0 && <div className="mt-2 ml-8 space-y-0.5">
                         {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs text-muted-foreground">
@@ -1492,24 +1492,24 @@ const Orders = () => {
           <div className="space-y-1.5 text-sm rounded px-3 py-2" style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
             <div className="flex justify-between">
               <span className="text-foreground">Sub Total</span>
-              <span className="text-foreground">$ {subtotal.toFixed(2)}</span>
+              <span className="text-foreground">${subtotal.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-red-500">Discount</span>
-              <span className="text-red-500">$ {discount.toFixed(2)}</span>
+              <span className="text-red-500">${discount.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-foreground">Service Charge</span>
-              <span className="text-foreground">$ {serviceCharge.toFixed(2)}</span>
+              <span className="text-foreground">${serviceCharge.toFixed(2)}</span>
             </div>
             <div className="flex justify-between">
               <span className="text-foreground">Tax</span>
-              <span className="text-foreground">$ {tax.toFixed(2)}</span>
+              <span className="text-foreground">${tax.toFixed(2)}</span>
             </div>
             <div className="border-t border-dashed border-sidebar-border my-2" />
             <div className="flex justify-between text-base font-bold">
               <span>Total</span>
-              <span>$ {total.toFixed(2)}</span>
+              <span>${total.toFixed(2)}</span>
             </div>
           </div>
 
@@ -1526,7 +1526,7 @@ const Orders = () => {
               <span className="text-white font-semibold text-sm">FIRE</span>
             </button>
             <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}>
-              <span className="text-black font-semibold text-xs">CHARGE $ {total.toFixed(2)}</span>
+              <span className="text-black font-semibold text-xs">CHARGE ${total.toFixed(2)}</span>
             </button>
           </div>
         </div>

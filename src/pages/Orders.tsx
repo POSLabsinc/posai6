@@ -151,187 +151,499 @@ const categorySubcategories: Record<string, string[]> = {
   "Gin": ["London Dry", "Old Tom", "Plymouth", "Navy Strength", "Sloe", "Barrel Aged", "Flavored", "Contemporary", "Classic", "Botanical", "Pink", "Premium"],
   "Brandy": ["Cognac", "Armagnac", "Calvados", "Pisco", "Grappa", "VS", "VSOP", "XO", "Napoleon", "Fruit", "Spanish", "American"]
 };
-const menuItems = [{
-  id: 1,
-  name: "Almond Crusted Salmon",
-  price: 28.99
-}, {
-  id: 2,
-  name: "Hand Cut Fettuccini Alfredo",
-  price: 18.99
-}, {
-  id: 3,
-  name: "Four Cheese Ravioli",
-  price: 19.99
-}, {
-  id: 4,
-  name: "Grilled Organic Chicken Panini",
-  price: 14.99
-}, {
-  id: 5,
-  name: "Grilled Asparagus",
-  price: 8.99
-}, {
-  id: 6,
-  name: "Jidori Chicken Parmesan",
-  price: 24.99
-}, {
-  id: 7,
-  name: "Prime London Sirloin",
-  price: 34.99
-}, {
-  id: 8,
-  name: "Pan Roasted Salmon Sandwich",
-  price: 16.99
-}, {
-  id: 9,
-  name: "Oven Roasted Free Range Chicken",
-  price: 22.99
-}, {
-  id: 10,
-  name: "Crispy Calamari",
-  price: 12.99
-}, {
-  id: 11,
-  name: "Spinach & Artichoke Dip",
-  price: 10.99
-}, {
-  id: 12,
-  name: "Loaded Potato Skins",
-  price: 9.99
-}, {
-  id: 13,
-  name: "Mozzarella Sticks",
-  price: 8.99
-}, {
-  id: 14,
-  name: "Chicken Wings",
-  price: 13.99
-}, {
-  id: 15,
-  name: "Nacho Supreme",
-  price: 11.99
-}, {
-  id: 16,
-  name: "Garlic Bread",
-  price: 5.99
-}, {
-  id: 17,
-  name: "Caesar Salad",
-  price: 10.99
-}, {
-  id: 18,
-  name: "Greek Salad",
-  price: 11.99
-}, {
-  id: 19,
-  name: "Tomato Basil Soup",
-  price: 7.99
-}, {
-  id: 20,
-  name: "French Onion Soup",
-  price: 8.99
-}, {
-  id: 21,
-  name: "Ribeye Steak",
-  price: 38.99
-}, {
-  id: 22,
-  name: "Filet Mignon",
-  price: 44.99
-}, {
-  id: 23,
-  name: "Grilled Salmon",
-  price: 26.99
-}, {
-  id: 24,
-  name: "Shrimp Scampi",
-  price: 23.99
-}, {
-  id: 25,
-  name: "Lobster Tail",
-  price: 49.99
-}, {
-  id: 26,
-  name: "Lamb Chops",
-  price: 36.99
-}, {
-  id: 27,
-  name: "BBQ Ribs",
-  price: 24.99
-}, {
-  id: 28,
-  name: "Pork Tenderloin",
-  price: 21.99
-}, {
-  id: 29,
-  name: "Duck Breast",
-  price: 32.99
-}, {
-  id: 30,
-  name: "Beef Wellington",
-  price: 52.99
-}, {
-  id: 31,
-  name: "Mushroom Risotto",
-  price: 17.99
-}, {
-  id: 32,
-  name: "Truffle Pasta",
-  price: 28.99
-}, {
-  id: 33,
-  name: "Spaghetti Carbonara",
-  price: 16.99
-}, {
-  id: 34,
-  name: "Lasagna Bolognese",
-  price: 18.99
-}, {
-  id: 35,
-  name: "Chicken Marsala",
-  price: 22.99
-}, {
-  id: 36,
-  name: "Eggplant Parmesan",
-  price: 17.99
-}, {
-  id: 37,
-  name: "Seafood Platter",
-  price: 54.99
-}, {
-  id: 38,
-  name: "Fish & Chips",
-  price: 15.99
-}, {
-  id: 39,
-  name: "Crab Cakes",
-  price: 19.99
-}, {
-  id: 40,
-  name: "Oysters Rockefeller",
-  price: 24.99
-}, {
-  id: 41,
-  name: "Tiramisu",
-  price: 9.99
-}, {
-  id: 42,
-  name: "Chocolate Lava Cake",
-  price: 10.99
-}, {
-  id: 43,
-  name: "Cheesecake",
-  price: 8.99
-}, {
-  id: 44,
-  name: "Crème Brûlée",
-  price: 9.99
-}, {
-  id: 45,
-  name: "Apple Pie",
-  price: 7.99
-}];
+// Menu items organized by menu -> category -> subcategory
+interface MenuItem {
+  id: number;
+  name: string;
+  price: number;
+}
+
+type SubcategoryItems = Record<string, MenuItem[]>;
+type CategoryItems = Record<string, SubcategoryItems>;
+type MenuItemsStructure = Record<string, CategoryItems>;
+
+const menuItemsData: MenuItemsStructure = {
+  "BAKERY MENU": {
+    "Breads": {
+      "Sourdough": [
+        { id: 1, name: "Classic Sourdough Loaf", price: 6.99 },
+        { id: 2, name: "Sourdough Boule", price: 7.99 },
+        { id: 3, name: "Mini Sourdough Rounds", price: 4.99 },
+      ],
+      "Whole Wheat": [
+        { id: 4, name: "Whole Wheat Sandwich Loaf", price: 5.99 },
+        { id: 5, name: "Honey Wheat Bread", price: 6.49 },
+        { id: 6, name: "Multigrain Wheat Loaf", price: 6.99 },
+      ],
+      "French": [
+        { id: 7, name: "French Baguette", price: 4.99 },
+        { id: 8, name: "Pain de Campagne", price: 7.99 },
+        { id: 9, name: "French Country Loaf", price: 6.99 },
+      ],
+    },
+    "Pastries": {
+      "Croissant": [
+        { id: 10, name: "Butter Croissant", price: 3.99 },
+        { id: 11, name: "Almond Croissant", price: 4.99 },
+        { id: 12, name: "Chocolate Croissant", price: 4.49 },
+      ],
+      "Danish": [
+        { id: 13, name: "Cheese Danish", price: 3.99 },
+        { id: 14, name: "Cherry Danish", price: 4.29 },
+        { id: 15, name: "Apple Danish", price: 4.29 },
+      ],
+      "Éclair": [
+        { id: 16, name: "Chocolate Éclair", price: 4.99 },
+        { id: 17, name: "Vanilla Éclair", price: 4.99 },
+        { id: 18, name: "Coffee Éclair", price: 5.49 },
+      ],
+    },
+    "Cakes": {
+      "Chocolate": [
+        { id: 19, name: "Dark Chocolate Cake Slice", price: 6.99 },
+        { id: 20, name: "Triple Chocolate Mousse", price: 8.99 },
+        { id: 21, name: "Chocolate Fudge Cake", price: 7.99 },
+      ],
+      "Vanilla": [
+        { id: 22, name: "Classic Vanilla Cake", price: 5.99 },
+        { id: 23, name: "Vanilla Bean Sponge", price: 6.99 },
+        { id: 24, name: "French Vanilla Layer Cake", price: 7.49 },
+      ],
+      "Red Velvet": [
+        { id: 25, name: "Red Velvet Slice", price: 6.99 },
+        { id: 26, name: "Red Velvet Cupcake", price: 4.99 },
+        { id: 27, name: "Red Velvet Mini Cake", price: 9.99 },
+      ],
+    },
+    "Cookies": {
+      "Chocolate Chip": [
+        { id: 28, name: "Classic Chocolate Chip", price: 2.99 },
+        { id: 29, name: "Double Chocolate Chip", price: 3.49 },
+        { id: 30, name: "Giant Chocolate Chip", price: 4.99 },
+      ],
+      "Oatmeal": [
+        { id: 31, name: "Oatmeal Raisin Cookie", price: 2.99 },
+        { id: 32, name: "Oatmeal Cranberry", price: 3.29 },
+        { id: 33, name: "Oatmeal Walnut", price: 3.49 },
+      ],
+    },
+  },
+  "BAR MENU": {
+    "Food": {
+      "Appetizers": [
+        { id: 100, name: "Crispy Calamari", price: 12.99 },
+        { id: 101, name: "Spinach Artichoke Dip", price: 10.99 },
+        { id: 102, name: "Loaded Potato Skins", price: 9.99 },
+        { id: 103, name: "Mozzarella Sticks", price: 8.99 },
+        { id: 104, name: "Buffalo Wings", price: 13.99 },
+      ],
+      "Mains": [
+        { id: 105, name: "Bar Burger Deluxe", price: 16.99 },
+        { id: 106, name: "Fish & Chips", price: 15.99 },
+        { id: 107, name: "Grilled Chicken Sandwich", price: 14.99 },
+        { id: 108, name: "Philly Cheesesteak", price: 17.99 },
+      ],
+      "Sides": [
+        { id: 109, name: "Truffle Fries", price: 7.99 },
+        { id: 110, name: "Onion Rings", price: 6.99 },
+        { id: 111, name: "Coleslaw", price: 4.99 },
+      ],
+    },
+    "Desserts": {
+      "Cakes": [
+        { id: 112, name: "Molten Lava Cake", price: 9.99 },
+        { id: 113, name: "New York Cheesecake", price: 8.99 },
+      ],
+      "Ice Cream": [
+        { id: 114, name: "Vanilla Sundae", price: 6.99 },
+        { id: 115, name: "Brownie a la Mode", price: 8.99 },
+      ],
+    },
+    "Drinks": {
+      "Iced Tea": [
+        { id: 116, name: "Classic Iced Tea", price: 3.99 },
+        { id: 117, name: "Peach Iced Tea", price: 4.49 },
+        { id: 118, name: "Arnold Palmer", price: 4.99 },
+      ],
+      "Soda": [
+        { id: 119, name: "Coca Cola", price: 2.99 },
+        { id: 120, name: "Sprite", price: 2.99 },
+        { id: 121, name: "Ginger Ale", price: 2.99 },
+      ],
+    },
+    "Beer": {
+      "Lager": [
+        { id: 122, name: "Budweiser", price: 5.99 },
+        { id: 123, name: "Corona Extra", price: 6.99 },
+        { id: 124, name: "Stella Artois", price: 7.49 },
+      ],
+      "IPA": [
+        { id: 125, name: "Sierra Nevada IPA", price: 7.99 },
+        { id: 126, name: "Lagunitas IPA", price: 7.99 },
+        { id: 127, name: "Stone IPA", price: 8.49 },
+      ],
+      "Stout": [
+        { id: 128, name: "Guinness Draught", price: 7.99 },
+        { id: 129, name: "Left Hand Milk Stout", price: 8.49 },
+      ],
+    },
+    "Wine": {
+      "Red": [
+        { id: 130, name: "Cabernet Sauvignon", price: 12.99 },
+        { id: 131, name: "Merlot", price: 11.99 },
+        { id: 132, name: "Pinot Noir", price: 13.99 },
+      ],
+      "White": [
+        { id: 133, name: "Chardonnay", price: 11.99 },
+        { id: 134, name: "Sauvignon Blanc", price: 10.99 },
+        { id: 135, name: "Pinot Grigio", price: 10.99 },
+      ],
+      "Rosé": [
+        { id: 136, name: "Provence Rosé", price: 12.99 },
+        { id: 137, name: "White Zinfandel", price: 9.99 },
+      ],
+    },
+    "Cocktails": {
+      "Margarita": [
+        { id: 138, name: "Classic Margarita", price: 10.99 },
+        { id: 139, name: "Spicy Jalapeño Margarita", price: 12.99 },
+        { id: 140, name: "Mango Margarita", price: 11.99 },
+      ],
+      "Mojito": [
+        { id: 141, name: "Classic Mojito", price: 10.99 },
+        { id: 142, name: "Strawberry Mojito", price: 11.99 },
+        { id: 143, name: "Coconut Mojito", price: 12.49 },
+      ],
+      "Martini": [
+        { id: 144, name: "Classic Dry Martini", price: 12.99 },
+        { id: 145, name: "Espresso Martini", price: 13.99 },
+        { id: 146, name: "Dirty Martini", price: 12.99 },
+      ],
+    },
+  },
+  "HAPPY HOUR M/W": {
+    "Appetizers": {
+      "Wings": [
+        { id: 200, name: "Buffalo Wings (10pc)", price: 9.99 },
+        { id: 201, name: "BBQ Wings (10pc)", price: 9.99 },
+        { id: 202, name: "Garlic Parmesan Wings", price: 10.99 },
+      ],
+      "Nachos": [
+        { id: 203, name: "Loaded Nachos", price: 8.99 },
+        { id: 204, name: "Chicken Nachos", price: 10.99 },
+        { id: 205, name: "Beef Nachos Supreme", price: 11.99 },
+      ],
+      "Dips": [
+        { id: 206, name: "Guacamole & Chips", price: 7.99 },
+        { id: 207, name: "Queso Dip", price: 6.99 },
+        { id: 208, name: "Salsa Trio", price: 5.99 },
+      ],
+    },
+    "Wings": {
+      "Buffalo": [
+        { id: 209, name: "Mild Buffalo Wings", price: 9.99 },
+        { id: 210, name: "Hot Buffalo Wings", price: 9.99 },
+        { id: 211, name: "Extra Hot Wings", price: 10.99 },
+      ],
+      "BBQ": [
+        { id: 212, name: "Honey BBQ Wings", price: 9.99 },
+        { id: 213, name: "Smoky BBQ Wings", price: 9.99 },
+        { id: 214, name: "Kansas City BBQ", price: 10.99 },
+      ],
+    },
+    "Sliders": {
+      "Beef": [
+        { id: 215, name: "Classic Beef Sliders (3)", price: 10.99 },
+        { id: 216, name: "Bacon Cheese Sliders", price: 12.99 },
+        { id: 217, name: "Mushroom Swiss Sliders", price: 11.99 },
+      ],
+      "Chicken": [
+        { id: 218, name: "Crispy Chicken Sliders", price: 10.99 },
+        { id: 219, name: "Buffalo Chicken Sliders", price: 11.99 },
+      ],
+    },
+    "Beer": {
+      "Lager": [
+        { id: 220, name: "Happy Hour Bud Light", price: 3.99 },
+        { id: 221, name: "Happy Hour Miller Lite", price: 3.99 },
+      ],
+      "IPA": [
+        { id: 222, name: "Happy Hour Local IPA", price: 5.99 },
+        { id: 223, name: "Happy Hour Hazy IPA", price: 5.99 },
+      ],
+    },
+    "Cocktails": {
+      "Margarita": [
+        { id: 224, name: "HH Classic Margarita", price: 6.99 },
+        { id: 225, name: "HH Frozen Margarita", price: 7.99 },
+      ],
+      "Mojito": [
+        { id: 226, name: "HH Classic Mojito", price: 6.99 },
+        { id: 227, name: "HH Passion Fruit Mojito", price: 7.99 },
+      ],
+    },
+  },
+  "Holiday Menu": {
+    "Starters": {
+      "Soup": [
+        { id: 300, name: "Butternut Squash Soup", price: 8.99 },
+        { id: 301, name: "French Onion Soup", price: 9.99 },
+      ],
+      "Salad": [
+        { id: 302, name: "Winter Harvest Salad", price: 10.99 },
+        { id: 303, name: "Cranberry Walnut Salad", price: 11.99 },
+      ],
+    },
+    "Mains": {
+      "Steak": [
+        { id: 304, name: "Prime Rib (16oz)", price: 44.99 },
+        { id: 305, name: "Filet Mignon", price: 48.99 },
+      ],
+      "Chicken": [
+        { id: 306, name: "Herb Roasted Chicken", price: 26.99 },
+        { id: 307, name: "Stuffed Chicken Breast", price: 28.99 },
+      ],
+    },
+    "Turkey": {
+      "Roasted": [
+        { id: 308, name: "Roasted Turkey Plate", price: 24.99 },
+        { id: 309, name: "Turkey Dinner for Two", price: 44.99 },
+      ],
+      "Smoked": [
+        { id: 310, name: "Smoked Turkey Breast", price: 26.99 },
+        { id: 311, name: "Applewood Smoked Turkey", price: 28.99 },
+      ],
+    },
+    "Ham": {
+      "Honey Glazed": [
+        { id: 312, name: "Honey Glazed Ham Plate", price: 22.99 },
+        { id: 313, name: "Ham Steak Dinner", price: 19.99 },
+      ],
+      "Smoked": [
+        { id: 314, name: "Smoked Ham Platter", price: 24.99 },
+        { id: 315, name: "Country Smoked Ham", price: 23.99 },
+      ],
+    },
+    "Desserts": {
+      "Pies": [
+        { id: 316, name: "Pumpkin Pie Slice", price: 7.99 },
+        { id: 317, name: "Pecan Pie Slice", price: 8.99 },
+        { id: 318, name: "Apple Pie a la Mode", price: 9.99 },
+      ],
+      "Cakes": [
+        { id: 319, name: "Yule Log Cake", price: 8.99 },
+        { id: 320, name: "Eggnog Cheesecake", price: 9.99 },
+      ],
+    },
+  },
+  "LE BRUNCH MENU": {
+    "Eggs": {
+      "Scrambled": [
+        { id: 400, name: "Classic Scrambled Eggs", price: 9.99 },
+        { id: 401, name: "Truffle Scrambled Eggs", price: 14.99 },
+      ],
+      "Benedict": [
+        { id: 402, name: "Classic Eggs Benedict", price: 15.99 },
+        { id: 403, name: "Smoked Salmon Benedict", price: 18.99 },
+        { id: 404, name: "Florentine Benedict", price: 14.99 },
+      ],
+      "Poached": [
+        { id: 405, name: "Poached Eggs on Toast", price: 10.99 },
+        { id: 406, name: "Avocado Toast with Poached Egg", price: 13.99 },
+      ],
+    },
+    "Pancakes": {
+      "Buttermilk": [
+        { id: 407, name: "Classic Buttermilk Stack", price: 11.99 },
+        { id: 408, name: "Short Stack (2)", price: 8.99 },
+      ],
+      "Blueberry": [
+        { id: 409, name: "Fresh Blueberry Pancakes", price: 13.99 },
+        { id: 410, name: "Blueberry Compote Pancakes", price: 14.99 },
+      ],
+      "Chocolate Chip": [
+        { id: 411, name: "Chocolate Chip Pancakes", price: 12.99 },
+        { id: 412, name: "Double Chocolate Stack", price: 14.99 },
+      ],
+    },
+    "Waffles": {
+      "Belgian": [
+        { id: 413, name: "Belgian Waffle", price: 12.99 },
+        { id: 414, name: "Belgian Waffle with Berries", price: 15.99 },
+      ],
+      "Chicken &": [
+        { id: 415, name: "Chicken & Waffles", price: 18.99 },
+        { id: 416, name: "Nashville Hot Chicken & Waffles", price: 20.99 },
+      ],
+    },
+    "Omelettes": {
+      "Western": [
+        { id: 417, name: "Western Omelette", price: 14.99 },
+        { id: 418, name: "Denver Omelette", price: 14.99 },
+      ],
+      "Veggie": [
+        { id: 419, name: "Garden Veggie Omelette", price: 13.99 },
+        { id: 420, name: "Spinach Mushroom Omelette", price: 14.99 },
+      ],
+    },
+    "Coffee": {
+      "Espresso": [
+        { id: 421, name: "Single Espresso", price: 3.99 },
+        { id: 422, name: "Double Espresso", price: 4.99 },
+      ],
+      "Latte": [
+        { id: 423, name: "Classic Latte", price: 5.99 },
+        { id: 424, name: "Vanilla Latte", price: 6.49 },
+        { id: 425, name: "Caramel Latte", price: 6.49 },
+      ],
+      "Cappuccino": [
+        { id: 426, name: "Classic Cappuccino", price: 5.49 },
+        { id: 427, name: "Dry Cappuccino", price: 5.49 },
+      ],
+    },
+    "Mimosas": {
+      "Classic": [
+        { id: 428, name: "Classic Orange Mimosa", price: 8.99 },
+        { id: 429, name: "Bottomless Mimosas", price: 24.99 },
+      ],
+      "Bellini": [
+        { id: 430, name: "Peach Bellini", price: 9.99 },
+        { id: 431, name: "Strawberry Bellini", price: 9.99 },
+      ],
+    },
+  },
+  "LE DINER MENU": {
+    "Appetizers": {
+      "Bruschetta": [
+        { id: 500, name: "Classic Tomato Bruschetta", price: 10.99 },
+        { id: 501, name: "Mushroom Truffle Bruschetta", price: 13.99 },
+      ],
+      "Carpaccio": [
+        { id: 502, name: "Beef Carpaccio", price: 16.99 },
+        { id: 503, name: "Tuna Carpaccio", price: 18.99 },
+      ],
+      "Oysters": [
+        { id: 504, name: "Oysters on the Half Shell (6)", price: 18.99 },
+        { id: 505, name: "Oysters Rockefeller", price: 22.99 },
+      ],
+    },
+    "Soups": {
+      "Tomato": [
+        { id: 506, name: "Creamy Tomato Bisque", price: 8.99 },
+        { id: 507, name: "Roasted Tomato Soup", price: 7.99 },
+      ],
+      "French Onion": [
+        { id: 508, name: "Classic French Onion", price: 10.99 },
+        { id: 509, name: "Gratinée Lyonnaise", price: 12.99 },
+      ],
+      "Lobster Bisque": [
+        { id: 510, name: "Maine Lobster Bisque", price: 14.99 },
+        { id: 511, name: "Lobster Bisque with Cognac", price: 16.99 },
+      ],
+    },
+    "Salads": {
+      "Caesar": [
+        { id: 512, name: "Classic Caesar Salad", price: 12.99 },
+        { id: 513, name: "Grilled Chicken Caesar", price: 16.99 },
+        { id: 514, name: "Shrimp Caesar", price: 18.99 },
+      ],
+      "Garden": [
+        { id: 515, name: "Garden Fresh Salad", price: 10.99 },
+        { id: 516, name: "Chef's Garden Salad", price: 12.99 },
+      ],
+    },
+    "Steaks": {
+      "Filet Mignon": [
+        { id: 517, name: "Filet Mignon 8oz", price: 44.99 },
+        { id: 518, name: "Filet Mignon 12oz", price: 54.99 },
+      ],
+      "Ribeye": [
+        { id: 519, name: "Ribeye 14oz", price: 42.99 },
+        { id: 520, name: "Bone-In Ribeye 20oz", price: 58.99 },
+      ],
+      "NY Strip": [
+        { id: 521, name: "NY Strip 12oz", price: 38.99 },
+        { id: 522, name: "NY Strip 16oz", price: 46.99 },
+      ],
+    },
+    "Seafood": {
+      "Salmon": [
+        { id: 523, name: "Almond Crusted Salmon", price: 28.99 },
+        { id: 524, name: "Grilled Atlantic Salmon", price: 26.99 },
+        { id: 525, name: "Honey Glazed Salmon", price: 29.99 },
+      ],
+      "Lobster": [
+        { id: 526, name: "Lobster Tail", price: 49.99 },
+        { id: 527, name: "Butter Poached Lobster", price: 54.99 },
+      ],
+      "Shrimp": [
+        { id: 528, name: "Shrimp Scampi", price: 23.99 },
+        { id: 529, name: "Grilled Jumbo Shrimp", price: 26.99 },
+      ],
+    },
+    "Pasta": {
+      "Spaghetti": [
+        { id: 530, name: "Spaghetti Carbonara", price: 16.99 },
+        { id: 531, name: "Spaghetti Bolognese", price: 17.99 },
+      ],
+      "Fettuccine": [
+        { id: 532, name: "Fettuccine Alfredo", price: 15.99 },
+        { id: 533, name: "Chicken Fettuccine Alfredo", price: 19.99 },
+      ],
+      "Ravioli": [
+        { id: 534, name: "Four Cheese Ravioli", price: 18.99 },
+        { id: 535, name: "Lobster Ravioli", price: 26.99 },
+      ],
+    },
+    "Desserts": {
+      "Tiramisu": [
+        { id: 536, name: "Classic Tiramisu", price: 9.99 },
+        { id: 537, name: "Espresso Tiramisu", price: 10.99 },
+      ],
+      "Crème Brûlée": [
+        { id: 538, name: "Classic Crème Brûlée", price: 9.99 },
+        { id: 539, name: "Lavender Crème Brûlée", price: 11.99 },
+      ],
+      "Cheesecake": [
+        { id: 540, name: "New York Cheesecake", price: 8.99 },
+        { id: 541, name: "Raspberry Swirl Cheesecake", price: 10.99 },
+      ],
+    },
+  },
+};
+
+// Helper function to get items based on menu, category, and subcategory
+const getMenuItems = (menu: string, category: string, subcategory: string): MenuItem[] => {
+  const menuData = menuItemsData[menu];
+  if (!menuData) return [];
+  
+  const categoryData = menuData[category];
+  if (!categoryData) return [];
+  
+  const items = categoryData[subcategory];
+  if (!items) return [];
+  
+  return items;
+};
+
+// Get all items for a category (when no subcategory selected)
+const getAllCategoryItems = (menu: string, category: string): MenuItem[] => {
+  const menuData = menuItemsData[menu];
+  if (!menuData) return [];
+  
+  const categoryData = menuData[category];
+  if (!categoryData) return [];
+  
+  return Object.values(categoryData).flat();
+};
+
+// Get all items for a menu (when no category selected)
+const getAllMenuItems = (menu: string): MenuItem[] => {
+  const menuData = menuItemsData[menu];
+  if (!menuData) return [];
+  
+  return Object.values(menuData).flatMap(cat => Object.values(cat).flat());
+};
 interface OrderItem {
   id: number;
   qty: number;
@@ -1219,8 +1531,20 @@ const Orders = () => {
         {/* Menu Items Grid */}
         <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
           {(() => {
+            // Get items based on selected menu, category, and subcategory
+            let currentItems: MenuItem[] = [];
+            if (activeSubcategory) {
+              currentItems = getMenuItems(selectedMenu, activeCategory, activeSubcategory);
+            } else if (activeCategory) {
+              currentItems = getAllCategoryItems(selectedMenu, activeCategory);
+            } else {
+              currentItems = getAllMenuItems(selectedMenu);
+            }
+            
             // Filter items based on search query (mobile only)
-            const filteredItems = isSearchMode && searchQuery.trim() ? menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : menuItems;
+            const filteredItems = isSearchMode && searchQuery.trim() 
+              ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) 
+              : currentItems;
             return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 gap-1 md:gap-3">
                 {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700">
                     <div className="relative aspect-[4/3] bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>

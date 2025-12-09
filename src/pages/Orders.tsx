@@ -1097,17 +1097,17 @@ const Orders = () => {
           </div>
 
           {/* Order Summary - Only show when items exist */}
-          {orderItems.length > 0 && <div className="px-2 py-1.5 border-t border-sidebar-border space-y-0.5 text-xs">
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Sub Total</span>
+          {orderItems.length > 0 && <div className="px-2 py-1 border-t border-sidebar-border text-xs flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1">
+                <span className="text-muted-foreground">Sub:</span>
                 <span className="text-foreground">${subtotal.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-red-500">Discount</span>
+              <div className="flex items-center gap-1">
+                <span className="text-red-500">Disc:</span>
                 <span className="text-red-500">${discount.toFixed(2)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="text-muted-foreground">Service Charge</span>
+              <div className="flex items-center gap-1">
+                <span className="text-muted-foreground">Svc:</span>
                 <span className="text-foreground">${serviceCharge.toFixed(2)}</span>
               </div>
             </div>}

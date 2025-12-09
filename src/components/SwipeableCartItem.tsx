@@ -1,21 +1,52 @@
 import { useState, useRef } from "react";
 import clearCIcon from "@/assets/icons/clear-c.png";
 import fireVectorIcon from "@/assets/icons/fire-vector.png";
+import noTaxIcon from "@/assets/icons/no-tax.png";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { ChevronDown } from "lucide-react";
 
 interface SwipeableCartItemProps {
   children: React.ReactNode;
   onDelete: () => void;
   onFire?: () => void;
+  onNoTax?: () => void;
+  onOrderTypeChange?: (type: string) => void;
+  itemOrderType?: string;
 }
 
-const SwipeableCartItem = ({ children, onDelete, onFire }: SwipeableCartItemProps) => {
+const ORDER_TYPES = [
+  "Dine In",
+  "TAKE OUT",
+  "DELIVERY",
+  "BANQUET",
+  "DRIVE THRU",
+  "CURB SIDE",
+  "SCHEDULED",
+  "PHONE-IN",
+  "CUSTOM"
+];
+
+const SwipeableCartItem = ({ 
+  children, 
+  onDelete, 
+  onFire, 
+  onNoTax,
+  onOrderTypeChange,
+  itemOrderType = "Dine In"
+}: SwipeableCartItemProps) => {
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startX = useRef(0);
   const currentX = useRef(0);
 
-  // Width for 2 buttons
-  const swipeWidth = -112;
+  // Width for buttons on each side
+  const rightSwipeWidth = -112; // 2 buttons on right (swipe left to reveal)
+  const leftSwipeWidth = 140; // buttons on left (swipe right to reveal)
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
@@ -26,19 +57,17 @@ const SwipeableCartItem = ({ children, onDelete, onFire }: SwipeableCartItemProp
     if (!isDragging) return;
     currentX.current = e.touches[0].clientX;
     const diff = currentX.current - startX.current;
-    // Only allow swipe left (negative values)
-    if (diff < 0) {
-      setTranslateX(Math.max(diff, swipeWidth));
-    } else {
-      setTranslateX(Math.min(diff, 0));
-    }
+    // Allow swipe in both directions
+    setTranslateX(Math.max(rightSwipeWidth, Math.min(diff, leftSwipeWidth)));
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
     // Snap to open or closed position
-    if (translateX < swipeWidth / 2) {
-      setTranslateX(swipeWidth);
+    if (translateX < rightSwipeWidth / 2) {
+      setTranslateX(rightSwipeWidth);
+    } else if (translateX > leftSwipeWidth / 2) {
+      setTranslateX(leftSwipeWidth);
     } else {
       setTranslateX(0);
     }
@@ -53,17 +82,15 @@ const SwipeableCartItem = ({ children, onDelete, onFire }: SwipeableCartItemProp
     if (!isDragging) return;
     currentX.current = e.clientX;
     const diff = currentX.current - startX.current;
-    if (diff < 0) {
-      setTranslateX(Math.max(diff, swipeWidth));
-    } else {
-      setTranslateX(Math.min(diff, 0));
-    }
+    setTranslateX(Math.max(rightSwipeWidth, Math.min(diff, leftSwipeWidth)));
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
-    if (translateX < swipeWidth / 2) {
-      setTranslateX(swipeWidth);
+    if (translateX < rightSwipeWidth / 2) {
+      setTranslateX(rightSwipeWidth);
+    } else if (translateX > leftSwipeWidth / 2) {
+      setTranslateX(leftSwipeWidth);
     } else {
       setTranslateX(0);
     }
@@ -72,8 +99,10 @@ const SwipeableCartItem = ({ children, onDelete, onFire }: SwipeableCartItemProp
   const handleMouseLeave = () => {
     if (isDragging) {
       setIsDragging(false);
-      if (translateX < swipeWidth / 2) {
-        setTranslateX(swipeWidth);
+      if (translateX < rightSwipeWidth / 2) {
+        setTranslateX(rightSwipeWidth);
+      } else if (translateX > leftSwipeWidth / 2) {
+        setTranslateX(leftSwipeWidth);
       } else {
         setTranslateX(0);
       }
@@ -82,7 +111,46 @@ const SwipeableCartItem = ({ children, onDelete, onFire }: SwipeableCartItemProp
 
   return (
     <div className="relative overflow-hidden rounded-lg">
-      {/* Action buttons behind */}
+      {/* Left side action buttons (revealed when swiping right) */}
+      <div className="absolute left-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 py-1">
+        {/* No Tax button */}
+        <button
+          onClick={() => onNoTax?.()}
+          className="px-3 h-8 flex items-center justify-center rounded-lg transition-colors text-xs font-medium text-white"
+          style={{ backgroundColor: '#666666' }}
+        >
+          No Tax
+        </button>
+        
+        {/* Order Type Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="px-2 h-8 flex items-center gap-1 rounded-lg transition-colors text-xs font-medium text-black"
+              style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+            >
+              {itemOrderType}
+              <ChevronDown className="w-3 h-3" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            className="bg-neutral-800 border-neutral-700 z-50 min-w-[120px]"
+            align="start"
+          >
+            {ORDER_TYPES.map((type) => (
+              <DropdownMenuItem
+                key={type}
+                onClick={() => onOrderTypeChange?.(type)}
+                className="text-white hover:bg-neutral-700 cursor-pointer text-sm"
+              >
+                {type}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </div>
+
+      {/* Right side action buttons (revealed when swiping left) */}
       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 py-1">
         {/* Clear button - Red */}
         <button
@@ -118,10 +186,14 @@ const SwipeableCartItem = ({ children, onDelete, onFire }: SwipeableCartItemProp
         onMouseLeave={handleMouseLeave}
       >
         {children}
-        {/* Swipe hint bar - hides when swiping */}
+        {/* Swipe hint bars */}
         <div 
           className="absolute right-0 top-0 bottom-0 w-1.5 bg-white/20 rounded-r-lg transition-opacity duration-200"
-          style={{ opacity: translateX < 0 ? 0 : 1 }}
+          style={{ opacity: translateX !== 0 ? 0 : 1 }}
+        />
+        <div 
+          className="absolute left-0 top-0 bottom-0 w-1.5 bg-white/20 rounded-l-lg transition-opacity duration-200"
+          style={{ opacity: translateX !== 0 ? 0 : 1 }}
         />
       </div>
     </div>

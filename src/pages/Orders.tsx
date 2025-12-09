@@ -933,7 +933,7 @@ const Orders = () => {
   const taxRate = 0.02;
   const tax = subtotal * taxRate;
   const total = subtotal - discount + serviceCharge + tax;
-  return <div className="flex flex-col md:flex-row gap-3 h-full overflow-hidden pb-16 md:pb-0 relative">
+  return <div className="flex flex-col md:flex-row gap-1 h-full overflow-hidden pb-16 md:pb-0 relative">
       {/* Right Panel - Order (Shows first on mobile) */}
       <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 pb-14' : 'flex-shrink-0'}`}>
         {/* Order Header - Outside background container */}

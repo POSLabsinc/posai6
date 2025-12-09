@@ -2930,22 +2930,22 @@ const Orders = () => {
           {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center h-full py-8">
               <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
               <span className="text-muted-foreground text-sm">Let's create an order</span>
-            </div> : <div className="py-1 space-y-2">
+            </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
               {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
-                  <div className="p-3 border border-sidebar-border rounded-lg" style={{
+                  <div className="p-2 md:p-1.5 lg:p-3 border border-sidebar-border rounded-md md:rounded lg:rounded-lg" style={{
                 background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
               }}>
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                      <div className="flex items-center gap-2 md:gap-1.5 lg:gap-3">
+                        <span className="w-5 h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full bg-orange-500 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0">
                           {item.qty}
                         </span>
-                        <span className="text-sm font-medium text-foreground">{item.name}</span>
+                        <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
                       </div>
-                      <span className="text-sm font-medium text-foreground">${item.price.toFixed(2)}</span>
+                      <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">${item.price.toFixed(2)}</span>
                     </div>
-                    {item.modifiers && item.modifiers.length > 0 && <div className="mt-2 ml-8 space-y-0.5">
-                        {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs text-muted-foreground">
+                    {item.modifiers && item.modifiers.length > 0 && <div className="mt-1.5 md:mt-1 lg:mt-2 ml-7 md:ml-5 lg:ml-8 space-y-0.5">
+                        {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs md:text-[10px] lg:text-xs text-muted-foreground">
                             <span>{mod.startsWith("W/") ? "+" : "-"}</span>
                             <span>{mod}</span>
                           </div>)}

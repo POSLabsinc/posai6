@@ -1,23 +1,21 @@
 import { useState, useRef } from "react";
-import moneyOffIcon from "@/assets/icons/money-off.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
 import fireVectorIcon from "@/assets/icons/fire-vector.png";
 
 interface SwipeableCartItemProps {
   children: React.ReactNode;
   onDelete: () => void;
-  onDiscount?: () => void;
   onFire?: () => void;
 }
 
-const SwipeableCartItem = ({ children, onDelete, onDiscount, onFire }: SwipeableCartItemProps) => {
+const SwipeableCartItem = ({ children, onDelete, onFire }: SwipeableCartItemProps) => {
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startX = useRef(0);
   const currentX = useRef(0);
 
-  // Width for 3 buttons
-  const swipeWidth = -168;
+  // Width for 2 buttons
+  const swipeWidth = -112;
 
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
@@ -86,15 +84,6 @@ const SwipeableCartItem = ({ children, onDelete, onDiscount, onFire }: Swipeable
     <div className="relative overflow-hidden rounded-lg">
       {/* Action buttons behind */}
       <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1.5 py-1">
-        {/* No Price / Discount button - Gray with black icon */}
-        <button
-          onClick={() => onDiscount?.()}
-          className="w-12 h-8 flex items-center justify-center rounded-full transition-colors"
-          style={{ backgroundColor: '#C9C9C9' }}
-        >
-          <img src={moneyOffIcon} alt="Discount" className="w-5 h-5" />
-        </button>
-        
         {/* Clear button - Red */}
         <button
           onClick={onDelete}

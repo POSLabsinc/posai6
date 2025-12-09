@@ -1453,9 +1453,7 @@ const Orders = () => {
       {/* Bottom Navigation - Mobile Only */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 flex items-center justify-center py-2 px-3 z-50">
         <div className="flex items-center justify-around bg-neutral-900 rounded-2xl py-2 px-3 w-full border border-neutral-700">
-          <button className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl" style={{
-          background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-        }}>
+          <button className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-lg border border-neutral-500 bg-transparent">
             <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
               <rect x="9" y="3" width="6" height="4" rx="1" />

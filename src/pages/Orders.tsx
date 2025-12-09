@@ -346,17 +346,52 @@ interface GuestUser {
   avatar?: string;
   initials: string;
 }
-
-const mockGuestUsers: GuestUser[] = [
-  { id: 1, name: "John Doe", phone: "(122) 456-7890", avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face", initials: "JD" },
-  { id: 2, name: "Nancy John", phone: "(123) 454-7890", avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face", initials: "NJ" },
-  { id: 3, name: "Jonathan Byers", phone: "(123) 454-7890", initials: "JB" },
-  { id: 4, name: "Jane Smith", phone: "(555) 123-4567", avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face", initials: "JS" },
-  { id: 5, name: "Michael Brown", phone: "(555) 987-6543", initials: "MB" },
-  { id: 6, name: "Sarah Johnson", phone: "(555) 246-8135", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face", initials: "SJ" },
-  { id: 7, name: "David Wilson", phone: "(555) 369-2580", initials: "DW" },
-  { id: 8, name: "Emily Davis", phone: "(555) 147-2583", avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=40&h=40&fit=crop&crop=face", initials: "ED" },
-];
+const mockGuestUsers: GuestUser[] = [{
+  id: 1,
+  name: "John Doe",
+  phone: "(122) 456-7890",
+  avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
+  initials: "JD"
+}, {
+  id: 2,
+  name: "Nancy John",
+  phone: "(123) 454-7890",
+  avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face",
+  initials: "NJ"
+}, {
+  id: 3,
+  name: "Jonathan Byers",
+  phone: "(123) 454-7890",
+  initials: "JB"
+}, {
+  id: 4,
+  name: "Jane Smith",
+  phone: "(555) 123-4567",
+  avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
+  initials: "JS"
+}, {
+  id: 5,
+  name: "Michael Brown",
+  phone: "(555) 987-6543",
+  initials: "MB"
+}, {
+  id: 6,
+  name: "Sarah Johnson",
+  phone: "(555) 246-8135",
+  avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face",
+  initials: "SJ"
+}, {
+  id: 7,
+  name: "David Wilson",
+  phone: "(555) 369-2580",
+  initials: "DW"
+}, {
+  id: 8,
+  name: "Emily Davis",
+  phone: "(555) 147-2583",
+  avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=40&h=40&fit=crop&crop=face",
+  initials: "ED"
+}];
 
 // Category border colors based on reference design
 const categoryBorderColors: Record<string, string> = {
@@ -656,7 +691,11 @@ const Orders = () => {
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
-  const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{ id: number; name: string; price: number } | null>(null);
+  const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
+    id: number;
+    name: string;
+    price: number;
+  } | null>(null);
   const [selectedItemImage, setSelectedItemImage] = useState<string | undefined>(undefined);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const guestInputRef = useRef<HTMLInputElement>(null);
@@ -675,9 +714,7 @@ const Orders = () => {
       return;
     }
     if (guestName.trim().length > 0) {
-      const filtered = mockGuestUsers.filter(user =>
-        user.name.toLowerCase().includes(guestName.toLowerCase())
-      );
+      const filtered = mockGuestUsers.filter(user => user.name.toLowerCase().includes(guestName.toLowerCase()));
       setFilteredGuests(filtered);
       setShowGuestDropdown(filtered.length > 0);
     } else {
@@ -692,9 +729,7 @@ const Orders = () => {
       return;
     }
     if (guestPhone.trim().length > 0) {
-      const filtered = mockGuestUsers.filter(user =>
-        user.phone.replace(/\D/g, '').includes(guestPhone)
-      );
+      const filtered = mockGuestUsers.filter(user => user.phone.replace(/\D/g, '').includes(guestPhone));
       setFilteredByPhone(filtered);
       setShowPhoneDropdown(filtered.length > 0);
     } else {
@@ -708,28 +743,17 @@ const Orders = () => {
     const handleClickOutside = (e: MouseEvent) => {
       const target = e.target as Node;
       // Close guest name dropdown
-      if (
-        guestDropdownRef.current && !guestDropdownRef.current.contains(target) &&
-        guestInputRef.current && !guestInputRef.current.contains(target) &&
-        mobileGuestDropdownRef.current && !mobileGuestDropdownRef.current.contains(target) &&
-        mobileGuestInputRef.current && !mobileGuestInputRef.current.contains(target)
-      ) {
+      if (guestDropdownRef.current && !guestDropdownRef.current.contains(target) && guestInputRef.current && !guestInputRef.current.contains(target) && mobileGuestDropdownRef.current && !mobileGuestDropdownRef.current.contains(target) && mobileGuestInputRef.current && !mobileGuestInputRef.current.contains(target)) {
         setShowGuestDropdown(false);
       }
       // Close phone dropdown
-      if (
-        phoneDropdownRef.current && !phoneDropdownRef.current.contains(target) &&
-        phoneInputRef.current && !phoneInputRef.current.contains(target) &&
-        mobilePhoneDropdownRef.current && !mobilePhoneDropdownRef.current.contains(target) &&
-        mobilePhoneInputRef.current && !mobilePhoneInputRef.current.contains(target)
-      ) {
+      if (phoneDropdownRef.current && !phoneDropdownRef.current.contains(target) && phoneInputRef.current && !phoneInputRef.current.contains(target) && mobilePhoneDropdownRef.current && !mobilePhoneDropdownRef.current.contains(target) && mobilePhoneInputRef.current && !mobilePhoneInputRef.current.contains(target)) {
         setShowPhoneDropdown(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
   const selectGuest = (guest: GuestUser) => {
     setIsGuestSelected(true);
     setGuestName(guest.name);
@@ -868,13 +892,11 @@ const Orders = () => {
       }];
     });
   };
-
-  const addToCartWithModifiers = (
-    item: { id: number; name: string; price: number },
-    quantity: number,
-    modifiers: string[],
-    notes: string
-  ) => {
+  const addToCartWithModifiers = (item: {
+    id: number;
+    name: string;
+    price: number;
+  }, quantity: number, modifiers: string[], notes: string) => {
     setOrderItems(prev => {
       return [...prev, {
         id: Date.now(),
@@ -885,8 +907,11 @@ const Orders = () => {
       }];
     });
   };
-
-  const openCustomizationDialog = (item: { id: number; name: string; price: number }, imageIndex: number) => {
+  const openCustomizationDialog = (item: {
+    id: number;
+    name: string;
+    price: number;
+  }, imageIndex: number) => {
     setSelectedItemForCustomization(item);
     setSelectedItemImage(foodImages[imageIndex % foodImages.length]);
     setCustomizationDialogOpen(true);
@@ -906,88 +931,38 @@ const Orders = () => {
   const total = subtotal - discount + serviceCharge + tax;
   return <div className="flex flex-col md:flex-row gap-3 h-full overflow-hidden pb-16 md:pb-0 relative">
       {/* Right Panel - Order (Shows first on mobile) */}
-      <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${
-        isOrderPanelExpanded 
-          ? 'flex-1 pb-14' 
-          : 'flex-shrink-0'
-      }`}>
+      <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 pb-14' : 'flex-shrink-0'}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
             <div className="relative">
-              <input 
-                ref={mobileGuestInputRef}
-                type="text" 
-                value={guestName} 
-                onChange={e => setGuestName(e.target.value)} 
-                placeholder="GUEST NAME" 
-                className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]" 
-              />
-              {showGuestDropdown && filteredGuests.length > 0 && (
-                <div 
-                  ref={mobileGuestDropdownRef}
-                  className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden"
-                >
-                  {filteredGuests.map(guest => (
-                    <button
-                      key={guest.id}
-                      onClick={() => selectGuest(guest)}
-                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
-                    >
-                      {guest.avatar ? (
-                        <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+              <input ref={mobileGuestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]" />
+              {showGuestDropdown && filteredGuests.length > 0 && <div ref={mobileGuestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+                  {filteredGuests.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
+                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
                           {guest.initials}
-                        </div>
-                      )}
+                        </div>}
                       <div className="flex flex-col">
                         <span className="text-white font-medium text-sm">{guest.name}</span>
                         <span className="text-neutral-400 text-xs">{guest.phone}</span>
                       </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+                    </button>)}
+                </div>}
             </div>
             <div className="relative flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
-              <input 
-                ref={mobilePhoneInputRef}
-                type="tel" 
-                inputMode="numeric" 
-                pattern="[0-9]*" 
-                value={guestPhone} 
-                onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} 
-                placeholder="(XXX) XXX-XXXX" 
-                className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080]" 
-              />
-              {showPhoneDropdown && filteredByPhone.length > 0 && (
-                <div 
-                  ref={mobilePhoneDropdownRef}
-                  className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden"
-                >
-                  {filteredByPhone.map(guest => (
-                    <button
-                      key={guest.id}
-                      onClick={() => selectGuest(guest)}
-                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
-                    >
-                      {guest.avatar ? (
-                        <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+              <input ref={mobilePhoneInputRef} type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080]" />
+              {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={mobilePhoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+                  {filteredByPhone.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
+                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
                           {guest.initials}
-                        </div>
-                      )}
+                        </div>}
                       <div className="flex flex-col">
                         <span className="text-white font-medium text-sm">{guest.name}</span>
                         <span className="text-neutral-400 text-xs">{guest.phone}</span>
                       </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+                    </button>)}
+                </div>}
             </div>
             <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
               <img src={timeIcon} alt="Time" className="w-4 h-4" />
@@ -1021,9 +996,7 @@ const Orders = () => {
         </div>
 
         {/* Background Container for Order Content */}
-        <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden mx-1 transition-all duration-300 ${
-          isOrderPanelExpanded ? 'flex-1 h-full mb-2' : 'min-h-0'
-        }`}>
+        <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden mx-1 transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 h-full mb-2' : 'min-h-0'}`}>
           {/* Order Type & Guest Info */}
           <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
             <div className="flex items-center gap-2">
@@ -1075,18 +1048,15 @@ const Orders = () => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <button 
-                onClick={() => {
-                  const newExpanded = !isOrderPanelExpanded;
-                  setIsOrderPanelExpanded(newExpanded);
-                  if (newExpanded) {
-                    setMenuPosition('minimized');
-                  } else {
-                    setMenuPosition('center');
-                  }
-                }}
-                className="p-1 rounded hover:bg-neutral-700 transition-colors"
-              >
+              <button onClick={() => {
+              const newExpanded = !isOrderPanelExpanded;
+              setIsOrderPanelExpanded(newExpanded);
+              if (newExpanded) {
+                setMenuPosition('minimized');
+              } else {
+                setMenuPosition('center');
+              }
+            }} className="p-1 rounded hover:bg-neutral-700 transition-colors">
                 <img src={isOrderPanelExpanded ? collapsePanelIcon : expandPanelIcon} alt="Toggle panel" className="w-4 h-4" />
               </button>
             </div>
@@ -1096,7 +1066,7 @@ const Orders = () => {
           <div className="px-2 py-1.5 border-b border-sidebar-border">
             <div className="flex items-center gap-2 bg-neutral-700 rounded px-2 py-1.5">
               <img src={itemNotesIcon} alt="Notes" className="w-3.5 h-3.5 flex-shrink-0" />
-              <input type="text" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} placeholder="Order notes" className="bg-transparent outline-none text-xs text-white placeholder:text-muted-foreground flex-1 min-w-0" />
+              <input type="text" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="bg-transparent outline-none text-xs text-white placeholder:text-muted-foreground flex-1 min-w-0" placeholder="Order notes and Allergies" />
             </div>
           </div>
 
@@ -1143,14 +1113,20 @@ const Orders = () => {
             <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
               <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
             </button>
-            <button className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#C9C9C9' }}>
+            <button className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0" style={{
+            backgroundColor: '#C9C9C9'
+          }}>
               <img src={saveIcon} alt="Save" className="w-4 h-4" />
             </button>
-            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
+            background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+          }}>
               <img src={fireIcon} alt="Fire" className="w-4 h-4" />
               <span className="text-white font-semibold text-sm">FIRE</span>
             </button>
-            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
+            background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+          }}>
               <span className="text-black font-semibold text-xs">CHARGE ${total.toFixed(2)}</span>
             </button>
           </div>
@@ -1162,57 +1138,33 @@ const Orders = () => {
       height: `${Math.max(48, Math.min(window.innerHeight - 152, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize OR Search Bar */}
-        {isSearchMode ? (
-          <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 rounded-t-[20px]">
+        {isSearchMode ? <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 rounded-t-[20px]">
             <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
               <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Chicken"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none"
-                autoFocus
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="p-0.5">
+              <input ref={searchInputRef} type="text" placeholder="Chicken" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
+              {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
                   <X className="w-4 h-4 text-neutral-400" />
-                </button>
-              )}
+                </button>}
             </div>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 p-0 flex-shrink-0"
-              onClick={() => {
-                setIsSearchMode(false);
-                setSearchQuery('');
-                setMenuPosition('center');
-              }}
-            >
+            <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 p-0 flex-shrink-0" onClick={() => {
+          setIsSearchMode(false);
+          setSearchQuery('');
+          setMenuPosition('center');
+        }}>
               <X className="w-4 h-4 text-white" />
             </Button>
-          </div>
-        ) : (
-          <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
+          </div> : <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
             <div className="w-8" /> {/* Spacer for balance */}
             <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="w-6 h-6 rounded-full bg-white/90 hover:bg-white p-0"
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsSearchMode(true);
-                setMenuPosition('full');
-                setTimeout(() => searchInputRef.current?.focus(), 100);
-              }}
-            >
+            <Button variant="ghost" size="icon" className="w-6 h-6 rounded-full bg-white/90 hover:bg-white p-0" onClick={e => {
+          e.stopPropagation();
+          setIsSearchMode(true);
+          setMenuPosition('full');
+          setTimeout(() => searchInputRef.current?.focus(), 100);
+        }}>
               <Search className="w-3 h-3 text-neutral-800" />
             </Button>
-          </div>
-        )}
+          </div>}
         {/* Menu Content - Hidden when minimized */}
         <div className={`flex flex-col gap-2 p-2 md:p-3 transition-all duration-300 bg-neutral-900 rounded-b-[20px] ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
         {/* Main Categories - Hidden in search mode on mobile */}
@@ -1264,20 +1216,15 @@ const Orders = () => {
         <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
           {(() => {
             // Filter items based on search query (mobile only)
-            const filteredItems = isSearchMode && searchQuery.trim()
-              ? menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase()))
-              : menuItems;
-            
-            return thumbnailViewMode ? (
-              <div className="grid grid-cols-3 md:grid-cols-5 gap-1 md:gap-3">
-                {filteredItems.map((item, index) => (
-                  <div key={item.id} className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700">
+            const filteredItems = isSearchMode && searchQuery.trim() ? menuItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : menuItems;
+            return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 gap-1 md:gap-3">
+                {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-lg overflow-hidden cursor-pointer group border border-neutral-700">
                     <div className="relative aspect-[4/3] bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
                       <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
                       <button onClick={e => {
-                        e.stopPropagation();
-                        addToCart(item);
-                      }} className="absolute top-1 md:top-2 left-1 md:left-2 w-6 md:w-8 h-6 md:h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
+                    e.stopPropagation();
+                    addToCart(item);
+                  }} className="absolute top-1 md:top-2 left-1 md:left-2 w-6 md:w-8 h-6 md:h-8 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
                         <Plus className="w-3 md:w-4 h-3 md:h-4 text-white" strokeWidth={3} />
                       </button>
                     </div>
@@ -1286,14 +1233,12 @@ const Orders = () => {
                         {item.name}
                       </span>
                     </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
-                {filteredItems.map((item, index) => (
-                  <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
-                    <div className="flex-1 p-1.5 md:p-3" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
+                  </div>)}
+              </div> : <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-2">
+                {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-lg overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
+                    <div className="flex-1 p-1.5 md:p-3" style={{
+                  background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
+                }}>
                       <span className="float-right text-[9px] md:text-xs text-white/80 ml-2">
                         ${item.price.toFixed(2)}
                       </span>
@@ -1302,15 +1247,15 @@ const Orders = () => {
                       </span>
                     </div>
                     <button onClick={e => {
-                      e.stopPropagation();
-                      addToCart(item);
-                    }} className="w-6 md:w-10 text-white flex-shrink-0 flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+                  e.stopPropagation();
+                  addToCart(item);
+                }} className="w-6 md:w-10 text-white flex-shrink-0 flex items-center justify-center" style={{
+                  background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                }}>
                       <Plus className="w-3 md:w-4 h-3 md:h-4" strokeWidth={4} />
                     </button>
-                  </div>
-                ))}
-              </div>
-            );
+                  </div>)}
+              </div>;
           })()}
         </ScrollArea>
         </div>
@@ -1322,79 +1267,33 @@ const Orders = () => {
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
             <div className="relative">
-              <input 
-                ref={guestInputRef}
-                type="text" 
-                value={guestName} 
-                onChange={e => setGuestName(e.target.value)} 
-                placeholder="GUEST NAME" 
-                className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-[#808080]" 
-              />
-              {showGuestDropdown && filteredGuests.length > 0 && (
-                <div 
-                  ref={guestDropdownRef}
-                  className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden"
-                >
-                  {filteredGuests.map(guest => (
-                    <button
-                      key={guest.id}
-                      onClick={() => selectGuest(guest)}
-                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
-                    >
-                      {guest.avatar ? (
-                        <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+              <input ref={guestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-[#808080]" />
+              {showGuestDropdown && filteredGuests.length > 0 && <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+                  {filteredGuests.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
+                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
                           {guest.initials}
-                        </div>
-                      )}
+                        </div>}
                       <div className="flex flex-col">
                         <span className="text-white font-medium text-sm">{guest.name}</span>
                         <span className="text-neutral-400 text-xs">{guest.phone}</span>
                       </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+                    </button>)}
+                </div>}
             </div>
             <div className="relative flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
-              <input 
-                ref={phoneInputRef}
-                type="tel" 
-                inputMode="numeric" 
-                pattern="[0-9]*" 
-                value={guestPhone} 
-                onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} 
-                placeholder="XXX-XXXX" 
-                className="bg-transparent outline-none placeholder:text-[#808080] w-16 min-w-0 text-[#808080]" 
-              />
-              {showPhoneDropdown && filteredByPhone.length > 0 && (
-                <div 
-                  ref={phoneDropdownRef}
-                  className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden"
-                >
-                  {filteredByPhone.map(guest => (
-                    <button
-                      key={guest.id}
-                      onClick={() => selectGuest(guest)}
-                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
-                    >
-                      {guest.avatar ? (
-                        <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" />
-                      ) : (
-                        <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+              <input ref={phoneInputRef} type="tel" inputMode="numeric" pattern="[0-9]*" value={guestPhone} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-16 min-w-0 text-[#808080]" />
+              {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={phoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+                  {filteredByPhone.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
+                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
                           {guest.initials}
-                        </div>
-                      )}
+                        </div>}
                       <div className="flex flex-col">
                         <span className="text-white font-medium text-sm">{guest.name}</span>
                         <span className="text-neutral-400 text-xs">{guest.phone}</span>
                       </div>
-                    </button>
-                  ))}
-                </div>
-              )}
+                    </button>)}
+                </div>}
             </div>
             <div className="flex items-center gap-0.5 whitespace-nowrap flex-shrink-0">
               <img src={timeIcon} alt="Time" className="w-3 h-3" />
@@ -1427,7 +1326,10 @@ const Orders = () => {
         </div>
 
         {/* Background Container for Order Content */}
-        <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
+        <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{
+        background: '#7575754D',
+        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+      }}>
           {/* Order Type & Guest Info */}
           <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
             <div className="flex items-center gap-2">
@@ -1453,7 +1355,10 @@ const Orders = () => {
 
           {/* Order Notes */}
           <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
-          <div className="flex items-center gap-2 rounded px-3 py-2" style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
+          <div className="flex items-center gap-2 rounded px-3 py-2" style={{
+            background: '#7575754D',
+            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+          }}>
             <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             <input type="text" placeholder="Order notes" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none" />
           </div>
@@ -1466,7 +1371,9 @@ const Orders = () => {
               <span className="text-muted-foreground text-sm">Let's create an order</span>
             </div> : <div className="py-1 space-y-2">
               {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
-                  <div className="p-3 border border-sidebar-border rounded-lg" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
+                  <div className="p-3 border border-sidebar-border rounded-lg" style={{
+                background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
+              }}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
@@ -1489,7 +1396,10 @@ const Orders = () => {
 
         {/* Order Summary */}
         <div className="p-3 border-t border-sidebar-border flex-shrink-0">
-          <div className="space-y-1.5 text-sm rounded px-3 py-2" style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
+          <div className="space-y-1.5 text-sm rounded px-3 py-2" style={{
+            background: '#7575754D',
+            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+          }}>
             <div className="flex justify-between">
               <span className="text-foreground">Sub Total</span>
               <span className="text-foreground">${subtotal.toFixed(2)}</span>
@@ -1518,14 +1428,20 @@ const Orders = () => {
             <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
               <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
             </button>
-            <button className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0" style={{ backgroundColor: '#C9C9C9' }}>
+            <button className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0" style={{
+              backgroundColor: '#C9C9C9'
+            }}>
               <img src={saveIcon} alt="Save" className="w-4 h-4" />
             </button>
-            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
+              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+            }}>
               <img src={fireIcon} alt="Fire" className="w-4 h-4" />
               <span className="text-white font-semibold text-sm">FIRE</span>
             </button>
-            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
+              background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+            }}>
               <span className="text-black font-semibold text-xs">CHARGE ${total.toFixed(2)}</span>
             </button>
           </div>
@@ -1537,7 +1453,9 @@ const Orders = () => {
       {/* Bottom Navigation - Mobile Only */}
       <div className="md:hidden fixed bottom-0 left-0 right-0 flex items-center justify-center py-2 px-3 z-50">
         <div className="flex items-center justify-around bg-neutral-900 rounded-2xl py-2 px-3 w-full border border-neutral-700">
-          <button className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+          <button className="flex flex-col items-center gap-0.5 px-4 py-1.5 rounded-xl" style={{
+          background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+        }}>
             <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2" />
               <rect x="9" y="3" width="6" height="4" rx="1" />
@@ -1574,13 +1492,7 @@ const Orders = () => {
         </div>
       </div>
       {/* Item Customization Dialog */}
-      <ItemCustomizationDialog
-        open={customizationDialogOpen}
-        onOpenChange={setCustomizationDialogOpen}
-        item={selectedItemForCustomization}
-        itemImage={selectedItemImage}
-        onAddToCart={addToCartWithModifiers}
-      />
+      <ItemCustomizationDialog open={customizationDialogOpen} onOpenChange={setCustomizationDialogOpen} item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={addToCartWithModifiers} />
     </div>;
 };
 export default Orders;

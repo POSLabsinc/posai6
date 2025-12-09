@@ -2989,7 +2989,7 @@ const Orders = () => {
             <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
               <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
             </button>
-            <button className="w-8 h-8 rounded-md flex items-center justify-center flex-shrink-0" style={{
+            <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
               backgroundColor: '#C9C9C9'
             }}>
               <img src={saveIcon} alt="Save" className="w-4 h-4" />

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, Search } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, Search, MoreVertical } from "lucide-react";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 import clearIcon from "@/assets/icons/clear.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
@@ -1044,6 +1044,9 @@ const Orders = () => {
             <div className="flex items-center gap-2 text-xs">
               <img src={runnerIcon} alt="User" className="w-4 h-4" />
               <span>Dustin H</span>
+              <button className="w-5 h-5 bg-white rounded-full flex items-center justify-center ml-2">
+                <MoreVertical className="w-3 h-3 text-black" />
+              </button>
               <button 
                 onClick={() => {
                   const newExpanded = !isOrderPanelExpanded;
@@ -1054,7 +1057,7 @@ const Orders = () => {
                     setMenuPosition('center');
                   }
                 }}
-                className="ml-2 p-1 rounded hover:bg-neutral-700 transition-colors"
+                className="p-1 rounded hover:bg-neutral-700 transition-colors"
               >
                 <img src={isOrderPanelExpanded ? collapsePanelIcon : expandPanelIcon} alt="Toggle panel" className="w-4 h-4" />
               </button>

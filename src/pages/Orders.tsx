@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, Search } from "lucide-react";
 import clearIcon from "@/assets/icons/clear.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
 import saveIcon from "@/assets/icons/save.png";
@@ -1100,8 +1100,12 @@ const Orders = () => {
       height: `${Math.max(48, Math.min(window.innerHeight - 128, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize */}
-        <div className="flex justify-center py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
+        <div className="flex items-center justify-between px-3 py-3 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
+          <div className="w-8" /> {/* Spacer for balance */}
           <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
+          <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-white/90 hover:bg-white p-0">
+            <Search className="w-4 h-4 text-neutral-800" />
+          </Button>
         </div>
         {/* Menu Content - Hidden when minimized */}
         <div className={`flex flex-col gap-2 p-2 md:p-3 transition-all duration-300 bg-neutral-900 rounded-b-[20px] ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>

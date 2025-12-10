@@ -233,7 +233,7 @@ export const InlineItemCustomization = ({
           {/* Modifier Options */}
           <ScrollArea className="flex-1 min-h-0">
             <div className="px-3 pb-2">
-              <div className="bg-neutral-800 rounded-lg p-2">
+              <div className="bg-neutral-800 rounded-b-lg p-2">
                 <div className="flex flex-wrap gap-1.5">
                   {activeCategory?.options.map(option => <button key={option.name} onClick={() => toggleModifier(option.name)} className={`px-3 py-1.5 rounded-full text-[10px] font-medium transition-colors border ${selectedModifiers.includes(option.name) ? 'bg-white text-black border-white' : 'bg-neutral-900 text-neutral-300 border-neutral-600'}`}>
                       {option.name}

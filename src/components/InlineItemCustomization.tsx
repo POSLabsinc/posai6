@@ -295,22 +295,24 @@ export const InlineItemCustomization = ({
         </div>
       ) : (
         <ScrollArea className="flex-1 min-h-0">
-          <div className="px-3 py-1">
-            <div className="flex flex-wrap gap-1.5">
-              {addOnItems.map(addOn => (
-                <button
-                  key={addOn.name}
-                  onClick={() => toggleAddOn(addOn.name)}
-                  className={`px-3 py-1.5 rounded-lg text-[10px] font-medium transition-colors ${
-                    selectedAddOns.includes(addOn.name)
-                      ? 'bg-white text-black'
-                      : 'bg-neutral-800 text-neutral-300'
-                  }`}
-                >
-                  {addOn.name}
-                  {addOn.price && <span className="ml-1 text-neutral-500">${addOn.price.toFixed(2)}</span>}
-                </button>
-              ))}
+          <div className="px-3 pb-2">
+            <div className="bg-neutral-800 rounded-lg p-2">
+              <div className="flex flex-wrap gap-1.5">
+                {addOnItems.map(addOn => (
+                  <button
+                    key={addOn.name}
+                    onClick={() => toggleAddOn(addOn.name)}
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-medium transition-colors border ${
+                      selectedAddOns.includes(addOn.name)
+                        ? 'bg-white text-black border-white'
+                        : 'bg-neutral-900 text-neutral-300 border-neutral-600'
+                    }`}
+                  >
+                    {addOn.name}
+                    {addOn.price && <span className="ml-1">${addOn.price.toFixed(2)}</span>}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
         </ScrollArea>

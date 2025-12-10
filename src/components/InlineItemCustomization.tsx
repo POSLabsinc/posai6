@@ -259,8 +259,8 @@ export const InlineItemCustomization = ({
         <Button variant="outline" onClick={onCancel} className="flex-1 py-1 rounded-full text-white font-medium text-[10px] bg-transparent border border-neutral-500 hover:bg-neutral-800 h-7">
           CANCEL
         </Button>
-        <div className="w-7 h-7 rounded-full bg-neutral-700 border border-neutral-500 flex items-center justify-center flex-shrink-0">
-          <img src={offerIcon} alt="Offer" className="w-4 h-4" />
+        <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
+          <img src={offerIcon} alt="Offer" className="w-full h-full object-cover" />
         </div>
         <Button onClick={handleAddToCart} className="flex-[2] py-1 rounded-full font-bold text-[10px] h-7" style={{
         background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',

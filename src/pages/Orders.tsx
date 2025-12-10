@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, Search, MoreVertical } from "lucide-react";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
+import InlineItemCustomization from "@/components/InlineItemCustomization";
 import clearIcon from "@/assets/icons/clear.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
 import saveIcon from "@/assets/icons/save.png";
@@ -2269,6 +2270,7 @@ const Orders = () => {
     price: number;
   } | null>(null);
   const [selectedItemImage, setSelectedItemImage] = useState<string | undefined>(undefined);
+  const [showInlineCustomization, setShowInlineCustomization] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const guestInputRef = useRef<HTMLInputElement>(null);
   const guestDropdownRef = useRef<HTMLDivElement>(null);
@@ -2486,7 +2488,30 @@ const Orders = () => {
   }, imageIndex: number) => {
     setSelectedItemForCustomization(item);
     setSelectedItemImage(foodImages[imageIndex % foodImages.length]);
-    setCustomizationDialogOpen(true);
+    
+    // Check if mobile (window width < 768px)
+    const isMobile = window.innerWidth < 768;
+    if (isMobile) {
+      // Show inline customization on mobile
+      setShowInlineCustomization(true);
+      setMenuPosition('full'); // Expand menu to full to show customization
+    } else {
+      // Show dialog on desktop
+      setCustomizationDialogOpen(true);
+    }
+  };
+  
+  const handleInlineAddToCart = (item: { id: number; name: string; price: number; }, quantity: number, modifiers: string[], notes: string) => {
+    addToCartWithModifiers(item, quantity, modifiers, notes);
+    setShowInlineCustomization(false);
+    setSelectedItemForCustomization(null);
+    setMenuPosition('center');
+  };
+  
+  const handleInlineCancel = () => {
+    setShowInlineCustomization(false);
+    setSelectedItemForCustomization(null);
+    setMenuPosition('center');
   };
   const removeFromCart = (itemId: number) => {
     setOrderItems(prev => prev.filter(item => item.id !== itemId));
@@ -2749,7 +2774,18 @@ const Orders = () => {
               <Search className="w-3 h-3 text-neutral-800" />
             </Button>
           </div>}
-        {/* Menu Content - Hidden when minimized */}
+        {/* Inline Item Customization for Mobile */}
+        {showInlineCustomization && selectedItemForCustomization ? (
+          <div className="flex-1 flex flex-col md:hidden overflow-hidden">
+            <InlineItemCustomization
+              item={selectedItemForCustomization}
+              itemImage={selectedItemImage}
+              onAddToCart={handleInlineAddToCart}
+              onCancel={handleInlineCancel}
+            />
+          </div>
+        ) : (
+        /* Menu Content - Hidden when minimized */
         <div className={`flex flex-col gap-2 p-2 md:p-2 lg:p-3 transition-all duration-300 bg-neutral-900 rounded-b-[20px] ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
@@ -2855,6 +2891,7 @@ const Orders = () => {
           })()}
         </ScrollArea>
         </div>
+        )}
       </div>
 
       {/* Right Panel - Order (Desktop only) */}

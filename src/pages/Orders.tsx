@@ -6515,7 +6515,35 @@ const Orders = () => {
           {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-1 md:px-4 lg:px-6 h-5 md:h-7 lg:h-8 text-[9px] md:text-[10px] lg:text-xs whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
+          {/* Desktop Search Button */}
+          <Button variant="ghost" size="icon" className="hidden md:flex h-7 lg:h-8 w-7 lg:w-8 rounded-full bg-white/90 hover:bg-white p-0 ml-auto" onClick={() => {
+            setIsSearchMode(true);
+            setTimeout(() => searchInputRef.current?.focus(), 100);
+          }}>
+            <Search className="w-3.5 lg:w-4 h-3.5 lg:h-4 text-neutral-800" />
+          </Button>
         </div>
+
+        {/* Desktop Search Bar - Shown when search mode is active */}
+        {isSearchMode && (
+          <div className="hidden md:flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+            <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+            <input
+              ref={searchInputRef}
+              type="text"
+              placeholder="Search menu items..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-400 outline-none"
+            />
+            <Button variant="ghost" size="icon" className="w-6 h-6 p-0 hover:bg-neutral-700" onClick={() => {
+              setIsSearchMode(false);
+              setSearchQuery('');
+            }}>
+              <X className="w-4 h-4 text-white" />
+            </Button>
+          </div>
+        )}
 
         <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />
 

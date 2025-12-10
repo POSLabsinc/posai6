@@ -6444,7 +6444,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 fixed md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 ${showInlineCustomization && selectedItemForCustomization ? 'bottom-0 left-0 right-0 rounded-t-[20px] rounded-b-none' : 'bottom-16 left-2 right-2 rounded-[20px]'} ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-22rem)]' : 'h-[calc(100%-5.5rem)]'} md:h-auto md:top-auto`} style={isDragging && dragOffset !== 0 ? {
+      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 fixed md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 ${showInlineCustomization && selectedItemForCustomization ? 'top-[8.5rem] bottom-0 left-2 right-2 rounded-[20px] h-auto' : 'bottom-16 left-2 right-2 rounded-[20px]'} ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${!showInlineCustomization && (menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-22rem)]' : 'h-[calc(100%-5.5rem)]')} md:h-auto md:top-auto`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 152, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize OR Search Bar */}

@@ -6462,17 +6462,20 @@ const Orders = () => {
         }}>
               <X className="w-4 h-4 text-white" />
             </Button>
-          </div> : <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
+           </div> : <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
             <div className="w-8" /> {/* Spacer for balance */}
             <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
-            <Button variant="ghost" size="icon" className="w-6 h-6 rounded-full bg-white/90 hover:bg-white p-0" onClick={e => {
-          e.stopPropagation();
-          setIsSearchMode(true);
-          setMenuPosition('full');
-          setTimeout(() => searchInputRef.current?.focus(), 100);
-        }}>
-              <Search className="w-3 h-3 text-neutral-800" />
-            </Button>
+            {!(showInlineCustomization && selectedItemForCustomization) && (
+              <Button variant="ghost" size="icon" className="w-6 h-6 rounded-full bg-white/90 hover:bg-white p-0" onClick={e => {
+                e.stopPropagation();
+                setIsSearchMode(true);
+                setMenuPosition('full');
+                setTimeout(() => searchInputRef.current?.focus(), 100);
+              }}>
+                <Search className="w-3 h-3 text-neutral-800" />
+              </Button>
+            )}
+            {(showInlineCustomization && selectedItemForCustomization) && <div className="w-8" />}
           </div>}
         {/* Menu Content - Hidden when minimized */}
       <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 ${showInlineCustomization && selectedItemForCustomization ? 'p-0 rounded-b-none' : 'p-2 md:p-2 lg:p-3 rounded-b-[20px]'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>

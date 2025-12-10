@@ -6241,7 +6241,7 @@ const Orders = () => {
   const total = subtotal - discount + serviceCharge + tax;
   return <div className="flex flex-col md:flex-row gap-1 md:gap-3 lg:gap-4 h-full overflow-hidden pb-16 md:pb-0 relative">
       {/* Right Panel - Order (Shows first on mobile) */}
-      <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 pb-14' : 'flex-shrink-0'}`}>
+      <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'h-[calc(100%-4.5rem)]' : 'flex-shrink-0'}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
@@ -6451,7 +6451,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 fixed md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-0 left-0 right-0 rounded-t-[20px] rounded-b-none ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-18rem)]' : 'h-[calc(100%-5rem)]'} md:h-auto md:top-auto`} style={isDragging && dragOffset !== 0 ? {
+      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 fixed md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 left-0 right-0 rounded-t-[20px] rounded-b-none ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12 bottom-16' : menuPosition === 'center' ? 'h-[calc(100%-18rem)] bottom-16' : 'h-[calc(100%-5rem)] bottom-16'} md:h-auto md:top-auto md:bottom-auto`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 152, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize OR Search Bar */}

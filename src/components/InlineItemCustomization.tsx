@@ -218,12 +218,12 @@ export const InlineItemCustomization = ({
 
       {/* Tabs */}
       <div className="px-3 pb-2">
-        <div className="flex gap-2">
+        <div className="flex bg-neutral-800 rounded-full p-1">
           <button
             onClick={() => setActiveTab('item')}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex-1 py-1.5 px-4 rounded-full text-xs font-medium transition-colors ${
               activeTab === 'item' 
-                ? 'bg-neutral-700 text-white' 
+                ? 'bg-white text-black' 
                 : 'bg-transparent text-neutral-400'
             }`}
           >
@@ -231,9 +231,9 @@ export const InlineItemCustomization = ({
           </button>
           <button
             onClick={() => setActiveTab('addons')}
-            className={`flex-1 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+            className={`flex-1 py-1.5 px-4 rounded-full text-xs font-medium transition-colors ${
               activeTab === 'addons' 
-                ? 'bg-neutral-700 text-white' 
+                ? 'bg-white text-black' 
                 : 'bg-transparent text-neutral-400'
             }`}
           >
@@ -277,14 +277,14 @@ export const InlineItemCustomization = ({
                   <button
                     key={option.name}
                     onClick={() => toggleModifier(option.name)}
-                    className={`px-3 py-1.5 rounded-lg text-[10px] font-medium transition-colors ${
+                    className={`px-3 py-1.5 rounded-full text-[10px] font-medium transition-colors border ${
                       selectedModifiers.includes(option.name)
-                        ? 'bg-white text-black'
-                        : 'bg-neutral-800 text-neutral-300'
+                        ? 'bg-white text-black border-white'
+                        : 'bg-neutral-900 text-neutral-300 border-neutral-600'
                     }`}
                   >
                     {option.name}
-                    {option.price && <span className="ml-1 text-neutral-500">${option.price.toFixed(2)}</span>}
+                    {option.price && <span className="ml-1">${option.price.toFixed(2)}</span>}
                   </button>
                 ))}
               </div>

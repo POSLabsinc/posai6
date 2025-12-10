@@ -2338,7 +2338,7 @@ const Orders = () => {
   const getMenuHeight = (position: 'minimized' | 'center' | 'full') => {
     if (typeof window === 'undefined') return 48;
     if (position === 'minimized') return 48; // h-12 = 3rem = 48px
-    if (position === 'center') return window.innerHeight - 224 - 64; // screen minus order panel and nav
+    if (position === 'center') return window.innerHeight - 288 - 64; // screen minus order panel area and nav
     return window.innerHeight - 64 - 64; // full minus bottom nav and header
   };
   const handleTouchStart = (e: React.TouchEvent) => {
@@ -2718,7 +2718,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 rounded-[20px] fixed md:relative bottom-16 md:bottom-auto left-2 right-2 md:left-0 md:right-0 md:left-auto md:right-auto z-10 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${!isDragging ? menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-14rem)]' : 'h-[calc(100%-5.5rem)]' : ''} md:h-auto md:top-auto`} style={isDragging ? {
+      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 rounded-[20px] fixed md:relative bottom-16 md:bottom-auto left-2 right-2 md:left-0 md:right-0 md:left-auto md:right-auto z-10 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${!isDragging ? menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-18rem)]' : 'h-[calc(100%-5.5rem)]' : ''} md:h-auto md:top-auto`} style={isDragging ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 152, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize OR Search Bar */}

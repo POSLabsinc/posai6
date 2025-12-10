@@ -2657,19 +2657,19 @@ const Orders = () => {
           {/* Mobile Cart Items */}
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? <div className="flex-1 flex flex-col items-center justify-center">
-                <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
-                <span className="text-muted-foreground text-sm">Let's create an order</span>
-              </div> : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-28'}`}>
-                <div className="px-2 py-1 space-y-1">
+                <img src={emptyOrderIcon} alt="Empty order" className="w-12 h-12 opacity-50 mb-2" />
+                <span className="text-muted-foreground text-xs">Let's create an order</span>
+              </div> : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-24'}`}>
+                <div className="px-1.5 py-0.5 space-y-0.5">
                   {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
-                      <div className="flex items-center justify-between bg-neutral-800 rounded-lg px-2 py-1.5">
-                        <div className="flex items-center gap-2">
-                          <span className="w-5 h-5 rounded-md border border-white/50 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                      <div className="flex items-center justify-between bg-neutral-800 rounded px-1.5 py-1">
+                        <div className="flex items-center gap-1.5">
+                          <span className="w-4 h-4 rounded border border-white/50 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
                             {item.qty}
                           </span>
-                          <span className="text-xs font-medium text-foreground">{item.name}</span>
+                          <span className="text-[11px] font-medium text-foreground">{item.name}</span>
                         </div>
-                        <span className="text-xs font-medium text-foreground">${item.price.toFixed(2)}</span>
+                        <span className="text-[11px] font-medium text-foreground">${item.price.toFixed(2)}</span>
                       </div>
                     </SwipeableCartItem>)}
                 </div>

@@ -6586,6 +6586,7 @@ const Orders = () => {
         </ScrollArea>
         </>)}
       </div>
+      </div>
 
       {/* Right Panel - Order (Desktop only) */}
       <div className="hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0">

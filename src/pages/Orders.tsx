@@ -6188,9 +6188,8 @@ const Orders = () => {
     // Check if mobile (window width < 768px)
     const isMobile = window.innerWidth < 768;
     if (isMobile) {
-      // Show inline customization on mobile
+      // Show inline customization on mobile - stay in current position
       setShowInlineCustomization(true);
-      setMenuPosition('full'); // Expand menu to full to show customization
     } else {
       // Show dialog on desktop
       setCustomizationDialogOpen(true);

@@ -258,14 +258,14 @@ export const InlineItemCustomization = ({
         </ScrollArea>}
 
       {/* Action Buttons */}
-      <div className="p-3 pt-4 flex items-center gap-2">
-        <Button variant="outline" onClick={onCancel} className="px-5 py-2.5 rounded-full text-white font-medium text-xs bg-transparent border border-neutral-500 hover:bg-neutral-800">
+      <div className="p-3 pt-3 flex items-center gap-1.5">
+        <Button variant="outline" onClick={onCancel} className="px-4 py-1.5 rounded-full text-white font-medium text-[10px] bg-transparent border border-neutral-500 hover:bg-neutral-800">
           CANCEL
         </Button>
-        <div className="w-10 h-10 rounded-full bg-neutral-700 border border-neutral-500 flex items-center justify-center">
-          <span className="text-neutral-300 text-sm">%</span>
+        <div className="w-7 h-7 rounded-full bg-neutral-700 border border-neutral-500 flex items-center justify-center">
+          <span className="text-neutral-300 text-[10px]">%</span>
         </div>
-        <Button onClick={handleAddToCart} className="flex-1 py-2.5 rounded-full font-bold text-sm" style={{
+        <Button onClick={handleAddToCart} className="flex-1 py-1.5 rounded-full font-bold text-[10px]" style={{
         background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
         color: 'black'
       }}>

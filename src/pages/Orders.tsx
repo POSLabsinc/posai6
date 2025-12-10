@@ -6494,7 +6494,7 @@ const Orders = () => {
           </div>
         ) : (<>
         {/* Main Categories - Hidden in search mode on mobile */}
-        <div className={`flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
+        <div className={`flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 md:pr-10 lg:pr-12 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Menu Controls Group */}
           {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1 lg:gap-2 bg-sidebar-accent rounded-full px-1 md:px-1 lg:px-2 py-0.5 md:py-0.5 lg:py-1">
               <Button variant="ghost" size="icon" className="h-6 md:h-7 lg:h-10 w-6 md:w-7 lg:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>

@@ -22,6 +22,7 @@ interface InlineItemCustomizationProps {
   itemImage?: string;
   onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string) => void;
   onCancel: () => void;
+  className?: string;
 }
 
 // Mock modifier data
@@ -257,14 +258,14 @@ export const InlineItemCustomization = ({
         </ScrollArea>}
 
       {/* Action Buttons */}
-      <div className="p-3 pt-2 flex items-center gap-2">
-        <Button variant="outline" onClick={onCancel} className="px-4 py-2 rounded-full text-white font-medium text-xs bg-neutral-800 border-neutral-600 hover:bg-neutral-700">
+      <div className="p-3 pt-4 flex items-center gap-2">
+        <Button variant="outline" onClick={onCancel} className="px-5 py-2.5 rounded-full text-white font-medium text-xs bg-transparent border border-neutral-500 hover:bg-neutral-800">
           CANCEL
         </Button>
-        <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center">
-          <span className="text-neutral-400 text-xs">%</span>
+        <div className="w-10 h-10 rounded-full bg-neutral-700 border border-neutral-500 flex items-center justify-center">
+          <span className="text-neutral-300 text-sm">%</span>
         </div>
-        <Button onClick={handleAddToCart} className="flex-1 py-2 rounded-full text-white font-bold text-xs" style={{
+        <Button onClick={handleAddToCart} className="flex-1 py-2.5 rounded-full font-bold text-sm" style={{
         background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
         color: 'black'
       }}>

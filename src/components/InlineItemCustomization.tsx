@@ -2,6 +2,13 @@ import { useState } from "react";
 import { ChevronDown, FileText, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface ModifierOption {
   name: string;
@@ -163,10 +170,18 @@ export const InlineItemCustomization = ({
             <div className="bg-neutral-700 px-2 py-1 rounded-lg">
               <span className="text-white font-bold text-sm">${item.price.toFixed(2)}</span>
             </div>
-            <div className="flex items-center gap-1 bg-neutral-700 rounded-lg px-2 py-1">
-              <span className="text-white font-medium text-sm">{quantity}</span>
-              <ChevronDown className="w-3 h-3 text-neutral-400" />
-            </div>
+            <Select value={quantity.toString()} onValueChange={(val) => setQuantity(parseInt(val))}>
+              <SelectTrigger className="w-auto bg-neutral-700 border-none text-white font-medium text-sm h-auto px-2 py-1 gap-1 rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-800 border-neutral-600">
+                {[1,2,3,4,5,6,7,8,9,10].map(num => (
+                  <SelectItem key={num} value={num.toString()} className="text-white hover:bg-neutral-700">
+                    {num}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

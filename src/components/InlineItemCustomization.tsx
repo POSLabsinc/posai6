@@ -259,13 +259,13 @@ export const InlineItemCustomization = ({
 
       {/* Action Buttons */}
       <div className="px-3 pt-3 pb-5 flex items-center gap-1.5">
-        <Button variant="outline" onClick={onCancel} className="px-4 py-1 rounded-full text-white font-medium text-[10px] bg-transparent border border-neutral-500 hover:bg-neutral-800 h-7">
+        <Button variant="outline" onClick={onCancel} className="px-5 py-1 rounded-full text-white font-medium text-[10px] bg-transparent border border-neutral-500 hover:bg-neutral-800 h-7">
           CANCEL
         </Button>
         <div className="w-7 h-7 rounded-full bg-neutral-700 border border-neutral-500 flex items-center justify-center flex-shrink-0">
           <span className="text-neutral-300 text-[10px]">%</span>
         </div>
-        <Button onClick={handleAddToCart} className="flex-1 py-1 rounded-full font-bold text-[10px] h-7" style={{
+        <Button onClick={handleAddToCart} className="flex-1 py-1 rounded-full font-bold text-[10px] h-7 max-w-[140px]" style={{
         background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
         color: 'black'
       }}>

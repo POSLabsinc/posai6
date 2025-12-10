@@ -6476,10 +6476,10 @@ const Orders = () => {
             </Button>
           </div>}
         {/* Menu Content - Hidden when minimized */}
-      <div className={`flex flex-col gap-2 p-2 md:p-2 lg:p-3 transition-all duration-300 bg-neutral-900 rounded-b-[20px] ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
+      <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 ${showInlineCustomization && selectedItemForCustomization ? 'p-0 rounded-b-none' : 'p-2 md:p-2 lg:p-3 rounded-b-[20px]'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
         {/* Inline Item Customization for Mobile - Inside Menu Panel */}
         {showInlineCustomization && selectedItemForCustomization ? (
-          <div className="flex-1 flex flex-col md:hidden overflow-hidden -m-2 p-2">
+          <div className="flex-1 flex flex-col md:hidden overflow-hidden">
             <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />
           </div>
         ) : (<>

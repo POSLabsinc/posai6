@@ -119,7 +119,8 @@ export const InlineItemCustomization = ({
   item,
   itemImage,
   onAddToCart,
-  onCancel
+  onCancel,
+  className
 }: InlineItemCustomizationProps) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedModifiers, setSelectedModifiers] = useState<string[]>([]);
@@ -154,7 +155,7 @@ export const InlineItemCustomization = ({
     return total;
   }, 0);
   const totalPrice = (item.price + addOnTotal + modifierTotal) * quantity;
-  return <div className="flex flex-col h-full bg-neutral-900 rounded-t-2xl">
+  return <div className={`flex flex-col h-full bg-neutral-900 rounded-t-2xl ${className || ''}`}>
       {/* Grabber Handle */}
       <div className="flex justify-center pt-2 pb-1">
         

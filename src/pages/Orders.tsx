@@ -1874,46 +1874,46 @@ interface GuestUser {
 const mockGuestUsers: GuestUser[] = [{
   id: 1,
   name: "John Doe",
-  phone: "(122) 456-7890",
+  phone: "+1 (212) 456-7890", // USA
   avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=40&h=40&fit=crop&crop=face",
   initials: "JD"
 }, {
   id: 2,
   name: "Nancy John",
-  phone: "(123) 454-7890",
+  phone: "+1 (415) 555-7890", // USA
   avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=40&h=40&fit=crop&crop=face",
   initials: "NJ"
 }, {
   id: 3,
   name: "Jonathan Byers",
-  phone: "(123) 454-7890",
+  phone: "+44 20 7946 0958", // UK
   initials: "JB"
 }, {
   id: 4,
   name: "Jane Smith",
-  phone: "(555) 123-4567",
+  phone: "+971 50 123 4567", // UAE
   avatar: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=40&h=40&fit=crop&crop=face",
   initials: "JS"
 }, {
   id: 5,
   name: "Michael Brown",
-  phone: "(555) 987-6543",
+  phone: "+1 (310) 987-6543", // USA
   initials: "MB"
 }, {
   id: 6,
   name: "Sarah Johnson",
-  phone: "(555) 246-8135",
+  phone: "+44 7911 123456", // UK Mobile
   avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=40&h=40&fit=crop&crop=face",
   initials: "SJ"
 }, {
   id: 7,
   name: "David Wilson",
-  phone: "(555) 369-2580",
+  phone: "+971 4 369 2580", // UAE Dubai
   initials: "DW"
 }, {
   id: 8,
   name: "Emily Davis",
-  phone: "(555) 147-2583",
+  phone: "+44 121 147 2583", // UK Birmingham
   avatar: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=40&h=40&fit=crop&crop=face",
   initials: "ED"
 }];

@@ -3,6 +3,7 @@ import { ChevronDown, FileText, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import offerIcon from "@/assets/icons/offer.png";
 interface ModifierOption {
   name: string;
   price?: number;
@@ -263,7 +264,7 @@ export const InlineItemCustomization = ({
           CANCEL
         </Button>
         <div className="w-7 h-7 rounded-full bg-neutral-700 border border-neutral-500 flex items-center justify-center flex-shrink-0">
-          <span className="text-neutral-300 text-[10px]">%</span>
+          <img src={offerIcon} alt="Offer" className="w-4 h-4" />
         </div>
         <Button onClick={handleAddToCart} className="flex-[2] py-1 rounded-full font-bold text-[10px] h-7" style={{
         background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',

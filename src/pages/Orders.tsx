@@ -6443,7 +6443,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 fixed md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-0 left-0 right-0 rounded-t-[20px] rounded-b-none ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-18rem)]' : 'h-[calc(100%-5rem)]'} md:h-auto md:top-auto`} style={isDragging && dragOffset !== 0 ? {
+      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 fixed md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-0 left-0 right-0 rounded-t-[20px] rounded-b-none ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-18rem)]' : 'h-[calc(100%-5rem)]'} md:h-auto md:top-auto relative`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 152, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize OR Search Bar */}
@@ -6477,6 +6477,14 @@ const Orders = () => {
             )}
             {(showInlineCustomization && selectedItemForCustomization) && <div className="w-8" />}
           </div>}
+        {/* Desktop Search Button - Top Right Corner */}
+        <Button variant="ghost" size="icon" className="hidden md:flex absolute top-2 lg:top-3 right-2 lg:right-3 h-7 lg:h-8 w-7 lg:w-8 rounded-full bg-white/90 hover:bg-white p-0 z-20" onClick={() => {
+          setIsSearchMode(true);
+          setTimeout(() => searchInputRef.current?.focus(), 100);
+        }}>
+          <Search className="w-3.5 lg:w-4 h-3.5 lg:h-4 text-neutral-800" />
+        </Button>
+
         {/* Menu Content - Hidden when minimized */}
       <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 ${showInlineCustomization && selectedItemForCustomization ? 'p-0 rounded-b-none' : 'p-2 md:p-2 lg:p-3 rounded-b-[20px]'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
         {/* Inline Item Customization for Mobile - Inside Menu Panel */}
@@ -6515,13 +6523,6 @@ const Orders = () => {
           {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-1 md:px-4 lg:px-6 h-5 md:h-7 lg:h-8 text-[9px] md:text-[10px] lg:text-xs whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
-          {/* Desktop Search Button */}
-          <Button variant="ghost" size="icon" className="hidden md:flex h-7 lg:h-8 w-7 lg:w-8 rounded-full bg-white/90 hover:bg-white p-0 ml-auto" onClick={() => {
-            setIsSearchMode(true);
-            setTimeout(() => searchInputRef.current?.focus(), 100);
-          }}>
-            <Search className="w-3.5 lg:w-4 h-3.5 lg:h-4 text-neutral-800" />
-          </Button>
         </div>
 
         {/* Desktop Search Bar - Shown when search mode is active */}

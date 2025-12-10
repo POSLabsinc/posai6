@@ -6475,11 +6475,14 @@ const Orders = () => {
               <Search className="w-3 h-3 text-neutral-800" />
             </Button>
           </div>}
-        {/* Inline Item Customization for Mobile */}
-        {showInlineCustomization && selectedItemForCustomization ? <div className="flex-1 flex flex-col md:hidden overflow-hidden">
-            <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="rounded-t-2xl rounded-b-none h-full" />
-          </div> : (/* Menu Content - Hidden when minimized */
+        {/* Menu Content - Hidden when minimized */}
       <div className={`flex flex-col gap-2 p-2 md:p-2 lg:p-3 transition-all duration-300 bg-neutral-900 rounded-b-[20px] ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-y-auto md:overflow-hidden scrollbar-hide'}`}>
+        {/* Inline Item Customization for Mobile - Inside Menu Panel */}
+        {showInlineCustomization && selectedItemForCustomization ? (
+          <div className="flex-1 flex flex-col md:hidden overflow-hidden -m-2 p-2">
+            <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />
+          </div>
+        ) : (<>
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Menu Controls Group */}
@@ -6581,7 +6584,7 @@ const Orders = () => {
               </div>;
           })()}
         </ScrollArea>
-        </div>)}
+        </>)}
       </div>
 
       {/* Right Panel - Order (Desktop only) */}

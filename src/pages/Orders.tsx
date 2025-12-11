@@ -6497,17 +6497,17 @@ const Orders = () => {
         <div className={`flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Menu Controls Group */}
           {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1 lg:gap-2 bg-sidebar-accent rounded-full px-1 md:px-1 lg:px-2 py-0.5 md:py-0.5 lg:py-1">
-              <Button variant="ghost" size="icon" className="h-6 md:h-7 lg:h-10 w-6 md:w-7 lg:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
-                <img src={burgerCloseIcon} alt="Close menu" className="w-4 md:w-4 lg:w-7 h-4 md:h-4 lg:h-7" />
+              <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-9 w-6 md:w-8 lg:w-9 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
+                <img src={burgerCloseIcon} alt="Close menu" className="w-4 md:w-5 lg:w-6 h-4 md:h-5 lg:h-6" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-6 md:h-7 lg:h-10 w-6 md:w-7 lg:w-10 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setHorizontalScrollMode(!horizontalScrollMode)} title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}>
-                {horizontalScrollMode ? <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-3.5 lg:w-5 h-3 md:h-3.5 lg:h-5" /> : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-3.5 lg:w-5 h-3 md:h-3.5 lg:h-5" />}
+              <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-9 w-6 md:w-8 lg:w-9 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setHorizontalScrollMode(!horizontalScrollMode)} title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}>
+                {horizontalScrollMode ? <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
               </Button>
-              <Button variant="ghost" size="icon" className="h-6 md:h-7 lg:h-10 w-6 md:w-7 lg:w-10 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setThumbnailViewMode(!thumbnailViewMode)} title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}>
-                {thumbnailViewMode ? <img src={listViewIcon} alt="List view" className="w-3 md:w-3.5 lg:w-5 h-3 md:h-3.5 lg:h-5" /> : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-3.5 lg:w-5 h-3 md:h-3.5 lg:h-5" />}
+              <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-9 w-6 md:w-8 lg:w-9 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setThumbnailViewMode(!thumbnailViewMode)} title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}>
+                {thumbnailViewMode ? <img src={listViewIcon} alt="List view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
-                <SelectTrigger className="w-[100px] md:w-[110px] lg:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-6 md:h-7 lg:h-10 text-[10px] md:text-[10px] lg:text-sm">
+                <SelectTrigger className="w-[100px] md:w-[110px] lg:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-6 md:h-8 lg:h-9 text-[10px] md:text-[10px] lg:text-sm">
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-neutral-700">
@@ -6516,8 +6516,8 @@ const Orders = () => {
                     </SelectItem>)}
                 </SelectContent>
               </Select>
-            </div> : <Button variant="ghost" size="icon" className="h-6 md:h-7 lg:h-10 w-6 md:w-7 lg:w-10 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
-              <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-7 lg:w-10 h-6 md:h-7 lg:h-10" />
+            </div> : <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-9 w-6 md:w-8 lg:w-9 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
+              <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-8 lg:w-9 h-6 md:h-8 lg:h-9" />
             </Button>}
           {/* Categories */}
           {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2 md:px-5 lg:px-7 h-6 md:h-8 lg:h-9 text-[10px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>

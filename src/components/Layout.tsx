@@ -2,6 +2,7 @@ import { useState } from "react";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/AppSidebar";
 import Header from "@/components/Header";
+import BottomNavigation from "@/components/BottomNavigation";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 interface LayoutProps {
@@ -63,6 +64,9 @@ export function Layout({ children }: LayoutProps) {
           </main>
         </SidebarProvider>
       </div>
+
+      {/* Bottom Navigation - Mobile only */}
+      <BottomNavigation />
     </div>
   );
 }

@@ -6451,8 +6451,8 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 fixed md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-16 left-0 right-0 rounded-t-[20px] rounded-b-none ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100vh-14rem)]' : 'h-[calc(100vh-5rem)]'} md:h-auto md:top-auto`} style={isDragging && dragOffset !== 0 ? {
-      height: `${Math.max(48, Math.min(window.innerHeight - 152, getMenuHeight(menuPosition) + dragOffset))}px`
+      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 fixed md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-0 left-0 right-0 rounded-t-[20px] rounded-b-none md:rounded-none ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-[4.5rem]' : menuPosition === 'center' ? 'h-[calc(100vh-10rem)]' : 'h-[calc(100vh-5rem)]'} md:h-auto md:top-auto`} style={isDragging && dragOffset !== 0 ? {
+      height: `${Math.max(72, Math.min(window.innerHeight - 152, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize OR Search Bar */}
         {isSearchMode ? <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 rounded-t-[20px]">
@@ -6780,11 +6780,11 @@ const Orders = () => {
           </div>
         </div>
         </div>
+        
+        {/* Bottom Navigation - Mobile Only - Inside menu panel */}
+        {!showInlineCustomization && <BottomNavigation />}
       </div>
 
-
-      {/* Bottom Navigation - Mobile Only - Hidden when customization is open */}
-      {!showInlineCustomization && <BottomNavigation />}
       {/* Item Customization Dialog */}
       <ItemCustomizationDialog open={customizationDialogOpen} onOpenChange={setCustomizationDialogOpen} item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={addToCartWithModifiers} />
     </div>;

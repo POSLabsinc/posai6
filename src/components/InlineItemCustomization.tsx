@@ -199,11 +199,11 @@ export const InlineItemCustomization = ({
 
       {/* Tabs */}
       <div className="px-3 pb-2">
-        <div className="flex bg-neutral-800 rounded-full p-1">
-          <button onClick={() => setActiveTab('item')} className={`flex-1 py-1.5 px-4 rounded-full text-xs font-medium transition-colors ${activeTab === 'item' ? 'bg-white text-black' : 'bg-transparent text-neutral-400'}`}>
+        <div className="flex bg-neutral-800 rounded-full p-1 md:p-1.5">
+          <button onClick={() => setActiveTab('item')} className={`flex-1 py-1.5 md:py-2.5 lg:py-3 px-4 rounded-full text-xs md:text-sm font-medium transition-colors ${activeTab === 'item' ? 'bg-white text-black' : 'bg-transparent text-neutral-400'}`}>
             Modifiers
           </button>
-          <button onClick={() => setActiveTab('addons')} className={`flex-1 py-1.5 px-4 rounded-full text-xs font-medium transition-colors ${activeTab === 'addons' ? 'bg-white text-black' : 'bg-transparent text-neutral-400'}`}>
+          <button onClick={() => setActiveTab('addons')} className={`flex-1 py-1.5 md:py-2.5 lg:py-3 px-4 rounded-full text-xs md:text-sm font-medium transition-colors ${activeTab === 'addons' ? 'bg-white text-black' : 'bg-transparent text-neutral-400'}`}>
             Add-Ons
           </button>
         </div>

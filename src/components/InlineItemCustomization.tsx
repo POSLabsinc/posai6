@@ -159,9 +159,6 @@ export const InlineItemCustomization = ({
       {/* Item Header */}
       <div className="px-3 pb-2">
         <div className="flex items-center gap-3">
-          {itemImage && <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
-              <img src={itemImage} alt={item.name} className="w-full h-full object-cover" />
-            </div>}
           <div className="flex-1 min-w-0">
             <h3 className="text-white font-bold text-sm leading-tight">{item.name}</h3>
           </div>

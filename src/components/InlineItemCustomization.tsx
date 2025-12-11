@@ -215,7 +215,7 @@ export const InlineItemCustomization = ({
       {activeTab === 'item' ? <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Required Modifiers Label */}
           <div className="px-3 pb-1">
-            <span className="text-white text-xs font-medium">Required Modifiers</span>
+            <span className="text-white text-xs font-medium">Required </span>
             <span className="text-red-500 ml-0.5">*</span>
           </div>
 

@@ -6336,32 +6336,32 @@ const Orders = () => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="bg-neutral-800 border-neutral-700 min-w-[160px] p-1 z-50">
                   <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <Plus className="w-3.5 h-3.5" />
-                    Custom Item
+                    <img src={noTaxIcon} alt="" className="w-3.5 h-3.5" />
+                    No Tax
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
                     Discount
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <img src={noTaxIcon} alt="" className="w-3.5 h-3.5" />
-                    No Tax
+                    <img src={giftCardIcon} alt="" className="w-3.5 h-3.5" />
+                    Gift Card
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                    <Plus className="w-3.5 h-3.5" />
+                    Add Guest
+                  </DropdownMenuItem>
+                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                    <Plus className="w-3.5 h-3.5" />
+                    Custom Item
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <img src={cashRegisterIcon} alt="" className="w-3.5 h-3.5" />
                     Open Register
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <img src={giftCardIcon} alt="" className="w-3.5 h-3.5" />
-                    Gift Card
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <Receipt className="w-3.5 h-3.5" />
                     Service Charge
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <Plus className="w-3.5 h-3.5" />
-                    Add Guest
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

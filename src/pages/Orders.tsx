@@ -167,11 +167,11 @@ const menuItemsData: MenuItemsStructure = {
     "Breads": {
       "Sourdough": [{
         id: 1,
-        name: "Classic Sourdough Loaf",
+        name: "Classic Artisan Sourdough Loaf with Sea Salt",
         price: 6.99
       }, {
         id: 2,
-        name: "Sourdough Boule",
+        name: "Traditional French Style Sourdough Boule",
         price: 7.99
       }, {
         id: 3,
@@ -179,7 +179,7 @@ const menuItemsData: MenuItemsStructure = {
         price: 4.99
       }, {
         id: 4,
-        name: "Sourdough Batard",
+        name: "Handcrafted Sourdough Batard with Herbs",
         price: 7.49
       }, {
         id: 5,
@@ -187,11 +187,11 @@ const menuItemsData: MenuItemsStructure = {
         price: 6.49
       }, {
         id: 6,
-        name: "Olive Sourdough",
+        name: "Mediterranean Olive Sourdough with Rosemary",
         price: 8.99
       }, {
         id: 7,
-        name: "Rosemary Sourdough",
+        name: "Fresh Rosemary & Garlic Infused Sourdough",
         price: 8.49
       }, {
         id: 8,

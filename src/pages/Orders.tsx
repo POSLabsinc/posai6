@@ -6450,7 +6450,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border border-b-2 md:border-0 absolute md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 -bottom-3 left-0 right-0 rounded-[20px] overflow-hidden ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-15rem)]' : 'h-[calc(100%-4rem)]'} md:h-auto md:top-auto md:bottom-auto`} style={isDragging && dragOffset !== 0 ? {
+      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border border-b-2 md:border-0 absolute md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-14 left-0 right-0 rounded-[20px] overflow-hidden ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-18rem)]' : 'h-[calc(100%-7rem)]'} md:h-auto md:top-auto md:bottom-auto`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize OR Search Bar */}
@@ -6483,7 +6483,7 @@ const Orders = () => {
             {showInlineCustomization && selectedItemForCustomization && <div className="w-8" />}
           </div>}
         {/* Menu Content - Hidden when minimized */}
-      <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
+      <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-b-[20px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
         {/* Inline Item Customization for Mobile - Inside Menu Panel */}
         {showInlineCustomization && selectedItemForCustomization ? <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
             <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />

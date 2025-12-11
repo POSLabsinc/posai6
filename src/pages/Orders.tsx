@@ -6473,26 +6473,22 @@ const Orders = () => {
            </div> : <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
             <div className="w-8" /> {/* Spacer for balance */}
             <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
-            {!(showInlineCustomization && selectedItemForCustomization) && (
-              <Button variant="ghost" size="icon" className="w-6 h-6 rounded-full bg-white/90 hover:bg-white p-0" onClick={e => {
-                e.stopPropagation();
-                setIsSearchMode(true);
-                setMenuPosition('full');
-                setTimeout(() => searchInputRef.current?.focus(), 100);
-              }}>
+            {!(showInlineCustomization && selectedItemForCustomization) && <Button variant="ghost" size="icon" className="w-6 h-6 rounded-full bg-white/90 hover:bg-white p-0" onClick={e => {
+          e.stopPropagation();
+          setIsSearchMode(true);
+          setMenuPosition('full');
+          setTimeout(() => searchInputRef.current?.focus(), 100);
+        }}>
                 <Search className="w-3 h-3 text-neutral-800" />
-              </Button>
-            )}
-            {(showInlineCustomization && selectedItemForCustomization) && <div className="w-8" />}
+              </Button>}
+            {showInlineCustomization && selectedItemForCustomization && <div className="w-8" />}
           </div>}
         {/* Menu Content - Hidden when minimized */}
       <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 ${showInlineCustomization && selectedItemForCustomization ? 'p-0 rounded-b-none' : 'p-2 md:p-2 lg:p-3 rounded-b-[20px]'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
         {/* Inline Item Customization for Mobile - Inside Menu Panel */}
-        {showInlineCustomization && selectedItemForCustomization ? (
-          <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
+        {showInlineCustomization && selectedItemForCustomization ? <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
             <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />
-          </div>
-        ) : (<>
+          </div> : <>
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Menu Controls Group */}
@@ -6541,26 +6537,26 @@ const Orders = () => {
         {/* Menu Items Grid */}
         <ScrollArea className="flex-1 [&>div>div]:!block [&_[data-radix-scroll-area-scrollbar]]:hidden">
           {(() => {
-            // Get items based on selected menu, category, and subcategory
-            let currentItems: MenuItem[] = [];
-            if (activeSubcategory) {
-              currentItems = getMenuItems(selectedMenu, activeCategory, activeSubcategory);
-            } else if (activeCategory) {
-              currentItems = getAllCategoryItems(selectedMenu, activeCategory);
-            } else {
-              currentItems = getAllMenuItems(selectedMenu);
-            }
+              // Get items based on selected menu, category, and subcategory
+              let currentItems: MenuItem[] = [];
+              if (activeSubcategory) {
+                currentItems = getMenuItems(selectedMenu, activeCategory, activeSubcategory);
+              } else if (activeCategory) {
+                currentItems = getAllCategoryItems(selectedMenu, activeCategory);
+              } else {
+                currentItems = getAllMenuItems(selectedMenu);
+              }
 
-            // Filter items based on search query (mobile only)
-            const filteredItems = isSearchMode && searchQuery.trim() ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
-            return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2">
+              // Filter items based on search query (mobile only)
+              const filteredItems = isSearchMode && searchQuery.trim() ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
+              return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2">
                 {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700">
                     <div className="relative aspect-square bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
                       <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
                       <button onClick={e => {
-                    e.stopPropagation();
-                    addToCart(item);
-                  }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
+                      e.stopPropagation();
+                      addToCart(item);
+                    }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
                         <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
                       </button>
                     </div>
@@ -6573,8 +6569,8 @@ const Orders = () => {
               </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5">
                 {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border">
                     <div className="flex-1 p-1 md:p-2" style={{
-                  background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
-                }}>
+                    background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
+                  }}>
                       <span className="float-right text-[8px] md:text-[10px] text-white/80 ml-1">
                         ${item.price.toFixed(2)}
                       </span>
@@ -6583,18 +6579,18 @@ const Orders = () => {
                       </span>
                     </div>
                     <button onClick={e => {
-                  e.stopPropagation();
-                  addToCart(item);
-                }} className="w-5 md:w-8 text-white flex-shrink-0 flex items-center justify-center" style={{
-                  background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-                }}>
+                    e.stopPropagation();
+                    addToCart(item);
+                  }} className="w-5 md:w-8 text-white flex-shrink-0 flex items-center justify-center" style={{
+                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                  }}>
                       <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" strokeWidth={4} />
                     </button>
                   </div>)}
               </div>;
-          })()}
+            })()}
         </ScrollArea>
-        </>)}
+        </>}
       </div>
       </div>
 
@@ -6721,7 +6717,7 @@ const Orders = () => {
                       <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">${item.price.toFixed(2)}</span>
                     </div>
                     {item.modifiers && item.modifiers.length > 0 && <div className="mt-1.5 md:mt-1 lg:mt-2 ml-7 md:ml-5 lg:ml-8 space-y-0.5">
-                        {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs md:text-[10px] lg:text-xs text-muted-foreground">
+                        {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs md:text-[10px] lg:text-xs text-primary">
                             <span>{mod.startsWith("W/") ? "+" : "-"}</span>
                             <span>{mod}</span>
                           </div>)}

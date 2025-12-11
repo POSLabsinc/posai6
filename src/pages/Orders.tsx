@@ -204,19 +204,19 @@ const menuItemsData: MenuItemsStructure = {
       }],
       "Whole Wheat": [{
         id: 10,
-        name: "Whole Wheat Sandwich Loaf",
+        name: "Organic Whole Wheat Sandwich Loaf with Flax Seeds",
         price: 5.99
       }, {
         id: 11,
-        name: "Honey Wheat Bread",
+        name: "Local Honey Infused Wheat Bread",
         price: 6.49
       }, {
         id: 12,
-        name: "Multigrain Wheat Loaf",
+        name: "Artisan Multigrain Wheat Loaf with Seeds",
         price: 6.99
       }, {
         id: 13,
-        name: "100% Whole Wheat",
+        name: "100% Stone Ground Whole Wheat Bread",
         price: 5.49
       }, {
         id: 14,
@@ -228,11 +228,11 @@ const menuItemsData: MenuItemsStructure = {
         price: 6.99
       }, {
         id: 16,
-        name: "Sprouted Wheat Bread",
+        name: "Sprouted Ancient Grain Wheat Bread",
         price: 8.49
       }, {
         id: 17,
-        name: "Wheat Dinner Rolls (6)",
+        name: "Fresh Baked Wheat Dinner Rolls (6 Pack)",
         price: 4.99
       }, {
         id: 18,
@@ -241,39 +241,39 @@ const menuItemsData: MenuItemsStructure = {
       }],
       "French": [{
         id: 19,
-        name: "French Baguette",
+        name: "Traditional Parisian Style French Baguette",
         price: 4.99
       }, {
         id: 20,
-        name: "Pain de Campagne",
+        name: "Rustic Pain de Campagne Country Style",
         price: 7.99
       }, {
         id: 21,
-        name: "French Country Loaf",
+        name: "Authentic French Country Farmhouse Loaf",
         price: 6.99
       }, {
         id: 22,
-        name: "Ficelle",
+        name: "Thin Crispy Ficelle Bread Stick",
         price: 3.99
       }, {
         id: 23,
-        name: "Pain de Mie",
+        name: "Soft Pain de Mie Japanese Style",
         price: 6.49
       }, {
         id: 24,
-        name: "Fougasse",
+        name: "Provençal Fougasse with Herbs & Olives",
         price: 8.99
       }, {
         id: 25,
-        name: "Pain Epi",
+        name: "Pain Epi Wheat Stalk Bread",
         price: 5.99
       }, {
         id: 26,
-        name: "Batard",
+        name: "Classic French Batard Loaf",
         price: 5.49
       }, {
         id: 27,
-        name: "Boule",
+        name: "Round French Boule Bread",
         price: 6.99
       }],
       "Rye": [{

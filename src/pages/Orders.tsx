@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, Search, MoreVertical } from "lucide-react";
-import BottomNavigation from "@/components/BottomNavigation";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 import InlineItemCustomization from "@/components/InlineItemCustomization";
 import clearIcon from "@/assets/icons/clear.png";
@@ -6037,8 +6036,8 @@ const Orders = () => {
   const getMenuHeight = (position: 'minimized' | 'center' | 'full') => {
     if (typeof window === 'undefined') return 48;
     if (position === 'minimized') return 48; // h-12 = 3rem = 48px
-    if (position === 'center') return window.innerHeight - 352 - 64; // screen minus order panel area and nav
-    return window.innerHeight - 64 - 64; // full minus bottom nav and header
+    if (position === 'center') return window.innerHeight - 224; // screen minus order panel area (14rem = 224px)
+    return window.innerHeight - 48; // full minus header toggle (3rem = 48px)
   };
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientY);
@@ -6451,8 +6450,8 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 fixed md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-0 left-0 right-0 rounded-t-[20px] rounded-b-none ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-18rem)]' : 'h-[calc(100%-5rem)]'} md:h-auto md:top-auto`} style={isDragging && dragOffset !== 0 ? {
-      height: `${Math.max(48, Math.min(window.innerHeight - 152, getMenuHeight(menuPosition) + dragOffset))}px`
+      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border md:border-0 absolute md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-0 left-0 right-0 rounded-t-[20px] rounded-b-none ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-14rem)]' : 'h-[calc(100%-3rem)]'} md:h-auto md:top-auto`} style={isDragging && dragOffset !== 0 ? {
+      height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize OR Search Bar */}
         {isSearchMode ? <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 rounded-t-[20px]">
@@ -6783,8 +6782,6 @@ const Orders = () => {
       </div>
 
 
-      {/* Bottom Navigation - Mobile Only - Hidden when customization is open */}
-      {!showInlineCustomization && <BottomNavigation />}
       {/* Item Customization Dialog */}
       <ItemCustomizationDialog open={customizationDialogOpen} onOpenChange={setCustomizationDialogOpen} item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={addToCartWithModifiers} />
     </div>;

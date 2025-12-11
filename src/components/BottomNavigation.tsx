@@ -15,8 +15,8 @@ const BottomNavigation = () => {
   const location = useLocation();
 
   return (
-    <div className="md:hidden flex items-center justify-center py-1 px-2 bg-black">
-      <div className="flex items-center justify-around bg-neutral-900 rounded-xl py-1 px-2 w-full border border-neutral-700">
+    <div className="md:hidden flex items-center justify-center py-1 px-0 bg-black">
+      <div className="flex items-center justify-around bg-neutral-900 rounded-xl py-1 px-2 w-full mx-2 border border-neutral-700">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (

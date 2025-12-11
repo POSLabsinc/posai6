@@ -6036,8 +6036,8 @@ const Orders = () => {
   const getMenuHeight = (position: 'minimized' | 'center' | 'full') => {
     if (typeof window === 'undefined') return 48;
     if (position === 'minimized') return 48; // h-12 = 3rem = 48px
-    if (position === 'center') return window.innerHeight - 224; // screen minus order panel area (14rem = 224px)
-    return window.innerHeight - 48; // full minus header toggle (3rem = 48px)
+    if (position === 'center') return window.innerHeight - 344; // screen minus order panel area (18rem = 288px) + bottom nav (3.5rem = 56px)
+    return window.innerHeight - 168; // full minus header area (7rem = 112px) + bottom nav (3.5rem = 56px)
   };
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientY);
@@ -6450,7 +6450,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border border-b-2 md:border-0 absolute md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-14 left-0 right-0 rounded-[20px] overflow-hidden ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100%-18rem)]' : 'h-[calc(100%-7rem)]'} md:h-auto md:top-auto md:bottom-auto`} style={isDragging && dragOffset !== 0 ? {
+      <div className={`md:flex-1 flex flex-col min-w-0 md:bg-black border border-sidebar-border border-b-2 md:border-0 absolute md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-14 left-0 right-0 rounded-[20px] overflow-hidden ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12' : menuPosition === 'center' ? 'h-[calc(100vh-21.5rem)]' : 'h-[calc(100vh-10.5rem)]'} md:h-auto md:top-auto md:bottom-auto`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
         {/* Grabber for minimize/maximize OR Search Bar */}

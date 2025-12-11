@@ -58,7 +58,7 @@ export function Layout({ children }: LayoutProps) {
           <div className="hidden md:block">
             <AppSidebar />
           </div>
-          <main className="flex-1 p-1 md:p-3 overflow-hidden bg-black h-full">
+          <main className="flex-1 p-3 overflow-hidden bg-black">
             {children}
           </main>
         </SidebarProvider>

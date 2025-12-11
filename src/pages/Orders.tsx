@@ -6571,7 +6571,7 @@ const Orders = () => {
                     <div className="flex-1 p-1 md:p-2" style={{
                     background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
                   }}>
-                      <span className="float-right text-[8px] md:text-[10px] text-white/80 ml-1">
+                      <span className="float-right text-[8px] md:text-[10px] ml-1 text-white">
                         ${item.price.toFixed(2)}
                       </span>
                       <span className="text-[9px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2">

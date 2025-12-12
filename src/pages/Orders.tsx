@@ -6528,8 +6528,8 @@ const Orders = () => {
               // Get items based on selected menu, category, and subcategory
               let currentItems: MenuItem[] = [];
               
-              // When searching, search across ALL menu items
-              if (searchQuery.trim() && (isSearchMode || isDesktopSearchOpen)) {
+              // When there's a search query, always search across ALL menu items
+              if (searchQuery.trim()) {
                 currentItems = getAllMenuItems(selectedMenu);
               } else if (activeSubcategory) {
                 currentItems = getMenuItems(selectedMenu, activeCategory, activeSubcategory);
@@ -6539,7 +6539,7 @@ const Orders = () => {
                 currentItems = getAllMenuItems(selectedMenu);
               }
 
-              // Filter items based on search query (works for both mobile and desktop)
+              // Filter items based on search query
               const filteredItems = searchQuery.trim() ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
               return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
                 {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700">

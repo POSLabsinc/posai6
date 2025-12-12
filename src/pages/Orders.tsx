@@ -6222,9 +6222,9 @@ const Orders = () => {
   const taxRate = 0.02;
   const tax = subtotal * taxRate;
   const total = subtotal - discount + serviceCharge + tax;
-  return <div className="flex flex-col md:flex-row gap-1 md:gap-3 lg:gap-4 h-full overflow-hidden pb-16 md:pb-0 relative">
+  return <div className="flex flex-col md:flex-row gap-1 md:gap-3 lg:gap-4 h-full overflow-hidden pb-16 md:pb-0">
       {/* Right Panel - Order (Shows first on mobile) */}
-      <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1' : 'flex-shrink-0'}`}>
+      <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 flex-shrink-0 ${isOrderPanelExpanded ? 'max-h-[45%]' : ''}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
@@ -6289,7 +6289,7 @@ const Orders = () => {
         </div>
 
         {/* Background Container for Order Content */}
-        <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden mx-1 transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 h-full' : 'min-h-0'}`}>
+        <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden mx-1 transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 min-h-0' : 'min-h-0'}`}>
           {/* Order Type & Guest Info */}
           <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
             <div className="flex items-center gap-2">
@@ -6437,8 +6437,10 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none absolute md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-0 left-0 right-0 overflow-hidden ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-10' : menuPosition === 'center' ? 'h-[calc(100vh-17.5rem)]' : 'h-[calc(100vh-6.5rem)]'} md:h-auto md:top-auto md:bottom-auto`} style={isDragging && dragOffset !== 0 ? {
-      height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`
+      <div className={`flex-1 md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12 flex-grow-0 flex-shrink-0' : menuPosition === 'center' ? 'min-h-[40%] max-h-[60%]' : 'flex-1'} md:h-auto`} style={isDragging && dragOffset !== 0 ? {
+      height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`,
+      flexGrow: 0,
+      flexShrink: 0
     } : undefined}>
         {/* Grabber for minimize/maximize */}
         <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>

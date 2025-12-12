@@ -6492,7 +6492,37 @@ const Orders = () => {
             <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />
           </div> : <>
         {/* Main Categories - Hidden in search mode on mobile */}
-        <div className={`flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
+        <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
+          {/* Desktop/Tablet Floating Search - Top Right Corner */}
+          <div className="hidden md:flex absolute top-0 right-0 z-10">
+            <div className={`flex items-center bg-neutral-800 rounded-full transition-all duration-300 ease-in-out ${isDesktopSearchOpen ? 'px-3 h-8 lg:h-9 w-[160px] lg:w-[200px]' : 'w-8 h-8 lg:w-9 lg:h-9 justify-center cursor-pointer hover:bg-neutral-700'}`}
+              onClick={() => !isDesktopSearchOpen && setIsDesktopSearchOpen(true)}
+            >
+              <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+              {isDesktopSearchOpen && (
+                <>
+                  <input 
+                    type="text" 
+                    placeholder="Search items..." 
+                    value={searchQuery} 
+                    onChange={e => setSearchQuery(e.target.value)} 
+                    className="flex-1 ml-2 bg-transparent text-white text-xs lg:text-sm placeholder:text-neutral-500 outline-none" 
+                    autoFocus
+                  />
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSearchQuery('');
+                      setIsDesktopSearchOpen(false);
+                    }} 
+                    className="p-0.5 ml-1"
+                  >
+                    <X className="w-4 h-4 text-neutral-400 hover:text-white" />
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
           {/* Menu Controls Group */}
           {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1.5 lg:gap-2 bg-sidebar-accent rounded-full pl-1 pr-0.5 md:pl-1.5 md:pr-0.5 lg:pl-2 lg:pr-0.5 h-6 md:h-8 lg:h-9">
               <Button variant="ghost" size="icon" className="h-5 md:h-7 lg:h-8 w-5 md:w-7 lg:w-8 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
@@ -6521,37 +6551,6 @@ const Orders = () => {
           {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2 md:px-5 lg:px-7 h-6 md:h-8 lg:h-9 text-[10px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
-          
-          {/* Desktop/Tablet Floating Search - Right side */}
-          <div className="hidden md:flex items-center ml-auto">
-            <div className={`flex items-center bg-neutral-800 rounded-full transition-all duration-300 ease-in-out ${isDesktopSearchOpen ? 'px-3 h-8 lg:h-9 w-[160px] lg:w-[200px]' : 'w-8 h-8 lg:w-9 lg:h-9 justify-center cursor-pointer hover:bg-neutral-700'}`}
-              onClick={() => !isDesktopSearchOpen && setIsDesktopSearchOpen(true)}
-            >
-              <Search className={`w-4 h-4 text-neutral-400 flex-shrink-0 ${isDesktopSearchOpen ? '' : ''}`} />
-              {isDesktopSearchOpen && (
-                <>
-                  <input 
-                    type="text" 
-                    placeholder="Search items..." 
-                    value={searchQuery} 
-                    onChange={e => setSearchQuery(e.target.value)} 
-                    className="flex-1 ml-2 bg-transparent text-white text-xs lg:text-sm placeholder:text-neutral-500 outline-none" 
-                    autoFocus
-                  />
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSearchQuery('');
-                      setIsDesktopSearchOpen(false);
-                    }} 
-                    className="p-0.5 ml-1"
-                  >
-                    <X className="w-4 h-4 text-neutral-400 hover:text-white" />
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
         </div>
 
         <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />

@@ -6376,7 +6376,7 @@ const Orders = () => {
             {orderItems.length === 0 ? <div className="flex-1 flex flex-col items-center justify-center pb-2">
                 <img src={emptyOrderIcon} alt="Empty order" className="w-12 h-12 opacity-50 mb-2" />
                 <span className="text-muted-foreground text-xs">Let's create an order</span>
-              </div> : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-24'}`}>
+              </div> : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
                 <div className="px-1.5 py-0.5 space-y-0.5">
                   {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
                       <div className="flex items-center justify-between bg-neutral-800 rounded px-1.5 py-1">

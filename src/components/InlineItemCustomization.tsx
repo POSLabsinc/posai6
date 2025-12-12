@@ -266,17 +266,17 @@ export const InlineItemCustomization = ({
         </div> : <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Search Bar */}
           <div className="px-3 pb-2">
-            <div className="flex items-center gap-2 bg-neutral-200 rounded-full px-3 py-1.5">
-              <Search className="w-3 h-3 text-neutral-500" />
+            <div className="flex items-center gap-2 bg-neutral-700 rounded-full px-3 py-1.5">
+              <Search className="w-3 h-3 text-neutral-400" />
               <input 
                 type="text" 
                 placeholder="Search for Add-Ons" 
                 value={addOnSearchQuery} 
                 onChange={e => setAddOnSearchQuery(e.target.value)} 
-                className="flex-1 bg-transparent text-black text-xs placeholder:text-neutral-500 outline-none" 
+                className="flex-1 bg-transparent text-white text-xs placeholder:text-neutral-400 outline-none" 
               />
-              <Mic className="w-3 h-3 text-neutral-500" />
-              <ArrowUpDown className="w-3 h-3 text-neutral-500" />
+              <Mic className="w-3 h-3 text-neutral-400" />
+              <ArrowUpDown className="w-3 h-3 text-neutral-400" />
             </div>
           </div>
 
@@ -289,8 +289,8 @@ export const InlineItemCustomization = ({
                   onClick={() => setActiveAddOnCategory(category)} 
                   className={`px-3 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-colors ${
                     activeAddOnCategory === category 
-                      ? 'bg-neutral-800 text-white' 
-                      : 'bg-neutral-200 text-neutral-600'
+                      ? 'bg-white text-black' 
+                      : 'bg-neutral-700 text-neutral-300'
                   }`}
                 >
                   {category}
@@ -308,8 +308,8 @@ export const InlineItemCustomization = ({
                   onClick={() => setActiveAddOnSubcategory(subcategory)} 
                   className={`px-3 py-1 rounded-full text-[10px] font-medium whitespace-nowrap transition-colors border ${
                     activeAddOnSubcategory === subcategory 
-                      ? 'bg-white text-black border-neutral-800' 
-                      : 'bg-transparent text-neutral-400 border-neutral-400'
+                      ? 'bg-white text-black border-white' 
+                      : 'bg-transparent text-neutral-400 border-neutral-600'
                   }`}
                 >
                   {subcategory}
@@ -335,11 +335,11 @@ export const InlineItemCustomization = ({
                       onClick={() => toggleAddOn(addOn.name)} 
                       className={`px-2 py-1 rounded-full text-[11px] font-medium transition-colors ${
                         selectedAddOns.includes(addOn.name) 
-                          ? 'bg-neutral-800 text-white' 
-                          : 'bg-neutral-200 text-neutral-700'
+                          ? 'bg-white text-black' 
+                          : 'bg-neutral-700 text-neutral-300'
                       }`}
                     >
-                      {addOn.name} <span className="text-neutral-500">${addOn.price?.toFixed(2)}</span>
+                      {addOn.name} <span className="text-neutral-400">${addOn.price?.toFixed(2)}</span>
                     </button>
                   ))}
               </div>

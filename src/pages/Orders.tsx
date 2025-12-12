@@ -6496,10 +6496,10 @@ const Orders = () => {
         <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Desktop/Tablet Floating Search - Top Right Corner */}
           <div className="hidden md:flex absolute top-0 right-0 z-10">
-            <div className={`flex items-center bg-neutral-800 rounded-full transition-all duration-300 ease-in-out ${isDesktopSearchOpen ? 'px-3 h-8 lg:h-9 w-[160px] lg:w-[200px]' : 'w-8 h-8 lg:w-9 lg:h-9 justify-center cursor-pointer hover:bg-neutral-700'}`}
+            <div className={`flex items-center transition-all duration-300 ease-in-out ${isDesktopSearchOpen ? 'px-3 h-8 lg:h-9 w-[160px] lg:w-[200px] bg-neutral-800 rounded-full' : 'cursor-pointer'}`}
               onClick={() => !isDesktopSearchOpen && setIsDesktopSearchOpen(true)}
             >
-              <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
+              <img src={searchIcon} alt="Search" className={`flex-shrink-0 ${isDesktopSearchOpen ? 'w-4 h-4' : 'w-8 h-8 lg:w-9 lg:h-9'}`} />
               {isDesktopSearchOpen && (
                 <>
                   <input 

@@ -6150,13 +6150,13 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
-  }, quantity: number, modifiers: string[], notes: string) => {
+  }, quantity: number, modifiers: string[], notes: string, totalPrice: number) => {
     setOrderItems(prev => {
       return [...prev, {
         id: Date.now(),
         qty: quantity,
         name: item.name,
-        price: item.price,
+        price: totalPrice / quantity, // Store the unit price including modifiers/add-ons
         modifiers: modifiers.length > 0 ? modifiers : undefined
       }];
     });
@@ -6183,8 +6183,8 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
-  }, quantity: number, modifiers: string[], notes: string) => {
-    addToCartWithModifiers(item, quantity, modifiers, notes);
+  }, quantity: number, modifiers: string[], notes: string, totalPrice: number) => {
+    addToCartWithModifiers(item, quantity, modifiers, notes, totalPrice);
     setShowInlineCustomization(false);
     setSelectedItemForCustomization(null);
     setMenuPosition('center');

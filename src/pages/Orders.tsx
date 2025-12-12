@@ -5545,6 +5545,7 @@ interface OrderItem {
   name: string;
   price: number;
   modifiers?: string[];
+  itemOrderType?: string;
 }
 const initialOrderItems: OrderItem[] = [];
 const orderTypes = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE", "SCHEDULED", "PHONE-IN", "CUSTOM"];
@@ -6197,6 +6198,11 @@ const Orders = () => {
   const removeFromCart = (itemId: number) => {
     setOrderItems(prev => prev.filter(item => item.id !== itemId));
   };
+  const updateItemOrderType = (itemId: number, newOrderType: string) => {
+    setOrderItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, itemOrderType: newOrderType } : item
+    ));
+  };
   const handleMenuSelect = (value: string) => {
     setSelectedMenu(value);
     setIsMenuSelectOpen(false);
@@ -6378,7 +6384,7 @@ const Orders = () => {
                 <span className="text-muted-foreground text-xs">Let's create an order</span>
               </div> : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
                 <div className="px-1.5 py-0.5 space-y-0.5">
-                  {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
+                  {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)}>
                       <div className="flex items-center justify-between bg-neutral-800 rounded px-1.5 py-1">
                         <div className="flex items-center gap-1.5">
                           <span className="w-4 h-4 rounded border border-white/50 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
@@ -6732,7 +6738,7 @@ const Orders = () => {
               <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
               <span className="text-muted-foreground text-sm">Let's create an order</span>
             </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
-              {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)}>
+              {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)}>
                   <div className="p-2 md:p-1.5 lg:p-3 border border-sidebar-border rounded-md md:rounded lg:rounded-lg" style={{
                 background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
               }}>

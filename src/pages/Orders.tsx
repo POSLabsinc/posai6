@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, Search, MoreVertical } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical } from "lucide-react";
+import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 import InlineItemCustomization from "@/components/InlineItemCustomization";
 import clearIcon from "@/assets/icons/clear.png";
@@ -6459,7 +6460,7 @@ const Orders = () => {
         {/* Grabber for minimize/maximize OR Search Bar */}
         {isSearchMode ? <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 rounded-t-[20px]">
             <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
-              <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+              <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
               <input ref={searchInputRef} type="text" placeholder="Chicken" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
               {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
                   <X className="w-4 h-4 text-neutral-400" />
@@ -6481,7 +6482,7 @@ const Orders = () => {
           setMenuPosition('full');
           setTimeout(() => searchInputRef.current?.focus(), 100);
         }}>
-                <Search className="w-3 h-3 text-neutral-800" />
+                <img src={searchIcon} alt="Search" className="w-3 h-3" />
               </Button>}
             {showInlineCustomization && selectedItemForCustomization && <div className="w-8" />}
           </div>}
@@ -6498,7 +6499,7 @@ const Orders = () => {
             <div className={`flex items-center bg-neutral-800 rounded-full transition-all duration-300 ease-in-out ${isDesktopSearchOpen ? 'px-3 h-8 lg:h-9 w-[160px] lg:w-[200px]' : 'w-8 h-8 lg:w-9 lg:h-9 justify-center cursor-pointer hover:bg-neutral-700'}`}
               onClick={() => !isDesktopSearchOpen && setIsDesktopSearchOpen(true)}
             >
-              <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+              <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
               {isDesktopSearchOpen && (
                 <>
                   <input 

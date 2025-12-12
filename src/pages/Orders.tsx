@@ -6499,9 +6499,9 @@ const Orders = () => {
             <div className={`flex items-center transition-all duration-300 ease-in-out ${isDesktopSearchOpen ? 'px-3 h-8 lg:h-9 w-[160px] lg:w-[200px] bg-neutral-800 rounded-full' : 'cursor-pointer'}`}
               onClick={() => !isDesktopSearchOpen && setIsDesktopSearchOpen(true)}
             >
-              {isDesktopSearchOpen ? (
-                <div className="flex items-center flex-1 bg-neutral-800 rounded-full px-3 py-1">
-                  <img src={searchIcon} alt="Search" className="flex-shrink-0 w-4 h-4" />
+              <img src={searchIcon} alt="Search" className={`flex-shrink-0 ${isDesktopSearchOpen ? 'w-4 h-4' : 'w-8 h-8 lg:w-9 lg:h-9'}`} />
+              {isDesktopSearchOpen && (
+                <>
                   <input 
                     type="text" 
                     placeholder="Search items..." 
@@ -6516,13 +6516,11 @@ const Orders = () => {
                       setSearchQuery('');
                       setIsDesktopSearchOpen(false);
                     }} 
-                    className="flex-shrink-0 p-0.5 ml-1"
+                    className="p-0.5 ml-1"
                   >
                     <X className="w-4 h-4 text-neutral-400 hover:text-white" />
                   </button>
-                </div>
-              ) : (
-                <img src={searchIcon} alt="Search" className="flex-shrink-0 w-8 h-8 lg:w-9 lg:h-9" />
+                </>
               )}
             </div>
           </div>

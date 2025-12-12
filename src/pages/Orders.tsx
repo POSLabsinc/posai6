@@ -6461,35 +6461,14 @@ const Orders = () => {
           </div> : <>
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
-          {/* Desktop/Tablet Floating Search - Top Right Corner */}
+          {/* Desktop/Tablet Search Button - Top Right Corner */}
           <div className="hidden md:flex absolute top-0 right-0 z-10">
-            <div className={`flex items-center transition-all duration-300 ease-in-out ${isDesktopSearchOpen ? 'px-3 h-8 lg:h-9 w-[160px] lg:w-[200px] bg-neutral-800 rounded-full' : 'cursor-pointer'}`}
-              onClick={() => !isDesktopSearchOpen && setIsDesktopSearchOpen(true)}
+            <button 
+              className="cursor-pointer"
+              onClick={() => setIsDesktopSearchOpen(true)}
             >
-              <img src={searchIcon} alt="Search" className={`flex-shrink-0 ${isDesktopSearchOpen ? 'w-4 h-4' : 'w-8 h-8 lg:w-9 lg:h-9'}`} />
-              {isDesktopSearchOpen && (
-                <>
-                  <input 
-                    type="text" 
-                    placeholder="Search items..." 
-                    value={searchQuery} 
-                    onChange={e => setSearchQuery(e.target.value)} 
-                    className="flex-1 ml-2 bg-transparent text-white text-xs lg:text-sm placeholder:text-neutral-500 outline-none" 
-                    autoFocus
-                  />
-                  <button 
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSearchQuery('');
-                      setIsDesktopSearchOpen(false);
-                    }} 
-                    className="p-0.5 ml-1"
-                  >
-                    <X className="w-4 h-4 text-neutral-400 hover:text-white" />
-                  </button>
-                </>
-              )}
-            </div>
+              <img src={searchIcon} alt="Search" className="w-8 h-8 lg:w-9 lg:h-9" />
+            </button>
           </div>
           {/* Menu Controls Group */}
           {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1.5 lg:gap-2 bg-sidebar-accent rounded-full pl-1 pr-0.5 md:pl-1.5 md:pr-0.5 lg:pl-2 lg:pr-0.5 h-6 md:h-8 lg:h-9">
@@ -6591,6 +6570,23 @@ const Orders = () => {
             })()}
         </ScrollArea>
         </>}
+        
+        {/* Desktop/Tablet Search Bar - At Bottom */}
+        {isDesktopSearchOpen && <div className="hidden md:flex items-center gap-2 px-3 py-2.5 bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
+          <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+            <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
+            <input type="text" placeholder="Search items..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
+            {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
+              <X className="w-4 h-4 text-neutral-400" />
+            </button>}
+          </div>
+          <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 p-0 flex-shrink-0" onClick={() => {
+            setIsDesktopSearchOpen(false);
+            setSearchQuery('');
+          }}>
+            <X className="w-4 h-4 text-white" />
+          </Button>
+        </div>}
         
         {/* Mobile Search Bar - At Bottom */}
         {isSearchMode && <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 border-t border-neutral-700 flex-shrink-0">

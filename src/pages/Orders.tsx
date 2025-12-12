@@ -6520,6 +6520,25 @@ const Orders = () => {
           {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2 md:px-5 lg:px-7 h-6 md:h-8 lg:h-9 text-[10px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
+          
+          {/* Desktop/Tablet Search - Right side */}
+          <div className="hidden md:flex items-center ml-auto">
+            <div className="flex items-center gap-2 bg-neutral-800 rounded-full px-3 h-8 lg:h-9">
+              <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+              <input 
+                type="text" 
+                placeholder="Search items..." 
+                value={searchQuery} 
+                onChange={e => setSearchQuery(e.target.value)} 
+                className="w-[120px] lg:w-[160px] bg-transparent text-white text-xs lg:text-sm placeholder:text-neutral-500 outline-none" 
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="p-0.5">
+                  <X className="w-4 h-4 text-neutral-400 hover:text-white" />
+                </button>
+              )}
+            </div>
+          </div>
         </div>
 
         <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />
@@ -6548,8 +6567,8 @@ const Orders = () => {
                 currentItems = getAllMenuItems(selectedMenu);
               }
 
-              // Filter items based on search query (mobile only)
-              const filteredItems = isSearchMode && searchQuery.trim() ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
+              // Filter items based on search query (works for both mobile and desktop)
+              const filteredItems = searchQuery.trim() ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
               return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
                 {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700">
                     <div className="relative aspect-square bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>

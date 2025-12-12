@@ -6222,7 +6222,7 @@ const Orders = () => {
   const taxRate = 0.02;
   const tax = subtotal * taxRate;
   const total = subtotal - discount + serviceCharge + tax;
-  return <div className="flex flex-col md:flex-row gap-1 md:gap-3 lg:gap-4 h-full overflow-hidden pb-16 md:pb-0">
+  return <div className="flex flex-col md:flex-row gap-1 md:gap-3 lg:gap-4 h-full overflow-hidden">
       {/* Right Panel - Order (Shows first on mobile) */}
       <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 flex-shrink-0 ${isOrderPanelExpanded ? 'max-h-[45%]' : ''}`}>
         {/* Order Header - Outside background container */}
@@ -6437,7 +6437,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`flex-1 md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12 flex-grow-0 flex-shrink-0' : menuPosition === 'center' ? 'min-h-[40%] max-h-[60%]' : 'flex-1'} md:h-auto`} style={isDragging && dragOffset !== 0 ? {
+      <div className={`flex-1 md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden mb-14 md:mb-0 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-12 flex-grow-0 flex-shrink-0' : menuPosition === 'center' ? 'min-h-[40%] max-h-[60%]' : 'flex-1'} md:h-auto`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`,
       flexGrow: 0,
       flexShrink: 0

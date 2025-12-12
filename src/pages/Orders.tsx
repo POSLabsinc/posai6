@@ -6439,35 +6439,20 @@ const Orders = () => {
       <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none absolute md:relative md:bottom-auto md:left-0 md:right-0 md:left-auto md:right-auto z-10 bottom-0 left-0 right-0 overflow-hidden ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' ? 'h-10' : menuPosition === 'center' ? 'h-[calc(100vh-17.5rem)]' : 'h-[calc(100vh-6.5rem)]'} md:h-auto md:top-auto md:bottom-auto`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`
     } : undefined}>
-        {/* Grabber for minimize/maximize OR Search Bar */}
-        {isSearchMode ? <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 rounded-t-[20px]">
-            <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
-              <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
-              <input ref={searchInputRef} type="text" placeholder="Chicken" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
-              {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
-                  <X className="w-4 h-4 text-neutral-400" />
-                </button>}
-            </div>
-            <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 p-0 flex-shrink-0" onClick={() => {
-          setIsSearchMode(false);
-          setSearchQuery('');
-          setMenuPosition('center');
-        }}>
-              <X className="w-4 h-4 text-white" />
-            </Button>
-           </div> : <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
-            <div className="w-8" /> {/* Spacer for balance */}
-            <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
-            {!(showInlineCustomization && selectedItemForCustomization) && <button className="w-6 h-6 p-0 border-0 bg-transparent" onClick={e => {
-          e.stopPropagation();
-          setIsSearchMode(true);
-          setMenuPosition('full');
-          setTimeout(() => searchInputRef.current?.focus(), 100);
-        }}>
-                <img src={searchIcon} alt="Search" className="w-full h-full object-contain" />
-              </button>}
-            {showInlineCustomization && selectedItemForCustomization && <div className="w-8" />}
-          </div>}
+        {/* Grabber for minimize/maximize */}
+        <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
+          <div className="w-8" /> {/* Spacer for balance */}
+          <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
+          {!(showInlineCustomization && selectedItemForCustomization) && !isSearchMode && <button className="w-6 h-6 p-0 border-0 bg-transparent" onClick={e => {
+            e.stopPropagation();
+            setIsSearchMode(true);
+            setMenuPosition('full');
+            setTimeout(() => searchInputRef.current?.focus(), 100);
+          }}>
+            <img src={searchIcon} alt="Search" className="w-full h-full object-contain" />
+          </button>}
+          {(showInlineCustomization && selectedItemForCustomization) || isSearchMode ? <div className="w-8" /> : null}
+        </div>
         {/* Menu Content - Hidden when minimized */}
       <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-b-[12px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
         {/* Inline Item Customization for Mobile - Inside Menu Panel */}
@@ -6606,6 +6591,24 @@ const Orders = () => {
             })()}
         </ScrollArea>
         </>}
+        
+        {/* Mobile Search Bar - At Bottom */}
+        {isSearchMode && <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
+          <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+            <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
+            <input ref={searchInputRef} type="text" placeholder="Search items..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
+            {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
+              <X className="w-4 h-4 text-neutral-400" />
+            </button>}
+          </div>
+          <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 p-0 flex-shrink-0" onClick={() => {
+            setIsSearchMode(false);
+            setSearchQuery('');
+            setMenuPosition('center');
+          }}>
+            <X className="w-4 h-4 text-white" />
+          </Button>
+        </div>}
       </div>
       </div>
 

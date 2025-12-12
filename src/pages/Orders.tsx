@@ -6424,28 +6424,30 @@ const Orders = () => {
               </div>
             </div>}
 
-          {/* Action Buttons */}
-          <div className="px-2 py-2 flex items-center gap-2">
-            <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
-              <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
-            </button>
-            <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
-            backgroundColor: '#C9C9C9'
-          }}>
-              <img src={saveIcon} alt="Save" className="w-4 h-4" />
-            </button>
-            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
-            background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-          }}>
-              <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-              <span className="text-white font-semibold text-sm">FIRE</span>
-            </button>
-            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
-            background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-          }}>
-              <span className="text-black font-semibold text-xs">CHARGE ${total.toFixed(2)}</span>
-            </button>
-          </div>
+          {/* Action Buttons - Only show when cart has items */}
+          {orderItems.length > 0 && (
+            <div className="px-2 py-2 flex items-center gap-2">
+              <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+                <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
+              </button>
+              <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
+              backgroundColor: '#C9C9C9'
+            }}>
+                <img src={saveIcon} alt="Save" className="w-4 h-4" />
+              </button>
+              <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
+              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+            }}>
+                <img src={fireIcon} alt="Fire" className="w-4 h-4" />
+                <span className="text-white font-semibold text-sm">FIRE</span>
+              </button>
+              <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
+              background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+            }}>
+                <span className="text-black font-semibold text-xs">CHARGE ${total.toFixed(2)}</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
 

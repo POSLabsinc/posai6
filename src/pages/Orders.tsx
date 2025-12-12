@@ -6474,7 +6474,7 @@ const Orders = () => {
            </div> : <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
             <div className="w-8" /> {/* Spacer for balance */}
             <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
-            {!(showInlineCustomization && selectedItemForCustomization) && <Button variant="ghost" size="icon" className="w-6 h-6 rounded-full bg-white/90 hover:bg-white p-0" onClick={e => {
+            {!(showInlineCustomization && selectedItemForCustomization) && menuPosition !== 'minimized' && <Button variant="ghost" size="icon" className="w-6 h-6 rounded-full bg-white/90 hover:bg-white p-0" onClick={e => {
           e.stopPropagation();
           setIsSearchMode(true);
           setMenuPosition('full');

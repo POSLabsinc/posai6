@@ -26,7 +26,7 @@ interface ItemCustomizationDialogProps {
   onOpenChange: (open: boolean) => void;
   item: MenuItem | null;
   itemImage?: string;
-  onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string) => void;
+  onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string, totalPrice: number) => void;
 }
 
 // Mock modifier data
@@ -123,7 +123,27 @@ export const ItemCustomizationDialog = ({
 
   const handleAddToCart = () => {
     const allModifiers = [...selectedModifiers, ...selectedAddOns];
-    onAddToCart(item, quantity, allModifiers, itemNotes);
+    
+    // Calculate modifier prices
+    const modifierTotal = selectedModifiers.reduce((total, modName) => {
+      for (const category of itemModifiers) {
+        const option = category.options.find(o => o.name === modName);
+        if (option?.price) {
+          return total + option.price;
+        }
+      }
+      return total;
+    }, 0);
+    
+    // Calculate add-on prices
+    const addOnTotal = selectedAddOns.reduce((total, addOnName) => {
+      const addOn = addOnItems.find(a => a.name === addOnName);
+      return total + (addOn?.price || 0);
+    }, 0);
+    
+    const totalPrice = (item.price + modifierTotal + addOnTotal) * quantity;
+    
+    onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice);
     // Reset state
     setQuantity(1);
     setSelectedModifiers([]);

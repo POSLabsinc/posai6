@@ -22,7 +22,7 @@ interface MenuItem {
 interface InlineItemCustomizationProps {
   item: MenuItem;
   itemImage?: string;
-  onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string) => void;
+  onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string, totalPrice: number) => void;
   onCancel: () => void;
   className?: string;
 }
@@ -161,7 +161,7 @@ export const InlineItemCustomization = ({
   };
   const handleAddToCart = () => {
     const allModifiers = [...selectedModifiers, ...selectedAddOns];
-    onAddToCart(item, quantity, allModifiers, itemNotes);
+    onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice);
   };
   const activeCategory = itemModifiers.find(cat => cat.name === activeModifierCategory);
 

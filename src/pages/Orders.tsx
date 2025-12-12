@@ -6551,7 +6551,7 @@ const Orders = () => {
               const filteredItems = searchQuery.trim() ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
               return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
                 {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700">
-                    <div className="relative aspect-square bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
+                    <div className="relative aspect-[2/1] md:aspect-square bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
                       <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
                       <button onClick={e => {
                       e.stopPropagation();
@@ -6561,7 +6561,7 @@ const Orders = () => {
                       </button>
                     </div>
                     <div className="p-0.5 md:p-1 bg-neutral-900" onClick={() => openCustomizationDialog(item, index)}>
-                      <span className="text-[8px] md:text-[10px] font-medium text-white uppercase leading-tight line-clamp-2">
+                      <span className="text-[10px] md:text-[10px] font-medium text-white uppercase leading-tight line-clamp-2">
                         {item.name}
                       </span>
                     </div>

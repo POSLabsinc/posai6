@@ -6516,7 +6516,7 @@ const Orders = () => {
                       setSearchQuery('');
                       setIsDesktopSearchOpen(false);
                     }} 
-                    className="p-0.5 ml-1"
+                    className="flex-shrink-0 p-0.5"
                   >
                     <X className="w-4 h-4 text-neutral-400 hover:text-white" />
                   </button>

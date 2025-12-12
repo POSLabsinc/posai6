@@ -6372,7 +6372,7 @@ const Orders = () => {
 
           {/* Mobile Cart Items */}
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
-            {orderItems.length === 0 ? <div className="flex-1 flex flex-col items-center justify-center">
+            {orderItems.length === 0 ? <div className="flex-1 flex flex-col items-center justify-center pb-4">
                 <img src={emptyOrderIcon} alt="Empty order" className="w-12 h-12 opacity-50 mb-2" />
                 <span className="text-muted-foreground text-xs">Let's create an order</span>
               </div> : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-24'}`}>

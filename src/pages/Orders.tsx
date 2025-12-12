@@ -6449,10 +6449,12 @@ const Orders = () => {
       marginTop: 'auto'
     } : undefined}>
         {/* Grabber for minimize/maximize */}
-        <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden touch-none bg-neutral-900 rounded-t-[20px]" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
+        <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden bg-neutral-900 rounded-t-[20px]">
           <div className="w-8" /> {/* Spacer for balance */}
-          <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity" />
-          {!(showInlineCustomization && selectedItemForCustomization) && !isSearchMode && <button className="w-6 h-6 p-0 border-0 bg-transparent" onClick={e => {
+          <div className="touch-none" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
+            <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-grab" />
+          </div>
+          {!(showInlineCustomization && selectedItemForCustomization) && !isSearchMode && <button className="w-6 h-6 p-0 border-0 bg-transparent z-10 touch-auto" onClick={e => {
             e.stopPropagation();
             setIsSearchMode(true);
             setMenuPosition('full');

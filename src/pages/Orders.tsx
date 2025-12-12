@@ -6047,12 +6047,12 @@ const Orders = () => {
 
     // Fast swipe (velocity > 0.5) - snap to next/previous state
     if (velocity > 0.5) {
-      if (diff > 20) {
-        // Swipe up
-        setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
-      } else if (diff < -20) {
-        // Swipe down
+      if (diff < -20) {
+        // Swipe down - hide/minimize
         setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
+      } else if (diff > 20) {
+        // Swipe up - show/expand
+        setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
       }
     } else {
       // Slow drag - snap based on current visual height
@@ -6105,17 +6105,21 @@ const Orders = () => {
       const timeDiff = Date.now() - startTime;
       const velocity = Math.abs(diff) / timeDiff;
       if (velocity > 0.5) {
-        if (diff > 20) {
-          setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
-        } else if (diff < -20) {
+        if (diff < -20) {
+          // Swipe down - hide/minimize
           setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
+        } else if (diff > 20) {
+          // Swipe up - show/expand
+          setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
         }
       } else {
         // Snap based on final position
-        if (diff > 80) {
-          setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
-        } else if (diff < -80) {
+        if (diff < -80) {
+          // Drag down - hide/minimize
           setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
+        } else if (diff > 80) {
+          // Drag up - show/expand
+          setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
         }
       }
       setDragOffset(0);

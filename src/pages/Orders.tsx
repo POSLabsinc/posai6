@@ -6307,6 +6307,7 @@ const Orders = () => {
                     </DropdownMenuItem>)}
                 </DropdownMenuContent>
               </DropdownMenu>
+              {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-xs font-bold">20</span>}
             </div>
             <div className="flex items-center gap-2 text-xs">
               <img src={runnerIcon} alt="User" className="w-4 h-4" />

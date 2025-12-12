@@ -6527,7 +6527,11 @@ const Orders = () => {
           {(() => {
               // Get items based on selected menu, category, and subcategory
               let currentItems: MenuItem[] = [];
-              if (activeSubcategory) {
+              
+              // When searching, search across ALL menu items
+              if (searchQuery.trim() && (isSearchMode || isDesktopSearchOpen)) {
+                currentItems = getAllMenuItems(selectedMenu);
+              } else if (activeSubcategory) {
                 currentItems = getMenuItems(selectedMenu, activeCategory, activeSubcategory);
               } else if (activeCategory) {
                 currentItems = getAllCategoryItems(selectedMenu, activeCategory);

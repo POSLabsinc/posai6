@@ -42,7 +42,7 @@ export function Layout({
           <div className="hidden md:block">
             <AppSidebar />
           </div>
-          <main className="flex-1 p-3 overflow-hidden bg-black px-0">
+          <main className="flex-1 pt-3 overflow-hidden bg-black px-0">
             {children}
           </main>
         </SidebarProvider>

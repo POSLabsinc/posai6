@@ -6692,7 +6692,7 @@ const Orders = () => {
                     </DropdownMenuItem>)}
                 </DropdownMenuContent>
               </DropdownMenu>
-              <span className="bg-sidebar-accent px-2 py-0.5 rounded text-base font-bold">20</span>
+              {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-base font-bold">20</span>}
             </div>
             <div className="flex items-center gap-2 text-xs">
               <span>👤</span>

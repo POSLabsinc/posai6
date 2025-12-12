@@ -6491,7 +6491,7 @@ const Orders = () => {
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Menu Controls Group */}
-          {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1.5 lg:gap-2 bg-sidebar-accent rounded-full px-1 md:px-1.5 lg:px-2 h-6 md:h-8 lg:h-9">
+          {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1.5 lg:gap-2 bg-sidebar-accent rounded-full pl-1 pr-0.5 md:pl-1.5 md:pr-0.5 lg:pl-2 lg:pr-0.5 h-6 md:h-8 lg:h-9">
               <Button variant="ghost" size="icon" className="h-5 md:h-7 lg:h-8 w-5 md:w-7 lg:w-8 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
                 <img src={burgerCloseIcon} alt="Close menu" className="w-4 md:w-5 lg:w-6 h-4 md:h-5 lg:h-6" />
               </Button>

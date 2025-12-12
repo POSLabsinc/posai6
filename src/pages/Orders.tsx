@@ -5959,6 +5959,7 @@ const Orders = () => {
   const [isGuestSelected, setIsGuestSelected] = useState(false);
   const [isSearchMode, setIsSearchMode] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false);
   const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
     id: number;
@@ -6521,21 +6522,33 @@ const Orders = () => {
               {cat}
             </Button>)}
           
-          {/* Desktop/Tablet Search - Right side */}
+          {/* Desktop/Tablet Floating Search - Right side */}
           <div className="hidden md:flex items-center ml-auto">
-            <div className="flex items-center gap-2 bg-neutral-800 rounded-full px-3 h-8 lg:h-9">
-              <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
-              <input 
-                type="text" 
-                placeholder="Search items..." 
-                value={searchQuery} 
-                onChange={e => setSearchQuery(e.target.value)} 
-                className="w-[120px] lg:w-[160px] bg-transparent text-white text-xs lg:text-sm placeholder:text-neutral-500 outline-none" 
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="p-0.5">
-                  <X className="w-4 h-4 text-neutral-400 hover:text-white" />
-                </button>
+            <div className={`flex items-center bg-neutral-800 rounded-full transition-all duration-300 ease-in-out ${isDesktopSearchOpen ? 'px-3 h-8 lg:h-9 w-[160px] lg:w-[200px]' : 'w-8 h-8 lg:w-9 lg:h-9 justify-center cursor-pointer hover:bg-neutral-700'}`}
+              onClick={() => !isDesktopSearchOpen && setIsDesktopSearchOpen(true)}
+            >
+              <Search className={`w-4 h-4 text-neutral-400 flex-shrink-0 ${isDesktopSearchOpen ? '' : ''}`} />
+              {isDesktopSearchOpen && (
+                <>
+                  <input 
+                    type="text" 
+                    placeholder="Search items..." 
+                    value={searchQuery} 
+                    onChange={e => setSearchQuery(e.target.value)} 
+                    className="flex-1 ml-2 bg-transparent text-white text-xs lg:text-sm placeholder:text-neutral-500 outline-none" 
+                    autoFocus
+                  />
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSearchQuery('');
+                      setIsDesktopSearchOpen(false);
+                    }} 
+                    className="p-0.5 ml-1"
+                  >
+                    <X className="w-4 h-4 text-neutral-400 hover:text-white" />
+                  </button>
+                </>
               )}
             </div>
           </div>

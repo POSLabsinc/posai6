@@ -5559,38 +5559,20 @@ interface GuestUser {
 }
 
 // Format phone number based on country code
+// USA-centric phone format: (XXX) XXX-XXXX
 const formatPhoneNumber = (digits: string): string => {
   if (!digits) return '';
-
-  // USA: +1 (XXX) XXX-XXXX
-  if (digits.startsWith('1') && digits.length <= 11) {
-    const d = digits;
-    if (d.length <= 1) return '+1';
-    if (d.length <= 4) return `+1 (${d.slice(1)}`;
-    if (d.length <= 7) return `+1 (${d.slice(1, 4)}) ${d.slice(4)}`;
-    return `+1 (${d.slice(1, 4)}) ${d.slice(4, 7)}-${d.slice(7, 11)}`;
+  
+  // Limit to 10 digits for USA format
+  const d = digits.slice(0, 10);
+  
+  if (d.length <= 3) {
+    return `(${d}`;
   }
-
-  // UK: +44 XX XXXX XXXX
-  if (digits.startsWith('44') && digits.length <= 12) {
-    const d = digits;
-    if (d.length <= 2) return '+44';
-    if (d.length <= 4) return `+44 ${d.slice(2)}`;
-    if (d.length <= 8) return `+44 ${d.slice(2, 4)} ${d.slice(4)}`;
-    return `+44 ${d.slice(2, 4)} ${d.slice(4, 8)} ${d.slice(8, 12)}`;
+  if (d.length <= 6) {
+    return `(${d.slice(0, 3)}) ${d.slice(3)}`;
   }
-
-  // UAE: +971 XX XXX XXXX
-  if (digits.startsWith('971') && digits.length <= 12) {
-    const d = digits;
-    if (d.length <= 3) return '+971';
-    if (d.length <= 5) return `+971 ${d.slice(3)}`;
-    if (d.length <= 8) return `+971 ${d.slice(3, 5)} ${d.slice(5)}`;
-    return `+971 ${d.slice(3, 5)} ${d.slice(5, 8)} ${d.slice(8, 12)}`;
-  }
-
-  // Default: just add + prefix
-  return `+${digits}`;
+  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6, 10)}`;
 };
 const mockGuestUsers: GuestUser[] = [{
   id: 1,
@@ -6262,7 +6244,7 @@ const Orders = () => {
             </div>
             <div className="relative flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
-              <input ref={mobilePhoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="+1 (XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-36 min-w-0 text-[#808080]" />
+              <input ref={mobilePhoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-36 min-w-0 text-[#808080]" />
               {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={mobilePhoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
                   {filteredByPhone.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
                       {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
@@ -6648,7 +6630,7 @@ const Orders = () => {
             </div>
             <div className="relative flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
-              <input ref={phoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="+1 (XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080] text-xs" />
+              <input ref={phoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080] text-xs" />
               {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={phoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
                   {filteredByPhone.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
                       {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">

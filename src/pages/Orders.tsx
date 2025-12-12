@@ -6566,25 +6566,25 @@ const Orders = () => {
                       </span>
                     </div>
                   </div>)}
-              </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1.5 md:gap-2 pb-4 md:pb-0">
-                {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border min-h-[44px] md:min-h-[48px]">
-                    <div className="flex-1 p-2 md:p-2.5" style={{
+              </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5 pb-4 md:pb-0">
+                {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border min-h-[38px] md:min-h-[42px]">
+                    <div className="flex-1 p-1.5 md:p-2" style={{
                     background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
                   }}>
-                      <span className="float-right text-[10px] md:text-[11px] ml-1 text-white">
+                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-white">
                         ${item.price.toFixed(2)}
                       </span>
-                      <span className="text-[11px] md:text-xs font-bold leading-tight uppercase text-foreground line-clamp-2">
+                      <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2">
                         {item.name}
                       </span>
                     </div>
                     <button onClick={e => {
                     e.stopPropagation();
                     addToCart(item);
-                  }} className="w-8 md:w-10 text-white flex-shrink-0 flex items-center justify-center" style={{
+                  }} className="w-6 md:w-8 text-white flex-shrink-0 flex items-center justify-center" style={{
                     background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
                   }}>
-                      <Plus className="w-3 md:w-4 h-3 md:h-4" strokeWidth={4} />
+                      <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" strokeWidth={4} />
                     </button>
                   </div>)}
               </div>;

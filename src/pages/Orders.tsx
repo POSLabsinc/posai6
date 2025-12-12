@@ -6224,7 +6224,7 @@ const Orders = () => {
   const total = subtotal - discount + serviceCharge + tax;
   return <div className="flex flex-col md:flex-row gap-0 md:gap-3 lg:gap-4 h-full overflow-hidden">
       {/* Right Panel - Order (Shows first on mobile) */}
-      <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 flex-shrink-0 ${isOrderPanelExpanded ? 'max-h-[45%]' : ''}`}>
+      <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1' : 'flex-shrink-0'}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">

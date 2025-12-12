@@ -6493,7 +6493,7 @@ const Orders = () => {
             <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />
           </div> : <>
         {/* Main Categories - Hidden in search mode on mobile */}
-        <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
+        <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Desktop/Tablet Floating Search - Top Right Corner */}
           <div className="hidden md:flex absolute top-0 right-0 z-10">
             <div className={`flex items-center transition-all duration-300 ease-in-out ${isDesktopSearchOpen ? 'px-3 h-8 lg:h-9 w-[160px] lg:w-[200px] bg-neutral-800 rounded-full' : 'cursor-pointer'}`}

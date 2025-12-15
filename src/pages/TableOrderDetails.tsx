@@ -176,21 +176,21 @@ const TableOrderDetails = () => {
                 onClick={() => setSelectedGuest(guest)}
                 className={`p-3 rounded-xl border cursor-pointer transition-all ${
                   selectedGuest.id === guest.id 
-                    ? "border-orange-500 bg-neutral-800/50" 
+                    ? "border-white bg-neutral-800/50" 
                     : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"
                 }`}
               >
                 <div className="flex items-center w-full gap-4">
-                  {/* Column 1: Order Number - 10% */}
-                  <div className="w-[10%] flex-shrink-0">
+                  {/* Column 1: Order Number - 8% */}
+                  <div className="w-[8%] flex-shrink-0">
                     <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-between py-2 border border-neutral-600">
                       <span className="text-lg font-bold text-white">{guest.id}</span>
                       <img src={tableTargetIcon} alt="Table" className="w-6 h-6" />
                     </div>
                   </div>
 
-                  {/* Column 2: Guest Info - 35% */}
-                  <div className="w-[35%] flex-shrink-0">
+                  {/* Column 2: Guest Info - flex-1 */}
+                  <div className="flex-1 min-w-0">
                     <div className="flex flex-col">
                       <div className="flex items-center justify-between">
                         <span className="text-white font-medium text-sm">{guest.name}</span>
@@ -205,8 +205,8 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
-                  {/* Column 3: Timer & Server - 15% */}
-                  <div className="w-[15%] flex-shrink-0">
+                  {/* Column 3: Timer & Server - 12% */}
+                  <div className="w-[12%] flex-shrink-0">
                     <div className="flex flex-col text-xs gap-1">
                       <div className="text-left">
                         <div className="text-white font-medium">{guest.timer}</div>
@@ -219,8 +219,8 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
-                  {/* Column 4: Check & Revenue Center - 15% */}
-                  <div className="w-[15%] flex-shrink-0">
+                  {/* Column 4: Check & Revenue Center - 12% */}
+                  <div className="w-[12%] flex-shrink-0">
                     <div className="flex flex-col text-xs gap-1">
                       <div className="text-left">
                         <div className="text-white font-medium">{guest.check}</div>
@@ -233,8 +233,8 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
-                  {/* Column 5: Payment Type - 15% */}
-                  <div className="w-[15%] flex-shrink-0">
+                  {/* Column 5: Payment Type - 12% */}
+                  <div className="w-[12%] flex-shrink-0">
                     <div className="flex flex-col text-xs">
                       <div className="text-left">
                         <div className="text-white font-medium">{guest.paymentType}</div>
@@ -243,8 +243,8 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
-                  {/* Column 6: Action Buttons - 10% */}
-                  <div className="w-[10%] flex-shrink-0 flex justify-end">
+                  {/* Column 6: Action Buttons */}
+                  <div className="flex-shrink-0 flex justify-end">
                     <div className="flex flex-col gap-1">
                       <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
                         <ChevronLeft className="w-4 h-4 text-white rotate-180" />

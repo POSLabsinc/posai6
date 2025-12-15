@@ -181,17 +181,17 @@ const TableOrderDetails = () => {
               >
                 <div className="flex items-center gap-3">
                   {/* Order Number with crosshair design */}
-                  <div className="relative w-14 h-14 bg-neutral-800 rounded-lg flex items-center justify-center flex-shrink-0 border border-neutral-600">
+                  <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-between py-2 flex-shrink-0 border border-neutral-600">
                     {/* Corner dots */}
-                    <div className="absolute top-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-neutral-500"></div>
-                    <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-neutral-500"></div>
-                    <div className="absolute left-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-neutral-500"></div>
-                    <div className="absolute right-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-neutral-500"></div>
-                    {/* Number */}
-                    <span className="text-xl font-bold text-white z-10">{guest.id}</span>
-                    {/* Crosshair circle */}
-                    <div className="absolute w-8 h-8 rounded-full border-2 border-red-500 flex items-center justify-center">
-                      <div className="w-2 h-2 rounded-full bg-red-500"></div>
+                    <div className="absolute top-1 left-1 w-1 h-1 rounded-full bg-neutral-500"></div>
+                    <div className="absolute top-1 right-1 w-1 h-1 rounded-full bg-neutral-500"></div>
+                    <div className="absolute bottom-1 left-1 w-1 h-1 rounded-full bg-neutral-500"></div>
+                    <div className="absolute bottom-1 right-1 w-1 h-1 rounded-full bg-neutral-500"></div>
+                    {/* Order Number - Top */}
+                    <span className="text-lg font-bold text-white">{guest.id}</span>
+                    {/* Crosshair icon - Bottom */}
+                    <div className="w-6 h-6 rounded-full border-2 border-red-500 flex items-center justify-center">
+                      <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
                     </div>
                   </div>
 

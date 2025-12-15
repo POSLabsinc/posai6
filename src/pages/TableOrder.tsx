@@ -8,6 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
+import TableDetailView from "@/components/TableDetailView";
 
 // Import icons
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
@@ -99,7 +100,18 @@ const TableOrder = () => {
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [guestDropdownTable, setGuestDropdownTable] = useState<string | null>(null);
+  const [detailViewTable, setDetailViewTable] = useState<string | null>(null);
   const filterCounts = getFilterCounts();
+
+  // Show detail view for non-Available tables
+  if (detailViewTable) {
+    return (
+      <TableDetailView 
+        tableId={detailViewTable} 
+        onBack={() => setDetailViewTable(null)} 
+      />
+    );
+  }
 
   const filters = [
     "All",
@@ -233,7 +245,8 @@ const TableOrder = () => {
               if (table.status === "Available") {
                 setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
               } else {
-                setSelectedTable(selectedTable === table.id ? null : table.id);
+                // Open detail view for non-Available tables
+                setDetailViewTable(table.id);
               }
             };
 

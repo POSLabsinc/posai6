@@ -207,12 +207,11 @@ const TableOrderDetails = () => {
 
                   {/* Column 3: Timer & Server - 15% */}
                   <div className="w-[15%] flex-shrink-0">
-                    <div className="flex flex-col text-xs">
+                    <div className="flex flex-col text-xs gap-1">
                       <div className="text-left">
                         <div className="text-white font-medium">{guest.timer}</div>
                         <div className="text-gray-500">Timer</div>
                       </div>
-                      <div className="h-px bg-neutral-600 my-1.5"></div>
                       <div className="text-left">
                         <div className="text-white">{guest.server}</div>
                         <div className="text-gray-500">Server</div>
@@ -222,12 +221,11 @@ const TableOrderDetails = () => {
 
                   {/* Column 4: Check & Revenue Center - 15% */}
                   <div className="w-[15%] flex-shrink-0">
-                    <div className="flex flex-col text-xs">
+                    <div className="flex flex-col text-xs gap-1">
                       <div className="text-left">
                         <div className="text-white font-medium">{guest.check}</div>
                         <div className="text-gray-500">Check</div>
                       </div>
-                      <div className="h-px bg-neutral-600 my-1.5"></div>
                       <div className="text-left">
                         <div className="text-white">{guest.revenueCenter}</div>
                         <div className="text-gray-500">Revenue Center</div>

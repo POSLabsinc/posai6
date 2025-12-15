@@ -98,11 +98,26 @@ const TableOrderDetails = () => {
   };
   const getFilterCount = (filter: string) => {
     if (filter === "All") return guestOrders.length;
+    if (filter === "Open") return guestOrders.filter(g => g.status === "ORDERING").length;
     if (filter === "Completed") return guestOrders.filter(g => g.status === "COMPLETED").length;
-    if (filter === "Paid") return guestOrders.filter(g => g.status === "COMPLETED").length;
+    if (filter === "Paid") return guestOrders.filter(g => g.paymentType !== "--").length;
+    if (filter === "Unpaid") return guestOrders.filter(g => g.paymentType === "--").length;
     if (filter === "Ordering") return guestOrders.filter(g => g.status === "ORDERING").length;
     return 0;
   };
+
+  const filteredGuestOrders = activeFilter === "All" 
+    ? guestOrders 
+    : guestOrders.filter(guest => {
+        switch (activeFilter) {
+          case "Open": return guest.status === "ORDERING";
+          case "Completed": return guest.status === "COMPLETED";
+          case "Paid": return guest.paymentType !== "--";
+          case "Unpaid": return guest.paymentType === "--";
+          case "Ordering": return guest.status === "ORDERING";
+          default: return true;
+        }
+      });
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
   };
@@ -158,7 +173,7 @@ const TableOrderDetails = () => {
         {/* Guest Orders List */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
-            {guestOrders.map(guest => <div key={guest.id} onClick={() => setSelectedGuest(guest)} className={`px-3 py-2 rounded-xl border cursor-pointer transition-all ${selectedGuest.id === guest.id ? "border-white bg-neutral-800/50" : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"}`}>
+            {filteredGuestOrders.map(guest => <div key={guest.id} onClick={() => setSelectedGuest(guest)} className={`px-3 py-2 rounded-xl border cursor-pointer transition-all ${selectedGuest.id === guest.id ? "border-white bg-neutral-800/50" : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"}`}>
                 <div className="flex items-center w-full gap-4">
                   {/* Column 1: Order Number - 8% */}
                   <div className="w-[8%] flex-shrink-0">

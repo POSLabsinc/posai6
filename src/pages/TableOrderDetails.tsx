@@ -105,22 +105,19 @@ const TableOrderDetails = () => {
     if (filter === "Ordering") return guestOrders.filter(g => g.status === "ORDERING").length;
     return 0;
   };
-  const filteredGuestOrders = activeFilter === "All" ? guestOrders : guestOrders.filter(guest => {
-    switch (activeFilter) {
-      case "Open":
-        return guest.status === "ORDERING";
-      case "Completed":
-        return guest.status === "COMPLETED";
-      case "Paid":
-        return guest.paymentType !== "--";
-      case "Unpaid":
-        return guest.paymentType === "--";
-      case "Ordering":
-        return guest.status === "ORDERING";
-      default:
-        return true;
-    }
-  });
+
+  const filteredGuestOrders = activeFilter === "All" 
+    ? guestOrders 
+    : guestOrders.filter(guest => {
+        switch (activeFilter) {
+          case "Open": return guest.status === "ORDERING";
+          case "Completed": return guest.status === "COMPLETED";
+          case "Paid": return guest.paymentType !== "--";
+          case "Unpaid": return guest.paymentType === "--";
+          case "Ordering": return guest.status === "ORDERING";
+          default: return true;
+        }
+      });
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
   };
@@ -133,25 +130,35 @@ const TableOrderDetails = () => {
         {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-neutral-700/50">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/tableorder")} style={{
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }} className="p-2 hover:opacity-80 transition-opacity rounded-full">
+            <button 
+              onClick={() => navigate("/tableorder")} 
+              className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <span className="text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-2 rounded-lg hover:opacity-80 transition-opacity" style={{
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}>
+            <button 
+              className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
               <SlidersHorizontal className="w-4 h-4 text-white" />
             </button>
-            <button className="p-2 rounded-lg hover:opacity-80 transition-opacity" style={{
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}>
+            <button 
+              className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
               <Search className="w-4 h-4 text-white" />
             </button>
           </div>
@@ -161,12 +168,19 @@ const TableOrderDetails = () => {
         <div className="flex items-center gap-2 p-3 overflow-x-auto">
           {filters.map(filter => {
           const count = getFilterCount(filter);
-          return <button key={filter} onClick={() => setActiveFilter(filter)} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`} style={activeFilter === filter ? {
-            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-          } : {
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}>
+          return <button 
+                key={filter} 
+                onClick={() => setActiveFilter(filter)} 
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`}
+                style={
+                  activeFilter === filter
+                    ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
+                    : { 
+                        background: "#7575754D",
+                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+                      }
+                }
+              >
                 <span>{filter}</span>
                 {count > 0 && <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"}`}>
                     {count}
@@ -266,9 +280,10 @@ const TableOrderDetails = () => {
 
         {/* Add Order Button */}
         <div className="p-3 border-t border-neutral-700/50">
-          <button className="w-full py-3 text-black font-medium rounded-full hover:opacity-90 transition-opacity" style={{
-          background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-        }}>
+          <button 
+            className="w-full py-3 text-black font-medium rounded-full hover:opacity-90 transition-opacity"
+            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+          >
             ADD ORDER TO TABLE
           </button>
         </div>

@@ -192,8 +192,10 @@ const TableOrderDetails = () => {
                   {/* Column 2: Guest Info - 35% */}
                   <div className="w-[35%] flex-shrink-0">
                     <div className="flex flex-col">
-                      <span className="text-white font-medium text-sm">{guest.name}</span>
-                      <span className="text-white font-semibold text-sm">{guest.amount}</span>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-medium text-sm">{guest.name}</span>
+                        <span className="text-white font-semibold text-sm">{guest.amount}</span>
+                      </div>
                       <div className="h-px bg-neutral-600 my-1.5"></div>
                       <div className="flex items-center gap-1 text-gray-400 text-xs">
                         <span>Party Of {guest.partySize},</span>

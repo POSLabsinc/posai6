@@ -25,8 +25,10 @@ const statusConfig: Record<string, { color: string; bgColor: string }> = {
   "1st Course": { color: "text-purple-400", bgColor: "bg-neutral-800" },
   "2nd Course": { color: "text-yellow-400", bgColor: "bg-neutral-800" },
   "3rd Course": { color: "text-orange-500", bgColor: "bg-neutral-800" },
-  "Dessert": { color: "text-orange-500", bgColor: "bg-neutral-800" },
+  "Dessert": { color: "text-pink-400", bgColor: "bg-neutral-800" },
   "Partially Seated": { color: "text-green-400", bgColor: "bg-neutral-800" },
+  "Served": { color: "text-blue-400", bgColor: "bg-neutral-800" },
+  "Paid": { color: "text-emerald-400", bgColor: "bg-neutral-800" },
 };
 
 // Seat dot colors based on status
@@ -41,8 +43,10 @@ const getSeatDotColor = (status: string): string => {
     case "1st Course": return "bg-purple-500";
     case "2nd Course": return "bg-yellow-500";
     case "3rd Course": return "bg-orange-500";
-    case "Dessert": return "bg-orange-500";
+    case "Dessert": return "bg-pink-500";
     case "Partially Seated": return "bg-green-500";
+    case "Served": return "bg-blue-500";
+    case "Paid": return "bg-emerald-500";
     default: return "bg-gray-500";
   }
 };
@@ -60,7 +64,7 @@ const tables = [
   { id: "T9", seats: 3, status: "3rd Course", time: "14M" },
   { id: "T10", seats: 4, status: "Dessert", time: "16M" },
   { id: "T11", seats: 5, status: "Partially Seated", time: "18M" },
-  { id: "T12", seats: 5, status: "Partially Seated", time: "36M" },
+  { id: "T12", seats: 5, status: "Served", time: "36M" },
   { id: "T13", seats: 6, status: "Available", time: "" },
   { id: "T14", seats: 5, status: "Ordering", time: "25M" },
   { id: "T15", seats: 4, status: "Ordered", time: "2H 25M" },
@@ -71,8 +75,8 @@ const tables = [
   { id: "T20", seats: 4, status: "2nd Course", time: "13M" },
   { id: "T21", seats: 3, status: "3rd Course", time: "14M" },
   { id: "T22", seats: 4, status: "Dessert", time: "16M" },
-  { id: "T23", seats: 5, status: "Partially Seated", time: "18M" },
-  { id: "T24", seats: 5, status: "Partially Seated", time: "36M" },
+  { id: "T23", seats: 5, status: "Paid", time: "18M" },
+  { id: "T24", seats: 5, status: "Served", time: "36M" },
 ];
 
 // Filter categories with counts

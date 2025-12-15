@@ -44,7 +44,7 @@ export function AppSidebar() {
                 <NavLink
                   to={item.url}
                   className="w-full h-full flex flex-col items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors"
-                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-orange-500"
                 >
                   <img src={item.icon} alt={item.title} className="w-10 h-10" />
                 </NavLink>
@@ -52,7 +52,7 @@ export function AppSidebar() {
                 <NavLink
                   to={item.url}
                   className="w-full h-full flex items-center justify-center rounded-xl hover:bg-gradient-to-br hover:from-orange-500/20 hover:to-amber-400/20 transition-all"
-                  activeClassName="bg-gradient-to-br from-orange-500/30 to-amber-400/30 text-orange-400"
+                  activeClassName="bg-gradient-to-br from-orange-500/30 to-amber-400/30 text-orange-400 border-2 border-orange-500"
                 >
                   <item.lucideIcon className="h-5 w-5" />
                 </NavLink>
@@ -60,7 +60,7 @@ export function AppSidebar() {
                 <NavLink
                   to={item.url}
                   className="w-full h-full flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors"
-                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground"
+                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-orange-500"
                 >
                   {item.lucideIcon ? (
                     <item.lucideIcon className="h-5 w-5" />

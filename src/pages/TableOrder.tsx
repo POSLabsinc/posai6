@@ -116,6 +116,12 @@ const TableOrder = () => {
     "Seated",
     "Running Late",
     "1st Course",
+    "2nd Course",
+    "3rd Course",
+    "Dessert",
+    "Partially Seated",
+    "Served",
+    "Paid",
   ];
 
   const filteredTables = activeFilter === "All" 

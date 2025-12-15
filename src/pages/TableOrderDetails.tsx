@@ -132,7 +132,7 @@ const TableOrderDetails = () => {
           <div className="flex items-center gap-3">
             <button 
               onClick={() => navigate("/tableorder")} 
-              className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+              className="p-2 rounded-full hover:opacity-80 transition-opacity"
               style={{
                 background: "#7575754D",
                 boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
@@ -144,7 +144,7 @@ const TableOrderDetails = () => {
           </div>
           <div className="flex items-center gap-2">
             <button 
-              className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+              className="p-2 rounded-full hover:opacity-80 transition-opacity"
               style={{
                 background: "#7575754D",
                 boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
@@ -153,7 +153,7 @@ const TableOrderDetails = () => {
               <SlidersHorizontal className="w-4 h-4 text-white" />
             </button>
             <button 
-              className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+              className="p-2 rounded-full hover:opacity-80 transition-opacity"
               style={{
                 background: "#7575754D",
                 boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"

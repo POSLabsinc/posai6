@@ -1,13 +1,15 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronLeft, Search, SlidersHorizontal, Phone, Share2 } from "lucide-react";
+import { ChevronLeft, Search, SlidersHorizontal, Phone } from "lucide-react";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
 import clearIcon from "@/assets/icons/clear-c.png";
 import fireIcon from "@/assets/icons/fire.png";
 import tableTargetIcon from "@/assets/icons/table-target.png";
+import arrowRightIcon from "@/assets/icons/arrow-right.png";
+import shareOrderIcon from "@/assets/icons/share-order.png";
 
 // Mock guest orders data
 const guestOrders = [{
@@ -265,10 +267,10 @@ const TableOrderDetails = () => {
                   <div className="flex-shrink-0 flex">
                     <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
                       <button className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors border-b border-neutral-600">
-                        <ChevronLeft className="w-4 h-4 text-white rotate-180" />
+                        <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4" />
                       </button>
                       <button className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors">
-                        <Share2 className="w-4 h-4 text-orange-500" />
+                        <img src={shareOrderIcon} alt="Share" className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -336,7 +338,7 @@ const TableOrderDetails = () => {
           {/* Seat Buttons */}
           <div className="flex items-center gap-2">
             <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
-              <Share2 className="w-4 h-4 text-white" />
+              <img src={shareOrderIcon} alt="Share" className="w-4 h-4" />
             </button>
             {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-neutral-700 text-white hover:bg-neutral-600"}`}>
                 {seat}
@@ -381,7 +383,7 @@ const TableOrderDetails = () => {
                     <span className="text-gray-400 text-xs">🪑</span>
                   </button>
                   <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
-                    <Share2 className="w-3 h-3 text-gray-400" />
+                    <img src={shareOrderIcon} alt="Share" className="w-3 h-3" />
                   </button>
                 </div>
               </div>)}

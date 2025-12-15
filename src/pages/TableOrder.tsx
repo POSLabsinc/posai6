@@ -1,6 +1,12 @@
 import { useState } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users } from "lucide-react";
+import { Users, Grid, List, ChevronDown } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 // Table status configurations
 const statusConfig: Record<string, { color: string; bgColor: string }> = {
@@ -72,8 +78,19 @@ const getFilterCounts = () => {
   return counts;
 };
 
+// Dining areas
+const diningAreas = [
+  "Main Dining Room",
+  "Patio",
+  "Private Room",
+  "Bar Area",
+  "Outdoor Terrace",
+];
+
 const TableOrder = () => {
   const [activeFilter, setActiveFilter] = useState("All");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [selectedArea, setSelectedArea] = useState("Main Dining Room");
   const filterCounts = getFilterCounts();
 
   const filters = [
@@ -95,17 +112,45 @@ const TableOrder = () => {
     <div className="flex flex-col h-full bg-black p-2 pb-2">
       {/* Filter Bar */}
       <div className="flex items-center gap-2 mb-3">
-        {/* Room Selector */}
-        <div className="flex items-center gap-2 bg-neutral-800 rounded-full px-4 py-2">
-          <div className="w-4 h-4 grid grid-cols-2 gap-0.5">
-            <div className="bg-white rounded-[1px]" />
-            <div className="bg-white rounded-[1px]" />
-            <div className="bg-white rounded-[1px]" />
-            <div className="bg-white rounded-[1px]" />
-          </div>
+        {/* View Button */}
+        <button
+          onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+          className="flex items-center justify-center bg-neutral-800 rounded-full p-2 hover:bg-neutral-700 transition-colors"
+        >
+          {viewMode === "grid" ? (
+            <Grid className="w-4 h-4 text-white" />
+          ) : (
+            <List className="w-4 h-4 text-white" />
+          )}
+        </button>
+
+        {/* Users Button */}
+        <button className="flex items-center justify-center bg-neutral-800 rounded-full p-2 hover:bg-neutral-700 transition-colors">
           <Users className="w-4 h-4 text-white" />
-          <span className="text-white text-sm font-medium">Main Dining Room</span>
-        </div>
+        </button>
+
+        {/* Dining Area Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button className="flex items-center gap-2 bg-neutral-800 rounded-full px-4 py-2 hover:bg-neutral-700 transition-colors">
+              <span className="text-white text-sm font-medium">{selectedArea}</span>
+              <ChevronDown className="w-4 h-4 text-white" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
+            {diningAreas.map((area) => (
+              <DropdownMenuItem
+                key={area}
+                onClick={() => setSelectedArea(area)}
+                className={`text-white hover:bg-neutral-700 cursor-pointer ${
+                  selectedArea === area ? "bg-neutral-700" : ""
+                }`}
+              >
+                {area}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Filter Tabs */}
         <ScrollArea className="flex-1">

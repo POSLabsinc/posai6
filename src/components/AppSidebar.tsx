@@ -18,7 +18,7 @@ const logoItem = { title: "Home", url: "/home", icon: logoIcon, isLogo: true };
 const menuItems = [
   { title: "Dashboard", url: "/", icon: dashboardIcon },
   { title: "Orders", url: "/orders", icon: orderIcon },
-  { title: "POS", url: "/pos", icon: tableManagementIcon },
+  { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
   { title: "Reports", url: "/reports", icon: ticketIcon },
   { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Sparkles, isGlass: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },

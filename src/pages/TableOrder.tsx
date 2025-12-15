@@ -158,13 +158,13 @@ const TableOrder = () => {
                   ))}
                 </div>
                 
-                {/* Time */}
-                {table.time && (
-                  <span className="text-gray-500 text-xs mb-2">{table.time}</span>
-                )}
+                {/* Time - always render with min-height for consistent spacing */}
+                <span className="text-gray-500 text-xs mb-2 min-h-[1rem]">
+                  {table.time || "\u00A0"}
+                </span>
                 
                 {/* Status Label */}
-                <div className={`w-full text-center py-1 rounded-md ${config.bgColor}`}>
+                <div className={`w-full text-center py-1 rounded-md mt-auto ${config.bgColor}`}>
                   <span className={`text-xs font-medium ${config.color}`}>
                     {table.status}
                   </span>

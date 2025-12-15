@@ -174,7 +174,7 @@ const TableOrderDetails = () => {
               <div
                 key={guest.id}
                 onClick={() => setSelectedGuest(guest)}
-                className={`p-3 rounded-xl border cursor-pointer transition-all ${
+                className={`px-3 py-2 rounded-xl border cursor-pointer transition-all ${
                   selectedGuest.id === guest.id 
                     ? "border-white bg-neutral-800/50" 
                     : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"

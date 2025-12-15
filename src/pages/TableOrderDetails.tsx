@@ -241,7 +241,7 @@ const TableOrderDetails = () => {
                   </div>
 
                   {/* Column 5: Payment Type - 12% */}
-                  <div className="w-[12%] flex-shrink-0">
+                  <div className="w-[12%] flex-shrink-0 self-start">
                     <div className="flex flex-col text-xs">
                       <div className="text-left">
                         <div className="text-white font-medium">{guest.paymentType}</div>

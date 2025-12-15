@@ -179,52 +179,55 @@ const TableOrderDetails = () => {
                     : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"
                 }`}
               >
-                <div className="flex items-start gap-3">
-                  {/* Order Number */}
-                  <div className="flex flex-col items-center">
-                    <span className="text-2xl font-bold text-white">{guest.id}</span>
+                <div className="flex items-center gap-3">
+                  {/* Order Number with circle */}
+                  <div className="w-10 h-10 rounded-full border-2 border-red-500 flex items-center justify-center flex-shrink-0">
+                    <span className="text-lg font-bold text-white">{guest.id}</span>
                   </div>
 
                   {/* Guest Info */}
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-3">
                       <span className="text-white font-medium">{guest.name}</span>
                       <span className="text-white font-semibold">{guest.amount}</span>
-                      {guest.tip && <span className="text-gray-400 text-xs">{guest.tip}</span>}
                     </div>
-                    <div className="flex items-center gap-2 mt-1 text-gray-400 text-sm">
+                    <div className="flex items-center gap-2 text-gray-400 text-xs">
                       <span>Party Of {guest.partySize},</span>
                       <span>⚡ {guest.time}</span>
                       <span className={getStatusColor(guest.status)}>{guest.status}</span>
                     </div>
                   </div>
 
-                  {/* Right side info */}
-                  <div className="grid grid-cols-3 gap-3 text-xs text-gray-400">
-                    <div className="text-center">
-                      <div className="text-white">{guest.timer}</div>
-                      <div>Timer</div>
+                  {/* Right side info - two rows */}
+                  <div className="flex flex-col gap-1 text-xs">
+                    <div className="flex items-center gap-4">
+                      <div className="text-center min-w-[50px]">
+                        <div className="text-white">{guest.timer}</div>
+                        <div className="text-gray-500">Timer</div>
+                      </div>
+                      <div className="text-center min-w-[50px]">
+                        <div className="text-white">{guest.check}</div>
+                        <div className="text-gray-500">Check</div>
+                      </div>
+                      <div className="text-center min-w-[80px]">
+                        <div className="text-white">{guest.paymentType}</div>
+                        <div className="text-gray-500">Payment Type</div>
+                      </div>
                     </div>
-                    <div className="text-center">
-                      <div className="text-white">{guest.check}</div>
-                      <div>Check</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-white">{guest.paymentType}</div>
-                      <div>Payment Type</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="text-white">{guest.server}</div>
-                      <div>Server</div>
-                    </div>
-                    <div className="text-center col-span-2">
-                      <div className="text-white">{guest.revenueCenter}</div>
-                      <div>Revenue Center</div>
+                    <div className="flex items-center gap-4">
+                      <div className="text-center min-w-[50px]">
+                        <div className="text-white">{guest.server}</div>
+                        <div className="text-gray-500">Server</div>
+                      </div>
+                      <div className="text-center min-w-[130px]">
+                        <div className="text-white">{guest.revenueCenter}</div>
+                        <div className="text-gray-500">Revenue Center</div>
+                      </div>
                     </div>
                   </div>
 
                   {/* Action icons */}
-                  <div className="flex flex-col gap-1">
+                  <div className="flex flex-col gap-1 flex-shrink-0">
                     <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
                       <ChevronLeft className="w-4 h-4 text-white rotate-180" />
                     </button>

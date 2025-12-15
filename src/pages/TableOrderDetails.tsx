@@ -292,16 +292,16 @@ const TableOrderDetails = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="px-3 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            <button className="px-3 py-1.5 text-white text-xs rounded-[10px] hover:opacity-80 transition-opacity" style={{ background: "#666666" }}>
               Add Item
             </button>
-            <button className="px-3 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            <button className="px-3 py-1.5 text-white text-xs rounded-[10px] hover:opacity-80 transition-opacity" style={{ background: "#666666" }}>
               Discount
             </button>
-            <button className="px-3 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            <button className="px-3 py-1.5 text-white text-xs rounded-[10px] hover:opacity-80 transition-opacity" style={{ background: "#666666" }}>
               Receipt
             </button>
-            <button className="px-3 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            <button className="px-3 py-1.5 text-white text-xs rounded-[10px] hover:opacity-80 transition-opacity" style={{ background: "#666666" }}>
               Cash Register
             </button>
           </div>
@@ -311,8 +311,8 @@ const TableOrderDetails = () => {
         <div className="p-3 border-b border-neutral-700/50">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="px-2 py-1 bg-neutral-800 text-white text-xs rounded">TABLE ORDER</span>
-              <span className="text-white font-bold">{selectedGuest.id}</span>
+              <span className="px-3 py-1.5 text-white text-xs font-medium rounded-full" style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)", color: "#000" }}>TABLE ORDER</span>
+              <span className="text-white font-bold text-lg">{selectedGuest.id}</span>
             </div>
             <div className="flex items-center gap-2">
               <img src={runnerIcon} alt="Server" className="w-4 h-4 invert opacity-60" />
@@ -322,10 +322,10 @@ const TableOrderDetails = () => {
           
           {/* Seat Buttons */}
           <div className="flex items-center gap-2">
-            <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+            <button className="p-1.5 rounded hover:opacity-80 transition-opacity" style={{ background: "#666666" }}>
               <img src={shareOrderIcon} alt="Share" className="w-4 h-4" />
             </button>
-            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-neutral-700 text-white hover:bg-neutral-600"}`}>
+            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "text-black" : "text-white hover:opacity-80"}`} style={selectedSeats.includes(seat) ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: "#666666" }}>
                 {seat}
               </button>)}
           </div>
@@ -333,7 +333,7 @@ const TableOrderDetails = () => {
 
         {/* Notes */}
         <div className="p-3 border-b border-neutral-700/50">
-          <div className="flex items-center gap-2 text-gray-400 text-sm bg-neutral-800 p-2 rounded-lg">
+          <div className="flex items-center gap-2 text-gray-400 text-sm p-2 rounded-lg" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
             <span>📝</span>
             <span>Allergic to almonds, Don't add onion</span>
           </div>

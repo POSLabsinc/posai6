@@ -189,50 +189,54 @@ const TableOrderDetails = () => {
                     <img src={tableTargetIcon} alt="Table" className="w-6 h-6" />
                   </div>
 
-                  {/* Guest Info */}
-                  <div className="flex flex-col min-w-[120px] max-w-[140px]">
-                    <div className="flex flex-col">
-                      <span className="text-white font-medium text-sm">{guest.name}</span>
-                      <span className="text-white font-semibold text-sm">{guest.amount}</span>
-                    </div>
+                  {/* Guest Info - Name & Amount */}
+                  <div className="flex flex-col min-w-[100px]">
+                    <span className="text-white font-medium text-sm">{guest.name}</span>
+                    <span className="text-white font-semibold text-sm">{guest.amount}</span>
                     <div className="h-px bg-neutral-600 my-1.5"></div>
-                    <div className="flex flex-col text-gray-400 text-xs">
-                      <span>Party Of {guest.partySize}</span>
+                    <div className="flex items-center gap-1 text-gray-400 text-xs">
+                      <span>Party Of {guest.partySize},</span>
                       <span>⚡ {guest.time}</span>
                       <span className={getStatusColor(guest.status)}>{guest.status}</span>
                     </div>
                   </div>
 
-                  {/* Right side info - two rows */}
-                  <div className="flex flex-col gap-1 text-xs">
-                    <div className="flex items-center gap-4">
-                      <div className="text-center min-w-[50px]">
-                        <div className="text-white">{guest.timer}</div>
-                        <div className="text-gray-500">Timer</div>
-                      </div>
-                      <div className="text-center min-w-[50px]">
-                        <div className="text-white">{guest.check}</div>
-                        <div className="text-gray-500">Check</div>
-                      </div>
-                      <div className="text-center min-w-[80px]">
-                        <div className="text-white">{guest.paymentType}</div>
-                        <div className="text-gray-500">Payment Type</div>
-                      </div>
+                  {/* Column 1: Timer & Server */}
+                  <div className="flex flex-col text-xs border-l border-neutral-600 pl-3">
+                    <div className="text-center">
+                      <div className="text-white font-medium">{guest.timer}</div>
+                      <div className="text-gray-500">Timer</div>
                     </div>
-                    <div className="flex items-center gap-4">
-                      <div className="text-center min-w-[50px]">
-                        <div className="text-white">{guest.server}</div>
-                        <div className="text-gray-500">Server</div>
-                      </div>
-                      <div className="text-center min-w-[130px]">
-                        <div className="text-white">{guest.revenueCenter}</div>
-                        <div className="text-gray-500">Revenue Center</div>
-                      </div>
+                    <div className="h-px bg-neutral-600 my-1.5"></div>
+                    <div className="text-center">
+                      <div className="text-white">{guest.server}</div>
+                      <div className="text-gray-500">Server</div>
                     </div>
                   </div>
 
-                  {/* Action icons */}
-                  <div className="flex flex-col gap-1 flex-shrink-0">
+                  {/* Column 2: Check & Revenue Center */}
+                  <div className="flex flex-col text-xs border-l border-neutral-600 pl-3">
+                    <div className="text-center">
+                      <div className="text-white font-medium">{guest.check}</div>
+                      <div className="text-gray-500">Check</div>
+                    </div>
+                    <div className="h-px bg-neutral-600 my-1.5"></div>
+                    <div className="text-center">
+                      <div className="text-white">{guest.revenueCenter}</div>
+                      <div className="text-gray-500">Revenue Center</div>
+                    </div>
+                  </div>
+
+                  {/* Column 3: Payment Type */}
+                  <div className="flex flex-col text-xs border-l border-neutral-600 pl-3">
+                    <div className="text-center">
+                      <div className="text-white font-medium">{guest.paymentType}</div>
+                      <div className="text-gray-500">Payment Type</div>
+                    </div>
+                  </div>
+
+                  {/* Column 4: Action Buttons */}
+                  <div className="flex flex-col gap-1 flex-shrink-0 border-l border-neutral-600 pl-3">
                     <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
                       <ChevronLeft className="w-4 h-4 text-white rotate-180" />
                     </button>

@@ -180,72 +180,79 @@ const TableOrderDetails = () => {
                     : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"
                 }`}
               >
-                <div className="flex items-center gap-3">
-                  {/* Order Number with crosshair design */}
-                  <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-between py-2 flex-shrink-0 border border-neutral-600">
-                    {/* Order Number - Top */}
-                    <span className="text-lg font-bold text-white">{guest.id}</span>
-                    {/* Table target icon - Bottom */}
-                    <img src={tableTargetIcon} alt="Table" className="w-6 h-6" />
-                  </div>
-
-                  {/* Guest Info - Name & Amount */}
-                  <div className="flex flex-col min-w-[100px]">
-                    <span className="text-white font-medium text-sm">{guest.name}</span>
-                    <span className="text-white font-semibold text-sm">{guest.amount}</span>
-                    <div className="h-px bg-neutral-600 my-1.5"></div>
-                    <div className="flex items-center gap-1 text-gray-400 text-xs">
-                      <span>Party Of {guest.partySize},</span>
-                      <span>⚡ {guest.time}</span>
-                      <span className={getStatusColor(guest.status)}>{guest.status}</span>
+                <div className="flex items-center w-full">
+                  {/* Column 1: Order Number - 10% */}
+                  <div className="w-[10%] flex-shrink-0">
+                    <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-between py-2 border border-neutral-600">
+                      <span className="text-lg font-bold text-white">{guest.id}</span>
+                      <img src={tableTargetIcon} alt="Table" className="w-6 h-6" />
                     </div>
                   </div>
 
-                  {/* Column 1: Timer & Server */}
-                  <div className="flex flex-col text-xs">
-                    <div className="text-left">
-                      <div className="text-white font-medium">{guest.timer}</div>
-                      <div className="text-gray-500">Timer</div>
-                    </div>
-                    <div className="h-px bg-neutral-600 my-1.5"></div>
-                    <div className="text-left">
-                      <div className="text-white">{guest.server}</div>
-                      <div className="text-gray-500">Server</div>
-                    </div>
-                  </div>
-
-                  {/* Column 2: Check & Revenue Center */}
-                  <div className="flex flex-col text-xs">
-                    <div className="text-left">
-                      <div className="text-white font-medium">{guest.check}</div>
-                      <div className="text-gray-500">Check</div>
-                    </div>
-                    <div className="h-px bg-neutral-600 my-1.5"></div>
-                    <div className="text-left">
-                      <div className="text-white">{guest.revenueCenter}</div>
-                      <div className="text-gray-500">Revenue Center</div>
+                  {/* Column 2: Guest Info - 35% */}
+                  <div className="w-[35%] flex-shrink-0">
+                    <div className="flex flex-col">
+                      <span className="text-white font-medium text-sm">{guest.name}</span>
+                      <span className="text-white font-semibold text-sm">{guest.amount}</span>
+                      <div className="h-px bg-neutral-600 my-1.5"></div>
+                      <div className="flex items-center gap-1 text-gray-400 text-xs">
+                        <span>Party Of {guest.partySize},</span>
+                        <span>⚡ {guest.time}</span>
+                        <span className={getStatusColor(guest.status)}>{guest.status}</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Column 3: Payment Type */}
-                  <div className="flex flex-col text-xs">
-                    <div className="text-left">
-                      <div className="text-white font-medium">{guest.paymentType}</div>
-                      <div className="text-gray-500">Payment Type</div>
+                  {/* Column 3: Timer & Server - 15% */}
+                  <div className="w-[15%] flex-shrink-0">
+                    <div className="flex flex-col text-xs">
+                      <div className="text-left">
+                        <div className="text-white font-medium">{guest.timer}</div>
+                        <div className="text-gray-500">Timer</div>
+                      </div>
+                      <div className="h-px bg-neutral-600 my-1.5"></div>
+                      <div className="text-left">
+                        <div className="text-white">{guest.server}</div>
+                        <div className="text-gray-500">Server</div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Spacer to push buttons to right */}
-                  <div className="flex-1"></div>
+                  {/* Column 4: Check & Revenue Center - 15% */}
+                  <div className="w-[15%] flex-shrink-0">
+                    <div className="flex flex-col text-xs">
+                      <div className="text-left">
+                        <div className="text-white font-medium">{guest.check}</div>
+                        <div className="text-gray-500">Check</div>
+                      </div>
+                      <div className="h-px bg-neutral-600 my-1.5"></div>
+                      <div className="text-left">
+                        <div className="text-white">{guest.revenueCenter}</div>
+                        <div className="text-gray-500">Revenue Center</div>
+                      </div>
+                    </div>
+                  </div>
 
-                  {/* Column 4: Action Buttons */}
-                  <div className="flex flex-col gap-1 flex-shrink-0">
-                    <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
-                      <ChevronLeft className="w-4 h-4 text-white rotate-180" />
-                    </button>
-                    <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
-                      <Share2 className="w-4 h-4 text-orange-500" />
-                    </button>
+                  {/* Column 5: Payment Type - 15% */}
+                  <div className="w-[15%] flex-shrink-0">
+                    <div className="flex flex-col text-xs">
+                      <div className="text-left">
+                        <div className="text-white font-medium">{guest.paymentType}</div>
+                        <div className="text-gray-500">Payment Type</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Column 6: Action Buttons - 10% */}
+                  <div className="w-[10%] flex-shrink-0 flex justify-end">
+                    <div className="flex flex-col gap-1">
+                      <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+                        <ChevronLeft className="w-4 h-4 text-white rotate-180" />
+                      </button>
+                      <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+                        <Share2 className="w-4 h-4 text-orange-500" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

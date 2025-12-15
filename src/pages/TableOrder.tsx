@@ -133,7 +133,10 @@ const TableOrder = () => {
         {/* Dining Area Dropdown */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <button className="flex items-center gap-2 bg-neutral-800 rounded-full px-4 py-2 hover:bg-neutral-700 transition-colors">
+            <button 
+              className="flex items-center gap-2 rounded-full px-4 py-2 hover:opacity-90 transition-opacity"
+              style={{ background: "linear-gradient(180deg, #B8B8B8 0%, #616161 100%)" }}
+            >
               <span className="text-white text-sm font-medium">{selectedArea}</span>
               <ChevronDown className="w-4 h-4 text-white" />
             </button>

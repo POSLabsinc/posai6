@@ -167,7 +167,7 @@ const TableOrder = () => {
                   </div>
                   
                   {/* Status Label */}
-                  <div className={`w-full text-center py-1 rounded-md ${config.bgColor}`}>
+                  <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
                     <span className={`text-xs font-medium ${config.color}`}>
                       {table.status}
                     </span>

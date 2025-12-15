@@ -183,9 +183,9 @@ const TableOrderDetails = () => {
                 <div className="flex items-center w-full gap-4">
                   {/* Column 1: Order Number - 8% */}
                   <div className="w-[8%] flex-shrink-0">
-                    <div className="relative w-12 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+                    <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-evenly border border-neutral-600">
                       <span className="text-lg font-bold text-white">{guest.id}</span>
-                      <img src={tableTargetIcon} alt="Table" className="w-5 h-5" />
+                      <img src={tableTargetIcon} alt="Table" className="w-6 h-6" />
                     </div>
                   </div>
 

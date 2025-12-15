@@ -177,9 +177,9 @@ const TableOrder = () => {
                       }
                 }
               >
-                <span className={activeFilter === filter ? "font-bold" : ""}>{filter}</span>
-                <span className={`px-1.5 py-0.5 rounded text-xs ${
-                  activeFilter === filter ? "bg-black text-white font-bold" : "bg-neutral-800"
+                <span>{filter}</span>
+                <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
+                  activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"
                 }`}>
                   {filterCounts[filter] || 0}
                 </span>

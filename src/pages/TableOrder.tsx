@@ -143,33 +143,35 @@ const TableOrder = () => {
             return (
               <div
                 key={`${table.id}-${index}`}
-                className="bg-neutral-900 rounded-xl p-3 flex flex-col cursor-pointer hover:bg-neutral-800 transition-colors border border-neutral-800 relative"
+                className="bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-colors border border-neutral-800"
               >
-                {/* Time - positioned at top right */}
-                {table.time && (
-                  <span className="absolute top-2 right-2 text-gray-500 text-xs">
-                    {table.time}
-                  </span>
-                )}
-                
                 {/* Table Number */}
-                <span className="text-3xl font-bold text-white mb-1 text-center">{table.id}</span>
+                <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
                 
                 {/* Seats */}
-                <span className="text-gray-400 text-sm mb-2 text-center">{table.seats} Seats</span>
+                <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
                 
                 {/* Seat Dots */}
-                <div className="flex gap-1 mb-2 justify-center">
+                <div className="flex gap-1 mb-2">
                   {Array.from({ length: table.seats }).map((_, i) => (
                     <div key={i} className={`w-2 h-2 rounded-full ${dotColor}`} />
                   ))}
                 </div>
                 
-                {/* Status Label */}
-                <div className={`w-full text-center py-1 rounded-md mt-auto ${config.bgColor}`}>
-                  <span className={`text-xs font-medium ${config.color}`}>
-                    {table.status}
-                  </span>
+                <div className="mt-auto w-full">
+                  {/* Time - just above status */}
+                  <div className="flex justify-end mb-1 min-h-[1rem]">
+                    {table.time && (
+                      <span className="text-gray-500 text-xs">{table.time}</span>
+                    )}
+                  </div>
+                  
+                  {/* Status Label */}
+                  <div className={`w-full text-center py-1 rounded-md ${config.bgColor}`}>
+                    <span className={`text-xs font-medium ${config.color}`}>
+                      {table.status}
+                    </span>
+                  </div>
                 </div>
               </div>
             );

@@ -202,41 +202,44 @@ const TableOrderDetails = () => {
                   </div>
 
                   {/* Column 1: Timer & Server */}
-                  <div className="flex flex-col text-xs border-l border-neutral-600 pl-3">
-                    <div className="text-center">
+                  <div className="flex flex-col text-xs">
+                    <div className="text-left">
                       <div className="text-white font-medium">{guest.timer}</div>
                       <div className="text-gray-500">Timer</div>
                     </div>
                     <div className="h-px bg-neutral-600 my-1.5"></div>
-                    <div className="text-center">
+                    <div className="text-left">
                       <div className="text-white">{guest.server}</div>
                       <div className="text-gray-500">Server</div>
                     </div>
                   </div>
 
                   {/* Column 2: Check & Revenue Center */}
-                  <div className="flex flex-col text-xs border-l border-neutral-600 pl-3">
-                    <div className="text-center">
+                  <div className="flex flex-col text-xs">
+                    <div className="text-left">
                       <div className="text-white font-medium">{guest.check}</div>
                       <div className="text-gray-500">Check</div>
                     </div>
                     <div className="h-px bg-neutral-600 my-1.5"></div>
-                    <div className="text-center">
+                    <div className="text-left">
                       <div className="text-white">{guest.revenueCenter}</div>
                       <div className="text-gray-500">Revenue Center</div>
                     </div>
                   </div>
 
                   {/* Column 3: Payment Type */}
-                  <div className="flex flex-col text-xs border-l border-neutral-600 pl-3">
-                    <div className="text-center">
+                  <div className="flex flex-col text-xs">
+                    <div className="text-left">
                       <div className="text-white font-medium">{guest.paymentType}</div>
                       <div className="text-gray-500">Payment Type</div>
                     </div>
                   </div>
 
+                  {/* Spacer to push buttons to right */}
+                  <div className="flex-1"></div>
+
                   {/* Column 4: Action Buttons */}
-                  <div className="flex flex-col gap-1 flex-shrink-0 border-l border-neutral-600 pl-3">
+                  <div className="flex flex-col gap-1 flex-shrink-0">
                     <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
                       <ChevronLeft className="w-4 h-4 text-white rotate-180" />
                     </button>

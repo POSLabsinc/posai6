@@ -195,6 +195,7 @@ const TableOrderDetails = () => {
                       <span className="text-white font-medium">{guest.name}</span>
                       <span className="text-white font-semibold">{guest.amount}</span>
                     </div>
+                    <div className="h-px bg-neutral-600 my-1.5"></div>
                     <div className="flex items-center gap-2 text-gray-400 text-xs">
                       <span>Party Of {guest.partySize},</span>
                       <span>⚡ {guest.time}</span>

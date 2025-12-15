@@ -190,14 +190,14 @@ const TableOrderDetails = () => {
                   </div>
 
                   {/* Guest Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3">
-                      <span className="text-white font-medium">{guest.name}</span>
-                      <span className="text-white font-semibold">{guest.amount}</span>
+                  <div className="flex flex-col min-w-[120px] max-w-[140px]">
+                    <div className="flex flex-col">
+                      <span className="text-white font-medium text-sm">{guest.name}</span>
+                      <span className="text-white font-semibold text-sm">{guest.amount}</span>
                     </div>
                     <div className="h-px bg-neutral-600 my-1.5"></div>
-                    <div className="flex items-center gap-2 text-gray-400 text-xs">
-                      <span>Party Of {guest.partySize},</span>
+                    <div className="flex flex-col text-gray-400 text-xs">
+                      <span>Party Of {guest.partySize}</span>
                       <span>⚡ {guest.time}</span>
                       <span className={getStatusColor(guest.status)}>{guest.status}</span>
                     </div>

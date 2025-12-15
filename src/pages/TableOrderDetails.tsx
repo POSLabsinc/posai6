@@ -174,7 +174,7 @@ const TableOrderDetails = () => {
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
             {filteredGuestOrders.map(guest => <div key={guest.id} onClick={() => setSelectedGuest(guest)} className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white bg-neutral-800/50" : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"}`}>
-                <div className="flex items-stretch w-full">
+                <div className="flex items-stretch w-full gap-4">
                   {/* Column 1: Order Number - 8% */}
                   <div className="w-[8%] flex-shrink-0 px-3 py-2 flex items-center">
                     <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-2 border border-neutral-600">

@@ -115,12 +115,13 @@ const TableOrder = () => {
         {/* View Button */}
         <button
           onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
-          className="flex items-center justify-center bg-neutral-800 rounded-full p-2 hover:bg-neutral-700 transition-colors"
+          className="flex items-center justify-center rounded-full p-2 hover:opacity-90 transition-opacity"
+          style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
         >
           {viewMode === "grid" ? (
-            <Grid className="w-4 h-4 text-white" />
+            <Grid className="w-4 h-4 text-black" />
           ) : (
-            <List className="w-4 h-4 text-white" />
+            <List className="w-4 h-4 text-black" />
           )}
         </button>
 

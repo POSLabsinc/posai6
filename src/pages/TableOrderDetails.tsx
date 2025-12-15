@@ -130,16 +130,35 @@ const TableOrderDetails = () => {
         {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-neutral-700/50">
           <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/tableorder")} className="p-1 hover:bg-neutral-700/50 rounded-full transition-colors">
+            <button 
+              onClick={() => navigate("/tableorder")} 
+              className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <span className="text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
           </div>
           <div className="flex items-center gap-2">
-            <button className="p-2 hover:bg-neutral-700/50 rounded-full transition-colors">
+            <button 
+              className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
               <SlidersHorizontal className="w-4 h-4 text-white" />
             </button>
-            <button className="p-2 hover:bg-neutral-700/50 rounded-full transition-colors">
+            <button 
+              className="p-2 rounded-lg hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
               <Search className="w-4 h-4 text-white" />
             </button>
           </div>

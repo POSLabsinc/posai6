@@ -7,6 +7,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+
+// Import icons
+import burgerOpenIcon from "@/assets/icons/burger-open.png";
+import burgerCloseIcon from "@/assets/icons/burger-close.png";
 
 // Table status configurations
 const statusConfig: Record<string, { color: string; bgColor: string }> = {
@@ -91,6 +96,7 @@ const TableOrder = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedArea, setSelectedArea] = useState("Main Dining Room");
+  const [isControlsOpen, setIsControlsOpen] = useState(false);
   const filterCounts = getFilterCounts();
 
   const filters = [
@@ -112,49 +118,73 @@ const TableOrder = () => {
     <div className="flex flex-col h-full bg-black p-2 pb-2">
       {/* Filter Bar */}
       <div className="flex items-center gap-2 mb-3">
-        {/* View Button */}
-        <button
-          onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
-          className="flex items-center justify-center rounded-full p-2 hover:opacity-90 transition-opacity"
-          style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-        >
-          {viewMode === "grid" ? (
-            <Grid className="w-4 h-4 text-black" />
-          ) : (
-            <List className="w-4 h-4 text-black" />
-          )}
-        </button>
-
-        {/* Users Button */}
-        <button className="flex items-center justify-center bg-neutral-800 rounded-full p-2 hover:bg-neutral-700 transition-colors">
-          <Users className="w-4 h-4 text-white" />
-        </button>
-
-        {/* Dining Area Dropdown */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button 
-              className="flex items-center gap-2 rounded-full px-4 py-2 hover:opacity-90 transition-opacity"
-              style={{ background: "linear-gradient(180deg, #B8B8B8 0%, #616161 100%)" }}
+        {/* Collapsible Controls */}
+        {isControlsOpen ? (
+          <div className="flex items-center gap-1.5 bg-sidebar-accent rounded-full pl-1.5 pr-1 py-1">
+            {/* Close Button */}
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-7 w-7 p-0" 
+              onClick={() => setIsControlsOpen(false)}
             >
-              <span className="text-white text-sm font-medium">{selectedArea}</span>
-              <ChevronDown className="w-4 h-4 text-white" />
+              <img src={burgerCloseIcon} alt="Close" className="w-5 h-5" />
+            </Button>
+
+            {/* View Button */}
+            <button
+              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+              className="flex items-center justify-center rounded-full p-1.5 hover:opacity-90 transition-opacity"
+              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+            >
+              {viewMode === "grid" ? (
+                <Grid className="w-4 h-4 text-black" />
+              ) : (
+                <List className="w-4 h-4 text-black" />
+              )}
             </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
-            {diningAreas.map((area) => (
-              <DropdownMenuItem
-                key={area}
-                onClick={() => setSelectedArea(area)}
-                className={`text-white hover:bg-neutral-700 cursor-pointer ${
-                  selectedArea === area ? "bg-neutral-700" : ""
-                }`}
-              >
-                {area}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+
+            {/* Users Button */}
+            <button className="flex items-center justify-center bg-neutral-800 rounded-full p-1.5 hover:bg-neutral-700 transition-colors">
+              <Users className="w-4 h-4 text-white" />
+            </button>
+
+            {/* Dining Area Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className="flex items-center gap-2 rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity"
+                  style={{ background: "linear-gradient(180deg, #B8B8B8 0%, #616161 100%)" }}
+                >
+                  <span className="text-white text-xs font-medium">{selectedArea}</span>
+                  <ChevronDown className="w-3 h-3 text-white" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
+                {diningAreas.map((area) => (
+                  <DropdownMenuItem
+                    key={area}
+                    onClick={() => setSelectedArea(area)}
+                    className={`text-white hover:bg-neutral-700 cursor-pointer ${
+                      selectedArea === area ? "bg-neutral-700" : ""
+                    }`}
+                  >
+                    {area}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        ) : (
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            className="h-8 w-8 p-0" 
+            onClick={() => setIsControlsOpen(true)}
+          >
+            <img src={burgerOpenIcon} alt="Open controls" className="w-8 h-8" />
+          </Button>
+        )}
 
         {/* Filter Tabs */}
         <ScrollArea className="flex-1">

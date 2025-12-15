@@ -159,8 +159,8 @@ const TableOrder = () => {
                 </div>
                 
                 <div className="mt-auto w-full">
-                  {/* Time - just above status */}
-                  <div className="flex justify-end mb-1 min-h-[1rem]">
+                  {/* Time - just above status, right aligned with same padding */}
+                  <div className="flex justify-end mb-1 min-h-[1rem] px-1">
                     {table.time && (
                       <span className="text-gray-500 text-xs">{table.time}</span>
                     )}

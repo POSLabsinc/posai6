@@ -7,6 +7,7 @@ import { ChevronLeft, Search, SlidersHorizontal, Phone, Share2 } from "lucide-re
 import runnerIcon from "@/assets/icons/runner.png";
 import clearIcon from "@/assets/icons/clear-c.png";
 import fireIcon from "@/assets/icons/fire.png";
+import tableTargetIcon from "@/assets/icons/table-target.png";
 
 // Mock guest orders data
 const guestOrders = [
@@ -182,17 +183,10 @@ const TableOrderDetails = () => {
                 <div className="flex items-center gap-3">
                   {/* Order Number with crosshair design */}
                   <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-between py-2 flex-shrink-0 border border-neutral-600">
-                    {/* Corner dots */}
-                    <div className="absolute top-1 left-1 w-1 h-1 rounded-full bg-neutral-500"></div>
-                    <div className="absolute top-1 right-1 w-1 h-1 rounded-full bg-neutral-500"></div>
-                    <div className="absolute bottom-1 left-1 w-1 h-1 rounded-full bg-neutral-500"></div>
-                    <div className="absolute bottom-1 right-1 w-1 h-1 rounded-full bg-neutral-500"></div>
                     {/* Order Number - Top */}
                     <span className="text-lg font-bold text-white">{guest.id}</span>
-                    {/* Crosshair icon - Bottom */}
-                    <div className="w-6 h-6 rounded-full border-2 border-red-500 flex items-center justify-center">
-                      <div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>
-                    </div>
+                    {/* Table target icon - Bottom */}
+                    <img src={tableTargetIcon} alt="Table" className="w-6 h-6" />
                   </div>
 
                   {/* Guest Info */}

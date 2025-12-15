@@ -98,6 +98,7 @@ const TableOrder = () => {
   const [selectedArea, setSelectedArea] = useState("Main Dining Room");
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
+  const [guestDropdownTable, setGuestDropdownTable] = useState<string | null>(null);
   const filterCounts = getFilterCounts();
 
   const filters = [
@@ -228,44 +229,83 @@ const TableOrder = () => {
             const config = statusConfig[table.status] || statusConfig["Available"];
             const dotColor = getSeatDotColor(table.status);
             
+            const handleTableClick = () => {
+              if (table.status === "Available") {
+                setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
+              } else {
+                setSelectedTable(selectedTable === table.id ? null : table.id);
+              }
+            };
+
+            const handleGuestSelect = (guestCount: number) => {
+              console.log(`Selected ${guestCount} guests for table ${table.id}`);
+              setGuestDropdownTable(null);
+              setSelectedTable(table.id);
+            };
+
             return (
               <div
                 key={`${table.id}-${index}`}
-                onClick={() => setSelectedTable(selectedTable === table.id ? null : table.id)}
-                className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
-                  selectedTable === table.id 
-                    ? "border-orange-500 ring-2 ring-orange-500/30" 
-                    : "border-neutral-800"
-                }`}
+                className="relative"
               >
-                {/* Table Number */}
-                <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
-                
-                {/* Seats */}
-                <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
-                
-                {/* Seat Dots */}
-                <div className="flex gap-1 mb-2">
-                  {Array.from({ length: table.seats }).map((_, i) => (
-                    <div key={i} className={`w-2 h-2 rounded-full ${dotColor}`} />
-                  ))}
-                </div>
-                
-                <div className="mt-auto w-full">
-                  {/* Time - just above status, right aligned with same padding */}
-                  <div className="flex justify-end mb-1 min-h-[1rem] px-1">
-                    {table.time && (
-                      <span className="text-gray-500 text-xs">{table.time}</span>
-                    )}
+                <div
+                  onClick={handleTableClick}
+                  className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
+                    selectedTable === table.id 
+                      ? "border-orange-500 ring-2 ring-orange-500/30" 
+                      : "border-neutral-800"
+                  }`}
+                >
+                  {/* Table Number */}
+                  <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
+                  
+                  {/* Seats */}
+                  <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
+                  
+                  {/* Seat Dots */}
+                  <div className="flex gap-1 mb-2">
+                    {Array.from({ length: table.seats }).map((_, i) => (
+                      <div key={i} className={`w-2 h-2 rounded-full ${dotColor}`} />
+                    ))}
                   </div>
                   
-                  {/* Status Label */}
-                  <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
-                    <span className={`text-xs font-medium ${config.color}`}>
-                      {table.status}
-                    </span>
+                  <div className="mt-auto w-full">
+                    {/* Time - just above status, right aligned with same padding */}
+                    <div className="flex justify-end mb-1 min-h-[1rem] px-1">
+                      {table.time && (
+                        <span className="text-gray-500 text-xs">{table.time}</span>
+                      )}
+                    </div>
+                    
+                    {/* Status Label */}
+                    <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
+                      <span className={`text-xs font-medium ${config.color}`}>
+                        {table.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
+
+                {/* Guest Count Dropdown for Available tables */}
+                {guestDropdownTable === table.id && table.status === "Available" && (
+                  <div className="absolute top-0 right-0 translate-x-full ml-1 z-50 bg-white rounded-lg shadow-lg border border-gray-200 min-w-[100px]">
+                    <div className="px-3 py-2 border-b border-gray-200 bg-gray-50 rounded-t-lg">
+                      <span className="text-sm font-semibold text-black">Table #{table.id}</span>
+                    </div>
+                    {Array.from({ length: table.seats }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleGuestSelect(i + 1);
+                        }}
+                        className="w-full px-3 py-2 text-center text-black hover:bg-gray-100 border-b border-gray-100 last:border-b-0 last:rounded-b-lg transition-colors"
+                      >
+                        {i + 1}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             );
           })}

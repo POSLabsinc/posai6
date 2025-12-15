@@ -180,7 +180,7 @@ const TableOrderDetails = () => {
                     : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"
                 }`}
               >
-                <div className="flex items-center w-full">
+                <div className="flex items-center w-full gap-4">
                   {/* Column 1: Order Number - 10% */}
                   <div className="w-[10%] flex-shrink-0">
                     <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-between py-2 border border-neutral-600">

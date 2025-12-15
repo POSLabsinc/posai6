@@ -6,7 +6,7 @@ import settingsIcon from "@/assets/icons/settings.png";
 
 const navItems = [
   { to: "/orders", icon: newOrderIcon, label: "New Order" },
-  { to: "/pos", icon: tableOrderIcon, label: "Table Order" },
+  { to: "/tableorder", icon: tableOrderIcon, label: "Table Order" },
   { to: "/reports", icon: ticketsIcon, label: "Tickets" },
   { to: "/settings", icon: settingsIcon, label: "Settings" },
 ];

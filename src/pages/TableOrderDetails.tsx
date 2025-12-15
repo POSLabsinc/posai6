@@ -134,9 +134,21 @@ const TableOrderDetails = () => {
         <div className="flex items-center gap-2 p-3 overflow-x-auto">
           {filters.map(filter => {
           const count = getFilterCount(filter);
-          return <button key={filter} onClick={() => setActiveFilter(filter)} className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "bg-white text-black" : "bg-neutral-800 text-white hover:bg-neutral-700"}`}>
+          return <button 
+                key={filter} 
+                onClick={() => setActiveFilter(filter)} 
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`}
+                style={
+                  activeFilter === filter
+                    ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
+                    : { 
+                        background: "#7575754D",
+                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+                      }
+                }
+              >
                 <span>{filter}</span>
-                {count > 0 && <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-700"}`}>
+                {count > 0 && <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"}`}>
                     {count}
                   </span>}
               </button>;

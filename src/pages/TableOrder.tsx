@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Users, Grid, List, ChevronDown } from "lucide-react";
 import {
@@ -93,6 +94,7 @@ const diningAreas = [
 ];
 
 const TableOrder = () => {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedArea, setSelectedArea] = useState("Main Dining Room");
@@ -233,7 +235,8 @@ const TableOrder = () => {
               if (table.status === "Available") {
                 setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
               } else {
-                setSelectedTable(selectedTable === table.id ? null : table.id);
+                // Navigate to table order details for non-available tables
+                navigate(`/tableorder/${table.id}`);
               }
             };
 

@@ -97,6 +97,7 @@ const TableOrder = () => {
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedArea, setSelectedArea] = useState("Main Dining Room");
   const [isControlsOpen, setIsControlsOpen] = useState(false);
+  const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const filterCounts = getFilterCounts();
 
   const filters = [
@@ -230,7 +231,12 @@ const TableOrder = () => {
             return (
               <div
                 key={`${table.id}-${index}`}
-                className="bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-colors border border-neutral-800"
+                onClick={() => setSelectedTable(selectedTable === table.id ? null : table.id)}
+                className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
+                  selectedTable === table.id 
+                    ? "border-orange-500 ring-2 ring-orange-500/30" 
+                    : "border-neutral-800"
+                }`}
               >
                 {/* Table Number */}
                 <span className="text-3xl font-bold text-white mb-1">{table.id}</span>

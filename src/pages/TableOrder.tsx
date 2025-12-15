@@ -162,13 +162,21 @@ const TableOrder = () => {
                 onClick={() => setActiveFilter(filter)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                   activeFilter === filter
-                    ? "bg-neutral-700 text-white"
-                    : "bg-transparent text-gray-400 hover:text-white"
+                    ? "text-black"
+                    : "text-white"
                 }`}
+                style={
+                  activeFilter === filter
+                    ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
+                    : { 
+                        background: "#7575754D",
+                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+                      }
+                }
               >
                 <span>{filter}</span>
                 <span className={`px-1.5 py-0.5 rounded text-xs ${
-                  activeFilter === filter ? "bg-neutral-600" : "bg-neutral-800"
+                  activeFilter === filter ? "bg-black/20" : "bg-neutral-800"
                 }`}>
                   {filterCounts[filter] || 0}
                 </span>

@@ -128,10 +128,7 @@ const TableOrderDetails = () => {
   };
   return <div className="flex h-full bg-black">
       {/* Left Panel - Order List */}
-      <div style={{
-      background: "#7575754D",
-      boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-    }} className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden bg-black/0">
+      <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
           <div className="flex items-center gap-3">

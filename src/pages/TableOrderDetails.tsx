@@ -424,11 +424,7 @@ const TableOrderDetails = () => {
                     toggleOrderExpand(guest.id);
                   }}
                 >
-                  <ChevronDown 
-                    className={`w-4 h-4 text-white/40 transition-transform ${
-                      expandedOrderId === guest.id ? "rotate-180" : ""
-                    }`} 
-                  />
+                  <span className="w-4 h-4" />
                 </button>
               </div>
 

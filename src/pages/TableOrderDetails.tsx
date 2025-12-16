@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, Search, SlidersHorizontal, Phone } from "lucide-react";
@@ -94,6 +94,37 @@ const TableOrderDetails = () => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
+  
+  // Swipe state for mobile cards
+  const [swipeStates, setSwipeStates] = useState<Record<string, number>>({});
+  const [isDragging, setIsDragging] = useState(false);
+  const startX = useRef(0);
+  const currentCardId = useRef<string | null>(null);
+  const swipeWidth = -100; // Reveal width for action buttons
+
+  const handleSwipeStart = (e: React.TouchEvent | React.MouseEvent, cardId: string) => {
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    startX.current = clientX;
+    currentCardId.current = cardId;
+    setIsDragging(true);
+  };
+
+  const handleSwipeMove = (e: React.TouchEvent | React.MouseEvent) => {
+    if (!isDragging || !currentCardId.current) return;
+    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+    const diff = clientX - startX.current;
+    const newX = Math.max(swipeWidth, Math.min(diff, 0));
+    setSwipeStates(prev => ({ ...prev, [currentCardId.current!]: newX }));
+  };
+
+  const handleSwipeEnd = () => {
+    if (!currentCardId.current) return;
+    const currentX = swipeStates[currentCardId.current] || 0;
+    const snapTo = currentX < swipeWidth / 2 ? swipeWidth : 0;
+    setSwipeStates(prev => ({ ...prev, [currentCardId.current!]: snapTo }));
+    setIsDragging(false);
+    currentCardId.current = null;
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -364,52 +395,95 @@ const TableOrderDetails = () => {
           {filteredGuestOrders.map(guest => (
             <div 
               key={guest.id} 
-              className={`rounded-xl cursor-pointer transition-all overflow-hidden ${
+              className={`relative rounded-xl cursor-pointer transition-all overflow-hidden ${
                 selectedGuest.id === guest.id 
                   ? "bg-neutral-800/50" 
                   : "bg-neutral-900/50"
               }`}
-              onClick={() => handleMobileOrderClick(guest)}
             >
-              <div className={`flex items-stretch w-full gap-2 border rounded-xl ${selectedGuest.id === guest.id ? 'border-white' : 'border-white/10'}`}>
-                {/* Column 1: Order Number */}
-                <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
-                  <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-                    <span className="text-base font-bold text-white">{guest.id}</span>
-                    <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-cover" />
-                  </div>
-                </div>
+              {/* Swipe Action Buttons (revealed on swipe left) */}
+              <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden">
+                {/* Merge button - gray */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('Merge', guest.id);
+                  }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors"
+                  style={{ backgroundColor: '#666666' }}
+                >
+                  <img src={splitIcon} alt="Merge" className="w-5 h-5 object-contain" />
+                </button>
+                
+                {/* Transfer button - orange */}
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    console.log('Transfer', guest.id);
+                  }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors"
+                  style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                >
+                  <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
+                </button>
+              </div>
 
-                {/* Column 2: Guest Info */}
-                <div className="flex-1 min-w-0 py-2 pr-2 md:pr-0">
-                  <div className="flex flex-col">
-                    <div className="flex items-start justify-between">
-                      <span className="text-white font-medium text-sm">{guest.name}</span>
-                      <div className="flex flex-col items-end">
-                        <span className="text-white font-semibold text-sm">{guest.amount}</span>
-                        {guest.tip && <span className="text-gray-400 text-xs">{guest.tip}</span>}
+              {/* Swipeable card content */}
+              <div
+                className="relative transition-transform duration-200 ease-out md:transform-none"
+                style={{
+                  transform: `translateX(${swipeStates[guest.id] || 0}px)`,
+                  transition: isDragging && currentCardId.current === guest.id ? "none" : "transform 0.2s ease-out",
+                }}
+                onTouchStart={(e) => handleSwipeStart(e, guest.id)}
+                onTouchMove={handleSwipeMove}
+                onTouchEnd={handleSwipeEnd}
+                onMouseDown={(e) => handleSwipeStart(e, guest.id)}
+                onMouseMove={handleSwipeMove}
+                onMouseUp={handleSwipeEnd}
+                onMouseLeave={handleSwipeEnd}
+                onClick={() => handleMobileOrderClick(guest)}
+              >
+                <div className={`flex items-stretch w-full gap-2 border rounded-xl bg-neutral-900 ${selectedGuest.id === guest.id ? 'border-white' : 'border-white/10'}`}>
+                  {/* Column 1: Order Number */}
+                  <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
+                    <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+                      <span className="text-base font-bold text-white">{guest.id}</span>
+                      <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-cover" />
+                    </div>
+                  </div>
+
+                  {/* Column 2: Guest Info */}
+                  <div className="flex-1 min-w-0 py-2 pr-2 md:pr-0">
+                    <div className="flex flex-col">
+                      <div className="flex items-start justify-between">
+                        <span className="text-white font-medium text-sm">{guest.name}</span>
+                        <div className="flex flex-col items-end">
+                          <span className="text-white font-semibold text-sm">{guest.amount}</span>
+                          {guest.tip && <span className="text-gray-400 text-xs">{guest.tip}</span>}
+                        </div>
+                      </div>
+                      <div className="h-px bg-neutral-600 my-1.5"></div>
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1 text-gray-400">
+                          <span>Party Of {guest.partySize},</span>
+                          <span>⚡ {guest.time}</span>
+                        </div>
+                        <span className={getStatusColor(guest.status)}>{guest.status}</span>
                       </div>
                     </div>
-                    <div className="h-px bg-neutral-600 my-1.5"></div>
-                    <div className="flex items-center justify-between text-xs">
-                      <div className="flex items-center gap-1 text-gray-400">
-                        <span>Party Of {guest.partySize},</span>
-                        <span>⚡ {guest.time}</span>
-                      </div>
-                      <span className={getStatusColor(guest.status)}>{guest.status}</span>
-                    </div>
                   </div>
-                </div>
 
-                {/* Column 3: Action Button */}
-                <div className="hidden md:flex flex-shrink-0">
-                  <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
-                    <button 
-                      className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
-                    </button>
+                  {/* Column 3: Action Button */}
+                  <div className="hidden md:flex flex-shrink-0">
+                    <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
+                      <button 
+                        className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>

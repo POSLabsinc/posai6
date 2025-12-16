@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronLeft, Search, SlidersHorizontal, Phone } from "lucide-react";
+import { ChevronLeft, Search, SlidersHorizontal } from "lucide-react";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -10,6 +10,7 @@ import fireIcon from "@/assets/icons/fire.png";
 import tableTargetIcon from "@/assets/icons/table-target.png";
 import arrowRightIcon from "@/assets/icons/arrow-right.png";
 import shareOrderIcon from "@/assets/icons/share-order.png";
+import phoneIcon from "@/assets/icons/phone-icon.png";
 
 // Mock guest orders data
 const guestOrders = [{
@@ -24,7 +25,8 @@ const guestOrders = [{
   check: "--",
   paymentType: "--",
   revenueCenter: "FF Balcony",
-  status: "ORDERING"
+  status: "ORDERING",
+  phone: "(415) 123-4567"
 }, {
   id: "2",
   name: "Carol Alex",
@@ -37,7 +39,8 @@ const guestOrders = [{
   check: "123423",
   paymentType: "Cash",
   revenueCenter: "FF Balcony",
-  status: "COMPLETED"
+  status: "COMPLETED",
+  phone: "(415) 987-6543"
 }, {
   id: "1",
   name: "Rick Grimes",
@@ -50,7 +53,8 @@ const guestOrders = [{
   check: "123443",
   paymentType: "Cash",
   revenueCenter: "FF Balcony",
-  status: "COMPLETED"
+  status: "COMPLETED",
+  phone: "(415) 555-1234"
 }];
 
 // Mock order items for right panel
@@ -276,26 +280,26 @@ const TableOrderDetails = () => {
       {/* Right Panel - Order Details */}
       <div className="w-[345px] flex flex-col m-2 ml-0 rounded-[20px] overflow-hidden bg-black border border-neutral-700/50">
         {/* Guest Header */}
-        <div className="px-4 py-3 border-b border-white/10">
+        <div className="px-4 py-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-white font-medium">{selectedGuest.name}</span>
-            <div className="flex items-center gap-2 text-white/50 text-sm">
-              <Phone className="w-3 h-3" />
-              <span>(415) 123-4567</span>
+            <div className="flex items-center gap-2 text-[#808080] text-sm">
+              <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
+              <span>{selectedGuest.phone || "(415) 123-4567"}</span>
               <span>⚡ {selectedGuest.time}</span>
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
+            <button className="px-3 py-1.5 bg-[#666666] text-white text-xs rounded-[10px] transition-colors">
               Add Item
             </button>
-            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
+            <button className="px-3 py-1.5 bg-[#666666] text-white text-xs rounded-[10px] transition-colors">
               Discount
             </button>
-            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
+            <button className="px-3 py-1.5 bg-[#666666] text-white text-xs rounded-[10px] transition-colors">
               Receipt
             </button>
-            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
+            <button className="px-3 py-1.5 bg-[#666666] text-white text-xs rounded-[10px] transition-colors">
               Cash Register
             </button>
           </div>

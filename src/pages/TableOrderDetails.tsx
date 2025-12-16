@@ -236,7 +236,7 @@ const TableOrderDetails = () => {
                 </div>
 
                 {/* Column 2: Guest Info */}
-                <div className="flex-1 min-w-0 py-2">
+                <div className="flex-1 min-w-0 py-2 pr-2 md:pr-0">
                   <div className="flex flex-col">
                     <div className="flex items-start justify-between">
                       <span className="text-white font-medium text-sm">{guest.name}</span>

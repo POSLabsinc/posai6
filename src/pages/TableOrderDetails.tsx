@@ -399,7 +399,7 @@ const TableOrderDetails = () => {
         {/* Bottom Actions */}
         <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
           <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
-            <img src={clearIcon} alt="Clear" className="w-4 h-4 invert" />
+            <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
           </button>
           <button className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium" style={{
           background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"

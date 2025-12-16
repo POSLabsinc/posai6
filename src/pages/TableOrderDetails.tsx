@@ -181,22 +181,25 @@ const TableOrderDetails = () => {
 
   const handleSwipeEnd = (
     triggerTap: boolean,
-    e?: React.TouchEvent | React.MouseEvent
+    e?: React.TouchEvent | React.MouseEvent,
+    guestOverride?: (typeof guestOrders)[0]
   ) => {
-    const cardId = currentCardId.current;
-    const guest = currentGuest.current;
-    if (!cardId) return;
+    const guest = guestOverride ?? currentGuest.current;
+    const cardId = currentCardId.current ?? guest?.id ?? null;
+    const isInteractive = isInteractiveElement(e?.target ?? null);
 
-    const currentX = swipeStatesRef.current[cardId] ?? 0;
-    const snapTo = currentX < swipeWidth / 2 ? swipeWidth : 0;
+    if (cardId && !isInteractive) {
+      const currentX = swipeStatesRef.current[cardId] ?? 0;
+      const snapTo = currentX < swipeWidth / 2 ? swipeWidth : 0;
+      setCardSwipeX(cardId, snapTo);
+    }
 
-    setCardSwipeX(cardId, snapTo);
     isDraggingRef.current = false;
     currentCardId.current = null;
     currentGuest.current = null;
 
     // On mobile, onClick can be cancelled; open on touch-end when it was really a tap.
-    if (triggerTap && !hasMoved.current && guest && !isInteractiveElement(e?.target ?? null)) {
+    if (triggerTap && !hasMoved.current && guest && !isInteractive) {
       suppressNextClickRef.current = true;
       handleMobileOrderClick(guest);
     }
@@ -529,12 +532,12 @@ const TableOrderDetails = () => {
                 }}
                 onTouchStart={(e) => handleSwipeStart(e, guest)}
                 onTouchMove={handleSwipeMove}
-                onTouchEnd={(e) => handleSwipeEnd(true, e)}
-                onTouchCancel={(e) => handleSwipeEnd(false, e)}
+                onTouchEnd={(e) => handleSwipeEnd(true, e, guest)}
+                onTouchCancel={(e) => handleSwipeEnd(false, e, guest)}
                 onMouseDown={(e) => handleSwipeStart(e, guest)}
                 onMouseMove={handleSwipeMove}
-                onMouseUp={(e) => handleSwipeEnd(false, e)}
-                onMouseLeave={(e) => handleSwipeEnd(false, e)}
+                onMouseUp={(e) => handleSwipeEnd(false, e, guest)}
+                onMouseLeave={(e) => handleSwipeEnd(false, e, guest)}
                 onClick={() => handleCardClick(guest)}
               >
                 <div className={`flex items-stretch w-full gap-2 border rounded-xl bg-neutral-900 ${selectedGuest.id === guest.id ? 'border-white' : 'border-white/10'}`}>

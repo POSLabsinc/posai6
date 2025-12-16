@@ -226,7 +226,7 @@ const TableOrderDetails = () => {
               }`}
               onClick={() => setSelectedGuest(guest)}
             >
-              <div className="flex items-stretch w-full gap-2">
+              <div className="flex items-stretch w-full gap-2 border-b border-white/10">
                 {/* Column 1: Order Number */}
                 <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
                   <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
@@ -268,10 +268,11 @@ const TableOrderDetails = () => {
                   </div>
                 </div>
               </div>
+              
 
               {/* Centered Arrow to Expand Details */}
-              <div className="border-t border-white/10">
-                <button 
+              <div>
+                <button
                   className="w-full py-1.5 flex items-center justify-center hover:bg-white/5 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();

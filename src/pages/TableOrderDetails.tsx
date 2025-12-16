@@ -464,9 +464,9 @@ const TableOrderDetails = () => {
                 </button>
               </div>
 
-              {/* Swipeable card content */}
+              {/* Swipeable card content - everything inside moves together */}
               <div
-                className="relative transition-transform duration-200 ease-out md:transform-none"
+                className="relative transition-transform duration-200 ease-out md:transform-none bg-neutral-900 rounded-xl"
                 style={{
                   transform: `translateX(${swipeStates[guest.id] || 0}px)`,
                   transition: isDragging && currentCardId.current === guest.id ? "none" : "transform 0.2s ease-out",
@@ -519,64 +519,63 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
                 </div>
-              </div>
-              
 
-              {/* Centered Arrow to Expand Details */}
-              <div className="px-[10%]">
-                <button
-                  className="w-full flex items-center justify-center hover:bg-white/5 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleOrderExpand(guest.id);
-                  }}
-                >
-                  <span className="w-4 h-4" />
-                </button>
-              </div>
-
-              {/* Expanded Details */}
-              {expandedOrderId === guest.id && (
-                <div className="px-3 pb-3 border-t border-neutral-700">
-                  {/* Order Details Grid */}
-                  <div className="grid grid-cols-3 gap-3 py-3">
-                    <div>
-                      <div className="text-white text-sm font-medium">{guest.timer}</div>
-                      <div className="text-gray-500 text-xs">Timer</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-sm font-medium">{guest.check}</div>
-                      <div className="text-gray-500 text-xs">Check</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-sm font-medium">{guest.server}</div>
-                      <div className="text-gray-500 text-xs">Server</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-sm">{guest.revenueCenter}</div>
-                      <div className="text-gray-500 text-xs">Revenue Center</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-sm font-medium">{guest.paymentType}</div>
-                      <div className="text-gray-500 text-xs">Payment Type</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-sm">--</div>
-                      <div className="text-gray-500 text-xs">Tip</div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 mt-2">
-                    <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
-                      MERGE
-                    </button>
-                    <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
-                      TRANSFER
-                    </button>
-                  </div>
+                {/* Centered Arrow to Expand Details - inside swipeable wrapper */}
+                <div className="px-[10%]">
+                  <button
+                    className="w-full flex items-center justify-center hover:bg-white/5 transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleOrderExpand(guest.id);
+                    }}
+                  >
+                    <span className="w-4 h-4" />
+                  </button>
                 </div>
-              )}
+
+                {/* Expanded Details - inside swipeable wrapper */}
+                {expandedOrderId === guest.id && (
+                  <div className="px-3 pb-3 border-t border-neutral-700">
+                    {/* Order Details Grid */}
+                    <div className="grid grid-cols-3 gap-3 py-3">
+                      <div>
+                        <div className="text-white text-sm font-medium">{guest.timer}</div>
+                        <div className="text-gray-500 text-xs">Timer</div>
+                      </div>
+                      <div>
+                        <div className="text-white text-sm font-medium">{guest.check}</div>
+                        <div className="text-gray-500 text-xs">Check</div>
+                      </div>
+                      <div>
+                        <div className="text-white text-sm font-medium">{guest.server}</div>
+                        <div className="text-gray-500 text-xs">Server</div>
+                      </div>
+                      <div>
+                        <div className="text-white text-sm">{guest.revenueCenter}</div>
+                        <div className="text-gray-500 text-xs">Revenue Center</div>
+                      </div>
+                      <div>
+                        <div className="text-white text-sm font-medium">{guest.paymentType}</div>
+                        <div className="text-gray-500 text-xs">Payment Type</div>
+                      </div>
+                      <div>
+                        <div className="text-white text-sm">--</div>
+                        <div className="text-gray-500 text-xs">Tip</div>
+                      </div>
+                    </div>
+
+                    {/* Action Buttons - hidden on mobile since swipe reveals them */}
+                    <div className="hidden md:flex gap-2 mt-2">
+                      <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
+                        MERGE
+                      </button>
+                      <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
+                        TRANSFER
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           ))}
         </div>

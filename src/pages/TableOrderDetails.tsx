@@ -219,14 +219,14 @@ const TableOrderDetails = () => {
           {filteredGuestOrders.map(guest => (
             <div 
               key={guest.id} 
-              className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${
+              className={`rounded-xl cursor-pointer transition-all overflow-hidden ${
                 selectedGuest.id === guest.id 
-                  ? "border-white bg-neutral-800/50" 
-                  : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"
+                  ? "bg-neutral-800/50" 
+                  : "bg-neutral-900/50"
               }`}
               onClick={() => setSelectedGuest(guest)}
             >
-              <div className="flex items-stretch w-full gap-2">
+              <div className="flex items-stretch w-full gap-2 border border-white/10 rounded-xl">
                 {/* Column 1: Order Number */}
                 <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
                   <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">

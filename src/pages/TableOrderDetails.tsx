@@ -144,60 +144,233 @@ const TableOrderDetails = () => {
     setExpandedOrderId(prev => prev === orderId ? null : orderId);
   };
 
-  // Mobile Layout
-  const MobileLayout = () => (
+  const [showMobileOrderDetail, setShowMobileOrderDetail] = useState(false);
+
+  const handleMobileOrderClick = (guest: typeof guestOrders[0]) => {
+    setSelectedGuest(guest);
+    setShowMobileOrderDetail(true);
+  };
+
+  // Mobile Order Detail Panel (Right Panel equivalent)
+  const MobileOrderDetailPanel = () => (
     <div className="flex flex-col h-full bg-black">
-      {/* Header */}
-      <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate("/tableorder")} 
-            className="p-2 rounded-full hover:opacity-80 transition-opacity"
-            style={{
-              background: "#7575754D",
-              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-            }}
-          >
-            <ChevronLeft className="w-5 h-5 text-white" />
-          </button>
-          <span className="text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
+      {/* Header with Guest Info */}
+      <div className="px-3 py-2 border-b border-neutral-700/50">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <button 
+              onClick={() => setShowMobileOrderDetail(false)}
+              className="p-1.5 rounded-full hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
+              <ChevronLeft className="w-4 h-4 text-white" />
+            </button>
+            <span className="text-white font-medium">{selectedGuest.name}</span>
+          </div>
+          <div className="flex items-center gap-3 text-white/50 text-xs">
+            <div className="flex items-center gap-1">
+              <Phone className="w-3 h-3" />
+              <span>(415) 123-4567</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span>⚡</span>
+              <span>{selectedGuest.time}</span>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <button 
-            className="p-2 rounded-full hover:opacity-80 transition-opacity"
-            style={{
-              background: "#7575754D",
-              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-            }}
-          >
-            <SlidersHorizontal className="w-4 h-4 text-white" />
-          </button>
-          <button 
-            className="p-2 rounded-full hover:opacity-80 transition-opacity"
-            style={{
-              background: "#7575754D",
-              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-            }}
-          >
-            <Search className="w-4 h-4 text-white" />
-          </button>
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          <button className="px-2 py-1 bg-neutral-700 text-white text-xs rounded-full whitespace-nowrap">Add Item</button>
+          <button className="px-2 py-1 bg-neutral-700 text-white text-xs rounded-full whitespace-nowrap">Discount</button>
+          <button className="px-2 py-1 bg-neutral-700 text-white text-xs rounded-full whitespace-nowrap">Receipt</button>
+          <button className="px-2 py-1 bg-neutral-700 text-white text-xs rounded-full whitespace-nowrap">Cash Register</button>
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
-        {filters.map(filter => {
-          const count = getFilterCount(filter);
-          return (
-            <button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
-                activeFilter === filter ? "text-black" : "text-white"
-              }`}
-              style={activeFilter === filter 
-                ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
-                : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
+      {/* Main Panel Content */}
+      <div className="flex-1 flex flex-col mx-2 my-2 rounded-[10px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+        {/* Table Order Info */}
+        <div className="px-3 py-2 border-b border-white/10">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-0.5 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
+              <span className="text-white font-bold text-sm">{selectedGuest.id}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-60 object-contain" />
+              <span className="text-white/50 text-xs">{selectedGuest.server}</span>
+            </div>
+          </div>
+          
+          {/* Seat Buttons */}
+          <div className="flex items-center gap-1.5">
+            <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={seatIcon} alt="Seat" className="w-3 h-3 object-contain" />
+            </button>
+            <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={splitIcon} alt="Split" className="w-3 h-3 object-contain" />
+            </button>
+            {[1, 2, 3, 4].map(seat => (
+              <button 
+                key={seat} 
+                onClick={() => toggleSeat(seat)} 
+                className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
+                  selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                {seat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className="px-3 py-2 border-b border-white/10">
+          <div className="flex items-center gap-2 text-white/50 text-xs bg-white/10 p-2 rounded-lg">
+            <span>📝</span>
+            <span>Allergic to almonds, Don't add onion</span>
+          </div>
+        </div>
+
+        {/* Order Items */}
+        <ScrollArea className="flex-1 px-3">
+          <div className="py-2 space-y-2">
+            {orderItems.map((item, index) => (
+              <div key={index} className="p-2 bg-white/5 rounded-xl border border-white/10">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-2">
+                    <span className="w-5 h-5 bg-white rounded flex items-center justify-center text-black text-xs font-bold">
+                      {item.qty}
+                    </span>
+                    <div>
+                      <span className="text-white font-medium text-sm">{item.name}</span>
+                      {item.modifiers.length > 0 && (
+                        <div className="mt-1 text-white/50 text-xs space-y-0.5">
+                          {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-white font-medium text-sm">{item.price}</span>
+                </div>
+                {item.seats.length > 0 && (
+                  <div className="flex items-center gap-1 mt-2">
+                    <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50 object-contain" />
+                    {item.seats.map(seat => (
+                      <span key={seat} className="w-4 h-4 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                        {seat}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+
+        {/* Order Summary */}
+        <div className="px-3 py-2 border-t border-white/10 space-y-1 text-xs">
+          <div className="flex justify-between">
+            <span className="text-white/60">Sub Total</span>
+            <span className="text-white">$ 56.00</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-red-500">Discount</span>
+            <span className="text-red-500">$1.00</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-white/60">Service Charge</span>
+            <span className="text-white">$ 1.00</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-white/60">Tax</span>
+            <span className="text-white">$ 1.00</span>
+          </div>
+        </div>
+
+        {/* Bottom Actions */}
+        <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
+          <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+            <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert object-contain" />
+          </button>
+          <button className="px-3 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium" style={{
+            background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+          }}>
+            <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert object-contain" />
+            <span>FIRE</span>
+          </button>
+          <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{
+            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+          }}>
+            CHARGE $ 59.00
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mobile Layout
+  const MobileLayout = () => {
+    if (showMobileOrderDetail) {
+      return <MobileOrderDetailPanel />;
+    }
+
+    return (
+      <div className="flex flex-col h-full bg-black">
+        {/* Header */}
+        <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => navigate("/tableorder")} 
+              className="p-2 rounded-full hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+            <span className="text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button 
+              className="p-2 rounded-full hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
+              <SlidersHorizontal className="w-4 h-4 text-white" />
+            </button>
+            <button 
+              className="p-2 rounded-full hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
+              <Search className="w-4 h-4 text-white" />
+            </button>
+          </div>
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
+          {filters.map(filter => {
+            const count = getFilterCount(filter);
+            return (
+              <button
+                key={filter}
+                onClick={() => setActiveFilter(filter)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
+                  activeFilter === filter ? "text-black" : "text-white"
+                }`}
+                style={activeFilter === filter 
+                  ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
+                  : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
               }
             >
               <span>{filter}</span>
@@ -209,9 +382,9 @@ const TableOrderDetails = () => {
                 </span>
               )}
             </button>
-          );
-        })}
-      </div>
+            );
+          })}
+        </div>
 
       {/* Guest Orders List */}
       <ScrollArea className="flex-1 px-3">
@@ -219,14 +392,14 @@ const TableOrderDetails = () => {
           {filteredGuestOrders.map(guest => (
             <div 
               key={guest.id} 
-              className={`rounded-xl cursor-pointer transition-all overflow-hidden ${
+              className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${
                 selectedGuest.id === guest.id 
-                  ? "bg-neutral-800/50" 
-                  : "bg-neutral-900/50"
+                  ? "border-white bg-neutral-800/50" 
+                  : "border-white/10 bg-neutral-900/50"
               }`}
-              onClick={() => setSelectedGuest(guest)}
+              onClick={() => handleMobileOrderClick(guest)}
             >
-              <div className={`flex items-stretch w-full gap-2 border rounded-xl ${selectedGuest.id === guest.id ? 'border-white' : 'border-white/10'}`}>
+              <div className="flex items-stretch w-full gap-2">
                 {/* Column 1: Order Number */}
                 <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
                   <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
@@ -236,7 +409,7 @@ const TableOrderDetails = () => {
                 </div>
 
                 {/* Column 2: Guest Info */}
-                <div className="flex-1 min-w-0 py-2 pr-2 md:pr-0">
+                <div className="flex-1 min-w-0 py-2 pr-2">
                   <div className="flex flex-col">
                     <div className="flex items-start justify-between">
                       <span className="text-white font-medium text-sm">{guest.name}</span>
@@ -255,80 +428,7 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
                 </div>
-
-                {/* Column 3: Action Button */}
-                <div className="hidden md:flex flex-shrink-0">
-                  <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
-                    <button 
-                      className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
-                    </button>
-                  </div>
-                </div>
               </div>
-              
-
-              {/* Centered Arrow to Expand Details */}
-              <div className="px-[10%]">
-                <button
-                  className="w-full flex items-center justify-center hover:bg-white/5 transition-colors"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleOrderExpand(guest.id);
-                  }}
-                >
-                  <ChevronDown 
-                    className={`w-4 h-4 text-white/40 transition-transform ${
-                      expandedOrderId === guest.id ? "rotate-180" : ""
-                    }`} 
-                  />
-                </button>
-              </div>
-
-              {/* Expanded Details */}
-              {expandedOrderId === guest.id && (
-                <div className="px-3 pb-3 border-t border-neutral-700">
-                  {/* Order Details Grid */}
-                  <div className="grid grid-cols-3 gap-3 py-3">
-                    <div>
-                      <div className="text-white text-sm font-medium">{guest.timer}</div>
-                      <div className="text-gray-500 text-xs">Timer</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-sm font-medium">{guest.check}</div>
-                      <div className="text-gray-500 text-xs">Check</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-sm font-medium">{guest.server}</div>
-                      <div className="text-gray-500 text-xs">Server</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-sm">{guest.revenueCenter}</div>
-                      <div className="text-gray-500 text-xs">Revenue Center</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-sm font-medium">{guest.paymentType}</div>
-                      <div className="text-gray-500 text-xs">Payment Type</div>
-                    </div>
-                    <div>
-                      <div className="text-white text-sm">--</div>
-                      <div className="text-gray-500 text-xs">Tip</div>
-                    </div>
-                  </div>
-
-                  {/* Action Buttons */}
-                  <div className="flex gap-2 mt-2">
-                    <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
-                      MERGE
-                    </button>
-                    <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
-                      TRANSFER
-                    </button>
-                  </div>
-                </div>
-              )}
             </div>
           ))}
         </div>
@@ -345,9 +445,8 @@ const TableOrderDetails = () => {
         </button>
       </div>
     </div>
-  );
-
-  // Desktop Layout (existing)
+    );
+  };
   const DesktopLayout = () => (
     <div className="flex h-full bg-black">
       {/* Left Panel - Order List */}

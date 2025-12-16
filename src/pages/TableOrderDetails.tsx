@@ -353,7 +353,7 @@ const TableOrderDetails = () => {
             {orderItems.map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
-                    <span className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center text-white text-sm font-bold">
+                    <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
                       {item.qty}
                     </span>
                     <div>

@@ -401,10 +401,10 @@ const TableOrderDetails = () => {
           <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
             <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
           </button>
-          <button className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium" style={{
+          <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{
           background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
         }}>
-            <img src={fireIcon} alt="Fire" className="w-4 h-4 invert" />
+            <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
             <span>FIRE</span>
           </button>
           <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{

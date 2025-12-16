@@ -256,31 +256,33 @@ const TableOrderDetails = () => {
                   </div>
                 </div>
 
-                {/* Column 3: Action Buttons */}
+                {/* Column 3: Action Button */}
                 <div className="flex-shrink-0 flex">
                   <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
                     <button 
-                      className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors border-b border-neutral-600"
+                      className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
                     </button>
-                    <button 
-                      className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        toggleOrderExpand(guest.id);
-                      }}
-                    >
-                      <ChevronDown 
-                        className={`w-4 h-4 text-white transition-transform ${
-                          expandedOrderId === guest.id ? "rotate-180" : ""
-                        }`} 
-                      />
-                    </button>
                   </div>
                 </div>
               </div>
+
+              {/* Centered Arrow to Expand Details */}
+              <button 
+                className="w-full py-1 flex items-center justify-center hover:bg-neutral-800/50 transition-colors"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleOrderExpand(guest.id);
+                }}
+              >
+                <ChevronDown 
+                  className={`w-5 h-5 text-white/70 transition-transform ${
+                    expandedOrderId === guest.id ? "rotate-180" : ""
+                  }`} 
+                />
+              </button>
 
               {/* Expanded Details */}
               {expandedOrderId === guest.id && (

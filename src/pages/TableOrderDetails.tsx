@@ -257,7 +257,7 @@ const TableOrderDetails = () => {
                 </div>
 
                 {/* Column 3: Action Button */}
-                <div className="flex-shrink-0 flex">
+                <div className="hidden md:flex flex-shrink-0">
                   <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
                     <button 
                       className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors"

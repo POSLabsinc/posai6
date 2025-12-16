@@ -105,7 +105,14 @@ const TableOrderDetails = () => {
   const currentCardId = useRef<string | null>(null);
   const currentGuest = useRef<(typeof guestOrders)[0] | null>(null);
   const hasMoved = useRef(false);
+  const suppressNextClickRef = useRef(false);
+
   const swipeWidth = -120; // Reveal width for action buttons
+  const MOVE_THRESHOLD = 10;
+
+  const isInteractiveElement = (target: EventTarget | null) =>
+    target instanceof Element &&
+    !!target.closest("button,a,input,textarea,select,[role='button']");
 
   const setCardSwipeX = (cardId: string, x: number) => {
     setSwipeStates((prev) => {
@@ -119,6 +126,15 @@ const TableOrderDetails = () => {
     e: React.TouchEvent | React.MouseEvent,
     guest: (typeof guestOrders)[0]
   ) => {
+    // Allow taps on interactive elements (dropdown buttons etc.) to work normally.
+    if (isInteractiveElement(e.target)) {
+      isDraggingRef.current = false;
+      currentCardId.current = null;
+      currentGuest.current = null;
+      hasMoved.current = false;
+      return;
+    }
+
     const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
     const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
 
@@ -141,11 +157,20 @@ const TableOrderDetails = () => {
     const diffX = clientX - startX.current;
     const diffY = clientY - startY.current;
 
-    // Any meaningful movement (horizontal or vertical) cancels "tap" behavior.
-    if (Math.abs(diffX) > 6 || Math.abs(diffY) > 6) hasMoved.current = true;
+    const absX = Math.abs(diffX);
+    const absY = Math.abs(diffY);
 
-    // If user is clearly swiping horizontally, prevent vertical scroll from stealing the gesture.
-    if ("touches" in e && Math.abs(diffX) > Math.abs(diffY) && diffX !== 0) {
+    // Only treat it as a "moved" gesture after a reasonable threshold.
+    // This prevents tiny finger jitter from breaking taps.
+    if (absX > MOVE_THRESHOLD || absY > MOVE_THRESHOLD) hasMoved.current = true;
+
+    const isHorizontalGesture = absX > absY;
+
+    // If it’s mostly vertical, let the ScrollArea do its job (no card swipe).
+    if (!isHorizontalGesture) return;
+
+    // Prevent vertical scroll stealing a real horizontal swipe (but only after threshold).
+    if ("touches" in e && absX > MOVE_THRESHOLD) {
       e.preventDefault();
     }
 
@@ -170,13 +195,9 @@ const TableOrderDetails = () => {
     currentCardId.current = null;
     currentGuest.current = null;
 
-    // On mobile, a touch gesture that includes ANY touch-move often cancels onClick.
-    // So we open the panel from touch-end when it was really a "tap".
-    const target = e?.target;
-    const isInteractiveTarget =
-      target instanceof Element && !!target.closest("button,a,input,textarea,select");
-
-    if (triggerTap && !hasMoved.current && guest && !isInteractiveTarget) {
+    // On mobile, onClick can be cancelled; open on touch-end when it was really a tap.
+    if (triggerTap && !hasMoved.current && guest && !isInteractiveElement(e?.target ?? null)) {
+      suppressNextClickRef.current = true;
       handleMobileOrderClick(guest);
     }
 
@@ -184,6 +205,11 @@ const TableOrderDetails = () => {
   };
 
   const handleCardClick = (guest: typeof guestOrders[0]) => {
+    if (suppressNextClickRef.current) {
+      suppressNextClickRef.current = false;
+      return;
+    }
+
     if (!hasMoved.current) {
       handleMobileOrderClick(guest);
     }

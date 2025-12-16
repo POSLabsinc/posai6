@@ -10,6 +10,7 @@ import fireIcon from "@/assets/icons/fire.png";
 import tableTargetIcon from "@/assets/icons/table-target.png";
 import arrowRightIcon from "@/assets/icons/arrow-right.png";
 import shareOrderIcon from "@/assets/icons/share-order.png";
+import shareSeatsIcon from "@/assets/icons/share-seats.png";
 
 // Mock guest orders data
 const guestOrders = [{
@@ -317,7 +318,7 @@ const TableOrderDetails = () => {
               <span className="text-white font-bold">{selectedGuest.id}</span>
             </div>
             <div className="flex items-center gap-2">
-              <img src={runnerIcon} alt="Server" className="w-4 h-4 invert opacity-60" />
+              <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
               <span className="text-white/50 text-sm">DUSTIN H</span>
             </div>
           </div>

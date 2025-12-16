@@ -93,6 +93,7 @@ const TableOrderDetails = () => {
   const [selectedGuest, setSelectedGuest] = useState(guestOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -143,6 +144,150 @@ const TableOrderDetails = () => {
   const toggleOrderExpand = (orderId: string) => {
     setExpandedOrderId(prev => prev === orderId ? null : orderId);
   };
+
+  const handleMobileOrderClick = (guest: typeof guestOrders[0]) => {
+    setSelectedGuest(guest);
+    setShowMobileOrderPanel(true);
+  };
+
+  // Mobile Order Panel Component
+  const MobileOrderPanel = () => (
+    <div className="fixed inset-0 z-50 bg-black flex flex-col">
+      {/* Header */}
+      <div className="flex items-center justify-between p-3 border-b border-neutral-700/50">
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={() => setShowMobileOrderPanel(false)}
+            className="p-1.5 rounded-full hover:opacity-80 transition-opacity"
+            style={{
+              background: "#7575754D",
+              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+            }}
+          >
+            <ChevronLeft className="w-4 h-4 text-white" />
+          </button>
+          <span className="text-white font-medium">{selectedGuest.name}</span>
+        </div>
+        <div className="flex items-center gap-3 text-white/50 text-sm">
+          <div className="flex items-center gap-1">
+            <Phone className="w-3 h-3" />
+            <span>(415) 123-4567</span>
+          </div>
+          <div className="flex items-center gap-1">
+            <span>⚡</span>
+            <span>{selectedGuest.time}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Table Order Info */}
+      <div className="px-3 py-2 border-b border-neutral-700/50">
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
+            <span className="text-white font-bold">{selectedGuest.id}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <img src={runnerIcon} alt="Runner" className="w-4 h-4 opacity-60" />
+            <span className="text-white/50 text-sm">{selectedGuest.server}</span>
+            <button
+              onClick={() => setShowMobileOrderPanel(false)}
+              className="ml-2 w-6 h-6 flex items-center justify-center text-white/50 hover:text-white"
+            >
+              ⋮
+            </button>
+          </div>
+        </div>
+        
+        {/* Seat Buttons */}
+        <div className="flex items-center gap-2">
+          <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+            <img src={seatIcon} alt="Seat" className="w-4 h-4" />
+          </button>
+          {[1, 2, 3, 4].map(seat => (
+            <button
+              key={seat}
+              onClick={() => toggleSeat(seat)}
+              className={`w-7 h-7 rounded text-sm font-medium transition-colors ${
+                selectedSeats.includes(seat) 
+                  ? "bg-white text-black" 
+                  : "bg-white/10 text-white hover:bg-white/20"
+              }`}
+            >
+              {seat}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Notes */}
+      <div className="px-3 py-2 border-b border-neutral-700/50">
+        <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
+          <span>📝</span>
+          <span>Allergic to almonds, Don't add onion</span>
+        </div>
+      </div>
+
+      {/* Order Items */}
+      <ScrollArea className="flex-1 px-3">
+        <div className="py-2 space-y-2">
+          {orderItems.map((item, index) => (
+            <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+              <div className="flex items-start justify-between">
+                <div className="flex items-start gap-2">
+                  <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                    {item.qty}
+                  </span>
+                  <div>
+                    <span className="text-white font-medium text-sm">{item.name}</span>
+                    {item.modifiers.length > 0 && (
+                      <div className="mt-1 text-white/50 text-xs space-y-0.5">
+                        {item.modifiers.map((mod, i) => (
+                          <div key={i}>{mod}</div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                <span className="text-white font-medium text-sm">{item.price}</span>
+              </div>
+              {item.seats.length > 0 && (
+                <div className="flex items-center gap-1 mt-2">
+                  <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                  {item.seats.map(seat => (
+                    <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                      {seat}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+        <ScrollBar orientation="vertical" />
+      </ScrollArea>
+
+      {/* Bottom Actions */}
+      <div className="px-3 py-3 border-t border-neutral-700/50 flex items-center gap-2">
+        <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+          <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+        </button>
+        <button
+          className="px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium"
+          style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+        >
+          <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+          <span>FIRE</span>
+        </button>
+        <button
+          className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"
+          style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+        >
+          CHARGE $26.00
+        </button>
+      </div>
+    </div>
+  );
 
   // Mobile Layout
   const MobileLayout = () => (
@@ -224,7 +369,7 @@ const TableOrderDetails = () => {
                   ? "bg-neutral-800/50" 
                   : "bg-neutral-900/50"
               }`}
-              onClick={() => setSelectedGuest(guest)}
+              onClick={() => handleMobileOrderClick(guest)}
             >
               <div className={`flex items-stretch w-full gap-2 border rounded-xl ${selectedGuest.id === guest.id ? 'border-white' : 'border-white/10'}`}>
                 {/* Column 1: Order Number */}
@@ -344,6 +489,9 @@ const TableOrderDetails = () => {
           ADD ORDER TO TABLE
         </button>
       </div>
+
+      {/* Mobile Order Panel */}
+      {showMobileOrderPanel && <MobileOrderPanel />}
     </div>
   );
 

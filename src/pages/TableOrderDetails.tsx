@@ -566,6 +566,15 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 mt-2">
+                    <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
+                      MERGE
+                    </button>
+                    <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
+                      TRANSFER
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

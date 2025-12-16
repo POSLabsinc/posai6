@@ -429,6 +429,19 @@ const TableOrderDetails = () => {
                   </div>
                 </div>
               </div>
+              
+              {/* Centered Arrow to Open Details */}
+              <div className="px-[10%]">
+                <button
+                  className="w-full flex items-center justify-center hover:bg-white/5 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleMobileOrderClick(guest);
+                  }}
+                >
+                  <ChevronDown className="w-4 h-4 text-white/40" />
+                </button>
+              </div>
             </div>
           ))}
         </div>

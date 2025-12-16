@@ -1,8 +1,7 @@
 import { useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, Search, SlidersHorizontal, Phone } from "lucide-react";
-import BottomNavigation from "@/components/BottomNavigation";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -15,6 +14,10 @@ import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
 import searchIcon from "@/assets/icons/search.png";
+import newOrderIcon from "@/assets/icons/new-order.png";
+import tableOrderIcon from "@/assets/icons/table-order.png";
+import ticketsIcon from "@/assets/icons/tickets.png";
+import settingsIcon from "@/assets/icons/settings.png";
 
 // Mock guest orders data
 const guestOrders = [{
@@ -89,6 +92,7 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const TableOrderDetails = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { tableId } = useParams();
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState(guestOrders[0]);
@@ -215,7 +219,7 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Guest Orders List */}
-      <ScrollArea className="flex-1 px-3">
+      <ScrollArea className="flex-1 px-3 pb-16">
         <div className="space-y-2 pb-3">
           {filteredGuestOrders.map(guest => (
             <div 
@@ -331,18 +335,43 @@ const TableOrderDetails = () => {
         <ScrollBar orientation="vertical" />
       </ScrollArea>
 
-      {/* Add Order Button */}
-      <div className="p-3 pb-20 border-t border-neutral-700/50">
-        <button 
-          className="w-full py-3 text-black font-medium rounded-full hover:opacity-90 transition-opacity"
-          style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-        >
-          ADD ORDER TO TABLE
-        </button>
+      {/* Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-neutral-900 border-t border-sidebar-border">
+        <div className="flex items-center justify-between px-2 py-1">
+          {/* Nav Items */}
+          <div className="flex items-center justify-around flex-1">
+            {[
+              { to: "/orders", icon: newOrderIcon, label: "New Order" },
+              { to: "/tableorder", icon: tableOrderIcon, label: "Table Order" },
+              { to: "/reports", icon: ticketsIcon, label: "Tickets" },
+              { to: "/settings", icon: settingsIcon, label: "Settings" },
+            ].map((item) => {
+              const isActive = location.pathname === item.to || location.pathname.startsWith(item.to + "/");
+              return (
+                <button
+                  key={item.to}
+                  onClick={() => navigate(item.to)}
+                  className={`flex flex-col items-center gap-0 px-2 py-1 ${
+                    isActive ? "rounded-md border border-neutral-500" : ""
+                  }`}
+                >
+                  <img src={item.icon} alt={item.label} className={`w-4 h-4 ${isActive ? "" : "opacity-60"}`} />
+                  <span className={`text-[9px] ${isActive ? "font-medium text-white" : "text-neutral-400"}`}>
+                    {item.label}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+          {/* Add Order Button */}
+          <button 
+            className="px-3 py-1.5 text-black text-xs font-medium rounded-full hover:opacity-90 transition-opacity whitespace-nowrap"
+            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+          >
+            ADD ORDER
+          </button>
+        </div>
       </div>
-
-      {/* Bottom Navigation */}
-      <BottomNavigation />
     </div>
   );
 

@@ -99,34 +99,61 @@ const TableOrderDetails = () => {
   const [swipeStates, setSwipeStates] = useState<Record<string, number>>({});
   const [isDragging, setIsDragging] = useState(false);
   const startX = useRef(0);
+  const startY = useRef(0);
   const currentCardId = useRef<string | null>(null);
+  const currentGuest = useRef<(typeof guestOrders)[0] | null>(null);
   const hasMoved = useRef(false);
   const swipeWidth = -100; // Reveal width for action buttons
 
-  const handleSwipeStart = (e: React.TouchEvent | React.MouseEvent, cardId: string) => {
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
+  const handleSwipeStart = (e: React.TouchEvent | React.MouseEvent, guest: (typeof guestOrders)[0]) => {
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+
     startX.current = clientX;
-    currentCardId.current = cardId;
+    startY.current = clientY;
+    currentCardId.current = guest.id;
+    currentGuest.current = guest;
     hasMoved.current = false;
     setIsDragging(true);
   };
 
   const handleSwipeMove = (e: React.TouchEvent | React.MouseEvent) => {
     if (!isDragging || !currentCardId.current) return;
-    const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
-    const diff = clientX - startX.current;
-    if (Math.abs(diff) > 5) hasMoved.current = true;
-    const newX = Math.max(swipeWidth, Math.min(diff, 0));
+
+    const clientX = "touches" in e ? e.touches[0].clientX : e.clientX;
+    const clientY = "touches" in e ? e.touches[0].clientY : e.clientY;
+
+    const diffX = clientX - startX.current;
+    const diffY = clientY - startY.current;
+
+    // Any meaningful movement (horizontal or vertical) cancels "tap" behavior.
+    if (Math.abs(diffX) > 6 || Math.abs(diffY) > 6) hasMoved.current = true;
+
+    // Only allow swiping left (negative X) to reveal actions.
+    const newX = Math.max(swipeWidth, Math.min(diffX, 0));
     setSwipeStates(prev => ({ ...prev, [currentCardId.current!]: newX }));
   };
 
-  const handleSwipeEnd = () => {
-    if (!currentCardId.current) return;
-    const currentX = swipeStates[currentCardId.current] || 0;
+  const handleSwipeEnd = (triggerTap: boolean) => {
+    const cardId = currentCardId.current;
+    const guest = currentGuest.current;
+    if (!cardId) return;
+
+    const currentX = swipeStates[cardId] || 0;
     const snapTo = currentX < swipeWidth / 2 ? swipeWidth : 0;
-    setSwipeStates(prev => ({ ...prev, [currentCardId.current!]: snapTo }));
+
+    setSwipeStates(prev => ({ ...prev, [cardId]: snapTo }));
     setIsDragging(false);
     currentCardId.current = null;
+    currentGuest.current = null;
+
+    // On mobile, a touch gesture that includes ANY touch-move often cancels onClick.
+    // So we open the panel from touch-end when it was really a "tap".
+    if (triggerTap && !hasMoved.current && guest) {
+      handleMobileOrderClick(guest);
+    }
+
+    hasMoved.current = false;
   };
 
   const handleCardClick = (guest: typeof guestOrders[0]) => {
@@ -444,13 +471,10 @@ const TableOrderDetails = () => {
                   transform: `translateX(${swipeStates[guest.id] || 0}px)`,
                   transition: isDragging && currentCardId.current === guest.id ? "none" : "transform 0.2s ease-out",
                 }}
-                onTouchStart={(e) => handleSwipeStart(e, guest.id)}
+                onTouchStart={(e) => handleSwipeStart(e, guest)}
                 onTouchMove={handleSwipeMove}
-                onTouchEnd={handleSwipeEnd}
-                onMouseDown={(e) => handleSwipeStart(e, guest.id)}
-                onMouseMove={handleSwipeMove}
-                onMouseUp={handleSwipeEnd}
-                onMouseLeave={handleSwipeEnd}
+                onTouchEnd={() => handleSwipeEnd(true)}
+                onTouchCancel={() => handleSwipeEnd(false)}
                 onClick={() => handleCardClick(guest)}
               >
                 <div className={`flex items-stretch w-full gap-2 border rounded-xl bg-neutral-900 ${selectedGuest.id === guest.id ? 'border-white' : 'border-white/10'}`}>

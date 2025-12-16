@@ -271,9 +271,9 @@ const TableOrderDetails = () => {
               
 
               {/* Centered Arrow to Expand Details */}
-              <div className="flex justify-center">
+              <div className="px-[10%]">
                 <button
-                  className="w-[80%] py-0.5 flex items-center justify-center hover:bg-white/5 transition-colors"
+                  className="w-full py-0.5 flex items-center justify-center hover:bg-white/5 transition-colors"
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleOrderExpand(guest.id);

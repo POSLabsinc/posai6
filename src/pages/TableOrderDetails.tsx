@@ -271,7 +271,7 @@ const TableOrderDetails = () => {
               
 
               {/* Centered Arrow to Expand Details */}
-              <div>
+              <div className="px-[10%]">
                 <button
                   className="w-full py-1.5 flex items-center justify-center hover:bg-white/5 transition-colors"
                   onClick={(e) => {

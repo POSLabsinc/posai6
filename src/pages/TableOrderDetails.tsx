@@ -276,67 +276,67 @@ const TableOrderDetails = () => {
       {/* Right Panel - Order Details */}
       <div className="w-[345px] flex flex-col m-2 ml-0 rounded-[20px] overflow-hidden bg-black border border-neutral-700/50">
         {/* Guest Header */}
-        <div className="p-3 border-b border-neutral-700/50">
+        <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center justify-between mb-2">
             <span className="text-white font-medium">{selectedGuest.name}</span>
-            <div className="flex items-center gap-2 text-gray-400 text-sm">
+            <div className="flex items-center gap-2 text-white/50 text-sm">
               <Phone className="w-3 h-3" />
               <span>(415) 123-4567</span>
               <span>⚡ {selectedGuest.time}</span>
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="px-3 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
               Add Item
             </button>
-            <button className="px-3 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
               Discount
             </button>
-            <button className="px-3 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
               Receipt
             </button>
-            <button className="px-3 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
               Cash Register
             </button>
           </div>
         </div>
 
         {/* Table Order Info */}
-        <div className="p-3 border-b border-neutral-700/50">
+        <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="px-2 py-1 bg-neutral-800 text-white text-xs rounded">TABLE ORDER</span>
+              <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
               <span className="text-white font-bold">{selectedGuest.id}</span>
             </div>
             <div className="flex items-center gap-2">
               <img src={runnerIcon} alt="Server" className="w-4 h-4 invert opacity-60" />
-              <span className="text-gray-400 text-sm">DUSTIN H</span>
+              <span className="text-white/50 text-sm">DUSTIN H</span>
             </div>
           </div>
           
           {/* Seat Buttons */}
           <div className="flex items-center gap-2">
-            <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
               <img src={shareOrderIcon} alt="Share" className="w-4 h-4" />
             </button>
-            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-neutral-700 text-white hover:bg-neutral-600"}`}>
+            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {seat}
               </button>)}
           </div>
         </div>
 
         {/* Notes */}
-        <div className="p-3 border-b border-neutral-700/50">
-          <div className="flex items-center gap-2 text-gray-400 text-sm bg-neutral-800 p-2 rounded-lg">
+        <div className="px-4 py-3 border-b border-white/10">
+          <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
             <span>📝</span>
             <span>Allergic to almonds, Don't add onion</span>
           </div>
         </div>
 
         {/* Order Items */}
-        <ScrollArea className="flex-1 p-3">
-          <div className="space-y-2">
-            {orderItems.map((item, index) => <div key={index} className="p-3 bg-neutral-900/50 rounded-xl border border-neutral-700">
+        <ScrollArea className="flex-1 px-4">
+          <div className="py-2 space-y-2">
+            {orderItems.map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
                     <span className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center text-white text-sm font-bold">
@@ -344,7 +344,7 @@ const TableOrderDetails = () => {
                     </span>
                     <div>
                       <span className="text-white font-medium">{item.name}</span>
-                      {item.modifiers.length > 0 && <div className="mt-1 text-gray-400 text-sm space-y-0.5">
+                      {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-sm space-y-0.5">
                           {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
                         </div>}
                     </div>
@@ -352,16 +352,16 @@ const TableOrderDetails = () => {
                   <span className="text-white font-medium">{item.price}</span>
                 </div>
                 {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
-                    <span className="text-gray-500">🪑</span>
-                    {item.seats.map(seat => <span key={seat} className="w-5 h-5 bg-neutral-700 rounded text-white text-xs flex items-center justify-center">
+                    <span className="text-white/50">🪑</span>
+                    {item.seats.map(seat => <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
                         {seat}
                       </span>)}
                   </div>}
                 <div className="flex items-center gap-2 mt-2">
-                  <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
-                    <span className="text-gray-400 text-xs">🪑</span>
+                  <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
+                    <span className="text-white/50 text-xs">🪑</span>
                   </button>
-                  <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+                  <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
                     <img src={shareOrderIcon} alt="Share" className="w-3 h-3" />
                   </button>
                 </div>
@@ -371,9 +371,9 @@ const TableOrderDetails = () => {
         </ScrollArea>
 
         {/* Order Summary */}
-        <div className="p-3 border-t border-neutral-700/50 space-y-1 text-sm">
+        <div className="px-4 py-3 border-t border-white/10 space-y-1 text-sm">
           <div className="flex justify-between">
-            <span className="text-gray-400">Sub Total</span>
+            <span className="text-white/60">Sub Total</span>
             <span className="text-white">$ 56.00</span>
           </div>
           <div className="flex justify-between">
@@ -381,17 +381,17 @@ const TableOrderDetails = () => {
             <span className="text-red-500">$1.00</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-400">Service Charge</span>
+            <span className="text-white/60">Service Charge</span>
             <span className="text-white">$ 1.00</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-gray-400">Tax</span>
+            <span className="text-white/60">Tax</span>
             <span className="text-white">$ 1.00</span>
           </div>
         </div>
 
         {/* Bottom Actions */}
-        <div className="p-3 border-t border-neutral-700/50 flex items-center gap-2">
+        <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
           <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
             <img src={clearIcon} alt="Clear" className="w-4 h-4 invert" />
           </button>

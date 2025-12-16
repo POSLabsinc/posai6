@@ -133,7 +133,7 @@ const TableOrderDetails = () => {
       boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
     }} className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden bg-black/0">
         {/* Header */}
-        <div className="flex items-center justify-between p-3 border-b border-neutral-700/50">
+        <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
           <div className="flex items-center gap-3">
             <button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
             background: "#7575754D",

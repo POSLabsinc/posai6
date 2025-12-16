@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, Search, SlidersHorizontal, Phone } from "lucide-react";
-import BottomNavigation from "@/components/BottomNavigation";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -340,9 +339,6 @@ const TableOrderDetails = () => {
           ADD ORDER TO TABLE
         </button>
       </div>
-
-      {/* Bottom Navigation */}
-      <BottomNavigation />
     </div>
   );
 

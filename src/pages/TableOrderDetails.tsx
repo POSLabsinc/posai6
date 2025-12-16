@@ -310,7 +310,7 @@ const TableOrderDetails = () => {
         </div>
 
         {/* Main Panel Box */}
-        <div className="flex-1 flex flex-col rounded-[20px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+        <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
 
         {/* Table Order Info */}
         <div className="px-4 py-3 border-b border-white/10">

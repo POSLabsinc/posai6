@@ -274,10 +274,7 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Right Panel - Order Details */}
-      <div className="w-[345px] flex flex-col m-2 ml-0 rounded-[20px] overflow-hidden" style={{
-      background: "#7575754D",
-      boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-    }}>
+      <div className="w-[345px] flex flex-col m-2 ml-0 rounded-[20px] overflow-hidden bg-black border border-neutral-700/50">
         {/* Guest Header */}
         <div className="p-3 border-b border-neutral-700/50">
           <div className="flex items-center justify-between mb-2">

@@ -274,32 +274,40 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Right Panel - Order Details */}
-      <div className="w-[345px] flex flex-col m-2 ml-0 rounded-[20px] overflow-hidden bg-black border border-neutral-700/50">
-        {/* Guest Header */}
-        <div className="px-4 py-3 border-b border-white/10">
+      <div className="w-[345px] flex flex-col m-2 ml-0">
+        {/* Guest Header - Outside the box */}
+        <div className="px-2 py-3">
           <div className="flex items-center justify-between mb-2">
             <span className="text-white font-medium">{selectedGuest.name}</span>
-            <div className="flex items-center gap-2 text-white/50 text-sm">
-              <Phone className="w-3 h-3" />
-              <span>(415) 123-4567</span>
-              <span>⚡ {selectedGuest.time}</span>
+            <div className="flex items-center gap-3 text-white/50 text-sm">
+              <div className="flex items-center gap-1">
+                <Phone className="w-3 h-3" />
+                <span>(415) 123-4567</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span>⚡</span>
+                <span>{selectedGuest.time}</span>
+              </div>
             </div>
           </div>
           <div className="flex gap-2">
-            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
+            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
               Add Item
             </button>
-            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
+            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
               Discount
             </button>
-            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
+            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
               Receipt
             </button>
-            <button className="px-3 py-1.5 bg-white/10 text-white text-xs rounded-full hover:bg-white/20 transition-colors">
+            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
               Cash Register
             </button>
           </div>
         </div>
+
+        {/* Main Panel Box */}
+        <div className="flex-1 flex flex-col rounded-[20px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
 
         {/* Table Order Info */}
         <div className="px-4 py-3 border-b border-white/10">
@@ -406,6 +414,7 @@ const TableOrderDetails = () => {
         }}>
             CHARGE $ 59.00
           </button>
+        </div>
         </div>
       </div>
     </div>;

@@ -149,37 +149,62 @@ const TableOrderDetails = () => {
   const MobileLayout = () => (
     <div className="flex flex-col h-full bg-black">
       {/* Header */}
-      <div className="flex items-center justify-between px-4 py-3">
-        <button 
-          onClick={() => navigate("/tableorder")} 
-          className="p-2 rounded-lg border border-white/30"
-        >
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-        <span className="text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
-        <button className="p-2">
-          <SlidersHorizontal className="w-5 h-5 text-white" />
-        </button>
+      <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => navigate("/tableorder")} 
+            className="p-2 rounded-full hover:opacity-80 transition-opacity"
+            style={{
+              background: "#7575754D",
+              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+            }}
+          >
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+          <span className="text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <button 
+            className="p-2 rounded-full hover:opacity-80 transition-opacity"
+            style={{
+              background: "#7575754D",
+              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+            }}
+          >
+            <SlidersHorizontal className="w-4 h-4 text-white" />
+          </button>
+          <button 
+            className="p-2 rounded-full hover:opacity-80 transition-opacity"
+            style={{
+              background: "#7575754D",
+              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+            }}
+          >
+            <Search className="w-4 h-4 text-white" />
+          </button>
+        </div>
       </div>
 
       {/* Filter Tabs */}
-      <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
+      <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
         {filters.map(filter => {
           const count = getFilterCount(filter);
           return (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all border ${
-                activeFilter === filter 
-                  ? "bg-black text-white border-white" 
-                  : "bg-transparent text-white/70 border-white/30"
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
+                activeFilter === filter ? "text-black" : "text-white"
               }`}
+              style={activeFilter === filter 
+                ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
+                : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
+              }
             >
               <span>{filter}</span>
               {count > 0 && (
                 <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
-                  activeFilter === filter ? "bg-white text-black" : "bg-neutral-700"
+                  activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"
                 }`}>
                   {count}
                 </span>
@@ -190,52 +215,71 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Guest Orders List */}
-      <ScrollArea className="flex-1 px-4">
-        <div className="space-y-3 py-3">
+      <ScrollArea className="flex-1 px-3">
+        <div className="space-y-2 pb-3">
           {filteredGuestOrders.map(guest => (
             <div 
               key={guest.id} 
-              className="bg-neutral-900 rounded-xl overflow-hidden"
+              className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${
+                selectedGuest.id === guest.id 
+                  ? "border-white bg-neutral-800/50" 
+                  : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"
+              }`}
+              onClick={() => setSelectedGuest(guest)}
             >
-              {/* Order Card Header */}
-              <div className="p-3">
-                <div className="flex items-start gap-3">
-                  {/* Order Number */}
-                  <div className="flex flex-col items-center gap-1">
-                    <span className="text-lg font-bold text-white">{guest.id}</span>
-                    <img src={tableTargetIcon} alt="Table" className="w-4 h-4 opacity-60" />
+              <div className="flex items-stretch w-full gap-2">
+                {/* Column 1: Order Number */}
+                <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
+                  <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+                    <span className="text-base font-bold text-white">{guest.id}</span>
+                    <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-cover" />
                   </div>
+                </div>
 
-                  {/* Guest Info */}
-                  <div className="flex-1">
+                {/* Column 2: Guest Info */}
+                <div className="flex-1 min-w-0 py-2">
+                  <div className="flex flex-col">
                     <div className="flex items-start justify-between">
-                      <span className="text-white font-medium">{guest.name}</span>
-                      <span className="text-white font-semibold">{guest.amount}</span>
+                      <span className="text-white font-medium text-sm">{guest.name}</span>
+                      <div className="flex flex-col items-end">
+                        <span className="text-white font-semibold text-sm">{guest.amount}</span>
+                        {guest.tip && <span className="text-gray-400 text-xs">{guest.tip}</span>}
+                      </div>
                     </div>
-                    <div className="flex items-center justify-between mt-1">
-                      <div className="flex items-center gap-1 text-white/50 text-xs">
-                        <span>Party of {guest.partySize},</span>
+                    <div className="h-px bg-neutral-600 my-1.5"></div>
+                    <div className="flex items-center justify-between text-xs">
+                      <div className="flex items-center gap-1 text-gray-400">
+                        <span>Party Of {guest.partySize},</span>
                         <span>⚡ {guest.time}</span>
                       </div>
-                      <span className={`text-xs font-medium ${getStatusColor(guest.status)}`}>
-                        {guest.status}
-                      </span>
+                      <span className={getStatusColor(guest.status)}>{guest.status}</span>
                     </div>
                   </div>
                 </div>
 
-                {/* Expand Arrow */}
-                <div className="flex justify-center mt-2">
-                  <button 
-                    onClick={() => toggleOrderExpand(guest.id)}
-                    className="p-1"
-                  >
-                    <ChevronDown 
-                      className={`w-5 h-5 text-white/50 transition-transform ${
-                        expandedOrderId === guest.id ? "rotate-180" : ""
-                      }`} 
-                    />
-                  </button>
+                {/* Column 3: Action Buttons */}
+                <div className="flex-shrink-0 flex">
+                  <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
+                    <button 
+                      className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors border-b border-neutral-600"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
+                    </button>
+                    <button 
+                      className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleOrderExpand(guest.id);
+                      }}
+                    >
+                      <ChevronDown 
+                        className={`w-4 h-4 text-white transition-transform ${
+                          expandedOrderId === guest.id ? "rotate-180" : ""
+                        }`} 
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
 
@@ -243,30 +287,30 @@ const TableOrderDetails = () => {
               {expandedOrderId === guest.id && (
                 <div className="px-3 pb-3 border-t border-neutral-700">
                   {/* Order Details Grid */}
-                  <div className="grid grid-cols-2 gap-3 py-3">
+                  <div className="grid grid-cols-3 gap-3 py-3">
                     <div>
-                      <div className="text-white text-sm">{guest.timer}</div>
-                      <div className="text-white/50 text-xs">Timer</div>
+                      <div className="text-white text-sm font-medium">{guest.timer}</div>
+                      <div className="text-gray-500 text-xs">Timer</div>
                     </div>
                     <div>
-                      <div className="text-white text-sm">{guest.check}</div>
-                      <div className="text-white/50 text-xs">Check</div>
+                      <div className="text-white text-sm font-medium">{guest.check}</div>
+                      <div className="text-gray-500 text-xs">Check</div>
                     </div>
                     <div>
-                      <div className="text-white text-sm">{guest.server}</div>
-                      <div className="text-white/50 text-xs">Server</div>
+                      <div className="text-white text-sm font-medium">{guest.server}</div>
+                      <div className="text-gray-500 text-xs">Server</div>
                     </div>
                     <div>
                       <div className="text-white text-sm">{guest.revenueCenter}</div>
-                      <div className="text-white/50 text-xs">Revenue Center</div>
+                      <div className="text-gray-500 text-xs">Revenue Center</div>
                     </div>
                     <div>
-                      <div className="text-white text-sm">{guest.paymentType}</div>
-                      <div className="text-white/50 text-xs">Payment Type</div>
+                      <div className="text-white text-sm font-medium">{guest.paymentType}</div>
+                      <div className="text-gray-500 text-xs">Payment Type</div>
                     </div>
                     <div>
                       <div className="text-white text-sm">--</div>
-                      <div className="text-white/50 text-xs">Tip</div>
+                      <div className="text-gray-500 text-xs">Tip</div>
                     </div>
                   </div>
 
@@ -284,15 +328,11 @@ const TableOrderDetails = () => {
             </div>
           ))}
         </div>
+        <ScrollBar orientation="vertical" />
       </ScrollArea>
 
-      {/* Search FAB */}
-      <button className="absolute bottom-24 right-4 w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center shadow-lg">
-        <img src={searchIcon} alt="Search" className="w-5 h-5 brightness-0 invert" />
-      </button>
-
       {/* Add Order Button */}
-      <div className="px-4 py-3 pb-20">
+      <div className="p-3 pb-20 border-t border-neutral-700/50">
         <button 
           className="w-full py-3 text-black font-medium rounded-full hover:opacity-90 transition-opacity"
           style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}

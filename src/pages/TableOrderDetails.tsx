@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronLeft, Search, SlidersHorizontal, Phone } from "lucide-react";
+import { ChevronLeft, ChevronDown, Search, SlidersHorizontal, Phone } from "lucide-react";
+import BottomNavigation from "@/components/BottomNavigation";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -13,26 +14,27 @@ import shareOrderIcon from "@/assets/icons/share-order.png";
 import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
+import searchIcon from "@/assets/icons/search.png";
 
 // Mock guest orders data
 const guestOrders = [{
   id: "3",
   name: "Martin Alex",
-  amount: "$59.00",
+  amount: "$37.31",
   tip: "",
   partySize: 4,
   time: "8:00 PM",
   timer: "00:00",
-  server: "Dustin H",
+  server: "Mia Jone",
   check: "--",
   paymentType: "--",
   revenueCenter: "FF Balcony",
   status: "ORDERING"
 }, {
   id: "2",
-  name: "Carol Alex",
+  name: "Mike Wheelers",
   amount: "$40.00",
-  tip: "+ Tip $2.00",
+  tip: "",
   partySize: 3,
   time: "7:30 PM",
   timer: "1:16 Hrs",
@@ -40,20 +42,20 @@ const guestOrders = [{
   check: "123423",
   paymentType: "Cash",
   revenueCenter: "FF Balcony",
-  status: "COMPLETED"
+  status: "PAID"
 }, {
   id: "1",
-  name: "Rick Grimes",
-  amount: "$36.00",
-  tip: "+ Tip $5.00",
+  name: "Guest",
+  amount: "45.31",
+  tip: "",
   partySize: 2,
   time: "7:15 PM",
   timer: "1:16 Hrs",
   server: "Dustin H",
   check: "123443",
-  paymentType: "Cash",
+  paymentType: "--",
   revenueCenter: "FF Balcony",
-  status: "COMPLETED"
+  status: "UNPAID"
 }];
 
 // Mock order items for right panel
@@ -82,34 +84,42 @@ const orderItems = [{
   seats: [],
   modifiers: ["- Salad", "- Balsamic Vinaigrette", "- Medium Rare", "+ W/ Potato Wedges", "- large", "+ W/ Extra Cheese"]
 }];
-const filters = ["All", "Open", "Completed", "Paid", "Unpaid", "Ordering"];
+
+const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
+
 const TableOrderDetails = () => {
   const navigate = useNavigate();
-  const {
-    tableId
-  } = useParams();
+  const { tableId } = useParams();
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState(guestOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case "ORDERING":
         return "text-yellow-400";
+      case "PAID":
+        return "text-green-500";
+      case "UNPAID":
+        return "text-red-400";
       case "COMPLETED":
         return "text-green-500";
       default:
         return "text-white";
     }
   };
+
   const getFilterCount = (filter: string) => {
     if (filter === "All") return guestOrders.length;
     if (filter === "Open") return guestOrders.filter(g => g.status === "ORDERING").length;
     if (filter === "Completed") return guestOrders.filter(g => g.status === "COMPLETED").length;
-    if (filter === "Paid") return guestOrders.filter(g => g.paymentType !== "--").length;
-    if (filter === "Unpaid") return guestOrders.filter(g => g.paymentType === "--").length;
+    if (filter === "Paid") return guestOrders.filter(g => g.status === "PAID" || g.paymentType !== "--").length;
+    if (filter === "Unpaid") return guestOrders.filter(g => g.status === "UNPAID" || g.paymentType === "--").length;
     if (filter === "Ordering") return guestOrders.filter(g => g.status === "ORDERING").length;
     return 0;
   };
+
   const filteredGuestOrders = activeFilter === "All" ? guestOrders : guestOrders.filter(guest => {
     switch (activeFilter) {
       case "Open":
@@ -117,19 +127,188 @@ const TableOrderDetails = () => {
       case "Completed":
         return guest.status === "COMPLETED";
       case "Paid":
-        return guest.paymentType !== "--";
+        return guest.status === "PAID" || guest.paymentType !== "--";
       case "Unpaid":
-        return guest.paymentType === "--";
+        return guest.status === "UNPAID" || guest.paymentType === "--";
       case "Ordering":
         return guest.status === "ORDERING";
       default:
         return true;
     }
   });
+
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
   };
-  return <div className="flex h-full bg-black">
+
+  const toggleOrderExpand = (orderId: string) => {
+    setExpandedOrderId(prev => prev === orderId ? null : orderId);
+  };
+
+  // Mobile Layout
+  const MobileLayout = () => (
+    <div className="flex flex-col h-full bg-black">
+      {/* Header */}
+      <div className="flex items-center justify-between px-4 py-3">
+        <button 
+          onClick={() => navigate("/tableorder")} 
+          className="p-2 rounded-lg border border-white/30"
+        >
+          <ChevronLeft className="w-5 h-5 text-white" />
+        </button>
+        <span className="text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
+        <button className="p-2">
+          <SlidersHorizontal className="w-5 h-5 text-white" />
+        </button>
+      </div>
+
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
+        {filters.map(filter => {
+          const count = getFilterCount(filter);
+          return (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all border ${
+                activeFilter === filter 
+                  ? "bg-black text-white border-white" 
+                  : "bg-transparent text-white/70 border-white/30"
+              }`}
+            >
+              <span>{filter}</span>
+              {count > 0 && (
+                <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
+                  activeFilter === filter ? "bg-white text-black" : "bg-neutral-700"
+                }`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Guest Orders List */}
+      <ScrollArea className="flex-1 px-4">
+        <div className="space-y-3 py-3">
+          {filteredGuestOrders.map(guest => (
+            <div 
+              key={guest.id} 
+              className="bg-neutral-900 rounded-xl overflow-hidden"
+            >
+              {/* Order Card Header */}
+              <div className="p-3">
+                <div className="flex items-start gap-3">
+                  {/* Order Number */}
+                  <div className="flex flex-col items-center gap-1">
+                    <span className="text-lg font-bold text-white">{guest.id}</span>
+                    <img src={tableTargetIcon} alt="Table" className="w-4 h-4 opacity-60" />
+                  </div>
+
+                  {/* Guest Info */}
+                  <div className="flex-1">
+                    <div className="flex items-start justify-between">
+                      <span className="text-white font-medium">{guest.name}</span>
+                      <span className="text-white font-semibold">{guest.amount}</span>
+                    </div>
+                    <div className="flex items-center justify-between mt-1">
+                      <div className="flex items-center gap-1 text-white/50 text-xs">
+                        <span>Party of {guest.partySize},</span>
+                        <span>⚡ {guest.time}</span>
+                      </div>
+                      <span className={`text-xs font-medium ${getStatusColor(guest.status)}`}>
+                        {guest.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Expand Arrow */}
+                <div className="flex justify-center mt-2">
+                  <button 
+                    onClick={() => toggleOrderExpand(guest.id)}
+                    className="p-1"
+                  >
+                    <ChevronDown 
+                      className={`w-5 h-5 text-white/50 transition-transform ${
+                        expandedOrderId === guest.id ? "rotate-180" : ""
+                      }`} 
+                    />
+                  </button>
+                </div>
+              </div>
+
+              {/* Expanded Details */}
+              {expandedOrderId === guest.id && (
+                <div className="px-3 pb-3 border-t border-neutral-700">
+                  {/* Order Details Grid */}
+                  <div className="grid grid-cols-2 gap-3 py-3">
+                    <div>
+                      <div className="text-white text-sm">{guest.timer}</div>
+                      <div className="text-white/50 text-xs">Timer</div>
+                    </div>
+                    <div>
+                      <div className="text-white text-sm">{guest.check}</div>
+                      <div className="text-white/50 text-xs">Check</div>
+                    </div>
+                    <div>
+                      <div className="text-white text-sm">{guest.server}</div>
+                      <div className="text-white/50 text-xs">Server</div>
+                    </div>
+                    <div>
+                      <div className="text-white text-sm">{guest.revenueCenter}</div>
+                      <div className="text-white/50 text-xs">Revenue Center</div>
+                    </div>
+                    <div>
+                      <div className="text-white text-sm">{guest.paymentType}</div>
+                      <div className="text-white/50 text-xs">Payment Type</div>
+                    </div>
+                    <div>
+                      <div className="text-white text-sm">--</div>
+                      <div className="text-white/50 text-xs">Tip</div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-2 mt-2">
+                    <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
+                      MERGE
+                    </button>
+                    <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
+                      TRANSFER
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      </ScrollArea>
+
+      {/* Search FAB */}
+      <button className="absolute bottom-24 right-4 w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center shadow-lg">
+        <img src={searchIcon} alt="Search" className="w-5 h-5 brightness-0 invert" />
+      </button>
+
+      {/* Add Order Button */}
+      <div className="px-4 py-3 pb-20">
+        <button 
+          className="w-full py-3 text-black font-medium rounded-full hover:opacity-90 transition-opacity"
+          style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+        >
+          ADD ORDER TO TABLE
+        </button>
+      </div>
+
+      {/* Bottom Navigation */}
+      <BottomNavigation />
+    </div>
+  );
+
+  // Desktop Layout (existing)
+  const DesktopLayout = () => (
+    <div className="flex h-full bg-black">
       {/* Left Panel - Order List */}
       <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
         {/* Header */}
@@ -415,6 +594,22 @@ const TableOrderDetails = () => {
         </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
+
+  return (
+    <>
+      {/* Mobile Layout */}
+      <div className="md:hidden h-full">
+        <MobileLayout />
+      </div>
+
+      {/* Desktop Layout */}
+      <div className="hidden md:block h-full">
+        <DesktopLayout />
+      </div>
+    </>
+  );
 };
+
 export default TableOrderDetails;

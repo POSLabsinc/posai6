@@ -100,12 +100,14 @@ const TableOrderDetails = () => {
   const [isDragging, setIsDragging] = useState(false);
   const startX = useRef(0);
   const currentCardId = useRef<string | null>(null);
+  const hasMoved = useRef(false);
   const swipeWidth = -100; // Reveal width for action buttons
 
   const handleSwipeStart = (e: React.TouchEvent | React.MouseEvent, cardId: string) => {
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     startX.current = clientX;
     currentCardId.current = cardId;
+    hasMoved.current = false;
     setIsDragging(true);
   };
 
@@ -113,6 +115,7 @@ const TableOrderDetails = () => {
     if (!isDragging || !currentCardId.current) return;
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const diff = clientX - startX.current;
+    if (Math.abs(diff) > 5) hasMoved.current = true;
     const newX = Math.max(swipeWidth, Math.min(diff, 0));
     setSwipeStates(prev => ({ ...prev, [currentCardId.current!]: newX }));
   };
@@ -124,6 +127,12 @@ const TableOrderDetails = () => {
     setSwipeStates(prev => ({ ...prev, [currentCardId.current!]: snapTo }));
     setIsDragging(false);
     currentCardId.current = null;
+  };
+
+  const handleCardClick = (guest: typeof guestOrders[0]) => {
+    if (!hasMoved.current) {
+      handleMobileOrderClick(guest);
+    }
   };
 
   const getStatusColor = (status: string) => {
@@ -442,7 +451,7 @@ const TableOrderDetails = () => {
                 onMouseMove={handleSwipeMove}
                 onMouseUp={handleSwipeEnd}
                 onMouseLeave={handleSwipeEnd}
-                onClick={() => handleMobileOrderClick(guest)}
+                onClick={() => handleCardClick(guest)}
               >
                 <div className={`flex items-stretch w-full gap-2 border rounded-xl bg-neutral-900 ${selectedGuest.id === guest.id ? 'border-white' : 'border-white/10'}`}>
                   {/* Column 1: Order Number */}

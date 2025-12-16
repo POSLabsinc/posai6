@@ -11,6 +11,7 @@ import tableTargetIcon from "@/assets/icons/table-target.png";
 import arrowRightIcon from "@/assets/icons/arrow-right.png";
 import shareOrderIcon from "@/assets/icons/share-order.png";
 import shareSeatsIcon from "@/assets/icons/share-seats.png";
+import seatIcon from "@/assets/icons/seat-icon.png";
 
 // Mock guest orders data
 const guestOrders = [{
@@ -326,7 +327,7 @@ const TableOrderDetails = () => {
           {/* Seat Buttons */}
           <div className="flex items-center gap-2">
             <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-              <img src={shareOrderIcon} alt="Share" className="w-4 h-4" />
+              <img src={seatIcon} alt="Seat" className="w-4 h-4" />
             </button>
             {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {seat}

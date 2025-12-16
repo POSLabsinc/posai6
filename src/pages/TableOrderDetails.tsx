@@ -366,7 +366,7 @@ const TableOrderDetails = () => {
                   <span className="text-white font-medium">{item.price}</span>
                 </div>
                 {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
-                    <span className="text-white/50">🪑</span>
+                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
                     {item.seats.map(seat => <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
                         {seat}
                       </span>)}

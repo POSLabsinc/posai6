@@ -371,14 +371,6 @@ const TableOrderDetails = () => {
                         {seat}
                       </span>)}
                   </div>}
-                <div className="flex items-center gap-2 mt-2">
-                  <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
-                    <span className="text-white/50 text-xs">🪑</span>
-                  </button>
-                  <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
-                    <img src={shareOrderIcon} alt="Share" className="w-3 h-3" />
-                  </button>
-                </div>
               </div>)}
           </div>
           <ScrollBar orientation="vertical" />

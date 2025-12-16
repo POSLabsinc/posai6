@@ -270,19 +270,21 @@ const TableOrderDetails = () => {
               </div>
 
               {/* Centered Arrow to Expand Details */}
-              <button 
-                className="w-full py-1 flex items-center justify-center hover:bg-neutral-800/50 transition-colors"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  toggleOrderExpand(guest.id);
-                }}
-              >
-                <ChevronDown 
-                  className={`w-5 h-5 text-white/70 transition-transform ${
-                    expandedOrderId === guest.id ? "rotate-180" : ""
-                  }`} 
-                />
-              </button>
+              <div className="border-t border-white/10">
+                <button 
+                  className="w-full py-1.5 flex items-center justify-center hover:bg-white/5 transition-colors"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleOrderExpand(guest.id);
+                  }}
+                >
+                  <ChevronDown 
+                    className={`w-4 h-4 text-white/40 transition-transform ${
+                      expandedOrderId === guest.id ? "rotate-180" : ""
+                    }`} 
+                  />
+                </button>
+              </div>
 
               {/* Expanded Details */}
               {expandedOrderId === guest.id && (

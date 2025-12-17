@@ -1,20 +1,33 @@
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ArrowUpDown } from "lucide-react";
-import { ScrollArea } from "@/components/ui/scroll-area";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import BottomNavigation from "@/components/BottomNavigation";
 
-// Mock all orders data from different tables
+// Import icons
+import clearIcon from "@/assets/icons/clear-c.png";
+import fireIcon from "@/assets/icons/fire.png";
+import tableTargetIcon from "@/assets/icons/table-target.png";
+
+// Mock all orders data from different tables with extended info
 const allOrders = [
-  { id: "3", name: "Martin Alex", table: "T2", amount: "$24.00", partySize: 4, time: "10:00 PM", status: "ORDERING" },
-  { id: "8", name: "Guest", table: "T3", amount: "$16.00", partySize: 2, time: "10:00 PM", status: "ORDERING" },
-  { id: "7", name: "Smith", table: "T4", amount: "$85.00", partySize: 3, time: "8:30 PM", status: "ORDERING" },
-  { id: "6", name: "Johnson", table: "T1", amount: "$20.00", partySize: 1, time: "7:35 PM", status: "PREPARING" },
-  { id: "5", name: "Williams", table: "T5", amount: "$120.75", partySize: 4, time: "7:30 PM", status: "ORDERED" },
-  { id: "4", name: "Brown", table: "T6", amount: "$65.50", partySize: 2, time: "7:15 PM", status: "PREPARING" },
+  { id: "3", name: "Martin Alex", table: "T2", amount: "$59.00", partySize: 4, time: "8:00 PM", status: "ORDERING", timer: "00:00", server: "Dustin H", check: "--", paymentType: "--", revenueCenter: "FF Balcony", phone: "(415) 123-4567" },
+  { id: "8", name: "Guest", table: "T3", amount: "$16.00", partySize: 2, time: "10:00 PM", status: "ORDERING", timer: "00:00", server: "Mia J", check: "--", paymentType: "--", revenueCenter: "Main", phone: "" },
+  { id: "7", name: "Smith", table: "T4", amount: "$85.00", partySize: 3, time: "8:30 PM", status: "ORDERING", timer: "1:30 Hrs", server: "Dustin H", check: "1234", paymentType: "--", revenueCenter: "FF Balcony", phone: "" },
+  { id: "6", name: "Johnson", table: "T1", amount: "$20.00", partySize: 1, time: "7:35 PM", status: "PREPARING", timer: "2:00 Hrs", server: "Alex M", check: "1235", paymentType: "Cash", revenueCenter: "Bar", phone: "" },
+  { id: "5", name: "Williams", table: "T5", amount: "$120.75", partySize: 4, time: "7:30 PM", status: "ORDERED", timer: "2:10 Hrs", server: "Dustin H", check: "1236", paymentType: "--", revenueCenter: "Patio", phone: "" },
+  { id: "4", name: "Brown", table: "T6", amount: "$65.50", partySize: 2, time: "7:15 PM", status: "PREPARING", timer: "2:30 Hrs", server: "Mia J", check: "1237", paymentType: "Card", revenueCenter: "Main", phone: "" },
 ];
 
-const mergeFilters = ["All", "Ordering", "Ordered", "Preparing"];
+// Mock order items for right panel
+const orderItems = [
+  { qty: 2, name: "Classic Crispy Burger", price: "$12.00", seats: [1, 2], modifiers: [] },
+  { qty: 4, name: "Meatballs", price: "$16.00", seats: [], modifiers: [] },
+  { qty: 2, name: "Rigatoni Pasta", price: "$8.00", seats: [3, 4], modifiers: [] },
+  { qty: 4, name: "Alomd crusted salmon", price: "$20.00", seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette", "- Medium Rare", "+ W/ Potato Wedges", "- large", "+ W/ Extra Cheese"] },
+];
+
+const mergeFilters = ["All", "Ordering", "Ordered", "Preparing", "Unpaid"];
 
 type MergeStep = "select" | "confirm-direction" | "final-confirm";
 
@@ -29,6 +42,7 @@ const MergeOrders = () => {
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
   const [fromOrder, setFromOrder] = useState<typeof allOrders[0] | null>(null);
   const [toOrder, setToOrder] = useState<typeof allOrders[0] | null>(null);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
 
   // Get the current order being merged (from the table we came from)
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
@@ -80,7 +94,6 @@ const MergeOrders = () => {
   };
 
   const handleFinalConfirm = () => {
-    // Navigate back to table details with merged order info
     navigate(`/tableorder/${tableId}?merged=${selectedOrders.join(",")}&from=${fromOrder?.id}`);
   };
 
@@ -99,7 +112,7 @@ const MergeOrders = () => {
     return availableOrders.filter(o => o.status === filter.toUpperCase()).length;
   };
 
-  // Render order card
+  // Render order card for mobile
   const OrderCard = ({ order, isSelected, onClick, showCheckbox = true }: { 
     order: typeof allOrders[0]; 
     isSelected: boolean; 
@@ -145,8 +158,246 @@ const MergeOrders = () => {
     </div>
   );
 
-  // Step 1: Select orders to merge
-  const SelectOrdersView = () => (
+  // Desktop current order card with extended info
+  const DesktopCurrentOrderCard = ({ order }: { order: typeof allOrders[0] }) => (
+    <div className="bg-neutral-800 rounded-xl p-4 border border-white">
+      <div className="flex items-start gap-4">
+        {/* Order number with icon */}
+        <div className="relative w-12 h-16 bg-neutral-700 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600 flex-shrink-0">
+          <span className="text-lg font-bold text-white">{order.id}</span>
+          <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
+        </div>
+        
+        {/* Name and amount */}
+        <div className="flex-1">
+          <div className="flex items-center justify-between">
+            <span className="text-white font-medium">{order.name}</span>
+            <span className="text-white font-semibold">{order.amount}</span>
+          </div>
+          <div className="flex items-center gap-2 mt-1 text-xs">
+            <span className="text-white/60">Party Of {order.partySize},</span>
+            <span className="text-white/60">⚡ {order.time}</span>
+            <span className={`ml-2 ${getStatusColor(order.status)}`}>{order.status}</span>
+          </div>
+        </div>
+
+        {/* Timer & Check */}
+        <div className="flex flex-col gap-1 text-xs">
+          <div>
+            <div className="text-white font-medium">{order.timer}</div>
+            <div className="text-gray-500">Timer</div>
+          </div>
+          <div>
+            <div className="text-white">{order.check}</div>
+            <div className="text-gray-500">Check</div>
+          </div>
+        </div>
+
+        {/* Server & Revenue Center */}
+        <div className="flex flex-col gap-1 text-xs">
+          <div>
+            <div className="text-white">{order.server}</div>
+            <div className="text-gray-500">Server</div>
+          </div>
+          <div>
+            <div className="text-white">{order.revenueCenter}</div>
+            <div className="text-gray-500">Revenue Center</div>
+          </div>
+        </div>
+
+        {/* Payment Type */}
+        <div className="flex flex-col text-xs">
+          <div>
+            <div className="text-white font-medium">{order.paymentType}</div>
+            <div className="text-gray-500">Payment Type</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Desktop order list card
+  const DesktopOrderListCard = ({ order, isSelected, onClick }: { 
+    order: typeof allOrders[0]; 
+    isSelected: boolean; 
+    onClick?: () => void;
+  }) => (
+    <div 
+      className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
+        isSelected ? "bg-neutral-700 border border-orange-500" : "bg-neutral-800 border border-transparent hover:bg-neutral-700"
+      }`}
+      onClick={onClick}
+    >
+      <div className="flex items-center gap-3">
+        <span className="text-white/60 text-sm w-4">{order.id}</span>
+        <span className="text-white font-medium">{order.name}</span>
+        <span className="text-white/60">·</span>
+        <span className="text-white/80">{order.table}</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="text-white font-medium">{order.amount}</span>
+        <span className={`text-xs font-medium w-20 text-right ${getStatusColor(order.status)}`}>{order.status}</span>
+      </div>
+    </div>
+  );
+
+  // Right panel - Order details
+  const OrderDetailsPanel = () => (
+    <div className="w-[345px] flex flex-col m-2 ml-0">
+      {/* Guest Header */}
+      <div className="px-2 py-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-white font-medium">{currentOrder.name}</span>
+          <div className="flex items-center gap-3 text-white/50 text-sm">
+            <span>📞 {currentOrder.phone || "(415) 123-4567"}</span>
+            <span>⚡ {currentOrder.time}</span>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          {["Add Item", "Discount", "Receipt", "Cash Register"].map((btn, i) => (
+            <button
+              key={btn}
+              className="px-3 py-1.5 rounded-lg text-xs text-white/80 bg-neutral-700 hover:bg-neutral-600 transition-colors"
+            >
+              {btn}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Main Panel Box */}
+      <div 
+        className="flex-1 flex flex-col rounded-[20px] border border-white/10 overflow-hidden"
+        style={{ 
+          background: "#7575754D",
+          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+        }}
+      >
+        {/* Table Order Info */}
+        <div className="px-4 py-3 border-b border-white/10">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="text-white/60 text-sm">TABLE {tableId?.replace("T", "")}</span>
+              <span className="text-white font-medium">{currentOrder.id}</span>
+            </div>
+            <div className="flex items-center gap-1 text-white/60 text-xs">
+              <span>👤</span>
+              <span>{currentOrder.server}</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            <span className="text-white/40">🪑</span>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4].map(seat => (
+                <button
+                  key={seat}
+                  onClick={() => setSelectedSeats(prev => 
+                    prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]
+                  )}
+                  className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
+                    selectedSeats.includes(seat) 
+                      ? "bg-white text-black" 
+                      : "bg-neutral-700 text-white/60"
+                  }`}
+                >
+                  {seat}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Allergies */}
+        <div className="px-4 py-2 border-b border-white/10">
+          <div className="flex items-center gap-2 text-white/60 text-xs">
+            <span>⚠️</span>
+            <span>Allergic to almonds, Don't add onion</span>
+          </div>
+        </div>
+
+        {/* Order Items */}
+        <ScrollArea className="flex-1 px-4">
+          <div className="py-3 space-y-3">
+            {orderItems.map((item, index) => (
+              <div key={index} className="border-b border-white/10 pb-3 last:border-0">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-2">
+                    <span className="bg-neutral-700 text-white text-xs px-1.5 py-0.5 rounded">{item.qty}</span>
+                    <div>
+                      <span className="text-white text-sm">{item.name}</span>
+                      {item.seats.length > 0 && (
+                        <div className="flex items-center gap-1 mt-1">
+                          <span className="text-white/40">🪑</span>
+                          {item.seats.map(s => (
+                            <span key={s} className="bg-neutral-700 text-white/60 text-xs px-1 rounded">{s}</span>
+                          ))}
+                        </div>
+                      )}
+                      {item.modifiers.length > 0 && (
+                        <div className="mt-1 space-y-0.5">
+                          {item.modifiers.map((mod, i) => (
+                            <div key={i} className="text-white/50 text-xs">{mod}</div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <span className="text-white text-sm">{item.price}</span>
+                </div>
+                <div className="flex items-center gap-2 mt-2">
+                  <span className="text-white/40">🪑</span>
+                  <span className="text-white/40">📤</span>
+                </div>
+              </div>
+            ))}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+
+        {/* Order Summary */}
+        <div className="px-4 py-3 border-t border-white/10 space-y-1 text-sm">
+          <div className="flex justify-between">
+            <span className="text-white/60">Sub Total</span>
+            <span className="text-white">$ 56.00</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-red-400">Discount</span>
+            <span className="text-red-400">$ 1.00</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-white/60">Service Charge</span>
+            <span className="text-white">$ 1.00</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-white/60">Tax</span>
+            <span className="text-white">$ 1.00</span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
+          <button className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
+            <img src={clearIcon} alt="Clear" className="w-4 h-4 object-contain" />
+          </button>
+          <button 
+            className="w-8 h-8 rounded-full flex items-center justify-center"
+            style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+          >
+            <img src={fireIcon} alt="Fire" className="w-4 h-4 object-contain" />
+          </button>
+          <button 
+            className="flex-1 py-2 rounded-full text-black font-medium text-sm"
+            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+          >
+            CHARGE $ 59.00
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Mobile Step 1: Select orders to merge
+  const MobileSelectOrdersView = () => (
     <div className="flex flex-col h-full">
       {/* Header */}
       <div className="flex items-center gap-3 p-4">
@@ -220,7 +471,7 @@ const MergeOrders = () => {
 
       {/* Merge Button */}
       {selectedOrders.length > 0 && (
-        <div className="p-4 pb-20 md:pb-4">
+        <div className="p-4 pb-20">
           <button
             onClick={handleProceedToDirection}
             className="w-full py-3 rounded-full text-black font-medium"
@@ -233,10 +484,103 @@ const MergeOrders = () => {
     </div>
   );
 
-  // Step 2: Confirm direction (From/To)
+  // Desktop layout
+  const DesktopLayout = () => (
+    <div className="h-full flex bg-black">
+      {/* Left Panel - Order Selection */}
+      <div className="flex-1 flex flex-col p-4">
+        {/* Header */}
+        <div className="flex items-center gap-3 mb-4">
+          <button 
+            onClick={handleBack}
+            className="w-10 h-10 rounded-full flex items-center justify-center"
+            style={{ 
+              background: "#7575754D",
+              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+            }}
+          >
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+          <h1 className="text-white text-xl font-medium">Merge</h1>
+        </div>
+
+        {/* Current Order - Extended Card */}
+        <div className="mb-4">
+          <DesktopCurrentOrderCard order={currentOrder} />
+        </div>
+
+        {/* Choose Orders Label */}
+        <div className="mb-3">
+          <p className="text-white/80 text-sm">Choose Orders to Merge with Order {orderId}</p>
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="mb-4">
+          <div className="flex gap-2 flex-wrap">
+            {mergeFilters.map(filter => {
+              const count = getFilterCount(filter);
+              const isActive = activeFilter === filter;
+              return (
+                <button
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                    isActive ? "text-black" : "text-white"
+                  }`}
+                  style={isActive ? {
+                    background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+                  } : {
+                    background: "#7575754D",
+                    boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+                  }}
+                >
+                  {filter}
+                  <span className={`font-bold ${isActive ? "text-black" : "text-white"}`}>{count}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Orders List */}
+        <ScrollArea className="flex-1">
+          <div className="flex flex-col gap-2 pr-4">
+            {filteredOrders.map(order => (
+              <div key={order.id}>
+                <DesktopOrderListCard 
+                  order={order} 
+                  isSelected={selectedOrders.includes(order.id)}
+                  onClick={() => handleOrderSelect(order)}
+                />
+                <OrderInfoRow order={order} />
+              </div>
+            ))}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+
+        {/* Merge Button */}
+        {selectedOrders.length > 0 && (
+          <div className="pt-4">
+            <button
+              onClick={handleProceedToDirection}
+              className="w-full max-w-xs py-3 rounded-full text-black font-medium"
+              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+            >
+              MERGE ORDER {orderId}, {selectedOrders.join(", ")}
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Right Panel - Order Details */}
+      <OrderDetailsPanel />
+    </div>
+  );
+
+  // Mobile Step 2: Confirm direction (From/To)
   const ConfirmDirectionView = () => (
     <div className="flex flex-col h-full">
-      {/* Header */}
       <div className="flex items-center gap-3 p-4">
         <button 
           onClick={handleBack}
@@ -251,7 +595,6 @@ const MergeOrders = () => {
         <h1 className="text-white text-xl font-medium flex-1 text-center pr-10">Merge</h1>
       </div>
 
-      {/* Selected Orders Info */}
       <div className="px-4 pb-2">
         <OrderCard order={currentOrder} isSelected={true} showCheckbox={false} />
         <OrderInfoRow order={currentOrder} />
@@ -266,7 +609,6 @@ const MergeOrders = () => {
         </p>
       </div>
 
-      {/* Filter Tabs */}
       <div className="px-4 pb-3">
         <div className="flex gap-2 flex-wrap">
           {mergeFilters.map(filter => {
@@ -294,7 +636,6 @@ const MergeOrders = () => {
         </div>
       </div>
 
-      {/* Selected Order in list */}
       <div className="px-4 flex-1">
         {fromOrder && (
           <div className="mb-4">
@@ -304,7 +645,6 @@ const MergeOrders = () => {
         )}
       </div>
 
-      {/* Merge Button */}
       <div className="p-4 pb-20 md:pb-4">
         <button
           onClick={handleConfirmDirection}
@@ -317,15 +657,13 @@ const MergeOrders = () => {
     </div>
   );
 
-  // Step 3: Final confirmation with From/To swap
+  // Mobile Step 3: Final confirmation with From/To swap
   const FinalConfirmView = () => (
     <div className="flex flex-col h-full">
-      {/* Grabber */}
       <div className="flex justify-center pt-2 pb-4">
         <div className="w-10 h-1 bg-white/30 rounded-full" />
       </div>
 
-      {/* From Section */}
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">From</p>
         {fromOrder && (
@@ -336,7 +674,6 @@ const MergeOrders = () => {
         )}
       </div>
 
-      {/* Swap Button */}
       <div className="flex justify-center py-4">
         <button 
           onClick={handleSwapDirection}
@@ -346,7 +683,6 @@ const MergeOrders = () => {
         </button>
       </div>
 
-      {/* To Section */}
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">To</p>
         {toOrder && (
@@ -359,7 +695,6 @@ const MergeOrders = () => {
 
       <div className="flex-1" />
 
-      {/* Confirm Button */}
       <div className="p-4 pb-20 md:pb-4">
         <button
           onClick={handleFinalConfirm}
@@ -374,12 +709,20 @@ const MergeOrders = () => {
 
   return (
     <div className="h-full flex flex-col bg-black">
-      {step === "select" && <SelectOrdersView />}
-      {step === "confirm-direction" && <ConfirmDirectionView />}
-      {step === "final-confirm" && <FinalConfirmView />}
+      {/* Desktop Layout */}
+      <div className="hidden lg:flex h-full">
+        <DesktopLayout />
+      </div>
+
+      {/* Mobile/Tablet Layout */}
+      <div className="flex flex-col h-full lg:hidden">
+        {step === "select" && <MobileSelectOrdersView />}
+        {step === "confirm-direction" && <ConfirmDirectionView />}
+        {step === "final-confirm" && <FinalConfirmView />}
+      </div>
       
       {/* Bottom Navigation - Mobile only */}
-      <div className="md:hidden">
+      <div className="lg:hidden">
         <BottomNavigation />
       </div>
     </div>

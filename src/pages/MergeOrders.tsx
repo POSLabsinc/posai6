@@ -480,7 +480,7 @@ const MergeOrders = () => {
 
       {/* Current Order */}
       <div className="px-4 pb-2">
-        <OrderCard order={currentOrder} isSelected={true} showCheckbox={false} showExpand={false} />
+        <OrderCard order={currentOrder} isSelected={true} showCheckbox={false} showExpand={true} />
       </div>
 
       {/* Choose Orders Label */}

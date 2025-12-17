@@ -1,5 +1,5 @@
 import { useState, useRef } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone } from "lucide-react";
 
@@ -91,6 +91,10 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 const TableOrderDetails = () => {
   const navigate = useNavigate();
   const { tableId } = useParams();
+  const [searchParams] = useSearchParams();
+  const mergedOrderId = searchParams.get("merged");
+  const mergedFromTable = searchParams.get("from");
+  
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState(guestOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
@@ -487,11 +491,20 @@ const TableOrderDetails = () => {
       <ScrollArea className="flex-1 px-3">
         <div className="space-y-2 pb-3">
           {filteredGuestOrders.map(guest => (
-            <div 
-              key={guest.id} 
-              className="relative rounded-xl cursor-pointer transition-all overflow-hidden bg-black"
-            >
-              {/* Swipe Action Buttons (revealed on swipe left) */}
+            <div key={guest.id} className="space-y-0">
+              {/* Merged Order Indicator */}
+              {mergedOrderId === guest.id && mergedFromTable && (
+                <div className="px-3 py-1.5 bg-neutral-900 rounded-t-xl border-l-2 border-orange-500">
+                  <span className="text-orange-500 text-sm font-medium">
+                    Merged order {mergedOrderId} from T{mergedFromTable}
+                  </span>
+                </div>
+              )}
+              
+              <div 
+                className={`relative ${mergedOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}
+              >
+                {/* Swipe Action Buttons (revealed on swipe left) */}
               <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 {/* Merge button - gray */}
                 <button
@@ -656,6 +669,7 @@ const TableOrderDetails = () => {
                 )}
               </div>
             </div>
+          </div>
           ))}
         </div>
         <ScrollBar orientation="vertical" />
@@ -729,7 +743,17 @@ const TableOrderDetails = () => {
         {/* Guest Orders List */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
-            {filteredGuestOrders.map(guest => <div key={guest.id} onClick={() => setSelectedGuest(guest)} className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white bg-neutral-800/50" : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"}`}>
+            {filteredGuestOrders.map(guest => (
+              <div key={guest.id} className="space-y-0">
+                {/* Merged Order Indicator */}
+                {mergedOrderId === guest.id && mergedFromTable && (
+                  <div className="px-3 py-1.5 bg-neutral-900 rounded-t-xl border-l-2 border-orange-500">
+                    <span className="text-orange-500 text-sm font-medium">
+                      Merged order {mergedOrderId} from T{mergedFromTable}
+                    </span>
+                  </div>
+                )}
+                <div onClick={() => setSelectedGuest(guest)} className={`${mergedOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white bg-neutral-800/50" : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"}`}>
                 <div className="flex items-stretch w-full gap-4">
                   {/* Column 1: Order Number - 8% */}
                   <div className="w-[8%] flex-shrink-0 px-3 py-2 flex items-center">
@@ -813,7 +837,9 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
                 </div>
-              </div>)}
+              </div>
+            </div>
+            ))}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
@@ -1045,13 +1071,21 @@ const TableOrderDetails = () => {
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
             {filteredGuestOrders.map(guest => (
-              <div 
-                key={guest.id}
-                onClick={() => setSelectedGuest(guest)}
-                className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${
-                  selectedGuest.id === guest.id ? "border-white" : "border-white/10"
-                }`}
-              >
+              <div key={guest.id} className="space-y-0">
+                {/* Merged Order Indicator */}
+                {mergedOrderId === guest.id && mergedFromTable && (
+                  <div className="px-3 py-1.5 bg-neutral-900 rounded-t-xl border-l-2 border-orange-500">
+                    <span className="text-orange-500 text-sm font-medium">
+                      Merged order {mergedOrderId} from T{mergedFromTable}
+                    </span>
+                  </div>
+                )}
+                <div 
+                  onClick={() => setSelectedGuest(guest)}
+                  className={`${mergedOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${
+                    selectedGuest.id === guest.id ? "border-white" : "border-white/10"
+                  }`}
+                >
                 <div className="flex items-stretch w-full gap-2 bg-neutral-900">
                   {/* Column 1: Order Number */}
                   <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
@@ -1104,6 +1138,7 @@ const TableOrderDetails = () => {
                   </div>
                 </div>
               </div>
+            </div>
             ))}
           </div>
           <ScrollBar orientation="vertical" />

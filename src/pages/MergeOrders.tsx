@@ -490,7 +490,7 @@ const MergeOrders = () => {
 
       {/* Filter Tabs */}
       <div className="px-4 pb-3">
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {mergeFilters.map(filter => {
             const count = getFilterCount(filter);
             const isActive = activeFilter === filter;
@@ -498,7 +498,7 @@ const MergeOrders = () => {
               <button
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
+                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 flex-shrink-0 ${
                   isActive ? "text-black" : "text-white"
                 }`}
                 style={isActive ? {

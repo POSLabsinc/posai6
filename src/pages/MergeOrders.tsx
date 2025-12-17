@@ -530,19 +530,6 @@ const MergeOrders = () => {
           ))}
         </div>
       </ScrollArea>
-
-      {/* Merge Button */}
-      {selectedOrders.length > 0 && (
-        <div className="px-4 py-2 pb-20">
-          <button
-            onClick={handleProceedToDirection}
-            className="w-full py-2 rounded-full text-black font-medium text-sm"
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
-            MERGE ORDER {orderId}, {selectedOrders.join(", ")}
-          </button>
-        </div>
-      )}
     </div>
   );
 
@@ -767,11 +754,24 @@ const MergeOrders = () => {
       </div>
 
       {/* Mobile/Tablet Layout */}
-      <div className="flex flex-col h-full lg:hidden">
+      <div className="flex flex-col flex-1 lg:hidden pb-24">
         {step === "select" && <MobileSelectOrdersView />}
         {step === "confirm-direction" && <ConfirmDirectionView />}
         {step === "final-confirm" && <FinalConfirmView />}
       </div>
+
+      {/* Merge Button - Fixed above bottom nav */}
+      {step === "select" && selectedOrders.length > 0 && (
+        <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden">
+          <button
+            onClick={handleProceedToDirection}
+            className="w-full py-2 rounded-full text-black font-medium text-sm"
+            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+          >
+            MERGE ORDER {orderId}, {selectedOrders.join(", ")}
+          </button>
+        </div>
+      )}
       
       {/* Bottom Navigation - Mobile only */}
       <div className="lg:hidden">

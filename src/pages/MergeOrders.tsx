@@ -112,7 +112,7 @@ const MergeOrders = () => {
     return availableOrders.filter(o => o.status === filter.toUpperCase()).length;
   };
 
-  // Render order card for mobile
+  // Render order card for mobile - matching TableOrderDetails styling
   const OrderCard = ({ order, isSelected, onClick, showCheckbox = true }: { 
     order: typeof allOrders[0]; 
     isSelected: boolean; 
@@ -120,41 +120,50 @@ const MergeOrders = () => {
     showCheckbox?: boolean;
   }) => (
     <div 
-      className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
-        isSelected ? "bg-neutral-700 border border-white" : "bg-neutral-800 border border-transparent"
+      className={`flex items-stretch w-full gap-2 border rounded-xl bg-neutral-900 cursor-pointer transition-colors ${
+        isSelected ? "border-white" : "border-white/10"
       }`}
       onClick={onClick}
     >
-      <div className="flex items-center gap-3">
-        {showCheckbox && (
+      {/* Checkbox Column */}
+      {showCheckbox && (
+        <div className="flex-shrink-0 px-2 flex items-center">
           <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
             isSelected ? "border-orange-500 bg-orange-500" : "border-white/40"
           }`}>
             {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
           </div>
-        )}
-        <div className="flex items-center gap-2">
-          <span className="text-white/60 text-sm">{order.id}</span>
-          <span className="text-white font-medium">{order.name}</span>
-          <span className="text-white/60">·</span>
-          <span className="text-white/80">{order.table}</span>
+        </div>
+      )}
+
+      {/* Order Number Column */}
+      <div className={`w-[15%] flex-shrink-0 ${showCheckbox ? '' : 'px-2'} py-2 flex items-center`}>
+        <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+          <span className="text-base font-bold text-white">{order.id}</span>
+          <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
         </div>
       </div>
-      <div className="flex items-center gap-3">
-        <span className="text-white font-medium">{order.amount}</span>
-        <span className={`text-xs font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
-      </div>
-    </div>
-  );
 
-  // Render order info row
-  const OrderInfoRow = ({ order }: { order: typeof allOrders[0] }) => (
-    <div className="text-white/60 text-xs flex items-center gap-2 mt-1">
-      <span>Party of {order.partySize},</span>
-      <span className="flex items-center gap-1">
-        <span>⚡</span>
-        {order.time}
-      </span>
+      {/* Guest Info Column */}
+      <div className="flex-1 min-w-0 py-2 pr-3">
+        <div className="flex flex-col">
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-2">
+              <span className="text-white font-medium text-sm">{order.name}</span>
+              <span className="text-white/60 text-xs">· {order.table}</span>
+            </div>
+            <span className="text-white font-semibold text-sm">{order.amount}</span>
+          </div>
+          <div className="h-px bg-neutral-600 my-1.5"></div>
+          <div className="flex items-center justify-between text-xs">
+            <div className="flex items-center gap-1 text-gray-400">
+              <span>Party Of {order.partySize},</span>
+              <span>⚡ {order.time}</span>
+            </div>
+            <span className={getStatusColor(order.status)}>{order.status}</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 
@@ -417,7 +426,6 @@ const MergeOrders = () => {
       {/* Current Order */}
       <div className="px-4 pb-2">
         <OrderCard order={currentOrder} isSelected={true} showCheckbox={false} />
-        <OrderInfoRow order={currentOrder} />
       </div>
 
       {/* Choose Orders Label */}
@@ -457,14 +465,12 @@ const MergeOrders = () => {
       <ScrollArea className="flex-1 px-4">
         <div className="flex flex-col gap-2 pb-4">
           {filteredOrders.map(order => (
-            <div key={order.id}>
-              <OrderCard 
-                order={order} 
-                isSelected={selectedOrders.includes(order.id)}
-                onClick={() => handleOrderSelect(order)}
-              />
-              <OrderInfoRow order={order} />
-            </div>
+            <OrderCard 
+              key={order.id}
+              order={order} 
+              isSelected={selectedOrders.includes(order.id)}
+              onClick={() => handleOrderSelect(order)}
+            />
           ))}
         </div>
       </ScrollArea>
@@ -546,14 +552,12 @@ const MergeOrders = () => {
         <ScrollArea className="flex-1">
           <div className="flex flex-col gap-2 pr-4">
             {filteredOrders.map(order => (
-              <div key={order.id}>
-                <DesktopOrderListCard 
-                  order={order} 
-                  isSelected={selectedOrders.includes(order.id)}
-                  onClick={() => handleOrderSelect(order)}
-                />
-                <OrderInfoRow order={order} />
-              </div>
+              <DesktopOrderListCard 
+                key={order.id}
+                order={order} 
+                isSelected={selectedOrders.includes(order.id)}
+                onClick={() => handleOrderSelect(order)}
+              />
             ))}
           </div>
           <ScrollBar orientation="vertical" />
@@ -597,7 +601,6 @@ const MergeOrders = () => {
 
       <div className="px-4 pb-2">
         <OrderCard order={currentOrder} isSelected={true} showCheckbox={false} />
-        <OrderInfoRow order={currentOrder} />
       </div>
 
       <div className="px-4 py-2">
@@ -640,7 +643,6 @@ const MergeOrders = () => {
         {fromOrder && (
           <div className="mb-4">
             <OrderCard order={fromOrder} isSelected={true} />
-            <OrderInfoRow order={fromOrder} />
           </div>
         )}
       </div>
@@ -667,10 +669,7 @@ const MergeOrders = () => {
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">From</p>
         {fromOrder && (
-          <div>
-            <OrderCard order={fromOrder} isSelected={false} showCheckbox={false} />
-            <OrderInfoRow order={fromOrder} />
-          </div>
+          <OrderCard order={fromOrder} isSelected={false} showCheckbox={false} />
         )}
       </div>
 
@@ -686,10 +685,7 @@ const MergeOrders = () => {
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">To</p>
         {toOrder && (
-          <div>
-            <OrderCard order={toOrder} isSelected={false} showCheckbox={false} />
-            <OrderInfoRow order={toOrder} />
-          </div>
+          <OrderCard order={toOrder} isSelected={false} showCheckbox={false} />
         )}
       </div>
 

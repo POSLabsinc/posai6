@@ -1,0 +1,8 @@
+# Cloudflare Pages Redirects
+# Handle SPA client-side routing - all routes should serve index.html
+
+# API routes (if you add them later via Functions)
+# /api/*  /api/:splat  200
+
+# SPA fallback - must be last
+/*  /index.html  200

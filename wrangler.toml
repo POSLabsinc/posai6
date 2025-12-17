@@ -1,0 +1,20 @@
+# Cloudflare Pages Configuration
+# This file configures the deployment settings for Cloudflare Pages
+
+name = "pos-system"
+compatibility_date = "2024-12-01"
+
+# Pages-specific settings
+pages_build_output_dir = "dist"
+
+# Environment variables (can also be set in Cloudflare dashboard)
+[vars]
+VITE_APP_NAME = "POS System"
+
+# Production environment
+[env.production]
+name = "pos-system"
+
+# Preview/staging environment (for non-main branches)
+[env.preview]
+name = "pos-system-preview"

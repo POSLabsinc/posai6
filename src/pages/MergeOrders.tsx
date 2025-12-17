@@ -517,8 +517,8 @@ const MergeOrders = () => {
       </div>
 
       {/* Orders List */}
-      <div className="flex-1 min-h-0 overflow-y-auto px-4 overscroll-contain touch-pan-y">
-        <div className="flex flex-col gap-2 pb-4">
+      <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide px-4 overscroll-contain touch-pan-y">
+        <div className="flex flex-col gap-2 pb-24">
           {filteredOrders.map(order => (
             <OrderCard 
               key={order.id}
@@ -754,7 +754,7 @@ const MergeOrders = () => {
       </div>
 
       {/* Mobile/Tablet Layout */}
-      <div className="flex flex-col flex-1 min-h-0 lg:hidden pb-24 overflow-hidden">
+      <div className="flex flex-col flex-1 min-h-0 lg:hidden overflow-hidden">
         {step === "select" && <MobileSelectOrdersView />}
         {step === "confirm-direction" && <ConfirmDirectionView />}
         {step === "final-confirm" && <FinalConfirmView />}

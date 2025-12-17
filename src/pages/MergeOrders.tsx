@@ -3,7 +3,6 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ArrowUpDown, SlidersHorizontal, Search } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import BottomNavigation from "@/components/BottomNavigation";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -723,11 +722,6 @@ const MergeOrders = () => {
           </button>
         </div>
       )}
-      
-      {/* Bottom Navigation - Mobile only */}
-      <div className="lg:hidden">
-        <BottomNavigation />
-      </div>
     </div>
   );
 };

@@ -290,35 +290,31 @@ const TableOrder = () => {
                       )}
                     </div>
                     
-                    {/* Status Label */}
-                    <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
-                      <span className={`text-xs font-medium ${config.color}`}>
-                        {table.status}
-                      </span>
-                    </div>
+                    {/* Status Label - Shows guest numbers when Available table is clicked */}
+                    {guestDropdownTable === table.id && table.status === "Available" ? (
+                      <div className="w-full flex justify-center gap-1 py-1 rounded-md border border-neutral-600 bg-neutral-700">
+                        {Array.from({ length: table.seats }).map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleGuestSelect(i + 1);
+                            }}
+                            className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                          >
+                            {i + 1}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
+                        <span className={`text-xs font-medium ${config.color}`}>
+                          {table.status}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
-
-                {/* Guest Count Dropdown for Available tables */}
-                {guestDropdownTable === table.id && table.status === "Available" && (
-                  <div className="absolute top-0 right-0 translate-x-full ml-1 z-50 bg-white rounded-lg shadow-lg border border-gray-200 min-w-[100px]">
-                    <div className="px-3 py-2 border-b border-gray-200 bg-gray-50 rounded-t-lg">
-                      <span className="text-sm font-semibold text-black">Table #{table.id}</span>
-                    </div>
-                    {Array.from({ length: table.seats }).map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleGuestSelect(i + 1);
-                        }}
-                        className="w-full px-3 py-2 text-center text-black hover:bg-gray-100 border-b border-gray-100 last:border-b-0 last:rounded-b-lg transition-colors"
-                      >
-                        {i + 1}
-                      </button>
-                    ))}
-                  </div>
-                )}
               </div>
             );
           })}

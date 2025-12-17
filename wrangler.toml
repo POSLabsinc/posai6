@@ -5,6 +5,10 @@ name = "pos-system"
 compatibility_date = "2024-12-01"
 pages_build_output_dir = "dist"
 
+# Build configuration - force npm
+[build]
+command = "npm install && npm run build"
+
 # ============================================
 # ENVIRONMENT VARIABLES
 # ============================================

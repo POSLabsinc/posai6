@@ -560,10 +560,8 @@ const TableOrderDetails = () => {
             <div key={guest.id} className="space-y-0">
               {/* Merged Order Indicator */}
               {destOrderId === guest.id && mergedFromTable && mergedOrderId && (
-                <div className="px-3 py-1.5 bg-neutral-900 rounded-t-xl border-l-2 border-orange-500">
-                  <span className="text-orange-500 text-sm font-medium">
-                    Merged order {mergedOrderId} from T{mergedFromTable}
-                  </span>
+                <div className="px-2 py-0.5 bg-neutral-900 rounded-t-lg border-l-2 border-orange-500 flex items-center gap-1">
+                  <span className="text-orange-500 text-xs font-medium">Merged #{mergedOrderId} from T{mergedFromTable}</span>
                 </div>
               )}
               
@@ -1152,10 +1150,8 @@ const TableOrderDetails = () => {
               <div key={guest.id} className="space-y-0">
                 {/* Merged Order Indicator */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && (
-                  <div className="px-3 py-1.5 bg-neutral-900 rounded-t-xl border-l-2 border-orange-500">
-                    <span className="text-orange-500 text-sm font-medium">
-                      Merged order {mergedOrderId} from T{mergedFromTable}
-                    </span>
+                  <div className="px-2 py-0.5 bg-neutral-900 rounded-t-lg border-l-2 border-orange-500 flex items-center gap-1">
+                    <span className="text-orange-500 text-xs font-medium">Merged #{mergedOrderId} from T{mergedFromTable}</span>
                   </div>
                 )}
                 <div 

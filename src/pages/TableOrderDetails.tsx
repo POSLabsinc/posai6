@@ -467,7 +467,7 @@ const TableOrderDetails = () => {
               }`}
               style={activeFilter === filter 
                 ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
-                : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
+                : { background: "#1B1C20" }
               }
             >
               <span>{filter}</span>
@@ -588,19 +588,20 @@ const TableOrderDetails = () => {
                 {/* Centered Arrow to Expand Details - inside swipeable wrapper */}
                 <div className="px-[10%]">
                   <button
-                    className="w-full flex items-center justify-center hover:bg-white/5 transition-colors"
+                    className="w-full flex items-center justify-center transition-colors rounded-b-xl"
+                    style={{ background: "#7575754D" }}
                     onClick={(e) => {
                       e.stopPropagation();
                       toggleOrderExpand(guest.id);
                     }}
                   >
-                    <span className="w-4 h-4" />
+                    <ChevronDown className={`w-4 h-4 text-white transition-transform ${expandedOrderId === guest.id ? 'rotate-180' : ''}`} />
                   </button>
                 </div>
 
                 {/* Expanded Details - inside swipeable wrapper */}
                 {expandedOrderId === guest.id && (
-                  <div className="px-3 pb-3 border-t border-neutral-700">
+                  <div className="px-3 pb-3 rounded-b-xl" style={{ background: "#7575754D" }}>
                     {/* Order Details Grid */}
                     <div className="grid grid-cols-3 gap-3 py-3">
                       <div>

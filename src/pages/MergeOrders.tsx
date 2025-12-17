@@ -12,6 +12,7 @@ import tableTargetIcon from "@/assets/icons/table-target.png";
 // Mock all orders data from different tables with extended info
 const allOrders = [
   // T2 orders
+  { id: "1", name: "Sarah Kim", table: "T2", amount: "$72.00", partySize: 3, time: "7:30 PM", status: "ORDERING", timer: "00:20", server: "Dustin H", check: "--", paymentType: "--", revenueCenter: "FF Balcony", phone: "(415) 555-1234" },
   { id: "2", name: "Guest", table: "T2", amount: "$45.00", partySize: 2, time: "7:45 PM", status: "ORDERING", timer: "00:15", server: "Dustin H", check: "--", paymentType: "--", revenueCenter: "FF Balcony", phone: "(415) 999-8888" },
   { id: "3", name: "Martin Alex", table: "T2", amount: "$59.00", partySize: 4, time: "8:00 PM", status: "ORDERING", timer: "00:00", server: "Dustin H", check: "--", paymentType: "--", revenueCenter: "FF Balcony", phone: "(415) 123-4567" },
   { id: "9", name: "Davis", table: "T2", amount: "$32.50", partySize: 3, time: "8:15 PM", status: "ORDERED", timer: "00:30", server: "Dustin H", check: "1240", paymentType: "--", revenueCenter: "FF Balcony", phone: "" },

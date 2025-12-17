@@ -14,9 +14,9 @@ const orders = [
 ];
 
 const statusConfig = {
-  new: { icon: Clock, color: "bg-blue-500/20 text-blue-400 border-blue-500/30", label: "New" },
-  preparing: { icon: ChefHat, color: "bg-amber-500/20 text-amber-400 border-amber-500/30", label: "Preparing" },
-  ready: { icon: CheckCircle, color: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30", label: "Ready" },
+  new: { icon: Clock, color: "bg-info/20 text-info border-info/30", label: "New" },
+  preparing: { icon: ChefHat, color: "bg-warning/20 text-warning border-warning/30", label: "Preparing" },
+  ready: { icon: CheckCircle, color: "bg-success/20 text-success border-success/30", label: "Ready" },
   delivered: { icon: Truck, color: "bg-purple-500/20 text-purple-400 border-purple-500/30", label: "Delivered" },
 };
 
@@ -25,21 +25,21 @@ export default function LiquidGlassOrders() {
   const [selectedOrder, setSelectedOrder] = useState(orders[0]);
 
   return (
-    <div className="min-h-screen bg-neutral-950 gradient-mesh">
+    <div className="min-h-screen bg-background gradient-mesh">
       <div className="h-screen flex">
         {/* Main Content */}
         <div className="flex-1 p-6 flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between mb-6">
-            <h1 className="text-3xl font-light text-white tracking-tight">Orders</h1>
+            <h1 className="text-3xl font-light text-foreground tracking-tight">Orders</h1>
             
             {/* Search */}
             <div className="glass rounded-2xl px-4 py-3 flex items-center gap-3 w-80">
-              <Search className="w-5 h-5 text-neutral-400" />
+              <Search className="w-5 h-5 text-muted-foreground" />
               <input
                 type="text"
                 placeholder="Search orders..."
-                className="bg-transparent border-none outline-none text-white placeholder-neutral-500 flex-1"
+                className="bg-transparent border-none outline-none text-foreground placeholder-muted-foreground flex-1"
               />
             </div>
           </div>
@@ -52,14 +52,14 @@ export default function LiquidGlassOrders() {
                 onClick={() => setActiveCategory(cat)}
                 className={`px-5 py-2.5 rounded-2xl text-sm font-medium transition-all duration-300 ${
                   activeCategory === cat
-                    ? "bg-gradient-to-r from-orange-500 to-amber-400 text-white shadow-lg shadow-orange-500/25"
-                    : "glass text-neutral-300 hover:bg-white/10"
+                    ? "bg-primary text-primary-foreground shadow-lg"
+                    : "glass text-muted-foreground hover:bg-accent"
                 }`}
               >
                 {cat}
               </button>
             ))}
-            <button className="glass rounded-2xl px-4 py-2.5 flex items-center gap-2 text-neutral-300 hover:bg-white/10 transition-colors ml-auto">
+            <button className="glass rounded-2xl px-4 py-2.5 flex items-center gap-2 text-muted-foreground hover:bg-accent transition-colors ml-auto">
               <Filter className="w-4 h-4" />
               <span className="text-sm">Filter</span>
             </button>
@@ -77,20 +77,20 @@ export default function LiquidGlassOrders() {
                     key={order.id}
                     onClick={() => setSelectedOrder(order)}
                     className={`glass-vibrant rounded-3xl p-5 cursor-pointer transition-all duration-300 hover:scale-[1.02] ${
-                      selectedOrder.id === order.id ? "ring-2 ring-orange-500/50 glass-glow" : ""
+                      selectedOrder.id === order.id ? "ring-2 ring-primary/50 glass-glow" : ""
                     }`}
                   >
                     <div className="flex items-start justify-between mb-4">
                       <div>
                         <div className="flex items-center gap-2">
-                          <span className="text-white font-semibold">{order.id}</span>
+                          <span className="text-foreground font-semibold">{order.id}</span>
                           {order.table && (
-                            <span className="glass px-2 py-0.5 rounded-lg text-xs text-orange-400">
+                            <span className="glass px-2 py-0.5 rounded-lg text-xs text-primary">
                               {order.table}
                             </span>
                           )}
                         </div>
-                        <p className="text-neutral-400 text-sm mt-1">{order.customer}</p>
+                        <p className="text-muted-foreground text-sm mt-1">{order.customer}</p>
                       </div>
                       <div className={`px-3 py-1.5 rounded-xl text-xs font-medium border ${status.color} flex items-center gap-1.5`}>
                         <StatusIcon className="w-3.5 h-3.5" />
@@ -100,13 +100,13 @@ export default function LiquidGlassOrders() {
 
                     <div className="space-y-1 mb-4">
                       {order.items.map((item, idx) => (
-                        <p key={idx} className="text-neutral-300 text-sm">• {item}</p>
+                        <p key={idx} className="text-muted-foreground text-sm">• {item}</p>
                       ))}
                     </div>
 
-                    <div className="flex items-center justify-between pt-3 border-t border-white/10">
-                      <span className="text-neutral-500 text-xs">{order.time}</span>
-                      <span className="text-white font-semibold">{order.total}</span>
+                    <div className="flex items-center justify-between pt-3 border-t border-border">
+                      <span className="text-muted-foreground text-xs">{order.time}</span>
+                      <span className="text-foreground font-semibold">{order.total}</span>
                     </div>
                   </div>
                 );
@@ -116,32 +116,32 @@ export default function LiquidGlassOrders() {
         </div>
 
         {/* Order Detail Panel */}
-        <div className="w-96 glass-dark border-l border-white/10 p-6 flex flex-col">
-          <h2 className="text-xl font-medium text-white mb-6">Order Details</h2>
+        <div className="w-96 glass-dark border-l border-border p-6 flex flex-col">
+          <h2 className="text-xl font-medium text-foreground mb-6">Order Details</h2>
           
           {selectedOrder && (
             <>
               {/* Customer Info */}
               <div className="glass rounded-2xl p-4 mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-500 to-amber-400 flex items-center justify-center">
-                    <span className="text-white font-semibold">{selectedOrder.customer.charAt(0)}</span>
+                  <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
+                    <span className="text-primary-foreground font-semibold">{selectedOrder.customer.charAt(0)}</span>
                   </div>
                   <div>
-                    <p className="text-white font-medium">{selectedOrder.customer}</p>
-                    <p className="text-neutral-400 text-sm">{selectedOrder.id}</p>
+                    <p className="text-foreground font-medium">{selectedOrder.customer}</p>
+                    <p className="text-muted-foreground text-sm">{selectedOrder.id}</p>
                   </div>
                 </div>
               </div>
 
               {/* Items */}
               <div className="glass rounded-2xl p-4 mb-4 flex-1">
-                <p className="text-neutral-400 text-sm mb-3">Items</p>
+                <p className="text-muted-foreground text-sm mb-3">Items</p>
                 <div className="space-y-3">
                   {selectedOrder.items.map((item, idx) => (
                     <div key={idx} className="flex items-center justify-between">
-                      <span className="text-white">{item}</span>
-                      <span className="text-neutral-400">1x</span>
+                      <span className="text-foreground">{item}</span>
+                      <span className="text-muted-foreground">1x</span>
                     </div>
                   ))}
                 </div>
@@ -150,17 +150,17 @@ export default function LiquidGlassOrders() {
               {/* Total */}
               <div className="glass-vibrant rounded-2xl p-4 mb-4">
                 <div className="flex items-center justify-between">
-                  <span className="text-neutral-300">Total</span>
-                  <span className="text-2xl font-semibold text-white">{selectedOrder.total}</span>
+                  <span className="text-muted-foreground">Total</span>
+                  <span className="text-2xl font-semibold text-foreground">{selectedOrder.total}</span>
                 </div>
               </div>
 
               {/* Actions */}
               <div className="grid grid-cols-2 gap-3">
-                <button className="glass rounded-xl py-3 text-white font-medium hover:bg-white/10 transition-colors">
+                <button className="glass rounded-xl py-3 text-foreground font-medium hover:bg-accent transition-colors">
                   Print
                 </button>
-                <button className="bg-gradient-to-r from-orange-500 to-amber-400 rounded-xl py-3 text-white font-medium hover:opacity-90 transition-opacity">
+                <button className="bg-primary rounded-xl py-3 text-primary-foreground font-medium hover:opacity-90 transition-opacity">
                   Update Status
                 </button>
               </div>

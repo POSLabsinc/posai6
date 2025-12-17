@@ -14,40 +14,40 @@ import { Button } from "@/components/ui/button";
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
 import burgerCloseIcon from "@/assets/icons/burger-close.png";
 
-// Table status configurations
-const statusConfig: Record<string, { color: string; bgColor: string }> = {
-  "Available": { color: "text-white", bgColor: "bg-neutral-700" },
-  "Ordering": { color: "text-yellow-400", bgColor: "bg-neutral-800" },
-  "Ordered": { color: "text-orange-500", bgColor: "bg-neutral-800" },
-  "Reserved": { color: "text-gray-400", bgColor: "bg-neutral-800" },
-  "Seated": { color: "text-gray-300", bgColor: "bg-neutral-800" },
-  "Running Late": { color: "text-red-400", bgColor: "bg-neutral-800" },
-  "1st Course": { color: "text-purple-400", bgColor: "bg-neutral-800" },
-  "2nd Course": { color: "text-yellow-400", bgColor: "bg-neutral-800" },
-  "3rd Course": { color: "text-orange-500", bgColor: "bg-neutral-800" },
-  "Dessert": { color: "text-pink-400", bgColor: "bg-neutral-800" },
-  "Partially Seated": { color: "text-green-400", bgColor: "bg-neutral-800" },
-  "Served": { color: "text-blue-400", bgColor: "bg-neutral-800" },
-  "Paid": { color: "text-emerald-400", bgColor: "bg-neutral-800" },
+// Table status configurations - using semantic approach
+const statusConfig: Record<string, { colorClass: string; bgClass: string }> = {
+  "Available": { colorClass: "text-foreground", bgClass: "bg-muted" },
+  "Ordering": { colorClass: "text-warning", bgClass: "bg-card" },
+  "Ordered": { colorClass: "text-primary", bgClass: "bg-card" },
+  "Reserved": { colorClass: "text-muted-foreground", bgClass: "bg-card" },
+  "Seated": { colorClass: "text-muted-foreground", bgClass: "bg-card" },
+  "Running Late": { colorClass: "text-destructive", bgClass: "bg-card" },
+  "1st Course": { colorClass: "text-purple-400", bgClass: "bg-card" },
+  "2nd Course": { colorClass: "text-warning", bgClass: "bg-card" },
+  "3rd Course": { colorClass: "text-primary", bgClass: "bg-card" },
+  "Dessert": { colorClass: "text-pink-400", bgClass: "bg-card" },
+  "Partially Seated": { colorClass: "text-success", bgClass: "bg-card" },
+  "Served": { colorClass: "text-info", bgClass: "bg-card" },
+  "Paid": { colorClass: "text-emerald-400", bgClass: "bg-card" },
 };
 
 // Seat dot colors based on status
 const getSeatDotColor = (status: string): string => {
   switch (status) {
-    case "Available": return "bg-green-500";
-    case "Ordering": return "bg-red-500";
-    case "Ordered": return "bg-orange-500";
-    case "Reserved": return "bg-gray-500";
-    case "Seated": return "bg-gray-400";
-    case "Running Late": return "bg-red-500";
+    case "Available": return "bg-success";
+    case "Ordering": return "bg-destructive";
+    case "Ordered": return "bg-primary";
+    case "Reserved": return "bg-muted-foreground";
+    case "Seated": return "bg-muted-foreground";
+    case "Running Late": return "bg-destructive";
     case "1st Course": return "bg-purple-500";
-    case "2nd Course": return "bg-yellow-500";
-    case "3rd Course": return "bg-orange-500";
+    case "2nd Course": return "bg-warning";
+    case "3rd Course": return "bg-primary";
     case "Dessert": return "bg-pink-500";
-    case "Partially Seated": return "bg-green-500";
-    case "Served": return "bg-blue-500";
+    case "Partially Seated": return "bg-success";
+    case "Served": return "bg-info";
     case "Paid": return "bg-emerald-500";
-    default: return "bg-gray-500";
+    default: return "bg-muted-foreground";
   }
 };
 
@@ -129,12 +129,12 @@ const TableOrder = () => {
     : tables.filter(t => t.status === activeFilter);
 
   return (
-    <div className="flex flex-col h-full bg-black p-2 pb-2">
+    <div className="flex flex-col h-full bg-background p-2 pb-2">
       {/* Filter Bar */}
       <div className="flex items-center gap-2 mb-3">
         {/* Collapsible Controls */}
         {isControlsOpen ? (
-          <div className="flex items-center gap-1.5 bg-sidebar-accent rounded-full pl-1.5 pr-1 py-1">
+          <div className="flex items-center gap-1.5 bg-accent rounded-full pl-1.5 pr-1 py-1">
             {/* Close Button */}
             <Button 
               variant="ghost" 
@@ -148,41 +148,39 @@ const TableOrder = () => {
             {/* View Button */}
             <button
               onClick={() => setViewMode(viewMode === "grid" ? "list" : viewMode === "list" ? "compact" : "grid")}
-              className="flex items-center justify-center rounded-full p-1.5 hover:opacity-90 transition-opacity"
-              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+              className="flex items-center justify-center rounded-full p-1.5 hover:opacity-90 transition-opacity bg-primary text-primary-foreground"
             >
               {viewMode === "grid" ? (
-                <Grid className="w-4 h-4 text-black" />
+                <Grid className="w-4 h-4" />
               ) : viewMode === "list" ? (
-                <List className="w-4 h-4 text-black" />
+                <List className="w-4 h-4" />
               ) : (
-                <LayoutList className="w-4 h-4 text-black" />
+                <LayoutList className="w-4 h-4" />
               )}
             </button>
 
             {/* Users Button */}
-            <button className="flex items-center justify-center bg-neutral-800 rounded-full p-1.5 hover:bg-neutral-700 transition-colors">
-              <Users className="w-4 h-4 text-white" />
+            <button className="flex items-center justify-center bg-card rounded-full p-1.5 hover:bg-accent transition-colors">
+              <Users className="w-4 h-4 text-foreground" />
             </button>
 
             {/* Dining Area Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button 
-                  className="flex items-center gap-2 rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity"
-                  style={{ background: "linear-gradient(180deg, #B8B8B8 0%, #616161 100%)" }}
+                  className="flex items-center gap-2 rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity bg-secondary text-secondary-foreground"
                 >
-                  <span className="text-white text-xs font-medium">{selectedArea}</span>
-                  <ChevronDown className="w-3 h-3 text-white" />
+                  <span className="text-xs font-medium">{selectedArea}</span>
+                  <ChevronDown className="w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
+              <DropdownMenuContent className="bg-popover border-border">
                 {diningAreas.map((area) => (
                   <DropdownMenuItem
                     key={area}
                     onClick={() => setSelectedArea(area)}
-                    className={`text-white hover:bg-neutral-700 cursor-pointer ${
-                      selectedArea === area ? "bg-neutral-700" : ""
+                    className={`text-popover-foreground hover:bg-accent cursor-pointer ${
+                      selectedArea === area ? "bg-accent" : ""
                     }`}
                   >
                     {area}
@@ -211,21 +209,13 @@ const TableOrder = () => {
                 onClick={() => setActiveFilter(filter)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                   activeFilter === filter
-                    ? "text-black"
-                    : "text-white"
+                    ? "bg-primary text-primary-foreground"
+                    : "glass text-foreground hover:bg-accent"
                 }`}
-                style={
-                  activeFilter === filter
-                    ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
-                    : { 
-                        background: "#7575754D",
-                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-                      }
-                }
               >
                 <span>{filter}</span>
                 <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
-                  activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"
+                  activeFilter === filter ? "bg-primary-foreground/20 text-primary-foreground" : "bg-muted text-muted-foreground"
                 }`}>
                   {filterCounts[filter] || 0}
                 </span>
@@ -263,14 +253,14 @@ const TableOrder = () => {
                 <div
                   key={`${table.id}-${index}`}
                   onClick={handleTableClick}
-                  className={`bg-neutral-900 rounded-lg px-3 py-2 flex items-center gap-3 cursor-pointer hover:bg-neutral-800 transition-all border ${
+                  className={`bg-card rounded-lg px-3 py-2 flex items-center gap-3 cursor-pointer hover:bg-accent transition-all border ${
                     selectedTable === table.id 
-                      ? "border-orange-500" 
-                      : "border-neutral-800"
+                      ? "border-primary" 
+                      : "border-border"
                   }`}
                 >
                   {/* Table Number */}
-                  <span className="text-lg font-bold text-white w-10">{table.id}</span>
+                  <span className="text-lg font-bold text-foreground w-10">{table.id}</span>
                   
                   {/* Seat Dots */}
                   <div className="flex gap-0.5">
@@ -280,10 +270,10 @@ const TableOrder = () => {
                   </div>
                   
                   {/* Seats Count */}
-                  <span className="text-gray-400 text-xs">{table.seats}S</span>
+                  <span className="text-muted-foreground text-xs">{table.seats}S</span>
                   
                   {/* Time */}
-                  <span className="text-gray-500 text-xs flex-1">{table.time || "-"}</span>
+                  <span className="text-muted-foreground text-xs flex-1">{table.time || "-"}</span>
                   
                   {/* Status or Guest Selection */}
                   {guestDropdownTable === table.id && table.status === "Available" ? (
@@ -295,15 +285,15 @@ const TableOrder = () => {
                             e.stopPropagation();
                             handleGuestSelect(i + 1);
                           }}
-                          className="w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                          className="w-5 h-5 flex items-center justify-center text-xs font-bold text-foreground bg-muted rounded hover:bg-primary hover:text-primary-foreground transition-colors"
                         >
                           {i + 1}
                         </button>
                       ))}
                     </div>
                   ) : (
-                    <div className={`px-2 py-0.5 rounded border border-neutral-600 ${config.bgColor}`}>
-                      <span className={`text-xs font-medium ${config.color}`}>
+                    <div className={`px-2 py-0.5 rounded border border-border ${config.bgClass}`}>
+                      <span className={`text-xs font-medium ${config.colorClass}`}>
                         {table.status}
                       </span>
                     </div>
@@ -337,14 +327,14 @@ const TableOrder = () => {
                 <div
                   key={`${table.id}-${index}`}
                   onClick={handleTableClick}
-                  className={`bg-neutral-900 rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
+                  className={`bg-card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-accent transition-all border-2 ${
                     selectedTable === table.id 
-                      ? "border-orange-500 ring-2 ring-orange-500/30" 
-                      : "border-neutral-800"
+                      ? "border-primary ring-2 ring-primary/30" 
+                      : "border-border"
                   }`}
                 >
                   {/* Table Number */}
-                  <span className="text-2xl font-bold text-white">{table.id}</span>
+                  <span className="text-2xl font-bold text-foreground">{table.id}</span>
                   
                   {/* Info */}
                   <div className="flex-1">
@@ -354,8 +344,8 @@ const TableOrder = () => {
                           <div key={i} className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
                         ))}
                       </div>
-                      <span className="text-gray-400 text-xs">{table.seats} Seats</span>
-                      {table.time && <span className="text-gray-500 text-xs">{table.time}</span>}
+                      <span className="text-muted-foreground text-xs">{table.seats} Seats</span>
+                      {table.time && <span className="text-muted-foreground text-xs">{table.time}</span>}
                     </div>
                   </div>
                   
@@ -369,15 +359,15 @@ const TableOrder = () => {
                             e.stopPropagation();
                             handleGuestSelect(i + 1);
                           }}
-                          className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                          className="w-6 h-6 flex items-center justify-center text-xs font-bold text-foreground bg-muted rounded hover:bg-primary hover:text-primary-foreground transition-colors"
                         >
                           {i + 1}
                         </button>
                       ))}
                     </div>
                   ) : (
-                    <div className={`px-3 py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
-                      <span className={`text-xs font-medium ${config.color}`}>
+                    <div className={`px-3 py-1 rounded-md border border-border ${config.bgClass}`}>
+                      <span className={`text-xs font-medium ${config.colorClass}`}>
                         {table.status}
                       </span>
                     </div>
@@ -414,17 +404,17 @@ const TableOrder = () => {
                 >
                   <div
                     onClick={handleTableClick}
-                    className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
+                    className={`bg-card rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-accent transition-all border-2 ${
                       selectedTable === table.id 
-                        ? "border-orange-500 ring-2 ring-orange-500/30" 
-                        : "border-neutral-800"
+                        ? "border-primary ring-2 ring-primary/30" 
+                        : "border-border"
                     }`}
                   >
                     {/* Table Number */}
-                    <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
+                    <span className="text-3xl font-bold text-foreground mb-1">{table.id}</span>
                     
                     {/* Seats */}
-                    <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
+                    <span className="text-muted-foreground text-sm mb-2">{table.seats} Seats</span>
                     
                     {/* Seat Dots */}
                     <div className="flex gap-1 mb-2">
@@ -437,13 +427,13 @@ const TableOrder = () => {
                       {/* Time - just above status, right aligned with same padding */}
                       <div className="flex justify-end mb-1 min-h-[1rem] px-1">
                         {table.time && (
-                          <span className="text-gray-500 text-xs">{table.time}</span>
+                          <span className="text-muted-foreground text-xs">{table.time}</span>
                         )}
                       </div>
                       
                       {/* Status Label - Shows guest numbers when Available table is clicked */}
                       {guestDropdownTable === table.id && table.status === "Available" ? (
-                        <div className="w-full flex justify-center gap-1 py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700">
+                        <div className="w-full flex justify-center gap-1 py-1 px-2 rounded-md border border-border bg-muted">
                           {Array.from({ length: table.seats }).map((_, i) => (
                             <button
                               key={i}
@@ -451,15 +441,15 @@ const TableOrder = () => {
                                 e.stopPropagation();
                                 handleGuestSelect(i + 1);
                               }}
-                              className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                              className="w-6 h-6 flex items-center justify-center text-xs font-bold text-foreground bg-secondary rounded hover:bg-primary hover:text-primary-foreground transition-colors"
                             >
                               {i + 1}
                             </button>
                           ))}
                         </div>
                       ) : (
-                        <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
-                          <span className={`text-xs font-medium ${config.color}`}>
+                        <div className={`w-full text-center py-1 rounded-md border border-border ${config.bgClass}`}>
+                          <span className={`text-xs font-medium ${config.colorClass}`}>
                             {table.status}
                           </span>
                         </div>

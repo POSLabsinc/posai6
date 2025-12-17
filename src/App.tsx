@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 import { Layout } from "@/components/Layout";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
@@ -34,44 +35,46 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Dashboard />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/orders-design-1" element={<OrdersDesign1 />} />
-            <Route path="/orders-design-2" element={<OrdersDesign2 />} />
-            <Route path="/orders-design-3" element={<OrdersDesign3 />} />
-            <Route path="/orders-design-4" element={<OrdersDesign4 />} />
-            <Route path="/liquid-dashboard" element={<LiquidGlassDashboard />} />
-            <Route path="/liquid-orders" element={<LiquidGlassOrders />} />
-            <Route path="/liquid-menu" element={<LiquidGlassMenu />} />
-            <Route path="/liquid-checkout" element={<LiquidGlassCheckout />} />
-            <Route path="/liquid-orders-1a" element={<LiquidGlassOrders1A />} />
-            <Route path="/liquid-orders-1b" element={<LiquidGlassOrders1B />} />
-            <Route path="/liquid-orders-2a" element={<LiquidGlassOrders2A />} />
-            <Route path="/liquid-orders-2b" element={<LiquidGlassOrders2B />} />
-            <Route path="/liquid-orders-3a" element={<LiquidGlassOrders3A />} />
-            <Route path="/liquid-orders-3b" element={<LiquidGlassOrders3B />} />
-            <Route path="/liquid-orders-4a" element={<LiquidGlassOrders4A />} />
-            <Route path="/liquid-orders-4b" element={<LiquidGlassOrders4B />} />
-            <Route path="/liquid-orders-5a" element={<LiquidGlassOrders5A />} />
-            <Route path="/liquid-orders-5b" element={<LiquidGlassOrders5B />} />
-            <Route path="/tableorder" element={<TableOrder />} />
-            <Route path="/tableorder/:tableId" element={<TableOrderDetails />} />
-            <Route path="/tableorder/:tableId/merge" element={<MergeOrders />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/reports" element={<Reports />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider defaultTheme="dark">
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Layout>
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/orders-design-1" element={<OrdersDesign1 />} />
+              <Route path="/orders-design-2" element={<OrdersDesign2 />} />
+              <Route path="/orders-design-3" element={<OrdersDesign3 />} />
+              <Route path="/orders-design-4" element={<OrdersDesign4 />} />
+              <Route path="/liquid-dashboard" element={<LiquidGlassDashboard />} />
+              <Route path="/liquid-orders" element={<LiquidGlassOrders />} />
+              <Route path="/liquid-menu" element={<LiquidGlassMenu />} />
+              <Route path="/liquid-checkout" element={<LiquidGlassCheckout />} />
+              <Route path="/liquid-orders-1a" element={<LiquidGlassOrders1A />} />
+              <Route path="/liquid-orders-1b" element={<LiquidGlassOrders1B />} />
+              <Route path="/liquid-orders-2a" element={<LiquidGlassOrders2A />} />
+              <Route path="/liquid-orders-2b" element={<LiquidGlassOrders2B />} />
+              <Route path="/liquid-orders-3a" element={<LiquidGlassOrders3A />} />
+              <Route path="/liquid-orders-3b" element={<LiquidGlassOrders3B />} />
+              <Route path="/liquid-orders-4a" element={<LiquidGlassOrders4A />} />
+              <Route path="/liquid-orders-4b" element={<LiquidGlassOrders4B />} />
+              <Route path="/liquid-orders-5a" element={<LiquidGlassOrders5A />} />
+              <Route path="/liquid-orders-5b" element={<LiquidGlassOrders5B />} />
+              <Route path="/tableorder" element={<TableOrder />} />
+              <Route path="/tableorder/:tableId" element={<TableOrderDetails />} />
+              <Route path="/tableorder/:tableId/merge" element={<MergeOrders />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/reports" element={<Reports />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Layout>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ThemeProvider>
 );
 
 export default App;

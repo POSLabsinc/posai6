@@ -2,12 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* 
+ * Dynamic Theme System
+ * All colors use CSS custom properties that are set dynamically by the ThemeProvider.
+ * Colors are in HSL format without the hsl() wrapper for easy manipulation.
+ */
 
 @layer base {
   :root {
+    /* Core colors - defaults that get overridden by ThemeProvider */
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -17,8 +20,8 @@ All colors MUST be HSL.
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96.1%;
     --secondary-foreground: 222.2 47.4% 11.2%;
@@ -30,72 +33,109 @@ All colors MUST be HSL.
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 100%;
 
     --border: 214.3 31.8% 91.4%;
     --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    --ring: 25 95% 53%;
 
+    /* Radius tokens */
     --radius: 0.5rem;
+    --radius-sm: 0.25rem;
+    --radius-md: 0.375rem;
+    --radius-lg: 0.5rem;
+    --radius-xl: 0.75rem;
+    --radius-full: 9999px;
 
-    --header: 262 83% 58%;
-    --header-foreground: 0 0% 100%;
+    /* Header */
+    --header: 0 0% 98%;
+    --header-foreground: 222.2 84% 4.9%;
 
+    /* Sidebar */
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
+    --sidebar-primary: 25 95% 53%;
+    --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 25 95% 53%;
 
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    /* Glass effects */
+    --glass-background: 0 0% 100% / 0.7;
+    --glass-border: 0 0% 0% / 0.1;
+    --glass-backdrop-blur: 20px;
+    --glass-blur: 20px;
+    --glass-saturation: 180%;
+
+    /* Status colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --info: 199 89% 48%;
+    --info-foreground: 0 0% 100%;
+
+    /* Shadows */
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+    --shadow-xl: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+
+    /* Typography */
+    --font-family: Inter, system-ui, sans-serif;
+    --font-family-mono: JetBrains Mono, monospace;
+    --font-size-base: 1rem;
+    --font-size-sm: 0.875rem;
+    --font-size-lg: 1.125rem;
+    --font-size-xl: 1.25rem;
   }
 
+  /* Dark mode defaults - these also get overridden by ThemeProvider */
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
+    --card: 0 0% 7%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 7%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
+    --primary: 25 95% 53%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
 
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
 
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
-    --header: 0 0% 13%;
-    --header-foreground: 0 0% 100%;
-    --sidebar-background: 0 0% 0%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 25 95% 53%;
+
+    --header: 0 0% 7%;
+    --header-foreground: 0 0% 98%;
+
+    --sidebar-background: 0 0% 3.9%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 25 95% 53%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-accent: 0 0% 14.9%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 14.9%;
+    --sidebar-ring: 25 95% 53%;
+
+    --glass-background: 0 0% 100% / 0.08;
+    --glass-border: 0 0% 100% / 0.15;
+    --glass-backdrop-blur: 20px;
   }
 }
 
@@ -106,10 +146,12 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-family);
   }
 }
 
 @layer utilities {
+  /* Scrollbar utilities */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -118,37 +160,196 @@ All colors MUST be HSL.
     display: none;
   }
 
-  /* Liquid Glass Design System */
+  /* 
+   * Liquid Glass Design System
+   * These use CSS variables so they work with any theme
+   */
   .glass {
-    background: hsla(0, 0%, 100%, 0.08);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border: 1px solid hsla(0, 0%, 100%, 0.15);
+    background: hsl(var(--glass-background));
+    backdrop-filter: blur(var(--glass-backdrop-blur)) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(var(--glass-backdrop-blur)) saturate(var(--glass-saturation));
+    border: 1px solid hsl(var(--glass-border));
   }
 
   .glass-dark {
-    background: hsla(0, 0%, 0%, 0.3);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
-    border: 1px solid hsla(0, 0%, 100%, 0.1);
+    background: hsl(var(--background) / 0.6);
+    backdrop-filter: blur(24px) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(24px) saturate(var(--glass-saturation));
+    border: 1px solid hsl(var(--border));
   }
 
   .glass-vibrant {
-    background: linear-gradient(135deg, hsla(0, 0%, 100%, 0.12), hsla(0, 0%, 100%, 0.05));
-    backdrop-filter: blur(16px) saturate(180%);
-    -webkit-backdrop-filter: blur(16px) saturate(180%);
-    border: 1px solid hsla(0, 0%, 100%, 0.2);
-    box-shadow: 0 8px 32px hsla(0, 0%, 0%, 0.2);
+    background: linear-gradient(
+      135deg, 
+      hsl(var(--glass-background)), 
+      hsl(var(--background) / 0.4)
+    );
+    backdrop-filter: blur(16px) saturate(var(--glass-saturation));
+    -webkit-backdrop-filter: blur(16px) saturate(var(--glass-saturation));
+    border: 1px solid hsl(var(--glass-border));
+    box-shadow: var(--shadow-lg);
+  }
+
+  .glass-card {
+    background: hsl(var(--card) / 0.8);
+    backdrop-filter: blur(var(--glass-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--glass-backdrop-blur));
+    border: 1px solid hsl(var(--border));
   }
 
   .glass-glow {
-    box-shadow: 0 0 20px hsla(25, 95%, 53%, 0.3), 0 8px 32px hsla(0, 0%, 0%, 0.2);
+    box-shadow: 
+      0 0 20px hsl(var(--primary) / 0.3), 
+      var(--shadow-lg);
   }
 
+  .glass-subtle {
+    background: hsl(var(--muted) / 0.5);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid hsl(var(--border) / 0.5);
+  }
+
+  /* Gradient mesh background - uses theme colors */
   .gradient-mesh {
     background: 
-      radial-gradient(ellipse at 20% 30%, hsla(25, 95%, 53%, 0.15) 0%, transparent 50%),
-      radial-gradient(ellipse at 80% 70%, hsla(220, 90%, 56%, 0.1) 0%, transparent 50%),
-      radial-gradient(ellipse at 50% 50%, hsla(280, 80%, 60%, 0.08) 0%, transparent 60%);
+      radial-gradient(ellipse at 20% 30%, hsl(var(--primary) / 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, hsl(var(--info) / 0.1) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, hsl(var(--accent) / 0.08) 0%, transparent 60%);
+  }
+
+  .gradient-mesh-subtle {
+    background: 
+      radial-gradient(ellipse at 20% 30%, hsl(var(--primary) / 0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 70%, hsl(var(--info) / 0.05) 0%, transparent 50%);
+  }
+
+  /* Status color utilities */
+  .bg-success {
+    background-color: hsl(var(--success));
+  }
+  .text-success {
+    color: hsl(var(--success));
+  }
+  .bg-warning {
+    background-color: hsl(var(--warning));
+  }
+  .text-warning {
+    color: hsl(var(--warning));
+  }
+  .bg-info {
+    background-color: hsl(var(--info));
+  }
+  .text-info {
+    color: hsl(var(--info));
+  }
+
+  /* Primary gradient - works with any theme */
+  .bg-primary-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(var(--primary)),
+      hsl(var(--primary) / 0.8)
+    );
+  }
+
+  /* Surface levels for layered UIs */
+  .surface-0 {
+    background: hsl(var(--background));
+  }
+  .surface-1 {
+    background: hsl(var(--card));
+  }
+  .surface-2 {
+    background: hsl(var(--muted));
+  }
+  .surface-3 {
+    background: hsl(var(--accent));
+  }
+
+  /* Interactive states */
+  .interactive {
+    @apply transition-all duration-200;
+  }
+  .interactive:hover {
+    background: hsl(var(--accent));
+  }
+  .interactive:active {
+    transform: scale(0.98);
+  }
+
+  /* Focus ring using theme color */
+  .focus-ring {
+    @apply outline-none ring-2 ring-offset-2;
+    ring-color: hsl(var(--ring));
+    ring-offset-color: hsl(var(--background));
+  }
+}
+
+/* Custom scrollbar styling */
+@layer utilities {
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--muted-foreground) / 0.3) transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: hsl(var(--muted-foreground) / 0.3);
+    border-radius: 3px;
+  }
+  
+  .scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background-color: hsl(var(--muted-foreground) / 0.5);
+  }
+}
+
+/* Animation utilities */
+@layer utilities {
+  .animate-fade-in {
+    animation: fadeIn 0.2s ease-out;
+  }
+  
+  .animate-slide-up {
+    animation: slideUp 0.3s ease-out;
+  }
+  
+  .animate-scale-in {
+    animation: scaleIn 0.2s ease-out;
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0; 
+    transform: translateY(10px); 
+  }
+  to { 
+    opacity: 1; 
+    transform: translateY(0); 
+  }
+}
+
+@keyframes scaleIn {
+  from { 
+    opacity: 0; 
+    transform: scale(0.95); 
+  }
+  to { 
+    opacity: 1; 
+    transform: scale(1); 
   }
 }

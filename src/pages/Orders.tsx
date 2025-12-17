@@ -6240,14 +6240,14 @@ const Orders = () => {
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
             <div className="relative">
               <input ref={mobileGuestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]" />
-              {showGuestDropdown && filteredGuests.length > 0 && <div ref={mobileGuestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+              {showGuestDropdown && filteredGuests.length > 0 && <div ref={mobileGuestDropdownRef} className="absolute top-full left-0 mt-1 bg-accent rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
                   {filteredGuests.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
-                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-foreground font-semibold text-sm">
                           {guest.initials}
                         </div>}
                       <div className="flex flex-col">
-                        <span className="text-white font-medium text-sm">{guest.name}</span>
-                        <span className="text-neutral-400 text-xs">{guest.phone}</span>
+                        <span className="text-foreground font-medium text-sm">{guest.name}</span>
+                        <span className="text-muted-foreground text-xs">{guest.phone}</span>
                       </div>
                     </button>)}
                 </div>}
@@ -6255,21 +6255,21 @@ const Orders = () => {
             <div className="relative flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
               <input ref={mobilePhoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-36 min-w-0 text-[#808080]" />
-              {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={mobilePhoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+              {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={mobilePhoneDropdownRef} className="absolute top-full left-0 mt-1 bg-accent rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
                   {filteredByPhone.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
-                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-foreground font-semibold text-sm">
                           {guest.initials}
                         </div>}
                       <div className="flex flex-col">
-                        <span className="text-white font-medium text-sm">{guest.name}</span>
-                        <span className="text-neutral-400 text-xs">{guest.phone}</span>
+                        <span className="text-foreground font-medium text-sm">{guest.name}</span>
+                        <span className="text-muted-foreground text-xs">{guest.phone}</span>
                       </div>
                     </button>)}
                 </div>}
             </div>
             <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
               <img src={timeIcon} alt="Time" className="w-4 h-4" />
-              <span className="text-white">12:30 PM</span>
+              <span className="text-foreground">12:30 PM</span>
             </div>
           </div>
           
@@ -6311,8 +6311,8 @@ const Orders = () => {
                     {orderType} <ChevronDown className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[100px] p-1">
-                  {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2">
+                <DropdownMenuContent align="start" className="bg-muted border-border min-w-[100px] p-1">
+                  {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-foreground hover:bg-accent cursor-pointer text-[10px] py-1 px-2">
                       {type}
                     </DropdownMenuItem>)}
                 </DropdownMenuContent>
@@ -6328,32 +6328,32 @@ const Orders = () => {
                     <MoreVertical className="w-3 h-3 text-black" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-neutral-800 border-neutral-700 min-w-[160px] p-1 z-50">
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                <DropdownMenuContent align="end" className="bg-muted border-border min-w-[160px] p-1 z-50">
+                  <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <img src={noTaxIcon} alt="" className="w-3.5 h-3.5" />
                     No Tax
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                  <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
                     Discount
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                  <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <img src={giftCardIcon} alt="" className="w-3.5 h-3.5" />
                     Gift Card
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                  <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <Plus className="w-3.5 h-3.5" />
                     Add Guest
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                  <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <Plus className="w-3.5 h-3.5" />
                     Custom Item
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                  <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <img src={cashRegisterIcon} alt="" className="w-3.5 h-3.5" />
                     Open Register
                   </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                  <DropdownMenuItem className="text-foreground hover:bg-accent cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <Receipt className="w-3.5 h-3.5" />
                     Service Charge
                   </DropdownMenuItem>
@@ -6367,7 +6367,7 @@ const Orders = () => {
               } else {
                 setMenuPosition('center');
               }
-            }} className="p-1 rounded hover:bg-neutral-700 transition-colors">
+            }} className="p-1 rounded hover:bg-accent transition-colors">
                 <img src={isOrderPanelExpanded ? collapsePanelIcon : expandPanelIcon} alt="Toggle panel" className="w-4 h-4" />
               </button>
             </div>
@@ -6375,9 +6375,9 @@ const Orders = () => {
 
           {/* Order Notes */}
           <div className="px-2 py-1.5 border-b border-sidebar-border">
-            <div className="flex items-center gap-2 bg-neutral-700 rounded px-2 py-1.5">
+            <div className="flex items-center gap-2 bg-accent rounded px-2 py-1.5">
               <img src={itemNotesIcon} alt="Notes" className="w-3.5 h-3.5 flex-shrink-0" />
-              <input type="text" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="bg-transparent outline-none text-xs text-white placeholder:text-muted-foreground flex-1 min-w-0" placeholder="Order notes and Allergies" />
+              <input type="text" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="bg-transparent outline-none text-xs text-foreground placeholder:text-muted-foreground flex-1 min-w-0" placeholder="Order notes and Allergies" />
             </div>
           </div>
 
@@ -6389,9 +6389,9 @@ const Orders = () => {
               </div> : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
                 <div className="px-1.5 py-0.5 space-y-0.5">
                   {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)}>
-                      <div className="flex items-center justify-between bg-neutral-800 rounded px-1.5 py-1">
+                      <div className="flex items-center justify-between bg-muted rounded px-1.5 py-1">
                         <div className="flex items-center gap-1.5">
-                          <span className="w-4 h-4 rounded border border-white/50 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
+                          <span className="w-4 h-4 rounded border border-white/50 text-foreground text-[10px] font-medium flex items-center justify-center flex-shrink-0">
                             {item.qty}
                           </span>
                           <span className="text-[11px] font-medium text-foreground">{item.name}</span>
@@ -6434,7 +6434,7 @@ const Orders = () => {
               background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
             }}>
                 <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-                <span className="text-white font-semibold text-sm">FIRE</span>
+                <span className="text-foreground font-semibold text-sm">FIRE</span>
               </button>
               <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
               background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
@@ -6447,7 +6447,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto`} style={isDragging && dragOffset !== 0 ? {
+      <div className={`md:flex-1 flex flex-col min-w-0 bg-card md:bg-background border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`,
       flexGrow: 0,
       flexShrink: 0,
@@ -6459,7 +6459,7 @@ const Orders = () => {
       marginTop: 'auto'
     } : undefined}>
         {/* Grabber for minimize/maximize */}
-        <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden bg-neutral-900 rounded-t-[20px]">
+        <div className="flex items-center justify-between px-3 py-1.5 cursor-grab active:cursor-grabbing select-none md:hidden bg-card rounded-t-[20px]">
           <div className="w-8" /> {/* Spacer for balance */}
           <div className="touch-none" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
             <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-grab" />
@@ -6475,7 +6475,7 @@ const Orders = () => {
           {(showInlineCustomization && selectedItemForCustomization) || isSearchMode ? <div className="w-8" /> : null}
         </div>
         {/* Menu Content - Hidden when minimized */}
-      <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-b-[12px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
+      <div className={`flex flex-col gap-2 transition-all duration-300 bg-card rounded-b-[12px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
         {/* Inline Item Customization for Mobile - Inside Menu Panel */}
         {showInlineCustomization && selectedItemForCustomization ? <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
             <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />
@@ -6503,11 +6503,11 @@ const Orders = () => {
                 {thumbnailViewMode ? <img src={listViewIcon} alt="List view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
-                <SelectTrigger className="w-[100px] md:w-[110px] lg:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-5 md:h-7 lg:h-8 text-[10px] md:text-[10px] lg:text-sm">
+                <SelectTrigger className="w-[100px] md:w-[110px] lg:w-[160px] rounded-full bg-accent hover:bg-neutral-600 border-border text-foreground h-5 md:h-7 lg:h-8 text-[10px] md:text-[10px] lg:text-sm">
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
-                <SelectContent className="bg-neutral-800 border-neutral-700">
-                  {menuList.map(menu => <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
+                <SelectContent className="bg-muted border-border">
+                  {menuList.map(menu => <SelectItem key={menu} value={menu} className="text-foreground hover:bg-accent focus:bg-accent focus:text-foreground">
                       {menu}
                     </SelectItem>)}
                 </SelectContent>
@@ -6516,7 +6516,7 @@ const Orders = () => {
               <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-8 lg:w-9 h-6 md:h-8 lg:h-9" />
             </Button>}
           {/* Categories */}
-          {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2 md:px-5 lg:px-7 h-6 md:h-8 lg:h-9 text-[10px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
+          {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2 md:px-5 lg:px-7 h-6 md:h-8 lg:h-9 text-[10px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-foreground ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
         </div>
@@ -6526,7 +6526,7 @@ const Orders = () => {
         {/* Subcategories based on selected category - Hidden in search mode on mobile */}
         <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[7rem] lg:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
           <div className={`flex gap-1 md:gap-1.5 lg:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
-            {(categorySubcategories[activeCategory] || []).map(sub => <Button key={sub} variant="outline" className={`rounded-md px-2 md:px-4 lg:px-6 h-6 md:h-7 lg:h-8 text-[10px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
+            {(categorySubcategories[activeCategory] || []).map(sub => <Button key={sub} variant="outline" className={`rounded-md px-2 md:px-4 lg:px-6 h-6 md:h-7 lg:h-8 text-[10px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-background ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-background` : `bg-background text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-background/80`}`} onClick={() => setActiveSubcategory(sub)}>
                 {sub}
               </Button>)}
           </div>
@@ -6554,18 +6554,18 @@ const Orders = () => {
               // Filter items based on search query
               const filteredItems = searchQuery.trim() ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
               return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
-                {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700">
-                    <div className="relative aspect-[2/1] md:aspect-square bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
+                {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-md overflow-hidden cursor-pointer group border border-border">
+                    <div className="relative aspect-[2/1] md:aspect-square bg-muted" onClick={() => openCustomizationDialog(item, index)}>
                       <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
                       <button onClick={e => {
                       e.stopPropagation();
                       addToCart(item);
                     }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
-                        <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
+                        <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-foreground" strokeWidth={3} />
                       </button>
                     </div>
-                    <div className="p-0.5 md:p-1 bg-neutral-900" onClick={() => openCustomizationDialog(item, index)}>
-                      <span className="text-[10px] md:text-[10px] font-medium text-white uppercase leading-tight line-clamp-2">
+                    <div className="p-0.5 md:p-1 bg-card" onClick={() => openCustomizationDialog(item, index)}>
+                      <span className="text-[10px] md:text-[10px] font-medium text-foreground uppercase leading-tight line-clamp-2">
                         {item.name}
                       </span>
                     </div>
@@ -6575,7 +6575,7 @@ const Orders = () => {
                     <div className="flex-1 p-1.5 md:p-2" style={{
                     background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
                   }}>
-                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-white">
+                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-foreground">
                         ${item.price.toFixed(2)}
                       </span>
                       <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2">
@@ -6585,7 +6585,7 @@ const Orders = () => {
                     <button onClick={e => {
                     e.stopPropagation();
                     addToCart(item);
-                  }} className="w-6 md:w-8 text-white flex-shrink-0 flex items-center justify-center" style={{
+                  }} className="w-6 md:w-8 text-foreground flex-shrink-0 flex items-center justify-center" style={{
                     background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
                   }}>
                       <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" strokeWidth={4} />
@@ -6597,37 +6597,37 @@ const Orders = () => {
         </>}
         
         {/* Desktop/Tablet Search Bar - At Bottom */}
-        {isDesktopSearchOpen && <div className="hidden md:flex items-center gap-2 px-3 py-2.5 bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
-          <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+        {isDesktopSearchOpen && <div className="hidden md:flex items-center gap-2 px-3 py-2.5 bg-card border-t border-border flex-shrink-0">
+          <div className="flex-1 flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
             <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
-            <input type="text" placeholder="Search items..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
+            <input type="text" placeholder="Search items..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-foreground text-sm placeholder:text-muted-foreground outline-none" autoFocus />
             {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
-              <X className="w-4 h-4 text-neutral-400" />
+              <X className="w-4 h-4 text-muted-foreground" />
             </button>}
           </div>
-          <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 p-0 flex-shrink-0" onClick={() => {
+          <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-accent hover:bg-neutral-600 p-0 flex-shrink-0" onClick={() => {
             setIsDesktopSearchOpen(false);
             setSearchQuery('');
           }}>
-            <X className="w-4 h-4 text-white" />
+            <X className="w-4 h-4 text-foreground" />
           </Button>
         </div>}
         
         {/* Mobile Search Bar - At Bottom */}
-        {isSearchMode && <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
-          <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+        {isSearchMode && <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-card border-t border-border flex-shrink-0">
+          <div className="flex-1 flex items-center gap-2 bg-muted rounded-lg px-3 py-2">
             <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
-            <input ref={searchInputRef} type="text" placeholder="Search items..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
+            <input ref={searchInputRef} type="text" placeholder="Search items..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-foreground text-sm placeholder:text-muted-foreground outline-none" autoFocus />
             {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
-              <X className="w-4 h-4 text-neutral-400" />
+              <X className="w-4 h-4 text-muted-foreground" />
             </button>}
           </div>
-          <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 p-0 flex-shrink-0" onClick={() => {
+          <Button variant="ghost" size="icon" className="w-8 h-8 rounded-full bg-accent hover:bg-neutral-600 p-0 flex-shrink-0" onClick={() => {
             setIsSearchMode(false);
             setSearchQuery('');
             setMenuPosition('center');
           }}>
-            <X className="w-4 h-4 text-white" />
+            <X className="w-4 h-4 text-foreground" />
           </Button>
         </div>}
       </div>
@@ -6640,14 +6640,14 @@ const Orders = () => {
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
             <div className="relative">
               <input ref={guestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-[#808080]" />
-              {showGuestDropdown && filteredGuests.length > 0 && <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+              {showGuestDropdown && filteredGuests.length > 0 && <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-accent rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
                   {filteredGuests.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
-                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-foreground font-semibold text-sm">
                           {guest.initials}
                         </div>}
                       <div className="flex flex-col">
-                        <span className="text-white font-medium text-sm">{guest.name}</span>
-                        <span className="text-neutral-400 text-xs">{guest.phone}</span>
+                        <span className="text-foreground font-medium text-sm">{guest.name}</span>
+                        <span className="text-muted-foreground text-xs">{guest.phone}</span>
                       </div>
                     </button>)}
                 </div>}
@@ -6655,21 +6655,21 @@ const Orders = () => {
             <div className="relative flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
               <input ref={phoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080] text-xs" />
-              {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={phoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+              {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={phoneDropdownRef} className="absolute top-full left-0 mt-1 bg-accent rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
                   {filteredByPhone.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
-                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-foreground font-semibold text-sm">
                           {guest.initials}
                         </div>}
                       <div className="flex flex-col">
-                        <span className="text-white font-medium text-sm">{guest.name}</span>
-                        <span className="text-neutral-400 text-xs">{guest.phone}</span>
+                        <span className="text-foreground font-medium text-sm">{guest.name}</span>
+                        <span className="text-muted-foreground text-xs">{guest.phone}</span>
                       </div>
                     </button>)}
                 </div>}
             </div>
             <div className="flex items-center gap-0.5 whitespace-nowrap flex-shrink-0">
               <img src={timeIcon} alt="Time" className="w-3 h-3" />
-              <span className="text-white text-[10px]">12:30 PM</span>
+              <span className="text-foreground text-[10px]">12:30 PM</span>
             </div>
           </div>
           
@@ -6707,12 +6707,12 @@ const Orders = () => {
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
+                  <button className="flex items-center gap-1 text-xs font-medium bg-accent hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
                     {orderType} <ChevronDown className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
-                  {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-white hover:bg-neutral-700 cursor-pointer">
+                <DropdownMenuContent align="start" className="bg-muted border-border min-w-[140px]">
+                  {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-foreground hover:bg-accent cursor-pointer">
                       {type}
                     </DropdownMenuItem>)}
                 </DropdownMenuContent>
@@ -6748,7 +6748,7 @@ const Orders = () => {
               }}>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 md:gap-1.5 lg:gap-3">
-                        <span className="w-5 h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full bg-orange-500 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0">
+                        <span className="w-5 h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full bg-orange-500 text-foreground text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0">
                           {item.qty}
                         </span>
                         <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
@@ -6809,7 +6809,7 @@ const Orders = () => {
               background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
             }}>
               <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-              <span className="text-white font-semibold text-sm">FIRE</span>
+              <span className="text-foreground font-semibold text-sm">FIRE</span>
             </button>
             <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
               background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'

@@ -524,7 +524,7 @@ const TableOrderDetails = () => {
 
               {/* Swipeable card content - everything inside moves together */}
               <div
-                className="relative transition-transform duration-200 ease-out md:transform-none bg-neutral-900 rounded-xl select-none"
+                className="relative transition-transform duration-200 ease-out md:transform-none bg-black rounded-xl select-none"
                 style={{
                   transform: `translateX(${swipeStates[guest.id] || 0}px)`,
                   transition:

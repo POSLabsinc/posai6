@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ArrowUpDown } from "lucide-react";
+import { ChevronLeft, ArrowUpDown, SlidersHorizontal, Search } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import BottomNavigation from "@/components/BottomNavigation";
 
 // Import icons
@@ -29,7 +30,7 @@ const orderItems = [
 
 const mergeFilters = ["All", "Ordering", "Ordered", "Preparing", "Unpaid"];
 
-type MergeStep = "select" | "confirm-direction" | "final-confirm";
+type MergeStep = "select" | "confirm-direction";
 
 const MergeOrders = () => {
   const navigate = useNavigate();
@@ -44,6 +45,7 @@ const MergeOrders = () => {
   const [toOrder, setToOrder] = useState<typeof allOrders[0] | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const toggleOrderExpand = (orderId: string) => {
     setExpandedOrderId(prev => prev === orderId ? null : orderId);
@@ -94,10 +96,6 @@ const MergeOrders = () => {
     setToOrder(temp);
   };
 
-  const handleConfirmDirection = () => {
-    setStep("final-confirm");
-  };
-
   const handleFinalConfirm = () => {
     navigate(`/tableorder/${tableId}?merged=${selectedOrders.join(",")}&from=${fromOrder?.id}`);
   };
@@ -105,8 +103,6 @@ const MergeOrders = () => {
   const handleBack = () => {
     if (step === "confirm-direction") {
       setStep("select");
-    } else if (step === "final-confirm") {
-      setStep("confirm-direction");
     } else {
       navigate(`/tableorder/${tableId}`);
     }
@@ -464,10 +460,10 @@ const MergeOrders = () => {
   const MobileSelectOrdersView = () => (
     <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
       {/* Header */}
-      <div className="flex items-center gap-3 p-4">
+      <div className="relative flex items-center justify-between p-4">
         <button 
           onClick={handleBack}
-          className="w-10 h-10 rounded-full flex items-center justify-center"
+          className="w-10 h-10 rounded-full flex items-center justify-center z-10"
           style={{ 
             background: "#7575754D",
             boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
@@ -475,7 +471,63 @@ const MergeOrders = () => {
         >
           <ChevronLeft className="w-5 h-5 text-white" />
         </button>
-        <h1 className="text-white text-xl font-medium flex-1 text-center pr-10">Merge</h1>
+        
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-medium">Merge</h1>
+        
+        <div className="flex items-center gap-2 z-10">
+          <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+            <PopoverTrigger asChild>
+              <button 
+                className="p-2 rounded-full hover:opacity-80 transition-opacity"
+                style={{
+                  background: "#7575754D",
+                  boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+                }}
+              >
+                <SlidersHorizontal className="w-5 h-5 text-white" />
+              </button>
+            </PopoverTrigger>
+            <PopoverContent 
+              className="w-48 p-2 bg-neutral-900 border border-white/10 rounded-xl"
+              align="end"
+            >
+              <div className="flex flex-col gap-1">
+                {mergeFilters.map(filter => {
+                  const count = getFilterCount(filter);
+                  const isActive = activeFilter === filter;
+                  return (
+                    <button
+                      key={filter}
+                      onClick={() => {
+                        setActiveFilter(filter);
+                        setIsFilterOpen(false);
+                      }}
+                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
+                        isActive ? "bg-white text-black" : "text-white hover:bg-neutral-800"
+                      }`}
+                    >
+                      <span>{filter}</span>
+                      <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
+                        isActive ? "bg-black text-white" : "bg-neutral-700"
+                      }`}>
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </PopoverContent>
+          </Popover>
+          <button 
+            className="p-2 rounded-full hover:opacity-80 transition-opacity"
+            style={{
+              background: "#7575754D",
+              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+            }}
+          >
+            <Search className="w-5 h-5 text-white" />
+          </button>
+        </div>
       </div>
 
       {/* Current Order */}
@@ -486,36 +538,6 @@ const MergeOrders = () => {
       {/* Choose Orders Label */}
       <div className="px-4 py-2">
         <p className="text-white/80 text-sm">Choose Orders to Merge with Order {orderId}</p>
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
-        {mergeFilters.map(filter => {
-          const count = getFilterCount(filter);
-          const isActive = activeFilter === filter;
-          return (
-            <button
-              key={filter}
-              onClick={() => setActiveFilter(filter)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all flex-shrink-0 ${
-                isActive ? "text-black" : "text-white"
-              }`}
-              style={isActive 
-                ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
-                : { background: "#1B1C20" }
-              }
-            >
-              <span>{filter}</span>
-              {count > 0 && (
-                <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
-                  isActive ? "bg-black text-white" : "bg-neutral-800"
-                }`}>
-                  {count}
-                </span>
-              )}
-            </button>
-          );
-        })}
       </div>
 
       {/* Orders List */}
@@ -627,90 +649,15 @@ const MergeOrders = () => {
     </div>
   );
 
-  // Mobile Step 2: Confirm direction (From/To)
+  // Mobile Step 2: Confirm direction (From/To) - matches screenshot design
   const ConfirmDirectionView = () => (
     <div className="flex flex-col h-full">
-      <div className="flex items-center gap-3 p-4">
-        <button 
-          onClick={handleBack}
-          className="w-10 h-10 rounded-full flex items-center justify-center"
-          style={{ 
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}
-        >
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-        <h1 className="text-white text-xl font-medium flex-1 text-center pr-10">Merge</h1>
-      </div>
-
-      <div className="px-4 pb-2">
-        <OrderCard order={currentOrder} isSelected={true} showCheckbox={false} showExpand={false} />
-      </div>
-
-      <div className="px-4 py-2">
-        <p className="text-white/80 text-sm">
-          Merge {selectedOrders.length} order from {fromOrder?.table}
-        </p>
-        <p className="text-white/60 text-xs mt-1">
-          Choose Orders to Merge with Order {orderId}
-        </p>
-      </div>
-
-      <div className="px-4 pb-3">
-        <div className="flex gap-2 flex-wrap">
-          {mergeFilters.map(filter => {
-            const count = getFilterCount(filter);
-            const isActive = activeFilter === filter;
-            return (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                  isActive ? "text-black" : "text-white"
-                }`}
-                style={isActive ? {
-                  background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-                } : {
-                  background: "#7575754D",
-                  boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-                }}
-              >
-                {filter}
-                <span className={`font-bold ${isActive ? "text-black" : "text-white"}`}>{count}</span>
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="px-4 flex-1">
-        {fromOrder && (
-          <div className="mb-4">
-            <OrderCard order={fromOrder} isSelected={true} showExpand={false} />
-          </div>
-        )}
-      </div>
-
-      <div className="p-4 pb-20 md:pb-4">
-        <button
-          onClick={handleConfirmDirection}
-          className="w-full py-3 rounded-full text-black font-medium"
-          style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-        >
-          MERGE ORDER {orderId}, {selectedOrders.join(", ")}
-        </button>
-      </div>
-    </div>
-  );
-
-  // Mobile Step 3: Final confirmation with From/To swap
-  const FinalConfirmView = () => (
-    <div className="flex flex-col h-full">
+      {/* Grabber */}
       <div className="flex justify-center pt-2 pb-4">
         <div className="w-10 h-1 bg-white/30 rounded-full" />
       </div>
 
+      {/* From Order */}
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">From</p>
         {fromOrder && (
@@ -718,6 +665,7 @@ const MergeOrders = () => {
         )}
       </div>
 
+      {/* Swap Button */}
       <div className="flex justify-center py-4">
         <button 
           onClick={handleSwapDirection}
@@ -727,6 +675,7 @@ const MergeOrders = () => {
         </button>
       </div>
 
+      {/* To Order */}
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">To</p>
         {toOrder && (
@@ -736,6 +685,7 @@ const MergeOrders = () => {
 
       <div className="flex-1" />
 
+      {/* Confirm Button */}
       <div className="p-4 pb-20 md:pb-4">
         <button
           onClick={handleFinalConfirm}
@@ -759,7 +709,6 @@ const MergeOrders = () => {
       <div className="flex flex-col flex-1 min-h-0 lg:hidden overflow-hidden">
         {step === "select" && <MobileSelectOrdersView />}
         {step === "confirm-direction" && <ConfirmDirectionView />}
-        {step === "final-confirm" && <FinalConfirmView />}
       </div>
 
       {/* Merge Button - Fixed above bottom nav */}

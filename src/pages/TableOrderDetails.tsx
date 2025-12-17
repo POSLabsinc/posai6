@@ -586,18 +586,16 @@ const TableOrderDetails = () => {
                 </div>
 
                 {/* Centered Arrow to Expand Details - inside swipeable wrapper */}
-                <div className="px-[10%]">
-                  <button
-                    className="w-full flex items-center justify-center transition-colors rounded-b-xl"
-                    style={{ background: "#7575754D" }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      toggleOrderExpand(guest.id);
-                    }}
-                  >
-                    <ChevronDown className={`w-4 h-4 text-white transition-transform ${expandedOrderId === guest.id ? 'rotate-180' : ''}`} />
-                  </button>
-                </div>
+                <button
+                  className="w-full flex items-center justify-center transition-colors rounded-b-xl"
+                  style={{ background: "#7575754D" }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleOrderExpand(guest.id);
+                  }}
+                >
+                  <ChevronDown className={`w-4 h-4 text-white transition-transform ${expandedOrderId === guest.id ? 'rotate-180' : ''}`} />
+                </button>
 
                 {/* Expanded Details - inside swipeable wrapper */}
                 {expandedOrderId === guest.id && (

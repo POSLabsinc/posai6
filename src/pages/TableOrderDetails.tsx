@@ -497,12 +497,12 @@ const TableOrderDetails = () => {
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    console.log('Merge', guest.id);
+                    navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
                   }}
                   className="w-10 h-10 flex items-center justify-center rounded-full transition-colors"
                   style={{ backgroundColor: '#666666' }}
                 >
-                  <img src={splitIcon} alt="Merge" className="w-5 h-5 object-contain" />
+                  <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
                 </button>
                 
                 {/* Transfer button - orange */}

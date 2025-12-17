@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone } from "lucide-react";
+import MergedOrderPanel from "@/components/MergedOrderPanel";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -85,6 +86,70 @@ const orderItems = [{
   seats: [],
   modifiers: ["- Salad", "- Balsamic Vinaigrette", "- Medium Rare", "+ W/ Potato Wedges", "- large", "+ W/ Extra Cheese"]
 }];
+
+// Mock merged orders data for display
+const mergedOrdersData = {
+  "3": { // Order 3 merged with Order 8
+    guestName: "Martin Alex",
+    phone: "(415) 123-4567",
+    time: "8:00 PM",
+    server: "Dustin H",
+    orders: [
+      {
+        id: "3",
+        table: "T2",
+        partySize: 4,
+        time: "10:00 PM",
+        notes: "Allergic to almonds, Don't add onion",
+        items: [
+          { qty: 2, name: "Meaty Cheese Burger", price: "$6.00", seats: [1, 2], modifiers: [] },
+          { qty: 4, name: "Classic Cheese Burger - Medium", price: "$10.00", seats: [], modifiers: ["American Cheese", "Bacon", "No Onions", "No Pickles", "Add Avocado", "Side: Fries", "Side: Chipotle Mayo"] },
+          { qty: 2, name: "Pepperoni Pizza (12\")", price: "$8.00", seats: [3, 4], modifiers: [] }
+        ]
+      },
+      {
+        id: "8",
+        table: "T3",
+        partySize: 2,
+        time: "10:00 PM",
+        notes: "Allergic to almonds, Don't add onion",
+        items: [
+          { qty: 2, name: "Meaty Cheese Burger", price: "$16.00", seats: [1, 2], modifiers: [] }
+        ]
+      }
+    ]
+  },
+  "1": { // Order 1 merged with Order 2
+    guestName: "Martin Alex",
+    phone: "(415) 123-4567",
+    time: "8:00 PM",
+    server: "Dustin H",
+    orders: [
+      {
+        id: "1",
+        table: "T2",
+        partySize: 2,
+        time: "7:15 PM",
+        notes: "No nuts",
+        items: [
+          { qty: 2, name: "Classic Crispy Burger", price: "$12.00", seats: [1, 2], modifiers: [] },
+          { qty: 1, name: "Caesar Salad", price: "$8.00", seats: [], modifiers: [] }
+        ]
+      },
+      {
+        id: "2",
+        table: "T2",
+        partySize: 3,
+        time: "7:30 PM",
+        notes: "",
+        items: [
+          { qty: 4, name: "Meatballs", price: "$16.00", seats: [], modifiers: [] },
+          { qty: 2, name: "Rigatoni Pasta", price: "$8.00", seats: [3, 4], modifiers: [] }
+        ]
+      }
+    ]
+  }
+};
 
 const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
@@ -856,6 +921,17 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Right Panel - Order Details */}
+      {destOrderId && mergedOrderId && mergedOrdersData[destOrderId as keyof typeof mergedOrdersData] ? (
+        <MergedOrderPanel
+          guestName={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].guestName}
+          phone={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].phone}
+          time={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].time}
+          server={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].server}
+          tableId={tableId || ""}
+          mergedOrderIds={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].orders.map(o => o.id)}
+          orders={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].orders}
+        />
+      ) : (
       <div className="w-[345px] flex flex-col m-2 ml-0">
         {/* Guest Header - Outside the box */}
         <div className="px-2 py-3">
@@ -994,6 +1070,7 @@ const TableOrderDetails = () => {
         </div>
         </div>
       </div>
+      )}
     </div>
   );
 
@@ -1157,6 +1234,18 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Right Panel - Order Details (same as desktop) */}
+      {destOrderId && mergedOrderId && mergedOrdersData[destOrderId as keyof typeof mergedOrdersData] ? (
+        <MergedOrderPanel
+          guestName={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].guestName}
+          phone={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].phone}
+          time={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].time}
+          server={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].server}
+          tableId={tableId || ""}
+          mergedOrderIds={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].orders.map(o => o.id)}
+          orders={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].orders}
+          width="w-[280px]"
+        />
+      ) : (
       <div className="w-[280px] flex flex-col m-2 ml-0">
         {/* Guest Header - Outside the box */}
         <div className="px-2 py-3">
@@ -1292,6 +1381,7 @@ const TableOrderDetails = () => {
         </div>
         </div>
       </div>
+      )}
     </div>
   );
 

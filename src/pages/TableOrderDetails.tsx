@@ -650,7 +650,7 @@ const TableOrderDetails = () => {
                           console.log('Transfer', guest.id);
                         }}
                       >
-                        <img src={transferIcon} alt="Transfer" className="w-4 h-4 object-contain" />
+                        <img src={transferIcon} alt="Transfer" className="w-4 h-4 object-contain" style={{ filter: 'brightness(0)' }} />
                         TRANSFER
                       </button>
                     </div>

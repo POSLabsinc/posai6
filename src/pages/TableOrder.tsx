@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown } from "lucide-react";
+import { Users, Grid, List, ChevronDown, LayoutList } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -100,7 +100,7 @@ const diningAreas = [
 const TableOrder = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "compact">("grid");
   const [selectedArea, setSelectedArea] = useState("Main Dining Room");
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
@@ -147,14 +147,16 @@ const TableOrder = () => {
 
             {/* View Button */}
             <button
-              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+              onClick={() => setViewMode(viewMode === "grid" ? "list" : viewMode === "list" ? "compact" : "grid")}
               className="flex items-center justify-center rounded-full p-1.5 hover:opacity-90 transition-opacity"
               style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
             >
               {viewMode === "grid" ? (
                 <Grid className="w-4 h-4 text-black" />
-              ) : (
+              ) : viewMode === "list" ? (
                 <List className="w-4 h-4 text-black" />
+              ) : (
+                <LayoutList className="w-4 h-4 text-black" />
               )}
             </button>
 
@@ -234,91 +236,241 @@ const TableOrder = () => {
         </ScrollArea>
       </div>
 
-      {/* Tables Grid */}
+      {/* Tables Grid/List/Compact View */}
       <ScrollArea className="flex-1">
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
-          {filteredTables.map((table, index) => {
-            const config = statusConfig[table.status] || statusConfig["Available"];
-            const dotColor = getSeatDotColor(table.status);
-            
-            const handleTableClick = () => {
-              if (table.status === "Available") {
-                setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
-              } else {
-                // Navigate to table order details for non-available tables
-                navigate(`/tableorder/${table.id}`);
-              }
-            };
+        {viewMode === "compact" ? (
+          /* Compact List View */
+          <div className="flex flex-col gap-1">
+            {filteredTables.map((table, index) => {
+              const config = statusConfig[table.status] || statusConfig["Available"];
+              const dotColor = getSeatDotColor(table.status);
+              
+              const handleTableClick = () => {
+                if (table.status === "Available") {
+                  setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
+                } else {
+                  navigate(`/tableorder/${table.id}`);
+                }
+              };
 
-            const handleGuestSelect = (guestCount: number) => {
-              console.log(`Selected ${guestCount} guests for table ${table.id}`);
-              setGuestDropdownTable(null);
-              setSelectedTable(table.id);
-            };
+              const handleGuestSelect = (guestCount: number) => {
+                console.log(`Selected ${guestCount} guests for table ${table.id}`);
+                setGuestDropdownTable(null);
+                setSelectedTable(table.id);
+              };
 
-            return (
-              <div
-                key={`${table.id}-${index}`}
-                className="relative"
-              >
+              return (
                 <div
+                  key={`${table.id}-${index}`}
                   onClick={handleTableClick}
-                  className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
+                  className={`bg-neutral-900 rounded-lg px-3 py-2 flex items-center gap-3 cursor-pointer hover:bg-neutral-800 transition-all border ${
+                    selectedTable === table.id 
+                      ? "border-orange-500" 
+                      : "border-neutral-800"
+                  }`}
+                >
+                  {/* Table Number */}
+                  <span className="text-lg font-bold text-white w-10">{table.id}</span>
+                  
+                  {/* Seat Dots */}
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: table.seats }).map((_, i) => (
+                      <div key={i} className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
+                    ))}
+                  </div>
+                  
+                  {/* Seats Count */}
+                  <span className="text-gray-400 text-xs">{table.seats}S</span>
+                  
+                  {/* Time */}
+                  <span className="text-gray-500 text-xs flex-1">{table.time || "-"}</span>
+                  
+                  {/* Status or Guest Selection */}
+                  {guestDropdownTable === table.id && table.status === "Available" ? (
+                    <div className="flex gap-1 px-2">
+                      {Array.from({ length: table.seats }).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGuestSelect(i + 1);
+                          }}
+                          className="w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className={`px-2 py-0.5 rounded border border-neutral-600 ${config.bgColor}`}>
+                      <span className={`text-xs font-medium ${config.color}`}>
+                        {table.status}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : viewMode === "list" ? (
+          /* List View - 2 columns */
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {filteredTables.map((table, index) => {
+              const config = statusConfig[table.status] || statusConfig["Available"];
+              const dotColor = getSeatDotColor(table.status);
+              
+              const handleTableClick = () => {
+                if (table.status === "Available") {
+                  setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
+                } else {
+                  navigate(`/tableorder/${table.id}`);
+                }
+              };
+
+              const handleGuestSelect = (guestCount: number) => {
+                console.log(`Selected ${guestCount} guests for table ${table.id}`);
+                setGuestDropdownTable(null);
+                setSelectedTable(table.id);
+              };
+
+              return (
+                <div
+                  key={`${table.id}-${index}`}
+                  onClick={handleTableClick}
+                  className={`bg-neutral-900 rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
                     selectedTable === table.id 
                       ? "border-orange-500 ring-2 ring-orange-500/30" 
                       : "border-neutral-800"
                   }`}
                 >
                   {/* Table Number */}
-                  <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
+                  <span className="text-2xl font-bold text-white">{table.id}</span>
                   
-                  {/* Seats */}
-                  <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
-                  
-                  {/* Seat Dots */}
-                  <div className="flex gap-1 mb-2">
-                    {Array.from({ length: table.seats }).map((_, i) => (
-                      <div key={i} className={`w-2 h-2 rounded-full ${dotColor}`} />
-                    ))}
-                  </div>
-                  
-                  <div className="mt-auto w-full">
-                    {/* Time - just above status, right aligned with same padding */}
-                    <div className="flex justify-end mb-1 min-h-[1rem] px-1">
-                      {table.time && (
-                        <span className="text-gray-500 text-xs">{table.time}</span>
-                      )}
-                    </div>
-                    
-                    {/* Status Label - Shows guest numbers when Available table is clicked */}
-                    {guestDropdownTable === table.id && table.status === "Available" ? (
-                      <div className="w-full flex justify-center gap-1 py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700">
+                  {/* Info */}
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="flex gap-0.5">
                         {Array.from({ length: table.seats }).map((_, i) => (
-                          <button
-                            key={i}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleGuestSelect(i + 1);
-                            }}
-                            className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
-                          >
-                            {i + 1}
-                          </button>
+                          <div key={i} className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
                         ))}
                       </div>
-                    ) : (
-                      <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
-                        <span className={`text-xs font-medium ${config.color}`}>
-                          {table.status}
-                        </span>
+                      <span className="text-gray-400 text-xs">{table.seats} Seats</span>
+                      {table.time && <span className="text-gray-500 text-xs">{table.time}</span>}
+                    </div>
+                  </div>
+                  
+                  {/* Status or Guest Selection */}
+                  {guestDropdownTable === table.id && table.status === "Available" ? (
+                    <div className="flex gap-1 px-2">
+                      {Array.from({ length: table.seats }).map((_, i) => (
+                        <button
+                          key={i}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGuestSelect(i + 1);
+                          }}
+                          className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                        >
+                          {i + 1}
+                        </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className={`px-3 py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
+                      <span className={`text-xs font-medium ${config.color}`}>
+                        {table.status}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* Grid View */
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+            {filteredTables.map((table, index) => {
+              const config = statusConfig[table.status] || statusConfig["Available"];
+              const dotColor = getSeatDotColor(table.status);
+              
+              const handleTableClick = () => {
+                if (table.status === "Available") {
+                  setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
+                } else {
+                  navigate(`/tableorder/${table.id}`);
+                }
+              };
+
+              const handleGuestSelect = (guestCount: number) => {
+                console.log(`Selected ${guestCount} guests for table ${table.id}`);
+                setGuestDropdownTable(null);
+                setSelectedTable(table.id);
+              };
+
+              return (
+                <div
+                  key={`${table.id}-${index}`}
+                  className="relative"
+                >
+                  <div
+                    onClick={handleTableClick}
+                    className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
+                      selectedTable === table.id 
+                        ? "border-orange-500 ring-2 ring-orange-500/30" 
+                        : "border-neutral-800"
+                    }`}
+                  >
+                    {/* Table Number */}
+                    <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
+                    
+                    {/* Seats */}
+                    <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
+                    
+                    {/* Seat Dots */}
+                    <div className="flex gap-1 mb-2">
+                      {Array.from({ length: table.seats }).map((_, i) => (
+                        <div key={i} className={`w-2 h-2 rounded-full ${dotColor}`} />
+                      ))}
+                    </div>
+                    
+                    <div className="mt-auto w-full">
+                      {/* Time - just above status, right aligned with same padding */}
+                      <div className="flex justify-end mb-1 min-h-[1rem] px-1">
+                        {table.time && (
+                          <span className="text-gray-500 text-xs">{table.time}</span>
+                        )}
                       </div>
-                    )}
+                      
+                      {/* Status Label - Shows guest numbers when Available table is clicked */}
+                      {guestDropdownTable === table.id && table.status === "Available" ? (
+                        <div className="w-full flex justify-center gap-1 py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700">
+                          {Array.from({ length: table.seats }).map((_, i) => (
+                            <button
+                              key={i}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGuestSelect(i + 1);
+                              }}
+                              className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                            >
+                              {i + 1}
+                            </button>
+                          ))}
+                        </div>
+                      ) : (
+                        <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
+                          <span className={`text-xs font-medium ${config.color}`}>
+                            {table.status}
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
         <ScrollBar orientation="vertical" />
       </ScrollArea>
     </div>

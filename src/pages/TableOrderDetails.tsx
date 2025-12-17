@@ -495,7 +495,7 @@ const TableOrderDetails = () => {
             <div key={guest.id} className="space-y-0">
               {/* Merged Order Indicator */}
               {destOrderId === guest.id && mergedFromTable && mergedOrderId && (
-                <div className="w-fit px-3 py-1.5 bg-neutral-900 rounded-full border-l-2 border-orange-500">
+                <div className="px-3 py-1.5 bg-neutral-900 rounded-t-xl border-l-2 border-orange-500">
                   <span className="text-orange-500 text-sm font-medium">
                     Merged order {mergedOrderId} from T{mergedFromTable}
                   </span>

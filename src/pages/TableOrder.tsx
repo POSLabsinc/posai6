@@ -292,7 +292,7 @@ const TableOrder = () => {
                     
                     {/* Status Label - Shows guest numbers when Available table is clicked */}
                     {guestDropdownTable === table.id && table.status === "Available" ? (
-                      <div className="w-full flex justify-center gap-1 py-1 rounded-md border border-neutral-600 bg-neutral-700">
+                      <div className="w-full flex justify-center gap-1 py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700">
                         {Array.from({ length: table.seats }).map((_, i) => (
                           <button
                             key={i}

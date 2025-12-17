@@ -1,20 +1,88 @@
 # Cloudflare Pages Configuration
-# This file configures the deployment settings for Cloudflare Pages
+# This file configures the deployment settings for Cloudflare Pages with Functions
 
 name = "pos-system"
 compatibility_date = "2024-12-01"
-
-# Pages-specific settings
 pages_build_output_dir = "dist"
 
-# Environment variables (can also be set in Cloudflare dashboard)
+# ============================================
+# ENVIRONMENT VARIABLES
+# ============================================
 [vars]
-VITE_APP_NAME = "POS System"
+ENVIRONMENT = "production"
 
-# Production environment
+# ============================================
+# DATABASE BINDINGS (Uncomment when ready)
+# ============================================
+
+# D1 SQL Database - for orders, menu items, etc.
+# First create the database:
+#   npx wrangler d1 create pos-database
+# Then uncomment and add your database_id:
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "pos-database"
+# database_id = "your-database-id-here"
+
+# ============================================
+# KV STORAGE (Uncomment when ready)
+# ============================================
+
+# KV Namespace - for real-time table status, sessions, cache
+# First create the namespace:
+#   npx wrangler kv:namespace create TABLES_KV
+# Then uncomment and add your id:
+# [[kv_namespaces]]
+# binding = "TABLES_KV"
+# id = "your-kv-namespace-id-here"
+
+# KV for user sessions/preferences
+# [[kv_namespaces]]
+# binding = "SESSIONS_KV"
+# id = "your-sessions-kv-id-here"
+
+# ============================================
+# DURABLE OBJECTS (Uncomment when ready)
+# ============================================
+
+# Durable Objects - for real-time sync, WebSocket connections
+# [[durable_objects.bindings]]
+# name = "ORDERS_DO"
+# class_name = "OrdersSync"
+
+# ============================================
+# R2 STORAGE (Uncomment when ready)
+# ============================================
+
+# R2 Bucket - for images, receipts, exports
+# First create the bucket:
+#   npx wrangler r2 bucket create pos-assets
+# [[r2_buckets]]
+# binding = "ASSETS"
+# bucket_name = "pos-assets"
+
+# ============================================
+# ANALYTICS (Uncomment when ready)
+# ============================================
+
+# Analytics Engine - for custom analytics
+# [[analytics_engine_datasets]]
+# binding = "ANALYTICS"
+
+# ============================================
+# ENVIRONMENT-SPECIFIC SETTINGS
+# ============================================
+
 [env.production]
-name = "pos-system"
+vars = { ENVIRONMENT = "production" }
 
-# Preview/staging environment (for non-main branches)
 [env.preview]
-name = "pos-system-preview"
+vars = { ENVIRONMENT = "preview" }
+
+# ============================================
+# LOCAL DEVELOPMENT
+# ============================================
+
+[dev]
+port = 8788
+local_protocol = "http"

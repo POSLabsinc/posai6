@@ -525,6 +525,7 @@ const MergeOrders = () => {
               order={order} 
               isSelected={selectedOrders.includes(order.id)}
               onClick={() => handleOrderSelect(order)}
+              showCheckbox={false}
             />
           ))}
         </div>

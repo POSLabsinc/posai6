@@ -573,7 +573,10 @@ const TableOrderDetails = () => {
                     <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
                       <button 
                         className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                        }}
                       >
                         <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
                       </button>
@@ -631,7 +634,7 @@ const TableOrderDetails = () => {
                         style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          console.log('Merge', guest.id);
+                          navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
                         }}
                       >
                         <img src={mergeIcon} alt="Merge" className="w-4 h-4 object-contain" />
@@ -1081,7 +1084,10 @@ const TableOrderDetails = () => {
                     <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
                       <button 
                         className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors border-b border-neutral-600"
-                        onClick={(e) => e.stopPropagation()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                        }}
                       >
                         <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
                       </button>

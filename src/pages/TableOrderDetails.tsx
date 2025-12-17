@@ -489,11 +489,7 @@ const TableOrderDetails = () => {
           {filteredGuestOrders.map(guest => (
             <div 
               key={guest.id} 
-              className={`relative rounded-xl cursor-pointer transition-all overflow-hidden ${
-                selectedGuest.id === guest.id 
-                  ? "bg-neutral-800/50" 
-                  : "bg-neutral-900/50"
-              }`}
+              className="relative rounded-xl cursor-pointer transition-all overflow-hidden bg-black"
             >
               {/* Swipe Action Buttons (revealed on swipe left) */}
               <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>

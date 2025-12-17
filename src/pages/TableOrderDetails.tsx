@@ -801,8 +801,11 @@ const TableOrderDetails = () => {
                   {/* Column 6: Action Buttons */}
                   <div className="flex-shrink-0 flex">
                     <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
-                      <button className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors border-b border-neutral-600">
-                        <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
+                      <button 
+                        className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors border-b border-neutral-600"
+                        onClick={() => navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`)}
+                      >
+                        <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
                       </button>
                       <button className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors">
                         <img src={shareOrderIcon} alt="Share" className="w-4 h-4 object-contain" />

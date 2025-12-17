@@ -536,7 +536,7 @@ const TableOrderDetails = () => {
                 onTouchCancel={(e) => handleSwipeEnd(false, e, guest)}
                 onMouseDown={(e) => handleSwipeStart(e, guest)}
                 onMouseMove={handleSwipeMove}
-                onMouseUp={(e) => handleSwipeEnd(false, e, guest)}
+                onMouseUp={(e) => handleSwipeEnd(true, e, guest)}
                 onMouseLeave={(e) => handleSwipeEnd(false, e, guest)}
                 onClick={() => handleCardClick(guest)}
               >

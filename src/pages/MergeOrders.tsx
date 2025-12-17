@@ -643,7 +643,7 @@ const MergeOrders = () => {
           <div className="pt-4">
             <button
               onClick={handleProceedToDirection}
-              className="w-full max-w-xs py-3 rounded-full text-black font-medium"
+              className="w-full py-2 rounded-full text-black font-medium text-sm"
               style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
             >
               MERGE ORDER {orderId}, {selectedOrders.join(", ")}

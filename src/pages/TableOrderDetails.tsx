@@ -13,6 +13,8 @@ import shareOrderIcon from "@/assets/icons/share-order.png";
 import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
+import mergeIcon from "@/assets/icons/merge-icon.png";
+import transferIcon from "@/assets/icons/transfer-icon.png";
 import searchIcon from "@/assets/icons/search.png";
 
 // Mock guest orders data
@@ -630,25 +632,25 @@ const TableOrderDetails = () => {
                     {/* Action Buttons */}
                     <div className="flex gap-2 mt-2">
                       <button 
-                        className="flex-1 py-2.5 flex items-center justify-center gap-2 text-black text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
+                        className="flex-1 py-1.5 flex items-center justify-center gap-2 text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
                         style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
                         onClick={(e) => {
                           e.stopPropagation();
                           console.log('Merge', guest.id);
                         }}
                       >
-                        <img src={splitIcon} alt="Merge" className="w-4 h-4 object-contain" />
+                        <img src={mergeIcon} alt="Merge" className="w-4 h-4 object-contain" />
                         MERGE
                       </button>
                       <button 
-                        className="flex-1 py-2.5 flex items-center justify-center gap-2 text-black text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
+                        className="flex-1 py-1.5 flex items-center justify-center gap-2 text-black text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
                         style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
                         onClick={(e) => {
                           e.stopPropagation();
                           console.log('Transfer', guest.id);
                         }}
                       >
-                        <ChevronRight className="w-4 h-4" />
+                        <img src={transferIcon} alt="Transfer" className="w-4 h-4 object-contain" />
                         TRANSFER
                       </button>
                     </div>

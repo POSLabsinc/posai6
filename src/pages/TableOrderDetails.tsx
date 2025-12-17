@@ -585,17 +585,15 @@ const TableOrderDetails = () => {
                   </div>
                 </div>
 
-                {/* Centered Arrow to Expand Details - inside swipeable wrapper */}
+                {/* Expand/Collapse Button - inside swipeable wrapper */}
                 <button
-                  className="w-full flex items-center justify-center transition-colors rounded-b-xl"
+                  className={`w-full h-3 flex items-center justify-center transition-colors ${expandedOrderId === guest.id ? '' : 'rounded-b-xl'}`}
                   style={{ background: "#7575754D" }}
                   onClick={(e) => {
                     e.stopPropagation();
                     toggleOrderExpand(guest.id);
                   }}
-                >
-                  <ChevronDown className={`w-4 h-4 text-white transition-transform ${expandedOrderId === guest.id ? 'rotate-180' : ''}`} />
-                </button>
+                />
 
                 {/* Expanded Details - inside swipeable wrapper */}
                 {expandedOrderId === guest.id && (

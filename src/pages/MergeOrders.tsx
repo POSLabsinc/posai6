@@ -462,7 +462,7 @@ const MergeOrders = () => {
 
   // Mobile Step 1: Select orders to merge
   const MobileSelectOrdersView = () => (
-    <div className="flex flex-col h-full overflow-hidden">
+    <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
       {/* Header */}
       <div className="flex items-center gap-3 p-4">
         <button 
@@ -517,7 +517,7 @@ const MergeOrders = () => {
       </div>
 
       {/* Orders List */}
-      <ScrollArea className="flex-1 px-4 min-h-0">
+      <div className="flex-1 min-h-0 overflow-y-auto px-4 overscroll-contain touch-pan-y">
         <div className="flex flex-col gap-2 pb-4">
           {filteredOrders.map(order => (
             <OrderCard 
@@ -529,7 +529,7 @@ const MergeOrders = () => {
             />
           ))}
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 
@@ -754,7 +754,7 @@ const MergeOrders = () => {
       </div>
 
       {/* Mobile/Tablet Layout */}
-      <div className="flex flex-col flex-1 lg:hidden pb-24">
+      <div className="flex flex-col flex-1 min-h-0 lg:hidden pb-24 overflow-hidden">
         {step === "select" && <MobileSelectOrdersView />}
         {step === "confirm-direction" && <ConfirmDirectionView />}
         {step === "final-confirm" && <FinalConfirmView />}

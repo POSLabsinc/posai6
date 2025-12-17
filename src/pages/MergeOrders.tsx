@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ArrowUpDown, SlidersHorizontal, Search } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -52,6 +53,7 @@ const MergeOrders = () => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
 
   const toggleOrderExpand = (orderId: string) => {
     setExpandedOrderId(prev => prev === orderId ? null : orderId);
@@ -642,7 +644,14 @@ const MergeOrders = () => {
         {selectedOrders.length > 0 && (
           <div className="pt-4">
             <button
-              onClick={handleProceedToDirection}
+              onClick={() => {
+                const selectedOrder = allOrders.find(o => o.id === selectedOrders[0]);
+                if (selectedOrder) {
+                  setFromOrder(selectedOrder);
+                  setToOrder(currentOrder);
+                  setIsConfirmDialogOpen(true);
+                }
+              }}
               className="w-full py-2 rounded-full text-black font-medium text-sm"
               style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
             >
@@ -731,6 +740,49 @@ const MergeOrders = () => {
           </button>
         </div>
       )}
+
+      {/* Desktop Confirmation Dialog */}
+      <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
+        <DialogContent className="bg-neutral-900 border-white/10 p-6 max-w-md">
+          {/* From Order */}
+          <div className="pb-4">
+            <p className="text-white/60 text-sm mb-2">From</p>
+            {fromOrder && (
+              <OrderCard order={fromOrder} isSelected={false} showCheckbox={false} showExpand={false} />
+            )}
+          </div>
+
+          {/* Swap Button */}
+          <div className="flex justify-center py-4">
+            <button 
+              onClick={handleSwapDirection}
+              className="w-12 h-12 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20"
+            >
+              <ArrowUpDown className="w-5 h-5 text-white" />
+            </button>
+          </div>
+
+          {/* To Order */}
+          <div className="pb-4">
+            <p className="text-white/60 text-sm mb-2">To</p>
+            {toOrder && (
+              <OrderCard order={toOrder} isSelected={false} showCheckbox={false} showExpand={false} />
+            )}
+          </div>
+
+          {/* Confirm Button */}
+          <button
+            onClick={() => {
+              setIsConfirmDialogOpen(false);
+              handleFinalConfirm();
+            }}
+            className="w-full py-2 rounded-full text-black font-medium text-sm mt-4"
+            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+          >
+            CONFIRM
+          </button>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

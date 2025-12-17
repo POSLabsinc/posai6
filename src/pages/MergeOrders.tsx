@@ -533,10 +533,10 @@ const MergeOrders = () => {
 
       {/* Merge Button */}
       {selectedOrders.length > 0 && (
-        <div className="p-4 pb-20">
+        <div className="px-4 py-2 pb-20">
           <button
             onClick={handleProceedToDirection}
-            className="w-full py-3 rounded-full text-black font-medium"
+            className="w-full py-2 rounded-full text-black font-medium text-sm"
             style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
           >
             MERGE ORDER {orderId}, {selectedOrders.join(", ")}

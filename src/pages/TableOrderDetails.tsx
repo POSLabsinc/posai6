@@ -964,6 +964,286 @@ const TableOrderDetails = () => {
     </div>
   );
 
+  // Tablet Layout - Similar to mobile order cards on left, order details on right
+  const TabletLayout = () => (
+    <div className="flex h-full bg-black">
+      {/* Left Panel - Order List (Mobile-style cards) */}
+      <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
+        {/* Header */}
+        <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+          <button 
+            onClick={() => navigate("/tableorder")} 
+            className="p-2 rounded-full hover:opacity-80 transition-opacity z-10"
+            style={{
+              background: "#7575754D",
+              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+            }}
+          >
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+          
+          <span className="absolute left-1/2 -translate-x-1/2 text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
+          
+          <div className="flex items-center gap-2 z-10">
+            <button 
+              className="p-2 rounded-full hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
+              <SlidersHorizontal className="w-4 h-4 text-white" />
+            </button>
+            <button 
+              className="p-2 rounded-full hover:opacity-80 transition-opacity"
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
+              <Search className="w-4 h-4 text-white" />
+            </button>
+          </div>
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
+          {filters.map(filter => {
+            const count = getFilterCount(filter);
+            return (
+              <button
+                key={filter}
+                onClick={() => setActiveFilter(filter)}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
+                  activeFilter === filter ? "text-black" : "text-white"
+                }`}
+                style={activeFilter === filter 
+                  ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
+                  : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
+                }
+              >
+                <span>{filter}</span>
+                {count > 0 && (
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
+                    activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"
+                  }`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Guest Orders List - Mobile-style cards */}
+        <ScrollArea className="flex-1 px-3">
+          <div className="space-y-2 pb-3">
+            {filteredGuestOrders.map(guest => (
+              <div 
+                key={guest.id}
+                onClick={() => setSelectedGuest(guest)}
+                className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${
+                  selectedGuest.id === guest.id ? "border-white" : "border-white/10"
+                }`}
+              >
+                <div className="flex items-stretch w-full gap-2 bg-neutral-900">
+                  {/* Column 1: Order Number */}
+                  <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
+                    <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+                      <span className="text-base font-bold text-white">{guest.id}</span>
+                      <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-cover" />
+                    </div>
+                  </div>
+
+                  {/* Column 2: Guest Info */}
+                  <div className="flex-1 min-w-0 py-2 pr-2">
+                    <div className="flex flex-col">
+                      <div className="flex items-start justify-between">
+                        <span className="text-white font-medium text-sm">{guest.name}</span>
+                        <div className="flex flex-col items-end">
+                          <span className="text-white font-semibold text-sm">{guest.amount}</span>
+                          {guest.tip && <span className="text-gray-400 text-xs">{guest.tip}</span>}
+                        </div>
+                      </div>
+                      <div className="h-px bg-neutral-600 my-1.5"></div>
+                      <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center gap-1 text-gray-400">
+                          <span>Party Of {guest.partySize},</span>
+                          <span>⚡ {guest.time}</span>
+                        </div>
+                        <span className={getStatusColor(guest.status)}>{guest.status}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Column 3: Action Button */}
+                  <div className="flex-shrink-0 flex">
+                    <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
+                      <button 
+                        className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+
+        {/* Add Order Button */}
+        <div className="p-3 border-t border-neutral-700/50">
+          <button 
+            className="w-full py-3 text-black font-medium rounded-full hover:opacity-90 transition-opacity"
+            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+          >
+            ADD ORDER TO TABLE
+          </button>
+        </div>
+      </div>
+
+      {/* Right Panel - Order Details (same as desktop) */}
+      <div className="w-[280px] flex flex-col m-2 ml-0">
+        {/* Guest Header - Outside the box */}
+        <div className="px-2 py-3">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-white font-medium">{selectedGuest.name}</span>
+            <div className="flex items-center gap-3 text-white/50 text-sm">
+              <div className="flex items-center gap-1">
+                <Phone className="w-3 h-3" />
+                <span>(415) 123-4567</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <span>⚡</span>
+                <span>{selectedGuest.time}</span>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-2 flex-wrap">
+            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+              Add Item
+            </button>
+            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+              Discount
+            </button>
+            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+              Receipt
+            </button>
+          </div>
+        </div>
+
+        {/* Main Panel Box */}
+        <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+
+        {/* Table Order Info */}
+        <div className="px-4 py-3 border-b border-white/10">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
+              <span className="text-white font-bold">{selectedGuest.id}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
+              <span className="text-white/50 text-sm">DUSTIN H</span>
+            </div>
+          </div>
+          
+          {/* Seat Buttons */}
+          <div className="flex items-center gap-2">
+            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={seatIcon} alt="Seat" className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={splitIcon} alt="Split" className="w-4 h-4" />
+            </button>
+            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
+                {seat}
+              </button>)}
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className="px-4 py-3 border-b border-white/10">
+          <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
+            <span>📝</span>
+            <span>Allergic to almonds, Don't add onion</span>
+          </div>
+        </div>
+
+        {/* Order Items */}
+        <ScrollArea className="flex-1 px-4">
+          <div className="py-2 space-y-2">
+            {orderItems.map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-2">
+                    <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                      {item.qty}
+                    </span>
+                    <div>
+                      <span className="text-white font-medium">{item.name}</span>
+                      {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-sm space-y-0.5">
+                          {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                        </div>}
+                    </div>
+                  </div>
+                  <span className="text-white font-medium">{item.price}</span>
+                </div>
+                {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
+                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                    {item.seats.map(seat => <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                        {seat}
+                      </span>)}
+                  </div>}
+              </div>)}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+
+        {/* Order Summary */}
+        <div className="px-4 py-3 border-t border-white/10 space-y-1 text-sm">
+          <div className="flex justify-between">
+            <span className="text-white/60">Sub Total</span>
+            <span className="text-white">$ 56.00</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-red-500">Discount</span>
+            <span className="text-red-500">$1.00</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-white/60">Service Charge</span>
+            <span className="text-white">$ 1.00</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-white/60">Tax</span>
+            <span className="text-white">$ 1.00</span>
+          </div>
+        </div>
+
+        {/* Bottom Actions */}
+        <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
+          <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+            <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+          </button>
+          <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{
+            background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+          }}>
+            <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+            <span>FIRE</span>
+          </button>
+          <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{
+            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+          }}>
+            CHARGE $ 59.00
+          </button>
+        </div>
+        </div>
+      </div>
+    </div>
+  );
+
   return (
     <>
       {/* Mobile Layout */}
@@ -971,8 +1251,13 @@ const TableOrderDetails = () => {
         <MobileLayout />
       </div>
 
+      {/* Tablet Layout */}
+      <div className="hidden md:block lg:hidden h-full">
+        <TabletLayout />
+      </div>
+
       {/* Desktop Layout */}
-      <div className="hidden md:block h-full">
+      <div className="hidden lg:block h-full">
         <DesktopLayout />
       </div>
     </>

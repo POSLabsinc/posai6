@@ -96,7 +96,9 @@ const MergeOrders = () => {
   };
 
   const handleFinalConfirm = () => {
-    navigate(`/tableorder/${tableId}?merged=${selectedOrders.join(",")}&from=${fromOrder?.id}`);
+    // Navigate with merged order ID, source table, and destination order ID
+    const fromTable = fromOrder?.table?.replace("T", "") || "";
+    navigate(`/tableorder/${tableId}?merged=${fromOrder?.id}&from=${fromTable}&dest=${toOrder?.id}`);
   };
 
   const handleBack = () => {

@@ -681,19 +681,6 @@ const MergeOrders = () => {
           <OrderCard order={toOrder} isSelected={false} showCheckbox={false} showExpand={false} />
         )}
       </div>
-
-      <div className="flex-1" />
-
-      {/* Confirm Button */}
-      <div className="p-4 pb-20 md:pb-4">
-        <button
-          onClick={handleFinalConfirm}
-          className="w-full py-3 rounded-full text-black font-medium"
-          style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-        >
-          CONFIRM
-        </button>
-      </div>
     </div>
   );
 
@@ -719,6 +706,19 @@ const MergeOrders = () => {
             style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
           >
             MERGE ORDER {orderId}, {selectedOrders.join(", ")}
+          </button>
+        </div>
+      )}
+
+      {/* Confirm Button - Fixed above bottom nav */}
+      {step === "confirm-direction" && (
+        <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden">
+          <button
+            onClick={handleFinalConfirm}
+            className="w-full py-2 rounded-full text-black font-medium text-sm"
+            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+          >
+            CONFIRM
           </button>
         </div>
       )}

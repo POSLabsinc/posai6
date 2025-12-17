@@ -11,8 +11,14 @@ import tableTargetIcon from "@/assets/icons/table-target.png";
 
 // Mock all orders data from different tables with extended info
 const allOrders = [
+  // T2 orders
+  { id: "2", name: "Guest", table: "T2", amount: "$45.00", partySize: 2, time: "7:45 PM", status: "ORDERING", timer: "00:15", server: "Dustin H", check: "--", paymentType: "--", revenueCenter: "FF Balcony", phone: "(415) 999-8888" },
   { id: "3", name: "Martin Alex", table: "T2", amount: "$59.00", partySize: 4, time: "8:00 PM", status: "ORDERING", timer: "00:00", server: "Dustin H", check: "--", paymentType: "--", revenueCenter: "FF Balcony", phone: "(415) 123-4567" },
+  { id: "9", name: "Davis", table: "T2", amount: "$32.50", partySize: 3, time: "8:15 PM", status: "ORDERED", timer: "00:30", server: "Dustin H", check: "1240", paymentType: "--", revenueCenter: "FF Balcony", phone: "" },
+  // T3 orders
   { id: "8", name: "Guest", table: "T3", amount: "$16.00", partySize: 2, time: "10:00 PM", status: "ORDERING", timer: "00:00", server: "Mia J", check: "--", paymentType: "--", revenueCenter: "Main", phone: "" },
+  { id: "10", name: "Taylor", table: "T3", amount: "$28.00", partySize: 2, time: "9:30 PM", status: "PREPARING", timer: "00:45", server: "Mia J", check: "1241", paymentType: "--", revenueCenter: "Main", phone: "" },
+  // Other tables
   { id: "7", name: "Smith", table: "T4", amount: "$85.00", partySize: 3, time: "8:30 PM", status: "ORDERING", timer: "1:30 Hrs", server: "Dustin H", check: "1234", paymentType: "--", revenueCenter: "FF Balcony", phone: "" },
   { id: "6", name: "Johnson", table: "T1", amount: "$20.00", partySize: 1, time: "7:35 PM", status: "PREPARING", timer: "2:00 Hrs", server: "Alex M", check: "1235", paymentType: "Cash", revenueCenter: "Bar", phone: "" },
   { id: "5", name: "Williams", table: "T5", amount: "$120.75", partySize: 4, time: "7:30 PM", status: "ORDERED", timer: "2:10 Hrs", server: "Dustin H", check: "1236", paymentType: "--", revenueCenter: "Patio", phone: "" },
@@ -53,8 +59,8 @@ const MergeOrders = () => {
   // Get the current order being merged (from the table we came from)
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
 
-  // Filter orders excluding the current order
-  const availableOrders = allOrders.filter(o => o.id !== orderId);
+  // Filter orders from the same table, excluding the current order
+  const availableOrders = allOrders.filter(o => o.id !== orderId && o.table === tableId);
 
   const filteredOrders = activeFilter === "All" 
     ? availableOrders 

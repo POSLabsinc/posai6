@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronDown, Search, SlidersHorizontal, Phone } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone } from "lucide-react";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -627,12 +627,28 @@ const TableOrderDetails = () => {
                       </div>
                     </div>
 
-                    {/* Action Buttons - hidden on mobile since swipe reveals them */}
-                    <div className="hidden md:flex gap-2 mt-2">
-                      <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
+                    {/* Action Buttons */}
+                    <div className="flex gap-2 mt-2">
+                      <button 
+                        className="flex-1 py-2.5 flex items-center justify-center gap-2 text-black text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
+                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log('Merge', guest.id);
+                        }}
+                      >
+                        <img src={splitIcon} alt="Merge" className="w-4 h-4 object-contain" />
                         MERGE
                       </button>
-                      <button className="flex-1 py-2 bg-neutral-700 text-white text-sm font-medium rounded-lg hover:bg-neutral-600 transition-colors">
+                      <button 
+                        className="flex-1 py-2.5 flex items-center justify-center gap-2 text-black text-sm font-semibold rounded-full hover:opacity-90 transition-opacity"
+                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          console.log('Transfer', guest.id);
+                        }}
+                      >
+                        <ChevronRight className="w-4 h-4" />
                         TRANSFER
                       </button>
                     </div>

@@ -489,31 +489,33 @@ const MergeOrders = () => {
       </div>
 
       {/* Filter Tabs */}
-      <div className="px-4 pb-3">
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-          {mergeFilters.map(filter => {
-            const count = getFilterCount(filter);
-            const isActive = activeFilter === filter;
-            return (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 flex-shrink-0 ${
-                  isActive ? "text-black" : "text-white"
-                }`}
-                style={isActive ? {
-                  background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-                } : {
-                  background: "#7575754D",
-                  boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-                }}
-              >
-                {filter}
-                <span className={`font-bold ${isActive ? "text-black" : "text-white"}`}>{count}</span>
-              </button>
-            );
-          })}
-        </div>
+      <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
+        {mergeFilters.map(filter => {
+          const count = getFilterCount(filter);
+          const isActive = activeFilter === filter;
+          return (
+            <button
+              key={filter}
+              onClick={() => setActiveFilter(filter)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all flex-shrink-0 ${
+                isActive ? "text-black" : "text-white"
+              }`}
+              style={isActive 
+                ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
+                : { background: "#1B1C20" }
+              }
+            >
+              <span>{filter}</span>
+              {count > 0 && (
+                <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
+                  isActive ? "bg-black text-white" : "bg-neutral-800"
+                }`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Orders List */}

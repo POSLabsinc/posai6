@@ -586,18 +586,20 @@ const TableOrderDetails = () => {
                 </div>
 
                 {/* Expand/Collapse Button - inside swipeable wrapper */}
-                <button
-                  className={`w-full h-3 flex items-center justify-center transition-colors ${expandedOrderId === guest.id ? '' : 'rounded-b-xl'}`}
-                  style={{ background: "#7575754D" }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleOrderExpand(guest.id);
-                  }}
-                />
+                <div className="px-2">
+                  <button
+                    className={`w-full h-3 flex items-center justify-center transition-colors ${expandedOrderId === guest.id ? '' : 'rounded-b-lg'}`}
+                    style={{ background: "#7575754D" }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleOrderExpand(guest.id);
+                    }}
+                  />
+                </div>
 
                 {/* Expanded Details - inside swipeable wrapper */}
                 {expandedOrderId === guest.id && (
-                  <div className="px-3 pb-3 rounded-b-xl" style={{ background: "#7575754D" }}>
+                  <div className="mx-2 px-3 pb-3 rounded-b-lg" style={{ background: "#7575754D" }}>
                     {/* Order Details Grid */}
                     <div className="grid grid-cols-3 gap-3 py-3">
                       <div>

@@ -418,21 +418,21 @@ const TableOrderDetails = () => {
   const MobileLayout = () => (
     <div className="flex flex-col h-full bg-black">
       {/* Header */}
-      <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
-        <div className="flex items-center gap-3">
-          <button 
-            onClick={() => navigate("/tableorder")} 
-            className="p-2 rounded-full hover:opacity-80 transition-opacity"
-            style={{
-              background: "#7575754D",
-              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-            }}
-          >
-            <ChevronLeft className="w-5 h-5 text-white" />
-          </button>
-          <span className="text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
-        </div>
-        <div className="flex items-center gap-2">
+      <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+        <button 
+          onClick={() => navigate("/tableorder")} 
+          className="p-2 rounded-full hover:opacity-80 transition-opacity z-10"
+          style={{
+            background: "#7575754D",
+            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+          }}
+        >
+          <ChevronLeft className="w-5 h-5 text-white" />
+        </button>
+        
+        <span className="absolute left-1/2 -translate-x-1/2 text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
+        
+        <div className="flex items-center gap-2 z-10">
           <button 
             className="p-2 rounded-full hover:opacity-80 transition-opacity"
             style={{

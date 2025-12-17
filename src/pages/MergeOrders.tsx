@@ -43,6 +43,11 @@ const MergeOrders = () => {
   const [fromOrder, setFromOrder] = useState<typeof allOrders[0] | null>(null);
   const [toOrder, setToOrder] = useState<typeof allOrders[0] | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
+  const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
+
+  const toggleOrderExpand = (orderId: string) => {
+    setExpandedOrderId(prev => prev === orderId ? null : orderId);
+  };
 
   // Get the current order being merged (from the table we came from)
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
@@ -113,57 +118,107 @@ const MergeOrders = () => {
   };
 
   // Render order card for mobile - matching TableOrderDetails styling
-  const OrderCard = ({ order, isSelected, onClick, showCheckbox = true }: { 
+  const OrderCard = ({ order, isSelected, onClick, showCheckbox = true, showExpand = true }: { 
     order: typeof allOrders[0]; 
     isSelected: boolean; 
     onClick?: () => void;
     showCheckbox?: boolean;
+    showExpand?: boolean;
   }) => (
-    <div 
-      className={`flex items-stretch w-full gap-2 border rounded-xl bg-neutral-900 cursor-pointer transition-colors ${
-        isSelected ? "border-white" : "border-white/10"
-      }`}
-      onClick={onClick}
-    >
-      {/* Checkbox Column */}
-      {showCheckbox && (
-        <div className="flex-shrink-0 px-2 flex items-center">
-          <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-            isSelected ? "border-orange-500 bg-orange-500" : "border-white/40"
-          }`}>
-            {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
+    <div className="rounded-xl overflow-hidden">
+      <div 
+        className={`flex items-stretch w-full gap-2 border rounded-t-xl ${showExpand && expandedOrderId === order.id ? '' : 'rounded-b-xl'} bg-neutral-900 cursor-pointer transition-colors ${
+          isSelected ? "border-white" : "border-white/10"
+        }`}
+        onClick={onClick}
+      >
+        {/* Checkbox Column */}
+        {showCheckbox && (
+          <div className="flex-shrink-0 px-2 flex items-center">
+            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+              isSelected ? "border-orange-500 bg-orange-500" : "border-white/40"
+            }`}>
+              {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
+            </div>
           </div>
+        )}
+
+        {/* Order Number Column */}
+        <div className={`w-[15%] flex-shrink-0 ${showCheckbox ? '' : 'px-2'} py-2 flex items-center`}>
+          <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+            <span className="text-base font-bold text-white">{order.id}</span>
+            <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
+          </div>
+        </div>
+
+        {/* Guest Info Column */}
+        <div className="flex-1 min-w-0 py-2 pr-3">
+          <div className="flex flex-col">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-white font-medium text-sm">{order.name}</span>
+                <span className="text-white/60 text-xs">· {order.table}</span>
+              </div>
+              <span className="text-white font-semibold text-sm">{order.amount}</span>
+            </div>
+            <div className="h-px bg-neutral-600 my-1.5"></div>
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1 text-gray-400">
+                <span>Party Of {order.partySize},</span>
+                <span>⚡ {order.time}</span>
+              </div>
+              <span className={getStatusColor(order.status)}>{order.status}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Expand/Collapse Button */}
+      {showExpand && (
+        <div className="px-2">
+          <button
+            className={`w-full h-3 flex items-center justify-center transition-colors ${expandedOrderId === order.id ? '' : 'rounded-b-lg'}`}
+            style={{ background: "#7575754D" }}
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleOrderExpand(order.id);
+            }}
+          />
         </div>
       )}
 
-      {/* Order Number Column */}
-      <div className={`w-[15%] flex-shrink-0 ${showCheckbox ? '' : 'px-2'} py-2 flex items-center`}>
-        <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-          <span className="text-base font-bold text-white">{order.id}</span>
-          <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
-        </div>
-      </div>
-
-      {/* Guest Info Column */}
-      <div className="flex-1 min-w-0 py-2 pr-3">
-        <div className="flex flex-col">
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-2">
-              <span className="text-white font-medium text-sm">{order.name}</span>
-              <span className="text-white/60 text-xs">· {order.table}</span>
+      {/* Expanded Details */}
+      {showExpand && expandedOrderId === order.id && (
+        <div className="mx-2 px-3 pb-3 rounded-b-lg" style={{ background: "#7575754D" }}>
+          {/* Order Details Grid */}
+          <div className="grid grid-cols-3 gap-3 py-3">
+            <div>
+              <div className="text-white text-sm font-medium">{order.timer}</div>
+              <div className="text-gray-500 text-xs">Timer</div>
             </div>
-            <span className="text-white font-semibold text-sm">{order.amount}</span>
-          </div>
-          <div className="h-px bg-neutral-600 my-1.5"></div>
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-1 text-gray-400">
-              <span>Party Of {order.partySize},</span>
-              <span>⚡ {order.time}</span>
+            <div>
+              <div className="text-white text-sm font-medium">{order.check}</div>
+              <div className="text-gray-500 text-xs">Check</div>
             </div>
-            <span className={getStatusColor(order.status)}>{order.status}</span>
+            <div>
+              <div className="text-white text-sm font-medium">{order.server}</div>
+              <div className="text-gray-500 text-xs">Server</div>
+            </div>
+            <div>
+              <div className="text-white text-sm">{order.revenueCenter}</div>
+              <div className="text-gray-500 text-xs">Revenue Center</div>
+            </div>
+            <div>
+              <div className="text-white text-sm font-medium">{order.paymentType}</div>
+              <div className="text-gray-500 text-xs">Payment Type</div>
+            </div>
+            <div>
+              <div className="text-white text-sm">--</div>
+              <div className="text-gray-500 text-xs">Tip</div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
@@ -425,7 +480,7 @@ const MergeOrders = () => {
 
       {/* Current Order */}
       <div className="px-4 pb-2">
-        <OrderCard order={currentOrder} isSelected={true} showCheckbox={false} />
+        <OrderCard order={currentOrder} isSelected={true} showCheckbox={false} showExpand={false} />
       </div>
 
       {/* Choose Orders Label */}
@@ -600,7 +655,7 @@ const MergeOrders = () => {
       </div>
 
       <div className="px-4 pb-2">
-        <OrderCard order={currentOrder} isSelected={true} showCheckbox={false} />
+        <OrderCard order={currentOrder} isSelected={true} showCheckbox={false} showExpand={false} />
       </div>
 
       <div className="px-4 py-2">
@@ -642,7 +697,7 @@ const MergeOrders = () => {
       <div className="px-4 flex-1">
         {fromOrder && (
           <div className="mb-4">
-            <OrderCard order={fromOrder} isSelected={true} />
+            <OrderCard order={fromOrder} isSelected={true} showExpand={false} />
           </div>
         )}
       </div>
@@ -669,7 +724,7 @@ const MergeOrders = () => {
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">From</p>
         {fromOrder && (
-          <OrderCard order={fromOrder} isSelected={false} showCheckbox={false} />
+          <OrderCard order={fromOrder} isSelected={false} showCheckbox={false} showExpand={false} />
         )}
       </div>
 
@@ -685,7 +740,7 @@ const MergeOrders = () => {
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">To</p>
         {toOrder && (
-          <OrderCard order={toOrder} isSelected={false} showCheckbox={false} />
+          <OrderCard order={toOrder} isSelected={false} showCheckbox={false} showExpand={false} />
         )}
       </div>
 

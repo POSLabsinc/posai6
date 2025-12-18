@@ -6767,8 +6767,8 @@ const Orders = () => {
         </ScrollArea>
 
         {/* Order Summary */}
-        <div className="p-3 border-t border-sidebar-border flex-shrink-0">
-          <div className="space-y-1.5 text-sm rounded px-3 py-2" style={{
+        <div className="p-2 border-t border-sidebar-border flex-shrink-0">
+          <div className="space-y-0.5 text-xs rounded px-2 py-1.5" style={{
             background: '#7575754D',
             boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
           }}>
@@ -6788,8 +6788,8 @@ const Orders = () => {
               <span className="text-foreground">Tax</span>
               <span className="text-foreground">${tax.toFixed(2)}</span>
             </div>
-            <div className="border-t border-dashed border-sidebar-border my-2" />
-            <div className="flex justify-between text-base font-bold">
+            <div className="border-t border-dashed border-sidebar-border my-1" />
+            <div className="flex justify-between text-sm font-bold">
               <span>Total</span>
               <span>${total.toFixed(2)}</span>
             </div>

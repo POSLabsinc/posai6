@@ -400,7 +400,7 @@ const TableOrderDetails = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "ORDERING":
-        return "text-yellow-400";
+        return "text-[#F87171]";
       case "PAID":
         return "text-green-500";
       case "UNPAID":

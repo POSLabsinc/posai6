@@ -844,7 +844,7 @@ const MergeOrders = () => {
       {/* From Order */}
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">Merge From</p>
-        {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
+        {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} compact />}
       </div>
 
       {/* Swap Button */}
@@ -860,7 +860,7 @@ const MergeOrders = () => {
       {/* To Order */}
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">Merge To</p>
-        {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} />}
+        {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} compact />}
       </div>
 
       {/* Spacer */}
@@ -924,7 +924,7 @@ const MergeOrders = () => {
           {/* From Order */}
           <div className="px-6 pb-4">
             <p className="text-white/60 text-sm mb-2">Merge From</p>
-            {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
+            {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} compact />}
           </div>
 
           {/* Swap Button */}
@@ -940,7 +940,7 @@ const MergeOrders = () => {
           {/* To Order */}
           <div className="px-6 pb-6">
             <p className="text-white/60 text-sm mb-2">Merge To</p>
-            {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} />}
+            {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} compact />}
           </div>
 
           {/* Bottom Buttons */}

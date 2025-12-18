@@ -37,6 +37,7 @@ interface OrderLayoutTemplateProps {
   onClick?: () => void;
   showBorder?: boolean;
   variant?: 'default' | 'selectable';
+  compact?: boolean;
 }
 
 const OrderLayoutTemplate = ({ 
@@ -44,13 +45,74 @@ const OrderLayoutTemplate = ({
   isSelected = false, 
   onClick, 
   showBorder = true,
-  variant = 'default' 
+  variant = 'default',
+  compact = false
 }: OrderLayoutTemplateProps) => {
   const borderClass = variant === 'selectable' 
     ? isSelected 
       ? "border-orange-500" 
       : "border-neutral-700 hover:border-neutral-600"
     : "border-white";
+
+  if (compact) {
+    return (
+      <div 
+        className={`rounded-xl border overflow-hidden ${borderClass} ${onClick ? 'cursor-pointer transition-all' : ''}`}
+        style={{ backgroundColor: '#1B1C20' }}
+        onClick={onClick}
+      >
+        <div className="flex items-stretch w-full gap-3 p-3">
+          {/* Order Number Column */}
+          <div className="flex-shrink-0 flex items-center">
+            <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+              <span className="text-base font-bold text-white">{order.id}</span>
+              <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
+            </div>
+          </div>
+
+          {/* Guest Info Column */}
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-1">
+              <span className="text-white font-medium text-sm">{order.name}</span>
+              <span className="text-white/60 text-sm">· {order.table}</span>
+            </div>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-white font-semibold text-sm">{order.amount}</span>
+            </div>
+            <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
+              <span>Party Of {order.partySize},</span>
+              <span>⚡ {order.time}</span>
+            </div>
+            <span className={`text-xs font-medium ${getOrderStatusColor(order.status)}`}>
+              {order.status}
+            </span>
+          </div>
+
+          {/* Timer/Server Column */}
+          <div className="flex-shrink-0 w-[70px]">
+            <div className="text-white text-sm">{order.timer}</div>
+            <div className="text-white/40 text-[10px]">Timer</div>
+            <div className="text-white text-sm mt-2">{order.server}</div>
+            <div className="text-white/40 text-[10px]">Server</div>
+          </div>
+
+          {/* Check/Revenue Center Column */}
+          <div className="flex-shrink-0 w-[80px]">
+            <div className="text-white text-sm">{order.check}</div>
+            <div className="text-white/40 text-[10px]">Check</div>
+            <div className="text-white text-sm mt-2">{order.revenueCenter}</div>
+            <div className="text-white/40 text-[10px]">Revenue Center</div>
+          </div>
+
+          {/* Payment Type Column */}
+          <div className="flex-shrink-0 w-[70px]">
+            <div className="text-white text-sm">{order.paymentType}</div>
+            <div className="text-white/40 text-[10px]">Payment Type</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div 

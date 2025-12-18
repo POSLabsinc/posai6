@@ -91,14 +91,21 @@ const orderItems = [
 
 // Mock table data
 const mockTables = [
-  { id: "T1", seats: 6, time: "25 Min", status: "Ordering", statusColor: "#4ADE80" },
-  { id: "T4", seats: 4, time: "25 Min", status: "Waiting For Payment", statusColor: "#F59E0B" },
-  { id: "T6", seats: 6, time: "25 Min", status: "Ordered", statusColor: "#F97316" },
-  { id: "T3", seats: 10, time: null, status: "Available", statusColor: "#6B7280" },
-  { id: "T2", seats: 10, time: null, status: "Available", statusColor: "#6B7280" },
-  { id: "T5", seats: 8, time: null, status: "Available", statusColor: "#6B7280" },
-  { id: "T7", seats: 6, time: "15 Min", status: "Ordering", statusColor: "#4ADE80" },
-  { id: "T8", seats: 4, time: null, status: "Available", statusColor: "#6B7280" },
+  { id: "T1", seats: 6, status: "Ordering", statusColor: "#4ADE80" },
+  { id: "T2", seats: 4, status: "Payment", statusColor: "#F59E0B" },
+  { id: "T3", seats: 6, status: "Ordered", statusColor: "#F97316" },
+  { id: "T4", seats: 10, status: "Available", statusColor: "#6B7280" },
+  { id: "T5", seats: 10, status: "Available", statusColor: "#6B7280" },
+  { id: "T6", seats: 8, status: "Available", statusColor: "#6B7280" },
+  { id: "T7", seats: 6, status: "Ordering", statusColor: "#4ADE80" },
+  { id: "T8", seats: 4, status: "Available", statusColor: "#6B7280" },
+  { id: "T9", seats: 2, status: "Ordered", statusColor: "#F97316" },
+  { id: "T10", seats: 6, status: "Payment", statusColor: "#F59E0B" },
+  { id: "T11", seats: 4, status: "Available", statusColor: "#6B7280" },
+  { id: "T12", seats: 8, status: "Ordering", statusColor: "#4ADE80" },
+  { id: "T13", seats: 6, status: "Available", statusColor: "#6B7280" },
+  { id: "T14", seats: 4, status: "Ordered", statusColor: "#F97316" },
+  { id: "T15", seats: 2, status: "Available", statusColor: "#6B7280" },
 ];
 
 const Dashboard = () => {
@@ -361,20 +368,23 @@ const Dashboard = () => {
             First Floor <ChevronDown className="w-2.5 h-2.5" />
           </button>
         </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           {mockTables.map((table, index) => (
             <div
               key={index}
-              className="flex-shrink-0 rounded-lg p-2 w-[100px] h-[52px] flex flex-col justify-between"
+              className="flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5"
               style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
             >
               <div className="flex items-center justify-between">
-                <span className="text-sm font-bold">{table.id}</span>
-                <span className="text-[10px] text-white/50">{table.seats} Seats</span>
+                <span className="text-base font-bold">{table.id}</span>
+                <span className="text-[10px] text-white/50">{table.seats}S</span>
               </div>
               <div
-                className="text-[10px] px-2 py-0.5 rounded text-center truncate"
-                style={{ backgroundColor: table.statusColor, color: table.status === "Available" ? "#fff" : "#000" }}
+                className="text-[10px] font-medium py-1 rounded-md text-center w-full"
+                style={{ 
+                  backgroundColor: table.statusColor,
+                  color: table.status === "Available" ? "#fff" : "#000"
+                }}
               >
                 {table.status}
               </div>

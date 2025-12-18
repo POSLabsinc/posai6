@@ -427,7 +427,7 @@ const TableOrder = () => {
                     <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
                     
                     {/* Seat Dots */}
-                    <div className={`flex gap-1 mb-2 ${table.seats > 6 ? 'overflow-x-auto max-w-full' : ''}`}>
+                    <div className={`flex gap-1 mb-2 ${table.seats > 6 ? 'overflow-x-auto max-w-full scrollbar-hide' : ''}`}>
                       {Array.from({ length: table.seats }).map((_, i) => (
                         <div key={i} className={`w-2 h-2 flex-shrink-0 rounded-full ${dotColor}`} />
                       ))}
@@ -443,7 +443,7 @@ const TableOrder = () => {
                       
                       {/* Status Label - Shows guest numbers when Available table is clicked */}
                       {guestDropdownTable === table.id && table.status === "Available" ? (
-                        <div className={`w-full py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700 ${table.seats > 6 ? 'overflow-x-auto' : ''}`}>
+                        <div className={`w-full py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700 ${table.seats > 6 ? 'overflow-x-auto scrollbar-hide' : ''}`}>
                           <div className={`flex ${table.seats > 6 ? 'justify-start' : 'justify-center'} gap-1`}>
                             {Array.from({ length: table.seats }).map((_, i) => (
                               <button

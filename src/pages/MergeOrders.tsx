@@ -30,13 +30,42 @@ const allOrders = [
   { id: "4", name: "Brown", table: "T6", amount: "$65.50", partySize: 2, time: "7:15 PM", status: "PREPARING", timer: "2:30 Hrs", server: "Mia J", check: "1237", paymentType: "Card", revenueCenter: "Main", phone: "" },
 ];
 
-// Mock order items for right panel
-const orderItems = [
-  { qty: 2, name: "Classic Crispy Burger", price: "$12.00", seats: [1, 2], modifiers: [] },
-  { qty: 4, name: "Meatballs", price: "$16.00", seats: [], modifiers: [] },
-  { qty: 2, name: "Rigatoni Pasta", price: "$8.00", seats: [3, 4], modifiers: [] },
-  { qty: 4, name: "Alomd crusted salmon", price: "$20.00", seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette", "- Medium Rare", "+ W/ Potato Wedges", "- large", "+ W/ Extra Cheese"] },
-];
+// Mock order items mapped by order ID
+const orderItemsMap: Record<string, { qty: number; name: string; price: number; seats: number[]; modifiers: string[] }[]> = {
+  "1": [
+    { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: [] },
+    { qty: 1, name: "Caesar Salad", price: 14.00, seats: [], modifiers: [] },
+    { qty: 2, name: "Tiramisu", price: 9.00, seats: [3], modifiers: [] },
+  ],
+  "2": [
+    { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [1], modifiers: ["No Lemon"] },
+    { qty: 1, name: "House Salad", price: 8.00, seats: [], modifiers: [] },
+  ],
+  "3": [
+    { qty: 2, name: "Classic Crispy Burger", price: 12.00, seats: [1, 2], modifiers: [] },
+    { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: [] },
+    { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
+    { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Medium Rare", "+ W/ Potato Wedges"] },
+  ],
+  "9": [
+    { qty: 1, name: "Steak Frites", price: 22.00, seats: [1], modifiers: ["Medium Rare"] },
+    { qty: 1, name: "Garlic Bread", price: 6.00, seats: [], modifiers: [] },
+  ],
+};
+
+// Helper to get order items for a specific order
+const getOrderItems = (orderId: string) => orderItemsMap[orderId] || [];
+
+// Helper to calculate order totals
+const calculateOrderTotals = (orderId: string) => {
+  const items = getOrderItems(orderId);
+  const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
+  const discount = subtotal > 50 ? 5.00 : 0;
+  const serviceCharge = subtotal * 0.05;
+  const tax = (subtotal - discount) * 0.08;
+  const total = subtotal - discount + serviceCharge + tax;
+  return { subtotal, discount, serviceCharge, tax, total };
+};
 
 const mergeFilters = ["All", "Ordering", "Ordered", "Preparing", "Unpaid"];
 
@@ -405,10 +434,10 @@ const MergeOrders = () => {
   const OrderDetailsPanel = () => (
     <div className="w-[345px] flex flex-col my-2 mr-2">
       {/* Guest Header - Outside the box */}
-      <div className="px-2 py-3">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-white font-medium">{panelOrder.name}</span>
-          <div className="flex items-center gap-3 text-white/50 text-sm">
+      <div className="px-2 py-2">
+        <div className="flex items-center justify-between mb-1.5">
+          <span className="text-white text-sm font-medium">{panelOrder.name}</span>
+          <div className="flex items-center gap-2 text-white/50 text-xs">
             <div className="flex items-center gap-1">
               <Phone className="w-3 h-3" />
               <span>{panelOrder.phone || "(415) 123-4567"}</span>
@@ -419,17 +448,17 @@ const MergeOrders = () => {
             </div>
           </div>
         </div>
-        <div className="flex gap-2 flex-wrap">
-          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+        <div className="flex gap-1.5 flex-wrap">
+          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
             Add Item
           </button>
-          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
             Discount
           </button>
-          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
             Receipt
           </button>
-          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
             Cash Register
           </button>
         </div>
@@ -444,25 +473,25 @@ const MergeOrders = () => {
         }}
       >
         {/* Table Order Info */}
-        <div className="px-4 py-3 border-b border-white/10">
-          <div className="flex items-center justify-between mb-2">
+        <div className="px-3 py-2 border-b border-white/10">
+          <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2">
-              <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE {panelOrder.table}</span>
-              <span className="text-white font-bold">{panelOrder.id}</span>
+              <span className="px-1.5 py-0.5 bg-white/10 text-white text-[10px] rounded">TABLE {panelOrder.table}</span>
+              <span className="text-white text-sm font-bold">{panelOrder.id}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
-              <span className="text-white/50 text-sm">{panelOrder.server}</span>
+            <div className="flex items-center gap-1.5">
+              <img src={shareSeatsIcon} alt="Seats" className="w-3 h-3 opacity-60" />
+              <span className="text-white/50 text-xs">{panelOrder.server}</span>
             </div>
           </div>
           
           {/* Seat Buttons */}
-          <div className="flex items-center gap-2">
-            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-              <img src={seatIcon} alt="Seat" className="w-4 h-4" />
+          <div className="flex items-center gap-1.5">
+            <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={seatIcon} alt="Seat" className="w-3 h-3" />
             </button>
-            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-              <img src={splitIcon} alt="Split" className="w-4 h-4" />
+            <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={splitIcon} alt="Split" className="w-3 h-3" />
             </button>
             {[1, 2, 3, 4].map(seat => (
               <button
@@ -470,7 +499,7 @@ const MergeOrders = () => {
                 onClick={() => setSelectedSeats(prev => 
                   prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]
                 )}
-                className={`w-7 h-7 rounded text-sm font-medium transition-colors ${
+                className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
                   selectedSeats.includes(seat) 
                     ? "bg-white text-black" 
                     : "bg-white/10 text-white hover:bg-white/20"
@@ -483,27 +512,27 @@ const MergeOrders = () => {
         </div>
 
         {/* Notes */}
-        <div className="px-4 py-3 border-b border-white/10">
-          <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
+        <div className="px-3 py-2 border-b border-white/10">
+          <div className="flex items-center gap-2 text-white/50 text-xs bg-white/10 px-2 py-1.5 rounded">
             <span>⚠️</span>
             <span>Allergic to almonds, Don't add onion</span>
           </div>
         </div>
 
         {/* Order Items */}
-        <ScrollArea className="flex-1 px-4">
-          <div className="py-2 space-y-2">
-            {orderItems.map((item, index) => (
-              <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+        <ScrollArea className="flex-1 px-3">
+          <div className="py-2 space-y-1.5">
+            {getOrderItems(panelOrder.id).map((item, index) => (
+              <div key={index} className="p-2 bg-white/5 rounded-lg border border-white/10">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
-                    <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                    <span className="w-5 h-5 bg-white rounded flex items-center justify-center text-black text-xs font-bold">
                       {item.qty}
                     </span>
                     <div>
-                      <span className="text-white font-medium">{item.name}</span>
+                      <span className="text-white text-sm">{item.name}</span>
                       {item.modifiers.length > 0 && (
-                        <div className="mt-1 text-white/50 text-sm space-y-0.5">
+                        <div className="mt-0.5 text-white/50 text-xs space-y-0">
                           {item.modifiers.map((mod, i) => (
                             <div key={i}>{mod}</div>
                           ))}
@@ -511,17 +540,17 @@ const MergeOrders = () => {
                       )}
                     </div>
                   </div>
-                  <span className="text-white font-medium">{item.price}</span>
+                  <span className="text-white text-sm">${(item.price * item.qty).toFixed(2)}</span>
                 </div>
                 {item.seats.length > 0 && (
-                  <div className="flex items-center gap-1 mt-2">
-                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                  <div className="flex items-center gap-1 mt-1">
+                    <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
                     {item.seats.map(seat => (
-                      <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                      <span key={seat} className="w-4 h-4 bg-white/10 rounded text-white text-[10px] flex items-center justify-center">
                         {seat}
                       </span>
                     ))}
-                    <span className="text-white/40 ml-2">📤</span>
+                    <span className="text-white/40 ml-1 text-xs">📤</span>
                   </div>
                 )}
               </div>
@@ -531,45 +560,57 @@ const MergeOrders = () => {
         </ScrollArea>
 
         {/* Order Summary */}
-        <div className="px-4 py-3 border-t border-white/10 space-y-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-white/60">Sub Total</span>
-            <span className="text-white">$ 56.00</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-red-500">Discount</span>
-            <span className="text-red-500">$ 1.00</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-white/60">Service Charge</span>
-            <span className="text-white">$ 1.00</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-white/60">Tax</span>
-            <span className="text-white">$ 1.00</span>
-          </div>
-        </div>
+        {(() => {
+          const totals = calculateOrderTotals(panelOrder.id);
+          return (
+            <div className="px-3 py-2 border-t border-white/10 space-y-0.5 text-xs">
+              <div className="flex justify-between">
+                <span className="text-white/60">Sub Total</span>
+                <span className="text-white">${totals.subtotal.toFixed(2)}</span>
+              </div>
+              {totals.discount > 0 && (
+                <div className="flex justify-between">
+                  <span className="text-red-500">Discount</span>
+                  <span className="text-red-500">-${totals.discount.toFixed(2)}</span>
+                </div>
+              )}
+              <div className="flex justify-between">
+                <span className="text-white/60">Service Charge</span>
+                <span className="text-white">${totals.serviceCharge.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/60">Tax</span>
+                <span className="text-white">${totals.tax.toFixed(2)}</span>
+              </div>
+            </div>
+          );
+        })()}
 
         {/* Bottom Actions */}
-        <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
-          <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
-            <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
-          </button>
-          <button 
-            disabled 
-            className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" 
-            style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
-          >
-            <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
-            <span>FIRE</span>
-          </button>
-          <button 
-            className="flex-1 py-2 rounded-full text-black text-sm font-bold"
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
-            CHARGE {panelOrder.amount}
-          </button>
-        </div>
+        {(() => {
+          const totals = calculateOrderTotals(panelOrder.id);
+          return (
+            <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
+              <button className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+                <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
+              </button>
+              <button 
+                disabled 
+                className="px-3 py-1.5 rounded-full flex items-center gap-1 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed" 
+                style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+              >
+                <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
+                <span>FIRE</span>
+              </button>
+              <button 
+                className="flex-1 py-1.5 rounded-full text-black text-xs font-bold"
+                style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+              >
+                CHARGE ${totals.total.toFixed(2)}
+              </button>
+            </div>
+          );
+        })()}
       </div>
     </div>
   );

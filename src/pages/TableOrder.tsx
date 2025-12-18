@@ -53,7 +53,7 @@ const getSeatDotColor = (status: string): string => {
 
 // Mock table data
 const tables = [
-  { id: "T1", seats: 6, status: "Available", time: "" },
+  { id: "T1", seats: 12, status: "Available", time: "" },
   { id: "T2", seats: 5, status: "Ordering", time: "25M" },
   { id: "T3", seats: 4, status: "Ordered", time: "2H 25M" },
   { id: "T4", seats: 3, status: "Reserved", time: "2H 25M" },
@@ -427,9 +427,9 @@ const TableOrder = () => {
                     <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
                     
                     {/* Seat Dots */}
-                    <div className="flex gap-1 mb-2">
+                    <div className={`flex gap-1 mb-2 ${table.seats > 6 ? 'overflow-x-auto max-w-full' : ''}`}>
                       {Array.from({ length: table.seats }).map((_, i) => (
-                        <div key={i} className={`w-2 h-2 rounded-full ${dotColor}`} />
+                        <div key={i} className={`w-2 h-2 flex-shrink-0 rounded-full ${dotColor}`} />
                       ))}
                     </div>
                     
@@ -443,19 +443,21 @@ const TableOrder = () => {
                       
                       {/* Status Label - Shows guest numbers when Available table is clicked */}
                       {guestDropdownTable === table.id && table.status === "Available" ? (
-                        <div className="w-full flex justify-center gap-1 py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700">
-                          {Array.from({ length: table.seats }).map((_, i) => (
-                            <button
-                              key={i}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleGuestSelect(i + 1);
-                              }}
-                              className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
-                            >
-                              {i + 1}
-                            </button>
-                          ))}
+                        <div className={`w-full py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700 ${table.seats > 6 ? 'overflow-x-auto' : ''}`}>
+                          <div className={`flex ${table.seats > 6 ? 'justify-start' : 'justify-center'} gap-1`}>
+                            {Array.from({ length: table.seats }).map((_, i) => (
+                              <button
+                                key={i}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleGuestSelect(i + 1);
+                                }}
+                                className="w-6 h-6 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                              >
+                                {i + 1}
+                              </button>
+                            ))}
+                          </div>
                         </div>
                       ) : (
                         <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>

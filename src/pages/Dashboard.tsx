@@ -252,7 +252,7 @@ const Dashboard = () => {
                         <span>{order.orderNo}</span>
                         <span>{order.date}</span>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-white/50">
+                      <div className="flex items-center justify-between text-xs text-white/50">
                         <span>Seats {order.seats}</span>
                         <span>Arrived At {order.arrivedAt}</span>
                       </div>

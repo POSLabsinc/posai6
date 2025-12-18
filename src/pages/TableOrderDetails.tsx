@@ -895,7 +895,7 @@ const TableOrderDetails = () => {
                       >
                         <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
                       </button>
-                      <button className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors">
+                      <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
                         <img src={shareOrderIcon} alt="Share" className="w-4 h-4 object-contain" />
                       </button>
                     </div>

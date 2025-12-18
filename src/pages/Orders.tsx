@@ -6768,30 +6768,17 @@ const Orders = () => {
 
         {/* Order Summary */}
         <div className="p-2 border-t border-sidebar-border flex-shrink-0">
-          <div className="space-y-0.5 text-xs rounded px-2 py-1.5" style={{
+          <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
             background: '#7575754D',
             boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
           }}>
-            <div className="flex justify-between">
-              <span className="text-foreground">Sub Total</span>
-              <span className="text-foreground">${subtotal.toFixed(2)}</span>
+            <div className="flex justify-between gap-3">
+              <span className="text-foreground">Sub: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+              <span className="text-red-500">Disc: <span className="font-medium">${discount.toFixed(2)}</span></span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-red-500">Discount</span>
-              <span className="text-red-500">${discount.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-foreground">Service Charge</span>
-              <span className="text-foreground">${serviceCharge.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-foreground">Tax</span>
-              <span className="text-foreground">${tax.toFixed(2)}</span>
-            </div>
-            <div className="border-t border-dashed border-sidebar-border my-1" />
-            <div className="flex justify-between text-sm font-bold">
-              <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+            <div className="flex justify-between gap-3">
+              <span className="text-foreground">Svc: <span className="font-medium">${serviceCharge.toFixed(2)}</span></span>
+              <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
             </div>
           </div>
 

@@ -326,9 +326,12 @@ const Dashboard = () => {
 
           {/* Order Notes */}
           <div className="px-3 py-2 border-b border-white/10">
-            <div className="flex items-center gap-2 text-xs text-amber-400">
-              <img src={itemNotesIcon} alt="notes" className="w-4 h-4" />
-              <span>No Onions, Extra Tomato Sauce</span>
+            <div 
+              className="flex items-center gap-2 rounded-lg px-3 py-2"
+              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+            >
+              <img src={itemNotesIcon} alt="notes" className="w-4 h-4 opacity-60" />
+              <span className="text-xs text-amber-400">No Onions, Extra Tomato Sauce</span>
             </div>
           </div>
 
@@ -338,36 +341,52 @@ const Dashboard = () => {
               {orderItems.map((item, index) => (
                 <div
                   key={index}
-                  className="flex items-center gap-3 p-2 rounded-lg"
-                  style={{ background: "#2A2A2A" }}
+                  className="p-2 border border-white/10 rounded-lg"
+                  style={{ background: "linear-gradient(180deg, #4D4D4D 0%, #616161 100%)" }}
                 >
-                  <div className="w-6 h-6 rounded-full bg-amber-500 flex items-center justify-center text-xs font-bold text-black">
-                    {item.qty}
+                  <div className="flex items-center gap-3">
+                    <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                      {item.qty}
+                    </span>
+                    <span className="flex-1 text-sm font-medium">{item.name}</span>
+                    <span className="text-sm font-medium">$ {item.price.toFixed(2)}</span>
                   </div>
-                  <span className="flex-1 text-sm">{item.name}</span>
-                  <span className="text-sm font-medium">$ {item.price.toFixed(2)}</span>
                 </div>
               ))}
             </div>
           </ScrollArea>
 
-          {/* Action Buttons */}
+          {/* Order Summary */}
           <div className="px-3 py-2 border-t border-white/10">
-            <div className="flex items-center gap-2">
-              <button
-                className="flex items-center justify-center w-12 h-10 rounded-lg"
-                style={{ background: "#666666" }}
-              >
-                <img src={fireIcon} alt="fire" className="w-5 h-5" />
-              </button>
-              <span className="text-sm text-white/60">FIRE</span>
-              <button
-                className="flex-1 h-10 rounded-lg text-sm font-medium text-black"
-                style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-              >
-                CHARGE $ {total.toFixed(2)}
-              </button>
+            <div 
+              className="text-xs rounded-lg px-3 py-2 space-y-1"
+              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+            >
+              <div className="flex justify-between">
+                <span className="text-white/50">Sub Total</span>
+                <span>$ {subtotal.toFixed(2)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-white/50">Tax (2%)</span>
+                <span>$ {(subtotal * 0.02).toFixed(2)}</span>
+              </div>
             </div>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="px-3 py-2 flex items-center gap-2">
+            <button
+              className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+              style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+            >
+              <img src={fireIcon} alt="fire" className="w-4 h-4" />
+            </button>
+            <button
+              className="flex-1 h-8 rounded-full text-sm font-medium text-black flex items-center justify-center"
+              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+            >
+              CHARGE $ {total.toFixed(2)}
+            </button>
           </div>
         </div>
       </div>

@@ -785,7 +785,7 @@ const MergeOrders = () => {
   return (
     <div className="h-full flex flex-col bg-black">
       {/* Desktop Layout */}
-      <div className="hidden lg:flex h-full">
+      <div className="hidden lg:flex h-full w-full">
         <DesktopLayout />
       </div>
 

@@ -705,8 +705,8 @@ const TableOrderDetails = () => {
         <div className="space-y-2 pb-3">
           {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-0">
               {/* Merged Order Indicator */}
-              {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
-                  <span className="text-sm font-medium">
+              {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
+                  <span className="text-xs font-medium">
                     <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">T{mergedFromTable}</span>
                   </span>
                 </div>}

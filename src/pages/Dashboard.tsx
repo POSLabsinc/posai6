@@ -228,55 +228,70 @@ const Dashboard = () => {
                   className={`rounded-xl p-3 cursor-pointer transition-all ${
                     selectedOrder?.id === order.id ? "border border-white" : "border border-white/10"
                   }`}
-                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                  style={{ background: "#2A2A2A" }}
                 >
-                  <div className="flex items-start gap-4">
-                    {/* Order Number & Status */}
-                    <div className="flex flex-col items-center gap-1">
-                      <span className="text-2xl font-bold">{order.id}</span>
-                      <span
-                        className="text-xs px-2 py-0.5 rounded-full"
-                        style={{ backgroundColor: order.statusColor, color: "#000" }}
-                      >
-                        {order.status}
-                      </span>
+                  <div className="flex items-center gap-6">
+                    {/* Order Number & Table Icon */}
+                    <div className="flex flex-col items-center justify-center w-12 h-12 rounded-lg border border-white/20">
+                      <span className="text-lg font-bold">{order.id}</span>
+                      <img src="/lovable-uploads/table-icon.png" alt="" className="w-4 h-4 opacity-60" onError={(e) => { e.currentTarget.style.display = 'none' }} />
                     </div>
 
-                    {/* Guest Info */}
-                    <div className="flex-1">
-                      <div className="font-medium">{order.guest}</div>
-                      <div className="text-xs text-white/60">{order.orderNo}</div>
-                      <div className="text-xs text-white/60">Seats {order.seats}</div>
+                    {/* Status & Guest Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3 mb-1">
+                        <span
+                          className="text-sm font-medium italic"
+                          style={{ color: order.statusColor }}
+                        >
+                          {order.status}
+                        </span>
+                        <span className="text-sm text-white">{order.guest}</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-white/50">
+                        <span>{order.orderNo}</span>
+                        <span>{order.date}</span>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs text-white/50">
+                        <span>Seats {order.seats}</span>
+                        <span>Arrived At {order.arrivedAt}</span>
+                      </div>
                     </div>
 
-                    {/* Date/Time */}
-                    <div className="text-xs text-white/60">
-                      <div>{order.date}</div>
-                      <div>Arrived At {order.arrivedAt}</div>
+                    {/* Timer & Type */}
+                    <div className="flex flex-col gap-1 min-w-[80px]">
+                      <div>
+                        <div className="text-sm text-white">{order.timer}</div>
+                        <div className="text-xs text-white/50">Timer</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-white">{order.type}</div>
+                        <div className="text-xs text-white/50">Type</div>
+                      </div>
                     </div>
 
-                    {/* Timer */}
-                    <div className="text-center">
-                      <div className="text-sm">{order.timer}</div>
-                      <div className="text-xs text-white/60">Timer</div>
-                      <div className="text-sm mt-1">{order.type}</div>
-                      <div className="text-xs text-white/60">Type</div>
+                    {/* Check & Revenue Center */}
+                    <div className="flex flex-col gap-1 min-w-[100px]">
+                      <div>
+                        <div className="text-sm text-white">{order.check}</div>
+                        <div className="text-xs text-white/50">Check</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-white">{order.revenueCenter}</div>
+                        <div className="text-xs text-white/50">Revenue Center</div>
+                      </div>
                     </div>
 
-                    {/* Check */}
-                    <div className="text-center">
-                      <div className="text-sm">{order.check}</div>
-                      <div className="text-xs text-white/60">Check</div>
-                      <div className="text-sm mt-1">{order.revenueCenter}</div>
-                      <div className="text-xs text-white/60">Revenue Center</div>
-                    </div>
-
-                    {/* Payment */}
-                    <div className="text-center">
-                      <div className="text-sm">{order.tip}</div>
-                      <div className="text-xs text-white/60">Tip</div>
-                      <div className="text-sm mt-1">{order.paymentType}</div>
-                      <div className="text-xs text-white/60">Payment Type</div>
+                    {/* Tip & Payment Type */}
+                    <div className="flex flex-col gap-1 min-w-[80px]">
+                      <div>
+                        <div className="text-sm text-white">{order.tip}</div>
+                        <div className="text-xs text-white/50">Tip</div>
+                      </div>
+                      <div>
+                        <div className="text-sm text-white">{order.paymentType}</div>
+                        <div className="text-xs text-white/50">Payment Type</div>
+                      </div>
                     </div>
                   </div>
                 </div>

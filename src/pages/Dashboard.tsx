@@ -60,6 +60,22 @@ const mockOrders = [
     tip: "$0.00",
     paymentType: "Cash",
   },
+  {
+    id: 12,
+    status: "Ready",
+    statusColor: "#3B82F6",
+    guest: "Mike Smith",
+    orderNo: "Order No 10",
+    seats: 2,
+    date: "Thu, 22 Jun 2024",
+    arrivedAt: "2:15:00 PM",
+    timer: "00:15",
+    type: "Take Out",
+    check: 8,
+    revenueCenter: "Main Hall",
+    tip: "$5.00",
+    paymentType: "Card",
+  },
 ];
 
 // Mock order items for right panel
@@ -76,10 +92,9 @@ const mockTables = [
   { id: "T6", seats: 6, time: "25 Min", status: "Ordered", statusColor: "#F97316" },
   { id: "T3", seats: 10, time: null, status: "Available", statusColor: "#6B7280" },
   { id: "T2", seats: 10, time: null, status: "Available", statusColor: "#6B7280" },
-  { id: "T2", seats: 10, time: null, status: "Available", statusColor: "#6B7280" },
-  { id: "T1", seats: 6, time: "25 Min", status: "Ordering", statusColor: "#4ADE80" },
-  { id: "T4", seats: 4, time: null, status: "Available", statusColor: "#6B7280" },
-  { id: "T6", seats: 6, time: null, status: "Available", statusColor: "#6B7280" },
+  { id: "T5", seats: 8, time: null, status: "Available", statusColor: "#6B7280" },
+  { id: "T7", seats: 6, time: "15 Min", status: "Ordering", statusColor: "#4ADE80" },
+  { id: "T8", seats: 4, time: null, status: "Available", statusColor: "#6B7280" },
 ];
 
 const Dashboard = () => {
@@ -90,9 +105,9 @@ const Dashboard = () => {
   const total = subtotal;
 
   return (
-    <div className="h-full flex flex-col bg-black text-white overflow-hidden">
-      {/* Stats Row */}
-      <div className="flex gap-2 px-3 py-2 overflow-x-auto scrollbar-hide">
+    <div className="h-full flex flex-col bg-black text-white overflow-hidden p-3 gap-3">
+      {/* ROW 1: Stats/Insights */}
+      <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-shrink-0">
         {stats.map((stat, index) => (
           <div
             key={index}
@@ -117,12 +132,12 @@ const Dashboard = () => {
         ))}
       </div>
 
-      {/* Main Content */}
-      <div className="flex-1 flex gap-3 px-3 pb-2 min-h-0 overflow-hidden">
-        {/* Left Panel - Orders */}
+      {/* ROW 2: Orders + Order Panel */}
+      <div className="flex-1 flex gap-3 min-h-0 overflow-hidden">
+        {/* Left: Orders List with Scroll */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Order Filters */}
-          <div className="flex gap-2 mb-2 overflow-x-auto scrollbar-hide py-1">
+          <div className="flex gap-2 mb-2 overflow-x-auto scrollbar-hide py-1 flex-shrink-0">
             {orderFilters.map((filter) => (
               <button
                 key={filter.label}
@@ -143,7 +158,7 @@ const Dashboard = () => {
             ))}
           </div>
 
-          {/* Orders List */}
+          {/* Orders List with Scroll */}
           <ScrollArea className="flex-1">
             <div className="space-y-2 pr-2">
               {mockOrders.map((order) => (
@@ -208,78 +223,9 @@ const Dashboard = () => {
               ))}
             </div>
           </ScrollArea>
-
-          {/* Table Status Section */}
-          <div className="mt-2 pt-2 border-t border-white/10">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="text-sm font-medium">Table Status</h3>
-              <button
-                className="flex items-center gap-1 text-xs px-2 py-1 rounded"
-                style={{ background: "#7575754D" }}
-              >
-                First Floor <ChevronDown className="w-3 h-3" />
-              </button>
-            </div>
-            <div className="grid grid-cols-5 gap-2 overflow-x-auto">
-              {mockTables.slice(0, 5).map((table, index) => (
-                <div
-                  key={index}
-                  className="rounded-xl p-2 text-center"
-                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-                >
-                  <div className="text-2xl font-bold">{table.id}</div>
-                  <div className="text-xs text-white/60">{table.seats} Seats</div>
-                  <div className="flex justify-center gap-0.5 my-1">
-                    {Array.from({ length: table.seats }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ backgroundColor: table.statusColor }}
-                      />
-                    ))}
-                  </div>
-                  {table.time && <div className="text-xs text-white/60 mb-1">{table.time}</div>}
-                  <div
-                    className="text-xs px-2 py-1 rounded-lg mt-1"
-                    style={{ backgroundColor: table.statusColor, color: table.status === "Available" ? "#fff" : "#000" }}
-                  >
-                    {table.status}
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="grid grid-cols-5 gap-2 mt-2">
-              {mockTables.slice(5).map((table, index) => (
-                <div
-                  key={index}
-                  className="rounded-xl p-2 text-center"
-                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-                >
-                  <div className="text-2xl font-bold">{table.id}</div>
-                  <div className="text-xs text-white/60">{table.seats} Seats</div>
-                  <div className="flex justify-center gap-0.5 my-1">
-                    {Array.from({ length: table.seats }).map((_, i) => (
-                      <div
-                        key={i}
-                        className="w-1.5 h-1.5 rounded-full"
-                        style={{ backgroundColor: table.statusColor }}
-                      />
-                    ))}
-                  </div>
-                  {table.time && <div className="text-xs text-white/60 mb-1">{table.time}</div>}
-                  <div
-                    className="text-xs px-2 py-1 rounded-lg mt-1"
-                    style={{ backgroundColor: table.statusColor, color: table.status === "Available" ? "#fff" : "#000" }}
-                  >
-                    {table.status}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
         </div>
 
-        {/* Right Panel - Order Details */}
+        {/* Right: Order Panel */}
         <div
           className="w-[280px] lg:w-[345px] flex-shrink-0 rounded-xl flex flex-col"
           style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
@@ -288,7 +234,7 @@ const Dashboard = () => {
           <div className="px-3 py-2 border-b border-white/10">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">GUEST NAME</span>
+                <span className="text-sm font-medium">{selectedOrder?.guest || "GUEST NAME"}</span>
               </div>
               <div className="flex items-center gap-3 text-xs text-white/60">
                 <div className="flex items-center gap-1">
@@ -348,6 +294,47 @@ const Dashboard = () => {
               </button>
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* ROW 3: Table Status */}
+      <div className="flex-shrink-0">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-sm font-medium">Table Status</h3>
+          <button
+            className="flex items-center gap-1 text-xs px-2 py-1 rounded"
+            style={{ background: "#7575754D" }}
+          >
+            First Floor <ChevronDown className="w-3 h-3" />
+          </button>
+        </div>
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          {mockTables.map((table, index) => (
+            <div
+              key={index}
+              className="flex-shrink-0 rounded-xl p-2 text-center min-w-[100px]"
+              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+            >
+              <div className="text-xl font-bold">{table.id}</div>
+              <div className="text-xs text-white/60">{table.seats} Seats</div>
+              <div className="flex justify-center gap-0.5 my-1">
+                {Array.from({ length: Math.min(table.seats, 6) }).map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-1.5 h-1.5 rounded-full"
+                    style={{ backgroundColor: table.statusColor }}
+                  />
+                ))}
+              </div>
+              {table.time && <div className="text-xs text-white/60 mb-1">{table.time}</div>}
+              <div
+                className="text-xs px-2 py-1 rounded-lg mt-1 truncate"
+                style={{ backgroundColor: table.statusColor, color: table.status === "Available" ? "#fff" : "#000" }}
+              >
+                {table.status}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

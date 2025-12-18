@@ -918,9 +918,9 @@ const TableOrderDetails = () => {
               <div key={guest.id} className="space-y-0">
                 {/* Merged Order Indicator */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && (
-                  <div className="px-3 py-1.5 bg-neutral-900 rounded-t-xl border-l-2 border-orange-500">
-                    <span className="text-orange-500 text-sm font-medium">
-                      Merged order {mergedOrderId} from T{mergedFromTable}
+                  <div className="px-3 py-2 bg-neutral-800/80 rounded-t-xl border-l-4 border-amber-600">
+                    <span className="text-amber-500 text-sm font-medium">
+                      Merged Order {mergedOrderId} to Table {tableId?.replace('T', '')}
                     </span>
                   </div>
                 )}

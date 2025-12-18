@@ -197,12 +197,12 @@ const Dashboard = () => {
         {/* Left: Orders List with Scroll */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Order Filters */}
-          <div className="flex gap-2 mb-2 overflow-x-auto scrollbar-hide py-1 flex-shrink-0">
+          <div className="flex gap-1.5 mb-2 overflow-x-auto scrollbar-hide flex-shrink-0">
             {orderFilters.map((filter) => (
               <button
                 key={filter.label}
                 onClick={() => setActiveFilter(filter.label)}
-                className={`flex-shrink-0 px-3 py-1.5 rounded-full text-sm font-medium transition-all ${
+                className={`flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium transition-all ${
                   activeFilter === filter.label
                     ? "text-black"
                     : "text-white"
@@ -213,7 +213,7 @@ const Dashboard = () => {
                     : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
                 }
               >
-                {filter.label} <span className="font-bold ml-1">{filter.count}</span>
+                {filter.label} <span className="font-bold ml-0.5">{filter.count}</span>
               </button>
             ))}
           </div>

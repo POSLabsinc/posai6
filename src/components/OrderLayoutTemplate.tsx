@@ -58,7 +58,7 @@ const OrderLayoutTemplate = ({
       style={{ backgroundColor: '#1B1C20' }}
       onClick={onClick}
     >
-      <div className="flex items-stretch w-full gap-2">
+      <div className="flex items-stretch w-full gap-4">
         {/* Column 1: Order Number - 8% */}
         <div className="w-[8%] flex-shrink-0 px-2 py-1.5 flex items-center">
           <div className="relative w-9 h-12 bg-neutral-800 rounded-md flex flex-col items-center justify-center gap-1 border border-neutral-600">

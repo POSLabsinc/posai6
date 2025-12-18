@@ -361,22 +361,22 @@ const Dashboard = () => {
             First Floor <ChevronDown className="w-2.5 h-2.5" />
           </button>
         </div>
-        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {mockTables.map((table, index) => (
             <div
               key={index}
-              className="flex-shrink-0 rounded-lg px-2 py-1.5 flex items-center gap-2 min-w-[90px]"
+              className="flex-shrink-0 rounded-lg p-2 w-[100px] h-[52px] flex flex-col justify-between"
               style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
             >
-              <div className="text-sm font-bold">{table.id}</div>
-              <div className="flex flex-col items-start">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-bold">{table.id}</span>
                 <span className="text-[10px] text-white/50">{table.seats} Seats</span>
-                <span
-                  className="text-[9px] px-1.5 py-0.5 rounded"
-                  style={{ backgroundColor: table.statusColor, color: table.status === "Available" ? "#fff" : "#000" }}
-                >
-                  {table.status}
-                </span>
+              </div>
+              <div
+                className="text-[10px] px-2 py-0.5 rounded text-center truncate"
+                style={{ backgroundColor: table.statusColor, color: table.status === "Available" ? "#fff" : "#000" }}
+              >
+                {table.status}
               </div>
             </div>
           ))}

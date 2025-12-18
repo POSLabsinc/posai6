@@ -62,8 +62,8 @@ const MergeOrders = () => {
   // Get the current order being merged (from the table we came from)
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
 
-  // Filter orders from ALL tables, excluding the current order
-  const availableOrders = allOrders.filter(o => o.id !== orderId);
+  // Filter orders from the same table, excluding the current order
+  const availableOrders = allOrders.filter(o => o.id !== orderId && o.table === tableId);
 
   const filteredOrders = activeFilter === "All" 
     ? availableOrders 
@@ -71,7 +71,7 @@ const MergeOrders = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "ORDERING": return "text-[#F87171]";
+      case "ORDERING": return "text-red-500";
       case "ORDERED": return "text-orange-500";
       case "PREPARING": return "text-yellow-500";
       case "COMPLETED": return "text-green-500";
@@ -228,149 +228,85 @@ const MergeOrders = () => {
     </div>
   );
 
-  // Desktop current order card with extended info - matching screenshot layout
+  // Desktop current order card with extended info
   const DesktopCurrentOrderCard = ({ order }: { order: typeof allOrders[0] }) => (
-    <div className="bg-neutral-900 rounded-xl border border-white overflow-hidden">
-      <div className="flex items-stretch">
+    <div className="bg-neutral-800 rounded-xl p-4 border border-white">
+      <div className="flex items-start gap-4">
         {/* Order number with icon */}
-        <div className="w-[8%] flex-shrink-0 px-3 py-3 flex items-center justify-center">
-          <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-            <span className="text-base font-bold text-white">{order.id}</span>
-            <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
-          </div>
+        <div className="relative w-12 h-16 bg-neutral-700 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600 flex-shrink-0">
+          <span className="text-lg font-bold text-white">{order.id}</span>
+          <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
         </div>
         
-        {/* Name, amount, party info */}
-        <div className="w-[22%] flex-shrink-0 py-3 pr-3 flex flex-col justify-center border-r border-white/10">
+        {/* Name and amount */}
+        <div className="flex-1">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <span className="text-white font-medium text-sm">{order.name}</span>
-              <span className="text-white/60 text-xs">· {order.table}</span>
-            </div>
-            <span className="text-white font-semibold text-sm">{order.amount}</span>
+            <span className="text-white font-medium">{order.name}</span>
+            <span className="text-white font-semibold">{order.amount}</span>
           </div>
-          <div className="flex items-center justify-between mt-1.5 text-xs">
-            <div className="flex items-center gap-1 text-gray-400">
-              <span>Party Of {order.partySize},</span>
-              <span>⚡ {order.time}</span>
-            </div>
-            <span className={getStatusColor(order.status)}>{order.status}</span>
+          <div className="flex items-center gap-2 mt-1 text-xs">
+            <span className="text-white/60">Party Of {order.partySize},</span>
+            <span className="text-white/60">⚡ {order.time}</span>
+            <span className={`ml-2 ${getStatusColor(order.status)}`}>{order.status}</span>
           </div>
         </div>
 
-        {/* Timer & Server */}
-        <div className="w-[15%] flex-shrink-0 py-3 px-3 flex flex-col justify-center border-r border-white/10">
-          <div className="mb-2">
-            <div className="text-white text-sm font-medium">{order.timer}</div>
-            <div className="text-gray-500 text-xs">Timer</div>
+        {/* Timer & Check */}
+        <div className="flex flex-col gap-1 text-xs">
+          <div>
+            <div className="text-white font-medium">{order.timer}</div>
+            <div className="text-gray-500">Timer</div>
           </div>
           <div>
-            <div className="text-white text-sm">{order.server}</div>
-            <div className="text-gray-500 text-xs">Server</div>
+            <div className="text-white">{order.check}</div>
+            <div className="text-gray-500">Check</div>
           </div>
         </div>
 
-        {/* Check & Revenue Center */}
-        <div className="w-[15%] flex-shrink-0 py-3 px-3 flex flex-col justify-center border-r border-white/10">
-          <div className="mb-2">
-            <div className="text-white text-sm font-medium">{order.check}</div>
-            <div className="text-gray-500 text-xs">Check</div>
+        {/* Server & Revenue Center */}
+        <div className="flex flex-col gap-1 text-xs">
+          <div>
+            <div className="text-white">{order.server}</div>
+            <div className="text-gray-500">Server</div>
           </div>
           <div>
-            <div className="text-white text-sm">{order.revenueCenter}</div>
-            <div className="text-gray-500 text-xs">Revenue Center</div>
+            <div className="text-white">{order.revenueCenter}</div>
+            <div className="text-gray-500">Revenue Center</div>
           </div>
         </div>
 
-        {/* Tip & Payment Type */}
-        <div className="w-[15%] flex-shrink-0 py-3 px-3 flex flex-col justify-center">
-          <div className="mb-2">
-            <div className="text-white text-sm font-medium">--</div>
-            <div className="text-gray-500 text-xs">Tip</div>
-          </div>
+        {/* Payment Type */}
+        <div className="flex flex-col text-xs">
           <div>
-            <div className="text-white text-sm">{order.paymentType}</div>
-            <div className="text-gray-500 text-xs">Payment Type</div>
+            <div className="text-white font-medium">{order.paymentType}</div>
+            <div className="text-gray-500">Payment Type</div>
           </div>
         </div>
       </div>
     </div>
   );
 
-  // Desktop order list card - matching screenshot layout
+  // Desktop order list card
   const DesktopOrderListCard = ({ order, isSelected, onClick }: { 
     order: typeof allOrders[0]; 
     isSelected: boolean; 
     onClick?: () => void;
   }) => (
     <div 
-      className={`bg-neutral-900 rounded-xl cursor-pointer transition-colors overflow-hidden ${
-        isSelected ? "border border-orange-500" : "border border-white/10 hover:border-white/30"
+      className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
+        isSelected ? "bg-neutral-700 border border-orange-500" : "bg-neutral-800 border border-transparent hover:bg-neutral-700"
       }`}
       onClick={onClick}
     >
-      <div className="flex items-stretch">
-        {/* Order number with icon */}
-        <div className="w-[8%] flex-shrink-0 px-3 py-3 flex items-center justify-center">
-          <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-            <span className="text-base font-bold text-white">{order.id}</span>
-            <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
-          </div>
-        </div>
-        
-        {/* Name, amount, party info */}
-        <div className="w-[22%] flex-shrink-0 py-3 pr-3 flex flex-col justify-center border-r border-white/10">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              <span className="text-white font-medium text-sm">{order.name}</span>
-              <span className="text-white/60 text-xs">· {order.table}</span>
-            </div>
-            <span className="text-white font-semibold text-sm">{order.amount}</span>
-          </div>
-          <div className="flex items-center justify-between mt-1.5 text-xs">
-            <div className="flex items-center gap-1 text-gray-400">
-              <span>Party Of {order.partySize},</span>
-              <span>⚡ {order.time}</span>
-            </div>
-            <span className={getStatusColor(order.status)}>{order.status}</span>
-          </div>
-        </div>
-
-        {/* Timer & Server */}
-        <div className="w-[15%] flex-shrink-0 py-3 px-3 flex flex-col justify-center border-r border-white/10">
-          <div className="mb-2">
-            <div className="text-white text-sm font-medium">{order.timer}</div>
-            <div className="text-gray-500 text-xs">Timer</div>
-          </div>
-          <div>
-            <div className="text-white text-sm">{order.server}</div>
-            <div className="text-gray-500 text-xs">Server</div>
-          </div>
-        </div>
-
-        {/* Check & Revenue Center */}
-        <div className="w-[15%] flex-shrink-0 py-3 px-3 flex flex-col justify-center border-r border-white/10">
-          <div className="mb-2">
-            <div className="text-white text-sm font-medium">{order.check}</div>
-            <div className="text-gray-500 text-xs">Check</div>
-          </div>
-          <div>
-            <div className="text-white text-sm">{order.revenueCenter}</div>
-            <div className="text-gray-500 text-xs">Revenue Center</div>
-          </div>
-        </div>
-
-        {/* Tip & Payment Type */}
-        <div className="w-[15%] flex-shrink-0 py-3 px-3 flex flex-col justify-center">
-          <div className="mb-2">
-            <div className="text-white text-sm font-medium">--</div>
-            <div className="text-gray-500 text-xs">Tip</div>
-          </div>
-          <div>
-            <div className="text-white text-sm">{order.paymentType}</div>
-            <div className="text-gray-500 text-xs">Payment Type</div>
-          </div>
-        </div>
+      <div className="flex items-center gap-3">
+        <span className="text-white/60 text-sm w-4">{order.id}</span>
+        <span className="text-white font-medium">{order.name}</span>
+        <span className="text-white/60">·</span>
+        <span className="text-white/80">{order.table}</span>
+      </div>
+      <div className="flex items-center gap-3">
+        <span className="text-white font-medium">{order.amount}</span>
+        <span className={`text-xs font-medium w-20 text-right ${getStatusColor(order.status)}`}>{order.status}</span>
       </div>
     </div>
   );

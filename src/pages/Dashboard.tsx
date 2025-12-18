@@ -239,7 +239,7 @@ const Dashboard = () => {
 
                     {/* Status & Guest Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-1 pb-1 border-b border-white/10">
+                      <div className="flex items-center justify-between mb-1 pb-1 border-b border-white/10">
                         <span
                           className="text-sm font-medium italic"
                           style={{ color: order.statusColor }}

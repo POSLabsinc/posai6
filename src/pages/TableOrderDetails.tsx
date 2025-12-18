@@ -817,7 +817,7 @@ const TableOrderDetails = () => {
                     </span>
                   </div>
                 )}
-                <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white bg-neutral-800/50" : "border-neutral-700 bg-neutral-900/50 hover:border-neutral-600"}`}>
+                <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{ backgroundColor: '#1B1C20' }}>
                 <div className="flex items-stretch w-full gap-4">
                   {/* Column 1: Order Number - 8% */}
                   <div className="w-[8%] flex-shrink-0 px-3 py-2 flex items-center">

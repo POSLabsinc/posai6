@@ -343,10 +343,10 @@ const Dashboard = () => {
                   style={{ background: "#2A2A2A" }}
                 >
                   <div className="flex items-center gap-3 md:gap-6">
-                    {/* Order Number & Table Icon */}
-                    <div className="flex flex-col items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-lg border border-white/20 flex-shrink-0">
+                    {/* Order Number & Dine In Icon */}
+                    <div className="flex flex-col items-center justify-center w-10 md:w-12 rounded-lg border border-white/20 flex-shrink-0 py-1.5 gap-0.5">
                       <span className="text-base md:text-lg font-bold">{order.id}</span>
-                      <img src="/lovable-uploads/table-icon.png" alt="" className="w-3 h-3 md:w-4 md:h-4 opacity-60" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                      <img src="/src/assets/icons/dine-in.png" alt="Dine In" className="w-4 h-4 md:w-5 md:h-5 opacity-80" />
                     </div>
 
                     {/* Status & Guest Info */}

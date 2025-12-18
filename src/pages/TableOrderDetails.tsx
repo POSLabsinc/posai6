@@ -1029,23 +1029,20 @@ const TableOrderDetails = () => {
           <ScrollBar orientation="vertical" />
         </ScrollArea>
 
-        {/* Order Summary */}
-        <div className="px-4 py-3 border-t border-white/10 space-y-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-white/60">Sub Total</span>
-            <span className="text-white">$ 56.00</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-red-500">Discount</span>
-            <span className="text-red-500">$1.00</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-white/60">Service Charge</span>
-            <span className="text-white">$ 1.00</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-white/60">Tax</span>
-            <span className="text-white">$ 1.00</span>
+        {/* Order Summary - Compact Mode */}
+        <div className="p-2 border-t border-white/10 flex-shrink-0">
+          <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
+            background: '#7575754D',
+            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+          }}>
+            <div className="flex justify-between gap-3">
+              <span className="text-white">Sub Total: <span className="font-medium">$56.00</span></span>
+              <span className="text-red-500">Discount: <span className="font-medium">$1.00</span></span>
+            </div>
+            <div className="flex justify-between gap-3">
+              <span className="text-white">Service Charge: <span className="font-medium">$1.00</span></span>
+              <span className="text-white">Tax: <span className="font-medium">$1.00</span></span>
+            </div>
           </div>
         </div>
 

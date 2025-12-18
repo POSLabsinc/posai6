@@ -922,8 +922,8 @@ const TableOrderDetails = () => {
             {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-0">
                 {/* Merged Order Indicator */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1.5 rounded-t-xl border-l-2 border-orange-500 bg-[#392514]">
-                    <span className="text-orange-500 text-sm font-medium">
-                      Merged order {mergedOrderId} from T{mergedFromTable}
+                    <span className="text-sm font-medium">
+                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">T{mergedFromTable}</span>
                     </span>
                   </div>}
                 <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{

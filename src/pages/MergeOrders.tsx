@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ArrowUpDown, SlidersHorizontal, Search } from "lucide-react";
+import { ChevronLeft, ArrowUpDown, SlidersHorizontal, Search, Phone } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -9,6 +9,9 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import clearIcon from "@/assets/icons/clear-c.png";
 import fireIcon from "@/assets/icons/fire.png";
 import tableTargetIcon from "@/assets/icons/table-target.png";
+import shareSeatsIcon from "@/assets/icons/share-seats.png";
+import seatIcon from "@/assets/icons/seat-icon.png";
+import splitIcon from "@/assets/icons/split-icon.png";
 
 // Mock all orders data from different tables with extended info
 const allOrders = [
@@ -394,30 +397,40 @@ const MergeOrders = () => {
   // Right panel - Order details
   const OrderDetailsPanel = () => (
     <div className="w-[345px] flex flex-col my-2 mr-2">
-      {/* Guest Header */}
+      {/* Guest Header - Outside the box */}
       <div className="px-2 py-3">
         <div className="flex items-center justify-between mb-2">
           <span className="text-white font-medium">{currentOrder.name}</span>
           <div className="flex items-center gap-3 text-white/50 text-sm">
-            <span>📞 {currentOrder.phone || "(415) 123-4567"}</span>
-            <span>⚡ {currentOrder.time}</span>
+            <div className="flex items-center gap-1">
+              <Phone className="w-3 h-3" />
+              <span>{currentOrder.phone || "(415) 123-4567"}</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span>⚡</span>
+              <span>{currentOrder.time}</span>
+            </div>
           </div>
         </div>
-        <div className="flex gap-2">
-          {["Add Item", "Discount", "Receipt", "Cash Register"].map((btn, i) => (
-            <button
-              key={btn}
-              className="px-3 py-1.5 rounded-lg text-xs text-white/80 bg-neutral-700 hover:bg-neutral-600 transition-colors"
-            >
-              {btn}
-            </button>
-          ))}
+        <div className="flex gap-2 flex-wrap">
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Add Item
+          </button>
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Discount
+          </button>
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Receipt
+          </button>
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Cash Register
+          </button>
         </div>
       </div>
 
       {/* Main Panel Box */}
       <div 
-        className="flex-1 flex flex-col rounded-[20px] border border-white/10 overflow-hidden"
+        className="flex-1 flex flex-col rounded-[10px] overflow-hidden"
         style={{ 
           background: "#7575754D",
           boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
@@ -427,39 +440,44 @@ const MergeOrders = () => {
         <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="text-white/60 text-sm">TABLE {tableId?.replace("T", "")}</span>
-              <span className="text-white font-medium">{currentOrder.id}</span>
+              <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
+              <span className="text-white font-bold">{currentOrder.id}</span>
             </div>
-            <div className="flex items-center gap-1 text-white/60 text-xs">
-              <span>👤</span>
-              <span>{currentOrder.server}</span>
+            <div className="flex items-center gap-2">
+              <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
+              <span className="text-white/50 text-sm">{currentOrder.server}</span>
             </div>
           </div>
-          <div className="flex items-center gap-1">
-            <span className="text-white/40">🪑</span>
-            <div className="flex gap-1">
-              {[1, 2, 3, 4].map(seat => (
-                <button
-                  key={seat}
-                  onClick={() => setSelectedSeats(prev => 
-                    prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]
-                  )}
-                  className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
-                    selectedSeats.includes(seat) 
-                      ? "bg-white text-black" 
-                      : "bg-neutral-700 text-white/60"
-                  }`}
-                >
-                  {seat}
-                </button>
-              ))}
-            </div>
+          
+          {/* Seat Buttons */}
+          <div className="flex items-center gap-2">
+            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={seatIcon} alt="Seat" className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={splitIcon} alt="Split" className="w-4 h-4" />
+            </button>
+            {[1, 2, 3, 4].map(seat => (
+              <button
+                key={seat}
+                onClick={() => setSelectedSeats(prev => 
+                  prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]
+                )}
+                className={`w-7 h-7 rounded text-sm font-medium transition-colors ${
+                  selectedSeats.includes(seat) 
+                    ? "bg-white text-black" 
+                    : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                {seat}
+              </button>
+            ))}
           </div>
         </div>
 
-        {/* Allergies */}
-        <div className="px-4 py-2 border-b border-white/10">
-          <div className="flex items-center gap-2 text-white/60 text-xs">
+        {/* Notes */}
+        <div className="px-4 py-3 border-b border-white/10">
+          <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
             <span>⚠️</span>
             <span>Allergic to almonds, Don't add onion</span>
           </div>
@@ -467,37 +485,38 @@ const MergeOrders = () => {
 
         {/* Order Items */}
         <ScrollArea className="flex-1 px-4">
-          <div className="py-3 space-y-3">
+          <div className="py-2 space-y-2">
             {orderItems.map((item, index) => (
-              <div key={index} className="border-b border-white/10 pb-3 last:border-0">
+              <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
-                    <span className="bg-neutral-700 text-white text-xs px-1.5 py-0.5 rounded">{item.qty}</span>
+                    <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                      {item.qty}
+                    </span>
                     <div>
-                      <span className="text-white text-sm">{item.name}</span>
-                      {item.seats.length > 0 && (
-                        <div className="flex items-center gap-1 mt-1">
-                          <span className="text-white/40">🪑</span>
-                          {item.seats.map(s => (
-                            <span key={s} className="bg-neutral-700 text-white/60 text-xs px-1 rounded">{s}</span>
-                          ))}
-                        </div>
-                      )}
+                      <span className="text-white font-medium">{item.name}</span>
                       {item.modifiers.length > 0 && (
-                        <div className="mt-1 space-y-0.5">
+                        <div className="mt-1 text-white/50 text-sm space-y-0.5">
                           {item.modifiers.map((mod, i) => (
-                            <div key={i} className="text-white/50 text-xs">{mod}</div>
+                            <div key={i}>{mod}</div>
                           ))}
                         </div>
                       )}
                     </div>
                   </div>
-                  <span className="text-white text-sm">{item.price}</span>
+                  <span className="text-white font-medium">{item.price}</span>
                 </div>
-                <div className="flex items-center gap-2 mt-2">
-                  <span className="text-white/40">🪑</span>
-                  <span className="text-white/40">📤</span>
-                </div>
+                {item.seats.length > 0 && (
+                  <div className="flex items-center gap-1 mt-2">
+                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                    {item.seats.map(seat => (
+                      <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                        {seat}
+                      </span>
+                    ))}
+                    <span className="text-white/40 ml-2">📤</span>
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -511,8 +530,8 @@ const MergeOrders = () => {
             <span className="text-white">$ 56.00</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-red-400">Discount</span>
-            <span className="text-red-400">$ 1.00</span>
+            <span className="text-red-500">Discount</span>
+            <span className="text-red-500">$ 1.00</span>
           </div>
           <div className="flex justify-between">
             <span className="text-white/60">Service Charge</span>
@@ -524,19 +543,21 @@ const MergeOrders = () => {
           </div>
         </div>
 
-        {/* Action Buttons */}
+        {/* Bottom Actions */}
         <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
-          <button className="w-8 h-8 rounded-full bg-red-500 flex items-center justify-center">
-            <img src={clearIcon} alt="Clear" className="w-4 h-4 object-contain" />
+          <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+            <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
           </button>
           <button 
-            className="w-8 h-8 rounded-full flex items-center justify-center"
+            disabled 
+            className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" 
             style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
           >
-            <img src={fireIcon} alt="Fire" className="w-4 h-4 object-contain" />
+            <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+            <span>FIRE</span>
           </button>
           <button 
-            className="flex-1 py-2 rounded-full text-black font-medium text-sm"
+            className="flex-1 py-2 rounded-full text-black text-sm font-bold"
             style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
           >
             CHARGE $ 59.00

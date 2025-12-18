@@ -672,12 +672,6 @@ const TableOrderDetails = () => {
           background: "#7575754D",
           boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
         }}>
-            <SlidersHorizontal className="w-4 h-4 text-white" />
-          </button>
-          <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
-          background: "#7575754D",
-          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-        }}>
             <Search className="w-4 h-4 text-white" />
           </button>
         </div>

@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { Check, ChevronDown } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import fireIcon from "@/assets/icons/fire.png";
 import itemNotesIcon from "@/assets/icons/item-notes.png";
 import phoneIcon from "@/assets/icons/phone-icon.png";
@@ -8,13 +9,16 @@ import timeIcon from "@/assets/icons/time-icon.png";
 
 // Stats data
 const stats = [
-  { label: "Total Sale", value: "$ 1,400.00", change: "2.2%", isUp: true, icon: "💰" },
+  { label: "Total Sale", value: "$ 1,400.00", change: "2.2%", isUp: true, icon: "💵" },
   { label: "Total Tip", value: "$ 285.00", change: "2.2%", isUp: true, icon: "💵" },
-  { label: "Total Hours", value: "6h 28min", change: "0.5%", isUp: false, icon: "⏱" },
-  { label: "Ordering", value: "12", change: "2.5%", isUp: true, icon: "📋" },
-  { label: "Ready to Served", value: "5", change: "1%", isUp: false, icon: "check", hasCheckbox: true },
-  { label: "Ready to Served", value: "8", change: "1%", isUp: false, icon: "check", hasCheckbox: true },
+  { label: "Total Hours", value: "6h 28min", change: "0.5%", isUp: false, icon: "clock" },
+  { label: "Ordering", value: "12", change: "2.5%", isUp: true, icon: "clock" },
+  { label: "Ready to Served", value: "5", change: "1%", isUp: false, hasCheckbox: true },
+  { label: "Ready to Served", value: "8", change: "1%", isUp: false, hasCheckbox: true },
 ];
+
+// Date filter options
+const dateFilters = ["Today", "Yesterday", "This Week", "Last Week", "This Month", "Last Month", "Custom"];
 
 // Order filters
 const orderFilters = [
@@ -100,36 +104,85 @@ const mockTables = [
 const Dashboard = () => {
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState(mockOrders[0]);
+  const [dateFilter, setDateFilter] = useState("Today");
+  const [compareDate, setCompareDate] = useState("Yesterday");
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = subtotal;
 
   return (
     <div className="h-full flex flex-col bg-black text-white overflow-hidden p-3 gap-3">
-      {/* ROW 1: Stats/Insights */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-hide flex-shrink-0">
-        {stats.map((stat, index) => (
-          <div
-            key={index}
-            className="flex-shrink-0 rounded-xl px-3 py-2 min-w-[140px]"
-            style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-          >
-            <div className="flex items-center gap-2 text-xs text-white/60 mb-1">
-              {stat.hasCheckbox ? (
-                <div className="w-4 h-4 rounded border border-white/40 flex items-center justify-center">
-                  <Check className="w-3 h-3" />
-                </div>
-              ) : (
-                <span>{stat.icon}</span>
-              )}
-              <span>{stat.label}</span>
-            </div>
-            <div className="text-lg font-semibold">{stat.value}</div>
-            <div className={`text-xs ${stat.isUp ? "text-green-400" : "text-red-400"}`}>
-              {stat.isUp ? "↗" : "↘"} {stat.change} from yesterday
-            </div>
+      {/* ROW 1: Date Filters + Stats/Insights */}
+      <div className="flex flex-col gap-2 flex-shrink-0">
+        {/* Date Filters */}
+        <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2">
+            <Calendar className="w-4 h-4 text-white/60" />
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger 
+                className="h-8 px-3 border-0 text-sm text-white"
+                style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-800 border-neutral-700">
+                {dateFilters.map((filter) => (
+                  <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
+                    {filter}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
-        ))}
+          <span className="text-white/40 text-sm">vs</span>
+          <div className="flex items-center gap-2">
+            <Select value={compareDate} onValueChange={setCompareDate}>
+              <SelectTrigger 
+                className="h-8 px-3 border-0 text-sm text-white"
+                style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+              >
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-800 border-neutral-700">
+                {dateFilters.map((filter) => (
+                  <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
+                    {filter}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        {/* Stats/Insights Row */}
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          {stats.map((stat, index) => (
+            <div
+              key={index}
+              className="flex-shrink-0 rounded-xl px-4 py-3 min-w-[160px] flex-1"
+              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+            >
+              <div className="flex items-center gap-2 text-xs text-white/60 mb-2">
+                {stat.hasCheckbox ? (
+                  <div className="w-4 h-4 rounded border border-white/40 flex items-center justify-center">
+                    <Check className="w-3 h-3" />
+                  </div>
+                ) : stat.icon === "clock" ? (
+                  <Clock className="w-4 h-4 text-white/60" />
+                ) : (
+                  <span className="text-sm">{stat.icon}</span>
+                )}
+                <span>{stat.label}</span>
+              </div>
+              <div className="text-xl font-semibold mb-1">{stat.value}</div>
+              <div className={`text-xs flex items-center gap-1 ${stat.isUp ? "text-green-400" : "text-red-400"}`}>
+                <span>{stat.isUp ? "↗" : "↘"}</span>
+                <span>{stat.change}</span>
+                <span className="text-white/40">from {compareDate.toLowerCase()}</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* ROW 2: Orders + Order Panel */}

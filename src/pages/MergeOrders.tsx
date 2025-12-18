@@ -393,7 +393,7 @@ const MergeOrders = () => {
 
   // Right panel - Order details
   const OrderDetailsPanel = () => (
-    <div className="w-[345px] flex flex-col m-2 ml-0">
+    <div className="w-[345px] flex flex-col my-2 mr-2">
       {/* Guest Header */}
       <div className="px-2 py-3">
         <div className="flex items-center justify-between mb-2">

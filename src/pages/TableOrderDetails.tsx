@@ -18,74 +18,181 @@ import mergeIcon from "@/assets/icons/merge-icon.png";
 import transferIcon from "@/assets/icons/transfer-icon.png";
 import searchIcon from "@/assets/icons/search.png";
 
-// Mock guest orders data
-const guestOrders = [{
-  id: "3",
-  name: "Martin Alex",
-  amount: "$37.31",
-  tip: "",
-  partySize: 4,
-  time: "8:00 PM",
-  timer: "00:00",
-  server: "Mia Jone",
-  check: "--",
-  paymentType: "--",
-  revenueCenter: "FF Balcony",
-  status: "ORDERING"
-}, {
-  id: "2",
-  name: "Mike Wheelers",
-  amount: "$40.00",
-  tip: "",
-  partySize: 3,
-  time: "7:30 PM",
-  timer: "1:16 Hrs",
-  server: "Dustin H",
-  check: "123423",
-  paymentType: "Cash",
-  revenueCenter: "FF Balcony",
-  status: "PAID"
-}, {
-  id: "1",
-  name: "Guest",
-  amount: "45.31",
-  tip: "",
-  partySize: 2,
-  time: "7:15 PM",
-  timer: "1:16 Hrs",
-  server: "Dustin H",
-  check: "123443",
-  paymentType: "--",
-  revenueCenter: "FF Balcony",
-  status: "UNPAID"
-}];
+// Order item interface
+interface OrderItem {
+  qty: number;
+  name: string;
+  price: number;
+  seats: number[];
+  modifiers: string[];
+}
 
-// Mock order items for right panel
-const orderItems = [{
-  qty: 2,
-  name: "Classic Crispy Burger",
-  price: "$12.00",
-  seats: [1, 2],
-  modifiers: []
-}, {
-  qty: 4,
-  name: "Meatballs",
-  price: "$16.00",
-  seats: [],
-  modifiers: []
-}, {
-  qty: 2,
-  name: "Rigatoni Pasta",
-  price: "$8.00",
-  seats: [3, 4],
-  modifiers: []
-}, {
-  qty: 4,
-  name: "Alomd crusted salmon",
-  price: "$20.00",
-  seats: [],
-  modifiers: ["- Salad", "- Balsamic Vinaigrette", "- Medium Rare", "+ W/ Potato Wedges", "- large", "+ W/ Extra Cheese"]
-}];
+// Guest order interface with linked items
+interface GuestOrder {
+  id: string;
+  name: string;
+  phone: string;
+  partySize: number;
+  time: string;
+  timer: string;
+  server: string;
+  check: string;
+  paymentType: string;
+  revenueCenter: string;
+  status: string;
+  notes: string;
+  items: OrderItem[];
+  subtotal: number;
+  discount: number;
+  serviceCharge: number;
+  tax: number;
+  tip: number;
+  total: number;
+}
+
+// Mock guest orders data with linked items
+const guestOrders: GuestOrder[] = [
+  {
+    id: "3",
+    name: "Martin Alex",
+    phone: "(415) 555-0123",
+    partySize: 4,
+    time: "8:00 PM",
+    timer: "00:00",
+    server: "Mia Jone",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "FF Balcony",
+    status: "ORDERING",
+    notes: "Allergic to almonds, Don't add onion",
+    items: [
+      { qty: 2, name: "Classic Crispy Burger", price: 12.00, seats: [1, 2], modifiers: [] },
+      { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: ["Extra Sauce"] },
+      { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
+      { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette", "- Medium Rare", "+ W/ Potato Wedges"] }
+    ],
+    subtotal: 68.00,
+    discount: 5.00,
+    serviceCharge: 3.40,
+    tax: 4.56,
+    tip: 0,
+    total: 70.96
+  },
+  {
+    id: "2",
+    name: "Mike Wheelers",
+    phone: "(415) 555-0456",
+    partySize: 3,
+    time: "7:30 PM",
+    timer: "1:16 Hrs",
+    server: "Dustin H",
+    check: "123423",
+    paymentType: "Cash",
+    revenueCenter: "FF Balcony",
+    status: "PAID",
+    notes: "Birthday celebration - bring candle",
+    items: [
+      { qty: 1, name: "New York Strip Steak", price: 28.00, seats: [1], modifiers: ["Medium Rare", "+ Garlic Butter"] },
+      { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [2], modifiers: ["No Lemon"] },
+      { qty: 1, name: "Caesar Salad", price: 12.00, seats: [3], modifiers: ["Extra Croutons", "Dressing on Side"] },
+      { qty: 3, name: "Glass of Red Wine", price: 9.00, seats: [], modifiers: [] },
+      { qty: 1, name: "Chocolate Lava Cake", price: 10.00, seats: [], modifiers: ["+ Extra Ice Cream"] }
+    ],
+    subtotal: 101.00,
+    discount: 0,
+    serviceCharge: 5.05,
+    tax: 7.42,
+    tip: 15.00,
+    total: 128.47
+  },
+  {
+    id: "1",
+    name: "Sarah Johnson",
+    phone: "(415) 555-0789",
+    partySize: 2,
+    time: "7:15 PM",
+    timer: "1:45 Hrs",
+    server: "Dustin H",
+    check: "123443",
+    paymentType: "--",
+    revenueCenter: "FF Balcony",
+    status: "UNPAID",
+    notes: "Gluten-free options requested",
+    items: [
+      { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust"] },
+      { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"] },
+      { qty: 2, name: "Tiramisu", price: 9.00, seats: [], modifiers: [] },
+      { qty: 2, name: "Espresso", price: 4.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 72.00,
+    discount: 10.00,
+    serviceCharge: 3.10,
+    tax: 4.34,
+    tip: 0,
+    total: 69.44
+  },
+  {
+    id: "4",
+    name: "David Chen",
+    phone: "(415) 555-1234",
+    partySize: 6,
+    time: "6:45 PM",
+    timer: "2:30 Hrs",
+    server: "Mia Jone",
+    check: "123456",
+    paymentType: "Credit Card",
+    revenueCenter: "Main Dining",
+    status: "PAID",
+    notes: "Corporate dinner - split bill 3 ways",
+    items: [
+      { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter"] },
+      { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium", "Peppercorn Sauce"] },
+      { qty: 2, name: "Vegetable Risotto", price: 22.00, seats: [5, 6], modifiers: ["Extra Parmesan"] },
+      { qty: 6, name: "House Salad", price: 8.00, seats: [], modifiers: [] },
+      { qty: 2, name: "Bottle of Champagne", price: 85.00, seats: [], modifiers: [] },
+      { qty: 6, name: "Cheesecake", price: 11.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 428.00,
+    discount: 20.00,
+    serviceCharge: 20.40,
+    tax: 28.59,
+    tip: 64.20,
+    total: 521.19
+  },
+  {
+    id: "5",
+    name: "Guest",
+    phone: "",
+    partySize: 1,
+    time: "8:30 PM",
+    timer: "00:15",
+    server: "Mia Jone",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "Bar",
+    status: "ORDERING",
+    notes: "",
+    items: [
+      { qty: 1, name: "Classic Burger", price: 15.00, seats: [1], modifiers: ["No Pickles", "+ Bacon"] },
+      { qty: 1, name: "Craft IPA", price: 8.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 23.00,
+    discount: 0,
+    serviceCharge: 1.15,
+    tax: 1.69,
+    tip: 0,
+    total: 25.84
+  }
+];
+
+// Helper function to format price
+const formatPrice = (price: number) => `$${price.toFixed(2)}`;
+
+// Helper function to get order items for display (backwards compatibility)
+const getOrderItems = (order: GuestOrder) => order.items.map(item => ({
+  ...item,
+  price: formatPrice(item.price * item.qty)
+}));
 
 // Mock merged orders data for display
 const mergedOrdersData = {
@@ -366,7 +473,7 @@ const TableOrderDetails = () => {
         <div className="flex items-center gap-3 text-white/50 text-sm">
           <div className="flex items-center gap-1">
             <Phone className="w-3 h-3" />
-            <span>(415) 123-4567</span>
+            <span>{selectedGuest.phone || "N/A"}</span>
           </div>
           <div className="flex items-center gap-1">
             <span>⚡</span>
@@ -419,14 +526,14 @@ const TableOrderDetails = () => {
       <div className="px-3 py-2 border-b border-neutral-700/50">
         <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
           <span>📝</span>
-          <span>Allergic to almonds, Don't add onion</span>
+          <span>{selectedGuest.notes || "No notes"}</span>
         </div>
       </div>
 
       {/* Order Items */}
       <ScrollArea className="flex-1 px-3">
         <div className="py-2 space-y-2">
-          {orderItems.map((item, index) => (
+          {getOrderItems(selectedGuest).map((item, index) => (
             <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
               <div className="flex items-start justify-between">
                 <div className="flex items-start gap-2">
@@ -478,7 +585,7 @@ const TableOrderDetails = () => {
           className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"
           style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
         >
-          CHARGE $26.00
+          CHARGE {formatPrice(selectedGuest.total)}
         </button>
       </div>
     </div>
@@ -630,8 +737,8 @@ const TableOrderDetails = () => {
                       <div className="flex items-start justify-between">
                         <span className="text-white font-medium text-sm">{guest.name}</span>
                         <div className="flex flex-col items-end">
-                          <span className="text-white font-semibold text-sm">{guest.amount}</span>
-                          {guest.tip && <span className="text-gray-400 text-xs">{guest.tip}</span>}
+                          <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
+                          {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}
                         </div>
                       </div>
                       <div className="h-px bg-neutral-600 my-1.5"></div>
@@ -833,8 +940,8 @@ const TableOrderDetails = () => {
                       <div className="flex items-start justify-between">
                         <span className="text-white font-medium text-sm">{guest.name}</span>
                         <div className="flex flex-col items-end">
-                          <span className="text-white font-semibold text-sm">{guest.amount}</span>
-                          {guest.tip && <span className="text-gray-400 text-xs">{guest.tip}</span>}
+                          <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
+                          {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}
                         </div>
                       </div>
                       <div className="h-px bg-neutral-600 my-1.5"></div>
@@ -1006,14 +1113,14 @@ const TableOrderDetails = () => {
         <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
             <span>📝</span>
-            <span>Allergic to almonds, Don't add onion</span>
+            <span>{selectedGuest.notes || "No notes"}</span>
           </div>
         </div>
 
         {/* Order Items */}
         <ScrollArea className="flex-1 px-4">
           <div className="py-2 space-y-2">
-            {orderItems.map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+            {getOrderItems(selectedGuest).map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
                     <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
@@ -1046,12 +1153,12 @@ const TableOrderDetails = () => {
             boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
           }}>
             <div className="flex justify-between gap-3">
-              <span className="text-white">Sub Total: <span className="font-medium">$56.00</span></span>
-              <span className="text-red-500">Discount: <span className="font-medium">$1.00</span></span>
+              <span className="text-white">Sub Total: <span className="font-medium">{formatPrice(selectedGuest.subtotal)}</span></span>
+              <span className="text-red-500">Discount: <span className="font-medium">{formatPrice(selectedGuest.discount)}</span></span>
             </div>
             <div className="flex justify-between gap-3">
-              <span className="text-white">Service Charge: <span className="font-medium">$1.00</span></span>
-              <span className="text-white">Tax: <span className="font-medium">$1.00</span></span>
+              <span className="text-white">Service Charge: <span className="font-medium">{formatPrice(selectedGuest.serviceCharge)}</span></span>
+              <span className="text-white">Tax: <span className="font-medium">{formatPrice(selectedGuest.tax)}</span></span>
             </div>
           </div>
         </div>
@@ -1070,7 +1177,7 @@ const TableOrderDetails = () => {
           <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{
           background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
         }}>
-            CHARGE $ 59.00
+            CHARGE {formatPrice(selectedGuest.total)}
           </button>
         </div>
         </div>
@@ -1182,8 +1289,8 @@ const TableOrderDetails = () => {
                       <div className="flex items-start justify-between">
                         <span className="text-white font-medium text-sm">{guest.name}</span>
                         <div className="flex flex-col items-end">
-                          <span className="text-white font-semibold text-sm">{guest.amount}</span>
-                          {guest.tip && <span className="text-gray-400 text-xs">{guest.tip}</span>}
+                          <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
+                          {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}
                         </div>
                       </div>
                       <div className="h-px bg-neutral-600 my-1.5"></div>
@@ -1257,7 +1364,7 @@ const TableOrderDetails = () => {
             <div className="flex items-center gap-3 text-white/50 text-sm">
               <div className="flex items-center gap-1">
                 <Phone className="w-3 h-3" />
-                <span>(415) 123-4567</span>
+                <span>{selectedGuest.phone || "N/A"}</span>
               </div>
               <div className="flex items-center gap-1">
                 <span>⚡</span>
@@ -1312,14 +1419,14 @@ const TableOrderDetails = () => {
         <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
             <span>📝</span>
-            <span>Allergic to almonds, Don't add onion</span>
+            <span>{selectedGuest.notes || "No notes"}</span>
           </div>
         </div>
 
         {/* Order Items */}
         <ScrollArea className="flex-1 px-4">
           <div className="py-2 space-y-2">
-            {orderItems.map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+            {getOrderItems(selectedGuest).map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
                     <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
@@ -1349,19 +1456,19 @@ const TableOrderDetails = () => {
         <div className="px-4 py-3 border-t border-white/10 space-y-1 text-sm">
           <div className="flex justify-between">
             <span className="text-white/60">Sub Total</span>
-            <span className="text-white">$ 56.00</span>
+            <span className="text-white">{formatPrice(selectedGuest.subtotal)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-red-500">Discount</span>
-            <span className="text-red-500">$1.00</span>
+            <span className="text-red-500">{formatPrice(selectedGuest.discount)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-white/60">Service Charge</span>
-            <span className="text-white">$ 1.00</span>
+            <span className="text-white">{formatPrice(selectedGuest.serviceCharge)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-white/60">Tax</span>
-            <span className="text-white">$ 1.00</span>
+            <span className="text-white">{formatPrice(selectedGuest.tax)}</span>
           </div>
         </div>
 
@@ -1379,7 +1486,7 @@ const TableOrderDetails = () => {
           <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{
             background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
           }}>
-            CHARGE $ 59.00
+            CHARGE {formatPrice(selectedGuest.total)}
           </button>
         </div>
         </div>

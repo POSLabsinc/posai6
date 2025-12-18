@@ -248,7 +248,7 @@ const Dashboard = () => {
                         </span>
                         <span className="text-sm text-white">{order.guest}</span>
                       </div>
-                      <div className="flex items-center gap-4 text-xs text-white/50">
+                      <div className="flex items-center justify-between text-xs text-white/50">
                         <span>{order.orderNo}</span>
                         <span>{order.date}</span>
                       </div>

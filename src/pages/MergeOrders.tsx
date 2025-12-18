@@ -57,6 +57,7 @@ const MergeOrders = () => {
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
+  const [displayedOrder, setDisplayedOrder] = useState<typeof allOrders[0] | null>(null);
 
   const toggleOrderExpand = (orderId: string) => {
     setExpandedOrderId(prev => prev === orderId ? null : orderId);
@@ -64,6 +65,9 @@ const MergeOrders = () => {
 
   // Get the current order being merged (from the table we came from)
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
+  
+  // Order to show in right panel - defaults to current order, updates when user clicks an order
+  const panelOrder = displayedOrder || currentOrder;
 
   // Filter orders from the same table, excluding the current order
   const availableOrders = allOrders.filter(o => o.id !== orderId && o.table === tableId);
@@ -83,6 +87,9 @@ const MergeOrders = () => {
   };
 
   const handleOrderSelect = (order: typeof allOrders[0]) => {
+    // Update displayed order in right panel
+    setDisplayedOrder(order);
+    
     if (selectedOrders.includes(order.id)) {
       setSelectedOrders(selectedOrders.filter(id => id !== order.id));
     } else {
@@ -400,15 +407,15 @@ const MergeOrders = () => {
       {/* Guest Header - Outside the box */}
       <div className="px-2 py-3">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-white font-medium">{currentOrder.name}</span>
+          <span className="text-white font-medium">{panelOrder.name}</span>
           <div className="flex items-center gap-3 text-white/50 text-sm">
             <div className="flex items-center gap-1">
               <Phone className="w-3 h-3" />
-              <span>{currentOrder.phone || "(415) 123-4567"}</span>
+              <span>{panelOrder.phone || "(415) 123-4567"}</span>
             </div>
             <div className="flex items-center gap-1">
               <span>⚡</span>
-              <span>{currentOrder.time}</span>
+              <span>{panelOrder.time}</span>
             </div>
           </div>
         </div>
@@ -440,12 +447,12 @@ const MergeOrders = () => {
         <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
-              <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
-              <span className="text-white font-bold">{currentOrder.id}</span>
+              <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE {panelOrder.table}</span>
+              <span className="text-white font-bold">{panelOrder.id}</span>
             </div>
             <div className="flex items-center gap-2">
               <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
-              <span className="text-white/50 text-sm">{currentOrder.server}</span>
+              <span className="text-white/50 text-sm">{panelOrder.server}</span>
             </div>
           </div>
           
@@ -560,7 +567,7 @@ const MergeOrders = () => {
             className="flex-1 py-2 rounded-full text-black text-sm font-bold"
             style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
           >
-            CHARGE $ 59.00
+            CHARGE {panelOrder.amount}
           </button>
         </div>
       </div>

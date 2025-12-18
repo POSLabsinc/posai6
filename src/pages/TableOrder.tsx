@@ -452,8 +452,9 @@ const TableOrder = () => {
                                   e.stopPropagation();
                                   handleGuestSelect(i + 1);
                                 }}
-                                className="w-6 h-6 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                                className="h-6 px-1.5 flex-shrink-0 flex items-center justify-center gap-0.5 text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
                               >
+                                <img src="/src/assets/icons/clear-c.png" alt="" className="w-3 h-3" />
                                 {i + 1}
                               </button>
                             ))}

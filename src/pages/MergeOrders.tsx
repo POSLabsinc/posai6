@@ -219,19 +219,6 @@ const MergeOrders = () => {
         </div>
       </div>
 
-      {/* Expand/Collapse Button */}
-      {showExpand && (
-        <div className="px-2">
-          <button
-            className={`w-full h-3 flex items-center justify-center transition-colors ${expandedOrderId === order.id ? '' : 'rounded-b-lg'}`}
-            style={{ background: "#7575754D" }}
-            onClick={(e) => {
-              e.stopPropagation();
-              toggleOrderExpand(order.id);
-            }}
-          />
-        </div>
-      )}
 
       {/* Expanded Details */}
       {showExpand && expandedOrderId === order.id && (

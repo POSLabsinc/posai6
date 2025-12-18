@@ -9,7 +9,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { Slider } from "@/components/ui/slider";
 
 // Import icons
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
@@ -106,7 +105,6 @@ const TableOrder = () => {
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [guestDropdownTable, setGuestDropdownTable] = useState<string | null>(null);
-  const [sliderValue, setSliderValue] = useState<Record<string, number>>({});
   const filterCounts = getFilterCounts();
 
   const filters = [
@@ -445,46 +443,20 @@ const TableOrder = () => {
                       
                       {/* Status Label - Shows guest numbers when Available table is clicked */}
                       {guestDropdownTable === table.id && table.status === "Available" ? (
-                        table.seats > 4 ? (
-                          /* Slider for tables with more than 4 seats */
-                          <div className="w-full py-2 px-2 rounded-md border border-neutral-600 bg-neutral-700">
-                            <div className="flex items-center gap-2">
-                              <Slider
-                                value={[sliderValue[table.id] || 1]}
-                                onValueChange={(value) => setSliderValue(prev => ({ ...prev, [table.id]: value[0] }))}
-                                min={1}
-                                max={table.seats}
-                                step={1}
-                                className="flex-1"
-                              />
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleGuestSelect(sliderValue[table.id] || 1);
-                                }}
-                                className="min-w-8 h-6 px-2 flex items-center justify-center text-xs font-bold text-white bg-orange-500 rounded hover:bg-orange-600 transition-colors"
-                              >
-                                {sliderValue[table.id] || 1}
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
-                          /* Inline buttons for tables with 4 or fewer seats */
-                          <div className="w-full flex justify-center gap-1 py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700">
-                            {Array.from({ length: table.seats }).map((_, i) => (
-                              <button
-                                key={i}
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleGuestSelect(i + 1);
-                                }}
-                                className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
-                              >
-                                {i + 1}
-                              </button>
-                            ))}
-                          </div>
-                        )
+                        <div className="w-full flex justify-center gap-1 py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700">
+                          {Array.from({ length: table.seats }).map((_, i) => (
+                            <button
+                              key={i}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGuestSelect(i + 1);
+                              }}
+                              className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                            >
+                              {i + 1}
+                            </button>
+                          ))}
+                        </div>
                       ) : (
                         <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
                           <span className={`text-xs font-medium ${config.color}`}>

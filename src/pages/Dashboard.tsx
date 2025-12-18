@@ -350,41 +350,33 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* ROW 3: Table Status */}
+      {/* ROW 3: Table Status - Compact */}
       <div className="flex-shrink-0">
-        <div className="flex items-center justify-between mb-2">
-          <h3 className="text-sm font-medium">Table Status</h3>
+        <div className="flex items-center justify-between mb-1">
+          <h3 className="text-xs font-medium text-white/60">Table Status</h3>
           <button
-            className="flex items-center gap-1 text-xs px-2 py-1 rounded"
+            className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded"
             style={{ background: "#7575754D" }}
           >
-            First Floor <ChevronDown className="w-3 h-3" />
+            First Floor <ChevronDown className="w-2.5 h-2.5" />
           </button>
         </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide">
           {mockTables.map((table, index) => (
             <div
               key={index}
-              className="flex-shrink-0 rounded-xl p-2 text-center min-w-[100px]"
+              className="flex-shrink-0 rounded-lg px-2 py-1.5 flex items-center gap-2 min-w-[90px]"
               style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
             >
-              <div className="text-xl font-bold">{table.id}</div>
-              <div className="text-xs text-white/60">{table.seats} Seats</div>
-              <div className="flex justify-center gap-0.5 my-1">
-                {Array.from({ length: Math.min(table.seats, 6) }).map((_, i) => (
-                  <div
-                    key={i}
-                    className="w-1.5 h-1.5 rounded-full"
-                    style={{ backgroundColor: table.statusColor }}
-                  />
-                ))}
-              </div>
-              {table.time && <div className="text-xs text-white/60 mb-1">{table.time}</div>}
-              <div
-                className="text-xs px-2 py-1 rounded-lg mt-1 truncate"
-                style={{ backgroundColor: table.statusColor, color: table.status === "Available" ? "#fff" : "#000" }}
-              >
-                {table.status}
+              <div className="text-sm font-bold">{table.id}</div>
+              <div className="flex flex-col items-start">
+                <span className="text-[10px] text-white/50">{table.seats} Seats</span>
+                <span
+                  className="text-[9px] px-1.5 py-0.5 rounded"
+                  style={{ backgroundColor: table.statusColor, color: table.status === "Available" ? "#fff" : "#000" }}
+                >
+                  {table.status}
+                </span>
               </div>
             </div>
           ))}

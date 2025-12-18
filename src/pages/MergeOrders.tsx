@@ -228,97 +228,165 @@ const MergeOrders = () => {
     </div>
   );
 
-  // Desktop current order card with extended info
+  // Desktop current order card with extended info - matching TableOrderDetails layout
   const DesktopCurrentOrderCard = ({ order }: { order: typeof allOrders[0] }) => (
     <div 
-      className="rounded-xl p-4 border border-white/20"
-      style={{ 
-        background: "linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%)",
-        boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)"
-      }}
+      className="rounded-xl border border-white overflow-hidden"
+      style={{ backgroundColor: '#1B1C20' }}
     >
-      <div className="flex items-center gap-4">
-        {/* Order number with icon */}
-        <div className="relative w-14 h-14 bg-neutral-900 rounded-lg flex flex-col items-center justify-center border border-neutral-700 flex-shrink-0">
-          <span className="text-xl font-bold text-white">{order.id}</span>
-          <img src={tableTargetIcon} alt="Table" className="w-5 h-5 object-contain mt-0.5" />
-        </div>
-        
-        {/* Name, table and status section */}
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
-            <span className="text-white font-medium">{order.name}</span>
-            <span className="text-white/40">·</span>
-            <span className="text-white font-medium">{order.table}</span>
-            <span className="text-white font-semibold ml-auto">{order.amount}</span>
-          </div>
-          <div className="flex items-center gap-2 mt-1 text-xs">
-            <span className="text-white/50">Party Of {order.partySize},</span>
-            <span className="text-white/50">⚡ {order.time}</span>
-            <span className={`ml-2 font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
+      <div className="flex items-stretch w-full gap-4">
+        {/* Column 1: Order Number - 8% */}
+        <div className="w-[8%] flex-shrink-0 px-3 py-2 flex items-center">
+          <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-2 border border-neutral-600">
+            <span className="text-lg font-bold text-white">{order.id}</span>
+            <img src={tableTargetIcon} alt="Table" className="w-5 h-5 object-cover" />
           </div>
         </div>
 
-        {/* Timer */}
-        <div className="flex flex-col text-xs text-center min-w-[50px]">
-          <div className="text-white font-medium">{order.timer}</div>
-          <div className="text-white/40">Timer</div>
+        {/* Column 2: Guest Info - flex-1 */}
+        <div className="flex-1 min-w-0 py-2">
+          <div className="flex flex-col">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-white font-medium text-sm">{order.name}</span>
+                <span className="text-white/40">·</span>
+                <span className="text-white font-medium text-sm">{order.table}</span>
+              </div>
+              <span className="text-white font-semibold text-sm">{order.amount}</span>
+            </div>
+            <div className="h-px bg-neutral-600 my-1.5"></div>
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1 text-gray-400">
+                <span>Party Of {order.partySize},</span>
+                <span>⚡ {order.time}</span>
+              </div>
+              <span className={getStatusColor(order.status)}>{order.status}</span>
+            </div>
+          </div>
         </div>
 
-        {/* Check */}
-        <div className="flex flex-col text-xs text-center min-w-[40px]">
-          <div className="text-white font-medium">{order.check}</div>
-          <div className="text-white/40">Check</div>
+        {/* Column 3: Timer & Server - 12% */}
+        <div className="w-[12%] flex-shrink-0 py-2">
+          <div className="flex flex-col text-xs gap-1">
+            <div className="text-left">
+              <div className="text-white font-medium">{order.timer}</div>
+              <div className="text-gray-500">Timer</div>
+            </div>
+            <div className="text-left">
+              <div className="text-white">{order.server}</div>
+              <div className="text-gray-500">Server</div>
+            </div>
+          </div>
         </div>
 
-        {/* Tip */}
-        <div className="flex flex-col text-xs text-center min-w-[30px]">
-          <div className="text-white font-medium">--</div>
-          <div className="text-white/40">Tip</div>
+        {/* Column 4: Check & Revenue Center - 12% */}
+        <div className="w-[12%] flex-shrink-0 py-2">
+          <div className="flex flex-col text-xs gap-1">
+            <div className="text-left">
+              <div className="text-white font-medium">{order.check}</div>
+              <div className="text-gray-500">Check</div>
+            </div>
+            <div className="text-left">
+              <div className="text-white">{order.revenueCenter}</div>
+              <div className="text-gray-500">Revenue Center</div>
+            </div>
+          </div>
         </div>
 
-        {/* Server */}
-        <div className="flex flex-col text-xs text-center min-w-[60px]">
-          <div className="text-white">{order.server}</div>
-          <div className="text-white/40">Server</div>
-        </div>
-
-        {/* Revenue Center */}
-        <div className="flex flex-col text-xs text-center min-w-[80px]">
-          <div className="text-white">{order.revenueCenter}</div>
-          <div className="text-white/40">Revenue Center</div>
-        </div>
-
-        {/* Payment Type */}
-        <div className="flex flex-col text-xs text-center min-w-[70px]">
-          <div className="text-white font-medium">{order.paymentType}</div>
-          <div className="text-white/40">Payment Type</div>
+        {/* Column 5: Payment Type - 12% */}
+        <div className="w-[12%] flex-shrink-0 self-start py-2">
+          <div className="flex flex-col text-xs">
+            <div className="text-left">
+              <div className="text-white font-medium">{order.paymentType}</div>
+              <div className="text-gray-500">Payment Type</div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   );
 
-  // Desktop order list card
+  // Desktop order list card - matching TableOrderDetails layout
   const DesktopOrderListCard = ({ order, isSelected, onClick }: { 
     order: typeof allOrders[0]; 
     isSelected: boolean; 
     onClick?: () => void;
   }) => (
     <div 
-      className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-colors ${
-        isSelected ? "bg-neutral-700 border border-orange-500" : "bg-neutral-800 border border-transparent hover:bg-neutral-700"
+      className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${
+        isSelected ? "border-orange-500" : "border-neutral-700 hover:border-neutral-600"
       }`}
+      style={{ backgroundColor: '#1B1C20' }}
       onClick={onClick}
     >
-      <div className="flex items-center gap-3">
-        <span className="text-white/60 text-sm w-4">{order.id}</span>
-        <span className="text-white font-medium">{order.name}</span>
-        <span className="text-white/60">·</span>
-        <span className="text-white/80">{order.table}</span>
-      </div>
-      <div className="flex items-center gap-3">
-        <span className="text-white font-medium">{order.amount}</span>
-        <span className={`text-xs font-medium w-20 text-right ${getStatusColor(order.status)}`}>{order.status}</span>
+      <div className="flex items-stretch w-full gap-4">
+        {/* Column 1: Order Number - 8% */}
+        <div className="w-[8%] flex-shrink-0 px-3 py-2 flex items-center">
+          <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-2 border border-neutral-600">
+            <span className="text-lg font-bold text-white">{order.id}</span>
+            <img src={tableTargetIcon} alt="Table" className="w-5 h-5 object-cover" />
+          </div>
+        </div>
+
+        {/* Column 2: Guest Info - flex-1 */}
+        <div className="flex-1 min-w-0 py-2">
+          <div className="flex flex-col">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-white font-medium text-sm">{order.name}</span>
+                <span className="text-white/40">·</span>
+                <span className="text-white font-medium text-sm">{order.table}</span>
+              </div>
+              <span className="text-white font-semibold text-sm">{order.amount}</span>
+            </div>
+            <div className="h-px bg-neutral-600 my-1.5"></div>
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1 text-gray-400">
+                <span>Party Of {order.partySize},</span>
+                <span>⚡ {order.time}</span>
+              </div>
+              <span className={getStatusColor(order.status)}>{order.status}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Column 3: Timer & Server - 12% */}
+        <div className="w-[12%] flex-shrink-0 py-2">
+          <div className="flex flex-col text-xs gap-1">
+            <div className="text-left">
+              <div className="text-white font-medium">{order.timer}</div>
+              <div className="text-gray-500">Timer</div>
+            </div>
+            <div className="text-left">
+              <div className="text-white">{order.server}</div>
+              <div className="text-gray-500">Server</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Column 4: Check & Revenue Center - 12% */}
+        <div className="w-[12%] flex-shrink-0 py-2">
+          <div className="flex flex-col text-xs gap-1">
+            <div className="text-left">
+              <div className="text-white font-medium">{order.check}</div>
+              <div className="text-gray-500">Check</div>
+            </div>
+            <div className="text-left">
+              <div className="text-white">{order.revenueCenter}</div>
+              <div className="text-gray-500">Revenue Center</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Column 5: Payment Type - 12% */}
+        <div className="w-[12%] flex-shrink-0 self-start py-2">
+          <div className="flex flex-col text-xs">
+            <div className="text-left">
+              <div className="text-white font-medium">{order.paymentType}</div>
+              <div className="text-gray-500">Payment Type</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

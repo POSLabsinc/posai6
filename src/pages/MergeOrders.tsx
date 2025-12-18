@@ -393,7 +393,7 @@ const MergeOrders = () => {
 
   // Right panel - Order details
   const OrderDetailsPanel = () => (
-    <div className="w-[345px] flex flex-col my-2 mr-2">
+    <div className="w-[280px] flex flex-col m-2 ml-0">
       {/* Guest Header */}
       <div className="px-2 py-3">
         <div className="flex items-center justify-between mb-2">
@@ -417,7 +417,7 @@ const MergeOrders = () => {
 
       {/* Main Panel Box */}
       <div 
-        className="flex-1 flex flex-col rounded-[20px] border border-white/10 overflow-hidden"
+        className="flex-1 flex flex-col rounded-[10px] overflow-hidden"
         style={{ 
           background: "#7575754D",
           boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"

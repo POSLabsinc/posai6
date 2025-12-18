@@ -815,6 +815,61 @@ const MergeOrders = () => {
     </div>
   );
 
+  // Extended Order Card for merge confirmation - matches screenshot
+  const MergeOrderCard = ({ order }: { order: typeof allOrders[0] }) => (
+    <div className="flex items-stretch w-full gap-3 bg-neutral-900 rounded-xl border border-white/10 p-3">
+      {/* Order Number Column */}
+      <div className="flex-shrink-0 flex items-center">
+        <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+          <span className="text-base font-bold text-white">{order.id}</span>
+          <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
+        </div>
+      </div>
+
+      {/* Guest Info Column */}
+      <div className="flex-shrink-0 w-[140px]">
+        <div className="flex items-center gap-1">
+          <span className="text-white font-medium text-sm">{order.name}</span>
+          <span className="text-white/60 text-sm">· {order.table}</span>
+        </div>
+        <div className="flex items-center justify-between mt-1">
+          <span className="text-white font-semibold text-sm">{order.amount}</span>
+        </div>
+        <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
+          <span>Party Of {order.partySize},</span>
+          <span>⚡ {order.time}</span>
+        </div>
+        <span className={`text-xs font-medium ${order.status === "ORDERING" ? "text-red-500" : order.status === "PAID" ? "text-green-500" : "text-orange-500"}`}>
+          {order.status}
+        </span>
+      </div>
+
+      {/* Timer/Server Column */}
+      <div className="flex-shrink-0 w-[70px]">
+        <div className="text-white text-sm">{order.timer || "00:00"}</div>
+        <div className="text-white/40 text-[10px]">Timer</div>
+        <div className="text-white text-sm mt-2">{order.server}</div>
+        <div className="text-white/40 text-[10px]">Server</div>
+      </div>
+
+      {/* Check/Revenue Center Column */}
+      <div className="flex-shrink-0 w-[80px]">
+        <div className="text-white text-sm">{order.check || "--"}</div>
+        <div className="text-white/40 text-[10px]">Check</div>
+        <div className="text-white text-sm mt-2">{order.revenueCenter || "FF Balcony"}</div>
+        <div className="text-white/40 text-[10px]">Revenue Center</div>
+      </div>
+
+      {/* Tip/Payment Type Column */}
+      <div className="flex-shrink-0 w-[70px]">
+        <div className="text-white text-sm">--</div>
+        <div className="text-white/40 text-[10px]">Tip</div>
+        <div className="text-white text-sm mt-2">{order.paymentType || "--"}</div>
+        <div className="text-white/40 text-[10px]">Payment Type</div>
+      </div>
+    </div>
+  );
+
   // Mobile Step 2: Confirm direction (From/To) - matches screenshot design
   const ConfirmDirectionView = () => (
     <div className="flex flex-col h-full">
@@ -825,29 +880,28 @@ const MergeOrders = () => {
 
       {/* From Order */}
       <div className="px-4 pb-4">
-        <p className="text-white/60 text-sm mb-2">From</p>
-        {fromOrder && (
-          <OrderCard order={fromOrder} isSelected={false} showCheckbox={false} showExpand={false} />
-        )}
+        <p className="text-white/60 text-sm mb-2">Merge From</p>
+        {fromOrder && <MergeOrderCard order={fromOrder} />}
       </div>
 
       {/* Swap Button */}
-      <div className="flex justify-center py-4">
+      <div className="flex justify-center py-2">
         <button 
           onClick={handleSwapDirection}
-          className="w-12 h-12 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20"
+          className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20"
         >
-          <ArrowUpDown className="w-5 h-5 text-white" />
+          <ArrowUpDown className="w-4 h-4 text-white" />
         </button>
       </div>
 
       {/* To Order */}
       <div className="px-4 pb-4">
-        <p className="text-white/60 text-sm mb-2">To</p>
-        {toOrder && (
-          <OrderCard order={toOrder} isSelected={false} showCheckbox={false} showExpand={false} />
-        )}
+        <p className="text-white/60 text-sm mb-2">Merge To</p>
+        {toOrder && <MergeOrderCard order={toOrder} />}
       </div>
+
+      {/* Spacer */}
+      <div className="flex-1" />
     </div>
   );
 
@@ -879,57 +933,72 @@ const MergeOrders = () => {
 
       {/* Confirm Button - Fixed above bottom nav */}
       {step === "confirm-direction" && (
-        <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden">
+        <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
+          <button
+            onClick={() => setStep("select")}
+            className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800"
+          >
+            CANCEL
+          </button>
           <button
             onClick={handleFinalConfirm}
-            className="w-full py-2 rounded-full text-black font-medium text-sm"
+            className="flex-1 py-2 rounded-full text-black font-medium text-sm"
             style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
           >
-            CONFIRM
+            CONFIRM MERGE
           </button>
         </div>
       )}
 
       {/* Desktop Confirmation Dialog */}
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
-        <DialogContent className="bg-neutral-900 border-white/10 p-6 max-w-md">
+        <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-2xl overflow-hidden">
+          {/* Grabber */}
+          <div className="flex justify-center pt-3 pb-4">
+            <div className="w-10 h-1 bg-white/30 rounded-full" />
+          </div>
+
           {/* From Order */}
-          <div className="pb-4">
-            <p className="text-white/60 text-sm mb-2">From</p>
-            {fromOrder && (
-              <OrderCard order={fromOrder} isSelected={false} showCheckbox={false} showExpand={false} />
-            )}
+          <div className="px-6 pb-4">
+            <p className="text-white/60 text-sm mb-2">Merge From</p>
+            {fromOrder && <MergeOrderCard order={fromOrder} />}
           </div>
 
           {/* Swap Button */}
-          <div className="flex justify-center py-4">
+          <div className="flex justify-center py-2">
             <button 
               onClick={handleSwapDirection}
-              className="w-12 h-12 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20"
+              className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20"
             >
-              <ArrowUpDown className="w-5 h-5 text-white" />
+              <ArrowUpDown className="w-4 h-4 text-white" />
             </button>
           </div>
 
           {/* To Order */}
-          <div className="pb-4">
-            <p className="text-white/60 text-sm mb-2">To</p>
-            {toOrder && (
-              <OrderCard order={toOrder} isSelected={false} showCheckbox={false} showExpand={false} />
-            )}
+          <div className="px-6 pb-6">
+            <p className="text-white/60 text-sm mb-2">Merge To</p>
+            {toOrder && <MergeOrderCard order={toOrder} />}
           </div>
 
-          {/* Confirm Button */}
-          <button
-            onClick={() => {
-              setIsConfirmDialogOpen(false);
-              handleFinalConfirm();
-            }}
-            className="w-full py-2 rounded-full text-black font-medium text-sm mt-4"
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
-            CONFIRM
-          </button>
+          {/* Bottom Buttons */}
+          <div className="px-6 pb-6 flex gap-3">
+            <button
+              onClick={() => setIsConfirmDialogOpen(false)}
+              className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800"
+            >
+              CANCEL
+            </button>
+            <button
+              onClick={() => {
+                setIsConfirmDialogOpen(false);
+                handleFinalConfirm();
+              }}
+              className="flex-1 py-2 rounded-full text-black font-medium text-sm"
+              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+            >
+              CONFIRM MERGE
+            </button>
+          </div>
         </DialogContent>
       </Dialog>
     </div>

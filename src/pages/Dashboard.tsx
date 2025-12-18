@@ -239,22 +239,22 @@ const Dashboard = () => {
 
                     {/* Status & Guest Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-3 mb-1 pb-1 border-b border-white/10">
+                      <div className="flex items-center justify-between mb-1 pb-1 border-b border-white/10">
                         <span
                           className="text-sm font-medium italic"
                           style={{ color: order.statusColor }}
                         >
                           {order.status}
                         </span>
-                        <span className="text-sm text-white">{order.guest}</span>
+                        <div className="flex items-center gap-4 text-sm">
+                          <span className="text-white">{order.guest}</span>
+                          <span className="text-white/50">{order.date}</span>
+                          <span className="text-white/50">Arrived At {order.arrivedAt}</span>
+                        </div>
                       </div>
                       <div className="flex items-center gap-4 text-xs text-white/50">
                         <span>{order.orderNo}</span>
-                        <span>{order.date}</span>
-                      </div>
-                      <div className="flex items-center gap-4 text-xs text-white/50">
                         <span>Seats {order.seats}</span>
-                        <span>Arrived At {order.arrivedAt}</span>
                       </div>
                     </div>
 

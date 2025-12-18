@@ -393,7 +393,7 @@ const MergeOrders = () => {
 
   // Right panel - Order details
   const OrderDetailsPanel = () => (
-    <div className="w-[345px] flex flex-col my-2 mr-2">
+    <div className="w-[345px] flex flex-col m-2 ml-0">
       {/* Guest Header */}
       <div className="px-2 py-3">
         <div className="flex items-center justify-between mb-2">
@@ -651,35 +651,36 @@ const MergeOrders = () => {
   const DesktopLayout = () => (
     <div className="h-full flex bg-black">
       {/* Left Panel - Order Selection */}
-      <div className="flex-1 flex flex-col p-4">
+      <div className="flex-1 flex flex-col m-2 rounded-[20px] overflow-hidden">
         {/* Header */}
-        <div className="flex items-center gap-3 mb-4">
-          <button 
-            onClick={handleBack}
-            className="w-10 h-10 rounded-full flex items-center justify-center"
-            style={{ 
-              background: "#7575754D",
-              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-            }}
-          >
-            <ChevronLeft className="w-5 h-5 text-white" />
-          </button>
-          <h1 className="text-white text-xl font-medium">Merge</h1>
+        <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={handleBack}
+              className="p-2 rounded-full hover:opacity-80 transition-opacity"
+              style={{ 
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+            <h1 className="text-white text-lg font-semibold">Merge</h1>
+          </div>
         </div>
 
         {/* Current Order - Extended Card */}
-        <div className="mb-4">
+        <div className="px-3 py-3">
           <DesktopCurrentOrderCard order={currentOrder} />
         </div>
 
         {/* Choose Orders Label */}
-        <div className="mb-3">
+        <div className="px-3 pb-2">
           <p className="text-white/80 text-sm">Choose Orders to Merge with Order {orderId}</p>
         </div>
 
         {/* Filter Tabs */}
-        <div className="mb-4">
-          <div className="flex gap-2 flex-wrap">
+        <div className="flex items-center gap-2 px-3 pb-3 overflow-x-auto">
             {mergeFilters.map(filter => {
               const count = getFilterCount(filter);
               const isActive = activeFilter === filter;
@@ -702,12 +703,11 @@ const MergeOrders = () => {
                 </button>
               );
             })}
-          </div>
         </div>
 
         {/* Orders List */}
-        <ScrollArea className="flex-1">
-          <div className="flex flex-col gap-2 pr-4">
+        <ScrollArea className="flex-1 px-3">
+          <div className="space-y-2 pb-3">
             {filteredOrders.map(order => (
               <DesktopOrderListCard 
                 key={order.id}

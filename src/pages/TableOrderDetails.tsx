@@ -993,30 +993,28 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
-                  {/* Column 6: Action Buttons - Only show when selected */}
-                  {selectedGuest.id === guest.id && (
-                    <div className="flex-shrink-0 flex">
-                      <div className="flex flex-col rounded-r-xl overflow-hidden">
-                        <button 
-                          className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
-                          }}
-                          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-                        >
-                          <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
-                        </button>
-                        <button 
-                          className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity" 
-                          style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <img src={shareOrderIcon} alt="Share" className="w-4 h-4 object-contain brightness-0" />
-                        </button>
-                      </div>
+                  {/* Column 6: Action Buttons */}
+                  <div className="flex-shrink-0 flex">
+                    <div className="flex flex-col rounded-r-xl overflow-hidden">
+                      <button 
+                        className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                        }}
+                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                      >
+                        <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
+                      </button>
+                      <button 
+                        className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity" 
+                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img src={shareOrderIcon} alt="Share" className="w-4 h-4 object-contain brightness-0" />
+                      </button>
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             </div>

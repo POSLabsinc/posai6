@@ -6766,7 +6766,8 @@ const Orders = () => {
             </div>}
         </ScrollArea>
 
-        {/* Order Summary */}
+        {/* Order Summary - Only show when cart has items */}
+        {orderItems.length > 0 && (
         <div className="p-2 border-t border-sidebar-border flex-shrink-0">
           <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
             background: '#7575754D',
@@ -6805,6 +6806,7 @@ const Orders = () => {
             </button>
           </div>
         </div>
+        )}
         </div>
       </div>
 

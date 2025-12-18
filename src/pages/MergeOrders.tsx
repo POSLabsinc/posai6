@@ -4,6 +4,7 @@ import { ChevronLeft, ArrowUpDown, SlidersHorizontal, Search, Phone } from "luci
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -815,60 +816,22 @@ const MergeOrders = () => {
     </div>
   );
 
-  // Extended Order Card for merge confirmation - matches screenshot
-  const MergeOrderCard = ({ order }: { order: typeof allOrders[0] }) => (
-    <div className="flex items-stretch w-full gap-3 bg-neutral-900 rounded-xl border border-white/10 p-3">
-      {/* Order Number Column */}
-      <div className="flex-shrink-0 flex items-center">
-        <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-          <span className="text-base font-bold text-white">{order.id}</span>
-          <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
-        </div>
-      </div>
-
-      {/* Guest Info Column */}
-      <div className="flex-shrink-0 w-[140px]">
-        <div className="flex items-center gap-1">
-          <span className="text-white font-medium text-sm">{order.name}</span>
-          <span className="text-white/60 text-sm">· {order.table}</span>
-        </div>
-        <div className="flex items-center justify-between mt-1">
-          <span className="text-white font-semibold text-sm">{order.amount}</span>
-        </div>
-        <div className="flex items-center gap-1 text-xs text-gray-400 mt-1">
-          <span>Party Of {order.partySize},</span>
-          <span>⚡ {order.time}</span>
-        </div>
-        <span className={`text-xs font-medium ${order.status === "ORDERING" ? "text-red-500" : order.status === "PAID" ? "text-green-500" : "text-orange-500"}`}>
-          {order.status}
-        </span>
-      </div>
-
-      {/* Timer/Server Column */}
-      <div className="flex-shrink-0 w-[70px]">
-        <div className="text-white text-sm">{order.timer || "00:00"}</div>
-        <div className="text-white/40 text-[10px]">Timer</div>
-        <div className="text-white text-sm mt-2">{order.server}</div>
-        <div className="text-white/40 text-[10px]">Server</div>
-      </div>
-
-      {/* Check/Revenue Center Column */}
-      <div className="flex-shrink-0 w-[80px]">
-        <div className="text-white text-sm">{order.check || "--"}</div>
-        <div className="text-white/40 text-[10px]">Check</div>
-        <div className="text-white text-sm mt-2">{order.revenueCenter || "FF Balcony"}</div>
-        <div className="text-white/40 text-[10px]">Revenue Center</div>
-      </div>
-
-      {/* Tip/Payment Type Column */}
-      <div className="flex-shrink-0 w-[70px]">
-        <div className="text-white text-sm">--</div>
-        <div className="text-white/40 text-[10px]">Tip</div>
-        <div className="text-white text-sm mt-2">{order.paymentType || "--"}</div>
-        <div className="text-white/40 text-[10px]">Payment Type</div>
-      </div>
-    </div>
-  );
+  // Helper to convert order to OrderLayoutTemplate format
+  const toOrderTemplateData = (order: typeof allOrders[0]) => ({
+    id: Number(order.id),
+    name: order.name,
+    table: order.table,
+    amount: order.amount,
+    partySize: order.partySize,
+    time: order.time,
+    status: order.status,
+    timer: order.timer || "00:00",
+    server: order.server,
+    check: order.check || "--",
+    revenueCenter: order.revenueCenter,
+    paymentType: order.paymentType || "--",
+    phone: order.phone,
+  });
 
   // Mobile Step 2: Confirm direction (From/To) - matches screenshot design
   const ConfirmDirectionView = () => (
@@ -881,7 +844,7 @@ const MergeOrders = () => {
       {/* From Order */}
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">Merge From</p>
-        {fromOrder && <MergeOrderCard order={fromOrder} />}
+        {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
       </div>
 
       {/* Swap Button */}
@@ -897,7 +860,7 @@ const MergeOrders = () => {
       {/* To Order */}
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">Merge To</p>
-        {toOrder && <MergeOrderCard order={toOrder} />}
+        {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} />}
       </div>
 
       {/* Spacer */}
@@ -961,7 +924,7 @@ const MergeOrders = () => {
           {/* From Order */}
           <div className="px-6 pb-4">
             <p className="text-white/60 text-sm mb-2">Merge From</p>
-            {fromOrder && <MergeOrderCard order={fromOrder} />}
+            {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
           </div>
 
           {/* Swap Button */}
@@ -977,7 +940,7 @@ const MergeOrders = () => {
           {/* To Order */}
           <div className="px-6 pb-6">
             <p className="text-white/60 text-sm mb-2">Merge To</p>
-            {toOrder && <MergeOrderCard order={toOrder} />}
+            {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} />}
           </div>
 
           {/* Bottom Buttons */}

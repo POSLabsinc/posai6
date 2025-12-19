@@ -371,7 +371,7 @@ const TransferOrders = () => {
           <ChevronLeft className="w-5 h-5 text-white" />
         </button>
         
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-medium">Transfer Check</h1>
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-medium">Table {tableId?.replace('T', '')} • Order {orderId}</h1>
         
         <div className="w-10" /> {/* Spacer for alignment */}
       </div>

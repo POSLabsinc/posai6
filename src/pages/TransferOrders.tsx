@@ -518,7 +518,7 @@ const TransferOrders = () => {
           </div>
 
           {/* Filter Tabs */}
-          <div className="flex items-center gap-2 px-4 pb-3 overflow-x-auto">
+          <div className="flex items-center gap-2 px-4 pb-3 overflow-x-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {transferFilters.map(filter => {
               const count = getFilterCount(filter);
               const isActive = activeFilter === filter;

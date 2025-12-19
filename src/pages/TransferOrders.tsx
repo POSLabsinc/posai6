@@ -433,21 +433,29 @@ const TransferOrders = () => {
                         <span className="text-white text-sm font-medium">{item.name}</span>
                         <div className="flex flex-col items-end gap-1">
                           <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
-                          {/* Quantity Selector - Compact, below price */}
+                          {/* Quantity Selector - Pill style, below price */}
                           {isSelected && item.qty > 1 && (
-                            <select
-                              value={selectedQty}
-                              onChange={(e) => {
-                                e.stopPropagation();
-                                handleQuantityChange(index, parseInt(e.target.value));
-                              }}
+                            <div 
+                              className="flex flex-col bg-neutral-600 rounded-full overflow-hidden"
                               onClick={(e) => e.stopPropagation()}
-                              className="bg-neutral-700 text-white text-xs rounded px-1.5 py-0.5 border border-white/20 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
                             >
                               {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
-                                <option key={qty} value={qty}>{qty}</option>
+                                <button
+                                  key={qty}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleQuantityChange(index, qty);
+                                  }}
+                                  className={`px-2.5 py-1 text-xs font-medium transition-colors ${
+                                    selectedQty === qty 
+                                      ? 'bg-neutral-400 text-white' 
+                                      : 'text-white/80 hover:bg-neutral-500'
+                                  }`}
+                                >
+                                  {qty}
+                                </button>
                               ))}
-                            </select>
+                            </div>
                           )}
                         </div>
                       </div>

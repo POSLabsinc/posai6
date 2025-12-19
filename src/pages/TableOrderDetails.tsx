@@ -713,24 +713,32 @@ const TableOrderDetails = () => {
               
               <div className={`relative ${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
                 {/* Swipe Action Buttons (revealed on swipe left) */}
-              <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 z-10 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 {/* Merge button - gray */}
-                <button onClick={e => {
-                e.stopPropagation();
-                navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
-              }} className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{
-                backgroundColor: '#666666'
-              }}>
+                <button 
+                  onMouseDown={e => e.stopPropagation()}
+                  onTouchStart={e => e.stopPropagation()}
+                  onClick={e => {
+                    e.stopPropagation();
+                    navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                  }} 
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" 
+                  style={{ backgroundColor: '#666666' }}
+                >
                   <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
                 </button>
                 
                 {/* Transfer button - orange */}
-                <button onClick={e => {
-                e.stopPropagation();
-                navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
-              }} className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{
-                background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-              }}>
+                <button 
+                  onMouseDown={e => e.stopPropagation()}
+                  onTouchStart={e => e.stopPropagation()}
+                  onClick={e => {
+                    e.stopPropagation();
+                    navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                  }} 
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" 
+                  style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                >
                   <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
                 </button>
               </div>

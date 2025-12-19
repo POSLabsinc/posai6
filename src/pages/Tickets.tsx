@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine } from "lucide-react";
 
@@ -294,6 +295,7 @@ const getOrderItems = (order: GuestOrder) => order.items.map(item => ({
 const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const Tickets = () => {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
@@ -802,11 +804,25 @@ const Tickets = () => {
                     {/* Column 6: Action Buttons */}
                     <div className="flex-shrink-0 flex">
                       <div className="flex flex-col rounded-r-xl overflow-hidden">
-                        <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+                        <button 
+                          className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600" 
+                          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            navigate(`/tableorder/${guest.table.replace('T', '')}/merge?orderId=${guest.id}`);
+                          }}
+                        >
                           <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
                         </button>
-                        <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity" style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }} onClick={e => e.stopPropagation()}>
-                          <img src={shareOrderIcon} alt="Share" className="w-4 h-4 object-contain brightness-0" />
+                        <button 
+                          className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity" 
+                          style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }} 
+                          onClick={e => {
+                            e.stopPropagation();
+                            navigate(`/tableorder/${guest.table.replace('T', '')}/transfer?orderId=${guest.id}`);
+                          }}
+                        >
+                          <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
                         </button>
                       </div>
                     </div>

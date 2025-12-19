@@ -422,7 +422,7 @@ const TransferOrders = () => {
 
       {/* Items List */}
       <ScrollArea className="flex-1 px-4">
-        <div className="space-y-2 pb-24">
+        <div className="space-y-2 pb-4">
           {currentOrder.items.map((item, index) => {
             const isSelected = selectedItems.includes(index);
             const selectedQty = itemQuantities[index] || item.qty;
@@ -452,9 +452,7 @@ const TransferOrders = () => {
                   <div className="flex items-start gap-3">
                     {/* Quantity Badge */}
                     <div className="flex-shrink-0">
-                      <div className={`w-7 h-7 rounded-md flex items-center justify-center text-sm font-bold ${
-                        isSelected ? "bg-teal-500 text-white" : "bg-teal-500 text-white"
-                      }`}>
+                      <div className="w-7 h-7 rounded-full bg-teal-500 flex items-center justify-center text-sm font-bold text-white">
                         {item.qty}
                       </div>
                     </div>
@@ -465,23 +463,44 @@ const TransferOrders = () => {
                         <span className="text-white text-sm font-medium flex-1">{item.name}</span>
                         <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
                       </div>
+                      
+                      {/* Modifiers List */}
+                      {item.modifiers && item.modifiers.length > 0 && (
+                        <div className="mt-1.5 space-y-0.5">
+                          {item.modifiers.map((mod, modIndex) => (
+                            <div key={modIndex} className="flex items-start gap-1.5 text-white/60 text-xs">
+                              <span className="text-white/40">–</span>
+                              <span>{mod.replace(/^[+\-·]\s*/, '')}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Seat badges - individual boxes */}
-                  {item.seats.length > 0 && (
-                    <div className="flex items-center gap-1.5 mt-2 ml-10">
+                  {/* Seat badges and share icon */}
+                  <div className="flex items-center justify-between mt-2 ml-10">
+                    <div className="flex items-center gap-1.5">
                       <img src={splitIcon} alt="Seats" className="w-4 h-4 opacity-50" />
-                      {item.seats.map(seat => (
-                        <div 
-                          key={seat}
-                          className="w-6 h-6 rounded bg-neutral-800 flex items-center justify-center text-white/70 text-xs font-medium border border-white/10"
-                        >
-                          {seat}
+                      {item.seats.length > 0 ? (
+                        item.seats.map(seat => (
+                          <div 
+                            key={seat}
+                            className="w-6 h-6 rounded bg-neutral-800 flex items-center justify-center text-white/70 text-xs font-medium border border-white/10"
+                          >
+                            {seat}
+                          </div>
+                        ))
+                      ) : (
+                        <div className="w-6 h-6 rounded bg-neutral-800 flex items-center justify-center text-white/70 text-xs font-medium border border-white/10">
+                          –
                         </div>
-                      ))}
+                      )}
                     </div>
-                  )}
+                    {item.isShared && (
+                      <img src={shareSeatsIcon} alt="Shared" className="w-4 h-4 opacity-50" />
+                    )}
+                  </div>
                 </div>
               </div>
             );
@@ -489,6 +508,49 @@ const TransferOrders = () => {
         </div>
         <ScrollBar orientation="vertical" />
       </ScrollArea>
+
+      {/* Summary Section */}
+      <div className="px-4 py-3 border-t border-white/10">
+        {/* Summary Row */}
+        <div className="flex items-center gap-2 mb-3">
+          <div className="flex-1 px-3 py-2 rounded-lg bg-neutral-800 border border-white/10">
+            <span className="text-white/60 text-xs">Subtotal </span>
+            <span className="text-white text-xs font-medium">$24.00</span>
+          </div>
+          <div className="flex-1 px-3 py-2 rounded-lg bg-neutral-800 border border-white/10">
+            <span className="text-white/60 text-xs">Svc </span>
+            <span className="text-white text-xs font-medium">$1.00</span>
+          </div>
+          <div className="flex-1 px-3 py-2 rounded-lg bg-neutral-800 border border-white/10">
+            <span className="text-white/60 text-xs">Disc. </span>
+            <span className="text-white text-xs font-medium">$2.00</span>
+          </div>
+          <div className="flex-1 px-3 py-2 rounded-lg bg-neutral-800 border border-white/10">
+            <span className="text-white/60 text-xs">Tax </span>
+            <span className="text-white text-xs font-medium">$1.00</span>
+          </div>
+        </div>
+        
+        {/* Total Amount */}
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-white text-base font-medium">Total Amount</span>
+          <span className="text-white text-base font-bold">$24.00</span>
+        </div>
+        
+        {/* Bottom Buttons */}
+        <div className="flex items-center gap-2">
+          <button className="w-12 h-12 rounded-full bg-red-500 flex items-center justify-center text-white font-bold text-lg">
+            C
+          </button>
+          <button className="h-12 px-6 rounded-full bg-gradient-to-b from-orange-400 to-orange-600 flex items-center justify-center gap-2">
+            <img src={fireIcon} alt="Fire" className="w-5 h-5" />
+            <span className="text-white font-semibold">FIRE</span>
+          </button>
+          <button className="flex-1 h-12 rounded-full bg-gradient-to-b from-green-400 to-green-600 flex items-center justify-center">
+            <span className="text-white font-bold text-base">CHARGE $24.00</span>
+          </button>
+        </div>
+      </div>
 
 
       {/* Target Selection Bottom Sheet */}

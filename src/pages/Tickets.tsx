@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Search, SlidersHorizontal, Phone } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine } from "lucide-react";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -13,6 +13,26 @@ import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
 import mergeIcon from "@/assets/icons/merge-icon.png";
+import dineInIcon from "@/assets/icons/dine-in.png";
+
+// Order type icon component
+const OrderTypeIcon = ({ type, size = "default" }: { type: string; size?: "small" | "default" }) => {
+  const iconSize = size === "small" ? "w-4 h-4" : "w-5 h-5";
+  const lucideSize = size === "small" ? 16 : 20;
+  
+  switch (type) {
+    case "Dine-In":
+      return <img src={dineInIcon} alt="Dine-In" className={`${iconSize} object-contain`} />;
+    case "Takeout":
+      return <ShoppingBag className={iconSize} style={{ color: '#4ADE80' }} />;
+    case "Delivery":
+      return <Truck className={iconSize} style={{ color: '#60A5FA' }} />;
+    case "Bar":
+      return <Wine className={iconSize} style={{ color: '#F472B6' }} />;
+    default:
+      return <img src={tableTargetIcon} alt="Order" className={`${iconSize} object-cover`} />;
+  }
+};
 
 // Order item interface
 interface OrderItem {
@@ -92,7 +112,7 @@ const allOrders: GuestOrder[] = [
     status: "PAID",
     notes: "Birthday celebration - bring candle",
     table: "T2",
-    orderType: "Dine-In",
+    orderType: "Takeout",
     items: [
       { qty: 1, name: "New York Strip Steak", price: 28.00, seats: [1], modifiers: ["Medium Rare"] },
       { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [2], modifiers: ["No Lemon"] },
@@ -119,7 +139,7 @@ const allOrders: GuestOrder[] = [
     status: "UNPAID",
     notes: "Gluten-free options requested",
     table: "T1",
-    orderType: "Dine-In",
+    orderType: "Delivery",
     items: [
       { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust"] },
       { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"] }
@@ -170,7 +190,7 @@ const allOrders: GuestOrder[] = [
     revenueCenter: "Bar",
     status: "ORDERING",
     notes: "",
-    table: "T3",
+    table: "Bar",
     orderType: "Bar",
     items: [
       { qty: 1, name: "Classic Burger", price: 15.00, seats: [1], modifiers: ["No Pickles", "+ Bacon"] },
@@ -207,6 +227,58 @@ const allOrders: GuestOrder[] = [
     tax: 3.68,
     tip: 0,
     total: 56.18
+  },
+  {
+    id: "7",
+    name: "James Wilson",
+    phone: "(415) 555-3456",
+    partySize: 1,
+    time: "8:45 PM",
+    timer: "00:10",
+    server: "Dustin H",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "Online",
+    status: "ORDERING",
+    notes: "Leave at door",
+    table: "--",
+    orderType: "Delivery",
+    items: [
+      { qty: 2, name: "Pepperoni Pizza", price: 18.00, seats: [], modifiers: [] },
+      { qty: 1, name: "Garlic Bread", price: 6.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 42.00,
+    discount: 0,
+    serviceCharge: 2.10,
+    tax: 3.09,
+    tip: 0,
+    total: 47.19
+  },
+  {
+    id: "8",
+    name: "Lisa Park",
+    phone: "(415) 555-9012",
+    partySize: 2,
+    time: "7:50 PM",
+    timer: "0:30 Hrs",
+    server: "Mia Jone",
+    check: "123478",
+    paymentType: "--",
+    revenueCenter: "Counter",
+    status: "ORDERING",
+    notes: "Picking up in 15 mins",
+    table: "--",
+    orderType: "Takeout",
+    items: [
+      { qty: 2, name: "Fish Tacos", price: 14.00, seats: [], modifiers: ["Extra Lime"] },
+      { qty: 2, name: "Churros", price: 7.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 42.00,
+    discount: 0,
+    serviceCharge: 2.10,
+    tax: 3.09,
+    tip: 0,
+    total: 47.19
   }
 ];
 
@@ -558,7 +630,7 @@ const Tickets = () => {
                     <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
                       <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
                         <span className="text-base font-bold text-white">{guest.id}</span>
-                        <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-cover" />
+                        <OrderTypeIcon type={guest.orderType} size="small" />
                       </div>
                     </div>
 
@@ -663,7 +735,7 @@ const Tickets = () => {
                     <div className="w-[8%] flex-shrink-0 px-3 py-2 flex items-center">
                       <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-2 border border-neutral-600">
                         <span className="text-lg font-bold text-white">{guest.id}</span>
-                        <img src={tableTargetIcon} alt="Table" className="w-5 h-5 object-cover" />
+                        <OrderTypeIcon type={guest.orderType} />
                       </div>
                     </div>
 
@@ -938,7 +1010,7 @@ const Tickets = () => {
                     <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
                       <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
                         <span className="text-base font-bold text-white">{guest.id}</span>
-                        <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-cover" />
+                        <OrderTypeIcon type={guest.orderType} size="small" />
                       </div>
                     </div>
 

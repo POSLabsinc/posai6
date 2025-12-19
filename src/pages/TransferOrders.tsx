@@ -149,6 +149,7 @@ const TransferOrders = () => {
   const [showTargetSheet, setShowTargetSheet] = useState(false);
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [displayedOrder, setDisplayedOrder] = useState<Order | null>(null);
+  const [desktopStep, setDesktopStep] = useState<"select-items" | "select-target">("select-items");
 
   // Get the current order being transferred from
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
@@ -1033,13 +1034,20 @@ const TransferOrders = () => {
   // Desktop layout
   const DesktopLayout = () => (
     <div className="h-full w-full flex bg-black">
-      {/* Left Panel - Order Selection */}
+      {/* Left Panel */}
       <div className="flex-1 flex flex-col m-2 rounded-[20px] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
           <div className="flex items-center gap-3">
             <button 
-              onClick={handleBack}
+              onClick={() => {
+                if (desktopStep === "select-target") {
+                  setDesktopStep("select-items");
+                  setTargetOrder(null);
+                } else {
+                  handleBack();
+                }
+              }}
               className="p-2 rounded-full hover:opacity-80 transition-opacity"
               style={{ 
                 background: "#7575754D",
@@ -1048,140 +1056,167 @@ const TransferOrders = () => {
             >
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
-            <h1 className="text-white text-lg font-semibold">Transfer Check</h1>
+            <h1 className="text-white text-lg font-semibold">
+              {desktopStep === "select-items" ? "Transfer Check" : "Select Target Check"}
+            </h1>
           </div>
         </div>
 
-        {/* Current Order - Extended Card */}
-        <div className="px-3 py-3">
-          <DesktopCurrentOrderCard order={currentOrder} />
-        </div>
-
-        {/* Select Items Section */}
-        <div className="px-3 pb-2 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <p className="text-white/80 text-sm font-medium">Select Items</p>
-            <div className="flex items-center gap-1 text-white/40 text-xs">
-              <Info className="w-3 h-3" />
-              <span>Item notes are included</span>
+        {/* Step 1: Select Items */}
+        {desktopStep === "select-items" && (
+          <>
+            {/* Current Order - Extended Card */}
+            <div className="px-3 py-3">
+              <DesktopCurrentOrderCard order={currentOrder} />
             </div>
-          </div>
-          <button 
-            onClick={handleSelectAll}
-            className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-              selectAll ? "bg-white text-black" : "bg-white/10 text-white"
-            }`}
-          >
-            {selectAll ? "Deselect All" : "Select All"}
-          </button>
-        </div>
 
-        {/* Items List */}
-        <ScrollArea className="flex-1 px-3">
-          <div className="space-y-2 pb-3">
-            {currentOrder.items.map((item, index) => {
-              const isSelected = selectedItems.includes(index);
-              const selectedQty = itemQuantities[index] || item.qty;
-              
-              return (
-                <div 
-                  key={index}
-                  className={`p-3 rounded-xl border transition-all cursor-pointer ${
-                    isSelected 
-                      ? "border-orange-500 bg-orange-500/10" 
-                      : "border-white/10 bg-white/5"
-                  }`}
-                  onClick={() => handleItemSelect(index)}
-                >
-                  <div className="flex items-start gap-3">
-                    {/* Checkbox */}
-                    <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                      isSelected 
-                        ? "border-orange-500 bg-orange-500" 
-                        : "border-white/40"
-                    }`}>
-                      {isSelected && <Check className="w-3 h-3 text-white" />}
-                    </div>
+            {/* Select Items Section */}
+            <div className="px-3 pb-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <p className="text-white/80 text-sm font-medium">Select Items</p>
+                <div className="flex items-center gap-1 text-white/40 text-xs">
+                  <Info className="w-3 h-3" />
+                  <span>Item notes are included</span>
+                </div>
+              </div>
+              <button 
+                onClick={handleSelectAll}
+                className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
+                  selectAll ? "bg-white text-black" : "bg-white/10 text-white"
+                }`}
+              >
+                {selectAll ? "Deselect All" : "Select All"}
+              </button>
+            </div>
 
-                    {/* Item Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-xs font-bold">
-                            {item.qty}
-                          </span>
-                          <span className="text-white text-sm font-medium">{item.name}</span>
+            {/* Items List */}
+            <ScrollArea className="flex-1 px-3">
+              <div className="space-y-2 pb-3">
+                {currentOrder.items.map((item, index) => {
+                  const isSelected = selectedItems.includes(index);
+                  const selectedQty = itemQuantities[index] || item.qty;
+                  
+                  return (
+                    <div 
+                      key={index}
+                      className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                        isSelected 
+                          ? "border-orange-500 bg-orange-500/10" 
+                          : "border-white/10 bg-white/5"
+                      }`}
+                      onClick={() => handleItemSelect(index)}
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* Checkbox */}
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
+                          isSelected 
+                            ? "border-orange-500 bg-orange-500" 
+                            : "border-white/40"
+                        }`}>
+                          {isSelected && <Check className="w-3 h-3 text-white" />}
                         </div>
-                        <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
-                      </div>
 
-                      {/* Modifiers */}
-                      {item.modifiers.length > 0 && (
-                        <div className="mt-1 ml-8 text-white/50 text-xs space-y-0.5">
-                          {item.modifiers.map((mod, i) => (
-                            <div key={i}>{mod}</div>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* Quantity Selector - Only shown when selected */}
-                      {isSelected && (
-                        <div className="flex items-center justify-between mt-2 ml-8">
-                          <div className="flex items-center gap-1 text-white/50 text-xs">
-                            <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
-                            <span>{item.seats.length > 0 ? item.seats.join(', ') : '-'}</span>
+                        {/* Item Info */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-center gap-2">
+                              <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-xs font-bold">
+                                {item.qty}
+                              </span>
+                              <span className="text-white text-sm font-medium">{item.name}</span>
+                            </div>
+                            <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
                           </div>
-                          <select
-                            value={selectedQty}
-                            onChange={(e) => {
-                              e.stopPropagation();
-                              handleQuantityChange(index, parseInt(e.target.value));
-                            }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-white text-sm min-w-[70px] focus:outline-none focus:border-orange-500"
-                          >
-                            {Array.from({ length: item.qty }, (_, i) => i + 1).map(num => (
-                              <option key={num} value={num} className="bg-gray-800 text-white">
-                                {num}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                      )}
 
-                      {/* Seat & Shared badges - Only when NOT selected */}
-                      {!isSelected && (
-                        <div className="flex items-center gap-2 mt-2 ml-8">
-                          {item.seats.length > 0 && (
-                            <div className="flex items-center gap-1">
-                              <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
-                              {item.seats.map(seat => (
-                                <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                                  {seat}
-                                </span>
+                          {/* Modifiers */}
+                          {item.modifiers.length > 0 && (
+                            <div className="mt-1 ml-8 text-white/50 text-xs space-y-0.5">
+                              {item.modifiers.map((mod, i) => (
+                                <div key={i}>{mod}</div>
                               ))}
                             </div>
                           )}
-                          {item.isShared && (
-                            <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-full">
-                              Shared
-                            </span>
+
+                          {/* Quantity Selector - Only shown when selected */}
+                          {isSelected && (
+                            <div className="flex items-center justify-between mt-2 ml-8">
+                              <div className="flex items-center gap-1 text-white/50 text-xs">
+                                <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
+                                <span>{item.seats.length > 0 ? item.seats.join(', ') : '-'}</span>
+                              </div>
+                              <select
+                                value={selectedQty}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  handleQuantityChange(index, parseInt(e.target.value));
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="bg-white/10 border border-white/20 rounded-lg px-2 py-1 text-white text-sm min-w-[70px] focus:outline-none focus:border-orange-500"
+                              >
+                                {Array.from({ length: item.qty }, (_, i) => i + 1).map(num => (
+                                  <option key={num} value={num} className="bg-gray-800 text-white">
+                                    {num}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
+
+                          {/* Seat & Shared badges - Only when NOT selected */}
+                          {!isSelected && (
+                            <div className="flex items-center gap-2 mt-2 ml-8">
+                              {item.seats.length > 0 && (
+                                <div className="flex items-center gap-1">
+                                  <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
+                                  {item.seats.map(seat => (
+                                    <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                                      {seat}
+                                    </span>
+                                  ))}
+                                </div>
+                              )}
+                              {item.isShared && (
+                                <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-full">
+                                  Shared
+                                </span>
+                              )}
+                            </div>
                           )}
                         </div>
-                      )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-          <ScrollBar orientation="vertical" />
-        </ScrollArea>
+                  );
+                })}
+              </div>
+              <ScrollBar orientation="vertical" />
+            </ScrollArea>
 
-        {/* Choose Target Label */}
-        {selectedItems.length > 0 && (
+            {/* Bottom Button - Select Check */}
+            {selectedItems.length > 0 && (
+              <div className="p-3 border-t border-white/10 flex gap-3">
+                <button
+                  onClick={handleBack}
+                  className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800"
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={() => setDesktopStep("select-target")}
+                  className="flex-1 py-2 rounded-full text-black font-medium text-sm"
+                  style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+                >
+                  SELECT CHECK
+                </button>
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Step 2: Select Target Order */}
+        {desktopStep === "select-target" && (
           <>
-            <div className="px-3 py-2 border-t border-white/10">
+            {/* Info */}
+            <div className="px-3 py-3">
               <p className="text-white/80 text-sm">Select target check to transfer {selectedItems.length} item(s)</p>
             </div>
 
@@ -1231,14 +1266,23 @@ const TransferOrders = () => {
 
             {/* Transfer Button */}
             {targetOrder && (
-              <div className="p-3">
+              <div className="p-3 border-t border-white/10 flex gap-3">
+                <button
+                  onClick={() => {
+                    setDesktopStep("select-items");
+                    setTargetOrder(null);
+                  }}
+                  className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800"
+                >
+                  CANCEL
+                </button>
                 <button
                   onClick={() => {
                     setFromOrder(currentOrder);
                     setToOrder(targetOrder);
                     setIsConfirmDialogOpen(true);
                   }}
-                  className="w-full py-2 rounded-full text-black font-medium text-sm"
+                  className="flex-1 py-2 rounded-full text-black font-medium text-sm"
                   style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                 >
                   TRANSFER TO {targetOrder.table}

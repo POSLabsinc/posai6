@@ -442,13 +442,13 @@ const TransferOrders = () => {
                                   e.stopPropagation();
                                   handleQuantityChange(index, parseInt(e.target.value));
                                 }}
-                                className="appearance-none bg-neutral-600 text-white text-xs font-medium rounded-full px-2 py-0.5 pr-5 cursor-pointer focus:outline-none"
+                                className="appearance-none bg-neutral-600 text-white text-sm font-medium rounded-full px-3 py-1 pr-6 cursor-pointer focus:outline-none"
                               >
                                 {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
                                   <option key={qty} value={qty}>{qty}</option>
                                 ))}
                               </select>
-                              <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 w-3 h-3 text-white pointer-events-none" />
+                              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
                             </div>
                           )}
                         </div>

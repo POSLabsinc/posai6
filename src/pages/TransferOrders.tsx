@@ -390,7 +390,7 @@ const TransferOrders = () => {
 
       {/* Items List */}
       <ScrollArea className="flex-1 px-4">
-        <div className="space-y-2 pb-4">
+        <div className="space-y-2 pb-24">
           {currentOrder.items.map((item, index) => {
             const isSelected = selectedItems.includes(index);
             const selectedQty = itemQuantities[index] || item.qty;

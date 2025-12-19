@@ -1342,13 +1342,10 @@ const TransferOrders = () => {
 
       {/* Success Dialog */}
       <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
-        <DialogContent className="bg-neutral-900 border-white/10 p-6 max-w-sm text-center">
-          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-            <Check className="w-8 h-8 text-green-500" />
-          </div>
-          <h2 className="text-white text-xl font-medium mb-2">Check Transferred</h2>
-          <p className="text-white/60 text-sm mb-6">
-            Check {currentOrder.id} was moved to {toOrder?.table}
+        <DialogContent className="bg-white border-none p-6 max-w-xs rounded-2xl text-center shadow-xl">
+          <h2 className="text-neutral-900 text-lg font-semibold mb-2">Check Transferred</h2>
+          <p className="text-neutral-500 text-sm mb-6">
+            Check {currentOrder.id} was moved to Table {toOrder?.table?.replace('T', '')}.
           </p>
           <div className="flex gap-3">
             <button
@@ -1356,7 +1353,7 @@ const TransferOrders = () => {
                 setIsSuccessDialogOpen(false);
                 navigate(`/tableorder/${tableId}`);
               }}
-              className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-neutral-800"
+              className="flex-1 py-2.5 rounded-full text-neutral-700 font-medium text-sm bg-neutral-200 hover:bg-neutral-300 transition-colors"
             >
               Close
             </button>
@@ -1365,10 +1362,9 @@ const TransferOrders = () => {
                 setIsSuccessDialogOpen(false);
                 navigate(`/tableorder/${toOrder?.table}`);
               }}
-              className="flex-1 py-2 rounded-full text-black font-medium text-sm"
-              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+              className="flex-1 py-2.5 rounded-full text-white font-medium text-sm bg-neutral-800 hover:bg-neutral-700 transition-colors"
             >
-              Go to {toOrder?.table}
+              Go to Table{toOrder?.table?.replace('T', '')}
             </button>
           </div>
         </DialogContent>

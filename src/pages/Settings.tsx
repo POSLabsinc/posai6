@@ -1,5 +1,14 @@
+import { useState, useMemo } from "react";
 import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+
+interface SettingsItemData {
+  id: string;
+  icon: React.ReactNode;
+  label: string;
+  iconBgColor: string;
+  group: string;
+}
 
 interface SettingsItemProps {
   icon: React.ReactNode;
@@ -26,7 +35,41 @@ const SettingsItem = ({ icon, label, iconBgColor, onClick }: SettingsItemProps) 
   </button>
 );
 
+const allSettingsItems: SettingsItemData[] = [
+  { id: "general", icon: <Users className="w-5 h-5 text-white" />, label: "General", iconBgColor: "hsl(165, 60%, 40%)", group: "main" },
+  { id: "control-center", icon: <Sliders className="w-5 h-5 text-white" />, label: "Control Center", iconBgColor: "hsl(270, 70%, 55%)", group: "main" },
+  { id: "menu", icon: <UtensilsCrossed className="w-5 h-5 text-white" />, label: "Menu", iconBgColor: "hsl(25, 95%, 53%)", group: "main" },
+  { id: "payments", icon: <CreditCard className="w-5 h-5 text-white" />, label: "Payments", iconBgColor: "hsl(250, 70%, 55%)", group: "main" },
+  { id: "workforce", icon: <UsersRound className="w-5 h-5 text-white" />, label: "Workforce", iconBgColor: "hsl(0, 0%, 45%)", group: "main" },
+  { id: "sales-report", icon: <FileText className="w-5 h-5 text-white" />, label: "Sales Summary Report", iconBgColor: "hsl(0, 0%, 35%)", group: "main" },
+  { id: "network", icon: <Wifi className="w-5 h-5 text-white" />, label: "Network", iconBgColor: "hsl(190, 80%, 50%)", group: "system" },
+  { id: "hardware", icon: <Monitor className="w-5 h-5 text-white" />, label: "Hardware", iconBgColor: "hsl(300, 60%, 45%)", group: "system" },
+  { id: "notifications", icon: <Bell className="w-5 h-5 text-white" />, label: "Notifications", iconBgColor: "hsl(0, 0%, 40%)", group: "support" },
+  { id: "customer-support", icon: <Headphones className="w-5 h-5 text-white" />, label: "Customer Support", iconBgColor: "hsl(0, 75%, 50%)", group: "support" },
+  { id: "switch-user", icon: <UserCheck className="w-5 h-5 text-white" />, label: "Switch User", iconBgColor: "hsl(0, 0%, 30%)", group: "user" },
+];
+
 const Settings = () => {
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredItems = useMemo(() => {
+    if (!searchQuery.trim()) return allSettingsItems;
+    const query = searchQuery.toLowerCase();
+    return allSettingsItems.filter(item => 
+      item.label.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
+
+  const getGroupItems = (group: string) => 
+    filteredItems.filter(item => item.group === group);
+
+  const mainItems = getGroupItems("main");
+  const systemItems = getGroupItems("system");
+  const supportItems = getGroupItems("support");
+  const userItems = getGroupItems("user");
+
+  const hasResults = filteredItems.length > 0;
+
   return (
     <div className="min-h-screen p-4 pb-28 overflow-y-auto">
       {/* Header */}
@@ -50,76 +93,67 @@ const Settings = () => {
         </div>
       </div>
 
+      {!hasResults && searchQuery && (
+        <div className="bg-neutral-900 border border-white/10 rounded-2xl p-6 mb-4 text-center">
+          <p className="text-muted-foreground">No settings found for "{searchQuery}"</p>
+        </div>
+      )}
+
       {/* Main Settings Group */}
-      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
-        <SettingsItem
-          icon={<Users className="w-5 h-5 text-white" />}
-          label="General"
-          iconBgColor="hsl(165, 60%, 40%)"
-        />
-        <SettingsItem
-          icon={<Sliders className="w-5 h-5 text-white" />}
-          label="Control Center"
-          iconBgColor="hsl(270, 70%, 55%)"
-        />
-        <SettingsItem
-          icon={<UtensilsCrossed className="w-5 h-5 text-white" />}
-          label="Menu"
-          iconBgColor="hsl(25, 95%, 53%)"
-        />
-        <SettingsItem
-          icon={<CreditCard className="w-5 h-5 text-white" />}
-          label="Payments"
-          iconBgColor="hsl(250, 70%, 55%)"
-        />
-        <SettingsItem
-          icon={<UsersRound className="w-5 h-5 text-white" />}
-          label="Workforce"
-          iconBgColor="hsl(0, 0%, 45%)"
-        />
-        <SettingsItem
-          icon={<FileText className="w-5 h-5 text-white" />}
-          label="Sales Summary Report"
-          iconBgColor="hsl(0, 0%, 35%)"
-        />
-      </div>
+      {mainItems.length > 0 && (
+        <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
+          {mainItems.map(item => (
+            <SettingsItem
+              key={item.id}
+              icon={item.icon}
+              label={item.label}
+              iconBgColor={item.iconBgColor}
+            />
+          ))}
+        </div>
+      )}
 
       {/* System Settings Group */}
-      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
-        <SettingsItem
-          icon={<Wifi className="w-5 h-5 text-white" />}
-          label="Network"
-          iconBgColor="hsl(190, 80%, 50%)"
-        />
-        <SettingsItem
-          icon={<Monitor className="w-5 h-5 text-white" />}
-          label="Hardware"
-          iconBgColor="hsl(300, 60%, 45%)"
-        />
-      </div>
+      {systemItems.length > 0 && (
+        <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
+          {systemItems.map(item => (
+            <SettingsItem
+              key={item.id}
+              icon={item.icon}
+              label={item.label}
+              iconBgColor={item.iconBgColor}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Notifications & Support Group */}
-      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
-        <SettingsItem
-          icon={<Bell className="w-5 h-5 text-white" />}
-          label="Notifications"
-          iconBgColor="hsl(0, 0%, 40%)"
-        />
-        <SettingsItem
-          icon={<Headphones className="w-5 h-5 text-white" />}
-          label="Customer Support"
-          iconBgColor="hsl(0, 75%, 50%)"
-        />
-      </div>
+      {supportItems.length > 0 && (
+        <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
+          {supportItems.map(item => (
+            <SettingsItem
+              key={item.id}
+              icon={item.icon}
+              label={item.label}
+              iconBgColor={item.iconBgColor}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Switch User Group */}
-      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
-        <SettingsItem
-          icon={<UserCheck className="w-5 h-5 text-white" />}
-          label="Switch User"
-          iconBgColor="hsl(0, 0%, 30%)"
-        />
-      </div>
+      {userItems.length > 0 && (
+        <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
+          {userItems.map(item => (
+            <SettingsItem
+              key={item.id}
+              icon={item.icon}
+              label={item.label}
+              iconBgColor={item.iconBgColor}
+            />
+          ))}
+        </div>
+      )}
 
       {/* Floating Search Bar - Fixed on mobile above bottom nav */}
       <div className="fixed bottom-16 left-4 right-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mt-0 z-50">
@@ -128,8 +162,18 @@ const Settings = () => {
           <input
             type="text"
             placeholder="Search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
             className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-base"
           />
+          {searchQuery && (
+            <button 
+              onClick={() => setSearchQuery("")}
+              className="p-1 active:opacity-70 transition-opacity text-muted-foreground text-sm"
+            >
+              Clear
+            </button>
+          )}
           <button className="p-1 active:opacity-70 transition-opacity">
             <Mic className="w-5 h-5 text-muted-foreground" />
           </button>

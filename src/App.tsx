@@ -27,6 +27,7 @@ import LiquidGlassOrders5B from "./pages/LiquidGlassOrders5B";
 import TableOrder from "./pages/TableOrder";
 import TableOrderDetails from "./pages/TableOrderDetails";
 import MergeOrders from "./pages/MergeOrders";
+import TransferOrders from "./pages/TransferOrders";
 import Tickets from "./pages/Tickets";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
@@ -65,6 +66,7 @@ const App = () => (
             <Route path="/tableorder" element={<TableOrder />} />
             <Route path="/tableorder/:tableId" element={<TableOrderDetails />} />
             <Route path="/tableorder/:tableId/merge" element={<MergeOrders />} />
+            <Route path="/tableorder/:tableId/transfer" element={<TransferOrders />} />
             <Route path="/tickets" element={<Tickets />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/reports" element={<Reports />} />

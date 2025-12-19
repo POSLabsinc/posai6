@@ -727,7 +727,7 @@ const TableOrderDetails = () => {
                 {/* Transfer button - orange */}
                 <button onClick={e => {
                 e.stopPropagation();
-                console.log('Transfer', guest.id);
+                navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
               }} className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{
                 background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
               }}>
@@ -831,7 +831,7 @@ const TableOrderDetails = () => {
                     background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
                   }} onClick={e => {
                     e.stopPropagation();
-                    console.log('Transfer', guest.id);
+                    navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
                   }}>
                         <img src={transferIcon} alt="Transfer" className="w-4 h-4 object-contain" style={{
                       filter: 'brightness(0)'

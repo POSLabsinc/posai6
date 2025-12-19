@@ -42,6 +42,8 @@ interface Order {
   phone: string;
   notes: string;
   items: OrderItem[];
+  paidAmount?: string;
+  paymentStatus?: string;
 }
 
 // Mock all orders data from different tables
@@ -88,8 +90,8 @@ const allOrders: Order[] = [
   // T3 orders
   { 
     id: "8", name: "Guest", table: "T3", amount: "$16.00", partySize: 2, time: "10:00 PM", 
-    status: "ORDERING", timer: "00:00", server: "Mia J", check: "--", paymentType: "--", 
-    revenueCenter: "Main", phone: "", notes: "",
+    status: "ORDERING", timer: "0:00", server: "Dustin H", check: "--", paymentType: "--", 
+    revenueCenter: "FF Balcony", phone: "", notes: "", paidAmount: "$0.00", paymentStatus: "Un Paid",
     items: [
       { qty: 2, name: "Meaty Cheese Burger", price: 8.00, seats: [1, 2], modifiers: [] },
     ]
@@ -308,7 +310,7 @@ const TransferOrders = () => {
       <div className="flex items-stretch w-full gap-2 p-2">
         {/* Order Number */}
         <div className="flex-shrink-0 flex items-center">
-          <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+          <div className="relative w-10 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
             <span className="text-base font-bold text-white">{order.id}</span>
             <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
           </div>
@@ -317,20 +319,34 @@ const TransferOrders = () => {
         {/* Guest Info */}
         <div className="flex-1 min-w-0">
           <div className="flex flex-col">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
+            {/* Row 1: Name, Table, Server, Status */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1">
                 <span className="text-white font-medium text-sm">{order.name}</span>
                 <span className="text-white/60 text-xs">· {order.table}</span>
               </div>
-              <span className="text-white font-semibold text-sm">{order.amount}</span>
-            </div>
-            <div className="h-px bg-neutral-600 my-1.5"></div>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1 text-gray-400">
-                <span>Party Of {order.partySize},</span>
-                <span>⚡ {order.time}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-white/60 text-xs">{order.server}</span>
+                <span className={`text-xs font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
               </div>
-              <span className={getStatusColor(order.status)}>{order.status}</span>
+            </div>
+            
+            {/* Row 2: Party, Time, Timer */}
+            <div className="flex items-center justify-between text-xs text-gray-400 mt-0.5">
+              <span>Party of {order.partySize}, {order.time} | {order.timer}</span>
+            </div>
+            
+            {/* Divider */}
+            <div className="h-px bg-neutral-600 my-1.5"></div>
+            
+            {/* Row 3: Revenue Center, Payment Status, Paid Amount, Total */}
+            <div className="flex items-center justify-between text-xs">
+              <span className="text-gray-400">{order.revenueCenter}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-gray-400">{order.paymentStatus || "Un Paid"}</span>
+                <span className="text-gray-400">{order.paidAmount || "$0.00"}</span>
+                <span className="text-white font-semibold">{order.amount}</span>
+              </div>
             </div>
           </div>
         </div>

@@ -442,7 +442,7 @@ const TransferOrders = () => {
                                   e.stopPropagation();
                                   handleQuantityChange(index, parseInt(e.target.value));
                                 }}
-                                className="appearance-none bg-neutral-600 text-white text-xs font-medium rounded px-2 py-0.5 pr-5 cursor-pointer focus:outline-none"
+                                className="appearance-none bg-neutral-600 text-white text-xs font-medium rounded-full px-2 py-0.5 pr-5 cursor-pointer focus:outline-none"
                               >
                                 {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
                                   <option key={qty} value={qty}>{qty}</option>

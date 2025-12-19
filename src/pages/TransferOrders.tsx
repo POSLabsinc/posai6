@@ -70,8 +70,8 @@ const allOrders: Order[] = [
   },
   { 
     id: "3", name: "Martin Alex", table: "T2", amount: "$24.00", partySize: 4, time: "10:00 PM", 
-    status: "ORDERING", timer: "00:00", server: "Dustin H", check: "--", paymentType: "--", 
-    revenueCenter: "FF Balcony", phone: "(415) 123-4567", notes: "Allergic to almonds, Don't add onion",
+    status: "ORDERING", timer: "0:00", server: "Dustin H", check: "--", paymentType: "--", 
+    revenueCenter: "FF Balcony", phone: "(415) 123-4567", notes: "Allergic to almonds, Don't add onion", paidAmount: "$0.00", paymentStatus: "Un Paid",
     items: [
       { qty: 2, name: "Meaty Cheese Burger", price: 3.00, seats: [1, 2], modifiers: [] },
       { qty: 4, name: "Classic Cheese Burger - Medium", price: 2.25, seats: [], modifiers: ["- American Cheese", "- Bacon", "- No Onions", "- No Pickles", "+ Add Avocado $1.00", "· Side: Fries", "· Side: Chipotle Mayo"], isShared: true },
@@ -568,6 +568,56 @@ const TransferOrders = () => {
     </div>
   );
 
+  // Compact order card for confirm direction view
+  const CompactOrderCard = ({ order }: { order: Order }) => (
+    <div 
+      className="rounded-xl border border-white/10 overflow-hidden"
+      style={{ backgroundColor: '#1B1C20' }}
+    >
+      <div className="flex items-stretch w-full gap-2 p-2">
+        {/* Order Number */}
+        <div className="flex-shrink-0 flex items-center">
+          <div className="relative w-10 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-0.5 border border-neutral-600">
+            <span className="text-base font-bold text-white">{order.id}</span>
+            <span className="text-[10px] text-white/40">000</span>
+          </div>
+        </div>
+
+        {/* Guest Info */}
+        <div className="flex-1 min-w-0">
+          <div className="flex flex-col">
+            {/* Row 1: Name, Table, Server, Status */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1">
+                <span className="text-white font-medium text-sm">{order.name}</span>
+                <span className="text-white/60 text-xs">· {order.table}</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <span className="text-white/60 text-xs">{order.server}</span>
+                <span className={`text-xs font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
+              </div>
+            </div>
+            
+            {/* Row 2: Party, Time, Timer, Amount */}
+            <div className="flex items-center justify-between text-xs mt-0.5">
+              <span className="text-gray-400">Party of {order.partySize}, {order.time} | {order.timer}</span>
+              <span className="text-white font-semibold">{order.amount}</span>
+            </div>
+            
+            {/* Row 3: Revenue Center, Payment Status, Paid Amount */}
+            <div className="flex items-center justify-between text-xs mt-0.5">
+              <span className="text-gray-400">{order.revenueCenter}</span>
+              <div className="flex items-center gap-3">
+                <span className="text-gray-400">{order.paymentStatus || "Un Paid"}</span>
+                <span className="text-gray-400">{order.paidAmount || "$0.00"}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
   // Mobile Confirm Direction View
   const ConfirmDirectionView = () => (
     <div className="flex flex-col h-full">
@@ -590,9 +640,9 @@ const TransferOrders = () => {
       </div>
 
       {/* From Order */}
-      <div className="px-4 pb-4">
+      <div className="px-4 pb-3">
         <p className="text-white/60 text-sm mb-2">Transfer Check From</p>
-        {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
+        {fromOrder && <CompactOrderCard order={fromOrder} />}
       </div>
 
       {/* Swap Button */}
@@ -608,7 +658,7 @@ const TransferOrders = () => {
       {/* To Order */}
       <div className="px-4 pb-4">
         <p className="text-white/60 text-sm mb-2">Transfer Check To</p>
-        {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} />}
+        {toOrder && <CompactOrderCard order={toOrder} />}
       </div>
 
       {/* Spacer */}

@@ -714,7 +714,7 @@ const TableOrderDetails = () => {
               <div className={`relative ${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
                 {/* Swipe Action Buttons (revealed on swipe left) */}
               <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 z-10 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                {/* Merge button - gray */}
+                {/* Merge button - orange */}
                 <button 
                   onMouseDown={e => e.stopPropagation()}
                   onTouchStart={e => e.stopPropagation()}
@@ -722,12 +722,12 @@ const TableOrderDetails = () => {
                     e.stopPropagation();
                     navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
                   }} 
-                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-muted-foreground/60 hover:bg-muted-foreground/80"
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-gradient-to-b from-orange-400 to-orange-600 hover:from-orange-300 hover:to-orange-500"
                 >
                   <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
                 </button>
                 
-                {/* Transfer button - orange */}
+                {/* Transfer button - gray */}
                 <button 
                   onMouseDown={e => e.stopPropagation()}
                   onTouchStart={e => e.stopPropagation()}
@@ -735,7 +735,7 @@ const TableOrderDetails = () => {
                     e.stopPropagation();
                     navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
                   }} 
-                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-gradient-to-b from-orange-400 to-orange-600 hover:from-orange-300 hover:to-orange-500"
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-muted-foreground/60 hover:bg-muted-foreground/80"
                 >
                   <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
                 </button>

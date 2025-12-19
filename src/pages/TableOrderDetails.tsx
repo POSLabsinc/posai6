@@ -1011,8 +1011,11 @@ const TableOrderDetails = () => {
                       </button>
                       <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity" style={{
                       background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-                    }} onClick={e => e.stopPropagation()}>
-                        <img src={shareOrderIcon} alt="Share" className="w-4 h-4 object-contain brightness-0" />
+                    }} onClick={e => {
+                      e.stopPropagation();
+                      navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                    }}>
+                        <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
                       </button>
                     </div>
                   </div>

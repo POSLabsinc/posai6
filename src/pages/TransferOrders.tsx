@@ -429,10 +429,9 @@ const TransferOrders = () => {
 
                     {/* Item Info */}
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-start justify-between">
-                        <span className="text-white text-sm font-medium">{item.name}</span>
-                        <div className="flex flex-col items-end gap-1">
-                          <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-white text-sm font-medium flex-1">{item.name}</span>
+                        <div className="flex items-center gap-2">
                           {/* Quantity Selector - Compact dropdown style */}
                           {isSelected && item.qty > 1 && (
                             <div className="relative" onClick={(e) => e.stopPropagation()}>
@@ -451,6 +450,7 @@ const TransferOrders = () => {
                               <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
                             </div>
                           )}
+                          <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
                         </div>
                       </div>
                     </div>

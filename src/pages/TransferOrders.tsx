@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ArrowUpDown, SlidersHorizontal, Search, Phone, Info, Check } from "lucide-react";
+import { ChevronLeft, ChevronDown, ArrowUpDown, SlidersHorizontal, Search, Phone, Info, Check } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -433,28 +433,22 @@ const TransferOrders = () => {
                         <span className="text-white text-sm font-medium">{item.name}</span>
                         <div className="flex flex-col items-end gap-1">
                           <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
-                          {/* Quantity Selector - Pill style, below price */}
+                          {/* Quantity Selector - Compact dropdown style */}
                           {isSelected && item.qty > 1 && (
-                            <div 
-                              className="flex flex-col bg-neutral-600 rounded-full overflow-hidden"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
-                                <button
-                                  key={qty}
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleQuantityChange(index, qty);
-                                  }}
-                                  className={`px-2.5 py-1 text-xs font-medium transition-colors ${
-                                    selectedQty === qty 
-                                      ? 'bg-neutral-400 text-white' 
-                                      : 'text-white/80 hover:bg-neutral-500'
-                                  }`}
-                                >
-                                  {qty}
-                                </button>
-                              ))}
+                            <div className="relative" onClick={(e) => e.stopPropagation()}>
+                              <select
+                                value={selectedQty}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  handleQuantityChange(index, parseInt(e.target.value));
+                                }}
+                                className="appearance-none bg-neutral-600 text-white text-xs font-medium rounded px-2 py-0.5 pr-5 cursor-pointer focus:outline-none"
+                              >
+                                {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
+                                  <option key={qty} value={qty}>{qty}</option>
+                                ))}
+                              </select>
+                              <ChevronDown className="absolute right-1 top-1/2 -translate-y-1/2 w-3 h-3 text-white pointer-events-none" />
                             </div>
                           )}
                         </div>

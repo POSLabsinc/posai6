@@ -722,8 +722,7 @@ const TableOrderDetails = () => {
                     e.stopPropagation();
                     navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
                   }} 
-                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" 
-                  style={{ backgroundColor: '#666666' }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-muted-foreground/60 hover:bg-muted-foreground/80"
                 >
                   <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
                 </button>
@@ -736,8 +735,7 @@ const TableOrderDetails = () => {
                     e.stopPropagation();
                     navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
                   }} 
-                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" 
-                  style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-gradient-to-b from-orange-400 to-orange-600 hover:from-orange-300 hover:to-orange-500"
                 >
                   <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
                 </button>

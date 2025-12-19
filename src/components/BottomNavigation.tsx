@@ -1,10 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
+import dashboardIcon from "@/assets/icons/dashboard.png";
 import newOrderIcon from "@/assets/icons/new-order.png";
 import tableOrderIcon from "@/assets/icons/table-order.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
 import settingsIcon from "@/assets/icons/settings.png";
 
 const navItems = [
+  { to: "/", icon: dashboardIcon, label: "Dashboard" },
   { to: "/orders", icon: newOrderIcon, label: "New Order" },
   { to: "/tableorder", icon: tableOrderIcon, label: "Table Order" },
   { to: "/tickets", icon: ticketsIcon, label: "Tickets" },

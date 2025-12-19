@@ -122,7 +122,7 @@ const Settings = () => {
       </div>
 
       {/* Floating Search Bar - Fixed on mobile above bottom nav */}
-      <div className="fixed bottom-20 left-4 right-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mt-0 z-50">
+      <div className="fixed bottom-16 left-4 right-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mt-0 z-50">
         <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-lg md:shadow-none">
           <Search className="w-5 h-5 text-muted-foreground" />
           <input

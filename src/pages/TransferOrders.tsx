@@ -569,11 +569,20 @@ const TransferOrders = () => {
   );
 
   // Compact order card for confirm direction view
-  const CompactOrderCard = ({ order }: { order: Order }) => (
+  const CompactOrderCard = ({ order, transferredTo }: { order: Order; transferredTo?: string }) => (
     <div 
       className="rounded-xl border border-white/10 overflow-hidden"
       style={{ backgroundColor: '#1B1C20' }}
     >
+      {/* Transferred Banner */}
+      {transferredTo && (
+        <div 
+          className="px-3 py-1.5 text-white text-sm font-medium"
+          style={{ backgroundColor: '#8B5A2B' }}
+        >
+          Transferred to {transferredTo}
+        </div>
+      )}
       <div className="flex items-stretch w-full gap-2 p-2">
         {/* Order Number */}
         <div className="flex-shrink-0 flex items-center">
@@ -642,7 +651,12 @@ const TransferOrders = () => {
       {/* From Order */}
       <div className="px-4 pb-3">
         <p className="text-white/60 text-sm mb-2">Transfer Check From</p>
-        {fromOrder && <CompactOrderCard order={fromOrder} />}
+        {fromOrder && (
+          <CompactOrderCard 
+            order={{...fromOrder, status: 'TRANSFERRED'}} 
+            transferredTo={toOrder ? `Table ${toOrder.table?.replace('T', '')}` : undefined}
+          />
+        )}
       </div>
 
       {/* Swap Button */}

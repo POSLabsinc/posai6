@@ -67,14 +67,13 @@ const allOrders: Order[] = [
     ]
   },
   { 
-    id: "3", name: "Martin Alex", table: "T2", amount: "$68.00", partySize: 4, time: "8:00 PM", 
+    id: "3", name: "Martin Alex", table: "T2", amount: "$24.00", partySize: 4, time: "10:00 PM", 
     status: "ORDERING", timer: "00:00", server: "Dustin H", check: "--", paymentType: "--", 
     revenueCenter: "FF Balcony", phone: "(415) 123-4567", notes: "Allergic to almonds, Don't add onion",
     items: [
-      { qty: 2, name: "Classic Crispy Burger", price: 12.00, seats: [1, 2], modifiers: [] },
-      { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: ["Extra Sauce"], isShared: true },
-      { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
-      { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Medium Rare", "+ W/ Potato Wedges"] },
+      { qty: 2, name: "Meaty Cheese Burger", price: 3.00, seats: [1, 2], modifiers: [] },
+      { qty: 4, name: "Classic Cheese Burger - Medium", price: 2.25, seats: [], modifiers: ["- American Cheese", "- Bacon", "- No Onions", "- No Pickles", "+ Add Avocado $1.00", "· Side: Fries", "· Side: Chipotle Mayo"], isShared: true },
+      { qty: 2, name: "Pepperoni Pizza (12\")", price: 4.00, seats: [3, 4], modifiers: [] },
     ]
   },
   { 
@@ -265,35 +264,33 @@ const TransferOrders = () => {
   // Mobile order card for source order display
   const MobileSourceOrderCard = ({ order }: { order: Order }) => (
     <div 
-      className="rounded-xl border border-white overflow-hidden"
+      className="rounded-xl border border-white/20 overflow-hidden"
       style={{ backgroundColor: '#1B1C20' }}
     >
-      <div className="flex items-stretch w-full gap-2 p-2">
+      <div className="flex items-stretch w-full gap-3 p-3">
         {/* Order Number */}
         <div className="flex-shrink-0 flex items-center">
-          <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+          <div className="relative w-8 h-8 bg-neutral-800 rounded-lg flex items-center justify-center border border-neutral-600">
             <span className="text-base font-bold text-white">{order.id}</span>
-            <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
           </div>
         </div>
 
         {/* Guest Info */}
         <div className="flex-1 min-w-0">
-          <div className="flex flex-col">
-            <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-1">
+            <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="text-white font-medium text-sm">{order.name}</span>
-                <span className="text-white/60 text-xs">· {order.table}</span>
+                <span className="text-white/60 text-sm">· {order.table}</span>
+                <span className="text-white/50 text-sm">{order.server}</span>
               </div>
-              <span className="text-white font-semibold text-sm">{order.amount}</span>
+              <div className="flex items-center gap-2">
+                <span className={`text-sm font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
+              </div>
             </div>
-            <div className="h-px bg-neutral-600 my-1.5"></div>
             <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1 text-gray-400">
-                <span>Party Of {order.partySize},</span>
-                <span>⚡ {order.time}</span>
-              </div>
-              <span className={getStatusColor(order.status)}>{order.status}</span>
+              <span className="text-white/50">Party of {order.partySize}, {order.time}</span>
+              <span className="text-white font-semibold text-sm">{order.amount}</span>
             </div>
           </div>
         </div>
@@ -371,20 +368,25 @@ const TransferOrders = () => {
       <div className="px-4 pb-2 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <p className="text-white/80 text-sm font-medium">Select Items</p>
-          <div className="flex items-center gap-1 text-white/40 text-xs">
-            <Info className="w-3 h-3" />
-            <span>Item notes are included</span>
-          </div>
+          <Info className="w-3.5 h-3.5 text-white/40" />
         </div>
         <button 
           onClick={handleSelectAll}
-          className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${
-            selectAll ? "bg-white text-black" : "bg-white/10 text-white"
-          }`}
+          className="text-white/60 text-sm font-medium hover:text-white transition-colors"
         >
           {selectAll ? "Deselect All" : "Select All"}
         </button>
       </div>
+
+      {/* Notes Section - Above items */}
+      {currentOrder.notes && (
+        <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-neutral-800/80 border border-white/10">
+          <div className="flex items-start gap-2">
+            <span className="text-white/60 text-sm">📋</span>
+            <span className="text-white/70 text-sm">{currentOrder.notes}</span>
+          </div>
+        </div>
+      )}
 
       {/* Items List */}
       <ScrollArea className="flex-1 px-4">
@@ -393,100 +395,98 @@ const TransferOrders = () => {
             const isSelected = selectedItems.includes(index);
             const selectedQty = itemQuantities[index] || item.qty;
             
+            // Parse modifiers to identify add-ons with prices
+            const parseModifier = (mod: string) => {
+              const isAddOn = mod.startsWith('+');
+              const isRemoval = mod.startsWith('-');
+              const priceMatch = mod.match(/\$[\d.]+/);
+              const price = priceMatch ? priceMatch[0] : null;
+              const text = mod.replace(/\$[\d.]+/, '').trim();
+              return { text, price, isAddOn, isRemoval };
+            };
+            
             return (
               <div 
                 key={index}
-                className={`p-3 rounded-xl border transition-all cursor-pointer ${
+                className={`rounded-xl border transition-all cursor-pointer overflow-hidden ${
                   isSelected 
-                    ? "border-orange-500 bg-orange-500/10" 
-                    : "border-white/10 bg-white/5"
+                    ? "border-orange-500 bg-orange-500/5" 
+                    : "border-white/10 bg-white/[0.02]"
                 }`}
                 onClick={() => handleItemSelect(index)}
               >
-                <div className="flex items-start gap-3">
-                  {/* Checkbox */}
-                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center flex-shrink-0 mt-0.5 ${
-                    isSelected 
-                      ? "border-orange-500 bg-orange-500" 
-                      : "border-white/40"
-                  }`}>
-                    {isSelected && <Check className="w-3 h-3 text-white" />}
-                  </div>
-
-                  {/* Item Info */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-xs font-bold">
-                          {item.qty}
-                        </span>
-                        <span className="text-white text-sm font-medium">{item.name}</span>
+                {/* Main Item Row */}
+                <div className="p-3">
+                  <div className="flex items-start gap-3">
+                    {/* Quantity Badge */}
+                    <div className="flex-shrink-0">
+                      <div className={`w-7 h-7 rounded-md flex items-center justify-center text-sm font-bold ${
+                        isSelected ? "bg-orange-500 text-white" : "bg-neutral-700 text-white"
+                      }`}>
+                        {isSelected ? selectedQty : item.qty}
                       </div>
-                      <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
                     </div>
 
-                    {/* Quantity Selector - Only shown when selected */}
-                    {isSelected && (
-                      <div className="flex items-center justify-between mt-2 ml-8">
-                        <div className="flex items-center gap-1 text-white/50 text-xs">
-                          <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
-                          <span>{item.seats.length > 0 ? item.seats.join(', ') : '-'}</span>
-                        </div>
-                        <select
-                          value={selectedQty}
-                          onChange={(e) => {
-                            e.stopPropagation();
-                            handleQuantityChange(index, parseInt(e.target.value));
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                          className="bg-neutral-700 text-white text-sm rounded-md px-2 py-1 border border-white/20 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
-                        >
-                          {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
-                            <option key={qty} value={qty}>{qty}</option>
-                          ))}
-                        </select>
+                    {/* Item Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between">
+                        <span className="text-white text-sm font-medium">{item.name}</span>
+                        <span className="text-white text-sm font-medium ml-2">${(item.price * item.qty).toFixed(2)}</span>
                       </div>
-                    )}
+                    </div>
+                  </div>
 
-                    {/* Modifiers */}
-                    {item.modifiers.length > 0 && (
-                      <div className="mt-1 ml-8 text-white/50 text-xs space-y-0.5">
-                        {item.modifiers.map((mod, i) => (
-                          <div key={i}>{mod}</div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Seat & Shared badges - Only show when NOT selected (since we show seat in qty row) */}
-                    {!isSelected && (
-                      <div className="flex items-center gap-2 mt-2 ml-8">
-                        {item.seats.length > 0 && (
-                          <div className="flex items-center gap-1">
-                            <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
-                            {item.seats.map(seat => (
-                              <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                                {seat}
-                              </span>
-                            ))}
+                  {/* Modifiers */}
+                  {item.modifiers.length > 0 && (
+                    <div className="mt-2 ml-10 space-y-0.5">
+                      {item.modifiers.map((mod, i) => {
+                        const { text, price, isAddOn, isRemoval } = parseModifier(mod);
+                        return (
+                          <div key={i} className="flex items-center justify-between text-xs">
+                            <span className="text-white/50">
+                              {isAddOn ? '+' : isRemoval ? '−' : '·'} {text.replace(/^[+-]\s*/, '').replace(/^W\/\s*/i, '')}
+                            </span>
+                            {price && <span className="text-white/50">{price}</span>}
                           </div>
-                        )}
-                        {item.isShared && (
-                          <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-full">
-                            Shared
-                          </span>
-                        )}
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {/* Seat badges */}
+                  <div className="flex items-center gap-2 mt-2 ml-10">
+                    {item.seats.length > 0 && (
+                      <div className="flex items-center gap-1">
+                        <img src={seatIcon} alt="Seat" className="w-3.5 h-3.5 opacity-50" />
+                        <span className="text-white/50 text-xs">{item.seats.join(', ')}</span>
                       </div>
                     )}
-
-                    {/* Shared badge when selected */}
-                    {isSelected && item.isShared && (
-                      <div className="mt-2 ml-8">
-                        <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-full">
-                          Shared
-                        </span>
+                    {item.isShared && (
+                      <div className="flex items-center gap-1">
+                        <img src={seatIcon} alt="Shared" className="w-3.5 h-3.5 opacity-50" />
+                        <span className="text-white/50 text-xs">Shared</span>
                       </div>
                     )}
                   </div>
+
+                  {/* Quantity Selector - Only shown when selected */}
+                  {isSelected && item.qty > 1 && (
+                    <div className="flex items-center justify-end mt-2">
+                      <select
+                        value={selectedQty}
+                        onChange={(e) => {
+                          e.stopPropagation();
+                          handleQuantityChange(index, parseInt(e.target.value));
+                        }}
+                        onClick={(e) => e.stopPropagation()}
+                        className="bg-neutral-700 text-white text-sm rounded-md px-2 py-1 border border-white/20 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
+                      >
+                        {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
+                          <option key={qty} value={qty}>{qty}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
                 </div>
               </div>
             );
@@ -495,15 +495,6 @@ const TransferOrders = () => {
         <ScrollBar orientation="vertical" />
       </ScrollArea>
 
-      {/* Notes Section */}
-      {currentOrder.notes && (
-        <div className="px-4 py-2 border-t border-white/10">
-          <div className="flex items-center gap-2 text-white/50 text-xs bg-white/5 px-3 py-2 rounded-lg">
-            <span>📝</span>
-            <span>{currentOrder.notes}</span>
-          </div>
-        </div>
-      )}
 
       {/* Target Selection Bottom Sheet */}
       <Sheet open={showTargetSheet} onOpenChange={setShowTargetSheet}>

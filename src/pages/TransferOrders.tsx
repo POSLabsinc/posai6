@@ -371,31 +371,46 @@ const TransferOrders = () => {
           <ChevronLeft className="w-5 h-5 text-white" />
         </button>
         
-        <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-medium">Table {tableId?.replace('T', '')} • Order {orderId}</h1>
+        <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-medium">Table {tableId?.replace('T', '')} · Order {orderId}</h1>
         
-        <div className="w-10" /> {/* Spacer for alignment */}
-      </div>
-
-      {/* Source Order Card */}
-      <div className="px-4 pb-3">
-        <MobileSourceOrderCard order={currentOrder} />
-      </div>
-
-      {/* Select Items Label with Info */}
-      <div className="px-4 pb-2 flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          <p className="text-white/80 text-sm font-medium">Select Items</p>
-          <Info className="w-3.5 h-3.5 text-white/40" />
-        </div>
-        <button 
-          onClick={handleSelectAll}
-          className="text-white/60 text-sm font-medium hover:text-white transition-colors"
-        >
-          {selectAll ? "Deselect All" : "Select All"}
+        {/* 3-dot menu */}
+        <button className="w-10 h-10 flex items-center justify-center">
+          <div className="flex flex-col gap-1">
+            <div className="w-1 h-1 bg-white rounded-full"></div>
+            <div className="w-1 h-1 bg-white rounded-full"></div>
+            <div className="w-1 h-1 bg-white rounded-full"></div>
+          </div>
         </button>
       </div>
 
-      {/* Notes Section - Above items */}
+      {/* Action Bar with Icons and Seat Tabs */}
+      <div className="px-4 pb-3">
+        <div className="flex items-center gap-2">
+          {/* Split/Share icons */}
+          <div className="flex items-center gap-1">
+            <button className="w-9 h-9 rounded-lg bg-neutral-800 flex items-center justify-center border border-white/10">
+              <img src={splitIcon} alt="Split" className="w-4 h-4 opacity-70" />
+            </button>
+            <button className="w-9 h-9 rounded-lg bg-neutral-800 flex items-center justify-center border border-white/10">
+              <img src={shareSeatsIcon} alt="Share" className="w-4 h-4 opacity-70" />
+            </button>
+          </div>
+          
+          {/* Seat number tabs */}
+          <div className="flex items-center gap-1 ml-2">
+            {[1, 2, 3, 4].map(seat => (
+              <button
+                key={seat}
+                className="w-9 h-9 rounded-lg bg-neutral-800 flex items-center justify-center text-white/60 text-sm font-medium border border-white/10 hover:bg-neutral-700 transition-colors"
+              >
+                {seat}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Notes Section */}
       {currentOrder.notes && (
         <div className="mx-4 mb-3 px-3 py-2 rounded-lg bg-neutral-800/80 border border-white/10">
           <div className="flex items-start gap-2">
@@ -427,8 +442,8 @@ const TransferOrders = () => {
                 key={index}
                 className={`rounded-xl border transition-all cursor-pointer overflow-hidden ${
                   isSelected 
-                    ? "border-orange-500 bg-orange-500/5" 
-                    : "border-white/10 bg-white/[0.02]"
+                    ? "border-white/30 bg-neutral-900" 
+                    : "border-white/10 bg-neutral-900"
                 }`}
                 onClick={() => handleItemSelect(index)}
               >
@@ -438,9 +453,9 @@ const TransferOrders = () => {
                     {/* Quantity Badge */}
                     <div className="flex-shrink-0">
                       <div className={`w-7 h-7 rounded-md flex items-center justify-center text-sm font-bold ${
-                        isSelected ? "bg-orange-500 text-white" : "bg-neutral-700 text-white"
+                        isSelected ? "bg-teal-500 text-white" : "bg-teal-500 text-white"
                       }`}>
-                        {isSelected ? selectedQty : item.qty}
+                        {item.qty}
                       </div>
                     </div>
 
@@ -448,63 +463,25 @@ const TransferOrders = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <span className="text-white text-sm font-medium flex-1">{item.name}</span>
-                        <div className="flex items-center gap-2">
-                          {/* Quantity Selector - Compact dropdown style */}
-                          {isSelected && item.qty > 1 && (
-                            <div className="relative" onClick={(e) => e.stopPropagation()}>
-                              <select
-                                value={selectedQty}
-                                onChange={(e) => {
-                                  e.stopPropagation();
-                                  handleQuantityChange(index, parseInt(e.target.value));
-                                }}
-                                className="appearance-none bg-neutral-600 text-white text-sm font-medium rounded-full px-3 py-1 pr-6 cursor-pointer focus:outline-none"
-                              >
-                                {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
-                                  <option key={qty} value={qty}>{qty}</option>
-                                ))}
-                              </select>
-                              <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
-                            </div>
-                          )}
-                          <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
-                        </div>
+                        <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Modifiers */}
-                  {item.modifiers.length > 0 && (
-                    <div className="mt-2 ml-10 space-y-0.5">
-                      {item.modifiers.map((mod, i) => {
-                        const { text, price, isAddOn, isRemoval } = parseModifier(mod);
-                        return (
-                          <div key={i} className="flex items-center justify-between text-xs">
-                            <span className="text-white/50">
-                              {isAddOn ? '+' : isRemoval ? '−' : '·'} {text.replace(/^[+-]\s*/, '').replace(/^W\/\s*/i, '')}
-                            </span>
-                            {price && <span className="text-white/50">{price}</span>}
-                          </div>
-                        );
-                      })}
+                  {/* Seat badges - individual boxes */}
+                  {item.seats.length > 0 && (
+                    <div className="flex items-center gap-1.5 mt-2 ml-10">
+                      <img src={splitIcon} alt="Seats" className="w-4 h-4 opacity-50" />
+                      {item.seats.map(seat => (
+                        <div 
+                          key={seat}
+                          className="w-6 h-6 rounded bg-neutral-800 flex items-center justify-center text-white/70 text-xs font-medium border border-white/10"
+                        >
+                          {seat}
+                        </div>
+                      ))}
                     </div>
                   )}
-
-                  {/* Seat badges */}
-                  <div className="flex items-center gap-2 mt-2 ml-10">
-                    {item.seats.length > 0 && (
-                      <div className="flex items-center gap-1">
-                        <img src={seatIcon} alt="Seat" className="w-3.5 h-3.5 opacity-50" />
-                        <span className="text-white/50 text-xs">{item.seats.join(', ')}</span>
-                      </div>
-                    )}
-                    {item.isShared && (
-                      <div className="flex items-center gap-1">
-                        <img src={seatIcon} alt="Shared" className="w-3.5 h-3.5 opacity-50" />
-                        <span className="text-white/50 text-xs">Shared</span>
-                      </div>
-                    )}
-                  </div>
                 </div>
               </div>
             );

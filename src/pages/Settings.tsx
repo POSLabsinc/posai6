@@ -1,4 +1,4 @@
-import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic } from "lucide-react";
+import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface SettingsItemProps {
@@ -28,7 +28,7 @@ const SettingsItem = ({ icon, label, iconBgColor, onClick }: SettingsItemProps) 
 
 const Settings = () => {
   return (
-    <div className="min-h-screen p-4 pb-28">
+    <div className="min-h-screen p-4 pb-28 overflow-y-auto">
       {/* Header */}
       <h1 className="text-3xl font-bold text-foreground mb-6">Settings</h1>
 
@@ -95,6 +95,29 @@ const Settings = () => {
           icon={<Monitor className="w-5 h-5 text-white" />}
           label="Hardware"
           iconBgColor="hsl(300, 60%, 45%)"
+        />
+      </div>
+
+      {/* Notifications & Support Group */}
+      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
+        <SettingsItem
+          icon={<Bell className="w-5 h-5 text-white" />}
+          label="Notifications"
+          iconBgColor="hsl(0, 0%, 40%)"
+        />
+        <SettingsItem
+          icon={<Headphones className="w-5 h-5 text-white" />}
+          label="Customer Support"
+          iconBgColor="hsl(0, 75%, 50%)"
+        />
+      </div>
+
+      {/* Switch User Group */}
+      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
+        <SettingsItem
+          icon={<UserCheck className="w-5 h-5 text-white" />}
+          label="Switch User"
+          iconBgColor="hsl(0, 0%, 30%)"
         />
       </div>
 

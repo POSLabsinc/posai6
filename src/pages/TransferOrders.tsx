@@ -431,7 +431,25 @@ const TransferOrders = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-start justify-between">
                         <span className="text-white text-sm font-medium">{item.name}</span>
-                        <span className="text-white text-sm font-medium ml-2">${(item.price * item.qty).toFixed(2)}</span>
+                        <div className="flex flex-col items-end gap-1">
+                          <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
+                          {/* Quantity Selector - Compact, below price */}
+                          {isSelected && item.qty > 1 && (
+                            <select
+                              value={selectedQty}
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                handleQuantityChange(index, parseInt(e.target.value));
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                              className="bg-neutral-700 text-white text-xs rounded px-1.5 py-0.5 border border-white/20 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
+                            >
+                              {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
+                                <option key={qty} value={qty}>{qty}</option>
+                              ))}
+                            </select>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -468,25 +486,6 @@ const TransferOrders = () => {
                       </div>
                     )}
                   </div>
-
-                  {/* Quantity Selector - Only shown when selected */}
-                  {isSelected && item.qty > 1 && (
-                    <div className="flex items-center justify-end mt-2">
-                      <select
-                        value={selectedQty}
-                        onChange={(e) => {
-                          e.stopPropagation();
-                          handleQuantityChange(index, parseInt(e.target.value));
-                        }}
-                        onClick={(e) => e.stopPropagation()}
-                        className="bg-neutral-700 text-white text-sm rounded-md px-2 py-1 border border-white/20 cursor-pointer focus:outline-none focus:ring-1 focus:ring-orange-500"
-                      >
-                        {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
-                          <option key={qty} value={qty}>{qty}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
                 </div>
               </div>
             );

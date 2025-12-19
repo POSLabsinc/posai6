@@ -11,7 +11,7 @@ interface SettingsItemProps {
 const SettingsItem = ({ icon, label, iconBgColor, onClick }: SettingsItemProps) => (
   <button
     onClick={onClick}
-    className="flex items-center justify-between w-full py-4 px-1 border-b border-border/30 last:border-b-0 active:opacity-70 transition-opacity"
+    className="flex items-center justify-between w-full py-3 px-1 border-b border-white/10 last:border-b-0 active:opacity-70 transition-opacity"
   >
     <div className="flex items-center gap-4">
       <div 
@@ -33,8 +33,8 @@ const Settings = () => {
       <h1 className="text-3xl font-bold text-foreground mb-6">Settings</h1>
 
       {/* User Profile Card */}
-      <div className="glass-dark rounded-2xl p-4 mb-4">
-        <div className="flex items-center gap-4 pb-4 border-b border-border/30">
+      <div className="bg-neutral-900 border border-white/10 rounded-2xl p-4 mb-4">
+        <div className="flex items-center gap-4 pb-4 border-b border-white/10">
           <Avatar className="w-14 h-14">
             <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Jim Hopper" />
             <AvatarFallback className="bg-muted text-foreground">JH</AvatarFallback>
@@ -51,7 +51,7 @@ const Settings = () => {
       </div>
 
       {/* Main Settings Group */}
-      <div className="glass-dark rounded-2xl px-4 mb-4">
+      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
         <SettingsItem
           icon={<Users className="w-5 h-5 text-white" />}
           label="General"
@@ -85,7 +85,7 @@ const Settings = () => {
       </div>
 
       {/* System Settings Group */}
-      <div className="glass-dark rounded-2xl px-4 mb-4">
+      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
         <SettingsItem
           icon={<Wifi className="w-5 h-5 text-white" />}
           label="Network"
@@ -99,7 +99,7 @@ const Settings = () => {
       </div>
 
       {/* Search Bar */}
-      <div className="glass-dark rounded-2xl px-4 py-3 flex items-center gap-3">
+      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 py-3 flex items-center gap-3">
         <Search className="w-5 h-5 text-muted-foreground" />
         <input
           type="text"

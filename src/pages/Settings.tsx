@@ -28,7 +28,7 @@ const SettingsItem = ({ icon, label, iconBgColor, onClick }: SettingsItemProps) 
 
 const Settings = () => {
   return (
-    <div className="min-h-screen bg-background p-4 pb-28">
+    <div className="min-h-screen p-4 pb-28">
       {/* Header */}
       <h1 className="text-3xl font-bold text-foreground mb-6">Settings</h1>
 

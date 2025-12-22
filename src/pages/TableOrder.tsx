@@ -445,7 +445,11 @@ const TableOrder = () => {
                       {/* Status Label - Shows guest numbers when Available table is clicked */}
                       {guestDropdownTable === table.id && table.status === "Available" ? (
                         <div className={`w-full py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700 ${table.seats > 6 ? 'overflow-x-auto scrollbar-hide' : ''}`}>
-                          <div className={`flex ${table.seats > 6 ? 'justify-start' : 'justify-center'} gap-1`}>
+                          <div className={`flex ${table.seats > 6 ? 'justify-start' : 'justify-center'} items-center gap-1`}>
+                            {/* Chair icon indicator */}
+                            <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
+                              <img src={chairIcon} alt="Select seats" className="w-4 h-4 object-contain" />
+                            </div>
                             {Array.from({ length: table.seats }).map((_, i) => (
                               <button
                                 key={i}
@@ -453,10 +457,9 @@ const TableOrder = () => {
                                   e.stopPropagation();
                                   handleGuestSelect(i + 1);
                                 }}
-                                className="w-8 h-8 flex-shrink-0 flex flex-col items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors gap-0.5"
+                                className="w-6 h-6 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
                               >
-                                <img src={chairIcon} alt="Seat" className="w-3 h-3 object-contain" />
-                                <span>{i + 1}</span>
+                                {i + 1}
                               </button>
                             ))}
                           </div>

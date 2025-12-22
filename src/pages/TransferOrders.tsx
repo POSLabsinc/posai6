@@ -805,7 +805,7 @@ const TransferOrders = () => {
                         {seat}
                       </span>
                     ))}
-                    <span className="text-white/40 ml-1 text-xs">📤</span>
+                    
                   </div>
                 )}
               </div>

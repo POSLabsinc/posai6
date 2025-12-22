@@ -425,10 +425,7 @@ const TableOrder = () => {
                     <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
                     
                     {/* Seats */}
-                    <div className="flex items-center gap-1 mb-2">
-                      <img src={chairIcon} alt="Seats" className="w-4 h-4 object-contain" />
-                      <span className="text-gray-400 text-sm">{table.seats} Seats</span>
-                    </div>
+                    <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
                     
                     {/* Seat Dots */}
                     <div className={`flex gap-1 mb-2 ${table.seats > 6 ? 'overflow-x-auto max-w-full scrollbar-hide' : ''}`}>
@@ -456,9 +453,10 @@ const TableOrder = () => {
                                   e.stopPropagation();
                                   handleGuestSelect(i + 1);
                                 }}
-                                className="w-6 h-6 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                                className="w-8 h-8 flex-shrink-0 flex flex-col items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors gap-0.5"
                               >
-                                {i + 1}
+                                <img src={chairIcon} alt="Seat" className="w-3 h-3 object-contain" />
+                                <span>{i + 1}</span>
                               </button>
                             ))}
                           </div>

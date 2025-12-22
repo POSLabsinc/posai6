@@ -342,7 +342,52 @@ const Dashboard = () => {
                   }`}
                   style={{ background: "#2A2A2A" }}
                 >
-                  <div className="flex items-center gap-3 md:gap-6">
+                {/* Mobile Layout */}
+                <div className="flex items-stretch w-full md:hidden">
+                  {/* Order Number - Mobile compact style */}
+                  <div className="flex-shrink-0 px-2 py-2 flex items-center">
+                    <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+                      <span className="text-lg font-bold text-white">{order.id}</span>
+                      <span className="text-[9px] text-gray-500">000</span>
+                    </div>
+                  </div>
+
+                  {/* Guest Info - Mobile compact layout */}
+                  <div className="flex-1 min-w-0 py-2 pr-2">
+                    <div className="flex flex-col gap-1">
+                      {/* Row 1: Name + Table, Server, Status */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-medium text-sm">{order.guest} - T{order.seats}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm" style={{ color: '#B5B6BB' }}>Server</span>
+                          <span className="text-sm font-medium" style={{ color: order.statusColor }}>{order.status}</span>
+                        </div>
+                      </div>
+                      
+                      {/* Row 2: Party info, Timer, Total */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                          <span>Party of {order.seats}, {order.arrivedAt}</span>
+                          <span className="text-gray-500">|</span>
+                          <span>{order.timer}</span>
+                        </div>
+                        <span className="text-white font-semibold text-sm">$0.00</span>
+                      </div>
+                      
+                      {/* Row 3: Revenue center, Payment status */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-medium text-sm">{order.revenueCenter}</span>
+                        <div className="flex items-center gap-2 text-sm">
+                          <span style={{ color: '#B5B6BB' }}>Un Paid</span>
+                          <span className="text-white">$0.00</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Tablet/Desktop Layout */}
+                <div className="hidden md:flex items-center gap-3 md:gap-6">
                     {/* Order Number & Dine In Icon */}
                     <div className="flex flex-col items-center justify-center w-10 md:w-12 rounded-lg border border-white/20 flex-shrink-0 py-1.5 gap-0.5">
                       <span className="text-base md:text-lg font-bold">{order.id}</span>
@@ -353,25 +398,20 @@ const Dashboard = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-1 pb-1 border-b border-white/10">
                         <span
-                          className="text-xs md:text-sm font-medium italic"
+                          className="text-sm font-medium italic"
                           style={{ color: order.statusColor }}
                         >
                           {order.status}
                         </span>
-                        <span className="text-xs md:text-sm text-white truncate ml-2">{order.guest}</span>
+                        <span className="text-sm text-white truncate ml-2">{order.guest}</span>
                       </div>
-                      <div className="flex items-center justify-between text-[10px] md:text-xs text-white/50">
+                      <div className="flex items-center justify-between text-xs text-white/50">
                         <span>{order.orderNo}</span>
-                        <span className="hidden sm:inline">{order.date}</span>
+                        <span>{order.date}</span>
                       </div>
-                      <div className="flex items-center justify-between text-[10px] md:text-xs text-white/50">
+                      <div className="flex items-center justify-between text-xs text-white/50">
                         <span>Seats {order.seats}</span>
-                        <span className="hidden sm:inline">Arrived At {order.arrivedAt}</span>
-                      </div>
-                      {/* Mobile: Show type inline */}
-                      <div className="flex md:hidden items-center justify-between text-[10px] text-white/50 mt-1">
-                        <span>{order.type}</span>
-                        <span>{order.timer}</span>
+                        <span>Arrived At {order.arrivedAt}</span>
                       </div>
                     </div>
 

@@ -1007,7 +1007,7 @@ const TableOrderDetails = () => {
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 bg-neutral-900 rounded-t-lg border-l-2 border-orange-500 flex items-center gap-1">
                     <span className="text-orange-500 text-xs font-medium">Merged #{mergedOrderId} from T{mergedFromTable}</span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-white/10"}`}>
+                <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
                 <div className="flex items-stretch w-full gap-2 bg-neutral-900">
                   {/* Column 1: Order Number */}
                   <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
@@ -1110,7 +1110,7 @@ const TableOrderDetails = () => {
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
-              <span className="text-white font-bold">{selectedGuest.id}</span>
+              <span className="text-white font-bold">{currentSelectedGuest?.id}</span>
             </div>
             <div className="flex items-center gap-2">
               <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
@@ -1136,14 +1136,14 @@ const TableOrderDetails = () => {
         <div className="px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
             <span>📝</span>
-            <span>{selectedGuest.notes || "No notes"}</span>
+            <span>{currentSelectedGuest?.notes || "No notes"}</span>
           </div>
         </div>
 
         {/* Order Items */}
         <ScrollArea className="flex-1 px-4">
           <div className="py-2 space-y-2">
-            {getOrderItems(selectedGuest).map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+            {currentSelectedGuest && getOrderItems(currentSelectedGuest).map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
                     <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
@@ -1173,19 +1173,19 @@ const TableOrderDetails = () => {
         <div className="px-4 py-3 border-t border-white/10 space-y-1 text-sm">
           <div className="flex justify-between">
             <span className="text-white/60">Sub Total</span>
-            <span className="text-white">{formatPrice(selectedGuest.subtotal)}</span>
+            <span className="text-white">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-red-500">Discount</span>
-            <span className="text-red-500">{formatPrice(selectedGuest.discount)}</span>
+            <span className="text-red-500">{formatPrice(currentSelectedGuest?.discount || 0)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-white/60">Service Charge</span>
-            <span className="text-white">{formatPrice(selectedGuest.serviceCharge)}</span>
+            <span className="text-white">{formatPrice(currentSelectedGuest?.serviceCharge || 0)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-white/60">Tax</span>
-            <span className="text-white">{formatPrice(selectedGuest.tax)}</span>
+            <span className="text-white">{formatPrice(currentSelectedGuest?.tax || 0)}</span>
           </div>
         </div>
 
@@ -1203,7 +1203,7 @@ const TableOrderDetails = () => {
           <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{
             background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
           }}>
-            CHARGE {formatPrice(selectedGuest.total)}
+            CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
           </button>
         </div>
         </div>

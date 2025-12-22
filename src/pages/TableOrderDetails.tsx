@@ -567,14 +567,14 @@ const TableOrderDetails = () => {
                    {/* Column 2: Guest Info - Mobile compact layout */}
                    <div className="flex-1 min-w-0 py-2 pr-2 md:hidden">
                      <div className="flex flex-col gap-1">
-                       {/* Row 1: Name + Table, Server, Status */}
-                       <div className="flex items-center justify-between">
-                         <div className="flex items-center gap-2">
-                           <span className="text-white font-medium text-sm">{guest.name} - {tableId}</span>
-                           <span className="text-gray-400 text-xs">{guest.server}</span>
-                         </div>
-                         <span className={`text-xs font-medium ${getStatusColor(guest.status)}`}>{guest.status}</span>
-                       </div>
+                        {/* Row 1: Name + Table, Server, Status */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-white font-medium text-sm">{guest.name} - {tableId}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-gray-400 text-xs">{guest.server}</span>
+                            <span className={`text-xs font-medium ${getStatusColor(guest.status)}`}>{guest.status}</span>
+                          </div>
+                        </div>
                        
                        {/* Row 2: Party info, Location/Table, Payment */}
                        <div className="flex items-center justify-between text-xs">

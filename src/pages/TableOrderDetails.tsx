@@ -576,15 +576,15 @@ const TableOrderDetails = () => {
                           </div>
                         </div>
                        
-                       {/* Row 2: Party info, Location/Table, Payment */}
-                        <div className="flex items-center justify-between text-sm">
-                         <div className="flex items-center gap-1 text-gray-400">
-                           <span>Party of {guest.partySize}, {guest.time}</span>
-                           <span className="text-gray-500">|</span>
-                           <span>{guest.timer}</span>
-                         </div>
-                         <span className="text-white font-semibold">{formatPrice(guest.total)}</span>
-                       </div>
+                        {/* Row 2: Party info, Location/Table, Payment */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1 text-gray-400 text-xs">
+                            <span>Party of {guest.partySize}, {guest.time}</span>
+                            <span className="text-gray-500">|</span>
+                            <span>{guest.timer}</span>
+                          </div>
+                          <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
+                        </div>
                        
                         {/* Row 3: Revenue center, Payment status */}
                         <div className="flex items-center justify-between">

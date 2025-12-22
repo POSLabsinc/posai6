@@ -589,12 +589,12 @@ const TableOrderDetails = () => {
                         {/* Row 3: Revenue center, Payment status */}
                         <div className="flex items-center justify-between">
                           <span className="text-white font-medium text-sm">{guest.revenueCenter}</span>
-                         <div className="flex items-center gap-2">
-                           <span className={`${guest.paymentType === '--' ? 'text-gray-400' : 'text-green-400'}`}>
-                             {guest.paymentType === '--' ? 'Un Paid' : 'Paid'}
-                           </span>
-                           <span className="text-gray-500">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
-                         </div>
+                          <div className="flex items-center gap-2 text-xs">
+                            <span className={`${guest.paymentType === '--' ? 'text-gray-400' : 'text-green-400'}`}>
+                              {guest.paymentType === '--' ? 'Un Paid' : 'Paid'}
+                            </span>
+                            <span className="text-gray-500">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
+                          </div>
                        </div>
                      </div>
                    </div>

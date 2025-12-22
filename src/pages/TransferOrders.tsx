@@ -270,30 +270,44 @@ const TransferOrders = () => {
       className="rounded-xl border border-white/20 overflow-hidden"
       style={{ backgroundColor: '#1B1C20' }}
     >
-      <div className="flex items-stretch w-full gap-3 p-3">
-        {/* Order Number */}
-        <div className="flex-shrink-0 flex items-center">
-          <div className="relative w-8 h-8 bg-neutral-800 rounded-lg flex items-center justify-center border border-neutral-600">
-            <span className="text-base font-bold text-white">{order.id}</span>
+      <div className="flex items-stretch w-full">
+        {/* Order Number - Mobile compact style */}
+        <div className="flex-shrink-0 px-2 py-2 flex items-center">
+          <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+            <span className="text-lg font-bold text-white">{order.id}</span>
+            <span className="text-[9px] text-gray-500">000</span>
           </div>
         </div>
 
-        {/* Guest Info */}
-        <div className="flex-1 min-w-0">
+        {/* Guest Info - Mobile compact layout */}
+        <div className="flex-1 min-w-0 py-2 pr-2">
           <div className="flex flex-col gap-1">
+            {/* Row 1: Name + Table, Server, Status */}
             <div className="flex items-center justify-between">
+              <span className="text-white font-medium text-sm">{order.name} - {order.table}</span>
               <div className="flex items-center gap-2">
-                <span className="text-white font-medium text-sm">{order.name}</span>
-                <span className="text-white/60 text-sm">· {order.table}</span>
-                <span className="text-white/50 text-sm">{order.server}</span>
-              </div>
-              <div className="flex items-center gap-2">
+                <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
                 <span className={`text-sm font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
               </div>
             </div>
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-white/50">Party of {order.partySize}, {order.time}</span>
+            
+            {/* Row 2: Party info, Timer, Total */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                <span>Party of {order.partySize}, {order.time}</span>
+                <span className="text-gray-500">|</span>
+                <span>{order.timer}</span>
+              </div>
               <span className="text-white font-semibold text-sm">{order.amount}</span>
+            </div>
+            
+            {/* Row 3: Revenue center, Payment status */}
+            <div className="flex items-center justify-between">
+              <span className="text-white font-medium text-sm">{order.revenueCenter}</span>
+              <div className="flex items-center gap-2 text-sm">
+                <span style={{ color: '#B5B6BB' }}>{order.paymentStatus || 'Un Paid'}</span>
+                <span className="text-white">{order.paidAmount || '$0.00'}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -308,45 +322,43 @@ const TransferOrders = () => {
       style={{ backgroundColor: '#1B1C20' }}
       onClick={onClick}
     >
-      <div className="flex items-stretch w-full gap-2 p-2">
-        {/* Order Number */}
-        <div className="flex-shrink-0 flex items-center">
-          <div className="relative w-10 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-            <span className="text-base font-bold text-white">{order.id}</span>
-            <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
+      <div className="flex items-stretch w-full">
+        {/* Order Number - Mobile compact style */}
+        <div className="flex-shrink-0 px-2 py-2 flex items-center">
+          <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+            <span className="text-lg font-bold text-white">{order.id}</span>
+            <span className="text-[9px] text-gray-500">000</span>
           </div>
         </div>
 
-        {/* Guest Info */}
-        <div className="flex-1 min-w-0">
-          <div className="flex flex-col">
-            {/* Row 1: Name, Table, Server, Status */}
+        {/* Guest Info - Mobile compact layout */}
+        <div className="flex-1 min-w-0 py-2 pr-2">
+          <div className="flex flex-col gap-1">
+            {/* Row 1: Name + Table, Server, Status */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1">
-                <span className="text-white font-medium text-sm">{order.name}</span>
-                <span className="text-white/60 text-xs">· {order.table}</span>
-              </div>
+              <span className="text-white font-medium text-sm">{order.name} - {order.table}</span>
               <div className="flex items-center gap-2">
-                <span className="text-white/60 text-xs">{order.server}</span>
-                <span className={`text-xs font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
+                <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
+                <span className={`text-sm font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
               </div>
             </div>
             
-            {/* Row 2: Party, Time, Timer */}
-            <div className="flex items-center justify-between text-xs text-gray-400 mt-0.5">
-              <span>Party of {order.partySize}, {order.time} | {order.timer}</span>
+            {/* Row 2: Party info, Timer, Total */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                <span>Party of {order.partySize}, {order.time}</span>
+                <span className="text-gray-500">|</span>
+                <span>{order.timer}</span>
+              </div>
+              <span className="text-white font-semibold text-sm">{order.amount}</span>
             </div>
             
-            {/* Divider */}
-            <div className="h-px bg-neutral-600 my-1.5"></div>
-            
-            {/* Row 3: Revenue Center, Payment Status, Paid Amount, Total */}
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-gray-400">{order.revenueCenter}</span>
-              <div className="flex items-center gap-2">
-                <span className="text-gray-400">{order.paymentStatus || "Un Paid"}</span>
-                <span className="text-gray-400">{order.paidAmount || "$0.00"}</span>
-                <span className="text-white font-semibold">{order.amount}</span>
+            {/* Row 3: Revenue center, Payment status */}
+            <div className="flex items-center justify-between">
+              <span className="text-white font-medium text-sm">{order.revenueCenter}</span>
+              <div className="flex items-center gap-2 text-sm">
+                <span style={{ color: '#B5B6BB' }}>{order.paymentStatus || 'Un Paid'}</span>
+                <span className="text-white">{order.paidAmount || '$0.00'}</span>
               </div>
             </div>
           </div>

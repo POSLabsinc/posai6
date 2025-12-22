@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import clearCIcon from "@/assets/icons/clear-c.png";
 import fireVectorIcon from "@/assets/icons/fire-vector.png";
 import noTaxIcon from "@/assets/icons/no-tax.png";
@@ -17,6 +17,8 @@ interface SwipeableCartItemProps {
   onNoTax?: () => void;
   onOrderTypeChange?: (type: string) => void;
   itemOrderType?: string;
+  isOpen?: boolean;
+  onSwipeStart?: () => void;
 }
 
 const ORDER_TYPES = [
@@ -37,12 +39,27 @@ const SwipeableCartItem = ({
   onFire, 
   onNoTax,
   onOrderTypeChange,
-  itemOrderType = "Dine In"
+  itemOrderType = "Dine In",
+  isOpen,
+  onSwipeStart
 }: SwipeableCartItemProps) => {
-  const [translateX, setTranslateX] = useState(0);
+  const [internalTranslateX, setInternalTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const startX = useRef(0);
   const currentX = useRef(0);
+  
+  // Use controlled state if provided, otherwise use internal state
+  const translateX = isOpen === undefined ? internalTranslateX : (isOpen ? internalTranslateX : 0);
+  const setTranslateX = (value: number) => {
+    setInternalTranslateX(value);
+  };
+  
+  // Reset when isOpen becomes false externally
+  useEffect(() => {
+    if (isOpen === false && internalTranslateX !== 0) {
+      setInternalTranslateX(0);
+    }
+  }, [isOpen]);
 
   // Width for buttons on each side - responsive values
   const rightSwipeWidth = -80; // 2 buttons on right (swipe left to reveal) - reduced for tablet
@@ -51,6 +68,7 @@ const SwipeableCartItem = ({
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
     setIsDragging(true);
+    onSwipeStart?.();
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -76,6 +94,7 @@ const SwipeableCartItem = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     startX.current = e.clientX;
     setIsDragging(true);
+    onSwipeStart?.();
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {

@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 // Import icons
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
 import burgerCloseIcon from "@/assets/icons/burger-close.png";
+import chairIcon from "@/assets/icons/chair-icon.png";
 
 // Table status configurations
 const statusConfig: Record<string, { color: string; bgColor: string }> = {
@@ -424,7 +425,10 @@ const TableOrder = () => {
                     <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
                     
                     {/* Seats */}
-                    <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
+                    <div className="flex items-center gap-1 mb-2">
+                      <img src={chairIcon} alt="Seats" className="w-4 h-4 object-contain" />
+                      <span className="text-gray-400 text-sm">{table.seats} Seats</span>
+                    </div>
                     
                     {/* Seat Dots */}
                     <div className={`flex gap-1 mb-2 ${table.seats > 6 ? 'overflow-x-auto max-w-full scrollbar-hide' : ''}`}>

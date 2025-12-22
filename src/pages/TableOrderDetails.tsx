@@ -12,7 +12,11 @@ import {
   getOrdersByTable, 
   getOrderWithTotals,
   formatPrice,
-  getStatusColor as getSharedStatusColor 
+  getStatusColor as getSharedStatusColor,
+  getMergedOrderDisplay,
+  calculateCombinedTotals,
+  hasMergedOrTransferredItems,
+  MergedOrderSource
 } from "@/data/orders";
 
 // Import icons
@@ -37,6 +41,8 @@ interface GuestOrder extends Order {
   tax: number;
   tip: number;
   total: number;
+  mergedFrom?: MergedOrderSource[];
+  transferredFrom?: MergedOrderSource[];
 }
 
 // Helper function to get order items for display (backwards compatibility)
@@ -152,7 +158,31 @@ const TableOrderDetails = () => {
   const destOrderId = searchParams.get("dest");
   
   // Get orders for this table with calculated totals
-  const guestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => getOrderWithTotals(order) as GuestOrder);
+  const guestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
+    const orderWithTotals = getOrderWithTotals(order) as GuestOrder;
+    
+    // If this order is the destination of a merge, add merged order data
+    if (destOrderId === order.id && mergedOrderId) {
+      const mergedSource = allOrders.find(o => o.id === mergedOrderId);
+      if (mergedSource) {
+        orderWithTotals.mergedFrom = [{
+          orderId: mergedSource.id,
+          orderName: mergedSource.name,
+          table: mergedFromTable || mergedSource.table,
+          items: mergedSource.items
+        }];
+        // Recalculate totals with merged items
+        const combinedTotals = calculateCombinedTotals(orderWithTotals);
+        orderWithTotals.subtotal = combinedTotals.subtotal;
+        orderWithTotals.discount = combinedTotals.discount;
+        orderWithTotals.serviceCharge = combinedTotals.serviceCharge;
+        orderWithTotals.tax = combinedTotals.tax;
+        orderWithTotals.total = combinedTotals.total;
+      }
+    }
+    
+    return orderWithTotals;
+  });
   
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState<GuestOrder | null>(null);
@@ -1143,28 +1173,96 @@ const TableOrderDetails = () => {
         {/* Order Items */}
         <ScrollArea className="flex-1 px-4">
           <div className="py-2 space-y-2">
-            {currentSelectedGuest && getOrderItems(currentSelectedGuest).map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-2">
-                    <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
-                      {item.qty}
-                    </span>
-                    <div>
-                      <span className="text-white font-medium">{item.name}</span>
-                      {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-sm space-y-0.5">
-                          {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                        </div>}
+            {currentSelectedGuest && (
+              <>
+                {/* Check if this order has merged items */}
+                {hasMergedOrTransferredItems(currentSelectedGuest) ? (
+                  // Display items grouped by source
+                  getMergedOrderDisplay(currentSelectedGuest).map((section, sectionIndex) => (
+                    <div key={sectionIndex} className="space-y-2">
+                      {/* Section Header */}
+                      <div className={`flex items-center gap-2 py-2 ${sectionIndex > 0 ? 'mt-3 pt-3 border-t border-white/20' : ''}`}>
+                        {section.isOriginal ? (
+                          <span className="text-white/70 text-xs font-medium uppercase tracking-wide">
+                            {section.label}
+                          </span>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <img src={mergeIcon} alt="Merged" className="w-4 h-4 opacity-60" />
+                            <span className="text-[#FFC48A] text-xs font-medium uppercase tracking-wide">
+                              {section.label}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                      {/* Section Items */}
+                      {section.items.map((item, index) => (
+                        <div key={`${sectionIndex}-${index}`} className={`p-3 rounded-xl border ${section.isOriginal ? 'bg-white/5 border-white/10' : 'bg-[#FFC48A]/5 border-[#FFC48A]/20'}`}>
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start gap-2">
+                              <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${section.isOriginal ? 'bg-white text-black' : 'bg-[#FFC48A] text-black'}`}>
+                                {item.qty}
+                              </span>
+                              <div>
+                                <span className="text-white font-medium">{item.name}</span>
+                                {item.modifiers.length > 0 && (
+                                  <div className="mt-1 text-white/50 text-sm space-y-0.5">
+                                    {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                            <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
+                          </div>
+                          {item.seats.length > 0 && (
+                            <div className="flex items-center gap-1 mt-2">
+                              <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                              {item.seats.map(seat => (
+                                <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                                  {seat}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                  <span className="text-white font-medium">{item.price}</span>
-                </div>
-                {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
-                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                    {item.seats.map(seat => <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                        {seat}
-                      </span>)}
-                  </div>}
-              </div>)}
+                  ))
+                ) : (
+                  // Display regular items (no merge)
+                  getOrderItems(currentSelectedGuest).map((item, index) => (
+                    <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-start gap-2">
+                          <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                            {item.qty}
+                          </span>
+                          <div>
+                            <span className="text-white font-medium">{item.name}</span>
+                            {item.modifiers.length > 0 && (
+                              <div className="mt-1 text-white/50 text-sm space-y-0.5">
+                                {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        <span className="text-white font-medium">{item.price}</span>
+                      </div>
+                      {item.seats.length > 0 && (
+                        <div className="flex items-center gap-1 mt-2">
+                          <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                          {item.seats.map(seat => (
+                            <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                              {seat}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  ))
+                )}
+              </>
+            )}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>

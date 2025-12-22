@@ -291,6 +291,37 @@ const MergeOrders = () => {
               <div className="text-gray-500 text-xs">Tip</div>
             </div>
           </div>
+          
+          {/* Order Summary Totals */}
+          {(() => {
+            const totals = calculateOrderTotals(order.id);
+            return (
+              <div className="pt-2 border-t border-white/10 space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-white/60">Sub Total</span>
+                  <span className="text-white">${totals.subtotal.toFixed(2)}</span>
+                </div>
+                {totals.discount > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-red-500">Discount</span>
+                    <span className="text-red-500">-${totals.discount.toFixed(2)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between">
+                  <span className="text-white/60">Service Charge</span>
+                  <span className="text-white">${totals.serviceCharge.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-white/60">Tax</span>
+                  <span className="text-white">${totals.tax.toFixed(2)}</span>
+                </div>
+                <div className="flex justify-between pt-1 border-t border-white/10">
+                  <span className="text-white font-medium">Total</span>
+                  <span className="text-white font-bold">${totals.total.toFixed(2)}</span>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       )}
     </div>

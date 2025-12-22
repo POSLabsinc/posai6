@@ -13,6 +13,14 @@ export interface OrderItem {
   isShared?: boolean;
 }
 
+// Merged order source info
+export interface MergedOrderSource {
+  orderId: string;
+  orderName: string;
+  table: string;
+  items: OrderItem[];
+}
+
 // Order interface with all fields
 export interface Order {
   id: string;
@@ -32,6 +40,10 @@ export interface Order {
   items: OrderItem[];
   paidAmount?: string;
   paymentStatus?: string;
+  // Track merged orders for separate display
+  mergedFrom?: MergedOrderSource[];
+  // Track transferred orders for separate display
+  transferredFrom?: MergedOrderSource[];
 }
 
 // 10 Complete orders with realistic food data
@@ -375,6 +387,73 @@ export const getStatusColor = (status: string) => {
     case "UNPAID": return "text-red-400";
     default: return "text-white/60";
   }
+};
+
+// Get merged order data structure for display
+export const getMergedOrderDisplay = (order: Order) => {
+  const sections: { label: string; orderId: string; table: string; items: OrderItem[]; isOriginal: boolean }[] = [];
+  
+  // Add original order items
+  sections.push({
+    label: `Order #${order.id} Items`,
+    orderId: order.id,
+    table: order.table,
+    items: order.items,
+    isOriginal: true
+  });
+  
+  // Add merged order items if any
+  if (order.mergedFrom && order.mergedFrom.length > 0) {
+    order.mergedFrom.forEach(merged => {
+      sections.push({
+        label: `Merged from Order #${merged.orderId} (${merged.table})`,
+        orderId: merged.orderId,
+        table: merged.table,
+        items: merged.items,
+        isOriginal: false
+      });
+    });
+  }
+  
+  // Add transferred order items if any
+  if (order.transferredFrom && order.transferredFrom.length > 0) {
+    order.transferredFrom.forEach(transferred => {
+      sections.push({
+        label: `Transferred from Order #${transferred.orderId} (${transferred.table})`,
+        orderId: transferred.orderId,
+        table: transferred.table,
+        items: transferred.items,
+        isOriginal: false
+      });
+    });
+  }
+  
+  return sections;
+};
+
+// Calculate combined totals for order including merged/transferred items
+export const calculateCombinedTotals = (order: Order) => {
+  let allItems = [...order.items];
+  
+  if (order.mergedFrom) {
+    order.mergedFrom.forEach(merged => {
+      allItems = [...allItems, ...merged.items];
+    });
+  }
+  
+  if (order.transferredFrom) {
+    order.transferredFrom.forEach(transferred => {
+      allItems = [...allItems, ...transferred.items];
+    });
+  }
+  
+  return calculateOrderTotals(allItems);
+};
+
+// Check if order has merged or transferred items
+export const hasMergedOrTransferredItems = (order: Order) => {
+  return (order.mergedFrom && order.mergedFrom.length > 0) || 
+         (order.transferredFrom && order.transferredFrom.length > 0);
 };
 
 // Convert order to format for OrderLayoutTemplate

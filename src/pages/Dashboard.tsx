@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Check, ChevronDown, Clock, Calendar, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -22,22 +22,16 @@ const stats = [
 // Date filter options
 const dateFilters = ["Today", "Yesterday", "This Week", "Last Week", "This Month", "Last Month", "Custom"];
 
-// Order filters
-const orderFilters = [
-  { label: "All", count: 10 },
-  { label: "In Progress", count: 2 },
-  { label: "Unpaid", count: 2 },
-  { label: "Open", count: 2 },
-  { label: "Paid", count: 2 },
-  { label: "Closed", count: 2 },
-];
+// Order filter labels
+const orderFilterLabels = ["All", "In Progress", "Unpaid", "Open", "Paid", "Closed"];
 
-// Mock orders
+// Mock orders with filter categories
 const mockOrders = [
   {
     id: 10,
     status: "Being Prepared",
     statusColor: "#4ADE80",
+    filterCategory: "In Progress",
     guest: "John Doe",
     orderNo: "Order No 8",
     seats: 4,
@@ -49,11 +43,13 @@ const mockOrders = [
     revenueCenter: "FF Balcony",
     tip: "$0.00",
     paymentType: "Cash",
+    isPaid: false,
   },
   {
     id: 11,
     status: "Ordered",
     statusColor: "#F97316",
+    filterCategory: "In Progress",
     guest: "Carol",
     orderNo: "Order No 9",
     seats: 4,
@@ -65,11 +61,13 @@ const mockOrders = [
     revenueCenter: "FF Balcony",
     tip: "$0.00",
     paymentType: "Cash",
+    isPaid: false,
   },
   {
     id: 12,
     status: "Ready",
     statusColor: "#3B82F6",
+    filterCategory: "Open",
     guest: "Mike Smith",
     orderNo: "Order No 10",
     seats: 2,
@@ -81,6 +79,133 @@ const mockOrders = [
     revenueCenter: "Main Hall",
     tip: "$5.00",
     paymentType: "Card",
+    isPaid: false,
+  },
+  {
+    id: 13,
+    status: "Completed",
+    statusColor: "#22C55E",
+    filterCategory: "Paid",
+    guest: "Sarah Wilson",
+    orderNo: "Order No 11",
+    seats: 3,
+    date: "Thu, 22 Jun 2024",
+    arrivedAt: "12:00:00 PM",
+    timer: "01:30",
+    type: "Dine In",
+    check: 15,
+    revenueCenter: "Main Hall",
+    tip: "$8.00",
+    paymentType: "Card",
+    isPaid: true,
+  },
+  {
+    id: 14,
+    status: "Completed",
+    statusColor: "#22C55E",
+    filterCategory: "Paid",
+    guest: "Tom Brown",
+    orderNo: "Order No 12",
+    seats: 2,
+    date: "Thu, 22 Jun 2024",
+    arrivedAt: "11:30:00 AM",
+    timer: "02:00",
+    type: "Take Out",
+    check: 10,
+    revenueCenter: "FF Balcony",
+    tip: "$3.00",
+    paymentType: "Cash",
+    isPaid: true,
+  },
+  {
+    id: 15,
+    status: "Pending Payment",
+    statusColor: "#EAB308",
+    filterCategory: "Unpaid",
+    guest: "Emma Davis",
+    orderNo: "Order No 13",
+    seats: 5,
+    date: "Thu, 22 Jun 2024",
+    arrivedAt: "1:00:00 PM",
+    timer: "00:45",
+    type: "Dine In",
+    check: 20,
+    revenueCenter: "Main Hall",
+    tip: "$0.00",
+    paymentType: "Pending",
+    isPaid: false,
+  },
+  {
+    id: 16,
+    status: "Pending Payment",
+    statusColor: "#EAB308",
+    filterCategory: "Unpaid",
+    guest: "James Lee",
+    orderNo: "Order No 14",
+    seats: 4,
+    date: "Thu, 22 Jun 2024",
+    arrivedAt: "2:30:00 PM",
+    timer: "00:20",
+    type: "Dine In",
+    check: 18,
+    revenueCenter: "FF Balcony",
+    tip: "$0.00",
+    paymentType: "Pending",
+    isPaid: false,
+  },
+  {
+    id: 17,
+    status: "Closed",
+    statusColor: "#6B7280",
+    filterCategory: "Closed",
+    guest: "Lisa Chen",
+    orderNo: "Order No 15",
+    seats: 2,
+    date: "Thu, 22 Jun 2024",
+    arrivedAt: "10:00:00 AM",
+    timer: "03:00",
+    type: "Dine In",
+    check: 12,
+    revenueCenter: "Main Hall",
+    tip: "$5.00",
+    paymentType: "Card",
+    isPaid: true,
+  },
+  {
+    id: 18,
+    status: "Closed",
+    statusColor: "#6B7280",
+    filterCategory: "Closed",
+    guest: "Robert Kim",
+    orderNo: "Order No 16",
+    seats: 6,
+    date: "Thu, 22 Jun 2024",
+    arrivedAt: "9:30:00 AM",
+    timer: "04:00",
+    type: "Dine In",
+    check: 25,
+    revenueCenter: "FF Balcony",
+    tip: "$10.00",
+    paymentType: "Card",
+    isPaid: true,
+  },
+  {
+    id: 19,
+    status: "New Order",
+    statusColor: "#3B82F6",
+    filterCategory: "Open",
+    guest: "Amy White",
+    orderNo: "Order No 17",
+    seats: 3,
+    date: "Thu, 22 Jun 2024",
+    arrivedAt: "2:45:00 PM",
+    timer: "00:05",
+    type: "Take Out",
+    check: 9,
+    revenueCenter: "Main Hall",
+    tip: "$0.00",
+    paymentType: "Pending",
+    isPaid: false,
   },
 ];
 
@@ -222,6 +347,22 @@ const Dashboard = () => {
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = subtotal;
 
+  // Filter orders based on active filter
+  const filteredOrders = useMemo(() => {
+    if (activeFilter === "All") return mockOrders;
+    return mockOrders.filter(order => order.filterCategory === activeFilter);
+  }, [activeFilter]);
+
+  // Calculate counts for each filter
+  const orderFilters = useMemo(() => {
+    return orderFilterLabels.map(label => ({
+      label,
+      count: label === "All" 
+        ? mockOrders.length 
+        : mockOrders.filter(order => order.filterCategory === label).length
+    }));
+  }, []);
+
   const handleOrderClick = (order: typeof mockOrders[0]) => {
     setSelectedOrder(order);
     if (isMobile) {
@@ -333,7 +474,7 @@ const Dashboard = () => {
           {/* Orders List with Scroll */}
           <ScrollArea className="flex-1">
             <div className="space-y-2 pr-2">
-              {mockOrders.map((order) => (
+              {filteredOrders.map((order) => (
                 <div
                   key={order.id}
                   onClick={() => handleOrderClick(order)}

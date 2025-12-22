@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Plus, Save, Flame, Receipt, FileText } from "lucide-react";
 import {
   Select,
@@ -9,7 +10,6 @@ import {
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 
 const menuCategories: Record<string, string[]> = {
@@ -53,6 +53,10 @@ interface OrderItem {
 }
 
 const LiquidGlassOrders1A = () => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const tableId = searchParams.get("table");
+  
   const [activeCategory, setActiveCategory] = useState("Food");
   const [activeSubcategory, setActiveSubcategory] = useState("Appetizers");
   const [selectedMenu, setSelectedMenu] = useState("BAR MENU");
@@ -180,7 +184,7 @@ const LiquidGlassOrders1A = () => {
 
           <div className="flex items-center gap-2">
             <span className="text-xs text-white/50">DINE IN</span>
-            <span className="glass px-3 py-1 rounded-lg text-base font-bold text-white">20</span>
+            <span className="glass px-3 py-1 rounded-lg text-base font-bold text-white">{tableId || "20"}</span>
           </div>
         </div>
 

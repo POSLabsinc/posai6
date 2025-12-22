@@ -593,7 +593,7 @@ const TableOrderDetails = () => {
                             <span className={`${guest.paymentType === '--' ? 'text-gray-400' : 'text-green-400'}`}>
                               {guest.paymentType === '--' ? 'Un Paid' : 'Paid'}
                             </span>
-                            <span className="text-gray-500">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
+                            <span className="text-white">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
                           </div>
                        </div>
                      </div>

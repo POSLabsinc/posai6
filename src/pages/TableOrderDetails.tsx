@@ -698,7 +698,7 @@ const TableOrderDetails = () => {
                       <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">T{mergedFromTable}</span>
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="flex items-stretch w-full gap-4">
@@ -1074,15 +1074,15 @@ const TableOrderDetails = () => {
         {/* Guest Header - Outside the box */}
         <div className="px-2 py-3">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-white font-medium">{selectedGuest.name}</span>
+            <span className="text-white font-medium">{currentSelectedGuest?.name}</span>
             <div className="flex items-center gap-3 text-white/50 text-sm">
               <div className="flex items-center gap-1">
                 <Phone className="w-3 h-3" />
-                <span>{selectedGuest.phone || "N/A"}</span>
+                <span>{currentSelectedGuest?.phone || "N/A"}</span>
               </div>
               <div className="flex items-center gap-1">
                 <span>⚡</span>
-                <span>{selectedGuest.time}</span>
+                <span>{currentSelectedGuest?.time}</span>
               </div>
             </div>
           </div>

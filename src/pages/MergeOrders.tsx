@@ -623,24 +623,19 @@ const MergeOrders = () => {
         {(() => {
           const totals = calculateOrderTotals(panelOrder.id);
           return (
-            <div className="px-3 py-2 border-t border-white/10 space-y-0.5 text-xs">
-              <div className="flex justify-between">
-                <span className="text-white/60">Sub Total</span>
-                <span className="text-white">${totals.subtotal.toFixed(2)}</span>
-              </div>
-              {totals.discount > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-red-500">Discount</span>
-                  <span className="text-red-500">-${totals.discount.toFixed(2)}</span>
+            <div className="px-3 py-2 border-t border-white/10">
+              <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
+                background: '#7575754D',
+                boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+              }}>
+                <div className="flex justify-between gap-3">
+                  <span className="text-white">Sub Total: <span className="font-medium">${totals.subtotal.toFixed(2)}</span></span>
+                  <span className="text-red-500">Discount: <span className="font-medium">${totals.discount.toFixed(2)}</span></span>
                 </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-white/60">Service Charge</span>
-                <span className="text-white">${totals.serviceCharge.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-white/60">Tax</span>
-                <span className="text-white">${totals.tax.toFixed(2)}</span>
+                <div className="flex justify-between gap-3">
+                  <span className="text-white">Service Charge: <span className="font-medium">${totals.serviceCharge.toFixed(2)}</span></span>
+                  <span className="text-white">Tax: <span className="font-medium">${totals.tax.toFixed(2)}</span></span>
+                </div>
               </div>
             </div>
           );

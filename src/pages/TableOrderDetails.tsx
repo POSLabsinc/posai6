@@ -571,13 +571,13 @@ const TableOrderDetails = () => {
                         <div className="flex items-center justify-between">
                           <span className="text-white font-medium text-sm">{guest.name} - {tableId}</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-gray-400 text-xs">{guest.server}</span>
-                            <span className={`text-xs font-medium ${getStatusColor(guest.status)}`}>{guest.status}</span>
+                            <span className="text-gray-400 text-sm">{guest.server}</span>
+                            <span className={`text-sm font-medium ${getStatusColor(guest.status)}`}>{guest.status}</span>
                           </div>
                         </div>
                        
                        {/* Row 2: Party info, Location/Table, Payment */}
-                       <div className="flex items-center justify-between text-xs">
+                        <div className="flex items-center justify-between text-sm">
                          <div className="flex items-center gap-1 text-gray-400">
                            <span>Party of {guest.partySize}, {guest.time}</span>
                            <span className="text-gray-500">|</span>
@@ -589,7 +589,7 @@ const TableOrderDetails = () => {
                         {/* Row 3: Revenue center, Payment status */}
                         <div className="flex items-center justify-between">
                           <span className="text-white font-medium text-sm">{guest.revenueCenter}</span>
-                          <div className="flex items-center gap-2 text-xs">
+                          <div className="flex items-center gap-2 text-sm">
                             <span className={`${guest.paymentType === '--' ? 'text-gray-400' : 'text-green-400'}`}>
                               {guest.paymentType === '--' ? 'Un Paid' : 'Paid'}
                             </span>

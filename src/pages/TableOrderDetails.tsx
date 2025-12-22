@@ -547,48 +547,91 @@ const TableOrderDetails = () => {
               transform: `translateX(${swipeStates[guest.id] || 0}px)`,
               transition: isDraggingRef.current && currentCardId.current === guest.id ? "none" : "transform 0.2s ease-out"
             }} onTouchStart={e => handleSwipeStart(e, guest)} onTouchMove={handleSwipeMove} onTouchEnd={e => handleSwipeEnd(true, e, guest)} onTouchCancel={e => handleSwipeEnd(false, e, guest)} onMouseDown={e => handleSwipeStart(e, guest)} onMouseMove={handleSwipeMove} onMouseUp={e => handleSwipeEnd(true, e, guest)} onMouseLeave={e => handleSwipeEnd(false, e, guest)} onClick={() => handleCardClick(guest)}>
-                <div className={`flex items-stretch w-full gap-2 border rounded-xl bg-neutral-900 ${currentSelectedGuest?.id === guest.id ? 'border-white' : 'border-white/10'}`}>
-                  {/* Column 1: Order Number */}
-                  <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
-                    <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-                      <span className="text-base font-bold text-white">{guest.id}</span>
-                      <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-cover" />
-                    </div>
-                  </div>
+              <div className={`flex items-stretch w-full border rounded-xl bg-neutral-900 ${currentSelectedGuest?.id === guest.id ? 'border-white' : 'border-white/10'}`}>
+                   {/* Column 1: Order Number - Mobile compact style */}
+                   <div className="md:w-[15%] flex-shrink-0 px-2 py-2 flex items-center md:hidden">
+                     <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+                       <span className="text-lg font-bold text-white">{guest.id}</span>
+                       <span className="text-[9px] text-gray-500">000</span>
+                     </div>
+                   </div>
+                   
+                   {/* Column 1: Order Number - Tablet/Desktop style */}
+                   <div className="hidden md:flex w-[15%] flex-shrink-0 px-2 py-2 items-center">
+                     <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+                       <span className="text-base font-bold text-white">{guest.id}</span>
+                       <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-cover" />
+                     </div>
+                   </div>
 
-                  {/* Column 2: Guest Info */}
-                  <div className="flex-1 min-w-0 py-2 pr-2 md:pr-0">
-                    <div className="flex flex-col">
-                      <div className="flex items-start justify-between">
-                        <span className="text-white font-medium text-sm">{guest.name}</span>
-                        <div className="flex flex-col items-end">
-                          <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
-                          {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}
-                        </div>
-                      </div>
-                      <div className="h-px bg-neutral-600 my-1.5"></div>
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1 text-gray-400">
-                          <span>Party Of {guest.partySize},</span>
-                          <span>⚡ {guest.time}</span>
-                        </div>
-                        <span className={getStatusColor(guest.status)}>{guest.status}</span>
-                      </div>
-                    </div>
-                  </div>
+                   {/* Column 2: Guest Info - Mobile compact layout */}
+                   <div className="flex-1 min-w-0 py-2 pr-2 md:hidden">
+                     <div className="flex flex-col gap-1">
+                       {/* Row 1: Name + Table, Server, Status */}
+                       <div className="flex items-center justify-between">
+                         <div className="flex items-center gap-2">
+                           <span className="text-white font-medium text-sm">{guest.name} - {tableId}</span>
+                           <span className="text-gray-400 text-xs">{guest.server}</span>
+                         </div>
+                         <span className={`text-xs font-medium ${getStatusColor(guest.status)}`}>{guest.status}</span>
+                       </div>
+                       
+                       {/* Row 2: Party info, Location/Table, Payment */}
+                       <div className="flex items-center justify-between text-xs">
+                         <div className="flex items-center gap-1 text-gray-400">
+                           <span>Party of {guest.partySize}, {guest.time}</span>
+                           <span className="text-gray-500">|</span>
+                           <span>{guest.timer}</span>
+                         </div>
+                         <span className="text-white font-semibold">{formatPrice(guest.total)}</span>
+                       </div>
+                       
+                       {/* Row 3: Revenue center, Payment status */}
+                       <div className="flex items-center justify-between text-xs">
+                         <span className="text-gray-400">{guest.revenueCenter}</span>
+                         <div className="flex items-center gap-2">
+                           <span className={`${guest.paymentType === '--' ? 'text-gray-400' : 'text-green-400'}`}>
+                             {guest.paymentType === '--' ? 'Un Paid' : 'Paid'}
+                           </span>
+                           <span className="text-gray-500">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                   
+                   {/* Column 2: Guest Info - Tablet/Desktop layout */}
+                   <div className="hidden md:flex flex-1 min-w-0 py-2 pr-0">
+                     <div className="flex flex-col w-full">
+                       <div className="flex items-start justify-between">
+                         <span className="text-white font-medium text-sm">{guest.name}</span>
+                         <div className="flex flex-col items-end">
+                           <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
+                           {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}
+                         </div>
+                       </div>
+                       <div className="h-px bg-neutral-600 my-1.5"></div>
+                       <div className="flex items-center justify-between text-xs">
+                         <div className="flex items-center gap-1 text-gray-400">
+                           <span>Party Of {guest.partySize},</span>
+                           <span>⚡ {guest.time}</span>
+                         </div>
+                         <span className={getStatusColor(guest.status)}>{guest.status}</span>
+                       </div>
+                     </div>
+                   </div>
 
-                  {/* Column 3: Action Button */}
-                  <div className="hidden md:flex flex-shrink-0">
-                    <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
-                      <button className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors" onClick={e => {
-                      e.stopPropagation();
-                      navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
-                    }}>
-                        <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
+                   {/* Column 3: Action Button - Tablet/Desktop only */}
+                   <div className="hidden md:flex flex-shrink-0">
+                     <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
+                       <button className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors" onClick={e => {
+                       e.stopPropagation();
+                       navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                     }}>
+                         <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
+                       </button>
+                     </div>
+                   </div>
+                 </div>
 
 
                 {/* Expanded Details - inside swipeable wrapper */}

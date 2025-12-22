@@ -586,9 +586,9 @@ const TableOrderDetails = () => {
                          <span className="text-white font-semibold">{formatPrice(guest.total)}</span>
                        </div>
                        
-                       {/* Row 3: Revenue center, Payment status */}
-                       <div className="flex items-center justify-between text-xs">
-                         <span className="text-gray-400">{guest.revenueCenter}</span>
+                        {/* Row 3: Revenue center, Payment status */}
+                        <div className="flex items-center justify-between">
+                          <span className="text-white font-medium text-sm">{guest.revenueCenter}</span>
                          <div className="flex items-center gap-2">
                            <span className={`${guest.paymentType === '--' ? 'text-gray-400' : 'text-green-400'}`}>
                              {guest.paymentType === '--' ? 'Un Paid' : 'Paid'}

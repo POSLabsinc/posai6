@@ -216,25 +216,23 @@ const MergedOrderPanel = ({
           <ScrollBar orientation="vertical" />
         </ScrollArea>
 
-        {/* Order Summary - Badge Style */}
-        <div className="px-4 py-3 border-t border-white/10">
-          <div className="flex flex-wrap gap-2 mb-3">
-            <span className="px-3 py-1.5 bg-white/10 rounded-full text-xs text-white">
-              Subtotal <span className="font-bold">${subtotal.toFixed(2)}</span>
-            </span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-full text-xs text-white">
-              Svc <span className="font-bold">${serviceCharge.toFixed(2)}</span>
-            </span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-full text-xs text-white">
-              Disc. <span className="font-bold">${discount.toFixed(2)}</span>
-            </span>
-            <span className="px-3 py-1.5 bg-white/10 rounded-full text-xs text-white">
-              Tax <span className="font-bold">${tax.toFixed(2)}</span>
-            </span>
+        {/* Order Summary */}
+        <div className="px-4 py-3 border-t border-white/10 space-y-1 text-sm">
+          <div className="flex justify-between">
+            <span className="text-white/60">Sub Total</span>
+            <span className="text-white">${subtotal.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="text-white font-medium">Total Amount</span>
-            <span className="text-white font-bold text-lg">${total.toFixed(2)}</span>
+          <div className="flex justify-between">
+            <span className="text-red-500">Discount</span>
+            <span className="text-red-500">${discount.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-white/60">Service Charge</span>
+            <span className="text-white">${serviceCharge.toFixed(2)}</span>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-white/60">Tax</span>
+            <span className="text-white">${tax.toFixed(2)}</span>
           </div>
         </div>
 

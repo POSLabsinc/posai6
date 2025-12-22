@@ -216,23 +216,13 @@ const MergedOrderPanel = ({
           <ScrollBar orientation="vertical" />
         </ScrollArea>
 
-        {/* Order Summary */}
-        <div className="px-4 py-3 border-t border-white/10 space-y-1 text-sm">
-          <div className="flex justify-between">
-            <span className="text-white/60">Sub Total</span>
-            <span className="text-white">${subtotal.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-red-500">Discount</span>
-            <span className="text-red-500">${discount.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-white/60">Service Charge</span>
-            <span className="text-white">${serviceCharge.toFixed(2)}</span>
-          </div>
-          <div className="flex justify-between">
-            <span className="text-white/60">Tax</span>
-            <span className="text-white">${tax.toFixed(2)}</span>
+        {/* Order Summary - Compact */}
+        <div className="px-4 py-3 border-t border-white/10">
+          <div className="flex items-center justify-between text-xs text-white/60">
+            <span>Sub Total <span className="text-white">${subtotal.toFixed(2)}</span></span>
+            <span>Svc <span className="text-white">${serviceCharge.toFixed(2)}</span></span>
+            <span className="text-red-500">Disc <span>${discount.toFixed(2)}</span></span>
+            <span>Tax <span className="text-white">${tax.toFixed(2)}</span></span>
           </div>
         </div>
 

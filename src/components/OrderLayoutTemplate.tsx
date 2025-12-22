@@ -58,7 +58,54 @@ const OrderLayoutTemplate = ({
       style={{ backgroundColor: '#1B1C20' }}
       onClick={onClick}
     >
-      <div className="flex items-stretch w-full gap-4">
+      {/* Mobile Layout */}
+      <div className="flex items-stretch w-full md:hidden">
+        {/* Order Number - Mobile compact style */}
+        <div className="flex-shrink-0 px-2 py-2 flex items-center">
+          <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+            <span className="text-lg font-bold text-white">{order.id}</span>
+            <span className="text-[9px] text-gray-500">000</span>
+          </div>
+        </div>
+
+        {/* Guest Info - Mobile compact layout */}
+        <div className="flex-1 min-w-0 py-2 pr-2">
+          <div className="flex flex-col gap-1">
+            {/* Row 1: Name + Table, Server, Status */}
+            <div className="flex items-center justify-between">
+              <span className="text-white font-medium text-sm">{order.name} - {order.table}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
+                <span className={`text-sm font-medium ${getOrderStatusColor(order.status)}`}>{order.status}</span>
+              </div>
+            </div>
+            
+            {/* Row 2: Party info, Timer, Total */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                <span>Party of {order.partySize}, {order.time}</span>
+                <span className="text-gray-500">|</span>
+                <span>{order.timer}</span>
+              </div>
+              <span className="text-white font-semibold text-sm">{order.amount}</span>
+            </div>
+            
+            {/* Row 3: Revenue center, Payment status */}
+            <div className="flex items-center justify-between">
+              <span className="text-white font-medium text-sm">{order.revenueCenter}</span>
+              <div className="flex items-center gap-2 text-sm">
+                <span style={{ color: order.paymentType === '--' ? '#B5B6BB' : '#4ade80' }}>
+                  {order.paymentType === '--' ? 'Un Paid' : 'Paid'}
+                </span>
+                <span className="text-white">$0.00</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Tablet/Desktop Layout */}
+      <div className="hidden md:flex items-stretch w-full gap-4">
         {/* Column 1: Order Number - 8% */}
         <div className="w-[8%] flex-shrink-0 px-2 py-1.5 flex items-center">
           <div className="relative w-9 h-12 bg-neutral-800 rounded-md flex flex-col items-center justify-center gap-1 border border-neutral-600">

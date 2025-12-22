@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical } from "lucide-react";
+import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 import InlineItemCustomization from "@/components/InlineItemCustomization";
@@ -5902,6 +5904,17 @@ const getCategoryHoverTextColor = (category: string) => {
   return textColor.replace("text-", "hover:text-");
 };
 const Orders = () => {
+  // Read URL params for add-item mode
+  const [searchParams] = useSearchParams();
+  const addItemMode = searchParams.get('mode') === 'addItem';
+  const existingOrderId = searchParams.get('orderId');
+  const tableIdFromParams = searchParams.get('tableId');
+  
+  // Get existing order data if in add-item mode
+  const existingOrder = addItemMode && existingOrderId ? getOrderById(existingOrderId) : null;
+  const existingOrderPaymentStatus = existingOrder?.paymentStatus || existingOrder?.status;
+  const isExistingOrderPaid = existingOrderPaymentStatus === 'Paid' || existingOrderPaymentStatus === 'PAID';
+  
   // Helper to get first category and subcategory for a menu
   const getFirstCategoryAndSubcategory = (menu: string) => {
     const categories = menuCategories[menu] || [];
@@ -5924,6 +5937,7 @@ const Orders = () => {
   const [selectedMenu, setSelectedMenu] = useState(defaultMenu);
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
+  const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
   const [orderType, setOrderType] = useState("DINE IN");
@@ -5962,6 +5976,43 @@ const Orders = () => {
   const mobilePhoneInputRef = useRef<HTMLInputElement>(null);
   const mobilePhoneDropdownRef = useRef<HTMLDivElement>(null);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<number | null>(null);
+  
+  // Initialize order with existing items when in add-item mode
+  useEffect(() => {
+    if (addItemMode && existingOrder) {
+      // Pre-populate guest info
+      setGuestName(existingOrder.name);
+      setGuestPhone(existingOrder.phone.replace(/\D/g, ''));
+      setOrderNotes(existingOrder.notes);
+      
+      // Convert order type
+      const orderTypeMap: Record<string, string> = {
+        'Dine-In': 'DINE IN',
+        'Takeout': 'TAKE OUT',
+        'Delivery': 'DELIVERY',
+        'Bar': 'DINE IN'
+      };
+      setOrderType(orderTypeMap[existingOrder.orderType] || 'DINE IN');
+      
+      // Convert existing order items to local format
+      const convertedItems: OrderItem[] = existingOrder.items.map((item, index) => ({
+        id: Date.now() + index,
+        qty: item.qty,
+        name: item.name,
+        price: item.price,
+        modifiers: item.modifiers.length > 0 ? item.modifiers : undefined,
+        itemOrderType: orderTypeMap[existingOrder.orderType] || 'Dine In'
+      }));
+      
+      // Store existing items separately to track what's paid vs new
+      setExistingItems(convertedItems);
+      
+      // If existing order is unpaid, show all items; if paid, start with empty cart for new items
+      if (!isExistingOrderPaid) {
+        setOrderItems(convertedItems);
+      }
+    }
+  }, [addItemMode, existingOrderId]);
 
   // Filter guests based on name input
   useEffect(() => {
@@ -6233,6 +6284,19 @@ const Orders = () => {
   const taxRate = 0.02;
   const tax = subtotal * taxRate;
   const total = subtotal - discount + serviceCharge + tax;
+  
+  // Calculate new items total for add-item mode when existing order is paid
+  const newItemsSubtotal = addItemMode && isExistingOrderPaid 
+    ? orderItems.reduce((sum, item) => sum + item.price * item.qty, 0)
+    : subtotal;
+  const newItemsTax = newItemsSubtotal * taxRate;
+  const newItemsTotal = newItemsSubtotal + newItemsTax;
+  
+  // Determine what to charge based on payment status
+  const chargeAmount = addItemMode && isExistingOrderPaid ? newItemsTotal : total;
+  const chargeLabel = addItemMode 
+    ? (isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER') 
+    : '';
   return <div className="flex flex-col md:flex-row gap-[10px] md:gap-3 lg:gap-4 h-full overflow-hidden">
       {/* Right Panel - Order (Shows first on mobile) */}
       <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1' : 'flex-shrink-0'}`}>
@@ -6440,7 +6504,9 @@ const Orders = () => {
               <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
               background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
             }}>
-                <span className="text-black font-semibold text-xs">CHARGE ${total.toFixed(2)}</span>
+                <span className="text-black font-semibold text-xs">
+                  CHARGE ${chargeAmount.toFixed(2)}{chargeLabel && ` (${chargeLabel})`}
+                </span>
               </button>
             </div>
           )}
@@ -6803,7 +6869,9 @@ const Orders = () => {
             <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
               background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
             }}>
-              <span className="text-black font-semibold text-xs">CHARGE ${total.toFixed(2)}</span>
+              <span className="text-black font-semibold text-xs">
+                CHARGE ${chargeAmount.toFixed(2)}{chargeLabel && ` (${chargeLabel})`}
+              </span>
             </button>
           </div>
         </div>

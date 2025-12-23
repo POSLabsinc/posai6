@@ -238,24 +238,41 @@ const MergeOrders = () => {
           </div>
         </div>
 
-        {/* Guest Info Column - Tablet/Desktop layout */}
-        <div className="hidden md:flex flex-1 min-w-0 py-2 pr-3">
-          <div className="flex flex-col w-full">
-            <div className="flex items-start justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-white font-medium text-sm">{order.name}</span>
-                <span className="text-white/60 text-xs">· {order.table}</span>
-              </div>
-              <span className="text-white font-semibold text-sm">{order.amount}</span>
+        {/* Guest Info Column - Tablet/Desktop layout - matching desktop 3-row format */}
+        <div className="hidden md:flex flex-1 min-w-0 flex-col justify-between py-1 pr-3">
+          {/* Row 1: Name + Table | Server | Status */}
+          <div className="flex items-center text-xs">
+            <div className="flex items-center gap-2 w-[170px] flex-shrink-0">
+              <span className="text-white font-medium truncate">{order.name}</span>
+              <span className="text-white/60">·</span>
+              <span className="text-white font-medium">{order.table}</span>
             </div>
-            <div className="h-px bg-neutral-600 my-1.5"></div>
-            <div className="flex items-center justify-between text-xs">
-              <div className="flex items-center gap-1 text-gray-400">
-                <span>Party Of {order.partySize},</span>
-                <span>⚡ {order.time}</span>
-              </div>
-              <span className={getStatusColor(order.status)}>{order.status}</span>
+            <div className="flex-1">
+              <span className="text-white/60 truncate">{order.server}</span>
             </div>
+            <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(order.status)}`}>
+              {order.status}
+            </span>
+          </div>
+          
+          {/* Row 2: Party info | Timer | Total */}
+          <div className="flex items-center text-xs">
+            <div className="flex items-center gap-1 text-white/60 w-[170px] flex-shrink-0">
+              <span className="truncate">Party of {order.partySize}, {order.time}</span>
+              <span className="text-white/40">|</span>
+              <span>{order.timer}</span>
+            </div>
+            <div className="flex-1"></div>
+            <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+          </div>
+          
+          {/* Row 3: Revenue Center | Payment Status | Tip */}
+          <div className="flex items-center text-xs">
+            <span className="text-white font-medium w-[170px] flex-shrink-0 truncate">{order.revenueCenter}</span>
+            <div className="flex-1">
+              <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+            </div>
+            <span className="text-white flex-shrink-0">$0.00</span>
           </div>
         </div>
       </div>

@@ -351,8 +351,8 @@ const MergeOrders = () => {
                 <span className="text-white/60">·</span>
                 <span className="text-white font-medium">{order.table}</span>
               </div>
-              <div className="flex-1 flex justify-center">
-                <span className="text-white/60 w-[80px] md:w-[100px] text-left truncate">{order.server}</span>
+              <div className="flex-1">
+                <span className="text-white/60 truncate">{order.server}</span>
               </div>
               <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(order.status)}`}>
                 {order.status}
@@ -373,8 +373,8 @@ const MergeOrders = () => {
             {/* Row 3: Revenue Center | Payment Status (center) | Tip */}
             <div className="flex items-center text-xs md:text-sm">
               <span className="text-white font-medium w-[170px] md:w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
-              <div className="flex-1 flex justify-center">
-                <span className="text-white/60 w-[80px] md:w-[100px] text-left truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+              <div className="flex-1">
+                <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
               </div>
               <span className="text-white flex-shrink-0">$0.00</span>
             </div>
@@ -415,8 +415,8 @@ const MergeOrders = () => {
                 <span className="text-white/60">·</span>
                 <span className="text-white font-medium">{order.table}</span>
               </div>
-              <div className="flex-1 flex justify-center">
-                <span className="text-white/60 w-[80px] md:w-[100px] text-left truncate">{order.server}</span>
+              <div className="flex-1">
+                <span className="text-white/60 truncate">{order.server}</span>
               </div>
               <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(order.status)}`}>
                 {order.status}
@@ -437,8 +437,8 @@ const MergeOrders = () => {
             {/* Row 3: Revenue Center | Payment Status (center) | Tip */}
             <div className="flex items-center text-xs md:text-sm">
               <span className="text-white font-medium w-[170px] md:w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
-              <div className="flex-1 flex justify-center">
-                <span className="text-white/60 w-[80px] md:w-[100px] text-left truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+              <div className="flex-1">
+                <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
               </div>
               <span className="text-white flex-shrink-0">$0.00</span>
             </div>

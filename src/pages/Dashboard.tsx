@@ -8,6 +8,8 @@ import fireIcon from "@/assets/icons/fire.png";
 import itemNotesIcon from "@/assets/icons/item-notes.png";
 import phoneIcon from "@/assets/icons/phone-icon.png";
 import timeIcon from "@/assets/icons/time-icon.png";
+import arrowRightIcon from "@/assets/icons/arrow-right.png";
+import shareOrderIcon from "@/assets/icons/share-order.png";
 
 // Stats data
 const stats = [
@@ -575,15 +577,22 @@ const Dashboard = () => {
                       </div>
                     </div>
 
-                    {/* Right Action Button */}
-                    <div className="flex-shrink-0 flex flex-col items-center justify-between">
-                      <div 
-                        className="w-10 h-10 rounded-lg flex items-center justify-center"
-                        style={{ background: '#F26722' }}
+                    {/* Right Action Buttons */}
+                    <div className="flex-shrink-0 flex flex-col rounded-r-xl overflow-hidden">
+                      <button 
+                        className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity"
+                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                        onClick={(e) => e.stopPropagation()}
                       >
-                        <img src="/src/assets/icons/dine-in.png" alt="Dine In" className="w-5 h-5" />
-                      </div>
-                      <div className="text-white/40 text-lg">↗</div>
+                        <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
+                      </button>
+                      <button 
+                        className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity"
+                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
+                      </button>
                     </div>
                   </div>
                 </div>

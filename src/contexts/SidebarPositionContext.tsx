@@ -12,6 +12,7 @@ interface SidebarPositionContextType {
   isAnimating: boolean;
   hasSeenOnboarding: boolean;
   dismissOnboarding: () => void;
+  resetToDefaults: () => void;
 }
 
 const SidebarPositionContext = createContext<SidebarPositionContextType | undefined>(undefined);
@@ -57,6 +58,11 @@ export function SidebarPositionProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
   };
 
+  const resetToDefaults = () => {
+    setPosition('left');
+    setIsLocked(false);
+  };
+
   useEffect(() => {
     const handleMouseUp = () => {
       if (isDragging) {
@@ -77,7 +83,8 @@ export function SidebarPositionProvider({ children }: { children: ReactNode }) {
       setIsLocked, 
       isAnimating,
       hasSeenOnboarding,
-      dismissOnboarding
+      dismissOnboarding,
+      resetToDefaults
     }}>
       {children}
     </SidebarPositionContext.Provider>

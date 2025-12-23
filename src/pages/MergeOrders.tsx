@@ -198,49 +198,63 @@ const MergeOrders = () => {
         </div>
         
         {/* Order Number Column - Tablet/Desktop style */}
-        <div className={`hidden md:flex flex-shrink-0 ${showCheckbox ? '' : 'pl-2'} py-2 items-center`}>
-          <div className="flex flex-col items-center justify-center w-12 md:w-14 rounded-lg border border-white/20 py-1.5 md:py-2 gap-0.5 md:gap-1" style={{ background: '#1A1A1A' }}>
-            <span className="text-base md:text-lg font-bold text-white">{order.id}</span>
-            <span className="text-[10px] md:text-xs text-white/40">000</span>
+        <div className={`hidden md:flex w-[15%] flex-shrink-0 ${showCheckbox ? '' : 'px-2'} py-2 items-center`}>
+          <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+            <span className="text-base font-bold text-white">{order.id}</span>
+            <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
           </div>
         </div>
 
-        {/* Guest Info Column - Tablet/Desktop layout - 3 row structure matching desktop */}
-        <div className="hidden md:flex flex-1 min-w-0 py-2 pr-3">
-          <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5 md:py-1">
-            {/* Row 1: Name + Table | Server | Status */}
-            <div className="flex items-center text-xs md:text-sm">
-              <div className="flex items-center gap-1 md:gap-2 w-[170px] md:w-[220px] flex-shrink-0">
-                <span className="text-white font-medium truncate">{order.name}</span>
-                <span className="text-white/60">·</span>
-                <span className="text-white font-medium">{order.table}</span>
+        {/* Guest Info Column - Mobile compact layout */}
+        <div className="flex-1 min-w-0 py-2 pr-2 md:hidden">
+          <div className="flex flex-col gap-1">
+            {/* Row 1: Name + Table, Server, Status */}
+            <div className="flex items-center justify-between">
+              <span className="text-white font-medium text-sm">{order.name} - {order.table}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server || 'Server'}</span>
+                <span className={`text-sm font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
               </div>
-              <div className="flex-1">
-                <span className="text-white/60 truncate">{order.server}</span>
-              </div>
-              <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(order.status)}`}>
-                {order.status}
-              </span>
             </div>
             
-            {/* Row 2: Party info | Timer | Total */}
-            <div className="flex items-center text-xs md:text-sm">
-              <div className="flex items-center gap-1 text-white/60 w-[170px] md:w-[220px] flex-shrink-0">
-                <span className="truncate">Party of {order.partySize}, {order.time}</span>
-                <span className="text-white/40">|</span>
+            {/* Row 2: Party info, Timer, Total */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                <span>Party of {order.partySize}, {order.time}</span>
+                <span className="text-gray-500">|</span>
                 <span>{order.timer}</span>
               </div>
-              <div className="flex-1"></div>
-              <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+              <span className="text-white font-semibold text-sm">{order.amount}</span>
             </div>
             
-            {/* Row 3: Revenue Center | Payment Status | Tip */}
-            <div className="flex items-center text-xs md:text-sm">
-              <span className="text-white font-medium w-[170px] md:w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
-              <div className="flex-1">
-                <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+            {/* Row 3: Revenue center, Payment status */}
+            <div className="flex items-center justify-between">
+              <span className="text-white font-medium text-sm">{order.revenueCenter || 'FF Balcony'}</span>
+              <div className="flex items-center gap-2 text-sm">
+                <span style={{ color: '#B5B6BB' }}>Un Paid</span>
+                <span className="text-white">$0.00</span>
               </div>
-              <span className="text-white flex-shrink-0">$0.00</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Guest Info Column - Tablet/Desktop layout */}
+        <div className="hidden md:flex flex-1 min-w-0 py-2 pr-3">
+          <div className="flex flex-col w-full">
+            <div className="flex items-start justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-white font-medium text-sm">{order.name}</span>
+                <span className="text-white/60 text-xs">· {order.table}</span>
+              </div>
+              <span className="text-white font-semibold text-sm">{order.amount}</span>
+            </div>
+            <div className="h-px bg-neutral-600 my-1.5"></div>
+            <div className="flex items-center justify-between text-xs">
+              <div className="flex items-center gap-1 text-gray-400">
+                <span>Party Of {order.partySize},</span>
+                <span>⚡ {order.time}</span>
+              </div>
+              <span className={getStatusColor(order.status)}>{order.status}</span>
             </div>
           </div>
         </div>

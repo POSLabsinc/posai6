@@ -580,23 +580,25 @@ const Dashboard = () => {
                       </div>
                     </div>
 
-                    {/* Right Action Buttons - Edge to edge */}
-                    <div className="flex-shrink-0 flex flex-col w-10">
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
-                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
-                      </button>
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
-                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
-                      </button>
-                    </div>
+                    {/* Right Action Buttons - Edge to edge (hidden for completed/paid orders) */}
+                    {order.status !== "Completed" && !order.isPaid && (
+                      <div className="flex-shrink-0 flex flex-col w-10">
+                        <button 
+                          className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
+                          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
+                        </button>
+                        <button 
+                          className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
+                          style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))}

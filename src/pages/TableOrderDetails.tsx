@@ -1118,7 +1118,7 @@ const TableOrderDetails = () => {
                           <span className="text-white/60">·</span>
                           <span className="text-white font-medium">T{guest.partySize}</span>
                         </div>
-                        <span className="text-white/60 flex-1 text-center truncate px-1">{guest.server}</span>
+                        <span className="text-white/60 flex-1 text-left truncate px-1">{guest.server}</span>
                         <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(guest.status)}`}>
                           {guest.status}
                         </span>
@@ -1138,7 +1138,7 @@ const TableOrderDetails = () => {
                       {/* Row 3: Revenue Center | Payment Status (center) | Amount */}
                       <div className="flex items-center text-xs">
                         <span className="text-white font-medium flex-shrink-0 truncate">{guest.revenueCenter}</span>
-                        <span className="text-white/60 flex-1 text-center truncate px-1">{guest.status === 'Paid' || guest.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+                        <span className="text-white/60 flex-1 text-left truncate px-1">{guest.status === 'Paid' || guest.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
                         <span className="text-white flex-shrink-0">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
                       </div>
                     </div>

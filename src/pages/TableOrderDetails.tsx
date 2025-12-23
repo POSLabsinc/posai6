@@ -789,12 +789,14 @@ const TableOrderDetails = () => {
                     <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                       {/* Row 1: Name + Table | Server (center) | Status */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="flex items-center gap-1 lg:gap-2 flex-shrink-0">
+                        <div className="flex items-center gap-1 lg:gap-2 w-[180px] lg:w-[220px] flex-shrink-0">
                           <span className="text-white font-medium truncate">{guest.name}</span>
                           <span className="text-white/60">·</span>
                           <span className="text-white font-medium">T{guest.partySize}</span>
                         </div>
-                        <span className="text-white/60 flex-1 text-center truncate px-1 lg:px-2">{guest.server}</span>
+                        <div className="flex-1">
+                          <span className="text-white/60 truncate">{guest.server}</span>
+                        </div>
                         <span 
                           className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(guest.status)}`}
                         >
@@ -804,7 +806,7 @@ const TableOrderDetails = () => {
                       
                       {/* Row 2: Party info | Timer | Total */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="flex items-center gap-1 text-white/60 flex-shrink-0">
+                        <div className="flex items-center gap-1 text-white/60 w-[180px] lg:w-[220px] flex-shrink-0">
                           <span className="truncate">Party of {guest.partySize}, {guest.time}</span>
                           <span className="text-white/40">|</span>
                           <span>{guest.timer}</span>
@@ -815,8 +817,10 @@ const TableOrderDetails = () => {
                       
                       {/* Row 3: Revenue Center | Payment Status (center) | Amount */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <span className="text-white font-medium flex-shrink-0 truncate">{guest.revenueCenter}</span>
-                        <span className="text-white/60 flex-1 text-center truncate px-1 lg:px-2">{guest.status === 'Paid' || guest.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+                        <span className="text-white font-medium w-[180px] lg:w-[220px] flex-shrink-0 truncate">{guest.revenueCenter}</span>
+                        <div className="flex-1">
+                          <span className="text-white/60 truncate">{guest.status === 'Paid' || guest.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+                        </div>
                         <span className="text-white flex-shrink-0">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
                       </div>
                     </div>

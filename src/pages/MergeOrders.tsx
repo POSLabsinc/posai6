@@ -242,7 +242,7 @@ const MergeOrders = () => {
         <div className="hidden md:flex flex-1 min-w-0 flex-col justify-between py-1 pr-3">
           {/* Row 1: Name + Table | Server | Status */}
           <div className="flex items-center text-sm">
-            <div className="flex items-center gap-2 w-[170px] flex-shrink-0">
+            <div className="flex items-center gap-2 w-[220px] flex-shrink-0">
               <span className="text-white font-medium truncate">{order.name}</span>
               <span className="text-white/60">·</span>
               <span className="text-white font-medium">{order.table}</span>
@@ -257,7 +257,7 @@ const MergeOrders = () => {
           
           {/* Row 2: Party info | Timer | Total */}
           <div className="flex items-center text-sm">
-            <div className="flex items-center gap-1 text-white/60 w-[170px] flex-shrink-0">
+            <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
               <span className="truncate">Party of {order.partySize}, {order.time}</span>
               <span className="text-white/40">|</span>
               <span>{order.timer}</span>
@@ -268,7 +268,7 @@ const MergeOrders = () => {
           
           {/* Row 3: Revenue Center | Payment Status | Tip */}
           <div className="flex items-center text-sm">
-            <span className="text-white font-medium w-[170px] flex-shrink-0 truncate">{order.revenueCenter}</span>
+            <span className="text-white font-medium w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
             <div className="flex-1">
               <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
             </div>

@@ -542,15 +542,15 @@ const Dashboard = () => {
                       {/* Main Content */}
                       <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                         {/* Row 1: Name + Table | Server (center) | Status */}
-                        <div className="flex items-center justify-between text-sm relative">
-                          <div className="flex items-center gap-2">
-                            <span className="text-white font-medium">{order.guest}</span>
+                        <div className="flex items-center text-sm">
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            <span className="text-white font-medium truncate">{order.guest}</span>
                             <span className="text-white/60">·</span>
                             <span className="text-white font-medium">T{order.seats}</span>
                           </div>
-                          <span className="text-white/60 absolute left-1/2 -translate-x-1/2">Mia Jone</span>
+                          <span className="text-white/60 flex-1 text-center truncate px-2">Mia Jone</span>
                           <span 
-                            className="font-semibold uppercase"
+                            className="font-semibold uppercase flex-shrink-0"
                             style={{ color: order.statusColor }}
                           >
                             {order.status}
@@ -558,20 +558,21 @@ const Dashboard = () => {
                         </div>
                         
                         {/* Row 2: Party info | Timer | Total */}
-                        <div className="flex items-center justify-between text-sm">
-                          <div className="flex items-center gap-1 text-white/60">
-                            <span>Party of {order.seats}, {order.arrivedAt}</span>
+                        <div className="flex items-center text-sm">
+                          <div className="flex items-center gap-1 text-white/60 flex-shrink-0">
+                            <span className="truncate">Party of {order.seats}, {order.arrivedAt}</span>
                             <span className="text-white/40">|</span>
                             <span>{order.timer}</span>
                           </div>
-                          <span className="text-white font-semibold">$70.96</span>
+                          <div className="flex-1"></div>
+                          <span className="text-white font-semibold flex-shrink-0">$70.96</span>
                         </div>
                         
                         {/* Row 3: Revenue Center | Payment Status (center) | Amount */}
-                        <div className="flex items-center justify-between text-sm relative">
-                          <span className="text-white font-medium">{order.revenueCenter}</span>
-                          <span className="text-white/60 absolute left-1/2 -translate-x-1/2">Un Paid</span>
-                          <span className="text-white">$0.00</span>
+                        <div className="flex items-center text-sm">
+                          <span className="text-white font-medium flex-shrink-0 truncate">{order.revenueCenter}</span>
+                          <span className="text-white/60 flex-1 text-center truncate px-2">Un Paid</span>
+                          <span className="text-white flex-shrink-0">$0.00</span>
                         </div>
                       </div>
                     </div>

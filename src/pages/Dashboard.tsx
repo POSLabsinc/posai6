@@ -10,6 +10,7 @@ import phoneIcon from "@/assets/icons/phone-icon.png";
 import timeIcon from "@/assets/icons/time-icon.png";
 import arrowRightIcon from "@/assets/icons/arrow-right.png";
 import shareOrderIcon from "@/assets/icons/share-order.png";
+import dineInIcon from "@/assets/icons/dine-in.png";
 
 // Stats data
 const stats = [
@@ -541,14 +542,14 @@ const Dashboard = () => {
 
                       {/* Main Content */}
                       <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                        {/* Row 1: Name + Table | Server (center) | Status */}
+                        {/* Row 1: Name + Table | Server | Status */}
                         <div className="flex items-center text-xs lg:text-sm">
-                          <div className="flex items-center gap-1 lg:gap-2 flex-shrink-0">
+                          <div className="flex items-center gap-1 lg:gap-2 w-[180px] lg:w-[220px] flex-shrink-0">
                             <span className="text-white font-medium truncate">{order.guest}</span>
                             <span className="text-white/60">·</span>
                             <span className="text-white font-medium">T{order.seats}</span>
                           </div>
-                          <span className="text-white/60 flex-1 text-center truncate px-1 lg:px-2">Mia Jone</span>
+                          <span className="text-white/60 flex-1 truncate px-1 lg:px-2">Mia Jone</span>
                           <span 
                             className="font-semibold uppercase flex-shrink-0"
                             style={{ color: order.statusColor }}
@@ -559,7 +560,8 @@ const Dashboard = () => {
                         
                         {/* Row 2: Party info | Timer | Total */}
                         <div className="flex items-center text-xs lg:text-sm">
-                          <div className="flex items-center gap-1 text-white/60 flex-shrink-0">
+                          <div className="flex items-center gap-1 text-white/60 w-[180px] lg:w-[220px] flex-shrink-0">
+                            <img src={dineInIcon} alt="Dine In" className="w-3 h-3 lg:w-4 lg:h-4 object-contain" />
                             <span className="truncate">Party of {order.seats}, {order.arrivedAt}</span>
                             <span className="text-white/40">|</span>
                             <span>{order.timer}</span>
@@ -568,10 +570,10 @@ const Dashboard = () => {
                           <span className="text-white font-semibold flex-shrink-0">$70.96</span>
                         </div>
                         
-                        {/* Row 3: Revenue Center | Payment Status (center) | Amount */}
+                        {/* Row 3: Revenue Center | Payment Status | Amount */}
                         <div className="flex items-center text-xs lg:text-sm">
-                          <span className="text-white font-medium flex-shrink-0 truncate">{order.revenueCenter}</span>
-                          <span className="text-white/60 flex-1 text-center truncate px-1 lg:px-2">Un Paid</span>
+                          <span className="text-white font-medium w-[180px] lg:w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
+                          <span className="text-white/60 flex-1 truncate px-1 lg:px-2">Un Paid</span>
                           <span className="text-white flex-shrink-0">$0.00</span>
                         </div>
                       </div>

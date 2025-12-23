@@ -528,68 +528,62 @@ const Dashboard = () => {
                 </div>
 
                 {/* Tablet/Desktop Layout */}
-                <div className="hidden md:flex items-center gap-3 md:gap-6">
-                    {/* Order Number & Dine In Icon */}
-                    <div className="flex flex-col items-center justify-center w-10 md:w-12 rounded-lg border border-white/20 flex-shrink-0 py-1.5 gap-0.5">
-                      <span className="text-base md:text-lg font-bold">{order.id}</span>
-                      <img src="/src/assets/icons/dine-in.png" alt="Dine In" className="w-4 h-4 md:w-5 md:h-5 opacity-80" />
+                <div className="hidden md:flex items-stretch gap-3">
+                    {/* Order Number Box */}
+                    <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
+                      <span className="text-lg font-bold text-white">{order.id}</span>
+                      <span className="text-xs text-white/40">000</span>
                     </div>
 
-                    {/* Status & Guest Info */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1 pb-1 border-b border-white/10">
-                        <span
-                          className="text-sm font-medium italic"
-                          style={{ color: order.statusColor }}
-                        >
-                          {order.status}
-                        </span>
-                        <span className="text-sm text-white truncate ml-2">{order.guest}</span>
+                    {/* Main Content */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+                      {/* Row 1: Name + Table | Server + Status */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="text-white font-medium">{order.guest}</span>
+                          <span className="text-white/60">·</span>
+                          <span className="text-white font-medium">T{order.seats}</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-white/60 text-sm">Mia Jone</span>
+                          <span 
+                            className="text-sm font-semibold uppercase"
+                            style={{ color: order.statusColor }}
+                          >
+                            {order.status}
+                          </span>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-white/50">
-                        <span>{order.orderNo}</span>
-                        <span>{order.date}</span>
+                      
+                      {/* Row 2: Party info | Timer | Total */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1 text-sm text-white/60">
+                          <span>Party of {order.seats}, {order.arrivedAt}</span>
+                          <span className="text-white/40">|</span>
+                          <span>{order.timer}</span>
+                        </div>
+                        <span className="text-white font-semibold">$70.96</span>
                       </div>
-                      <div className="flex items-center justify-between text-xs text-white/50">
-                        <span>Seats {order.seats}</span>
-                        <span>Arrived At {order.arrivedAt}</span>
-                      </div>
-                    </div>
-
-                    {/* Timer & Type - Hidden on mobile */}
-                    <div className="hidden md:flex lg:flex flex-col gap-1 min-w-[80px]">
-                      <div>
-                        <div className="text-sm text-white">{order.timer}</div>
-                        <div className="text-xs text-white/50">Timer</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-white">{order.type}</div>
-                        <div className="text-xs text-white/50">Type</div>
-                      </div>
-                    </div>
-
-                    {/* Check & Revenue Center - Hidden on mobile/tablet */}
-                    <div className="hidden lg:flex flex-col gap-1 min-w-[100px]">
-                      <div>
-                        <div className="text-sm text-white">{order.check}</div>
-                        <div className="text-xs text-white/50">Check</div>
-                      </div>
-                      <div>
-                        <div className="text-sm text-white">{order.revenueCenter}</div>
-                        <div className="text-xs text-white/50">Revenue Center</div>
+                      
+                      {/* Row 3: Revenue Center | Payment Status */}
+                      <div className="flex items-center justify-between">
+                        <span className="text-white font-medium text-sm">{order.revenueCenter}</span>
+                        <div className="flex items-center gap-3 text-sm">
+                          <span className="text-white/60">Un Paid</span>
+                          <span className="text-white">$0.00</span>
+                        </div>
                       </div>
                     </div>
 
-                    {/* Tip & Payment Type - Hidden on mobile/tablet */}
-                    <div className="hidden lg:flex flex-col gap-1 min-w-[80px]">
-                      <div>
-                        <div className="text-sm text-white">{order.tip}</div>
-                        <div className="text-xs text-white/50">Tip</div>
+                    {/* Right Action Button */}
+                    <div className="flex-shrink-0 flex flex-col items-center justify-between">
+                      <div 
+                        className="w-10 h-10 rounded-lg flex items-center justify-center"
+                        style={{ background: '#F26722' }}
+                      >
+                        <img src="/src/assets/icons/dine-in.png" alt="Dine In" className="w-5 h-5" />
                       </div>
-                      <div>
-                        <div className="text-sm text-white">{order.paymentType}</div>
-                        <div className="text-xs text-white/50">Payment Type</div>
-                      </div>
+                      <div className="text-white/40 text-lg">↗</div>
                     </div>
                   </div>
                 </div>

@@ -4,6 +4,16 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useSidebarPosition, SidebarPosition } from "@/contexts/SidebarPositionContext";
 import { toast } from "@/hooks/use-toast";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface SettingsItemData {
   id: string;
@@ -62,6 +72,7 @@ const positionIcons: Record<SidebarPosition, React.ReactNode> = {
 
 const Settings = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showResetDialog, setShowResetDialog] = useState(false);
   const { position, setPosition, isLocked, setIsLocked, resetToDefaults } = useSidebarPosition();
 
   const filteredItems = useMemo(() => {
@@ -109,7 +120,12 @@ const Settings = () => {
   };
 
   const handleResetToDefaults = () => {
+    setShowResetDialog(true);
+  };
+
+  const confirmReset = () => {
     resetToDefaults();
+    setShowResetDialog(false);
     toast({
       title: "Reset Complete",
       description: "Sidebar settings have been reset to defaults.",
@@ -271,6 +287,23 @@ const Settings = () => {
           </button>
         </div>
       </div>
+      {/* Reset Confirmation Dialog */}
+      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
+        <AlertDialogContent className="bg-neutral-900 border-white/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Reset to Defaults?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will reset the sidebar position to left and unlock it. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-white/10 border-white/10 hover:bg-white/20">Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmReset} className="bg-orange-500 hover:bg-orange-600">
+              Reset
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

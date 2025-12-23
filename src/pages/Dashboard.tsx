@@ -480,13 +480,13 @@ const Dashboard = () => {
                 <div
                   key={order.id}
                   onClick={() => handleOrderClick(order)}
-                  className={`rounded-xl p-3 cursor-pointer transition-all ${
+                  className={`rounded-xl cursor-pointer transition-all overflow-hidden ${
                     selectedOrder?.id === order.id ? "border border-white" : "border border-white/10"
                   }`}
                   style={{ background: "#2A2A2A" }}
                 >
                 {/* Mobile Layout */}
-                <div className="flex items-stretch w-full md:hidden">
+                <div className="flex items-stretch w-full md:hidden p-3">
                   {/* Order Number - Mobile compact style */}
                   <div className="flex-shrink-0 px-2 py-2 flex items-center">
                     <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
@@ -530,64 +530,67 @@ const Dashboard = () => {
                 </div>
 
                 {/* Tablet/Desktop Layout */}
-                <div className="hidden md:flex items-stretch gap-3">
-                    {/* Order Number Box */}
-                    <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
-                      <span className="text-lg font-bold text-white">{order.id}</span>
-                      <span className="text-xs text-white/40">000</span>
+                <div className="hidden md:flex items-stretch">
+                    {/* Left Content with padding */}
+                    <div className="flex-1 flex items-stretch gap-3 p-3">
+                      {/* Order Number Box */}
+                      <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
+                        <span className="text-lg font-bold text-white">{order.id}</span>
+                        <span className="text-xs text-white/40">000</span>
+                      </div>
+
+                      {/* Main Content */}
+                      <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+                        {/* Row 1: Name + Table | Server + Status */}
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="text-white font-medium">{order.guest}</span>
+                            <span className="text-white/60">·</span>
+                            <span className="text-white font-medium">T{order.seats}</span>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            <span className="text-white/60">Mia Jone</span>
+                            <span 
+                              className="font-semibold uppercase"
+                              style={{ color: order.statusColor }}
+                            >
+                              {order.status}
+                            </span>
+                          </div>
+                        </div>
+                        
+                        {/* Row 2: Party info | Timer | Total */}
+                        <div className="flex items-center justify-between text-sm">
+                          <div className="flex items-center gap-1 text-white/60">
+                            <span>Party of {order.seats}, {order.arrivedAt}</span>
+                            <span className="text-white/40">|</span>
+                            <span>{order.timer}</span>
+                          </div>
+                          <span className="text-white font-semibold">$70.96</span>
+                        </div>
+                        
+                        {/* Row 3: Revenue Center | Payment Status */}
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="text-white font-medium">{order.revenueCenter}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-white/60">Un Paid</span>
+                            <span className="text-white">$0.00</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
 
-                    {/* Main Content */}
-                    <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                      {/* Row 1: Name + Table | Server + Status */}
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-2">
-                          <span className="text-white font-medium">{order.guest}</span>
-                          <span className="text-white/60">·</span>
-                          <span className="text-white font-medium">T{order.seats}</span>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-white/60">Mia Jone</span>
-                          <span 
-                            className="font-semibold uppercase"
-                            style={{ color: order.statusColor }}
-                          >
-                            {order.status}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Row 2: Party info | Timer | Total */}
-                      <div className="flex items-center justify-between text-sm">
-                        <div className="flex items-center gap-1 text-white/60">
-                          <span>Party of {order.seats}, {order.arrivedAt}</span>
-                          <span className="text-white/40">|</span>
-                          <span>{order.timer}</span>
-                        </div>
-                        <span className="text-white font-semibold">$70.96</span>
-                      </div>
-                      
-                      {/* Row 3: Revenue Center | Payment Status */}
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-white font-medium">{order.revenueCenter}</span>
-                        <div className="flex items-center gap-3">
-                          <span className="text-white/60">Un Paid</span>
-                          <span className="text-white">$0.00</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Right Action Buttons */}
-                    <div className="flex-shrink-0 flex flex-col rounded-r-xl overflow-hidden">
+                    {/* Right Action Buttons - Edge to edge */}
+                    <div className="flex-shrink-0 flex flex-col w-10">
                       <button 
-                        className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity"
+                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
                         style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
                         onClick={(e) => e.stopPropagation()}
                       >
                         <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
                       </button>
                       <button 
-                        className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity"
+                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
                         style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
                         onClick={(e) => e.stopPropagation()}
                       >

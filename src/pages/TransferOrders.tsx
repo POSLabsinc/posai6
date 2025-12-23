@@ -14,6 +14,7 @@ import tableTargetIcon from "@/assets/icons/table-target.png";
 import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
+import dineInIcon from "@/assets/icons/dine-in.png";
 
 // Order item interface
 interface OrderItem {
@@ -294,6 +295,7 @@ const TransferOrders = () => {
             {/* Row 2: Party info, Timer, Total */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
                 <span>Party of {order.partySize}, {order.time}</span>
                 <span className="text-gray-500">|</span>
                 <span>{order.timer}</span>
@@ -339,8 +341,9 @@ const TransferOrders = () => {
             
             {/* Row 2: Party info | Timer | Total */}
             <div className="flex items-center text-sm">
-              <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
-                <span className="truncate">Party of {order.partySize}, {order.time}</span>
+            <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
+              <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
+              <span className="truncate">Party of {order.partySize}, {order.time}</span>
                 <span className="text-white/40">|</span>
                 <span>{order.timer}</span>
               </div>
@@ -393,6 +396,7 @@ const TransferOrders = () => {
             {/* Row 2: Party info, Timer, Total */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
                 <span>Party of {order.partySize}, {order.time}</span>
                 <span className="text-gray-500">|</span>
                 <span>{order.timer}</span>
@@ -438,8 +442,9 @@ const TransferOrders = () => {
             
             {/* Row 2: Party info | Timer | Total */}
             <div className="flex items-center text-sm">
-              <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
-                <span className="truncate">Party of {order.partySize}, {order.time}</span>
+            <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
+              <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
+              <span className="truncate">Party of {order.partySize}, {order.time}</span>
                 <span className="text-white/40">|</span>
                 <span>{order.timer}</span>
               </div>
@@ -999,6 +1004,7 @@ const TransferOrders = () => {
             {/* Row 2: Party info | Timer | Total */}
             <div className="flex items-center text-xs md:text-sm">
               <div className="flex items-center gap-1 text-white/60 w-[170px] md:w-[220px] flex-shrink-0">
+                <img src={dineInIcon} alt="Dine In" className="w-3 h-3 md:w-4 md:h-4 object-contain opacity-60" />
                 <span className="truncate">Party of {order.partySize}, {order.time}</span>
                 <span className="text-white/40">|</span>
                 <span>{order.timer}</span>
@@ -1063,6 +1069,7 @@ const TransferOrders = () => {
             {/* Row 2: Party info | Timer | Total */}
             <div className="flex items-center text-xs md:text-sm">
               <div className="flex items-center gap-1 text-white/60 w-[170px] md:w-[220px] flex-shrink-0">
+                <img src={dineInIcon} alt="Dine In" className="w-3 h-3 md:w-4 md:h-4 object-contain opacity-60" />
                 <span className="truncate">Party of {order.partySize}, {order.time}</span>
                 <span className="text-white/40">|</span>
                 <span>{order.timer}</span>

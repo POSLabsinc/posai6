@@ -1,4 +1,5 @@
 import tableTargetIcon from "@/assets/icons/table-target.png";
+import dineInIcon from "@/assets/icons/dine-in.png";
 
 export interface OrderData {
   id: number;
@@ -83,6 +84,7 @@ const OrderLayoutTemplate = ({
             {/* Row 2: Party info, Timer, Total */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
                 <span>Party of {order.partySize}, {order.time}</span>
                 <span className="text-gray-500">|</span>
                 <span>{order.timer}</span>
@@ -133,8 +135,9 @@ const OrderLayoutTemplate = ({
             
             {/* Row 2: Party info | Timer | Total */}
             <div className="flex items-center text-sm">
-              <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
-                <span className="truncate">Party of {order.partySize}, {order.time}</span>
+            <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
+              <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
+              <span className="truncate">Party of {order.partySize}, {order.time}</span>
                 <span className="text-white/40">|</span>
                 <span>{order.timer}</span>
               </div>

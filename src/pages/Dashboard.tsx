@@ -538,16 +538,16 @@ const Dashboard = () => {
                     {/* Main Content */}
                     <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                       {/* Row 1: Name + Table | Server + Status */}
-                      <div className="flex items-center justify-between">
+                      <div className="flex items-center justify-between text-sm">
                         <div className="flex items-center gap-2">
                           <span className="text-white font-medium">{order.guest}</span>
                           <span className="text-white/60">·</span>
                           <span className="text-white font-medium">T{order.seats}</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-white/60 text-sm">Mia Jone</span>
+                          <span className="text-white/60">Mia Jone</span>
                           <span 
-                            className="text-sm font-semibold uppercase"
+                            className="font-semibold uppercase"
                             style={{ color: order.statusColor }}
                           >
                             {order.status}
@@ -556,8 +556,8 @@ const Dashboard = () => {
                       </div>
                       
                       {/* Row 2: Party info | Timer | Total */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-sm text-white/60">
+                      <div className="flex items-center justify-between text-sm">
+                        <div className="flex items-center gap-1 text-white/60">
                           <span>Party of {order.seats}, {order.arrivedAt}</span>
                           <span className="text-white/40">|</span>
                           <span>{order.timer}</span>
@@ -566,9 +566,9 @@ const Dashboard = () => {
                       </div>
                       
                       {/* Row 3: Revenue Center | Payment Status */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-white font-medium text-sm">{order.revenueCenter}</span>
-                        <div className="flex items-center gap-3 text-sm">
+                      <div className="flex items-center justify-between text-sm">
+                        <span className="text-white font-medium">{order.revenueCenter}</span>
+                        <div className="flex items-center gap-3">
                           <span className="text-white/60">Un Paid</span>
                           <span className="text-white">$0.00</span>
                         </div>

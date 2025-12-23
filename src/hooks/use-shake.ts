@@ -24,6 +24,12 @@ export function useShake({ threshold = 15, timeout = 1000, onShake }: UseShakeOp
       const now = Date.now();
       if (now - lastShakeRef.current > timeout) {
         lastShakeRef.current = now;
+        
+        // Trigger haptic feedback on mobile
+        if (navigator.vibrate) {
+          navigator.vibrate([50, 30, 50]); // Short pattern: vibrate-pause-vibrate
+        }
+        
         onShake();
       }
     }

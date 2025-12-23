@@ -32,10 +32,10 @@ interface SettingsItemProps {
   rightElement?: React.ReactNode;
 }
 
-const SettingsItem = ({ icon, label, iconBgColor, onClick, rightElement }: SettingsItemProps) => (
+const SettingsItem = ({ icon, label, iconBgColor, onClick, rightElement, className }: SettingsItemProps & { className?: string }) => (
   <button
     onClick={onClick}
-    className="flex items-center justify-between w-full py-3 px-1 border-b border-white/10 last:border-b-0 active:opacity-70 transition-opacity"
+    className={`group flex items-center justify-between w-full py-3 px-1 border-b border-white/10 last:border-b-0 active:opacity-70 transition-opacity ${className || ''}`}
   >
     <div className="flex items-center gap-4">
       <div 
@@ -207,7 +207,7 @@ const Settings = () => {
           }
         />
         <SettingsItem
-          icon={<RotateCcw className="w-5 h-5 text-white" />}
+          icon={<RotateCcw className="w-5 h-5 text-white group-hover:animate-shake" />}
           label="Reset to Defaults"
           iconBgColor="hsl(0, 0%, 40%)"
           onClick={handleResetToDefaults}

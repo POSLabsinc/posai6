@@ -32,6 +32,7 @@ import splitIcon from "@/assets/icons/split-icon.png";
 import mergeIcon from "@/assets/icons/merge-icon.png";
 import transferIcon from "@/assets/icons/transfer-icon.png";
 import searchIcon from "@/assets/icons/search.png";
+import dineInIcon from "@/assets/icons/dine-in.png";
 
 // Extended guest order interface with calculated totals
 interface GuestOrder extends Order {
@@ -578,7 +579,8 @@ const TableOrderDetails = () => {
                        
                         {/* Row 2: Party info, Location/Table, Payment */}
                         <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                        <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                            <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
                             <span>Party of {guest.partySize}, {guest.time}</span>
                             <span className="text-gray-500">|</span>
                             <span>{guest.timer}</span>
@@ -611,8 +613,9 @@ const TableOrderDetails = () => {
                        </div>
                        <div className="h-px bg-neutral-600 my-1.5"></div>
                        <div className="flex items-center justify-between text-xs">
-                         <div className="flex items-center gap-1 text-gray-400">
-                           <span>Party Of {guest.partySize},</span>
+                          <div className="flex items-center gap-1 text-gray-400">
+                            <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
+                            <span>Party Of {guest.partySize},</span>
                            <span>⚡ {guest.time}</span>
                          </div>
                          <span className={getStatusColor(guest.status)}>{guest.status}</span>
@@ -807,6 +810,7 @@ const TableOrderDetails = () => {
                       {/* Row 2: Party info | Timer | Total */}
                       <div className="flex items-center text-xs lg:text-sm">
                         <div className="flex items-center gap-1 text-white/60 w-[180px] lg:w-[220px] flex-shrink-0">
+                          <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
                           <span className="truncate">Party of {guest.partySize}, {guest.time}</span>
                           <span className="text-white/40">|</span>
                           <span>{guest.timer}</span>
@@ -876,6 +880,7 @@ const TableOrderDetails = () => {
                       <div className="h-px bg-neutral-600 my-1.5"></div>
                       <div className="flex items-center justify-between text-xs">
                         <div className="flex items-center gap-1 text-gray-400">
+                          <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
                           <span>Party Of {guest.partySize},</span>
                           <span>⚡ {guest.time}</span>
                         </div>

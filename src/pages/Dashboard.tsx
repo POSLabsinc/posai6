@@ -31,7 +31,7 @@ const orderFilterLabels = ["All", "In Progress", "Unpaid", "Open", "Paid", "Clos
 const mockOrders = [
   {
     id: 10,
-    status: "Being Prepared",
+    status: "Ordering",
     statusColor: "#4ADE80",
     filterCategory: "In Progress",
     guest: "John Doe",
@@ -542,13 +542,13 @@ const Dashboard = () => {
                       {/* Main Content */}
                       <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                         {/* Row 1: Name + Table | Server (center) | Status */}
-                        <div className="flex items-center text-sm">
-                          <div className="flex items-center gap-2 flex-shrink-0">
+                        <div className="flex items-center text-xs lg:text-sm">
+                          <div className="flex items-center gap-1 lg:gap-2 flex-shrink-0">
                             <span className="text-white font-medium truncate">{order.guest}</span>
                             <span className="text-white/60">·</span>
                             <span className="text-white font-medium">T{order.seats}</span>
                           </div>
-                          <span className="text-white/60 flex-1 text-center truncate px-2">Mia Jone</span>
+                          <span className="text-white/60 flex-1 text-center truncate px-1 lg:px-2">Mia Jone</span>
                           <span 
                             className="font-semibold uppercase flex-shrink-0"
                             style={{ color: order.statusColor }}
@@ -558,7 +558,7 @@ const Dashboard = () => {
                         </div>
                         
                         {/* Row 2: Party info | Timer | Total */}
-                        <div className="flex items-center text-sm">
+                        <div className="flex items-center text-xs lg:text-sm">
                           <div className="flex items-center gap-1 text-white/60 flex-shrink-0">
                             <span className="truncate">Party of {order.seats}, {order.arrivedAt}</span>
                             <span className="text-white/40">|</span>
@@ -569,9 +569,9 @@ const Dashboard = () => {
                         </div>
                         
                         {/* Row 3: Revenue Center | Payment Status (center) | Amount */}
-                        <div className="flex items-center text-sm">
+                        <div className="flex items-center text-xs lg:text-sm">
                           <span className="text-white font-medium flex-shrink-0 truncate">{order.revenueCenter}</span>
-                          <span className="text-white/60 flex-1 text-center truncate px-2">Un Paid</span>
+                          <span className="text-white/60 flex-1 text-center truncate px-1 lg:px-2">Un Paid</span>
                           <span className="text-white flex-shrink-0">$0.00</span>
                         </div>
                       </div>

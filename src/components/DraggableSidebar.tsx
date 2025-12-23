@@ -25,13 +25,28 @@ export function DraggableSidebar() {
   const isHorizontal = position === 'top' || position === 'bottom';
 
   const handleDragStart = (e: React.DragEvent) => {
+    // Set drag data and effect
     e.dataTransfer.setData('text/plain', 'sidebar');
     e.dataTransfer.effectAllowed = 'move';
-    setIsDragging(true);
+    
+    // Create a custom drag image (invisible)
+    const dragImage = document.createElement('div');
+    dragImage.style.opacity = '0';
+    document.body.appendChild(dragImage);
+    e.dataTransfer.setDragImage(dragImage, 0, 0);
+    setTimeout(() => document.body.removeChild(dragImage), 0);
+    
+    // Delay setting isDragging to ensure drag starts properly
+    setTimeout(() => setIsDragging(true), 0);
   };
 
   const handleDragEnd = () => {
     setIsDragging(false);
+  };
+  
+  const handleDrag = (e: React.DragEvent) => {
+    // Prevent default to ensure smooth dragging
+    e.preventDefault();
   };
 
   return (
@@ -45,13 +60,14 @@ export function DraggableSidebar() {
       >
         {/* Drag Handle */}
         <div 
-          draggable
+          draggable="true"
           onDragStart={handleDragStart}
+          onDrag={handleDrag}
           onDragEnd={handleDragEnd}
-          className={`flex items-center justify-center ${isHorizontal ? 'h-full w-8' : 'w-full h-8'} cursor-grab active:cursor-grabbing hover:bg-white/10 rounded-lg transition-colors shrink-0`}
+          className={`flex items-center justify-center ${isHorizontal ? 'h-full w-10' : 'w-full h-10'} cursor-grab active:cursor-grabbing hover:bg-white/20 rounded-lg transition-colors shrink-0 select-none`}
           title="Drag to reposition sidebar"
         >
-          <GripVertical className={`w-4 h-4 text-white/40 ${isHorizontal ? '' : 'rotate-90'}`} />
+          <GripVertical className={`w-5 h-5 text-white/60 ${isHorizontal ? '' : 'rotate-90'}`} />
         </div>
 
         {/* Logo */}

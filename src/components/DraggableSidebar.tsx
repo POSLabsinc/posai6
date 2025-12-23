@@ -1,6 +1,7 @@
-import { Settings, GripVertical } from "lucide-react";
+import { Settings, GripVertical, Lock, Unlock } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
+import { toast } from "@/hooks/use-toast";
 
 import logoIcon from "@/assets/icons/logo.png";
 import dashboardIcon from "@/assets/icons/dashboard.png";
@@ -21,22 +22,29 @@ const menuItems = [
 ];
 
 export function DraggableSidebar() {
-  const { position, setIsDragging } = useSidebarPosition();
+  const { position, setIsDragging, isLocked, setIsLocked, isAnimating } = useSidebarPosition();
   const isHorizontal = position === 'top' || position === 'bottom';
 
   const handleDragStart = (e: React.DragEvent) => {
-    // Set drag data and effect
+    if (isLocked) {
+      e.preventDefault();
+      toast({
+        title: "Sidebar Locked",
+        description: "Unlock the sidebar in Settings to reposition it.",
+        duration: 2000,
+      });
+      return;
+    }
+    
     e.dataTransfer.setData('text/plain', 'sidebar');
     e.dataTransfer.effectAllowed = 'move';
     
-    // Create a custom drag image (invisible)
     const dragImage = document.createElement('div');
     dragImage.style.opacity = '0';
     document.body.appendChild(dragImage);
     e.dataTransfer.setDragImage(dragImage, 0, 0);
     setTimeout(() => document.body.removeChild(dragImage), 0);
     
-    // Delay setting isDragging to ensure drag starts properly
     setTimeout(() => setIsDragging(true), 0);
   };
 
@@ -45,29 +53,61 @@ export function DraggableSidebar() {
   };
   
   const handleDrag = (e: React.DragEvent) => {
-    // Prevent default to ensure smooth dragging
     e.preventDefault();
+  };
+
+  const toggleLock = () => {
+    setIsLocked(!isLocked);
+    toast({
+      title: isLocked ? "Sidebar Unlocked" : "Sidebar Locked",
+      description: isLocked ? "You can now drag the sidebar to reposition it." : "Sidebar position is now locked.",
+      duration: 2000,
+    });
+  };
+
+  // Animation classes based on position
+  const getAnimationClass = () => {
+    if (!isAnimating) return '';
+    switch (position) {
+      case 'left': return 'animate-slide-in-left';
+      case 'right': return 'animate-slide-in-right';
+      case 'top': return 'animate-slide-in-top';
+      case 'bottom': return 'animate-slide-in-bottom';
+      default: return '';
+    }
   };
 
   return (
     <div 
-      className={`${isHorizontal ? 'h-20 w-full' : 'w-20 h-full'} py-2 px-2 flex-shrink-0`}
+      className={`${isHorizontal ? 'h-20 w-full' : 'w-20 h-full'} py-2 px-2 flex-shrink-0 transition-all duration-300 ease-out ${getAnimationClass()}`}
     >
-      {/* All items container with rounded background */}
       <div 
         className={`h-full rounded-2xl flex ${isHorizontal ? 'flex-row' : 'flex-col'} gap-1 p-1.5`} 
         style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}
       >
-        {/* Drag Handle */}
-        <div 
-          draggable="true"
-          onDragStart={handleDragStart}
-          onDrag={handleDrag}
-          onDragEnd={handleDragEnd}
-          className={`flex items-center justify-center ${isHorizontal ? 'h-full w-10' : 'w-full h-10'} cursor-grab active:cursor-grabbing hover:bg-white/20 rounded-lg transition-colors shrink-0 select-none`}
-          title="Drag to reposition sidebar"
-        >
-          <GripVertical className={`w-5 h-5 text-white/60 ${isHorizontal ? '' : 'rotate-90'}`} />
+        {/* Drag Handle + Lock Toggle */}
+        <div className={`flex ${isHorizontal ? 'flex-row' : 'flex-col'} items-center gap-1 shrink-0`}>
+          <div 
+            draggable={!isLocked}
+            onDragStart={handleDragStart}
+            onDrag={handleDrag}
+            onDragEnd={handleDragEnd}
+            className={`flex items-center justify-center ${isHorizontal ? 'h-full w-8' : 'w-full h-8'} ${isLocked ? 'cursor-not-allowed opacity-50' : 'cursor-grab active:cursor-grabbing'} hover:bg-white/20 rounded-lg transition-all shrink-0 select-none`}
+            title={isLocked ? "Sidebar is locked" : "Drag to reposition sidebar"}
+          >
+            <GripVertical className={`w-4 h-4 text-white/60 ${isHorizontal ? '' : 'rotate-90'}`} />
+          </div>
+          <button
+            onClick={toggleLock}
+            className={`flex items-center justify-center ${isHorizontal ? 'h-full w-8' : 'w-full h-8'} hover:bg-white/20 rounded-lg transition-colors shrink-0`}
+            title={isLocked ? "Unlock sidebar" : "Lock sidebar"}
+          >
+            {isLocked ? (
+              <Lock className="w-4 h-4 text-orange-400" />
+            ) : (
+              <Unlock className="w-4 h-4 text-white/60" />
+            )}
+          </button>
         </div>
 
         {/* Logo */}

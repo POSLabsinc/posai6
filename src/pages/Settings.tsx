@@ -1,6 +1,9 @@
 import { useState, useMemo } from "react";
-import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck } from "lucide-react";
+import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck, Layout, Lock, ArrowLeft, ArrowRight, ArrowUp, ArrowDown } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Switch } from "@/components/ui/switch";
+import { useSidebarPosition, SidebarPosition } from "@/contexts/SidebarPositionContext";
+import { toast } from "@/hooks/use-toast";
 
 interface SettingsItemData {
   id: string;
@@ -15,9 +18,10 @@ interface SettingsItemProps {
   label: string;
   iconBgColor: string;
   onClick?: () => void;
+  rightElement?: React.ReactNode;
 }
 
-const SettingsItem = ({ icon, label, iconBgColor, onClick }: SettingsItemProps) => (
+const SettingsItem = ({ icon, label, iconBgColor, onClick, rightElement }: SettingsItemProps) => (
   <button
     onClick={onClick}
     className="flex items-center justify-between w-full py-3 px-1 border-b border-white/10 last:border-b-0 active:opacity-70 transition-opacity"
@@ -31,7 +35,7 @@ const SettingsItem = ({ icon, label, iconBgColor, onClick }: SettingsItemProps) 
       </div>
       <span className="text-foreground text-base font-medium">{label}</span>
     </div>
-    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+    {rightElement || <ChevronRight className="w-5 h-5 text-muted-foreground" />}
   </button>
 );
 
@@ -49,8 +53,16 @@ const allSettingsItems: SettingsItemData[] = [
   { id: "switch-user", icon: <UserCheck className="w-5 h-5 text-white" />, label: "Switch User", iconBgColor: "hsl(0, 0%, 30%)", group: "user" },
 ];
 
+const positionIcons: Record<SidebarPosition, React.ReactNode> = {
+  left: <ArrowLeft className="w-4 h-4" />,
+  right: <ArrowRight className="w-4 h-4" />,
+  top: <ArrowUp className="w-4 h-4" />,
+  bottom: <ArrowDown className="w-4 h-4" />,
+};
+
 const Settings = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const { position, setPosition, isLocked, setIsLocked } = useSidebarPosition();
 
   const filteredItems = useMemo(() => {
     if (!searchQuery.trim()) return allSettingsItems;
@@ -69,6 +81,32 @@ const Settings = () => {
   const userItems = getGroupItems("user");
 
   const hasResults = filteredItems.length > 0;
+
+  const handleLockToggle = (checked: boolean) => {
+    setIsLocked(checked);
+    toast({
+      title: checked ? "Sidebar Locked" : "Sidebar Unlocked",
+      description: checked ? "Sidebar position is now locked." : "You can now drag the sidebar to reposition it.",
+      duration: 2000,
+    });
+  };
+
+  const handlePositionChange = (newPosition: SidebarPosition) => {
+    if (isLocked) {
+      toast({
+        title: "Sidebar Locked",
+        description: "Unlock the sidebar first to change its position.",
+        duration: 2000,
+      });
+      return;
+    }
+    setPosition(newPosition);
+    toast({
+      title: "Sidebar Moved",
+      description: `Sidebar moved to ${newPosition}.`,
+      duration: 2000,
+    });
+  };
 
   return (
     <div className="min-h-screen p-4 pb-28 overflow-y-auto">
@@ -91,6 +129,45 @@ const Settings = () => {
           <span className="text-sm text-muted-foreground">Clocked In At 10:00 AM</span>
           <span className="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
         </div>
+      </div>
+
+      {/* Display Settings Group - NEW */}
+      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
+        <SettingsItem
+          icon={<Layout className="w-5 h-5 text-white" />}
+          label="Lock Sidebar Position"
+          iconBgColor="hsl(45, 90%, 50%)"
+          rightElement={
+            <Switch 
+              checked={isLocked} 
+              onCheckedChange={handleLockToggle}
+              onClick={(e) => e.stopPropagation()}
+            />
+          }
+        />
+        <SettingsItem
+          icon={<Lock className="w-5 h-5 text-white" />}
+          label="Sidebar Position"
+          iconBgColor="hsl(200, 70%, 50%)"
+          rightElement={
+            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+              {(['left', 'top', 'right', 'bottom'] as SidebarPosition[]).map((pos) => (
+                <button
+                  key={pos}
+                  onClick={() => handlePositionChange(pos)}
+                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
+                    position === pos 
+                      ? 'bg-orange-500 text-white' 
+                      : 'bg-white/10 text-white/60 hover:bg-white/20'
+                  } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  title={`Move to ${pos}`}
+                >
+                  {positionIcons[pos]}
+                </button>
+              ))}
+            </div>
+          }
+        />
       </div>
 
       {!hasResults && searchQuery && (

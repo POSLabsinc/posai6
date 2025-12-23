@@ -1,4 +1,5 @@
-import { Settings, GripVertical, Lock, Unlock } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
 import { toast } from "@/hooks/use-toast";
@@ -22,8 +23,33 @@ const menuItems = [
 ];
 
 export function DraggableSidebar() {
-  const { position, setIsDragging, isLocked, setIsLocked, isAnimating } = useSidebarPosition();
+  const { position, setIsDragging, isLocked, setIsLocked, isAnimating, hasSeenOnboarding, dismissOnboarding } = useSidebarPosition();
   const isHorizontal = position === 'top' || position === 'bottom';
+  const [showOnboarding, setShowOnboarding] = useState(false);
+
+  // Show onboarding after a short delay for new users
+  useEffect(() => {
+    if (!hasSeenOnboarding && !isLocked) {
+      const timer = setTimeout(() => setShowOnboarding(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasSeenOnboarding, isLocked]);
+
+  // Auto-dismiss after 10 seconds
+  useEffect(() => {
+    if (showOnboarding) {
+      const timer = setTimeout(() => {
+        setShowOnboarding(false);
+        dismissOnboarding();
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [showOnboarding, dismissOnboarding]);
+
+  const handleDismissOnboarding = () => {
+    setShowOnboarding(false);
+    dismissOnboarding();
+  };
 
   const handleDragStart = (e: React.DragEvent) => {
     if (isLocked) {
@@ -34,6 +60,12 @@ export function DraggableSidebar() {
         duration: 2000,
       });
       return;
+    }
+    
+    // Dismiss onboarding when user starts dragging
+    if (showOnboarding) {
+      setShowOnboarding(false);
+      dismissOnboarding();
     }
     
     e.dataTransfer.setData('text/plain', 'sidebar');
@@ -77,6 +109,28 @@ export function DraggableSidebar() {
     }
   };
 
+  // Tooltip position based on sidebar position
+  const getTooltipPosition = () => {
+    switch (position) {
+      case 'left': return 'left-full ml-3 top-0';
+      case 'right': return 'right-full mr-3 top-0';
+      case 'top': return 'top-full mt-3 left-0';
+      case 'bottom': return 'bottom-full mb-3 left-0';
+      default: return 'left-full ml-3 top-0';
+    }
+  };
+
+  // Arrow position for tooltip
+  const getArrowClass = () => {
+    switch (position) {
+      case 'left': return 'absolute -left-2 top-4 w-0 h-0 border-t-8 border-b-8 border-r-8 border-transparent border-r-orange-500';
+      case 'right': return 'absolute -right-2 top-4 w-0 h-0 border-t-8 border-b-8 border-l-8 border-transparent border-l-orange-500';
+      case 'top': return 'absolute -top-2 left-4 w-0 h-0 border-l-8 border-r-8 border-b-8 border-transparent border-b-orange-500';
+      case 'bottom': return 'absolute -bottom-2 left-4 w-0 h-0 border-l-8 border-r-8 border-t-8 border-transparent border-t-orange-500';
+      default: return '';
+    }
+  };
+
   return (
     <div 
       className={`${isHorizontal ? 'h-20 w-full' : 'w-20 h-full'} py-2 px-2 flex-shrink-0 transition-all duration-300 ease-out ${getAnimationClass()}`}
@@ -86,17 +140,50 @@ export function DraggableSidebar() {
         style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}
       >
         {/* Drag Handle + Lock Toggle */}
-        <div className={`flex ${isHorizontal ? 'flex-row' : 'flex-col'} items-center gap-1 shrink-0`}>
+        <div className={`relative flex ${isHorizontal ? 'flex-row' : 'flex-col'} items-center gap-1 shrink-0`}>
           <div 
             draggable={!isLocked}
             onDragStart={handleDragStart}
             onDrag={handleDrag}
             onDragEnd={handleDragEnd}
-            className={`flex items-center justify-center ${isHorizontal ? 'h-full w-8' : 'w-full h-8'} ${isLocked ? 'cursor-not-allowed opacity-50' : 'cursor-grab active:cursor-grabbing'} hover:bg-white/20 rounded-lg transition-all shrink-0 select-none`}
+            className={`flex items-center justify-center ${isHorizontal ? 'h-full w-8' : 'w-full h-8'} ${isLocked ? 'cursor-not-allowed opacity-50' : 'cursor-grab active:cursor-grabbing'} hover:bg-white/20 rounded-lg transition-all shrink-0 select-none ${showOnboarding && !isLocked ? 'animate-pulse ring-2 ring-orange-400 ring-offset-2 ring-offset-transparent' : ''}`}
             title={isLocked ? "Sidebar is locked" : "Drag to reposition sidebar"}
           >
             <GripVertical className={`w-4 h-4 text-white/60 ${isHorizontal ? '' : 'rotate-90'}`} />
           </div>
+
+          {/* Onboarding Tooltip */}
+          {showOnboarding && !isLocked && (
+            <div className={`absolute ${getTooltipPosition()} z-50 animate-fade-in`}>
+              <div className="relative bg-gradient-to-br from-orange-500 to-amber-500 rounded-xl p-4 shadow-2xl min-w-[220px]">
+                <div className={getArrowClass()} />
+                
+                <button 
+                  onClick={handleDismissOnboarding}
+                  className="absolute top-2 right-2 text-white/80 hover:text-white transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+                
+                <div className="flex items-center gap-2 mb-2">
+                  <Move className="w-5 h-5 text-white" />
+                  <span className="font-semibold text-white text-sm">Drag & Drop Sidebar</span>
+                </div>
+                
+                <p className="text-white/90 text-xs leading-relaxed mb-3">
+                  Drag the handle to move the sidebar to any edge of the screen!
+                </p>
+                
+                <button
+                  onClick={handleDismissOnboarding}
+                  className="w-full bg-white/20 hover:bg-white/30 text-white text-xs font-medium py-1.5 px-3 rounded-lg transition-colors"
+                >
+                  Got it!
+                </button>
+              </div>
+            </div>
+          )}
+
           <button
             onClick={toggleLock}
             className={`flex items-center justify-center ${isHorizontal ? 'h-full w-8' : 'w-full h-8'} hover:bg-white/20 rounded-lg transition-colors shrink-0`}

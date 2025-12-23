@@ -10,12 +10,15 @@ interface SidebarPositionContextType {
   isLocked: boolean;
   setIsLocked: (locked: boolean) => void;
   isAnimating: boolean;
+  hasSeenOnboarding: boolean;
+  dismissOnboarding: () => void;
 }
 
 const SidebarPositionContext = createContext<SidebarPositionContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'sidebar-position';
 const LOCK_STORAGE_KEY = 'sidebar-locked';
+const ONBOARDING_STORAGE_KEY = 'sidebar-onboarding-seen';
 
 export function SidebarPositionProvider({ children }: { children: ReactNode }) {
   const [position, setPositionState] = useState<SidebarPosition>(() => {
@@ -28,6 +31,10 @@ export function SidebarPositionProvider({ children }: { children: ReactNode }) {
     return saved === 'true';
   });
   const [isAnimating, setIsAnimating] = useState(false);
+  const [hasSeenOnboarding, setHasSeenOnboarding] = useState(() => {
+    const saved = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+    return saved === 'true';
+  });
   const prevPosition = useRef(position);
 
   const setPosition = (pos: SidebarPosition) => {
@@ -45,6 +52,11 @@ export function SidebarPositionProvider({ children }: { children: ReactNode }) {
     localStorage.setItem(LOCK_STORAGE_KEY, String(locked));
   };
 
+  const dismissOnboarding = () => {
+    setHasSeenOnboarding(true);
+    localStorage.setItem(ONBOARDING_STORAGE_KEY, 'true');
+  };
+
   useEffect(() => {
     const handleMouseUp = () => {
       if (isDragging) {
@@ -56,7 +68,17 @@ export function SidebarPositionProvider({ children }: { children: ReactNode }) {
   }, [isDragging]);
 
   return (
-    <SidebarPositionContext.Provider value={{ position, setPosition, isDragging, setIsDragging, isLocked, setIsLocked, isAnimating }}>
+    <SidebarPositionContext.Provider value={{ 
+      position, 
+      setPosition, 
+      isDragging, 
+      setIsDragging, 
+      isLocked, 
+      setIsLocked, 
+      isAnimating,
+      hasSeenOnboarding,
+      dismissOnboarding
+    }}>
       {children}
     </SidebarPositionContext.Provider>
   );

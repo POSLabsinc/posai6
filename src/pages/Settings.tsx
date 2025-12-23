@@ -1,9 +1,10 @@
-import { useState, useMemo } from "react";
-import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck, Layout, Lock, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw } from "lucide-react";
+import { useState, useMemo, useCallback } from "react";
+import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck, Layout, Lock, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Smartphone } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useSidebarPosition, SidebarPosition } from "@/contexts/SidebarPositionContext";
 import { toast } from "@/hooks/use-toast";
+import { useShake } from "@/hooks/use-shake";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -74,6 +75,18 @@ const Settings = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResetDialog, setShowResetDialog] = useState(false);
   const { position, setPosition, isLocked, setIsLocked, resetToDefaults } = useSidebarPosition();
+
+  // Shake to reset gesture
+  const handleShake = useCallback(() => {
+    setShowResetDialog(true);
+    toast({
+      title: "Shake Detected",
+      description: "Opening reset dialog...",
+      duration: 1500,
+    });
+  }, []);
+
+  useShake({ onShake: handleShake, threshold: 15, timeout: 1500 });
 
   const filteredItems = useMemo(() => {
     if (!searchQuery.trim()) return allSettingsItems;
@@ -199,6 +212,10 @@ const Settings = () => {
           iconBgColor="hsl(0, 0%, 40%)"
           onClick={handleResetToDefaults}
         />
+        <div className="flex items-center gap-3 py-3 px-1 text-muted-foreground text-sm">
+          <Smartphone className="w-4 h-4" />
+          <span>Tip: Shake your device to reset</span>
+        </div>
       </div>
 
       {!hasResults && searchQuery && (

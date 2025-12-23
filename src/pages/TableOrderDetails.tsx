@@ -1100,50 +1100,75 @@ const TableOrderDetails = () => {
                     <span className="text-orange-500 text-xs font-medium">Merged #{mergedOrderId} from T{mergedFromTable}</span>
                   </div>}
                 <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
-                <div className="flex items-stretch w-full gap-2 bg-neutral-900">
-                  {/* Column 1: Order Number */}
-                  <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
-                    <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
+                <div className="flex items-stretch w-full bg-neutral-900">
+                  {/* Left Content with padding */}
+                  <div className="flex-1 flex items-stretch gap-2 p-2">
+                    {/* Order Number Box */}
+                    <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 rounded-lg border border-white/20 py-1.5 gap-0.5" style={{ background: '#1A1A1A' }}>
                       <span className="text-base font-bold text-white">{guest.id}</span>
-                      <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-cover" />
+                      <span className="text-[10px] text-white/40">000</span>
+                    </div>
+
+                    {/* Main Content */}
+                    <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                      {/* Row 1: Name + Table | Server (center) | Status */}
+                      <div className="flex items-center text-xs">
+                        <div className="flex items-center gap-1 flex-shrink-0">
+                          <span className="text-white font-medium truncate">{guest.name}</span>
+                          <span className="text-white/60">·</span>
+                          <span className="text-white font-medium">T{guest.partySize}</span>
+                        </div>
+                        <span className="text-white/60 flex-1 text-center truncate px-1">{guest.server}</span>
+                        <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(guest.status)}`}>
+                          {guest.status}
+                        </span>
+                      </div>
+                      
+                      {/* Row 2: Party info | Timer | Total */}
+                      <div className="flex items-center text-xs">
+                        <div className="flex items-center gap-1 text-white/60 flex-shrink-0">
+                          <span className="truncate">Party of {guest.partySize}, {guest.time}</span>
+                          <span className="text-white/40">|</span>
+                          <span>{guest.timer}</span>
+                        </div>
+                        <div className="flex-1"></div>
+                        <span className="text-white font-semibold flex-shrink-0">{formatPrice(guest.total)}</span>
+                      </div>
+                      
+                      {/* Row 3: Revenue Center | Payment Status (center) | Amount */}
+                      <div className="flex items-center text-xs">
+                        <span className="text-white font-medium flex-shrink-0 truncate">{guest.revenueCenter}</span>
+                        <span className="text-white/60 flex-1 text-center truncate px-1">{guest.status === 'Paid' || guest.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+                        <span className="text-white flex-shrink-0">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Column 2: Guest Info */}
-                  <div className="flex-1 min-w-0 py-2 pr-2">
-                    <div className="flex flex-col">
-                      <div className="flex items-start justify-between">
-                        <span className="text-white font-medium text-sm">{guest.name}</span>
-                        <div className="flex flex-col items-end">
-                          <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
-                          {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}
-                        </div>
-                      </div>
-                      <div className="h-px bg-neutral-600 my-1.5"></div>
-                      <div className="flex items-center justify-between text-xs">
-                        <div className="flex items-center gap-1 text-gray-400">
-                          <span>Party Of {guest.partySize},</span>
-                          <span>⚡ {guest.time}</span>
-                        </div>
-                        <span className={getStatusColor(guest.status)}>{guest.status}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Column 3: Action Buttons */}
-                  <div className="flex-shrink-0 flex">
-                    <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
-                      <button className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors border-b border-neutral-600" onClick={e => {
-                      e.stopPropagation();
-                      navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
-                    }}>
-                        <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
+                  {/* Right Action Buttons - Edge to edge (hidden for completed/paid orders) */}
+                  {guest.status !== 'Paid' && guest.status !== 'Completed' && (
+                    <div className="flex-shrink-0 flex flex-col w-9">
+                      <button 
+                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
+                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                        }}
+                      >
+                        <img src={arrowRightIcon} alt="Merge" className="w-3.5 h-3.5 object-contain" />
                       </button>
-                      <button className="flex-1 px-3 flex items-center justify-center hover:bg-neutral-600 transition-colors" onClick={e => e.stopPropagation()}>
-                        <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain" />
+                      <button 
+                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
+                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                        }}
+                      >
+                        <img src={shareOrderIcon} alt="Transfer" className="w-3.5 h-3.5 object-contain brightness-0" />
                       </button>
                     </div>
-                  </div>
+                  )}
                 </div>
               </div>
             </div>)}

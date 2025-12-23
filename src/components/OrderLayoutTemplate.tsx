@@ -104,51 +104,52 @@ const OrderLayoutTemplate = ({
         </div>
       </div>
 
-      {/* Tablet/Desktop Layout - matching MergeOrders 3-row format */}
+      {/* Tablet/Desktop Layout - matching TransferOrders 3-row format */}
       <div className="hidden md:flex items-stretch w-full">
-        {/* Order Number Box */}
-        <div className="flex-shrink-0 px-2 py-2 flex items-center">
-          <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-            <span className="text-base font-bold text-white">{order.id}</span>
-            <img src={tableTargetIcon} alt="Table" className="w-4 h-4 object-contain" />
+        {/* Left Content with padding */}
+        <div className="flex-1 flex items-stretch gap-3 p-3">
+          {/* Order Number Box */}
+          <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
+            <span className="text-lg font-bold text-white">{order.id}</span>
+            <span className="text-xs text-white/40">000</span>
           </div>
-        </div>
 
-        {/* Main Content - 3 rows */}
-        <div className="flex-1 min-w-0 flex flex-col justify-between py-1 pr-3">
-          {/* Row 1: Name + Table | Server | Status */}
-          <div className="flex items-center text-sm">
-            <div className="flex items-center gap-2 w-[220px] flex-shrink-0">
-              <span className="text-white font-medium truncate">{order.name}</span>
-              <span className="text-white/60">·</span>
-              <span className="text-white font-medium">{order.table}</span>
+          {/* Main Content - 3 rows */}
+          <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+            {/* Row 1: Name + Table | Server | Status */}
+            <div className="flex items-center text-sm">
+              <div className="flex items-center gap-2 w-[220px] flex-shrink-0">
+                <span className="text-white font-medium truncate">{order.name}</span>
+                <span className="text-white/60">·</span>
+                <span className="text-white font-medium">{order.table}</span>
+              </div>
+              <div className="flex-1">
+                <span className="text-white/60 truncate">{order.server}</span>
+              </div>
+              <span className={`font-semibold uppercase flex-shrink-0 ${getOrderStatusColor(order.status)}`}>
+                {order.status}
+              </span>
             </div>
-            <div className="flex-1">
-              <span className="text-white/60 truncate">{order.server}</span>
+            
+            {/* Row 2: Party info | Timer | Total */}
+            <div className="flex items-center text-sm">
+              <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
+                <span className="truncate">Party of {order.partySize}, {order.time}</span>
+                <span className="text-white/40">|</span>
+                <span>{order.timer}</span>
+              </div>
+              <div className="flex-1"></div>
+              <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
             </div>
-            <span className={`font-semibold uppercase flex-shrink-0 ${getOrderStatusColor(order.status)}`}>
-              {order.status}
-            </span>
-          </div>
-          
-          {/* Row 2: Party info | Timer | Total */}
-          <div className="flex items-center text-sm">
-            <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
-              <span className="truncate">Party of {order.partySize}, {order.time}</span>
-              <span className="text-white/40">|</span>
-              <span>{order.timer}</span>
+            
+            {/* Row 3: Revenue Center | Payment Status | Tip */}
+            <div className="flex items-center text-sm">
+              <span className="text-white font-medium w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
+              <div className="flex-1">
+                <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+              </div>
+              <span className="text-white flex-shrink-0">$0.00</span>
             </div>
-            <div className="flex-1"></div>
-            <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
-          </div>
-          
-          {/* Row 3: Revenue Center | Payment Status | Tip */}
-          <div className="flex items-center text-sm">
-            <span className="text-white font-medium w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
-            <div className="flex-1">
-              <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
-            </div>
-            <span className="text-white flex-shrink-0">$0.00</span>
           </div>
         </div>
       </div>

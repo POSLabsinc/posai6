@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck, Layout, Lock, ArrowLeft, ArrowRight, ArrowUp, ArrowDown } from "lucide-react";
+import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck, Layout, Lock, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useSidebarPosition, SidebarPosition } from "@/contexts/SidebarPositionContext";
@@ -62,7 +62,7 @@ const positionIcons: Record<SidebarPosition, React.ReactNode> = {
 
 const Settings = () => {
   const [searchQuery, setSearchQuery] = useState("");
-  const { position, setPosition, isLocked, setIsLocked } = useSidebarPosition();
+  const { position, setPosition, isLocked, setIsLocked, resetToDefaults } = useSidebarPosition();
 
   const filteredItems = useMemo(() => {
     if (!searchQuery.trim()) return allSettingsItems;
@@ -104,6 +104,15 @@ const Settings = () => {
     toast({
       title: "Sidebar Moved",
       description: `Sidebar moved to ${newPosition}.`,
+      duration: 2000,
+    });
+  };
+
+  const handleResetToDefaults = () => {
+    resetToDefaults();
+    toast({
+      title: "Reset Complete",
+      description: "Sidebar settings have been reset to defaults.",
       duration: 2000,
     });
   };
@@ -167,6 +176,12 @@ const Settings = () => {
               ))}
             </div>
           }
+        />
+        <SettingsItem
+          icon={<RotateCcw className="w-5 h-5 text-white" />}
+          label="Reset to Defaults"
+          iconBgColor="hsl(0, 0%, 40%)"
+          onClick={handleResetToDefaults}
         />
       </div>
 

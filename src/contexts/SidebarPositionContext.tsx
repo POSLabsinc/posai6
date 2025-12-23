@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, ReactNode, useRef } from 'react';
 
 export type SidebarPosition = 'left' | 'right' | 'top' | 'bottom';
 
@@ -7,11 +7,15 @@ interface SidebarPositionContextType {
   setPosition: (pos: SidebarPosition) => void;
   isDragging: boolean;
   setIsDragging: (dragging: boolean) => void;
+  isLocked: boolean;
+  setIsLocked: (locked: boolean) => void;
+  isAnimating: boolean;
 }
 
 const SidebarPositionContext = createContext<SidebarPositionContextType | undefined>(undefined);
 
 const STORAGE_KEY = 'sidebar-position';
+const LOCK_STORAGE_KEY = 'sidebar-locked';
 
 export function SidebarPositionProvider({ children }: { children: ReactNode }) {
   const [position, setPositionState] = useState<SidebarPosition>(() => {
@@ -19,10 +23,26 @@ export function SidebarPositionProvider({ children }: { children: ReactNode }) {
     return (saved as SidebarPosition) || 'left';
   });
   const [isDragging, setIsDragging] = useState(false);
+  const [isLocked, setIsLockedState] = useState(() => {
+    const saved = localStorage.getItem(LOCK_STORAGE_KEY);
+    return saved === 'true';
+  });
+  const [isAnimating, setIsAnimating] = useState(false);
+  const prevPosition = useRef(position);
 
   const setPosition = (pos: SidebarPosition) => {
+    if (pos !== prevPosition.current) {
+      setIsAnimating(true);
+      setTimeout(() => setIsAnimating(false), 500);
+    }
     setPositionState(pos);
     localStorage.setItem(STORAGE_KEY, pos);
+    prevPosition.current = pos;
+  };
+
+  const setIsLocked = (locked: boolean) => {
+    setIsLockedState(locked);
+    localStorage.setItem(LOCK_STORAGE_KEY, String(locked));
   };
 
   useEffect(() => {
@@ -36,7 +56,7 @@ export function SidebarPositionProvider({ children }: { children: ReactNode }) {
   }, [isDragging]);
 
   return (
-    <SidebarPositionContext.Provider value={{ position, setPosition, isDragging, setIsDragging }}>
+    <SidebarPositionContext.Provider value={{ position, setPosition, isDragging, setIsDragging, isLocked, setIsLocked, isAnimating }}>
       {children}
     </SidebarPositionContext.Provider>
   );

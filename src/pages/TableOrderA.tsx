@@ -31,7 +31,7 @@ const shapeStatusConfig: Record<string, { borderColor: string; bgColor: string; 
   "Paid": { borderColor: "border-emerald-400", bgColor: "bg-emerald-400/20", dotColor: "bg-emerald-500" },
 };
 
-// Mock table data with shapes and occupied seats
+// Mock table data with shapes and occupied seats - 8 tables only
 const tables = [
   { id: "T1", seats: 8, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [] },
   { id: "T2", seats: 4, status: "Ordering", time: "25M", shape: "square" as const, occupiedSeats: [1, 2] },
@@ -41,22 +41,6 @@ const tables = [
   { id: "T6", seats: 2, status: "Running Late", time: "45M", shape: "square" as const, occupiedSeats: [1] },
   { id: "T7", seats: 6, status: "1st Course", time: "12M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4, 5, 6] },
   { id: "T8", seats: 4, status: "2nd Course", time: "13M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4] },
-  { id: "T9", seats: 4, status: "3rd Course", time: "14M", shape: "circle" as const, occupiedSeats: [1, 2, 3] },
-  { id: "T10", seats: 4, status: "Dessert", time: "16M", shape: "square" as const, occupiedSeats: [1, 2] },
-  { id: "T11", seats: 6, status: "Partially Seated", time: "18M", shape: "circle" as const, occupiedSeats: [2, 4] },
-  { id: "T12", seats: 4, status: "Served", time: "36M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4] },
-  { id: "T13", seats: 8, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [] },
-  { id: "T14", seats: 4, status: "Ordering", time: "25M", shape: "square" as const, occupiedSeats: [1, 3] },
-  { id: "T15", seats: 6, status: "Ordered", time: "2H 25M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4] },
-  { id: "T16", seats: 4, status: "Reserved", time: "2H 25M", shape: "square" as const, occupiedSeats: [] },
-  { id: "T17", seats: 4, status: "Seated", time: "25M", shape: "circle" as const, occupiedSeats: [1, 2] },
-  { id: "T18", seats: 2, status: "Running Late", time: "45M", shape: "square" as const, occupiedSeats: [1, 2] },
-  { id: "T19", seats: 6, status: "1st Course", time: "12M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4, 5] },
-  { id: "T20", seats: 4, status: "2nd Course", time: "13M", shape: "square" as const, occupiedSeats: [1, 2, 3] },
-  { id: "T21", seats: 4, status: "3rd Course", time: "14M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4] },
-  { id: "T22", seats: 4, status: "Dessert", time: "16M", shape: "square" as const, occupiedSeats: [1, 2, 3] },
-  { id: "T23", seats: 6, status: "Paid", time: "18M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4, 5, 6] },
-  { id: "T24", seats: 4, status: "Served", time: "36M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4] },
 ];
 
 // Filter categories with counts
@@ -124,20 +108,22 @@ const CircularTable = ({
   showGuestSelection: boolean;
 }) => {
   const config = shapeStatusConfig[table.status] || shapeStatusConfig["Available"];
-  const tableSize = table.seats >= 8 ? 120 : table.seats >= 6 ? 100 : 80;
-  const seatRadius = table.seats >= 8 ? 52 : table.seats >= 6 ? 55 : 58;
+  const tableSize = table.seats >= 8 ? 100 : table.seats >= 6 ? 80 : 70;
+  const seatRadius = 48;
+  const containerSize = 180;
 
   return (
     <div 
-      className="relative flex flex-col items-center cursor-pointer"
-      style={{ width: tableSize + 50, height: tableSize + 70 }}
+      className="relative flex flex-col items-center justify-center cursor-pointer"
+      style={{ width: containerSize, height: containerSize + 30 }}
       onClick={onClick}
     >
-      {/* Seats around the table */}
+      {/* Container for table and seats */}
       <div 
-        className="relative"
-        style={{ width: tableSize + 40, height: tableSize + 40 }}
+        className="relative flex items-center justify-center"
+        style={{ width: containerSize, height: containerSize }}
       >
+        {/* Seats around the table */}
         {Array.from({ length: table.seats }).map((_, i) => {
           const pos = getCircularSeatPosition(i, table.seats, seatRadius);
           const isOccupied = table.occupiedSeats.includes(i + 1);
@@ -159,25 +145,25 @@ const CircularTable = ({
 
         {/* Table Circle */}
         <div 
-          className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-full border-2 flex flex-col items-center justify-center transition-all ${config.borderColor} ${config.bgColor} ${
+          className={`rounded-full border-2 flex flex-col items-center justify-center transition-all ${config.borderColor} ${config.bgColor} ${
             isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
           }`}
           style={{ width: tableSize, height: tableSize }}
         >
           {/* Status indicator dot */}
-          <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${config.dotColor}`} />
+          <div className={`absolute w-3 h-3 rounded-full ${config.dotColor}`} style={{ top: '50%', right: 0, transform: 'translate(50%, -50%)' }} />
           
           {/* Table number */}
-          <span className="text-white font-bold text-lg">{table.id}</span>
+          <span className="text-white font-bold text-base">{table.id}</span>
           
           {/* Seats count */}
-          <span className="text-gray-400 text-xs">{table.seats} seats</span>
+          <span className="text-gray-400 text-[10px]">{table.seats} seats</span>
         </div>
       </div>
 
       {/* Timer badge */}
       {table.time && (
-        <div className="flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-neutral-800 text-xs text-gray-400">
+        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800 text-xs text-gray-400">
           <Clock className="w-3 h-3" />
           <span>{table.time}</span>
         </div>
@@ -221,29 +207,30 @@ const SquareTable = ({
   showGuestSelection: boolean;
 }) => {
   const config = shapeStatusConfig[table.status] || shapeStatusConfig["Available"];
-  const tableSize = table.seats >= 6 ? 80 : table.seats >= 4 ? 70 : 60;
+  const tableSize = 70;
+  const containerSize = 180;
 
-  // Position seats on edges
+  // Position seats on edges - simplified for cleaner layout
   const getSeatPositions = (totalSeats: number) => {
     const positions: { left: string; top: string }[] = [];
+    const offset = 30; // Distance from table center
     
     if (totalSeats === 2) {
-      positions.push({ left: "-15%", top: "50%" }); // Left
-      positions.push({ left: "115%", top: "50%" }); // Right
+      positions.push({ left: `${50 - offset}%`, top: "50%" }); // Left
+      positions.push({ left: `${50 + offset}%`, top: "50%" }); // Right
     } else if (totalSeats === 4) {
-      positions.push({ left: "50%", top: "-20%" }); // Top
-      positions.push({ left: "115%", top: "50%" }); // Right
-      positions.push({ left: "50%", top: "120%" }); // Bottom
-      positions.push({ left: "-15%", top: "50%" }); // Left
+      positions.push({ left: "50%", top: `${50 - offset}%` }); // Top
+      positions.push({ left: `${50 + offset}%`, top: "50%" }); // Right
+      positions.push({ left: "50%", top: `${50 + offset}%` }); // Bottom
+      positions.push({ left: `${50 - offset}%`, top: "50%" }); // Left
     } else if (totalSeats === 6) {
-      positions.push({ left: "30%", top: "-20%" }); // Top left
-      positions.push({ left: "70%", top: "-20%" }); // Top right
-      positions.push({ left: "115%", top: "50%" }); // Right
-      positions.push({ left: "70%", top: "120%" }); // Bottom right
-      positions.push({ left: "30%", top: "120%" }); // Bottom left
-      positions.push({ left: "-15%", top: "50%" }); // Left
+      positions.push({ left: "38%", top: `${50 - offset}%` }); // Top left
+      positions.push({ left: "62%", top: `${50 - offset}%` }); // Top right
+      positions.push({ left: `${50 + offset}%`, top: "50%" }); // Right
+      positions.push({ left: "62%", top: `${50 + offset}%` }); // Bottom right
+      positions.push({ left: "38%", top: `${50 + offset}%` }); // Bottom left
+      positions.push({ left: `${50 - offset}%`, top: "50%" }); // Left
     } else {
-      // Generic distribution
       for (let i = 0; i < totalSeats; i++) {
         positions.push(getSquareSeatPosition(i, totalSeats));
       }
@@ -256,15 +243,16 @@ const SquareTable = ({
 
   return (
     <div 
-      className="relative flex flex-col items-center cursor-pointer"
-      style={{ width: tableSize + 50, height: tableSize + 70 }}
+      className="relative flex flex-col items-center justify-center cursor-pointer"
+      style={{ width: containerSize, height: containerSize + 30 }}
       onClick={onClick}
     >
-      {/* Seats around the table */}
+      {/* Container for table and seats */}
       <div 
-        className="relative"
-        style={{ width: tableSize + 30, height: tableSize + 30, marginTop: 15 }}
+        className="relative flex items-center justify-center"
+        style={{ width: containerSize, height: containerSize }}
       >
+        {/* Seats around the table */}
         {seatPositions.map((pos, i) => {
           const isOccupied = table.occupiedSeats.includes(i + 1);
           
@@ -285,16 +273,16 @@ const SquareTable = ({
 
         {/* Table Square */}
         <div 
-          className={`absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-lg border-2 flex flex-col items-center justify-center transition-all ${config.borderColor} ${config.bgColor} ${
+          className={`rounded-lg border-2 flex flex-col items-center justify-center transition-all ${config.borderColor} ${config.bgColor} ${
             isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
           }`}
           style={{ width: tableSize, height: tableSize }}
         >
           {/* Status indicator dot */}
-          <div className={`absolute -top-1 -right-1 w-3 h-3 rounded-full ${config.dotColor}`} />
+          <div className={`absolute w-3 h-3 rounded-full ${config.dotColor}`} style={{ top: '50%', right: 55, transform: 'translateY(-50%)' }} />
           
           {/* Table number */}
-          <span className="text-white font-bold text-lg">{table.id}</span>
+          <span className="text-white font-bold text-base">{table.id}</span>
           
           {/* Seats count */}
           <span className="text-gray-400 text-[10px]">{table.seats} seats</span>
@@ -303,7 +291,7 @@ const SquareTable = ({
 
       {/* Timer badge */}
       {table.time && (
-        <div className="flex items-center gap-1 mt-1 px-2 py-0.5 rounded-full bg-neutral-800 text-xs text-gray-400">
+        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800 text-xs text-gray-400">
           <Clock className="w-3 h-3" />
           <span>{table.time}</span>
         </div>
@@ -489,8 +477,8 @@ const TableOrderA = () => {
       {/* Tables View */}
       <ScrollArea className="flex-1">
         {viewMode === "grid" ? (
-          /* Shape Grid View */
-          <div className="flex flex-wrap gap-4 justify-start p-2">
+          /* Shape Grid View - 4 columns with proper spacing */
+          <div className="grid grid-cols-4 gap-6 p-4">
             {filteredTables.map((table) => (
               table.shape === "circle" ? (
                 <CircularTable

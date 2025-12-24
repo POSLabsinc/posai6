@@ -6897,17 +6897,17 @@ const OrdersF = () => {
         {/* Order Summary - Only show when cart has items */}
         {orderItems.length > 0 && (
         <div className="p-2 border-t border-sidebar-border flex-shrink-0">
-          <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+          <div className="flex items-center justify-between text-[10px] md:text-xs px-2 py-1.5 rounded" style={{
+            background: 'rgba(255, 255, 255, 0.05)',
+            border: '1px solid rgba(255, 255, 255, 0.08)'
           }}>
-            <div className="flex justify-between gap-3">
-              <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-              <span className="text-red-500">Discount: <span className="font-medium">${discount.toFixed(2)}</span></span>
+            <div className="flex items-center gap-3 md:gap-4">
+              <span className="text-muted-foreground">Subtotal <span className="text-foreground font-medium">${subtotal.toFixed(2)}</span></span>
+              <span className="text-muted-foreground">Tax <span className="text-foreground font-medium">${tax.toFixed(2)}</span></span>
             </div>
-            <div className="flex justify-between gap-3">
-              <span className="text-foreground">Service Charge: <span className="font-medium">${serviceCharge.toFixed(2)}</span></span>
-              <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+            <div className="flex items-center gap-3 md:gap-4">
+              {discount > 0 && <span className="text-red-400">-${discount.toFixed(2)}</span>}
+              {serviceCharge > 0 && <span className="text-muted-foreground">+${serviceCharge.toFixed(2)}</span>}
             </div>
           </div>
 

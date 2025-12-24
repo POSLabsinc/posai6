@@ -6585,7 +6585,7 @@ const Orders = () => {
                     </SelectItem>)}
                 </SelectContent>
               </Select>
-            </div> : <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-9 w-6 md:w-8 lg:w-9 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
+            </div> : <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-9 w-6 md:w-8 lg:w-9 p-0 hover:bg-transparent" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
               <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-8 lg:w-9 h-6 md:h-8 lg:h-9" />
             </Button>}
           {/* Categories */}

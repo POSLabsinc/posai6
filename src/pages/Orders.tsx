@@ -6711,9 +6711,9 @@ const Orders = () => {
       <div className={`hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0 pb-2 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
-          <div className="flex items-center justify-evenly text-xs mb-2 gap-2">
-            <div className="relative">
-              <input ref={guestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-[#808080]" />
+          <div className="flex items-center text-xs mb-2 gap-2">
+            <div className="relative flex-1">
+              <input ref={guestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-full min-w-0 font-medium text-[#808080]" />
               {showGuestDropdown && filteredGuests.length > 0 && <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
                   {filteredGuests.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
                       {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
@@ -6726,7 +6726,7 @@ const Orders = () => {
                     </button>)}
                 </div>}
             </div>
-            <div className="relative flex items-center gap-0.5">
+            <div className="relative flex items-center gap-0.5 flex-shrink-0">
               <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
               <input ref={phoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080] text-xs" />
               {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={phoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
@@ -6741,11 +6741,11 @@ const Orders = () => {
                     </button>)}
                 </div>}
             </div>
-            <div className="flex items-center gap-0.5 whitespace-nowrap flex-shrink-0">
+            <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
               <img src={timeIcon} alt="Time" className="w-3 h-3" />
               <span className="text-white text-[10px]">12:30 PM</span>
+              <DraggablePanelHandle panelId="order" className="flex-shrink-0" />
             </div>
-            <DraggablePanelHandle panelId="order" className="flex-shrink-0 ml-auto" />
           </div>
           
           <div className="overflow-x-auto scrollbar-hide mb-2">

@@ -6708,7 +6708,7 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order (Desktop only) */}
-      <div className={`hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0 pb-2 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
+      <div className={`hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0 pb-2 pr-2 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center text-xs mb-2 gap-2">

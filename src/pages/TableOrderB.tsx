@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin } from "lucide-react";
+import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, Move, RotateCcw } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -31,20 +31,40 @@ const statusConfig: Record<string, { color: string; bgColor: string; label: stri
   "Paid": { color: "#10b981", bgColor: "rgba(16, 185, 129, 0.2)", label: "Paid" },
 };
 
-// Mock table data with x, y positions for map view
-const tables = [
-  { id: "T1", seats: 8, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [], guests: 0, x: 80, y: 60 },
+// Default table data with x, y positions for map view
+const defaultTables = [
+  { id: "T1", seats: 8, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [] as number[], guests: 0, x: 80, y: 60 },
   { id: "T2", seats: 4, status: "Ordering", time: "25m", shape: "square" as const, occupiedSeats: [1, 2], guests: 2, x: 320, y: 80 },
   { id: "T3", seats: 4, status: "Ordered", time: "1h 15m", shape: "circle" as const, occupiedSeats: [1, 2, 3], guests: 3, x: 520, y: 50 },
-  { id: "T4", seats: 4, status: "Reserved", time: "7:30 PM", shape: "square" as const, occupiedSeats: [], guests: 0, x: 720, y: 90 },
+  { id: "T4", seats: 4, status: "Reserved", time: "7:30 PM", shape: "square" as const, occupiedSeats: [] as number[], guests: 0, x: 720, y: 90 },
   { id: "T5", seats: 6, status: "Seated", time: "10m", shape: "circle" as const, occupiedSeats: [1, 3, 5], guests: 3, x: 120, y: 320 },
-  { id: "T6", seats: 2, status: "Running Late", time: "15m", shape: "square" as const, occupiedSeats: [], guests: 0, x: 340, y: 300 },
+  { id: "T6", seats: 2, status: "Running Late", time: "15m", shape: "square" as const, occupiedSeats: [] as number[], guests: 0, x: 340, y: 300 },
   { id: "T7", seats: 6, status: "1st Course", time: "35m", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4, 5, 6], guests: 6, x: 540, y: 340 },
   { id: "T8", seats: 4, status: "2nd Course", time: "50m", shape: "square" as const, occupiedSeats: [1, 2, 3, 4], guests: 4, x: 750, y: 320 },
 ];
 
+type TableType = typeof defaultTables[0];
+
+// Load saved positions from localStorage or use defaults
+const loadSavedPositions = (): TableType[] => {
+  try {
+    const saved = localStorage.getItem('tablePositions');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      // Merge saved positions with default table data (in case new tables were added)
+      return defaultTables.map(table => {
+        const savedTable = parsed.find((t: TableType) => t.id === table.id);
+        return savedTable ? { ...table, x: savedTable.x, y: savedTable.y } : table;
+      });
+    }
+  } catch (e) {
+    console.error('Error loading table positions:', e);
+  }
+  return defaultTables;
+};
+
 // Filter categories with counts
-const getFilterCounts = () => {
+const getFilterCounts = (tables: TableType[]) => {
   const counts: Record<string, number> = { "All": tables.length };
   tables.forEach(table => {
     counts[table.status] = (counts[table.status] || 0) + 1;
@@ -160,7 +180,7 @@ const MapCircularTable = ({
   onGuestSelect,
   showGuestSelection 
 }: { 
-  table: typeof tables[0]; 
+  table: TableType;
   onClick: () => void;
   isSelected: boolean;
   onGuestSelect: (count: number) => void;
@@ -285,7 +305,7 @@ const MapSquareTable = ({
   onGuestSelect,
   showGuestSelection 
 }: { 
-  table: typeof tables[0]; 
+  table: TableType;
   onClick: () => void;
   isSelected: boolean;
   onGuestSelect: (count: number) => void;
@@ -462,7 +482,104 @@ const TableOrderB = () => {
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [guestDropdownTable, setGuestDropdownTable] = useState<string | null>(null);
-  const filterCounts = getFilterCounts();
+  
+  // Drag and drop state
+  const [tablePositions, setTablePositions] = useState<TableType[]>(loadSavedPositions);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [draggedTableId, setDraggedTableId] = useState<string | null>(null);
+  const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  const mapContainerRef = useRef<HTMLDivElement>(null);
+  
+  const filterCounts = getFilterCounts(tablePositions);
+
+  // Save positions to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('tablePositions', JSON.stringify(tablePositions));
+  }, [tablePositions]);
+
+  // Get client coordinates from mouse or touch event
+  const getClientCoords = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
+    if ('touches' in e) {
+      return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
+    return { x: (e as MouseEvent).clientX, y: (e as MouseEvent).clientY };
+  };
+
+  // Handle drag start
+  const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent, tableId: string) => {
+    if (!isEditMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const coords = getClientCoords(e);
+    const table = tablePositions.find(t => t.id === tableId);
+    const container = mapContainerRef.current;
+    
+    if (!table || !container) return;
+    
+    const containerRect = container.getBoundingClientRect();
+    
+    setDragOffset({
+      x: coords.x - containerRect.left - table.x,
+      y: coords.y - containerRect.top - table.y
+    });
+    setDraggedTableId(tableId);
+    setIsDragging(true);
+  }, [isEditMode, tablePositions]);
+
+  // Handle drag move
+  const handleDragMove = useCallback((e: MouseEvent | TouchEvent) => {
+    if (!isDragging || !draggedTableId || !mapContainerRef.current) return;
+    
+    const coords = getClientCoords(e);
+    const containerRect = mapContainerRef.current.getBoundingClientRect();
+    
+    // Calculate new position relative to container
+    let newX = coords.x - containerRect.left - dragOffset.x;
+    let newY = coords.y - containerRect.top - dragOffset.y;
+    
+    // Constrain to container bounds (with some padding for table size)
+    const padding = 10;
+    const maxX = containerRect.width - 150;
+    const maxY = containerRect.height - 150;
+    
+    newX = Math.max(padding, Math.min(newX, maxX));
+    newY = Math.max(padding, Math.min(newY, maxY));
+    
+    setTablePositions(prev => prev.map(t => 
+      t.id === draggedTableId ? { ...t, x: newX, y: newY } : t
+    ));
+  }, [isDragging, draggedTableId, dragOffset]);
+
+  // Handle drag end
+  const handleDragEnd = useCallback(() => {
+    setIsDragging(false);
+    setDraggedTableId(null);
+  }, []);
+
+  // Add global event listeners for drag
+  useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleDragMove);
+      window.addEventListener('mouseup', handleDragEnd);
+      window.addEventListener('touchmove', handleDragMove, { passive: false });
+      window.addEventListener('touchend', handleDragEnd);
+      
+      return () => {
+        window.removeEventListener('mousemove', handleDragMove);
+        window.removeEventListener('mouseup', handleDragEnd);
+        window.removeEventListener('touchmove', handleDragMove);
+        window.removeEventListener('touchend', handleDragEnd);
+      };
+    }
+  }, [isDragging, handleDragMove, handleDragEnd]);
+
+  // Reset positions to default
+  const handleResetPositions = () => {
+    setTablePositions(defaultTables);
+    localStorage.removeItem('tablePositions');
+  };
 
   const filters = [
     "All",
@@ -482,10 +599,13 @@ const TableOrderB = () => {
   ];
 
   const filteredTables = activeFilter === "All" 
-    ? tables 
-    : tables.filter(t => t.status === activeFilter);
+    ? tablePositions 
+    : tablePositions.filter(t => t.status === activeFilter);
 
-  const handleTableClick = (table: typeof tables[0]) => {
+  const handleTableClick = (table: TableType) => {
+    // Don't handle clicks while dragging or in edit mode
+    if (isDragging || isEditMode) return;
+    
     if (table.status === "Available") {
       setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
     } else {
@@ -580,6 +700,30 @@ const TableOrderB = () => {
           <span className="text-xs text-emerald-400 font-medium">Floor Plan</span>
         </div>
 
+        {/* Edit Mode Toggle */}
+        <button
+          onClick={() => setIsEditMode(!isEditMode)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+            isEditMode 
+              ? "bg-orange-500 text-white" 
+              : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+          }`}
+        >
+          <Move className="w-3.5 h-3.5" />
+          <span>{isEditMode ? "Done" : "Edit Layout"}</span>
+        </button>
+
+        {/* Reset Button (only show in edit mode) */}
+        {isEditMode && (
+          <button
+            onClick={handleResetPositions}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-800 text-gray-300 hover:bg-neutral-700 text-xs font-medium transition-all"
+          >
+            <RotateCcw className="w-3.5 h-3.5" />
+            <span>Reset</span>
+          </button>
+        )}
+
         {/* Filter Tabs */}
         <ScrollArea className="flex-1">
           <div className="flex items-center gap-2">
@@ -607,7 +751,22 @@ const TableOrderB = () => {
       </div>
 
       {/* Interactive Floor Plan Map */}
-      <div className="flex-1 relative overflow-hidden rounded-xl border border-neutral-800 bg-neutral-950">
+      <div 
+        ref={mapContainerRef}
+        className={`flex-1 relative overflow-hidden rounded-xl border-2 bg-neutral-950 transition-colors ${
+          isEditMode ? "border-orange-500/50" : "border-neutral-800"
+        }`}
+      >
+        {/* Edit mode hint */}
+        {isEditMode && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none">
+            <div className="text-center">
+              <Move className="w-12 h-12 text-neutral-700 mx-auto mb-2" />
+              <p className="text-neutral-600 text-sm">Drag tables to reposition</p>
+            </div>
+          </div>
+        )}
+
         {/* Grid background pattern */}
         <div 
           className="absolute inset-0 opacity-30"
@@ -646,11 +805,18 @@ const TableOrderB = () => {
         {filteredTables.map((table) => (
           <div
             key={table.id}
-            className="absolute transition-all duration-300"
+            className={`absolute transition-all select-none ${
+              draggedTableId === table.id 
+                ? "z-50 scale-105 duration-0" 
+                : "duration-300"
+            } ${isEditMode ? "cursor-grab active:cursor-grabbing" : ""}`}
             style={{ 
               left: table.x, 
               top: table.y,
+              boxShadow: draggedTableId === table.id ? "0 20px 40px rgba(0,0,0,0.5)" : undefined,
             }}
+            onMouseDown={(e) => handleDragStart(e, table.id)}
+            onTouchStart={(e) => handleDragStart(e, table.id)}
           >
             {table.shape === "circle" ? (
               <MapCircularTable
@@ -658,7 +824,7 @@ const TableOrderB = () => {
                 onClick={() => handleTableClick(table)}
                 isSelected={selectedTable === table.id}
                 onGuestSelect={(count) => handleGuestSelect(table.id, count)}
-                showGuestSelection={guestDropdownTable === table.id}
+                showGuestSelection={guestDropdownTable === table.id && !isEditMode}
               />
             ) : (
               <MapSquareTable
@@ -666,7 +832,7 @@ const TableOrderB = () => {
                 onClick={() => handleTableClick(table)}
                 isSelected={selectedTable === table.id}
                 onGuestSelect={(count) => handleGuestSelect(table.id, count)}
-                showGuestSelection={guestDropdownTable === table.id}
+                showGuestSelection={guestDropdownTable === table.id && !isEditMode}
               />
             )}
           </div>

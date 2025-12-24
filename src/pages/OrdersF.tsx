@@ -6625,22 +6625,20 @@ const OrdersF = () => {
             </Button>)}
         </div>
 
-        {/* Desktop Search Button - Inside Menu Panel */}
-        <div className="hidden md:flex items-center justify-between gap-2 mb-1">
-          <span className="text-xs text-neutral-400 font-medium uppercase tracking-wide">{activeCategory} — Subcategories</span>
-          <button 
-            className="cursor-pointer"
-            onClick={() => setIsDesktopSearchOpen(true)}
-          >
-            <img src={searchIcon} alt="Search" className="w-7 h-7 lg:w-8 lg:h-8" />
-          </button>
-        </div>
-
         <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />
 
         {/* Subcategories based on selected category - Hidden in search mode on mobile */}
-        <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[7rem] lg:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
-          <div className={`flex items-center gap-1 md:gap-1.5 lg:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
+        <div className={`relative overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[7rem] lg:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
+          {/* Desktop Search Button - Top Right Corner */}
+          <div className="hidden md:flex absolute top-1 right-0 z-10 items-center">
+            <button 
+              className="cursor-pointer"
+              onClick={() => setIsDesktopSearchOpen(true)}
+            >
+              <img src={searchIcon} alt="Search" className="w-7 h-7 lg:w-8 lg:h-8" />
+            </button>
+          </div>
+          <div className={`flex items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
             {/* Collapsible Menu - Desktop only, before subcategories */}
             {isMenuSelectOpen ? <div className="hidden md:flex items-center gap-1 md:gap-1.5 lg:gap-2 bg-sidebar-accent rounded-full pl-1 pr-1 md:pl-1.5 md:pr-1.5 lg:pl-2 lg:pr-2 h-6 md:h-8 lg:h-9 flex-shrink-0">
               <Button variant="ghost" size="icon" className="h-5 md:h-7 lg:h-8 w-5 md:w-7 lg:w-8 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>

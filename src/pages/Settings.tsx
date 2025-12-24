@@ -1,8 +1,9 @@
 import { useState, useMemo, useCallback } from "react";
-import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck, Layout, Lock, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Smartphone } from "lucide-react";
+import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck, Layout, Lock, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Smartphone, ArrowLeftRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useSidebarPosition, SidebarPosition } from "@/contexts/SidebarPositionContext";
+import { usePanelPosition } from "@/contexts/PanelPositionContext";
 import { toast } from "@/hooks/use-toast";
 import { useShake } from "@/hooks/use-shake";
 import {
@@ -75,6 +76,7 @@ const Settings = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResetDialog, setShowResetDialog] = useState(false);
   const { position, setPosition, isLocked, setIsLocked, resetToDefaults } = useSidebarPosition();
+  const { panelLayout, togglePanelLayout, resetPanelLayout } = usePanelPosition();
 
   // Shake to reset gesture
   const handleShake = useCallback(() => {
@@ -204,6 +206,17 @@ const Settings = () => {
                 </button>
               ))}
             </div>
+          }
+        />
+        <SettingsItem
+          icon={<ArrowLeftRight className="w-5 h-5 text-white" />}
+          label="Swap Panel Layout"
+          iconBgColor="hsl(220, 60%, 50%)"
+          onClick={togglePanelLayout}
+          rightElement={
+            <span className="text-xs text-muted-foreground bg-white/10 px-2 py-1 rounded">
+              {panelLayout === 'menu-left' ? 'Menu ← | → Order' : 'Order ← | → Menu'}
+            </span>
           }
         />
         <SettingsItem

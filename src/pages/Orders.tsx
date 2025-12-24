@@ -38,6 +38,9 @@ import newOrderIcon from "@/assets/icons/new-order.png";
 import tableOrderIcon from "@/assets/icons/table-order.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
 import settingsIcon from "@/assets/icons/settings.png";
+import { usePanelPosition } from "@/contexts/PanelPositionContext";
+import { PanelDropZones } from "@/components/PanelDropZone";
+import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 
 // Food images
 import salmonImg from "@/assets/food/salmon.jpg";
@@ -5906,6 +5909,7 @@ const getCategoryHoverTextColor = (category: string) => {
 const Orders = () => {
   // Read URL params for add-item mode
   const [searchParams] = useSearchParams();
+  const { panelLayout } = usePanelPosition();
   const addItemMode = searchParams.get('mode') === 'addItem';
   const existingOrderId = searchParams.get('orderId');
   const tableIdFromParams = searchParams.get('tableId');
@@ -6297,7 +6301,9 @@ const Orders = () => {
   const chargeLabel = addItemMode 
     ? (isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER') 
     : '';
-  return <div className="flex flex-col md:flex-row gap-[10px] md:gap-3 lg:gap-4 h-full overflow-hidden">
+  return <div className="relative flex flex-col md:flex-row gap-[10px] md:gap-3 lg:gap-4 h-full overflow-hidden">
+      {/* Panel Drop Zones for drag and drop repositioning */}
+      <PanelDropZones />
       {/* Right Panel - Order (Shows first on mobile) */}
       <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1' : 'flex-shrink-0'}`}>
         {/* Order Header - Outside background container */}
@@ -6514,7 +6520,7 @@ const Orders = () => {
       </div>
 
       {/* Left Panel - Menu */}
-      <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto`} style={isDragging && dragOffset !== 0 ? {
+      <div className={`md:flex-1 flex flex-col min-w-0 bg-neutral-900 md:bg-black border-t border-sidebar-border md:border-0 rounded-t-[20px] md:rounded-none overflow-hidden md:pb-2 ${!isDragging ? 'transition-all duration-300 ease-out' : ''} ${menuPosition === 'minimized' && !isDragging ? 'h-12 flex-grow-0 flex-shrink-0 mt-auto' : menuPosition !== 'minimized' && !isDragging ? 'flex-1' : 'flex-grow-0 flex-shrink-0'} md:h-auto ${panelLayout === 'menu-right' ? 'md:order-2' : 'md:order-1'}`} style={isDragging && dragOffset !== 0 ? {
       height: `${Math.max(48, Math.min(window.innerHeight - 80, getMenuHeight(menuPosition) + dragOffset))}px`,
       flexGrow: 0,
       flexShrink: 0,
@@ -6548,9 +6554,10 @@ const Orders = () => {
             <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />
           </div> : <>
         {/* Main Categories - Hidden in search mode on mobile */}
-        <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
-          {/* Desktop/Tablet Search Button - Top Right Corner */}
-          <div className="hidden md:flex absolute top-0 right-0 z-10">
+        <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-16 lg:pr-20 ${isSearchMode ? 'hidden md:flex' : ''}`}>
+          {/* Desktop Drag Handle and Search Button - Top Right Corner */}
+          <div className="hidden md:flex absolute top-0 right-0 z-10 items-center gap-1">
+            <DraggablePanelHandle panelId="menu" />
             <button 
               className="cursor-pointer"
               onClick={() => setIsDesktopSearchOpen(true)}
@@ -6701,10 +6708,11 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order (Desktop only) */}
-      <div className="hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0 pb-2">
+      <div className={`hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0 pb-2 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
+            <DraggablePanelHandle panelId="order" />
             <div className="relative">
               <input ref={guestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-[#808080]" />
               {showGuestDropdown && filteredGuests.length > 0 && <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">

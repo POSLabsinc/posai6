@@ -33,6 +33,7 @@ import LiquidGlassOrders5A from "./pages/LiquidGlassOrders5A";
 import LiquidGlassOrders5B from "./pages/LiquidGlassOrders5B";
 import TableOrder from "./pages/TableOrder";
 import TableOrderA from "./pages/TableOrderA";
+import TableOrderB from "./pages/TableOrderB";
 import TableOrderDetails from "./pages/TableOrderDetails";
 import MergeOrders from "./pages/MergeOrders";
 import TransferOrders from "./pages/TransferOrders";
@@ -80,6 +81,7 @@ const App = () => (
               <Route path="/liquid-orders-5b" element={<LiquidGlassOrders5B />} />
               <Route path="/tableorder" element={<TableOrder />} />
               <Route path="/tableorder-a" element={<TableOrderA />} />
+              <Route path="/tableorder-b" element={<TableOrderB />} />
               <Route path="/tableorder/:tableId" element={<TableOrderDetails />} />
               <Route path="/tableorder/:tableId/merge" element={<MergeOrders />} />
               <Route path="/tableorder/:tableId/transfer" element={<TransferOrders />} />

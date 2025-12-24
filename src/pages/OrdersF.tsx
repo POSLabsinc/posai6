@@ -6306,7 +6306,7 @@ const OrdersF = () => {
       <PanelDropZones />
       
       {/* NEW: Vertical Categories Column (Desktop only) */}
-      <div className="hidden md:flex flex-col w-[90px] lg:w-[100px] flex-shrink-0 gap-2 overflow-hidden">
+      <div className="hidden md:flex flex-col w-[110px] lg:w-[130px] flex-shrink-0 gap-2 overflow-hidden">
         {/* Menu Dropdown */}
         <div className="flex flex-col gap-1.5 p-1.5 rounded-lg" style={{
           background: '#7575754D',

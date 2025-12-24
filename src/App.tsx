@@ -11,6 +11,11 @@ import OrdersDesign1 from "./pages/OrdersDesign1";
 import OrdersDesign2 from "./pages/OrdersDesign2";
 import OrdersDesign3 from "./pages/OrdersDesign3";
 import OrdersDesign4 from "./pages/OrdersDesign4";
+import OrdersA from "./pages/OrdersA";
+import OrdersB from "./pages/OrdersB";
+import OrdersC from "./pages/OrdersC";
+import OrdersD from "./pages/OrdersD";
+import OrdersE from "./pages/OrdersE";
 import LiquidGlassDashboard from "./pages/LiquidGlassDashboard";
 import LiquidGlassOrders from "./pages/LiquidGlassOrders";
 import LiquidGlassMenu from "./pages/LiquidGlassMenu";
@@ -47,6 +52,11 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/orders" element={<Orders />} />
+              <Route path="/orders-a" element={<OrdersA />} />
+              <Route path="/orders-b" element={<OrdersB />} />
+              <Route path="/orders-c" element={<OrdersC />} />
+              <Route path="/orders-d" element={<OrdersD />} />
+              <Route path="/orders-e" element={<OrdersE />} />
               <Route path="/orders-design-1" element={<OrdersDesign1 />} />
               <Route path="/orders-design-2" element={<OrdersDesign2 />} />
               <Route path="/orders-design-3" element={<OrdersDesign3 />} />

@@ -6323,33 +6323,6 @@ const OrdersF = () => {
             </SelectContent>
           </Select>
           
-          {/* View Mode Toggles */}
-          <div className="flex items-center justify-center gap-1">
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 w-6 p-0 bg-white hover:bg-white/90 rounded-md" 
-              onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
-              title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
-            >
-              {horizontalScrollMode 
-                ? <img src={verticalScrollIcon} alt="All view" className="w-3.5 h-3.5" /> 
-                : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3.5 h-3.5" />
-              }
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-6 w-6 p-0 bg-white hover:bg-white/90 rounded-md" 
-              onClick={() => setThumbnailViewMode(!thumbnailViewMode)}
-              title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}
-            >
-              {thumbnailViewMode 
-                ? <img src={listViewIcon} alt="List view" className="w-3.5 h-3.5" /> 
-                : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3.5 h-3.5" />
-              }
-            </Button>
-          </div>
         </div>
         
         {/* Main Categories - Vertical List */}
@@ -6667,7 +6640,34 @@ const OrdersF = () => {
 
         {/* Subcategories based on selected category - Hidden in search mode on mobile */}
         <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[7rem] lg:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
-          <div className={`flex gap-1 md:gap-1.5 lg:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
+          <div className={`flex items-center gap-1 md:gap-1.5 lg:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
+            {/* View Mode Toggles - Desktop only, before subcategories */}
+            <div className="hidden md:flex items-center gap-1 mr-1 flex-shrink-0">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 lg:h-8 w-7 lg:w-8 p-0 bg-white hover:bg-white/90 rounded-md" 
+                onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
+                title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
+              >
+                {horizontalScrollMode 
+                  ? <img src={verticalScrollIcon} alt="All view" className="w-3.5 lg:w-4 h-3.5 lg:h-4" /> 
+                  : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3.5 lg:w-4 h-3.5 lg:h-4" />
+                }
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 lg:h-8 w-7 lg:w-8 p-0 bg-white hover:bg-white/90 rounded-md" 
+                onClick={() => setThumbnailViewMode(!thumbnailViewMode)}
+                title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}
+              >
+                {thumbnailViewMode 
+                  ? <img src={listViewIcon} alt="List view" className="w-3.5 lg:w-4 h-3.5 lg:h-4" /> 
+                  : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3.5 lg:w-4 h-3.5 lg:h-4" />
+                }
+              </Button>
+            </div>
             {(categorySubcategories[activeCategory] || []).map(sub => <Button key={sub} variant="outline" className={`rounded-md px-2 md:px-4 lg:px-6 h-6 md:h-7 lg:h-8 text-[10px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
                 {sub}
               </Button>)}

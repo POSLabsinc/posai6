@@ -6712,7 +6712,6 @@ const Orders = () => {
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-1">
-            <DraggablePanelHandle panelId="order" className="flex-shrink-0" />
             <div className="relative">
               <input ref={guestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-[#808080]" />
               {showGuestDropdown && filteredGuests.length > 0 && <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
@@ -6746,6 +6745,7 @@ const Orders = () => {
               <img src={timeIcon} alt="Time" className="w-3 h-3" />
               <span className="text-white text-[10px]">12:30 PM</span>
             </div>
+            <DraggablePanelHandle panelId="order" className="flex-shrink-0 ml-auto" />
           </div>
           
           <div className="overflow-x-auto scrollbar-hide mb-2">

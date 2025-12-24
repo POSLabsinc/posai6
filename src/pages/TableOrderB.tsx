@@ -1,14 +1,25 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, Move, RotateCcw } from "lucide-react";
+import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, Move, RotateCcw, Merge } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 // Import icons
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
@@ -491,12 +502,89 @@ const TableOrderB = () => {
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const mapContainerRef = useRef<HTMLDivElement>(null);
   
+  // Merge functionality state
+  const [mergeTarget, setMergeTarget] = useState<string | null>(null);
+  const [showMergeDialog, setShowMergeDialog] = useState(false);
+  const [pendingMerge, setPendingMerge] = useState<{ source: string; target: string } | null>(null);
+  
+  const MERGE_THRESHOLD = 120; // pixels - distance at which tables can merge
+  
   const filterCounts = getFilterCounts(tablePositions);
 
   // Save positions to localStorage when they change
   useEffect(() => {
     localStorage.setItem('tablePositions', JSON.stringify(tablePositions));
   }, [tablePositions]);
+  
+  // Check for table overlap during drag
+  const checkTableOverlap = useCallback((draggedX: number, draggedY: number, draggedId: string): string | null => {
+    for (const table of tablePositions) {
+      if (table.id === draggedId) continue;
+      
+      const distance = Math.sqrt(
+        Math.pow(table.x - draggedX, 2) + 
+        Math.pow(table.y - draggedY, 2)
+      );
+      
+      if (distance < MERGE_THRESHOLD) {
+        return table.id;
+      }
+    }
+    return null;
+  }, [tablePositions]);
+  
+  // Handle merge confirmation
+  const handleConfirmMerge = () => {
+    if (!pendingMerge) return;
+    
+    const { source, target } = pendingMerge;
+    const sourceTable = tablePositions.find(t => t.id === source);
+    const targetTable = tablePositions.find(t => t.id === target);
+    
+    if (sourceTable && targetTable) {
+      // Merge guests and occupied seats
+      const mergedGuests = sourceTable.guests + targetTable.guests;
+      const mergedOccupiedSeats = [
+        ...targetTable.occupiedSeats,
+        ...sourceTable.occupiedSeats.map(s => s + targetTable.seats)
+      ];
+      
+      // Determine the merged status (use the more "advanced" status)
+      const statusPriority = ["Available", "Reserved", "Seated", "Ordering", "Ordered", "1st Course", "2nd Course", "3rd Course", "Dessert", "Served", "Paid"];
+      const sourceIndex = statusPriority.indexOf(sourceTable.status);
+      const targetIndex = statusPriority.indexOf(targetTable.status);
+      const mergedStatus = sourceIndex > targetIndex ? sourceTable.status : targetTable.status;
+      
+      // Update tables
+      setTablePositions(prev => prev.map(t => {
+        if (t.id === target) {
+          return {
+            ...t,
+            guests: mergedGuests,
+            occupiedSeats: mergedOccupiedSeats.slice(0, t.seats),
+            status: mergedStatus,
+            time: sourceTable.time || targetTable.time,
+          };
+        }
+        // Mark source as available after merge
+        if (t.id === source) {
+          return { ...t, guests: 0, occupiedSeats: [], status: "Available", time: "" };
+        }
+        return t;
+      }));
+      
+      toast.success(`Tables ${source} and ${target} merged successfully`);
+    }
+    
+    setShowMergeDialog(false);
+    setPendingMerge(null);
+  };
+  
+  // Cancel merge and restore source table position
+  const handleCancelMerge = () => {
+    setShowMergeDialog(false);
+    setPendingMerge(null);
+  };
 
   // Get client coordinates from mouse or touch event
   const getClientCoords = (e: React.MouseEvent | React.TouchEvent | MouseEvent | TouchEvent) => {
@@ -550,13 +638,24 @@ const TableOrderB = () => {
     setTablePositions(prev => prev.map(t => 
       t.id === draggedTableId ? { ...t, x: newX, y: newY } : t
     ));
-  }, [isDragging, draggedTableId, dragOffset]);
+    
+    // Check for merge target
+    const overlappingTable = checkTableOverlap(newX, newY, draggedTableId);
+    setMergeTarget(overlappingTable);
+  }, [isDragging, draggedTableId, dragOffset, checkTableOverlap]);
 
   // Handle drag end
   const handleDragEnd = useCallback(() => {
+    if (mergeTarget && draggedTableId) {
+      // Show merge confirmation dialog
+      setPendingMerge({ source: draggedTableId, target: mergeTarget });
+      setShowMergeDialog(true);
+    }
+    
     setIsDragging(false);
     setDraggedTableId(null);
-  }, []);
+    setMergeTarget(null);
+  }, [mergeTarget, draggedTableId]);
 
   // Add global event listeners for drag
   useEffect(() => {
@@ -802,47 +901,132 @@ const TableOrderB = () => {
         <div className="absolute left-[50%] top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-neutral-700/30 to-transparent" />
 
         {/* Tables positioned absolutely on the map */}
-        {filteredTables.map((table) => (
-          <div
-            key={table.id}
-            className={`absolute transition-all select-none ${
-              draggedTableId === table.id 
-                ? "z-50 scale-105 duration-0" 
-                : "duration-300"
-            } ${isEditMode ? "cursor-grab active:cursor-grabbing" : ""}`}
-            style={{ 
-              left: table.x, 
-              top: table.y,
-              boxShadow: draggedTableId === table.id ? "0 20px 40px rgba(0,0,0,0.5)" : undefined,
-            }}
-            onMouseDown={(e) => handleDragStart(e, table.id)}
-            onTouchStart={(e) => handleDragStart(e, table.id)}
-          >
-            {table.shape === "circle" ? (
-              <MapCircularTable
-                table={table}
-                onClick={() => handleTableClick(table)}
-                isSelected={selectedTable === table.id}
-                onGuestSelect={(count) => handleGuestSelect(table.id, count)}
-                showGuestSelection={guestDropdownTable === table.id && !isEditMode}
-              />
-            ) : (
-              <MapSquareTable
-                table={table}
-                onClick={() => handleTableClick(table)}
-                isSelected={selectedTable === table.id}
-                onGuestSelect={(count) => handleGuestSelect(table.id, count)}
-                showGuestSelection={guestDropdownTable === table.id && !isEditMode}
-              />
-            )}
-          </div>
-        ))}
+        {filteredTables.map((table) => {
+          const isMergeTarget = mergeTarget === table.id;
+          const isBeingDragged = draggedTableId === table.id;
+          
+          return (
+            <div
+              key={table.id}
+              className={`absolute transition-all select-none ${
+                isBeingDragged 
+                  ? "z-50 scale-105 duration-0" 
+                  : isMergeTarget
+                    ? "z-40 scale-110 duration-200"
+                    : "duration-300"
+              } ${isEditMode ? "cursor-grab active:cursor-grabbing" : ""}`}
+              style={{ 
+                left: table.x, 
+                top: table.y,
+                boxShadow: isBeingDragged 
+                  ? "0 20px 40px rgba(0,0,0,0.5)" 
+                  : isMergeTarget 
+                    ? "0 0 30px rgba(34, 211, 238, 0.6)"
+                    : undefined,
+              }}
+              onMouseDown={(e) => handleDragStart(e, table.id)}
+              onTouchStart={(e) => handleDragStart(e, table.id)}
+            >
+              {/* Merge target glow ring */}
+              {isMergeTarget && (
+                <div className="absolute inset-0 -m-3 rounded-full animate-pulse pointer-events-none">
+                  <div className="absolute inset-0 rounded-full border-4 border-cyan-400/60" />
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-cyan-500 text-white text-xs font-bold whitespace-nowrap">
+                    Drop to Merge
+                  </div>
+                </div>
+              )}
+              
+              {/* Merge icon badge in edit mode */}
+              {isEditMode && !isBeingDragged && (
+                <div className="absolute -top-1 -right-1 w-5 h-5 bg-neutral-800 rounded-full flex items-center justify-center border border-neutral-600 z-10">
+                  <Merge className="w-3 h-3 text-gray-400" />
+                </div>
+              )}
+              
+              {table.shape === "circle" ? (
+                <MapCircularTable
+                  table={table}
+                  onClick={() => handleTableClick(table)}
+                  isSelected={selectedTable === table.id}
+                  onGuestSelect={(count) => handleGuestSelect(table.id, count)}
+                  showGuestSelection={guestDropdownTable === table.id && !isEditMode}
+                />
+              ) : (
+                <MapSquareTable
+                  table={table}
+                  onClick={() => handleTableClick(table)}
+                  isSelected={selectedTable === table.id}
+                  onGuestSelect={(count) => handleGuestSelect(table.id, count)}
+                  showGuestSelection={guestDropdownTable === table.id && !isEditMode}
+                />
+              )}
+            </div>
+          );
+        })}
       </div>
 
       {/* Status Legend */}
       <div className="mt-3">
         <StatusLegend />
       </div>
+      
+      {/* Merge Confirmation Dialog */}
+      <AlertDialog open={showMergeDialog} onOpenChange={setShowMergeDialog}>
+        <AlertDialogContent className="bg-neutral-900 border-neutral-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white flex items-center gap-2">
+              <Merge className="w-5 h-5 text-cyan-400" />
+              Merge Tables
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              {pendingMerge && (() => {
+                const source = tablePositions.find(t => t.id === pendingMerge.source);
+                const target = tablePositions.find(t => t.id === pendingMerge.target);
+                return (
+                  <div className="space-y-3 mt-2">
+                    <p>
+                      Are you sure you want to merge <span className="text-white font-semibold">{pendingMerge.source}</span> with <span className="text-white font-semibold">{pendingMerge.target}</span>?
+                    </p>
+                    <div className="flex gap-4">
+                      <div className="flex-1 p-3 rounded-lg bg-neutral-800 border border-neutral-700">
+                        <div className="text-xs text-gray-500 mb-1">Source Table</div>
+                        <div className="text-white font-medium">{source?.id}</div>
+                        <div className="text-sm text-gray-400">{source?.guests} guests • {source?.status}</div>
+                      </div>
+                      <div className="flex items-center">
+                        <Merge className="w-5 h-5 text-cyan-400" />
+                      </div>
+                      <div className="flex-1 p-3 rounded-lg bg-neutral-800 border border-cyan-500/30">
+                        <div className="text-xs text-cyan-400 mb-1">Target Table</div>
+                        <div className="text-white font-medium">{target?.id}</div>
+                        <div className="text-sm text-gray-400">{target?.guests} guests • {target?.status}</div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-gray-500">
+                      The source table will become available after merging.
+                    </p>
+                  </div>
+                );
+              })()}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              onClick={handleCancelMerge}
+              className="bg-neutral-800 text-white border-neutral-700 hover:bg-neutral-700"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmMerge}
+              className="bg-cyan-500 text-white hover:bg-cyan-600"
+            >
+              Confirm Merge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

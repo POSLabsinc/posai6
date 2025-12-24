@@ -6548,7 +6548,7 @@ const Orders = () => {
           {(showInlineCustomization && selectedItemForCustomization) || isSearchMode ? <div className="w-8" /> : null}
         </div>
         {/* Menu Content - Hidden when minimized */}
-      <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-b-[12px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
+      <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-[12px] md:rounded-[16px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
         {/* Inline Item Customization for Mobile - Inside Menu Panel */}
         {showInlineCustomization && selectedItemForCustomization ? <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
             <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />

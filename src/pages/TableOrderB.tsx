@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, Move, RotateCcw, Merge } from "lucide-react";
+import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, Move, RotateCcw, Merge, Link, Unlink } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,19 +42,33 @@ const statusConfig: Record<string, { color: string; bgColor: string; label: stri
   "Paid": { color: "#10b981", bgColor: "rgba(16, 185, 129, 0.2)", label: "Paid" },
 };
 
-// Default table data with x, y positions for map view
-const defaultTables = [
-  { id: "T1", seats: 8, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [] as number[], guests: 0, x: 80, y: 60 },
-  { id: "T2", seats: 4, status: "Ordering", time: "25m", shape: "square" as const, occupiedSeats: [1, 2], guests: 2, x: 320, y: 80 },
-  { id: "T3", seats: 4, status: "Ordered", time: "1h 15m", shape: "circle" as const, occupiedSeats: [1, 2, 3], guests: 3, x: 520, y: 50 },
-  { id: "T4", seats: 4, status: "Reserved", time: "7:30 PM", shape: "square" as const, occupiedSeats: [] as number[], guests: 0, x: 720, y: 90 },
-  { id: "T5", seats: 6, status: "Seated", time: "10m", shape: "circle" as const, occupiedSeats: [1, 3, 5], guests: 3, x: 120, y: 320 },
-  { id: "T6", seats: 2, status: "Running Late", time: "15m", shape: "square" as const, occupiedSeats: [] as number[], guests: 0, x: 340, y: 300 },
-  { id: "T7", seats: 6, status: "1st Course", time: "35m", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4, 5, 6], guests: 6, x: 540, y: 340 },
-  { id: "T8", seats: 4, status: "2nd Course", time: "50m", shape: "square" as const, occupiedSeats: [1, 2, 3, 4], guests: 4, x: 750, y: 320 },
-];
+// Extended table type with merge properties
+type TableType = {
+  id: string;
+  seats: number;
+  status: string;
+  time: string;
+  shape: "circle" | "square";
+  occupiedSeats: number[];
+  guests: number;
+  x: number;
+  y: number;
+  mergedWith?: string | null;
+  isMergeSource?: boolean;
+  mergeGroupId?: string;
+};
 
-type TableType = typeof defaultTables[0];
+// Default table data with x, y positions for map view
+const defaultTables: TableType[] = [
+  { id: "T1", seats: 8, status: "Available", time: "", shape: "circle", occupiedSeats: [], guests: 0, x: 80, y: 60 },
+  { id: "T2", seats: 4, status: "Ordering", time: "25m", shape: "square", occupiedSeats: [1, 2], guests: 2, x: 320, y: 80 },
+  { id: "T3", seats: 4, status: "Ordered", time: "1h 15m", shape: "circle", occupiedSeats: [1, 2, 3], guests: 3, x: 520, y: 50 },
+  { id: "T4", seats: 4, status: "Reserved", time: "7:30 PM", shape: "square", occupiedSeats: [], guests: 0, x: 720, y: 90 },
+  { id: "T5", seats: 6, status: "Seated", time: "10m", shape: "circle", occupiedSeats: [1, 3, 5], guests: 3, x: 120, y: 320 },
+  { id: "T6", seats: 2, status: "Running Late", time: "15m", shape: "square", occupiedSeats: [], guests: 0, x: 340, y: 300 },
+  { id: "T7", seats: 6, status: "1st Course", time: "35m", shape: "circle", occupiedSeats: [1, 2, 3, 4, 5, 6], guests: 6, x: 540, y: 340 },
+  { id: "T8", seats: 4, status: "2nd Course", time: "50m", shape: "square", occupiedSeats: [1, 2, 3, 4], guests: 4, x: 750, y: 320 },
+];
 
 // Load saved positions from localStorage or use defaults
 const loadSavedPositions = (): TableType[] => {
@@ -65,7 +79,18 @@ const loadSavedPositions = (): TableType[] => {
       // Merge saved positions with default table data (in case new tables were added)
       return defaultTables.map(table => {
         const savedTable = parsed.find((t: TableType) => t.id === table.id);
-        return savedTable ? { ...table, x: savedTable.x, y: savedTable.y } : table;
+        return savedTable ? { 
+          ...table, 
+          x: savedTable.x, 
+          y: savedTable.y,
+          mergedWith: savedTable.mergedWith || null,
+          isMergeSource: savedTable.isMergeSource || false,
+          mergeGroupId: savedTable.mergeGroupId || undefined,
+          guests: savedTable.guests ?? table.guests,
+          occupiedSeats: savedTable.occupiedSeats || table.occupiedSeats,
+          status: savedTable.status || table.status,
+          time: savedTable.time ?? table.time,
+        } : table;
       });
     }
   } catch (e) {
@@ -189,13 +214,15 @@ const MapCircularTable = ({
   onClick, 
   isSelected,
   onGuestSelect,
-  showGuestSelection 
+  showGuestSelection,
+  isMerged
 }: { 
   table: TableType;
   onClick: () => void;
   isSelected: boolean;
   onGuestSelect: (count: number) => void;
   showGuestSelection: boolean;
+  isMerged?: boolean;
 }) => {
   const config = statusConfig[table.status] || statusConfig["Available"];
   const tableRadius = table.seats >= 8 ? 40 : table.seats >= 6 ? 34 : 28;
@@ -231,13 +258,15 @@ const MapCircularTable = ({
         <div 
           className={`rounded-full flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-110 ${
             isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
-          }`}
+          } ${isMerged ? "ring-2 ring-cyan-400/60 shadow-lg shadow-cyan-500/20" : ""}`}
           style={{ 
             width: tableRadius * 2, 
             height: tableRadius * 2,
             backgroundColor: config.bgColor,
-            border: `2px solid ${config.color}`,
-            boxShadow: `0 4px 20px ${config.color}40`
+            border: `2px solid ${isMerged ? "#22d3ee" : config.color}`,
+            boxShadow: isMerged 
+              ? `0 4px 20px rgba(34, 211, 238, 0.4)` 
+              : `0 4px 20px ${config.color}40`
           }}
         >
           {/* Table ID */}
@@ -246,7 +275,7 @@ const MapCircularTable = ({
           {/* Status label */}
           <span 
             className="text-[9px] font-medium mt-0.5"
-            style={{ color: config.color }}
+            style={{ color: isMerged ? "#22d3ee" : config.color }}
           >
             {config.label}
           </span>
@@ -314,13 +343,15 @@ const MapSquareTable = ({
   onClick, 
   isSelected,
   onGuestSelect,
-  showGuestSelection 
+  showGuestSelection,
+  isMerged
 }: { 
   table: TableType;
   onClick: () => void;
   isSelected: boolean;
   onGuestSelect: (count: number) => void;
   showGuestSelection: boolean;
+  isMerged?: boolean;
 }) => {
   const config = statusConfig[table.status] || statusConfig["Available"];
   const tableSize = 55;
@@ -378,13 +409,15 @@ const MapSquareTable = ({
         <div 
           className={`rounded-lg flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-110 ${
             isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
-          }`}
+          } ${isMerged ? "ring-2 ring-cyan-400/60 shadow-lg shadow-cyan-500/20" : ""}`}
           style={{ 
             width: tableSize, 
             height: tableSize,
             backgroundColor: config.bgColor,
-            border: `2px solid ${config.color}`,
-            boxShadow: `0 4px 20px ${config.color}40`
+            border: `2px solid ${isMerged ? "#22d3ee" : config.color}`,
+            boxShadow: isMerged 
+              ? `0 4px 20px rgba(34, 211, 238, 0.4)` 
+              : `0 4px 20px ${config.color}40`
           }}
         >
           {/* Table ID */}
@@ -393,7 +426,7 @@ const MapSquareTable = ({
           {/* Status label */}
           <span 
             className="text-[9px] font-medium mt-0.5"
-            style={{ color: config.color }}
+            style={{ color: isMerged ? "#22d3ee" : config.color }}
           >
             {config.label}
           </span>
@@ -481,7 +514,128 @@ const StatusLegend = () => {
         <div className="w-3 h-2 rounded-t-sm bg-blue-500" />
         <span className="text-xs text-gray-400">Occupied</span>
       </div>
+      <div className="flex items-center gap-1.5 ml-2 pl-4 border-l border-neutral-700">
+        <Link className="w-3 h-3 text-cyan-400" />
+        <span className="text-xs text-gray-400">Merged</span>
+      </div>
     </div>
+  );
+};
+
+// Connector Line Component between merged tables
+const MergeConnectorLine = ({ 
+  table1, 
+  table2,
+  containerOffset
+}: { 
+  table1: TableType; 
+  table2: TableType;
+  containerOffset: { x: number; y: number };
+}) => {
+  const tableCenter = 70; // Center of the 140px table container
+  const x1 = table1.x + tableCenter;
+  const y1 = table1.y + tableCenter;
+  const x2 = table2.x + tableCenter;
+  const y2 = table2.y + tableCenter;
+  
+  // Calculate midpoint for the info panel
+  const midX = (x1 + x2) / 2;
+  const midY = (y1 + y2) / 2;
+  
+  // Calculate combined stats
+  const totalSeats = table1.seats + table2.seats;
+  const totalGuests = table1.guests + table2.guests;
+  
+  return (
+    <>
+      {/* SVG connector line */}
+      <svg 
+        className="absolute inset-0 pointer-events-none z-10"
+        style={{ width: '100%', height: '100%' }}
+      >
+        <defs>
+          <linearGradient id={`gradient-${table1.id}-${table2.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#22d3ee" stopOpacity="0.8" />
+            <stop offset="50%" stopColor="#06b6d4" stopOpacity="1" />
+            <stop offset="100%" stopColor="#22d3ee" stopOpacity="0.8" />
+          </linearGradient>
+          <filter id="glow">
+            <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+            <feMerge>
+              <feMergeNode in="coloredBlur"/>
+              <feMergeNode in="SourceGraphic"/>
+            </feMerge>
+          </filter>
+        </defs>
+        
+        {/* Glow effect line */}
+        <line
+          x1={x1}
+          y1={y1}
+          x2={x2}
+          y2={y2}
+          stroke="#22d3ee"
+          strokeWidth="6"
+          strokeOpacity="0.3"
+          strokeLinecap="round"
+        />
+        
+        {/* Main connector line */}
+        <line
+          x1={x1}
+          y1={y1}
+          x2={x2}
+          y2={y2}
+          stroke={`url(#gradient-${table1.id}-${table2.id})`}
+          strokeWidth="3"
+          strokeDasharray="12,6"
+          strokeLinecap="round"
+          filter="url(#glow)"
+          className="animate-pulse"
+        />
+        
+        {/* Link icon circle at midpoint */}
+        <circle
+          cx={midX}
+          cy={midY}
+          r="14"
+          fill="#171717"
+          stroke="#22d3ee"
+          strokeWidth="2"
+        />
+      </svg>
+      
+      {/* Link icon at midpoint */}
+      <div 
+        className="absolute z-20 pointer-events-none flex items-center justify-center"
+        style={{ 
+          left: midX - 10, 
+          top: midY - 10,
+          width: 20,
+          height: 20
+        }}
+      >
+        <Link className="w-3.5 h-3.5 text-cyan-400" />
+      </div>
+      
+      {/* Combined info panel */}
+      <div 
+        className="absolute z-20 pointer-events-none"
+        style={{ 
+          left: midX - 60, 
+          top: midY + 20
+        }}
+      >
+        <div className="px-3 py-1.5 bg-neutral-900/95 border border-cyan-500/50 rounded-lg shadow-lg shadow-cyan-500/20">
+          <div className="text-cyan-400 font-bold text-[10px] text-center">
+            {table1.id} + {table2.id}
+          </div>
+          <div className="text-white text-[9px] text-center mt-0.5">
+            {totalSeats} seats • {totalGuests} guests
+          </div>
+        </div>
+      </div>
+    </>
   );
 };
 
@@ -507,7 +661,12 @@ const TableOrderB = () => {
   const [showMergeDialog, setShowMergeDialog] = useState(false);
   const [pendingMerge, setPendingMerge] = useState<{ source: string; target: string } | null>(null);
   
+  // Unmerge dialog state
+  const [showUnmergeDialog, setShowUnmergeDialog] = useState(false);
+  const [pendingUnmerge, setPendingUnmerge] = useState<{ table1: string; table2: string } | null>(null);
+  
   const MERGE_THRESHOLD = 120; // pixels - distance at which tables can merge
+  const SNAP_OFFSET = 160; // pixels - how far apart merged tables should be
   
   const filterCounts = getFilterCounts(tablePositions);
 
@@ -516,10 +675,34 @@ const TableOrderB = () => {
     localStorage.setItem('tablePositions', JSON.stringify(tablePositions));
   }, [tablePositions]);
   
+  // Get merged table pairs (only return unique pairs)
+  const getMergedPairs = useCallback(() => {
+    const pairs: { table1: TableType; table2: TableType }[] = [];
+    const processed = new Set<string>();
+    
+    tablePositions.forEach(table => {
+      if (table.mergedWith && !processed.has(table.id) && !processed.has(table.mergedWith)) {
+        const partner = tablePositions.find(t => t.id === table.mergedWith);
+        if (partner) {
+          pairs.push({ table1: table, table2: partner });
+          processed.add(table.id);
+          processed.add(partner.id);
+        }
+      }
+    });
+    
+    return pairs;
+  }, [tablePositions]);
+  
   // Check for table overlap during drag
   const checkTableOverlap = useCallback((draggedX: number, draggedY: number, draggedId: string): string | null => {
+    const draggedTable = tablePositions.find(t => t.id === draggedId);
+    
     for (const table of tablePositions) {
       if (table.id === draggedId) continue;
+      
+      // Skip if either table is already merged
+      if (draggedTable?.mergedWith || table.mergedWith) continue;
       
       const distance = Math.sqrt(
         Math.pow(table.x - draggedX, 2) + 
@@ -555,20 +738,38 @@ const TableOrderB = () => {
       const targetIndex = statusPriority.indexOf(targetTable.status);
       const mergedStatus = sourceIndex > targetIndex ? sourceTable.status : targetTable.status;
       
-      // Update tables
+      // Calculate snap position for source table (to the right of target)
+      const newSourceX = targetTable.x + SNAP_OFFSET;
+      const newSourceY = targetTable.y;
+      
+      // Generate merge group ID
+      const mergeGroupId = `merge-${target}-${source}`;
+      
+      // Update tables with merge relationship
       setTablePositions(prev => prev.map(t => {
         if (t.id === target) {
           return {
             ...t,
             guests: mergedGuests,
-            occupiedSeats: mergedOccupiedSeats.slice(0, t.seats),
+            occupiedSeats: mergedOccupiedSeats.slice(0, t.seats + sourceTable.seats),
             status: mergedStatus,
             time: sourceTable.time || targetTable.time,
+            mergedWith: source,
+            mergeGroupId,
           };
         }
-        // Mark source as available after merge
         if (t.id === source) {
-          return { ...t, guests: 0, occupiedSeats: [], status: "Available", time: "" };
+          return { 
+            ...t, 
+            x: newSourceX,
+            y: newSourceY,
+            guests: mergedGuests,
+            status: mergedStatus,
+            time: sourceTable.time || targetTable.time,
+            mergedWith: target,
+            isMergeSource: true,
+            mergeGroupId,
+          };
         }
         return t;
       }));
@@ -580,10 +781,48 @@ const TableOrderB = () => {
     setPendingMerge(null);
   };
   
-  // Cancel merge and restore source table position
+  // Cancel merge
   const handleCancelMerge = () => {
     setShowMergeDialog(false);
     setPendingMerge(null);
+  };
+  
+  // Handle unmerge
+  const handleUnmerge = (tableId: string) => {
+    const table = tablePositions.find(t => t.id === tableId);
+    if (!table?.mergedWith) return;
+    
+    setPendingUnmerge({ table1: tableId, table2: table.mergedWith });
+    setShowUnmergeDialog(true);
+  };
+  
+  // Confirm unmerge
+  const handleConfirmUnmerge = () => {
+    if (!pendingUnmerge) return;
+    
+    const { table1, table2 } = pendingUnmerge;
+    
+    setTablePositions(prev => prev.map(t => {
+      if (t.id === table1 || t.id === table2) {
+        // Find original default data
+        const original = defaultTables.find(dt => dt.id === t.id);
+        return {
+          ...t,
+          mergedWith: null,
+          isMergeSource: false,
+          mergeGroupId: undefined,
+          guests: t.isMergeSource ? 0 : Math.min(t.guests, t.seats),
+          status: t.isMergeSource ? "Available" : t.status,
+          occupiedSeats: t.isMergeSource ? [] : t.occupiedSeats.filter(s => s <= t.seats),
+          time: t.isMergeSource ? "" : t.time,
+        };
+      }
+      return t;
+    }));
+    
+    toast.success(`Tables ${table1} and ${table2} unmerged`);
+    setShowUnmergeDialog(false);
+    setPendingUnmerge(null);
   };
 
   // Get client coordinates from mouse or touch event
@@ -635,18 +874,50 @@ const TableOrderB = () => {
     newX = Math.max(padding, Math.min(newX, maxX));
     newY = Math.max(padding, Math.min(newY, maxY));
     
+    const draggedTable = tablePositions.find(t => t.id === draggedTableId);
+    
+    // If table is merged, move partner table too
+    if (draggedTable?.mergedWith) {
+      const partner = tablePositions.find(t => t.id === draggedTable.mergedWith);
+      if (partner) {
+        const deltaX = newX - draggedTable.x;
+        const deltaY = newY - draggedTable.y;
+        
+        setTablePositions(prev => prev.map(t => {
+          if (t.id === draggedTableId) {
+            return { ...t, x: newX, y: newY };
+          }
+          if (t.id === draggedTable.mergedWith) {
+            return { 
+              ...t, 
+              x: Math.max(padding, Math.min(t.x + deltaX, maxX)),
+              y: Math.max(padding, Math.min(t.y + deltaY, maxY))
+            };
+          }
+          return t;
+        }));
+        setMergeTarget(null);
+        return;
+      }
+    }
+    
     setTablePositions(prev => prev.map(t => 
       t.id === draggedTableId ? { ...t, x: newX, y: newY } : t
     ));
     
-    // Check for merge target
-    const overlappingTable = checkTableOverlap(newX, newY, draggedTableId);
-    setMergeTarget(overlappingTable);
-  }, [isDragging, draggedTableId, dragOffset, checkTableOverlap]);
+    // Check for merge target (only if not already merged)
+    if (!draggedTable?.mergedWith) {
+      const overlappingTable = checkTableOverlap(newX, newY, draggedTableId);
+      setMergeTarget(overlappingTable);
+    }
+  }, [isDragging, draggedTableId, dragOffset, checkTableOverlap, tablePositions]);
 
   // Handle drag end
   const handleDragEnd = useCallback(() => {
-    if (mergeTarget && draggedTableId) {
+    const draggedTable = tablePositions.find(t => t.id === draggedTableId);
+    
+    // Only show merge dialog if not already merged
+    if (mergeTarget && draggedTableId && !draggedTable?.mergedWith) {
       // Show merge confirmation dialog
       setPendingMerge({ source: draggedTableId, target: mergeTarget });
       setShowMergeDialog(true);
@@ -655,7 +926,7 @@ const TableOrderB = () => {
     setIsDragging(false);
     setDraggedTableId(null);
     setMergeTarget(null);
-  }, [mergeTarget, draggedTableId]);
+  }, [mergeTarget, draggedTableId, tablePositions]);
 
   // Add global event listeners for drag
   useEffect(() => {
@@ -678,6 +949,7 @@ const TableOrderB = () => {
   const handleResetPositions = () => {
     setTablePositions(defaultTables);
     localStorage.removeItem('tablePositions');
+    toast.success("Table positions reset to default");
   };
 
   const filters = [
@@ -718,6 +990,8 @@ const TableOrderB = () => {
     setSelectedTable(tableId);
     navigate(`/orders`);
   };
+  
+  const mergedPairs = getMergedPairs();
 
   return (
     <div className="flex flex-col h-full bg-black p-3">
@@ -861,7 +1135,7 @@ const TableOrderB = () => {
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none">
             <div className="text-center">
               <Move className="w-12 h-12 text-neutral-700 mx-auto mb-2" />
-              <p className="text-neutral-600 text-sm">Drag tables to reposition</p>
+              <p className="text-neutral-600 text-sm">Drag tables to reposition or merge</p>
             </div>
           </div>
         )}
@@ -900,10 +1174,21 @@ const TableOrderB = () => {
         <div className="absolute top-[45%] left-0 right-0 h-px bg-gradient-to-r from-transparent via-neutral-700/50 to-transparent" />
         <div className="absolute left-[50%] top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-neutral-700/30 to-transparent" />
 
+        {/* Merge connector lines */}
+        {mergedPairs.map(({ table1, table2 }) => (
+          <MergeConnectorLine
+            key={`${table1.id}-${table2.id}`}
+            table1={table1}
+            table2={table2}
+            containerOffset={{ x: 0, y: 0 }}
+          />
+        ))}
+
         {/* Tables positioned absolutely on the map */}
         {filteredTables.map((table) => {
           const isMergeTarget = mergeTarget === table.id;
           const isBeingDragged = draggedTableId === table.id;
+          const isMerged = !!table.mergedWith;
           
           return (
             <div
@@ -913,7 +1198,7 @@ const TableOrderB = () => {
                   ? "z-50 scale-105 duration-0" 
                   : isMergeTarget
                     ? "z-40 scale-110 duration-200"
-                    : "duration-300"
+                    : "z-30 duration-300"
               } ${isEditMode ? "cursor-grab active:cursor-grabbing" : ""}`}
               style={{ 
                 left: table.x, 
@@ -937,8 +1222,30 @@ const TableOrderB = () => {
                 </div>
               )}
               
-              {/* Merge icon badge in edit mode */}
-              {isEditMode && !isBeingDragged && (
+              {/* Merged badge */}
+              {isMerged && (
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-cyan-500/90 rounded-full text-[9px] font-bold text-white flex items-center gap-1 z-10 whitespace-nowrap shadow-lg shadow-cyan-500/30">
+                  <Link className="w-2.5 h-2.5" />
+                  {table.id}+{table.mergedWith}
+                </div>
+              )}
+              
+              {/* Unmerge button in edit mode */}
+              {isEditMode && isMerged && !table.isMergeSource && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleUnmerge(table.id);
+                  }}
+                  className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-red-500/90 hover:bg-red-600 rounded text-[10px] font-medium text-white flex items-center gap-1 z-10 transition-colors"
+                >
+                  <Unlink className="w-3 h-3" />
+                  Unmerge
+                </button>
+              )}
+              
+              {/* Merge icon badge in edit mode (only for non-merged tables) */}
+              {isEditMode && !isBeingDragged && !isMerged && (
                 <div className="absolute -top-1 -right-1 w-5 h-5 bg-neutral-800 rounded-full flex items-center justify-center border border-neutral-600 z-10">
                   <Merge className="w-3 h-3 text-gray-400" />
                 </div>
@@ -951,6 +1258,7 @@ const TableOrderB = () => {
                   isSelected={selectedTable === table.id}
                   onGuestSelect={(count) => handleGuestSelect(table.id, count)}
                   showGuestSelection={guestDropdownTable === table.id && !isEditMode}
+                  isMerged={isMerged}
                 />
               ) : (
                 <MapSquareTable
@@ -959,6 +1267,7 @@ const TableOrderB = () => {
                   isSelected={selectedTable === table.id}
                   onGuestSelect={(count) => handleGuestSelect(table.id, count)}
                   showGuestSelection={guestDropdownTable === table.id && !isEditMode}
+                  isMerged={isMerged}
                 />
               )}
             </div>
@@ -993,6 +1302,7 @@ const TableOrderB = () => {
                         <div className="text-xs text-gray-500 mb-1">Source Table</div>
                         <div className="text-white font-medium">{source?.id}</div>
                         <div className="text-sm text-gray-400">{source?.guests} guests • {source?.status}</div>
+                        <div className="text-sm text-gray-500">{source?.seats} seats</div>
                       </div>
                       <div className="flex items-center">
                         <Merge className="w-5 h-5 text-cyan-400" />
@@ -1001,11 +1311,15 @@ const TableOrderB = () => {
                         <div className="text-xs text-cyan-400 mb-1">Target Table</div>
                         <div className="text-white font-medium">{target?.id}</div>
                         <div className="text-sm text-gray-400">{target?.guests} guests • {target?.status}</div>
+                        <div className="text-sm text-gray-500">{target?.seats} seats</div>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-500">
-                      The source table will become available after merging.
-                    </p>
+                    <div className="p-3 rounded-lg bg-cyan-900/20 border border-cyan-500/30">
+                      <div className="text-xs text-cyan-400 mb-1">After Merge</div>
+                      <div className="text-white font-medium">
+                        {(source?.seats || 0) + (target?.seats || 0)} total seats • {(source?.guests || 0) + (target?.guests || 0)} guests
+                      </div>
+                    </div>
                   </div>
                 );
               })()}
@@ -1023,6 +1337,47 @@ const TableOrderB = () => {
               className="bg-cyan-500 text-white hover:bg-cyan-600"
             >
               Confirm Merge
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      {/* Unmerge Confirmation Dialog */}
+      <AlertDialog open={showUnmergeDialog} onOpenChange={setShowUnmergeDialog}>
+        <AlertDialogContent className="bg-neutral-900 border-neutral-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white flex items-center gap-2">
+              <Unlink className="w-5 h-5 text-red-400" />
+              Unmerge Tables
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-400">
+              {pendingUnmerge && (
+                <div className="space-y-3 mt-2">
+                  <p>
+                    Are you sure you want to unmerge <span className="text-white font-semibold">{pendingUnmerge.table1}</span> and <span className="text-white font-semibold">{pendingUnmerge.table2}</span>?
+                  </p>
+                  <p className="text-xs text-gray-500">
+                    The source table will become available and guests will remain on the target table.
+                  </p>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel 
+              onClick={() => {
+                setShowUnmergeDialog(false);
+                setPendingUnmerge(null);
+              }}
+              className="bg-neutral-800 text-white border-neutral-700 hover:bg-neutral-700"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmUnmerge}
+              className="bg-red-500 text-white hover:bg-red-600"
+            >
+              Unmerge Tables
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

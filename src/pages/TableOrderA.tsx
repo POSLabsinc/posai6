@@ -14,33 +14,33 @@ import { Button } from "@/components/ui/button";
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
 import burgerCloseIcon from "@/assets/icons/burger-close.png";
 
-// Table shape status configurations - colors based on reference image
-const shapeStatusConfig: Record<string, { borderColor: string; bgColor: string; dotColor: string }> = {
-  "Available": { borderColor: "border-green-400", bgColor: "bg-transparent", dotColor: "bg-green-500" },
-  "Ordering": { borderColor: "border-purple-400", bgColor: "bg-purple-400/20", dotColor: "bg-purple-500" },
-  "Ordered": { borderColor: "border-orange-400", bgColor: "bg-orange-400/20", dotColor: "bg-orange-500" },
-  "Reserved": { borderColor: "border-gray-400", bgColor: "bg-gray-400/20", dotColor: "bg-gray-500" },
-  "Seated": { borderColor: "border-blue-400", bgColor: "bg-blue-400/20", dotColor: "bg-blue-500" },
-  "Running Late": { borderColor: "border-red-400", bgColor: "bg-red-400/20", dotColor: "bg-red-500" },
-  "1st Course": { borderColor: "border-purple-400", bgColor: "bg-purple-400/30", dotColor: "bg-purple-500" },
-  "2nd Course": { borderColor: "border-yellow-400", bgColor: "bg-yellow-400/20", dotColor: "bg-yellow-500" },
-  "3rd Course": { borderColor: "border-orange-400", bgColor: "bg-orange-400/30", dotColor: "bg-orange-500" },
-  "Dessert": { borderColor: "border-pink-400", bgColor: "bg-pink-400/20", dotColor: "bg-pink-500" },
-  "Partially Seated": { borderColor: "border-green-400", bgColor: "bg-green-400/20", dotColor: "bg-green-500" },
-  "Served": { borderColor: "border-blue-400", bgColor: "bg-blue-400/30", dotColor: "bg-blue-500" },
-  "Paid": { borderColor: "border-emerald-400", bgColor: "bg-emerald-400/20", dotColor: "bg-emerald-500" },
+// Table status configurations with semantic colors
+const statusConfig: Record<string, { color: string; bgColor: string; label: string }> = {
+  "Available": { color: "#22c55e", bgColor: "rgba(34, 197, 94, 0.15)", label: "Available" },
+  "Ordering": { color: "#a855f7", bgColor: "rgba(168, 85, 247, 0.2)", label: "Ordering" },
+  "Ordered": { color: "#f97316", bgColor: "rgba(249, 115, 22, 0.2)", label: "Ordered" },
+  "Reserved": { color: "#6b7280", bgColor: "rgba(107, 114, 128, 0.2)", label: "Reserved" },
+  "Seated": { color: "#3b82f6", bgColor: "rgba(59, 130, 246, 0.2)", label: "Seated" },
+  "Running Late": { color: "#ef4444", bgColor: "rgba(239, 68, 68, 0.2)", label: "Late" },
+  "1st Course": { color: "#8b5cf6", bgColor: "rgba(139, 92, 246, 0.25)", label: "1st Course" },
+  "2nd Course": { color: "#eab308", bgColor: "rgba(234, 179, 8, 0.2)", label: "2nd Course" },
+  "3rd Course": { color: "#f97316", bgColor: "rgba(249, 115, 22, 0.25)", label: "3rd Course" },
+  "Dessert": { color: "#ec4899", bgColor: "rgba(236, 72, 153, 0.2)", label: "Dessert" },
+  "Partially Seated": { color: "#22c55e", bgColor: "rgba(34, 197, 94, 0.2)", label: "Partial" },
+  "Served": { color: "#0ea5e9", bgColor: "rgba(14, 165, 233, 0.25)", label: "Served" },
+  "Paid": { color: "#10b981", bgColor: "rgba(16, 185, 129, 0.2)", label: "Paid" },
 };
 
-// Mock table data with shapes and occupied seats - 8 tables only
+// Mock table data - 8 tables with guests count
 const tables = [
-  { id: "T1", seats: 8, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [] },
-  { id: "T2", seats: 4, status: "Ordering", time: "25M", shape: "square" as const, occupiedSeats: [1, 2] },
-  { id: "T3", seats: 4, status: "Ordered", time: "2H 25M", shape: "circle" as const, occupiedSeats: [1, 2, 3] },
-  { id: "T4", seats: 4, status: "Reserved", time: "2H 25M", shape: "square" as const, occupiedSeats: [] },
-  { id: "T5", seats: 6, status: "Seated", time: "25M", shape: "circle" as const, occupiedSeats: [1, 3, 5] },
-  { id: "T6", seats: 2, status: "Running Late", time: "45M", shape: "square" as const, occupiedSeats: [1] },
-  { id: "T7", seats: 6, status: "1st Course", time: "12M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4, 5, 6] },
-  { id: "T8", seats: 4, status: "2nd Course", time: "13M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4] },
+  { id: "T1", seats: 8, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [], guests: 0 },
+  { id: "T2", seats: 4, status: "Ordering", time: "25m", shape: "square" as const, occupiedSeats: [1, 2], guests: 2 },
+  { id: "T3", seats: 4, status: "Ordered", time: "1h 15m", shape: "circle" as const, occupiedSeats: [1, 2, 3], guests: 3 },
+  { id: "T4", seats: 4, status: "Reserved", time: "7:30 PM", shape: "square" as const, occupiedSeats: [], guests: 0 },
+  { id: "T5", seats: 6, status: "Seated", time: "10m", shape: "circle" as const, occupiedSeats: [1, 3, 5], guests: 3 },
+  { id: "T6", seats: 2, status: "Running Late", time: "15m", shape: "square" as const, occupiedSeats: [], guests: 0 },
+  { id: "T7", seats: 6, status: "1st Course", time: "35m", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4, 5, 6], guests: 6 },
+  { id: "T8", seats: 4, status: "2nd Course", time: "50m", shape: "square" as const, occupiedSeats: [1, 2, 3, 4], guests: 4 },
 ];
 
 // Filter categories with counts
@@ -61,36 +61,95 @@ const diningAreas = [
   "Outdoor Terrace",
 ];
 
-// Get seat position for circular tables
-const getCircularSeatPosition = (index: number, totalSeats: number, radius: number) => {
-  const angle = (360 / totalSeats) * index - 90; // Start from top
+// Chair component for circular tables
+const CircularChair = ({ 
+  angle, 
+  isOccupied, 
+  tableRadius 
+}: { 
+  angle: number; 
+  isOccupied: boolean; 
+  tableRadius: number;
+}) => {
+  const chairDistance = tableRadius + 18;
   const radian = (angle * Math.PI) / 180;
-  return {
-    left: `${50 + Math.cos(radian) * radius}%`,
-    top: `${50 + Math.sin(radian) * radius}%`,
-  };
+  const x = Math.cos(radian) * chairDistance;
+  const y = Math.sin(radian) * chairDistance;
+  
+  return (
+    <div
+      className="absolute transition-all duration-200"
+      style={{
+        left: `calc(50% + ${x}px)`,
+        top: `calc(50% + ${y}px)`,
+        transform: `translate(-50%, -50%) rotate(${angle + 90}deg)`,
+      }}
+    >
+      <div 
+        className={`w-5 h-3 rounded-t-full transition-colors ${
+          isOccupied 
+            ? "bg-blue-500 shadow-lg shadow-blue-500/30" 
+            : "bg-neutral-700 border border-neutral-600"
+        }`}
+      />
+    </div>
+  );
 };
 
-// Get seat position for square tables
-const getSquareSeatPosition = (index: number, totalSeats: number) => {
-  // Distribute seats evenly on 4 sides
-  const seatsPerSide = Math.ceil(totalSeats / 4);
-  const side = Math.floor(index / seatsPerSide);
-  const positionOnSide = index % seatsPerSide;
-  const offset = (positionOnSide + 1) / (seatsPerSide + 1);
-
+// Chair component for square tables
+const SquareChair = ({ 
+  side, 
+  position, 
+  isOccupied,
+  tableSize
+}: { 
+  side: 'top' | 'right' | 'bottom' | 'left';
+  position: number;
+  isOccupied: boolean;
+  tableSize: number;
+}) => {
+  const offset = tableSize / 2 + 12;
+  const positionOffset = (position - 0.5) * 28;
+  
+  let style: React.CSSProperties = {};
+  let rotation = 0;
+  
   switch (side) {
-    case 0: // Top
-      return { left: `${offset * 100}%`, top: "-20%" };
-    case 1: // Right
-      return { left: "120%", top: `${offset * 100}%` };
-    case 2: // Bottom
-      return { left: `${(1 - offset) * 100}%`, top: "120%" };
-    case 3: // Left
-      return { left: "-20%", top: `${(1 - offset) * 100}%` };
-    default:
-      return { left: "50%", top: "50%" };
+    case 'top':
+      style = { left: `calc(50% + ${positionOffset}px)`, top: `calc(50% - ${offset}px)` };
+      rotation = 0;
+      break;
+    case 'right':
+      style = { left: `calc(50% + ${offset}px)`, top: `calc(50% + ${positionOffset}px)` };
+      rotation = 90;
+      break;
+    case 'bottom':
+      style = { left: `calc(50% - ${positionOffset}px)`, top: `calc(50% + ${offset}px)` };
+      rotation = 180;
+      break;
+    case 'left':
+      style = { left: `calc(50% - ${offset}px)`, top: `calc(50% + ${positionOffset}px)` };
+      rotation = 270;
+      break;
   }
+  
+  return (
+    <div
+      className="absolute transition-all duration-200"
+      style={{
+        ...style,
+        transform: `translate(-50%, -50%) rotate(${rotation}deg)`,
+      }}
+    >
+      <div 
+        className={`w-5 h-3 rounded-t transition-colors ${
+          isOccupied 
+            ? "bg-blue-500 shadow-lg shadow-blue-500/30" 
+            : "bg-neutral-700 border border-neutral-600"
+        }`}
+      />
+    </div>
+  );
 };
 
 // Circular Table Component
@@ -107,84 +166,110 @@ const CircularTable = ({
   onGuestSelect: (count: number) => void;
   showGuestSelection: boolean;
 }) => {
-  const config = shapeStatusConfig[table.status] || shapeStatusConfig["Available"];
-  const tableSize = table.seats >= 8 ? 100 : table.seats >= 6 ? 80 : 70;
-  const seatRadius = 48;
-  const containerSize = 180;
+  const config = statusConfig[table.status] || statusConfig["Available"];
+  const tableRadius = table.seats >= 8 ? 50 : table.seats >= 6 ? 42 : 36;
+  const containerSize = 200;
+
+  // Calculate chair angles
+  const chairAngles = Array.from({ length: table.seats }, (_, i) => 
+    (360 / table.seats) * i - 90
+  );
 
   return (
     <div 
-      className="relative flex flex-col items-center justify-center cursor-pointer"
-      style={{ width: containerSize, height: containerSize + 30 }}
+      className="relative flex flex-col items-center cursor-pointer group"
+      style={{ width: containerSize, height: containerSize + 40 }}
       onClick={onClick}
     >
-      {/* Container for table and seats */}
+      {/* Table container */}
       <div 
         className="relative flex items-center justify-center"
         style={{ width: containerSize, height: containerSize }}
       >
-        {/* Seats around the table */}
-        {Array.from({ length: table.seats }).map((_, i) => {
-          const pos = getCircularSeatPosition(i, table.seats, seatRadius);
-          const isOccupied = table.occupiedSeats.includes(i + 1);
-          
-          return (
-            <div
-              key={i}
-              className={`absolute w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transform -translate-x-1/2 -translate-y-1/2 transition-all ${
-                isOccupied 
-                  ? "bg-blue-500 text-white" 
-                  : "bg-neutral-700 text-gray-400 border border-neutral-600"
-              }`}
-              style={pos}
-            >
-              {i + 1}
-            </div>
-          );
-        })}
+        {/* Chairs */}
+        {chairAngles.map((angle, i) => (
+          <CircularChair
+            key={i}
+            angle={angle}
+            isOccupied={table.occupiedSeats.includes(i + 1)}
+            tableRadius={tableRadius}
+          />
+        ))}
 
-        {/* Table Circle */}
+        {/* Table surface */}
         <div 
-          className={`rounded-full border-2 flex flex-col items-center justify-center transition-all ${config.borderColor} ${config.bgColor} ${
+          className={`rounded-full flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 ${
             isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
           }`}
-          style={{ width: tableSize, height: tableSize }}
+          style={{ 
+            width: tableRadius * 2, 
+            height: tableRadius * 2,
+            backgroundColor: config.bgColor,
+            border: `2px solid ${config.color}`,
+            boxShadow: `0 4px 20px ${config.color}20`
+          }}
         >
-          {/* Status indicator dot */}
-          <div className={`absolute w-3 h-3 rounded-full ${config.dotColor}`} style={{ top: '50%', right: 0, transform: 'translate(50%, -50%)' }} />
+          {/* Table ID */}
+          <span className="text-white font-bold text-lg leading-none">{table.id}</span>
           
-          {/* Table number */}
-          <span className="text-white font-bold text-base">{table.id}</span>
+          {/* Status label */}
+          <span 
+            className="text-[10px] font-medium mt-0.5"
+            style={{ color: config.color }}
+          >
+            {config.label}
+          </span>
           
-          {/* Seats count */}
-          <span className="text-gray-400 text-[10px]">{table.seats} seats</span>
+          {/* Occupancy indicator */}
+          <div className="flex items-center gap-0.5 mt-1">
+            {Array.from({ length: table.seats }).map((_, i) => (
+              <div 
+                key={i}
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                  i < table.guests ? "bg-blue-400" : "bg-neutral-600"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Timer badge */}
+      {/* Timer / Info badge */}
       {table.time && (
-        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800 text-xs text-gray-400">
-          <Clock className="w-3 h-3" />
-          <span>{table.time}</span>
+        <div 
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mt-1"
+          style={{ 
+            backgroundColor: 'rgba(38, 38, 38, 0.9)',
+            border: `1px solid ${config.color}40`
+          }}
+        >
+          <Clock className="w-3 h-3" style={{ color: config.color }} />
+          <span className="text-gray-300">{table.time}</span>
         </div>
       )}
 
       {/* Guest selection overlay */}
       {showGuestSelection && (
-        <div className="absolute inset-0 bg-black/80 rounded-full flex items-center justify-center z-10">
-          <div className="flex flex-wrap gap-1 justify-center max-w-[120px]">
-            {Array.from({ length: table.seats }).map((_, i) => (
-              <button
-                key={i}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onGuestSelect(i + 1);
-                }}
-                className="w-7 h-7 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded-full hover:bg-orange-500 transition-colors"
-              >
-                {i + 1}
-              </button>
-            ))}
+        <div 
+          className="absolute inset-0 flex items-center justify-center z-10 rounded-full"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+        >
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-400 mb-2">Select guests</span>
+            <div className="flex flex-wrap gap-2 justify-center max-w-[140px]">
+              {Array.from({ length: table.seats }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onGuestSelect(i + 1);
+                  }}
+                  className="w-8 h-8 flex items-center justify-center text-sm font-bold text-white bg-neutral-700 rounded-full hover:bg-green-500 transition-all hover:scale-110"
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -206,116 +291,165 @@ const SquareTable = ({
   onGuestSelect: (count: number) => void;
   showGuestSelection: boolean;
 }) => {
-  const config = shapeStatusConfig[table.status] || shapeStatusConfig["Available"];
+  const config = statusConfig[table.status] || statusConfig["Available"];
   const tableSize = 70;
-  const containerSize = 180;
+  const containerSize = 200;
 
-  // Position seats on edges - simplified for cleaner layout
-  const getSeatPositions = (totalSeats: number) => {
-    const positions: { left: string; top: string }[] = [];
-    const offset = 30; // Distance from table center
+  // Distribute chairs around the table
+  const getChairLayout = (seats: number) => {
+    const chairs: { side: 'top' | 'right' | 'bottom' | 'left'; position: number }[] = [];
     
-    if (totalSeats === 2) {
-      positions.push({ left: `${50 - offset}%`, top: "50%" }); // Left
-      positions.push({ left: `${50 + offset}%`, top: "50%" }); // Right
-    } else if (totalSeats === 4) {
-      positions.push({ left: "50%", top: `${50 - offset}%` }); // Top
-      positions.push({ left: `${50 + offset}%`, top: "50%" }); // Right
-      positions.push({ left: "50%", top: `${50 + offset}%` }); // Bottom
-      positions.push({ left: `${50 - offset}%`, top: "50%" }); // Left
-    } else if (totalSeats === 6) {
-      positions.push({ left: "38%", top: `${50 - offset}%` }); // Top left
-      positions.push({ left: "62%", top: `${50 - offset}%` }); // Top right
-      positions.push({ left: `${50 + offset}%`, top: "50%" }); // Right
-      positions.push({ left: "62%", top: `${50 + offset}%` }); // Bottom right
-      positions.push({ left: "38%", top: `${50 + offset}%` }); // Bottom left
-      positions.push({ left: `${50 - offset}%`, top: "50%" }); // Left
-    } else {
-      for (let i = 0; i < totalSeats; i++) {
-        positions.push(getSquareSeatPosition(i, totalSeats));
-      }
+    if (seats === 2) {
+      chairs.push({ side: 'left', position: 0.5 });
+      chairs.push({ side: 'right', position: 0.5 });
+    } else if (seats === 4) {
+      chairs.push({ side: 'top', position: 0.5 });
+      chairs.push({ side: 'right', position: 0.5 });
+      chairs.push({ side: 'bottom', position: 0.5 });
+      chairs.push({ side: 'left', position: 0.5 });
+    } else if (seats === 6) {
+      chairs.push({ side: 'top', position: 0.25 });
+      chairs.push({ side: 'top', position: 0.75 });
+      chairs.push({ side: 'right', position: 0.5 });
+      chairs.push({ side: 'bottom', position: 0.75 });
+      chairs.push({ side: 'bottom', position: 0.25 });
+      chairs.push({ side: 'left', position: 0.5 });
     }
     
-    return positions;
+    return chairs;
   };
 
-  const seatPositions = getSeatPositions(table.seats);
+  const chairLayout = getChairLayout(table.seats);
 
   return (
     <div 
-      className="relative flex flex-col items-center justify-center cursor-pointer"
-      style={{ width: containerSize, height: containerSize + 30 }}
+      className="relative flex flex-col items-center cursor-pointer group"
+      style={{ width: containerSize, height: containerSize + 40 }}
       onClick={onClick}
     >
-      {/* Container for table and seats */}
+      {/* Table container */}
       <div 
         className="relative flex items-center justify-center"
         style={{ width: containerSize, height: containerSize }}
       >
-        {/* Seats around the table */}
-        {seatPositions.map((pos, i) => {
-          const isOccupied = table.occupiedSeats.includes(i + 1);
-          
-          return (
-            <div
-              key={i}
-              className={`absolute w-6 h-6 rounded flex items-center justify-center text-[10px] font-bold transform -translate-x-1/2 -translate-y-1/2 transition-all ${
-                isOccupied 
-                  ? "bg-blue-500 text-white" 
-                  : "bg-neutral-700 text-gray-400 border border-neutral-600"
-              }`}
-              style={pos}
-            >
-              {i + 1}
-            </div>
-          );
-        })}
+        {/* Chairs */}
+        {chairLayout.map((chair, i) => (
+          <SquareChair
+            key={i}
+            side={chair.side}
+            position={chair.position}
+            isOccupied={table.occupiedSeats.includes(i + 1)}
+            tableSize={tableSize}
+          />
+        ))}
 
-        {/* Table Square */}
+        {/* Table surface */}
         <div 
-          className={`rounded-lg border-2 flex flex-col items-center justify-center transition-all ${config.borderColor} ${config.bgColor} ${
+          className={`rounded-xl flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 ${
             isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
           }`}
-          style={{ width: tableSize, height: tableSize }}
+          style={{ 
+            width: tableSize, 
+            height: tableSize,
+            backgroundColor: config.bgColor,
+            border: `2px solid ${config.color}`,
+            boxShadow: `0 4px 20px ${config.color}20`
+          }}
         >
-          {/* Status indicator dot */}
-          <div className={`absolute w-3 h-3 rounded-full ${config.dotColor}`} style={{ top: '50%', right: 55, transform: 'translateY(-50%)' }} />
+          {/* Table ID */}
+          <span className="text-white font-bold text-lg leading-none">{table.id}</span>
           
-          {/* Table number */}
-          <span className="text-white font-bold text-base">{table.id}</span>
+          {/* Status label */}
+          <span 
+            className="text-[10px] font-medium mt-0.5"
+            style={{ color: config.color }}
+          >
+            {config.label}
+          </span>
           
-          {/* Seats count */}
-          <span className="text-gray-400 text-[10px]">{table.seats} seats</span>
+          {/* Occupancy indicator */}
+          <div className="flex items-center gap-0.5 mt-1">
+            {Array.from({ length: table.seats }).map((_, i) => (
+              <div 
+                key={i}
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                  i < table.guests ? "bg-blue-400" : "bg-neutral-600"
+                }`}
+              />
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* Timer badge */}
+      {/* Timer / Info badge */}
       {table.time && (
-        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-neutral-800 text-xs text-gray-400">
-          <Clock className="w-3 h-3" />
-          <span>{table.time}</span>
+        <div 
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium mt-1"
+          style={{ 
+            backgroundColor: 'rgba(38, 38, 38, 0.9)',
+            border: `1px solid ${config.color}40`
+          }}
+        >
+          <Clock className="w-3 h-3" style={{ color: config.color }} />
+          <span className="text-gray-300">{table.time}</span>
         </div>
       )}
 
       {/* Guest selection overlay */}
       {showGuestSelection && (
-        <div className="absolute inset-0 bg-black/80 rounded-lg flex items-center justify-center z-10">
-          <div className="flex flex-wrap gap-1 justify-center max-w-[100px]">
-            {Array.from({ length: table.seats }).map((_, i) => (
-              <button
-                key={i}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onGuestSelect(i + 1);
-                }}
-                className="w-7 h-7 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
-              >
-                {i + 1}
-              </button>
-            ))}
+        <div 
+          className="absolute inset-0 flex items-center justify-center z-10 rounded-xl"
+          style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+        >
+          <div className="flex flex-col items-center">
+            <span className="text-xs text-gray-400 mb-2">Select guests</span>
+            <div className="flex flex-wrap gap-2 justify-center max-w-[120px]">
+              {Array.from({ length: table.seats }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onGuestSelect(i + 1);
+                  }}
+                  className="w-8 h-8 flex items-center justify-center text-sm font-bold text-white bg-neutral-700 rounded hover:bg-green-500 transition-all hover:scale-110"
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
+    </div>
+  );
+};
+
+// Status Legend Component
+const StatusLegend = () => {
+  const legendItems = [
+    { status: "Available", color: "#22c55e" },
+    { status: "Ordering", color: "#a855f7" },
+    { status: "Ordered", color: "#f97316" },
+    { status: "Seated", color: "#3b82f6" },
+    { status: "Late", color: "#ef4444" },
+    { status: "Reserved", color: "#6b7280" },
+  ];
+
+  return (
+    <div className="flex items-center justify-center gap-4 py-3 px-4 bg-neutral-900/50 rounded-lg border border-neutral-800">
+      {legendItems.map((item) => (
+        <div key={item.status} className="flex items-center gap-1.5">
+          <div 
+            className="w-2.5 h-2.5 rounded-full"
+            style={{ backgroundColor: item.color }}
+          />
+          <span className="text-xs text-gray-400">{item.status}</span>
+        </div>
+      ))}
+      <div className="flex items-center gap-1.5 ml-2 pl-4 border-l border-neutral-700">
+        <div className="w-3 h-2 rounded-t-sm bg-blue-500" />
+        <span className="text-xs text-gray-400">Occupied</span>
+      </div>
     </div>
   );
 };
@@ -367,9 +501,9 @@ const TableOrderA = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-black p-2 pb-2">
+    <div className="flex flex-col h-full bg-black p-3">
       {/* Filter Bar */}
-      <div className="flex items-center gap-2 mb-3">
+      <div className="flex items-center gap-2 mb-4">
         {/* Collapsible Controls */}
         {isControlsOpen ? (
           <div className="flex items-center gap-1.5 bg-sidebar-accent rounded-full pl-1.5 pr-1 py-1">
@@ -449,187 +583,54 @@ const TableOrderA = () => {
                 onClick={() => setActiveFilter(filter)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                   activeFilter === filter
-                    ? "text-black"
-                    : "text-white"
+                    ? "bg-white text-black font-medium"
+                    : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
                 }`}
-                style={
-                  activeFilter === filter
-                    ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
-                    : { 
-                        background: "#7575754D",
-                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-                      }
-                }
               >
-                <span>{filter}</span>
-                <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
-                  activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"
-                }`}>
-                  {filterCounts[filter] || 0}
-                </span>
+                {filter}
+                {filterCounts[filter] !== undefined && (
+                  <span className={`text-xs ${activeFilter === filter ? "text-gray-600" : "text-gray-500"}`}>
+                    {filterCounts[filter]}
+                  </span>
+                )}
               </button>
             ))}
           </div>
-          <ScrollBar orientation="horizontal" className="h-1" />
+          <ScrollBar orientation="horizontal" />
         </ScrollArea>
       </div>
 
-      {/* Tables View */}
+      {/* Tables Grid */}
       <ScrollArea className="flex-1">
-        {viewMode === "grid" ? (
-          /* Shape Grid View - 4 columns with proper spacing */
-          <div className="grid grid-cols-4 gap-6 p-4">
-            {filteredTables.map((table) => (
-              table.shape === "circle" ? (
-                <CircularTable
-                  key={table.id}
-                  table={table}
-                  onClick={() => handleTableClick(table)}
-                  isSelected={selectedTable === table.id}
-                  onGuestSelect={(count) => handleGuestSelect(table.id, count)}
-                  showGuestSelection={guestDropdownTable === table.id && table.status === "Available"}
-                />
-              ) : (
-                <SquareTable
-                  key={table.id}
-                  table={table}
-                  onClick={() => handleTableClick(table)}
-                  isSelected={selectedTable === table.id}
-                  onGuestSelect={(count) => handleGuestSelect(table.id, count)}
-                  showGuestSelection={guestDropdownTable === table.id && table.status === "Available"}
-                />
-              )
-            ))}
-          </div>
-        ) : viewMode === "list" ? (
-          /* List View - 2 columns */
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-            {filteredTables.map((table) => {
-              const config = shapeStatusConfig[table.status] || shapeStatusConfig["Available"];
-              
-              return (
-                <div
-                  key={table.id}
-                  onClick={() => handleTableClick(table)}
-                  className={`bg-neutral-900 rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
-                    selectedTable === table.id 
-                      ? "border-orange-500 ring-2 ring-orange-500/30" 
-                      : "border-neutral-800"
-                  }`}
-                >
-                  {/* Table Shape Icon */}
-                  <div className={`w-10 h-10 ${table.shape === "circle" ? "rounded-full" : "rounded-lg"} border-2 ${config.borderColor} ${config.bgColor} flex items-center justify-center`}>
-                    <span className="text-white font-bold text-sm">{table.id}</span>
-                  </div>
-                  
-                  {/* Info */}
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="flex gap-0.5">
-                        {Array.from({ length: table.seats }).map((_, i) => (
-                          <div key={i} className={`w-1.5 h-1.5 rounded-full ${
-                            table.occupiedSeats.includes(i + 1) ? "bg-blue-500" : "bg-neutral-600"
-                          }`} />
-                        ))}
-                      </div>
-                      <span className="text-gray-400 text-xs">{table.seats} Seats</span>
-                      {table.time && <span className="text-gray-500 text-xs">{table.time}</span>}
-                    </div>
-                  </div>
-                  
-                  {/* Status */}
-                  {guestDropdownTable === table.id && table.status === "Available" ? (
-                    <div className="flex gap-1 px-2">
-                      {Array.from({ length: table.seats }).map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleGuestSelect(table.id, i + 1);
-                          }}
-                          className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
-                        >
-                          {i + 1}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className={`px-3 py-1 rounded-md border ${config.borderColor} ${config.bgColor}`}>
-                      <span className="text-xs font-medium text-white">
-                        {table.status}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          /* Compact List View */
-          <div className="flex flex-col gap-1">
-            {filteredTables.map((table) => {
-              const config = shapeStatusConfig[table.status] || shapeStatusConfig["Available"];
-              
-              return (
-                <div
-                  key={table.id}
-                  onClick={() => handleTableClick(table)}
-                  className={`bg-neutral-900 rounded-lg px-3 py-2 flex items-center gap-3 cursor-pointer hover:bg-neutral-800 transition-all border ${
-                    selectedTable === table.id 
-                      ? "border-orange-500" 
-                      : "border-neutral-800"
-                  }`}
-                >
-                  {/* Table Number */}
-                  <span className="text-lg font-bold text-white w-10">{table.id}</span>
-                  
-                  {/* Shape indicator */}
-                  <div className={`w-4 h-4 ${table.shape === "circle" ? "rounded-full" : "rounded"} border ${config.borderColor} ${config.bgColor}`} />
-                  
-                  {/* Seat Dots */}
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: table.seats }).map((_, i) => (
-                      <div key={i} className={`w-1.5 h-1.5 rounded-full ${
-                        table.occupiedSeats.includes(i + 1) ? "bg-blue-500" : "bg-neutral-600"
-                      }`} />
-                    ))}
-                  </div>
-                  
-                  {/* Seats Count */}
-                  <span className="text-gray-400 text-xs">{table.seats}S</span>
-                  
-                  {/* Time */}
-                  <span className="text-gray-500 text-xs flex-1">{table.time || "-"}</span>
-                  
-                  {/* Status */}
-                  {guestDropdownTable === table.id && table.status === "Available" ? (
-                    <div className="flex gap-1 px-2">
-                      {Array.from({ length: table.seats }).map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleGuestSelect(table.id, i + 1);
-                          }}
-                          className="w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
-                        >
-                          {i + 1}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className={`px-2 py-0.5 rounded border ${config.borderColor} ${config.bgColor}`}>
-                      <span className="text-xs font-medium text-white">
-                        {table.status}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <div className="grid grid-cols-4 gap-6 p-4 justify-items-center">
+          {filteredTables.map((table) => (
+            table.shape === "circle" ? (
+              <CircularTable
+                key={table.id}
+                table={table}
+                onClick={() => handleTableClick(table)}
+                isSelected={selectedTable === table.id}
+                onGuestSelect={(count) => handleGuestSelect(table.id, count)}
+                showGuestSelection={guestDropdownTable === table.id}
+              />
+            ) : (
+              <SquareTable
+                key={table.id}
+                table={table}
+                onClick={() => handleTableClick(table)}
+                isSelected={selectedTable === table.id}
+                onGuestSelect={(count) => handleGuestSelect(table.id, count)}
+                showGuestSelection={guestDropdownTable === table.id}
+              />
+            )
+          ))}
+        </div>
       </ScrollArea>
+
+      {/* Status Legend */}
+      <div className="mt-auto pt-3">
+        <StatusLegend />
+      </div>
     </div>
   );
 };

@@ -1,6 +1,6 @@
 import React from 'react';
 import { usePanelPosition } from '@/contexts/PanelPositionContext';
-import grabberIcon from '@/assets/icons/grabber.png';
+import { GripVertical } from 'lucide-react';
 
 interface DraggablePanelHandleProps {
   panelId: 'menu' | 'order';
@@ -16,7 +16,6 @@ export function DraggablePanelHandle({ panelId, className = '' }: DraggablePanel
     setIsPanelDragging(true);
     setDraggedPanel(panelId);
     
-    // Add a slight delay to allow the drag image to be set
     setTimeout(() => {
       const dragElement = e.target as HTMLElement;
       dragElement.style.opacity = '0.5';
@@ -37,17 +36,16 @@ export function DraggablePanelHandle({ panelId, className = '' }: DraggablePanel
       onDragEnd={handleDragEnd}
       className={`
         cursor-grab active:cursor-grabbing 
-        p-1.5 rounded hover:bg-white/10 
-        transition-colors
+        flex items-center justify-center
+        w-5 h-5 rounded
+        opacity-40 hover:opacity-80
+        hover:bg-white/5
+        transition-all duration-200
         ${className}
       `}
-      title="Drag to reposition panel"
+      title="Drag to swap panels"
     >
-      <img 
-        src={grabberIcon} 
-        alt="Drag to reposition" 
-        className="w-4 h-1.5 opacity-60 hover:opacity-100 transition-opacity rotate-90" 
-      />
+      <GripVertical className="w-3.5 h-3.5 text-white/70" />
     </div>
   );
 }

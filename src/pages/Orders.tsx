@@ -6556,8 +6556,8 @@ const Orders = () => {
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-16 lg:pr-20 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Desktop Drag Handle and Search Button - Top Right Corner */}
-          <div className="hidden md:flex absolute top-0 right-0 z-10 items-center gap-1">
-            <DraggablePanelHandle panelId="menu" />
+          <div className="hidden md:flex absolute top-1 right-0 z-10 items-center gap-0.5">
+            <DraggablePanelHandle panelId="menu" className="mr-1" />
             <button 
               className="cursor-pointer"
               onClick={() => setIsDesktopSearchOpen(true)}
@@ -6711,8 +6711,8 @@ const Orders = () => {
       <div className={`hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0 pb-2 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
-          <div className="flex items-center justify-between text-xs mb-2 gap-2">
-            <DraggablePanelHandle panelId="order" />
+          <div className="flex items-center justify-between text-xs mb-2 gap-1">
+            <DraggablePanelHandle panelId="order" className="flex-shrink-0" />
             <div className="relative">
               <input ref={guestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-[#808080]" />
               {showGuestDropdown && filteredGuests.length > 0 && <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">

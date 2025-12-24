@@ -6304,6 +6304,73 @@ const OrdersF = () => {
   return <div className="relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden">
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />
+      
+      {/* NEW: Vertical Categories Column (Desktop only) */}
+      <div className="hidden md:flex flex-col w-[90px] lg:w-[100px] flex-shrink-0 gap-2 overflow-hidden">
+        {/* Menu Dropdown */}
+        <div className="flex flex-col gap-1.5 p-1.5 rounded-lg" style={{
+          background: '#7575754D',
+          boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+        }}>
+          <Select value={selectedMenu} onValueChange={handleMenuSelect}>
+            <SelectTrigger className="w-full rounded-md bg-neutral-700 hover:bg-neutral-600 border-neutral-600 text-white h-7 text-[10px] lg:text-xs px-2">
+              <SelectValue placeholder="Menu" />
+            </SelectTrigger>
+            <SelectContent className="bg-neutral-800 border-neutral-700 z-50">
+              {menuList.map(menu => <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white text-xs">
+                  {menu}
+                </SelectItem>)}
+            </SelectContent>
+          </Select>
+          
+          {/* View Mode Toggles */}
+          <div className="flex items-center justify-center gap-1">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-6 w-6 p-0 bg-white hover:bg-white/90 rounded-md" 
+              onClick={() => setHorizontalScrollMode(!horizontalScrollMode)}
+              title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}
+            >
+              {horizontalScrollMode 
+                ? <img src={verticalScrollIcon} alt="All view" className="w-3.5 h-3.5" /> 
+                : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3.5 h-3.5" />
+              }
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="h-6 w-6 p-0 bg-white hover:bg-white/90 rounded-md" 
+              onClick={() => setThumbnailViewMode(!thumbnailViewMode)}
+              title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}
+            >
+              {thumbnailViewMode 
+                ? <img src={listViewIcon} alt="List view" className="w-3.5 h-3.5" /> 
+                : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3.5 h-3.5" />
+              }
+            </Button>
+          </div>
+        </div>
+        
+        {/* Main Categories - Vertical List */}
+        <ScrollArea className="flex-1">
+          <div className="flex flex-col gap-1 pr-1">
+            {menuCategories[selectedMenu].map(cat => (
+              <button
+                key={cat}
+                onClick={() => handleCategoryChange(cat)}
+                className={`w-full text-left px-2 py-2 rounded-md text-[10px] lg:text-xs font-medium transition-colors ${
+                  activeCategory === cat 
+                    ? `${getCategoryBgColor(cat)} text-white` 
+                    : 'bg-neutral-800 text-neutral-300 hover:bg-neutral-700'
+                }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </ScrollArea>
+      </div>
       {/* Right Panel - Order (Shows first on mobile) */}
       <div className={`md:hidden flex flex-col overflow-hidden transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1' : 'flex-shrink-0'}`}>
         {/* Order Header - Outside background container */}
@@ -6553,45 +6620,47 @@ const OrdersF = () => {
         {showInlineCustomization && selectedItemForCustomization ? <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
             <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />
           </div> : <>
-        {/* Main Categories - Hidden in search mode on mobile */}
-        <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
-          {/* Desktop Search Button - Top Right Corner */}
-          <div className="hidden md:flex absolute top-1 right-0 z-10 items-center">
-            <button 
-              className="cursor-pointer"
-              onClick={() => setIsDesktopSearchOpen(true)}
-            >
-              <img src={searchIcon} alt="Search" className="w-8 h-8 lg:w-9 lg:h-9" />
-            </button>
-          </div>
-          {/* Menu Controls Group */}
-          {isMenuSelectOpen ? <div className="flex items-center gap-1 md:gap-1.5 lg:gap-2 bg-sidebar-accent rounded-full pl-1 pr-0.5 md:pl-1.5 md:pr-0.5 lg:pl-2 lg:pr-0.5 h-6 md:h-8 lg:h-9">
-              <Button variant="ghost" size="icon" className="h-5 md:h-7 lg:h-8 w-5 md:w-7 lg:w-8 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
-                <img src={burgerCloseIcon} alt="Close menu" className="w-4 md:w-5 lg:w-6 h-4 md:h-5 lg:h-6" />
+        {/* Main Categories - Hidden on desktop (moved to sidebar column), shown on mobile */}
+        <div className={`relative flex flex-wrap items-center gap-1 pr-10 md:hidden ${isSearchMode ? 'hidden' : ''}`}>
+          {/* Menu Controls Group - Mobile only */}
+          {isMenuSelectOpen ? <div className="flex items-center gap-1 bg-sidebar-accent rounded-full pl-1 pr-0.5 h-6">
+              <Button variant="ghost" size="icon" className="h-5 w-5 p-0" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
+                <img src={burgerCloseIcon} alt="Close menu" className="w-4 h-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-5 md:h-7 lg:h-8 w-5 md:w-7 lg:w-8 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setHorizontalScrollMode(!horizontalScrollMode)} title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}>
-                {horizontalScrollMode ? <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
+              <Button variant="ghost" size="icon" className="h-5 w-5 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setHorizontalScrollMode(!horizontalScrollMode)} title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}>
+                {horizontalScrollMode ? <img src={verticalScrollIcon} alt="All view" className="w-3 h-3" /> : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 h-3" />}
               </Button>
-              <Button variant="ghost" size="icon" className="h-5 md:h-7 lg:h-8 w-5 md:w-7 lg:w-8 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setThumbnailViewMode(!thumbnailViewMode)} title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}>
-                {thumbnailViewMode ? <img src={listViewIcon} alt="List view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
+              <Button variant="ghost" size="icon" className="h-5 w-5 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setThumbnailViewMode(!thumbnailViewMode)} title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}>
+                {thumbnailViewMode ? <img src={listViewIcon} alt="List view" className="w-3 h-3" /> : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 h-3" />}
               </Button>
               <Select value={selectedMenu} onValueChange={handleMenuSelect}>
-                <SelectTrigger className="w-[100px] md:w-[110px] lg:w-[160px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-5 md:h-7 lg:h-8 text-[10px] md:text-[10px] lg:text-sm">
+                <SelectTrigger className="w-[100px] rounded-full bg-neutral-700 hover:bg-neutral-600 border-neutral-700 text-white h-5 text-[10px]">
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
-                <SelectContent className="bg-neutral-800 border-neutral-700">
+                <SelectContent className="bg-neutral-800 border-neutral-700 z-50">
                   {menuList.map(menu => <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
                       {menu}
                     </SelectItem>)}
                 </SelectContent>
               </Select>
-            </div> : <Button variant="ghost" size="icon" className="h-6 md:h-8 lg:h-9 w-6 md:w-8 lg:w-9 p-0 hover:bg-transparent" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
-              <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-8 lg:w-9 h-6 md:h-8 lg:h-9" />
+            </div> : <Button variant="ghost" size="icon" className="h-6 w-6 p-0 hover:bg-transparent" onClick={() => setIsMenuSelectOpen(!isMenuSelectOpen)}>
+              <img src={burgerOpenIcon} alt="Open menu" className="w-6 h-6" />
             </Button>}
-          {/* Categories */}
-          {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2 md:px-5 lg:px-7 h-6 md:h-8 lg:h-9 text-[10px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
+          {/* Categories - Mobile only */}
+          {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2 h-6 text-[10px] whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
+        </div>
+
+        {/* Desktop Search Button - Inside Menu Panel */}
+        <div className="hidden md:flex items-center justify-between gap-2 mb-1">
+          <span className="text-xs text-neutral-400 font-medium uppercase tracking-wide">{activeCategory} — Subcategories</span>
+          <button 
+            className="cursor-pointer"
+            onClick={() => setIsDesktopSearchOpen(true)}
+          >
+            <img src={searchIcon} alt="Search" className="w-7 h-7 lg:w-8 lg:h-8" />
+          </button>
         </div>
 
         <div className={`h-px bg-sidebar-border ${isSearchMode ? 'hidden md:block' : ''}`} />

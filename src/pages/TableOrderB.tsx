@@ -1279,7 +1279,12 @@ const TableOrderB = () => {
               key={table.id} 
               open={tableOptionsOpen === table.id} 
               onOpenChange={(open) => {
-                if (!open) setTableOptionsOpen(null);
+                // Don't close if we're editing seats for this table
+                if (!open && seatEditTable === table.id) return;
+                if (!open) {
+                  setTableOptionsOpen(null);
+                  setSeatEditTable(null);
+                }
               }}
             >
               <PopoverTrigger asChild>
@@ -1408,20 +1413,32 @@ const TableOrderB = () => {
                       <p className="text-xs text-gray-400 mb-2">Number of Seats</p>
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => setTempSeats(Math.max(2, tempSeats - 1))}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setTempSeats(Math.max(2, tempSeats - 1));
+                          }}
                           className="w-8 h-8 rounded-lg bg-neutral-700 text-white hover:bg-neutral-600"
                         >
                           -
                         </button>
                         <span className="w-8 text-center text-white font-bold">{tempSeats}</span>
                         <button
-                          onClick={() => setTempSeats(Math.min(12, tempSeats + 1))}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            setTempSeats(Math.min(12, tempSeats + 1));
+                          }}
                           className="w-8 h-8 rounded-lg bg-neutral-700 text-white hover:bg-neutral-600"
                         >
                           +
                         </button>
                         <button
-                          onClick={confirmSeatChange}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                            confirmSeatChange();
+                          }}
                           className="ml-auto px-3 py-1 rounded-lg bg-green-500 text-white text-sm font-medium"
                         >
                           Save
@@ -1430,7 +1447,11 @@ const TableOrderB = () => {
                     </div>
                   ) : (
                     <button
-                      onClick={() => handleChangeSeats(table.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        handleChangeSeats(table.id);
+                      }}
                       className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-white hover:bg-neutral-800 transition-colors border-t border-neutral-800"
                     >
                       <Armchair className="w-4 h-4 text-amber-400" />

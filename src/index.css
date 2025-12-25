@@ -42,20 +42,22 @@ All colors MUST be HSL.
     --header-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Theme accent color (default orange) */
+    --accent-h: 25;
+    --accent-s: 95%;
+    --accent-l: 53%;
+    --accent-color: 25 95% 53%;
+    
+    /* Font size base */
+    --font-size-base: 16px;
   }
 
   .dark {
@@ -97,6 +99,27 @@ All colors MUST be HSL.
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
+
+  /* High Contrast Mode */
+  .high-contrast {
+    --foreground: 0 0% 100%;
+    --muted-foreground: 0 0% 80%;
+    --border: 0 0% 40%;
+  }
+  
+  .high-contrast.dark {
+    --background: 0 0% 0%;
+    --foreground: 0 0% 100%;
+    --muted-foreground: 0 0% 85%;
+    --border: 0 0% 50%;
+  }
+
+  /* Reduce Motion */
+  .reduce-motion * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 @layer base {
@@ -106,6 +129,7 @@ All colors MUST be HSL.
 
   body {
     @apply bg-background text-foreground;
+    font-size: var(--font-size-base);
   }
 }
 
@@ -142,13 +166,30 @@ All colors MUST be HSL.
   }
 
   .glass-glow {
-    box-shadow: 0 0 20px hsla(25, 95%, 53%, 0.3), 0 8px 32px hsla(0, 0%, 0%, 0.2);
+    box-shadow: 0 0 20px hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.3), 0 8px 32px hsla(0, 0%, 0%, 0.2);
   }
 
   .gradient-mesh {
     background: 
-      radial-gradient(ellipse at 20% 30%, hsla(25, 95%, 53%, 0.15) 0%, transparent 50%),
+      radial-gradient(ellipse at 20% 30%, hsla(var(--accent-h), var(--accent-s), var(--accent-l), 0.15) 0%, transparent 50%),
       radial-gradient(ellipse at 80% 70%, hsla(220, 90%, 56%, 0.1) 0%, transparent 50%),
       radial-gradient(ellipse at 50% 50%, hsla(280, 80%, 60%, 0.08) 0%, transparent 60%);
+  }
+
+  /* Theme accent utilities */
+  .bg-theme-accent {
+    background-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  }
+  
+  .text-theme-accent {
+    color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  }
+  
+  .border-theme-accent {
+    border-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
+  }
+  
+  .ring-theme-accent {
+    --tw-ring-color: hsl(var(--accent-h), var(--accent-s), var(--accent-l));
   }
 }

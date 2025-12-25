@@ -1,7 +1,12 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, Move, RotateCcw, Merge, Link, Unlink, ArrowUpDown } from "lucide-react";
+import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X } from "lucide-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -688,8 +693,8 @@ const TableOrderB = () => {
   
   // Drag and drop state
   const [tablePositions, setTablePositions] = useState<TableType[]>(loadSavedPositions);
-  const [isEditMode, setIsEditMode] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [hasDragged, setHasDragged] = useState(false);
   const [draggedTableId, setDraggedTableId] = useState<string | null>(null);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
   const mapContainerRef = useRef<HTMLDivElement>(null);
@@ -702,6 +707,11 @@ const TableOrderB = () => {
   // Unmerge dialog state
   const [showUnmergeDialog, setShowUnmergeDialog] = useState(false);
   const [pendingUnmerge, setPendingUnmerge] = useState<{ table1: string; table2: string } | null>(null);
+  
+  // Table options popup state
+  const [tableOptionsOpen, setTableOptionsOpen] = useState<string | null>(null);
+  const [seatEditTable, setSeatEditTable] = useState<string | null>(null);
+  const [tempSeats, setTempSeats] = useState<number>(0);
   
   const MERGE_THRESHOLD = 120; // pixels - distance at which tables can merge
   const SNAP_OFFSET = 160; // pixels - how far apart merged tables should be
@@ -878,9 +888,9 @@ const TableOrderB = () => {
 
   // Handle drag start
   const handleDragStart = useCallback((e: React.MouseEvent | React.TouchEvent, tableId: string) => {
-    if (!isEditMode) return;
     e.preventDefault();
     e.stopPropagation();
+    setTableOptionsOpen(null); // Close any open options popup
     
     const coords = getClientCoords(e);
     const table = tablePositions.find(t => t.id === tableId);
@@ -896,7 +906,8 @@ const TableOrderB = () => {
     });
     setDraggedTableId(tableId);
     setIsDragging(true);
-  }, [isEditMode, tablePositions]);
+    setHasDragged(false);
+  }, [tablePositions]);
 
   // Handle drag move
   const handleDragMove = useCallback((e: MouseEvent | TouchEvent) => {
@@ -916,6 +927,8 @@ const TableOrderB = () => {
     
     newX = Math.max(padding, Math.min(newX, maxX));
     newY = Math.max(padding, Math.min(newY, maxY));
+    
+    setHasDragged(true); // Mark that we've moved
     
     const draggedTable = tablePositions.find(t => t.id === draggedTableId);
     
@@ -976,7 +989,9 @@ const TableOrderB = () => {
     setIsDragging(false);
     setDraggedTableId(null);
     setMergeTarget(null);
-  }, [mergeTarget, draggedTableId, tablePositions]);
+    // Reset hasDragged after a short delay to allow click events to check it
+    setTimeout(() => setHasDragged(false), 100);
+  }, [mergeTarget, draggedTableId, tablePositions, hasDragged]);
 
   // Add global event listeners for drag
   useEffect(() => {
@@ -1023,15 +1038,58 @@ const TableOrderB = () => {
     ? tablePositions 
     : tablePositions.filter(t => t.status === activeFilter);
 
-  const handleTableClick = (table: TableType) => {
-    // Don't handle clicks while dragging or in edit mode
-    if (isDragging || isEditMode) return;
+  const handleTableClick = (table: TableType, e: React.MouseEvent) => {
+    e.stopPropagation();
+    // Don't open options if we just finished dragging
+    if (hasDragged) return;
     
-    if (table.status === "Available") {
-      setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
-    } else {
-      navigate(`/tableorder/${table.id}`);
+    setGuestDropdownTable(null);
+    setTableOptionsOpen(tableOptionsOpen === table.id ? null : table.id);
+  };
+  
+  // Handle view order action
+  const handleViewOrder = (tableId: string) => {
+    setTableOptionsOpen(null);
+    navigate(`/tableorder/${tableId}`);
+  };
+  
+  // Handle add guests action (for available tables)
+  const handleAddGuests = (tableId: string, guestCount: number) => {
+    setTablePositions(prev => prev.map(t => 
+      t.id === tableId 
+        ? { ...t, guests: guestCount, occupiedSeats: Array.from({ length: guestCount }, (_, i) => i + 1), status: "Seated", time: "Just now" }
+        : t
+    ));
+    setTableOptionsOpen(null);
+    toast.success(`${guestCount} guests seated at table ${tableId}`);
+  };
+  
+  // Handle change seats
+  const handleChangeSeats = (tableId: string) => {
+    const table = tablePositions.find(t => t.id === tableId);
+    if (table) {
+      setSeatEditTable(tableId);
+      setTempSeats(table.seats);
     }
+  };
+  
+  const confirmSeatChange = () => {
+    if (seatEditTable && tempSeats >= 2 && tempSeats <= 12) {
+      setTablePositions(prev => prev.map(t => 
+        t.id === seatEditTable 
+          ? { ...t, seats: tempSeats, occupiedSeats: t.occupiedSeats.filter(s => s <= tempSeats) }
+          : t
+      ));
+      toast.success(`Table ${seatEditTable} updated to ${tempSeats} seats`);
+      setSeatEditTable(null);
+      setTableOptionsOpen(null);
+    }
+  };
+  
+  // Close options when clicking outside
+  const handleContainerClick = () => {
+    setTableOptionsOpen(null);
+    setGuestDropdownTable(null);
   };
 
   const handleGuestSelect = (tableId: string, guestCount: number) => {
@@ -1123,29 +1181,14 @@ const TableOrderB = () => {
           <span className="text-xs text-emerald-400 font-medium">Floor Plan</span>
         </div>
 
-        {/* Edit Mode Toggle */}
+        {/* Reset Positions Button */}
         <button
-          onClick={() => setIsEditMode(!isEditMode)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
-            isEditMode 
-              ? "bg-orange-500 text-white" 
-              : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
-          }`}
+          onClick={handleResetPositions}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-800 text-gray-300 hover:bg-neutral-700 text-xs font-medium transition-all"
         >
-          <Move className="w-3.5 h-3.5" />
-          <span>{isEditMode ? "Done" : "Edit Layout"}</span>
+          <RotateCcw className="w-3.5 h-3.5" />
+          <span>Reset</span>
         </button>
-
-        {/* Reset Button (only show in edit mode) */}
-        {isEditMode && (
-          <button
-            onClick={handleResetPositions}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-800 text-gray-300 hover:bg-neutral-700 text-xs font-medium transition-all"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset</span>
-          </button>
-        )}
 
         {/* Filter Tabs */}
         <ScrollArea className="flex-1">
@@ -1176,19 +1219,9 @@ const TableOrderB = () => {
       {/* Interactive Floor Plan Map */}
       <div 
         ref={mapContainerRef}
-        className={`flex-1 relative overflow-hidden rounded-xl border-2 bg-neutral-950 transition-colors ${
-          isEditMode ? "border-orange-500/50" : "border-neutral-800"
-        }`}
+        className="flex-1 relative overflow-hidden rounded-xl border-2 bg-neutral-950 border-neutral-800"
+        onClick={handleContainerClick}
       >
-        {/* Edit mode hint */}
-        {isEditMode && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-0 pointer-events-none">
-            <div className="text-center">
-              <Move className="w-12 h-12 text-neutral-700 mx-auto mb-2" />
-              <p className="text-neutral-600 text-sm">Drag tables to reposition or merge</p>
-            </div>
-          </div>
-        )}
 
         {/* Grid background pattern */}
         <div 
@@ -1239,88 +1272,199 @@ const TableOrderB = () => {
           const isMergeTarget = mergeTarget === table.id;
           const isBeingDragged = draggedTableId === table.id;
           const isMerged = !!table.mergedWith;
+          const config = statusConfig[table.status] || statusConfig["Available"];
           
           return (
-            <div
-              key={table.id}
-              className={`absolute transition-all select-none ${
-                isBeingDragged 
-                  ? "z-50 scale-105 duration-0" 
-                  : isMergeTarget
-                    ? "z-40 scale-110 duration-200"
-                    : "z-30 duration-300"
-              } ${isEditMode ? "cursor-grab active:cursor-grabbing" : ""}`}
-              style={{ 
-                left: table.x, 
-                top: table.y,
-                boxShadow: isBeingDragged 
-                  ? "0 20px 40px rgba(0,0,0,0.5)" 
-                  : isMergeTarget 
-                    ? "0 0 30px rgba(34, 211, 238, 0.6)"
-                    : undefined,
+            <Popover 
+              key={table.id} 
+              open={tableOptionsOpen === table.id} 
+              onOpenChange={(open) => {
+                if (!open) setTableOptionsOpen(null);
               }}
-              onMouseDown={(e) => handleDragStart(e, table.id)}
-              onTouchStart={(e) => handleDragStart(e, table.id)}
             >
-              {/* Merge target glow ring */}
-              {isMergeTarget && (
-                <div className="absolute inset-0 -m-3 rounded-full animate-pulse pointer-events-none">
-                  <div className="absolute inset-0 rounded-full border-4 border-cyan-400/60" />
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-cyan-500 text-white text-xs font-bold whitespace-nowrap">
-                    Drop to Merge
+              <PopoverTrigger asChild>
+                <div
+                  className={`absolute transition-all select-none cursor-grab active:cursor-grabbing ${
+                    isBeingDragged 
+                      ? "z-50 scale-105 duration-0" 
+                      : isMergeTarget
+                        ? "z-40 scale-110 duration-200"
+                        : tableOptionsOpen === table.id
+                          ? "z-50 duration-200"
+                          : "z-30 duration-300"
+                  }`}
+                  style={{ 
+                    left: table.x, 
+                    top: table.y,
+                    boxShadow: isBeingDragged 
+                      ? "0 20px 40px rgba(0,0,0,0.5)" 
+                      : isMergeTarget 
+                        ? "0 0 30px rgba(34, 211, 238, 0.6)"
+                        : undefined,
+                  }}
+                  onMouseDown={(e) => handleDragStart(e, table.id)}
+                  onTouchStart={(e) => handleDragStart(e, table.id)}
+                  onClick={(e) => handleTableClick(table, e)}
+                >
+                  {/* Merge target glow ring */}
+                  {isMergeTarget && (
+                    <div className="absolute inset-0 -m-3 rounded-full animate-pulse pointer-events-none">
+                      <div className="absolute inset-0 rounded-full border-4 border-cyan-400/60" />
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-cyan-500 text-white text-xs font-bold whitespace-nowrap">
+                        Drop to Merge
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Merged badge */}
+                  {isMerged && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-cyan-500/90 rounded-full text-[9px] font-bold text-white flex items-center gap-1 z-10 whitespace-nowrap shadow-lg shadow-cyan-500/30">
+                      <Link className="w-2.5 h-2.5" />
+                      {table.id}+{table.mergedWith}
+                    </div>
+                  )}
+                  
+                  {table.shape === "circle" ? (
+                    <MapCircularTable
+                      table={table}
+                      onClick={() => {}}
+                      isSelected={selectedTable === table.id || tableOptionsOpen === table.id}
+                      onGuestSelect={() => {}}
+                      showGuestSelection={false}
+                      isMerged={isMerged}
+                    />
+                  ) : (
+                    <MapSquareTable
+                      table={table}
+                      onClick={() => {}}
+                      isSelected={selectedTable === table.id || tableOptionsOpen === table.id}
+                      onGuestSelect={() => {}}
+                      showGuestSelection={false}
+                      isMerged={isMerged}
+                    />
+                  )}
+                </div>
+              </PopoverTrigger>
+              
+              {/* Table Options Popup */}
+              <PopoverContent 
+                className="w-56 p-0 bg-neutral-900 border-neutral-700 shadow-xl" 
+                side="right" 
+                align="start"
+                sideOffset={10}
+              >
+                {/* Header */}
+                <div className="px-4 py-3 border-b border-neutral-700">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <h3 className="text-white font-bold text-lg">Table {table.id}</h3>
+                      <p className="text-sm" style={{ color: config.color }}>
+                        {config.label} {table.guests > 0 && `• ${table.guests} guests`}
+                      </p>
+                    </div>
+                    <div 
+                      className="w-10 h-10 rounded-lg flex items-center justify-center"
+                      style={{ backgroundColor: config.bgColor, border: `2px solid ${config.color}` }}
+                    >
+                      <span className="text-white font-bold text-sm">{table.seats}</span>
+                    </div>
                   </div>
                 </div>
-              )}
-              
-              {/* Merged badge */}
-              {isMerged && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-2 py-0.5 bg-cyan-500/90 rounded-full text-[9px] font-bold text-white flex items-center gap-1 z-10 whitespace-nowrap shadow-lg shadow-cyan-500/30">
-                  <Link className="w-2.5 h-2.5" />
-                  {table.id}+{table.mergedWith}
+                
+                {/* Options */}
+                <div className="py-2">
+                  {/* View Order - for non-available tables */}
+                  {table.status !== "Available" && (
+                    <button
+                      onClick={() => handleViewOrder(table.id)}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-white hover:bg-neutral-800 transition-colors"
+                    >
+                      <Eye className="w-4 h-4 text-blue-400" />
+                      <span>View Order</span>
+                    </button>
+                  )}
+                  
+                  {/* Add Guests - for available tables */}
+                  {table.status === "Available" && (
+                    <div className="px-4 py-2">
+                      <p className="text-xs text-gray-400 mb-2">Select Guests</p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {Array.from({ length: table.seats }).map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={() => handleAddGuests(table.id, i + 1)}
+                            className="w-8 h-8 flex items-center justify-center text-sm font-bold text-white bg-neutral-700 rounded-lg hover:bg-green-500 transition-all hover:scale-105"
+                          >
+                            {i + 1}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Change Seats */}
+                  {seatEditTable === table.id ? (
+                    <div className="px-4 py-2 border-t border-neutral-800">
+                      <p className="text-xs text-gray-400 mb-2">Number of Seats</p>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => setTempSeats(Math.max(2, tempSeats - 1))}
+                          className="w-8 h-8 rounded-lg bg-neutral-700 text-white hover:bg-neutral-600"
+                        >
+                          -
+                        </button>
+                        <span className="w-8 text-center text-white font-bold">{tempSeats}</span>
+                        <button
+                          onClick={() => setTempSeats(Math.min(12, tempSeats + 1))}
+                          className="w-8 h-8 rounded-lg bg-neutral-700 text-white hover:bg-neutral-600"
+                        >
+                          +
+                        </button>
+                        <button
+                          onClick={confirmSeatChange}
+                          className="ml-auto px-3 py-1 rounded-lg bg-green-500 text-white text-sm font-medium"
+                        >
+                          Save
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => handleChangeSeats(table.id)}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-white hover:bg-neutral-800 transition-colors border-t border-neutral-800"
+                    >
+                      <Armchair className="w-4 h-4 text-amber-400" />
+                      <span>Change Seats ({table.seats})</span>
+                    </button>
+                  )}
+                  
+                  {/* Merge hint */}
+                  {!isMerged && (
+                    <div className="px-4 py-2.5 border-t border-neutral-800">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <Merge className="w-3.5 h-3.5" />
+                        <span>Drag to another table to merge</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Unmerge - for merged tables */}
+                  {isMerged && !table.isMergeSource && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setTableOptionsOpen(null);
+                        handleUnmerge(table.id);
+                      }}
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-red-400 hover:bg-red-500/10 transition-colors border-t border-neutral-800"
+                    >
+                      <Unlink className="w-4 h-4" />
+                      <span>Unmerge Tables</span>
+                    </button>
+                  )}
                 </div>
-              )}
-              
-              {/* Unmerge button in edit mode */}
-              {isEditMode && isMerged && !table.isMergeSource && (
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleUnmerge(table.id);
-                  }}
-                  className="absolute -bottom-8 left-1/2 -translate-x-1/2 px-2 py-1 bg-red-500/90 hover:bg-red-600 rounded text-[10px] font-medium text-white flex items-center gap-1 z-10 transition-colors"
-                >
-                  <Unlink className="w-3 h-3" />
-                  Unmerge
-                </button>
-              )}
-              
-              {/* Merge icon badge in edit mode (only for non-merged tables) */}
-              {isEditMode && !isBeingDragged && !isMerged && (
-                <div className="absolute -top-1 -right-1 w-5 h-5 bg-neutral-800 rounded-full flex items-center justify-center border border-neutral-600 z-10">
-                  <Merge className="w-3 h-3 text-gray-400" />
-                </div>
-              )}
-              
-              {table.shape === "circle" ? (
-                <MapCircularTable
-                  table={table}
-                  onClick={() => handleTableClick(table)}
-                  isSelected={selectedTable === table.id}
-                  onGuestSelect={(count) => handleGuestSelect(table.id, count)}
-                  showGuestSelection={guestDropdownTable === table.id && !isEditMode}
-                  isMerged={isMerged}
-                />
-              ) : (
-                <MapSquareTable
-                  table={table}
-                  onClick={() => handleTableClick(table)}
-                  isSelected={selectedTable === table.id}
-                  onGuestSelect={(count) => handleGuestSelect(table.id, count)}
-                  showGuestSelection={guestDropdownTable === table.id && !isEditMode}
-                  isMerged={isMerged}
-                />
-              )}
-            </div>
+              </PopoverContent>
+            </Popover>
           );
         })}
       </div>

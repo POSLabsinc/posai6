@@ -6,16 +6,34 @@ import notificationIcon from "@/assets/icons/notification.png";
 import wifiIcon from "@/assets/icons/wifi.png";
 import supportIcon from "@/assets/icons/support.png";
 import switchUserIcon from "@/assets/icons/switch-user.png";
-import { Sun, Moon } from "lucide-react";
-import { useAppTheme } from "@/contexts/ThemeContext";
+import { Sun, Moon, Laptop, Check } from "lucide-react";
+import { useAppTheme, AccentColor } from "@/contexts/ThemeContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const colorModes = [
+  { id: "light", icon: Sun, label: "Light" },
+  { id: "dark", icon: Moon, label: "Dark" },
+  { id: "system", icon: Laptop, label: "System" },
+];
+
+const accentColors: { id: AccentColor; color: string; label: string }[] = [
+  { id: "orange", color: "hsl(25, 95%, 53%)", label: "Orange" },
+  { id: "blue", color: "hsl(217, 91%, 60%)", label: "Blue" },
+  { id: "green", color: "hsl(142, 76%, 36%)", label: "Green" },
+  { id: "purple", color: "hsl(270, 70%, 55%)", label: "Purple" },
+  { id: "red", color: "hsl(0, 84%, 60%)", label: "Red" },
+  { id: "teal", color: "hsl(173, 80%, 40%)", label: "Teal" },
+];
 
 const Header = () => {
-  const { colorMode, setColorMode, resolvedColorMode } = useAppTheme();
-  
-  const toggleTheme = () => {
-    const newMode = resolvedColorMode === "dark" ? "light" : "dark";
-    setColorMode(newMode);
-  };
+  const { colorMode, setColorMode, resolvedColorMode, accentColor, setAccentColor } = useAppTheme();
 
   return (
     <header className="flex items-center justify-between px-2 md:px-4 py-1.5 md:py-2 bg-header text-header-foreground h-10 md:h-12 flex-shrink-0">
@@ -43,29 +61,70 @@ const Header = () => {
       
       {/* Right Section */}
       <div className="flex items-center gap-2 md:gap-4">
-        {/* Theme Toggle Button */}
-        <button 
-          onClick={toggleTheme}
-          className="p-1 md:p-1.5 hover:bg-sidebar-accent rounded-md transition-all duration-300 group"
-          title={`Switch to ${resolvedColorMode === "dark" ? "light" : "dark"} mode`}
-        >
-          <div className="relative w-4 md:w-5 h-4 md:h-5">
-            <Sun 
-              className={`absolute inset-0 w-4 md:w-5 h-4 md:h-5 transition-all duration-300 ${
-                resolvedColorMode === "dark" 
-                  ? "opacity-100 rotate-0 scale-100" 
-                  : "opacity-0 rotate-90 scale-0"
-              }`} 
-            />
-            <Moon 
-              className={`absolute inset-0 w-4 md:w-5 h-4 md:h-5 transition-all duration-300 ${
-                resolvedColorMode === "light" 
-                  ? "opacity-100 rotate-0 scale-100" 
-                  : "opacity-0 -rotate-90 scale-0"
-              }`} 
-            />
-          </div>
-        </button>
+        {/* Theme Dropdown */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button 
+              className="p-1 md:p-1.5 hover:bg-sidebar-accent rounded-md transition-all duration-300"
+              title="Theme settings"
+            >
+              <div className="relative w-4 md:w-5 h-4 md:h-5">
+                <Sun 
+                  className={`absolute inset-0 w-4 md:w-5 h-4 md:h-5 transition-all duration-300 ${
+                    resolvedColorMode === "dark" 
+                      ? "opacity-100 rotate-0 scale-100" 
+                      : "opacity-0 rotate-90 scale-0"
+                  }`} 
+                />
+                <Moon 
+                  className={`absolute inset-0 w-4 md:w-5 h-4 md:h-5 transition-all duration-300 ${
+                    resolvedColorMode === "light" 
+                      ? "opacity-100 rotate-0 scale-100" 
+                      : "opacity-0 -rotate-90 scale-0"
+                  }`} 
+                />
+              </div>
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent 
+            align="end" 
+            className="w-48 bg-neutral-900 border-white/10 z-50"
+          >
+            <DropdownMenuLabel className="text-muted-foreground text-xs">Color Mode</DropdownMenuLabel>
+            {colorModes.map((mode) => (
+              <DropdownMenuItem
+                key={mode.id}
+                onClick={() => setColorMode(mode.id)}
+                className="flex items-center justify-between cursor-pointer hover:bg-white/10 focus:bg-white/10"
+              >
+                <div className="flex items-center gap-2">
+                  <mode.icon className="w-4 h-4" />
+                  <span>{mode.label}</span>
+                </div>
+                {colorMode === mode.id && <Check className="w-4 h-4 text-theme-accent" />}
+              </DropdownMenuItem>
+            ))}
+            
+            <DropdownMenuSeparator className="bg-white/10" />
+            
+            <DropdownMenuLabel className="text-muted-foreground text-xs">Accent Color</DropdownMenuLabel>
+            <div className="flex gap-1.5 px-2 py-2">
+              {accentColors.map((color) => (
+                <button
+                  key={color.id}
+                  onClick={() => setAccentColor(color.id)}
+                  title={color.label}
+                  className={`w-6 h-6 rounded-full transition-all ${
+                    accentColor === color.id
+                      ? 'ring-2 ring-white ring-offset-1 ring-offset-neutral-900 scale-110'
+                      : 'hover:scale-105'
+                  }`}
+                  style={{ backgroundColor: color.color }}
+                />
+              ))}
+            </div>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <button className="relative p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors">
           <img src={localHostIcon} alt="Local Host" className="w-4 md:w-5 h-4 md:h-5" />

@@ -34,6 +34,7 @@ const accentColors: { id: AccentColor; color: string; label: string }[] = [
 
 const Header = () => {
   const { colorMode, setColorMode, resolvedColorMode, accentColor, setAccentColor } = useAppTheme();
+  const currentMode = resolvedColorMode || "dark";
 
   return (
     <header className="flex items-center justify-between px-2 md:px-4 py-1.5 md:py-2 bg-header text-header-foreground h-10 md:h-12 flex-shrink-0">
@@ -71,14 +72,14 @@ const Header = () => {
               <div className="relative w-4 md:w-5 h-4 md:h-5">
                 <Sun 
                   className={`absolute inset-0 w-4 md:w-5 h-4 md:h-5 transition-all duration-300 ${
-                    resolvedColorMode === "dark" 
+                    currentMode === "light" 
                       ? "opacity-100 rotate-0 scale-100" 
                       : "opacity-0 rotate-90 scale-0"
                   }`} 
                 />
                 <Moon 
                   className={`absolute inset-0 w-4 md:w-5 h-4 md:h-5 transition-all duration-300 ${
-                    resolvedColorMode === "light" 
+                    currentMode === "dark" 
                       ? "opacity-100 rotate-0 scale-100" 
                       : "opacity-0 -rotate-90 scale-0"
                   }`} 
@@ -94,7 +95,10 @@ const Header = () => {
             {colorModes.map((mode) => (
               <DropdownMenuItem
                 key={mode.id}
-                onClick={() => setColorMode(mode.id)}
+                onSelect={(e) => {
+                  e.preventDefault();
+                  setColorMode(mode.id);
+                }}
                 className="flex items-center justify-between cursor-pointer hover:bg-white/10 focus:bg-white/10"
               >
                 <div className="flex items-center gap-2">
@@ -112,7 +116,11 @@ const Header = () => {
               {accentColors.map((color) => (
                 <button
                   key={color.id}
-                  onClick={() => setAccentColor(color.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setAccentColor(color.id);
+                  }}
                   title={color.label}
                   className={`w-6 h-6 rounded-full transition-all ${
                     accentColor === color.id

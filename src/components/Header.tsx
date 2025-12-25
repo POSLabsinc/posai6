@@ -6,8 +6,17 @@ import notificationIcon from "@/assets/icons/notification.png";
 import wifiIcon from "@/assets/icons/wifi.png";
 import supportIcon from "@/assets/icons/support.png";
 import switchUserIcon from "@/assets/icons/switch-user.png";
+import { Sun, Moon } from "lucide-react";
+import { useAppTheme } from "@/contexts/ThemeContext";
 
 const Header = () => {
+  const { colorMode, setColorMode, resolvedColorMode } = useAppTheme();
+  
+  const toggleTheme = () => {
+    const newMode = resolvedColorMode === "dark" ? "light" : "dark";
+    setColorMode(newMode);
+  };
+
   return (
     <header className="flex items-center justify-between px-2 md:px-4 py-1.5 md:py-2 bg-header text-header-foreground h-10 md:h-12 flex-shrink-0">
       {/* Left Section */}
@@ -34,6 +43,30 @@ const Header = () => {
       
       {/* Right Section */}
       <div className="flex items-center gap-2 md:gap-4">
+        {/* Theme Toggle Button */}
+        <button 
+          onClick={toggleTheme}
+          className="p-1 md:p-1.5 hover:bg-sidebar-accent rounded-md transition-all duration-300 group"
+          title={`Switch to ${resolvedColorMode === "dark" ? "light" : "dark"} mode`}
+        >
+          <div className="relative w-4 md:w-5 h-4 md:h-5">
+            <Sun 
+              className={`absolute inset-0 w-4 md:w-5 h-4 md:h-5 transition-all duration-300 ${
+                resolvedColorMode === "dark" 
+                  ? "opacity-100 rotate-0 scale-100" 
+                  : "opacity-0 rotate-90 scale-0"
+              }`} 
+            />
+            <Moon 
+              className={`absolute inset-0 w-4 md:w-5 h-4 md:h-5 transition-all duration-300 ${
+                resolvedColorMode === "light" 
+                  ? "opacity-100 rotate-0 scale-100" 
+                  : "opacity-0 -rotate-90 scale-0"
+              }`} 
+            />
+          </div>
+        </button>
+
         <button className="relative p-0.5 md:p-1 hover:bg-sidebar-accent rounded transition-colors">
           <img src={localHostIcon} alt="Local Host" className="w-4 md:w-5 h-4 md:h-5" />
           <span className="absolute -top-0.5 md:-top-1 -right-0.5 md:-right-1 w-2 md:w-2.5 h-2 md:h-2.5 bg-green-500 rounded-full border border-sidebar" />

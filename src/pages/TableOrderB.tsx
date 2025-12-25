@@ -71,6 +71,43 @@ const defaultTables: TableType[] = [
   { id: "T8", seats: 4, status: "2nd Course", time: "50m", shape: "square", occupiedSeats: [1, 2, 3, 4], guests: 4, x: 750, y: 320 },
 ];
 
+// Merge validation - check if two tables can be merged based on their status
+const canMerge = (table1: TableType, table2: TableType): { allowed: boolean; reason: string } => {
+  const activeOrderStatuses = ["Ordering", "Ordered", "Unpaid", "1st Course", "2nd Course", "3rd Course", "Dessert", "Served", "Seated"];
+  const completedStatuses = ["Paid", "Completed"];
+  
+  const status1 = table1.status;
+  const status2 = table2.status;
+  
+  // Both available - allowed (to increase seats)
+  if (status1 === "Available" && status2 === "Available") {
+    return { allowed: true, reason: "" };
+  }
+  
+  // Both have active orders - allowed
+  if (activeOrderStatuses.includes(status1) && activeOrderStatuses.includes(status2)) {
+    return { allowed: true, reason: "" };
+  }
+  
+  // One is paid/completed - not allowed
+  if (completedStatuses.includes(status1) || completedStatuses.includes(status2)) {
+    return { allowed: false, reason: "Cannot merge with paid or completed tables" };
+  }
+  
+  // One is available and one has active order - not allowed
+  if ((status1 === "Available" && activeOrderStatuses.includes(status2)) ||
+      (status2 === "Available" && activeOrderStatuses.includes(status1))) {
+    return { allowed: false, reason: "Cannot merge available table with table that has an active order" };
+  }
+  
+  // Reserved tables - not allowed to merge
+  if (status1 === "Reserved" || status2 === "Reserved") {
+    return { allowed: false, reason: "Cannot merge reserved tables" };
+  }
+  
+  return { allowed: false, reason: "These tables cannot be merged" };
+};
+
 // Load saved positions from localStorage or use defaults
 const loadSavedPositions = (): TableType[] => {
   try {
@@ -698,12 +735,13 @@ const TableOrderB = () => {
   // Check for table overlap during drag
   const checkTableOverlap = useCallback((draggedX: number, draggedY: number, draggedId: string): string | null => {
     const draggedTable = tablePositions.find(t => t.id === draggedId);
+    if (!draggedTable) return null;
     
     for (const table of tablePositions) {
       if (table.id === draggedId) continue;
       
       // Skip if either table is already merged
-      if (draggedTable?.mergedWith || table.mergedWith) continue;
+      if (draggedTable.mergedWith || table.mergedWith) continue;
       
       const distance = Math.sqrt(
         Math.pow(table.x - draggedX, 2) + 
@@ -711,7 +749,11 @@ const TableOrderB = () => {
       );
       
       if (distance < MERGE_THRESHOLD) {
-        return table.id;
+        // Check if merge is allowed based on status
+        const { allowed } = canMerge(draggedTable, table);
+        if (allowed) {
+          return table.id;
+        }
       }
     }
     return null;
@@ -916,12 +958,19 @@ const TableOrderB = () => {
   // Handle drag end
   const handleDragEnd = useCallback(() => {
     const draggedTable = tablePositions.find(t => t.id === draggedTableId);
+    const targetTable = tablePositions.find(t => t.id === mergeTarget);
     
-    // Only show merge dialog if not already merged
-    if (mergeTarget && draggedTableId && !draggedTable?.mergedWith) {
-      // Show merge confirmation dialog
-      setPendingMerge({ source: draggedTableId, target: mergeTarget });
-      setShowMergeDialog(true);
+    // Only show merge dialog if not already merged and merge is valid
+    if (mergeTarget && draggedTableId && !draggedTable?.mergedWith && draggedTable && targetTable) {
+      const { allowed, reason } = canMerge(draggedTable, targetTable);
+      
+      if (allowed) {
+        // Show merge confirmation dialog
+        setPendingMerge({ source: draggedTableId, target: mergeTarget });
+        setShowMergeDialog(true);
+      } else {
+        toast.error(reason);
+      }
     }
     
     setIsDragging(false);

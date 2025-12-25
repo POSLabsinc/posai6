@@ -43,27 +43,17 @@ import { PanelDropZones } from "@/components/PanelDropZone";
 import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 
 // Food images
-import salmonImg from "@/assets/food/salmon.jpg";
-import macCheeseImg from "@/assets/food/mac-cheese.jpg";
-import ravioliImg from "@/assets/food/ravioli.jpg";
-import turkeyImg from "@/assets/food/turkey.jpg";
-import gnocchiImg from "@/assets/food/gnocchi.jpg";
-import asparagusImg from "@/assets/food/asparagus.jpg";
-import chickenBreastImg from "@/assets/food/chicken-breast.jpg";
-import paniniImg from "@/assets/food/panini.jpg";
-import fettucciniImg from "@/assets/food/fettuccini.jpg";
-import chickenParmesanImg from "@/assets/food/chicken-parmesan.jpg";
-import steakImg from "@/assets/food/steak.jpg";
-import ribsImg from "@/assets/food/ribs.jpg";
-import shrimpImg from "@/assets/food/shrimp.jpg";
-import soupImg from "@/assets/food/soup.jpg";
-import saladImg from "@/assets/food/salad.jpg";
-import pizzaImg from "@/assets/food/pizza.jpg";
-import burgerImg from "@/assets/food/burger.jpg";
-import seafoodImg from "@/assets/food/seafood.jpg";
-import pastaImg from "@/assets/food/pasta.jpg";
-import pancakesImg from "@/assets/food/pancakes.jpg";
-const foodImages = [salmonImg, macCheeseImg, ravioliImg, turkeyImg, gnocchiImg, asparagusImg, chickenBreastImg, paniniImg, fettucciniImg, chickenParmesanImg, steakImg, ribsImg, shrimpImg, soupImg, saladImg, pizzaImg, burgerImg, seafoodImg, pastaImg, pancakesImg];
+import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
+import steakSlicedImg from "@/assets/food/steak-sliced.png";
+import asparagusPlatedImg from "@/assets/food/asparagus-plated.png";
+import turkeySandwichImg from "@/assets/food/turkey-sandwich.png";
+import grilledChickenImg from "@/assets/food/grilled-chicken.png";
+import shrimpRiceImg from "@/assets/food/shrimp-rice.png";
+import macCheeseBowlImg from "@/assets/food/mac-cheese-bowl.png";
+import roastedChickenImg from "@/assets/food/roasted-chicken.png";
+import fettuccinePestoImg from "@/assets/food/fettuccine-pesto.png";
+import spaghettiTomatoImg from "@/assets/food/spaghetti-tomato.png";
+const foodImages = [burgerGourmetImg, steakSlicedImg, asparagusPlatedImg, turkeySandwichImg, grilledChickenImg, shrimpRiceImg, macCheeseBowlImg, roastedChickenImg, fettuccinePestoImg, spaghettiTomatoImg];
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 const menuCategories: Record<string, string[]> = {
   "BAKERY MENU": ["Breads", "Pastries", "Cakes", "Cookies", "Croissants", "Muffins", "Donuts", "Pies", "Tarts", "Scones", "Bagels", "Danish", "Baguettes", "Rolls"],

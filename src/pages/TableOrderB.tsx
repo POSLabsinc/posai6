@@ -701,6 +701,8 @@ const TableOrderB = () => {
   
   // Merge functionality state
   const [mergeTarget, setMergeTarget] = useState<string | null>(null);
+  const [invalidMergeTarget, setInvalidMergeTarget] = useState<{ tableId: string; reason: string } | null>(null);
+  const lastShownInvalidTarget = useRef<string | null>(null);
   const [showMergeDialog, setShowMergeDialog] = useState(false);
   const [pendingMerge, setPendingMerge] = useState<{ source: string; target: string } | null>(null);
   
@@ -743,9 +745,12 @@ const TableOrderB = () => {
   }, [tablePositions]);
   
   // Check for table overlap during drag
-  const checkTableOverlap = useCallback((draggedX: number, draggedY: number, draggedId: string): string | null => {
+  const checkTableOverlap = useCallback((draggedX: number, draggedY: number, draggedId: string): { 
+    validTarget: string | null; 
+    invalidTarget: { tableId: string; reason: string } | null 
+  } => {
     const draggedTable = tablePositions.find(t => t.id === draggedId);
-    if (!draggedTable) return null;
+    if (!draggedTable) return { validTarget: null, invalidTarget: null };
     
     for (const table of tablePositions) {
       if (table.id === draggedId) continue;
@@ -760,13 +765,15 @@ const TableOrderB = () => {
       
       if (distance < MERGE_THRESHOLD) {
         // Check if merge is allowed based on status
-        const { allowed } = canMerge(draggedTable, table);
+        const { allowed, reason } = canMerge(draggedTable, table);
         if (allowed) {
-          return table.id;
+          return { validTarget: table.id, invalidTarget: null };
+        } else {
+          return { validTarget: null, invalidTarget: { tableId: table.id, reason } };
         }
       }
     }
-    return null;
+    return { validTarget: null, invalidTarget: null };
   }, [tablePositions]);
   
   // Handle merge confirmation
@@ -963,8 +970,19 @@ const TableOrderB = () => {
     
     // Check for merge target (only if not already merged)
     if (!draggedTable?.mergedWith) {
-      const overlappingTable = checkTableOverlap(newX, newY, draggedTableId);
-      setMergeTarget(overlappingTable);
+      const { validTarget, invalidTarget } = checkTableOverlap(newX, newY, draggedTableId);
+      setMergeTarget(validTarget);
+      setInvalidMergeTarget(invalidTarget);
+      
+      // Show toast for invalid merge target (only once per target)
+      if (invalidTarget && invalidTarget.tableId !== lastShownInvalidTarget.current) {
+        lastShownInvalidTarget.current = invalidTarget.tableId;
+        toast.error(`Cannot merge with Table ${invalidTarget.tableId}: ${invalidTarget.reason}`, {
+          duration: 2500,
+        });
+      } else if (!invalidTarget) {
+        lastShownInvalidTarget.current = null;
+      }
     }
   }, [isDragging, draggedTableId, dragOffset, checkTableOverlap, tablePositions]);
 
@@ -989,6 +1007,8 @@ const TableOrderB = () => {
     setIsDragging(false);
     setDraggedTableId(null);
     setMergeTarget(null);
+    setInvalidMergeTarget(null);
+    lastShownInvalidTarget.current = null;
     // Reset hasDragged after a short delay to allow click events to check it
     setTimeout(() => setHasDragged(false), 100);
   }, [mergeTarget, draggedTableId, tablePositions, hasDragged]);
@@ -1270,6 +1290,7 @@ const TableOrderB = () => {
         {/* Tables positioned absolutely on the map */}
         {filteredTables.map((table) => {
           const isMergeTarget = mergeTarget === table.id;
+          const isInvalidMergeTarget = invalidMergeTarget?.tableId === table.id;
           const isBeingDragged = draggedTableId === table.id;
           const isMerged = !!table.mergedWith;
           const config = statusConfig[table.status] || statusConfig["Available"];
@@ -1305,7 +1326,9 @@ const TableOrderB = () => {
                       ? "0 20px 40px rgba(0,0,0,0.5)" 
                       : isMergeTarget 
                         ? "0 0 30px rgba(34, 211, 238, 0.6)"
-                        : undefined,
+                        : isInvalidMergeTarget
+                          ? "0 0 30px rgba(239, 68, 68, 0.6)"
+                          : undefined,
                   }}
                   onMouseDown={(e) => handleDragStart(e, table.id)}
                   onTouchStart={(e) => handleDragStart(e, table.id)}
@@ -1317,6 +1340,16 @@ const TableOrderB = () => {
                       <div className="absolute inset-0 rounded-full border-4 border-cyan-400/60" />
                       <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-cyan-500 text-white text-xs font-bold whitespace-nowrap">
                         Drop to Merge
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Invalid merge target ring */}
+                  {isInvalidMergeTarget && (
+                    <div className="absolute inset-0 -m-3 rounded-full animate-pulse pointer-events-none">
+                      <div className="absolute inset-0 rounded-full border-4 border-red-500/60" />
+                      <div className="absolute -top-8 left-1/2 -translate-x-1/2 px-2 py-1 rounded bg-red-500 text-white text-xs font-bold whitespace-nowrap">
+                        Cannot Merge
                       </div>
                     </div>
                   )}

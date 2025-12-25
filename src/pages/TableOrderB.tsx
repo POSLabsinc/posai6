@@ -1528,49 +1528,14 @@ const TableOrderB = () => {
         <StatusLegend />
       </div>
       
-      {/* Merge Confirmation Dialog - Styled like MergeOrders */}
+      {/* Merge Confirmation Dialog - Simpler Design for Floor Plan */}
       <Dialog open={showMergeDialog} onOpenChange={setShowMergeDialog}>
-        <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-md overflow-hidden">
-          {/* Grabber */}
-          <div className="flex justify-center pt-3 pb-4">
-            <div className="w-10 h-1 bg-white/30 rounded-full" />
-          </div>
-
+        <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-sm overflow-hidden">
           {pendingMerge && (() => {
             const sourceTable = tablePositions.find(t => t.id === pendingMerge.source);
             const targetTable = tablePositions.find(t => t.id === pendingMerge.target);
-            
-            // Table card component matching MergeOrders style
-            const TableMergeCard = ({ table, label }: { table: TableType | undefined; label: string }) => {
-              if (!table) return null;
-              const config = statusConfig[table.status] || statusConfig["Available"];
-              
-              return (
-                <div className="rounded-xl border border-white/20 overflow-hidden" style={{ backgroundColor: '#1B1C20' }}>
-                  <div className="flex items-stretch gap-3 p-3">
-                    {/* Table ID Box */}
-                    <div className="flex-shrink-0 w-14 h-16 rounded-lg border border-neutral-600 flex flex-col items-center justify-center" style={{ background: '#1A1A1A' }}>
-                      <span className="text-lg font-bold text-white">{table.id}</span>
-                      <span className="text-[9px] text-gray-500 capitalize">{table.shape}</span>
-                    </div>
-                    {/* Table Info */}
-                    <div className="flex-1 flex flex-col justify-between py-1">
-                      <div className="flex items-center justify-between">
-                        <span className="text-white font-medium">{table.seats} Seats</span>
-                        <span className="text-sm font-medium" style={{ color: config.color }}>{table.status}</span>
-                      </div>
-                      <div className="flex items-center justify-between text-sm">
-                        <span className="text-white/60">{table.guests} guests</span>
-                        {table.time && <span className="text-white/60">{table.time}</span>}
-                      </div>
-                      <div className="text-xs text-white/40">
-                        Combined: {(sourceTable?.seats || 0) + (targetTable?.seats || 0)} seats
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            };
+            const sourceConfig = statusConfig[sourceTable?.status || "Available"];
+            const targetConfig = statusConfig[targetTable?.status || "Available"];
 
             const handleSwapMergeDirection = () => {
               setPendingMerge({
@@ -1581,52 +1546,76 @@ const TableOrderB = () => {
 
             return (
               <>
-                {/* From Table */}
-                <div className="px-6 pb-4">
-                  <p className="text-white/60 text-sm mb-2">Merge From</p>
-                  <TableMergeCard table={sourceTable} label="Source" />
-                </div>
-
-                {/* Swap Button */}
-                <div className="flex justify-center py-2">
-                  <button 
-                    onClick={handleSwapMergeDirection}
-                    className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20 hover:bg-neutral-700 transition-colors"
-                  >
-                    <ArrowUpDown className="w-4 h-4 text-white" />
-                  </button>
-                </div>
-
-                {/* To Table */}
-                <div className="px-6 pb-4">
-                  <p className="text-white/60 text-sm mb-2">Merge To</p>
-                  <TableMergeCard table={targetTable} label="Target" />
-                </div>
-
-                {/* After Merge Summary */}
-                <div className="px-6 pb-4">
-                  <div className="p-3 rounded-lg bg-cyan-900/20 border border-cyan-500/30">
-                    <div className="text-xs text-cyan-400 mb-1">After Merge</div>
-                    <div className="text-white font-medium">
-                      {(sourceTable?.seats || 0) + (targetTable?.seats || 0)} total seats • {(sourceTable?.guests || 0) + (targetTable?.guests || 0)} guests
-                    </div>
+                {/* Header */}
+                <div className="flex items-center gap-3 px-5 pt-5 pb-4">
+                  <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
+                    <Merge className="w-5 h-5 text-cyan-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold text-lg">Merge Tables</h3>
+                    <p className="text-white/50 text-sm">Combine tables together</p>
                   </div>
                 </div>
 
-                {/* Bottom Buttons */}
-                <div className="px-6 pb-6 flex gap-3">
-                  <button
+                {/* Simple Table Info */}
+                <div className="px-5 pb-4">
+                  <div className="flex items-center justify-center gap-4 py-4 bg-neutral-800/50 rounded-xl">
+                    {/* Source Table */}
+                    <div className="text-center">
+                      <div 
+                        className="w-14 h-14 rounded-lg bg-neutral-700 flex items-center justify-center border-2"
+                        style={{ borderColor: sourceConfig.color }}
+                      >
+                        <span className="text-white font-bold text-xl">{sourceTable?.id}</span>
+                      </div>
+                      <span className="text-xs text-white/50 mt-1 block">{sourceTable?.seats} seats</span>
+                    </div>
+                    
+                    {/* Arrow + Swap Button */}
+                    <div className="flex flex-col items-center gap-1">
+                      <button 
+                        onClick={handleSwapMergeDirection}
+                        className="p-2 rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
+                      >
+                        <ArrowUpDown className="w-4 h-4 text-white" />
+                      </button>
+                    </div>
+                    
+                    {/* Target Table */}
+                    <div className="text-center">
+                      <div 
+                        className="w-14 h-14 rounded-lg bg-neutral-700 flex items-center justify-center border-2"
+                        style={{ borderColor: targetConfig.color }}
+                      >
+                        <span className="text-white font-bold text-xl">{targetTable?.id}</span>
+                      </div>
+                      <span className="text-xs text-white/50 mt-1 block">{targetTable?.seats} seats</span>
+                    </div>
+                  </div>
+                  
+                  {/* Result Summary */}
+                  <div className="flex items-center justify-center gap-2 mt-3 text-sm">
+                    <span className="text-white/50">Result:</span>
+                    <span className="text-cyan-400 font-medium">
+                      {(sourceTable?.seats || 0) + (targetTable?.seats || 0)} total seats
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="px-5 pb-5 flex gap-3">
+                  <button 
                     onClick={handleCancelMerge}
-                    className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800 hover:bg-neutral-700 transition-colors"
+                    className="flex-1 py-2.5 rounded-full text-white font-medium text-sm bg-neutral-800 hover:bg-neutral-700 transition-colors"
                   >
-                    CANCEL
+                    Cancel
                   </button>
-                  <button
+                  <button 
                     onClick={handleConfirmMerge}
-                    className="flex-1 py-2 rounded-full text-black font-medium text-sm"
+                    className="flex-1 py-2.5 rounded-full text-black font-medium text-sm"
                     style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                   >
-                    CONFIRM MERGE
+                    Merge
                   </button>
                 </div>
               </>

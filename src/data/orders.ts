@@ -40,6 +40,7 @@ export interface Order {
   items: OrderItem[];
   paidAmount?: string;
   paymentStatus?: string;
+  tipAmount?: number;
   // Track merged orders for separate display
   mergedFrom?: MergedOrderSource[];
   // Track transferred orders for separate display
@@ -64,6 +65,7 @@ export const allOrders: Order[] = [
     notes: "Allergic to almonds, Don't add onion",
     table: "T2",
     orderType: "Dine-In",
+    tipAmount: 0,
     items: [
       { qty: 2, name: "Classic Crispy Burger", price: 12.00, seats: [1, 2], modifiers: [] },
       { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: ["Extra Sauce"], isShared: true },
@@ -90,6 +92,7 @@ export const allOrders: Order[] = [
     orderType: "Takeout",
     paidAmount: "$128.47",
     paymentStatus: "Paid",
+    tipAmount: 25.69,
     items: [
       { qty: 1, name: "New York Strip Steak", price: 28.00, seats: [1], modifiers: ["Medium Rare", "+ Garlic Butter"] },
       { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [2], modifiers: ["No Lemon"] },
@@ -117,6 +120,7 @@ export const allOrders: Order[] = [
     orderType: "Dine-In",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
+    tipAmount: 0,
     items: [
       { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust"] },
       { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"] },
@@ -143,6 +147,7 @@ export const allOrders: Order[] = [
     orderType: "Dine-In",
     paidAmount: "$521.19",
     paymentStatus: "Paid",
+    tipAmount: 104.24,
     items: [
       { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter"] },
       { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium", "Peppercorn Sauce"] },
@@ -171,6 +176,7 @@ export const allOrders: Order[] = [
     orderType: "Bar",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
+    tipAmount: 0,
     items: [
       { qty: 1, name: "Classic Burger", price: 15.00, seats: [1], modifiers: ["No Pickles", "+ Bacon"] },
       { qty: 1, name: "Craft IPA", price: 8.00, seats: [], modifiers: [] }
@@ -195,6 +201,7 @@ export const allOrders: Order[] = [
     orderType: "Dine-In",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
+    tipAmount: 0,
     items: [
       { qty: 2, name: "Shrimp Scampi", price: 22.00, seats: [1, 2], modifiers: ["Extra Garlic"] },
       { qty: 1, name: "Bruschetta", price: 10.00, seats: [], modifiers: [], isShared: true }
@@ -219,6 +226,7 @@ export const allOrders: Order[] = [
     orderType: "Delivery",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
+    tipAmount: 12.00,
     items: [
       { qty: 2, name: "Pepperoni Pizza (12\")", price: 18.00, seats: [], modifiers: ["Extra Cheese"] },
       { qty: 1, name: "Garlic Knots", price: 6.00, seats: [], modifiers: [] },
@@ -245,6 +253,7 @@ export const allOrders: Order[] = [
     orderType: "Dine-In",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
+    tipAmount: 0,
     items: [
       { qty: 1, name: "Chicken Parmesan", price: 24.00, seats: [1], modifiers: ["No Nuts"] },
       { qty: 1, name: "Fettuccine Alfredo", price: 18.00, seats: [2], modifiers: ["Add Chicken $4"] },
@@ -270,6 +279,7 @@ export const allOrders: Order[] = [
     orderType: "Takeout",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
+    tipAmount: 0,
     items: [
       { qty: 2, name: "BBQ Ribs (Full)", price: 26.00, seats: [], modifiers: ["Extra BBQ Sauce"] },
       { qty: 2, name: "Coleslaw", price: 5.00, seats: [], modifiers: [] },
@@ -296,6 +306,7 @@ export const allOrders: Order[] = [
     orderType: "Dine-In",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
+    tipAmount: 0,
     items: [
       { qty: 3, name: "Grilled Chicken Breast", price: 22.00, seats: [1, 2, 3], modifiers: ["Lemon Herb"] },
       { qty: 2, name: "Pan-Seared Duck", price: 32.00, seats: [4, 5], modifiers: ["Orange Glaze"] },
@@ -307,25 +318,25 @@ export const allOrders: Order[] = [
 ];
 
 // Calculate totals for an order based on its items
-export const calculateOrderTotals = (items: OrderItem[]) => {
+export const calculateOrderTotals = (items: OrderItem[], tipAmount: number = 0) => {
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
   const discount = subtotal > 50 ? 5.00 : 0;
   const serviceCharge = subtotal * 0.05;
   const tax = (subtotal - discount) * 0.0735;
-  const total = subtotal - discount + serviceCharge + tax;
+  const total = subtotal - discount + serviceCharge + tax + tipAmount;
   return { 
     subtotal, 
     discount, 
     serviceCharge, 
     tax, 
-    tip: 0,
+    tip: tipAmount,
     total 
   };
 };
 
 // Get calculated totals for a specific order
 export const getOrderWithTotals = (order: Order) => {
-  const totals = calculateOrderTotals(order.items);
+  const totals = calculateOrderTotals(order.items, order.tipAmount || 0);
   return {
     ...order,
     subtotal: totals.subtotal,
@@ -339,7 +350,7 @@ export const getOrderWithTotals = (order: Order) => {
 
 // Get formatted amount string for display
 export const getOrderAmount = (order: Order) => {
-  const totals = calculateOrderTotals(order.items);
+  const totals = calculateOrderTotals(order.items, order.tipAmount || 0);
   return `$${totals.total.toFixed(2)}`;
 };
 

@@ -42,7 +42,7 @@ import { usePanelPosition } from "@/contexts/PanelPositionContext";
 import { PanelDropZones } from "@/components/PanelDropZone";
 import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 
-// Food images
+// Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
 import steakSlicedImg from "@/assets/food/steak-sliced.png";
 import asparagusPlatedImg from "@/assets/food/asparagus-plated.png";
@@ -53,7 +53,17 @@ import macCheeseBowlImg from "@/assets/food/mac-cheese-bowl.png";
 import roastedChickenImg from "@/assets/food/roasted-chicken.png";
 import fettuccinePestoImg from "@/assets/food/fettuccine-pesto.png";
 import spaghettiTomatoImg from "@/assets/food/spaghetti-tomato.png";
-const foodImages = [burgerGourmetImg, steakSlicedImg, asparagusPlatedImg, turkeySandwichImg, grilledChickenImg, shrimpRiceImg, macCheeseBowlImg, roastedChickenImg, fettuccinePestoImg, spaghettiTomatoImg];
+import gnocchiCreamImg from "@/assets/food/gnocchi-cream.png";
+import rigatoniBasilImg from "@/assets/food/rigatoni-basil.png";
+import grilledPaniniImg from "@/assets/food/grilled-panini.png";
+import spaghettiMeatballsImg from "@/assets/food/spaghetti-meatballs.png";
+import ravioliCreamImg from "@/assets/food/ravioli-cream.png";
+import crispyChickenBurgerImg from "@/assets/food/crispy-chicken-burger.png";
+import herbCrustedSalmonImg from "@/assets/food/herb-crusted-salmon.png";
+import meatballsMarinaraImg from "@/assets/food/meatballs-marinara.png";
+import chickenParmesanImg from "@/assets/food/chicken-parmesan.png";
+import tunaTartareImg from "@/assets/food/tuna-tartare.png";
+const foodImages = [burgerGourmetImg, steakSlicedImg, asparagusPlatedImg, turkeySandwichImg, grilledChickenImg, shrimpRiceImg, macCheeseBowlImg, roastedChickenImg, fettuccinePestoImg, spaghettiTomatoImg, gnocchiCreamImg, rigatoniBasilImg, grilledPaniniImg, spaghettiMeatballsImg, ravioliCreamImg, crispyChickenBurgerImg, herbCrustedSalmonImg, meatballsMarinaraImg, chickenParmesanImg, tunaTartareImg];
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 const menuCategories: Record<string, string[]> = {
   "BAKERY MENU": ["Breads", "Pastries", "Cakes", "Cookies", "Croissants", "Muffins", "Donuts", "Pies", "Tarts", "Scones", "Bagels", "Danish", "Baguettes", "Rolls"],

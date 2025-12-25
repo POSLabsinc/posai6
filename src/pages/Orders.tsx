@@ -6638,7 +6638,7 @@ const Orders = () => {
                       </button>
                     </div>
                     <div className="p-0.5 md:p-1 bg-neutral-900" onClick={() => openCustomizationDialog(item, index)}>
-                      <span className="text-[10px] md:text-[10px] font-medium text-white uppercase leading-tight line-clamp-2">
+                      <span className="text-xs md:text-sm font-medium text-white uppercase leading-tight line-clamp-2">
                         {item.name}
                       </span>
                     </div>

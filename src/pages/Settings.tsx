@@ -1,10 +1,9 @@
 import { useState, useMemo, useCallback } from "react";
-import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck, Layout, Lock, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Smartphone, ArrowLeftRight, Sun, Moon, Laptop, Sunrise, MoonStar, Palette, Type, Eye, Sparkles, Store } from "lucide-react";
+import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck, Layout, Lock, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Smartphone, ArrowLeftRight } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { useSidebarPosition, SidebarPosition } from "@/contexts/SidebarPositionContext";
 import { usePanelPosition } from "@/contexts/PanelPositionContext";
-import { useAppTheme, AccentColor, FontSize, RestaurantPreset } from "@/contexts/ThemeContext";
 import { toast } from "@/hooks/use-toast";
 import { useShake } from "@/hooks/use-shake";
 import {
@@ -17,13 +16,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface SettingsItemData {
   id: string;
@@ -80,59 +72,11 @@ const positionIcons: Record<SidebarPosition, React.ReactNode> = {
   bottom: <ArrowDown className="w-4 h-4" />,
 };
 
-// Color mode options
-const colorModes = [
-  { id: "light", icon: Sun, label: "Light" },
-  { id: "dark", icon: Moon, label: "Dark" },
-  { id: "system", icon: Laptop, label: "System" },
-];
-
-// Accent color options
-const accentColors: { id: AccentColor; color: string; label: string }[] = [
-  { id: "orange", color: "hsl(25, 95%, 53%)", label: "Orange" },
-  { id: "blue", color: "hsl(217, 91%, 60%)", label: "Blue" },
-  { id: "green", color: "hsl(142, 76%, 36%)", label: "Green" },
-  { id: "purple", color: "hsl(270, 70%, 55%)", label: "Purple" },
-  { id: "red", color: "hsl(0, 84%, 60%)", label: "Red" },
-  { id: "teal", color: "hsl(173, 80%, 40%)", label: "Teal" },
-];
-
-// Font size options
-const fontSizes: { id: FontSize; label: string }[] = [
-  { id: "small", label: "S" },
-  { id: "medium", label: "M" },
-  { id: "large", label: "L" },
-];
-
-// Restaurant presets
-const restaurantPresets: { id: RestaurantPreset; label: string; description: string }[] = [
-  { id: "custom", label: "Custom", description: "Your custom settings" },
-  { id: "fine-dining", label: "Fine Dining", description: "Elegant purple theme" },
-  { id: "fast-casual", label: "Fast Casual", description: "Energetic red theme" },
-  { id: "coffee-shop", label: "Coffee Shop", description: "Calm teal theme" },
-  { id: "bar-grill", label: "Bar & Grill", description: "Warm orange theme" },
-];
-
 const Settings = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [showResetDialog, setShowResetDialog] = useState(false);
   const { position, setPosition, isLocked, setIsLocked, resetToDefaults } = useSidebarPosition();
   const { panelLayout, togglePanelLayout, resetPanelLayout } = usePanelPosition();
-  const {
-    colorMode,
-    setColorMode,
-    accentColor,
-    setAccentColor,
-    fontSize,
-    setFontSize,
-    highContrast,
-    setHighContrast,
-    reduceAnimations,
-    setReduceAnimations,
-    restaurantPreset,
-    setRestaurantPreset,
-    resetThemeSettings,
-  } = useAppTheme();
 
   // Shake to reset gesture
   const handleShake = useCallback(() => {
@@ -196,51 +140,12 @@ const Settings = () => {
 
   const confirmReset = () => {
     resetToDefaults();
-    resetThemeSettings();
     setShowResetDialog(false);
     toast({
       title: "Reset Complete",
-      description: "All settings have been reset to defaults.",
+      description: "Sidebar settings have been reset to defaults.",
       duration: 2000,
     });
-  };
-
-  const handleColorModeChange = (mode: string) => {
-    setColorMode(mode);
-    toast({
-      title: "Theme Changed",
-      description: `Switched to ${mode} mode.`,
-      duration: 1500,
-    });
-  };
-
-  const handleAccentColorChange = (color: AccentColor) => {
-    setAccentColor(color);
-    toast({
-      title: "Accent Color Changed",
-      description: `Accent color set to ${color}.`,
-      duration: 1500,
-    });
-  };
-
-  const handleFontSizeChange = (size: FontSize) => {
-    setFontSize(size);
-    toast({
-      title: "Font Size Changed",
-      description: `Font size set to ${size}.`,
-      duration: 1500,
-    });
-  };
-
-  const handlePresetChange = (preset: RestaurantPreset) => {
-    setRestaurantPreset(preset);
-    if (preset !== "custom") {
-      toast({
-        title: "Preset Applied",
-        description: `${restaurantPresets.find(p => p.id === preset)?.label} theme applied.`,
-        duration: 1500,
-      });
-    }
   };
 
   return (
@@ -262,144 +167,11 @@ const Settings = () => {
         </div>
         <div className="pt-4 flex items-center gap-2">
           <span className="text-sm text-muted-foreground">Clocked In At 10:00 AM</span>
-          <span className="w-2.5 h-2.5 rounded-full bg-theme-accent"></span>
+          <span className="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
         </div>
       </div>
 
-      {/* Appearance Settings */}
-      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
-        <div className="py-4 border-b border-white/10">
-          <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center bg-gradient-to-br from-purple-500 to-pink-500">
-              <Palette className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-foreground text-base font-semibold">Appearance</span>
-          </div>
-          
-          {/* Color Mode */}
-          <div className="mb-4">
-            <label className="text-sm text-muted-foreground mb-2 block">Color Mode</label>
-            <div className="flex gap-2">
-              {colorModes.map(mode => (
-                <button
-                  key={mode.id}
-                  onClick={() => handleColorModeChange(mode.id)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-all ${
-                    colorMode === mode.id
-                      ? 'bg-theme-accent text-white'
-                      : 'bg-white/10 text-white/70 hover:bg-white/20'
-                  }`}
-                >
-                  <mode.icon className="w-4 h-4" />
-                  <span className="text-sm">{mode.label}</span>
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Accent Color */}
-          <div className="mb-4">
-            <label className="text-sm text-muted-foreground mb-2 block">Accent Color</label>
-            <div className="flex gap-2">
-              {accentColors.map(color => (
-                <button
-                  key={color.id}
-                  onClick={() => handleAccentColorChange(color.id)}
-                  title={color.label}
-                  className={`w-9 h-9 rounded-full transition-all ${
-                    accentColor === color.id
-                      ? 'ring-2 ring-white ring-offset-2 ring-offset-neutral-900 scale-110'
-                      : 'hover:scale-105'
-                  }`}
-                  style={{ backgroundColor: color.color }}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Font Size */}
-          <div className="mb-4">
-            <label className="text-sm text-muted-foreground mb-2 block">Font Size</label>
-            <div className="flex gap-2">
-              {fontSizes.map(size => (
-                <button
-                  key={size.id}
-                  onClick={() => handleFontSizeChange(size.id)}
-                  className={`w-10 h-10 rounded-lg font-semibold transition-all ${
-                    fontSize === size.id
-                      ? 'bg-theme-accent text-white'
-                      : 'bg-white/10 text-white/70 hover:bg-white/20'
-                  }`}
-                >
-                  {size.label}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Restaurant Preset */}
-          <div className="mb-4">
-            <label className="text-sm text-muted-foreground mb-2 block">Restaurant Preset</label>
-            <Select value={restaurantPreset} onValueChange={(val) => handlePresetChange(val as RestaurantPreset)}>
-              <SelectTrigger className="w-full bg-white/10 border-white/10">
-                <SelectValue placeholder="Select a preset" />
-              </SelectTrigger>
-              <SelectContent className="bg-neutral-900 border-white/10">
-                {restaurantPresets.map(preset => (
-                  <SelectItem key={preset.id} value={preset.id} className="hover:bg-white/10">
-                    <div className="flex flex-col">
-                      <span>{preset.label}</span>
-                      <span className="text-xs text-muted-foreground">{preset.description}</span>
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
-        {/* Accessibility Options */}
-        <div className="py-4">
-          <SettingsItem
-            icon={<Eye className="w-5 h-5 text-white" />}
-            label="High Contrast"
-            iconBgColor="hsl(0, 0%, 30%)"
-            rightElement={
-              <Switch 
-                checked={highContrast} 
-                onCheckedChange={(checked) => {
-                  setHighContrast(checked);
-                  toast({
-                    title: checked ? "High Contrast Enabled" : "High Contrast Disabled",
-                    duration: 1500,
-                  });
-                }}
-                onClick={(e) => e.stopPropagation()}
-              />
-            }
-          />
-          <SettingsItem
-            icon={<Sparkles className="w-5 h-5 text-white" />}
-            label="Reduce Animations"
-            iconBgColor="hsl(45, 90%, 50%)"
-            rightElement={
-              <Switch 
-                checked={reduceAnimations} 
-                onCheckedChange={(checked) => {
-                  setReduceAnimations(checked);
-                  toast({
-                    title: checked ? "Animations Reduced" : "Animations Enabled",
-                    duration: 1500,
-                  });
-                }}
-                onClick={(e) => e.stopPropagation()}
-              />
-            }
-          />
-        </div>
-      </div>
-
-      {/* Display Settings Group */}
+      {/* Display Settings Group - NEW */}
       <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
         <SettingsItem
           icon={<Layout className="w-5 h-5 text-white" />}
@@ -425,7 +197,7 @@ const Settings = () => {
                   onClick={() => handlePositionChange(pos)}
                   className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
                     position === pos 
-                      ? 'bg-theme-accent text-white' 
+                      ? 'bg-orange-500 text-white' 
                       : 'bg-white/10 text-white/60 hover:bg-white/20'
                   } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
                   title={`Move to ${pos}`}
@@ -449,7 +221,7 @@ const Settings = () => {
         />
         <SettingsItem
           icon={<RotateCcw className="w-5 h-5 text-white group-hover:animate-shake" />}
-          label="Reset All Settings"
+          label="Reset to Defaults"
           iconBgColor="hsl(0, 0%, 40%)"
           onClick={handleResetToDefaults}
         />
@@ -549,14 +321,14 @@ const Settings = () => {
       <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
         <AlertDialogContent className="bg-neutral-900 border-white/10">
           <AlertDialogHeader>
-            <AlertDialogTitle>Reset All Settings?</AlertDialogTitle>
+            <AlertDialogTitle>Reset to Defaults?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will reset all settings including theme, sidebar position, and layout preferences to defaults. This action cannot be undone.
+              This will reset the sidebar position to left and unlock it. This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="bg-white/10 border-white/10 hover:bg-white/20">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmReset} className="bg-theme-accent hover:opacity-90">
+            <AlertDialogAction onClick={confirmReset} className="bg-orange-500 hover:bg-orange-600">
               Reset
             </AlertDialogAction>
           </AlertDialogFooter>

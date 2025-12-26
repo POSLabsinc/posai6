@@ -97,7 +97,7 @@ const OrdersA = () => {
   const [showGuestDropdown, setShowGuestDropdown] = useState(false);
   const [filteredGuests, setFilteredGuests] = useState<GuestUser[]>([]);
   const [isGuestSelected, setIsGuestSelected] = useState(false);
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  
   const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{id: number; name: string; price: number} | null>(null);
   const [selectedItemImage, setSelectedItemImage] = useState<string | undefined>(undefined);
@@ -188,21 +188,13 @@ const OrdersA = () => {
   return (
     <div className="flex h-full overflow-hidden gap-2 p-2">
       {/* Left Sidebar - Categories */}
-      <div className={`flex flex-col bg-neutral-900 rounded-xl transition-all duration-300 ${isSidebarCollapsed ? 'w-16' : 'w-48'}`}>
+      <div className="flex flex-col bg-neutral-900 rounded-xl w-48">
         {/* Food Truck Header */}
         <div className="p-3 border-b border-neutral-700">
-          <h2 className={`text-orange-500 font-bold ${isSidebarCollapsed ? 'text-xs text-center' : 'text-sm'}`}>
-            {isSidebarCollapsed ? '🚚' : 'FOOD TRUCK MENU'}
+          <h2 className="text-orange-500 font-bold text-sm">
+            FOOD TRUCK MENU
           </h2>
         </div>
-
-        {/* Toggle Button */}
-        <button 
-          onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-          className="p-2 text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors"
-        >
-          {isSidebarCollapsed ? '→' : '←'}
-        </button>
 
         {/* Categories List */}
         <ScrollArea className="flex-1">
@@ -221,7 +213,7 @@ const OrdersA = () => {
                     : 'text-neutral-300 hover:bg-neutral-800'
                 }`}
               >
-                {isSidebarCollapsed ? category.slice(0, 2) : category}
+                {category}
               </button>
             ))}
           </div>

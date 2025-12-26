@@ -14,7 +14,6 @@ import OrdersDesign4 from "./pages/OrdersDesign4";
 import OrdersA from "./pages/OrdersA";
 import OrdersD from "./pages/OrdersD";
 import OrdersF from "./pages/OrdersF";
-import OrdersG from "./pages/OrdersG";
 import LiquidGlassDashboard from "./pages/LiquidGlassDashboard";
 import LiquidGlassOrders from "./pages/LiquidGlassOrders";
 import LiquidGlassMenu from "./pages/LiquidGlassMenu";
@@ -56,7 +55,6 @@ const App = () => (
               <Route path="/orders-a" element={<OrdersA />} />
               <Route path="/orders-d" element={<OrdersD />} />
               <Route path="/orders-f" element={<OrdersF />} />
-              <Route path="/orders-g" element={<OrdersG />} />
               <Route path="/orders-design-1" element={<OrdersDesign1 />} />
               <Route path="/orders-design-2" element={<OrdersDesign2 />} />
               <Route path="/orders-design-3" element={<OrdersDesign3 />} />

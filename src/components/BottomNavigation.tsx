@@ -18,24 +18,24 @@ const BottomNavigation = () => {
 
   return (
     <div className="md:hidden flex items-center justify-center bg-black">
-      <div className="flex items-center justify-around bg-neutral-900 py-2 w-full border-t border-sidebar-border">
+      <div className="flex items-center justify-around bg-neutral-900 py-1 w-full border-t border-sidebar-border">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
             <Link
               key={item.to}
               to={item.to}
-              className={`flex flex-col items-center gap-0.5 px-4 py-1.5 ${
+              className={`flex flex-col items-center gap-0 px-3 py-1 ${
                 isActive ? "rounded-md border border-neutral-500 bg-transparent" : ""
               }`}
             >
               <img
                 src={item.icon}
                 alt={item.label}
-                className={`w-5 h-5 ${isActive ? "" : "opacity-60"}`}
+                className={`w-4 h-4 ${isActive ? "" : "opacity-60"}`}
               />
               <span
-                className={`text-[10px] ${
+                className={`text-[9px] ${
                   isActive ? "font-medium text-white" : "text-neutral-400"
                 }`}
               >

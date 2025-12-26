@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useMemo } from "react";
 import { Plus, ChevronDown, X, Printer } from "lucide-react";
 import searchIcon from "@/assets/icons/search.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
@@ -76,13 +76,23 @@ const getCategoryHoverBgColor = (category: string) => (categoryBgColors[category
 const getCategoryTextColor = (category: string) => categoryTextColors[category] || "text-orange-500";
 const getCategoryHoverTextColor = (category: string) => (categoryTextColors[category] || "text-orange-500").replace("text-", "hover:text-");
 
-// Generate menu items
-const generateMenuItems = (subcategory: string) => {
+// Generate stable menu items with fixed prices based on subcategory
+const generateMenuItems = (subcategory: string): { id: number; name: string; price: number }[] => {
   const items = categorySubcategories[subcategory] || ["Item 1", "Item 2", "Item 3", "Item 4"];
+  // Use a simple hash based on the item name to generate consistent prices
+  const getStablePrice = (itemName: string): number => {
+    let hash = 0;
+    for (let i = 0; i < itemName.length; i++) {
+      hash = ((hash << 5) - hash) + itemName.charCodeAt(i);
+      hash = hash & hash;
+    }
+    return parseFloat((Math.abs(hash % 2000) / 100 + 5).toFixed(2));
+  };
+  
   return items.map((item, index) => ({
-    id: Date.now() + index + Math.random() * 1000,
+    id: index + 1,
     name: `${item} ${subcategory}`,
-    price: parseFloat((Math.random() * 20 + 5).toFixed(2))
+    price: getStablePrice(`${item} ${subcategory}`)
   }));
 };
 
@@ -339,37 +349,40 @@ const OrdersA = () => {
       {/* Right Panel - Order */}
       <div className="w-80 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
         {/* Order Header with Name, Order Number, Time */}
-        <div className="p-3 border-b border-neutral-700">
-          <div className="flex items-center gap-2">
+        <div className="px-3 py-2 border-b border-neutral-700">
+          <div className="flex items-center text-xs gap-2">
             <div className="relative flex-1">
               <input
                 ref={guestInputRef}
                 type="text"
                 value={guestName}
                 onChange={e => setGuestName(e.target.value)}
-                placeholder="Name"
-                className="bg-neutral-800 text-white text-sm placeholder:text-neutral-500 outline-none w-full px-3 py-2 rounded-lg"
+                placeholder="GUEST NAME"
+                className="bg-transparent outline-none placeholder:text-[#808080] w-full min-w-0 font-medium text-[#808080]"
               />
               {showGuestDropdown && filteredGuests.length > 0 && (
-                <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-lg shadow-xl border border-neutral-600 z-50 w-full">
+                <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
                   {filteredGuests.map(guest => (
                     <button
                       key={guest.id}
                       onClick={() => selectGuest(guest)}
-                      className="w-full text-left px-3 py-2 hover:bg-neutral-600 text-white text-sm"
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
                     >
-                      {guest.name}
+                      <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                        {guest.initials}
+                      </div>
+                      <span className="text-white font-medium text-sm">{guest.name}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            <span className="bg-orange-500 text-white text-sm font-bold px-2 py-1 rounded whitespace-nowrap">
+            <span className="text-[#808080] text-xs whitespace-nowrap">
               #{String(orderNumber).padStart(3, '0')}
             </span>
-            <div className="flex items-center gap-1 text-neutral-400 text-xs whitespace-nowrap">
-              <img src={timeIcon} alt="Time" className="w-4 h-4" />
-              <span>12:30 PM</span>
+            <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
+              <img src={timeIcon} alt="Time" className="w-3 h-3" />
+              <span className="text-white text-[10px]">12:30 PM</span>
             </div>
           </div>
         </div>

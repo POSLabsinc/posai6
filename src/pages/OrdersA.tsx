@@ -317,7 +317,7 @@ const OrdersA = () => {
               .map((item, index) => (
                 <div
                   key={item.id}
-                  className="bg-neutral-800 rounded-lg overflow-hidden border border-neutral-700 hover:border-orange-500 transition-colors cursor-pointer"
+                  className="bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 hover:border-orange-500 transition-all cursor-pointer shadow-lg hover:shadow-xl hover:shadow-orange-500/10"
                   onClick={() => openCustomizationDialog(item, index)}
                 >
                   <div className="relative aspect-video">
@@ -326,17 +326,26 @@ const OrdersA = () => {
                       alt={item.name} 
                       className="w-full h-full object-cover" 
                     />
+                    {/* Plus button on left side */}
                     <button
                       onClick={e => {
                         e.stopPropagation();
                         addToCart(item);
                       }}
-                      className="absolute top-2 right-2 w-8 h-8 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center"
+                      className="absolute top-2 left-2 w-8 h-8 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
                     >
                       <Plus className="w-4 h-4 text-white" strokeWidth={3} />
                     </button>
                   </div>
-                  <div className="p-3">
+                  {/* Separator line */}
+                  <div className="h-[1px] bg-gradient-to-r from-transparent via-neutral-600 to-transparent" />
+                  {/* Professional name/price background */}
+                  <div 
+                    className="p-3"
+                    style={{
+                      background: 'linear-gradient(180deg, #3D3D3D 0%, #2A2A2A 100%)'
+                    }}
+                  >
                     <h3 className="text-sm font-medium text-white line-clamp-2">{item.name}</h3>
                     <p className="text-orange-500 font-semibold mt-1">${item.price.toFixed(2)}</p>
                   </div>

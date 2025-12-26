@@ -221,7 +221,7 @@ const OrdersA = () => {
       <div className="flex flex-col bg-neutral-900 rounded-xl w-48">
         {/* Food Truck Header */}
         <div className="p-3 border-b border-neutral-700">
-          <h2 className="text-orange-500 font-bold text-sm">
+          <h2 className="text-white font-bold text-sm">
             FOOD TRUCK MENU
           </h2>
         </div>

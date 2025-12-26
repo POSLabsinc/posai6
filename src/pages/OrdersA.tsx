@@ -20,29 +20,29 @@ import giftCardIcon from "@/assets/icons/gift-card.png";
 import itemNotesIcon from "@/assets/icons/item-notes.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 
-// Food images
-import salmonImg from "@/assets/food/salmon.jpg";
-import macCheeseImg from "@/assets/food/mac-cheese.jpg";
-import ravioliImg from "@/assets/food/ravioli.jpg";
-import turkeyImg from "@/assets/food/turkey.jpg";
-import gnocchiImg from "@/assets/food/gnocchi.jpg";
-import asparagusImg from "@/assets/food/asparagus.jpg";
-import chickenBreastImg from "@/assets/food/chicken-breast.jpg";
-import paniniImg from "@/assets/food/panini.jpg";
-import fettucciniImg from "@/assets/food/fettuccini.jpg";
-import chickenParmesanImg from "@/assets/food/chicken-parmesan.jpg";
-import steakImg from "@/assets/food/steak.jpg";
-import ribsImg from "@/assets/food/ribs.jpg";
-import shrimpImg from "@/assets/food/shrimp.jpg";
-import soupImg from "@/assets/food/soup.jpg";
-import saladImg from "@/assets/food/salad.jpg";
-import pizzaImg from "@/assets/food/pizza.jpg";
-import burgerImg from "@/assets/food/burger.jpg";
-import seafoodImg from "@/assets/food/seafood.jpg";
-import pastaImg from "@/assets/food/pasta.jpg";
-import pancakesImg from "@/assets/food/pancakes.jpg";
+// Food images - Custom uploaded images
+import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
+import steakSlicedImg from "@/assets/food/steak-sliced.png";
+import asparagusPlatedImg from "@/assets/food/asparagus-plated.png";
+import turkeySandwichImg from "@/assets/food/turkey-sandwich.png";
+import grilledChickenImg from "@/assets/food/grilled-chicken.png";
+import shrimpRiceImg from "@/assets/food/shrimp-rice.png";
+import macCheeseBowlImg from "@/assets/food/mac-cheese-bowl.png";
+import roastedChickenImg from "@/assets/food/roasted-chicken.png";
+import fettuccinePestoImg from "@/assets/food/fettuccine-pesto.png";
+import spaghettiTomatoImg from "@/assets/food/spaghetti-tomato.png";
+import gnocchiCreamImg from "@/assets/food/gnocchi-cream.png";
+import rigatoniBasilImg from "@/assets/food/rigatoni-basil.png";
+import grilledPaniniImg from "@/assets/food/grilled-panini.png";
+import spaghettiMeatballsImg from "@/assets/food/spaghetti-meatballs.png";
+import ravioliCreamImg from "@/assets/food/ravioli-cream.png";
+import crispyChickenBurgerImg from "@/assets/food/crispy-chicken-burger.png";
+import herbCrustedSalmonImg from "@/assets/food/herb-crusted-salmon.png";
+import meatballsMarinaraImg from "@/assets/food/meatballs-marinara.png";
+import chickenParmesanImg from "@/assets/food/chicken-parmesan.png";
+import tunaTartareImg from "@/assets/food/tuna-tartare.png";
 
-const foodImages = [salmonImg, macCheeseImg, ravioliImg, turkeyImg, gnocchiImg, asparagusImg, chickenBreastImg, paniniImg, fettucciniImg, chickenParmesanImg, steakImg, ribsImg, shrimpImg, soupImg, saladImg, pizzaImg, burgerImg, seafoodImg, pastaImg, pancakesImg];
+const foodImages = [burgerGourmetImg, steakSlicedImg, asparagusPlatedImg, turkeySandwichImg, grilledChickenImg, shrimpRiceImg, macCheeseBowlImg, roastedChickenImg, fettuccinePestoImg, spaghettiTomatoImg, gnocchiCreamImg, rigatoniBasilImg, grilledPaniniImg, spaghettiMeatballsImg, ravioliCreamImg, crispyChickenBurgerImg, herbCrustedSalmonImg, meatballsMarinaraImg, chickenParmesanImg, tunaTartareImg];
 
 const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
 

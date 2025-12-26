@@ -1,23 +1,15 @@
 import { useState, useRef, useEffect } from "react";
-import { Plus, ChevronDown, MoreVertical, X, FileText, Receipt } from "lucide-react";
+import { Plus, ChevronDown, X, Printer } from "lucide-react";
 import searchIcon from "@/assets/icons/search.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
-import saveIcon from "@/assets/icons/save.png";
-import fireIcon from "@/assets/icons/fire.png";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import timeIcon from "@/assets/icons/time-icon.png";
+import itemNotesIcon from "@/assets/icons/item-notes.png";
+import cashRegisterIcon from "@/assets/icons/cash-register.png";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import emptyOrderIcon from "@/assets/icons/empty-order.png";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
-import phoneIcon from "@/assets/icons/phone-icon.png";
-import timeIcon from "@/assets/icons/time-icon.png";
-import runnerIcon from "@/assets/icons/runner.png";
-import discountIcon from "@/assets/icons/discount.png";
-import noTaxIcon from "@/assets/icons/no-tax.png";
-import cashRegisterIcon from "@/assets/icons/cash-register.png";
-import giftCardIcon from "@/assets/icons/gift-card.png";
-import itemNotesIcon from "@/assets/icons/item-notes.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 
 // Food images - Custom uploaded images
@@ -44,35 +36,14 @@ import tunaTartareImg from "@/assets/food/tuna-tartare.png";
 
 const foodImages = [burgerGourmetImg, steakSlicedImg, asparagusPlatedImg, turkeySandwichImg, grilledChickenImg, shrimpRiceImg, macCheeseBowlImg, roastedChickenImg, fettuccinePestoImg, spaghettiTomatoImg, gnocchiCreamImg, rigatoniBasilImg, grilledPaniniImg, spaghettiMeatballsImg, ravioliCreamImg, crispyChickenBurgerImg, herbCrustedSalmonImg, meatballsMarinaraImg, chickenParmesanImg, tunaTartareImg];
 
-const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
-
-const menuCategories: Record<string, string[]> = {
-  "BAKERY MENU": ["Breads", "Pastries", "Cakes", "Cookies", "Croissants", "Muffins"],
-  "BAR MENU": ["Food", "Desserts", "Drinks", "Beer", "Wine", "Cocktails"],
-  "HAPPY HOUR M/W": ["Appetizers", "Wings", "Sliders", "Nachos", "Beer", "Wine"],
-  "Holiday Menu": ["Starters", "Mains", "Sides", "Desserts", "Drinks", "Specials"],
-  "LE BRUNCH MENU": ["Eggs", "Pancakes", "Waffles", "Omelettes", "Juice", "Coffee"],
-  "LE DINER MENU": ["Appetizers", "Soups", "Salads", "Entrees", "Steaks", "Seafood"]
-};
+// Food Truck Categories
+const foodTruckCategories = ["Mains", "Sides", "Drinks", "Specials"];
 
 const categorySubcategories: Record<string, string[]> = {
-  "Food": ["Appetizers", "Mains", "Sides", "Salads"],
-  "Desserts": ["Cakes", "Ice Cream", "Pies", "Cookies"],
-  "Drinks": ["Iced Tea", "Soda", "Lemonade", "Sparkling"],
-  "Beer": ["Lager", "IPA", "Stout", "Pilsner"],
-  "Wine": ["Red", "White", "Rosé", "Sparkling"],
-  "Cocktails": ["Margarita", "Mojito", "Martini", "Cosmopolitan"],
-  "Breads": ["Sourdough", "Whole Wheat", "Rye", "French"],
-  "Pastries": ["Croissant", "Danish", "Éclair", "Palmier"],
-  "Cakes": ["Chocolate", "Vanilla", "Red Velvet", "Carrot"],
-  "Appetizers": ["Wings", "Nachos", "Sliders", "Dips"],
-  "Eggs": ["Scrambled", "Fried", "Poached", "Benedict"],
-  "Pancakes": ["Buttermilk", "Blueberry", "Chocolate Chip", "Banana"],
-  "Soups": ["Tomato", "Chicken Noodle", "French Onion", "Clam Chowder"],
-  "Salads": ["Caesar", "Garden", "Greek", "Cobb"],
-  "Entrees": ["Steak", "Chicken", "Fish", "Pasta"],
-  "Steaks": ["Filet Mignon", "Ribeye", "NY Strip", "T-Bone"],
-  "Seafood": ["Salmon", "Lobster", "Shrimp", "Scallops"]
+  "Mains": ["Burgers", "Tacos", "Sandwiches", "Wraps"],
+  "Sides": ["Fries", "Onion Rings", "Coleslaw", "Chips"],
+  "Drinks": ["Soda", "Lemonade", "Water", "Iced Tea"],
+  "Specials": ["Combo 1", "Combo 2", "Daily Special", "Kids Meal"]
 };
 
 // Generate menu items
@@ -97,41 +68,30 @@ interface OrderItem {
 interface GuestUser {
   id: string;
   name: string;
-  phone: string;
   initials: string;
-  avatar?: string;
 }
 
 const mockGuestUsers: GuestUser[] = [
-  { id: "1", name: "John Smith", phone: "(555) 123-4567", initials: "JS" },
-  { id: "2", name: "Jane Doe", phone: "(555) 234-5678", initials: "JD" },
-  { id: "3", name: "Mike Johnson", phone: "(555) 345-6789", initials: "MJ" }
+  { id: "1", name: "John", initials: "J" },
+  { id: "2", name: "Mike", initials: "M" },
+  { id: "3", name: "Sarah", initials: "S" }
 ];
 
-const orderTypes = ["DINE IN", "TAKE OUT", "DELIVERY", "PICKUP"];
-
-const formatPhoneNumber = (phone: string) => {
-  const cleaned = phone.replace(/\D/g, '');
-  if (cleaned.length >= 10) {
-    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
-  }
-  return phone;
-};
+// Food truck order types only
+const orderTypes = ["TAKE OUT", "PICKUP"];
 
 /**
- * Layout A: Split Screen with Categories Sidebar
- * - Left: Vertical sidebar with category icons/labels (collapsible)
- * - Center: Subcategories + Menu items grid (larger area)
- * - Right: Order panel
+ * Food Truck POS - Simplified Order Screen
+ * - Left: Category sidebar
+ * - Center: Menu items grid
+ * - Right: Order panel with order number
  */
 const OrdersA = () => {
-  const [selectedMenu, setSelectedMenu] = useState("BAR MENU");
-  const [activeCategory, setActiveCategory] = useState("Food");
-  const [activeSubcategory, setActiveSubcategory] = useState("Appetizers");
+  const [activeCategory, setActiveCategory] = useState("Mains");
+  const [activeSubcategory, setActiveSubcategory] = useState("Burgers");
   const [orderItems, setOrderItems] = useState<OrderItem[]>([]);
-  const [orderType, setOrderType] = useState("DINE IN");
+  const [orderType, setOrderType] = useState("TAKE OUT");
   const [guestName, setGuestName] = useState("");
-  const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [showGuestDropdown, setShowGuestDropdown] = useState(false);
@@ -142,7 +102,8 @@ const OrdersA = () => {
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{id: number; name: string; price: number} | null>(null);
   const [selectedItemImage, setSelectedItemImage] = useState<string | undefined>(undefined);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<number | null>(null);
-
+  const [orderNumber, setOrderNumber] = useState(1);
+  
   const guestInputRef = useRef<HTMLInputElement>(null);
   const guestDropdownRef = useRef<HTMLDivElement>(null);
 
@@ -166,8 +127,14 @@ const OrdersA = () => {
   const selectGuest = (guest: GuestUser) => {
     setIsGuestSelected(true);
     setGuestName(guest.name);
-    setGuestPhone(guest.phone.replace(/\D/g, ''));
     setShowGuestDropdown(false);
+  };
+
+  const completeOrder = () => {
+    setOrderItems([]);
+    setGuestName("");
+    setOrderNotes("");
+    setOrderNumber(prev => prev + 1);
   };
 
   const menuItems = generateMenuItems(activeSubcategory);
@@ -222,20 +189,11 @@ const OrdersA = () => {
     <div className="flex h-full overflow-hidden gap-2 p-2">
       {/* Left Sidebar - Categories */}
       <div className={`flex flex-col bg-neutral-900 rounded-xl transition-all duration-300 ${isSidebarCollapsed ? 'w-16' : 'w-48'}`}>
-        {/* Menu Selector */}
-        <div className="p-2 border-b border-neutral-700">
-          <Select value={selectedMenu} onValueChange={setSelectedMenu}>
-            <SelectTrigger className={`bg-neutral-800 border-neutral-700 text-white ${isSidebarCollapsed ? 'w-12 px-2' : 'w-full'}`}>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-neutral-800 border-neutral-700">
-              {menuList.map(menu => (
-                <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700">
-                  {menu}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+        {/* Food Truck Header */}
+        <div className="p-3 border-b border-neutral-700">
+          <h2 className={`text-orange-500 font-bold ${isSidebarCollapsed ? 'text-xs text-center' : 'text-sm'}`}>
+            {isSidebarCollapsed ? '🚚' : 'FOOD TRUCK MENU'}
+          </h2>
         </div>
 
         {/* Toggle Button */}
@@ -249,7 +207,7 @@ const OrdersA = () => {
         {/* Categories List */}
         <ScrollArea className="flex-1">
           <div className="p-2 space-y-1">
-            {menuCategories[selectedMenu].map(category => (
+            {foodTruckCategories.map(category => (
               <button
                 key={category}
                 onClick={() => {
@@ -357,51 +315,46 @@ const OrdersA = () => {
 
       {/* Right Panel - Order */}
       <div className="w-80 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
-        {/* Order Header */}
+        {/* Order Header with Order Number */}
         <div className="p-3 border-b border-neutral-700">
           <div className="flex items-center justify-between mb-2">
-            <div className="relative flex-1">
-              <input
-                ref={guestInputRef}
-                type="text"
-                value={guestName}
-                onChange={e => setGuestName(e.target.value)}
-                placeholder="Guest Name"
-                className="bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none w-full"
-              />
-              {showGuestDropdown && filteredGuests.length > 0 && (
-                <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-lg shadow-xl border border-neutral-600 z-50 w-full">
-                  {filteredGuests.map(guest => (
-                    <button
-                      key={guest.id}
-                      onClick={() => selectGuest(guest)}
-                      className="w-full text-left px-3 py-2 hover:bg-neutral-600 text-white text-sm"
-                    >
-                      {guest.name}
-                    </button>
-                  ))}
-                </div>
-              )}
+            <div className="flex items-center gap-2">
+              <span className="bg-orange-500 text-white text-sm font-bold px-2 py-1 rounded">
+                #{String(orderNumber).padStart(3, '0')}
+              </span>
             </div>
             <div className="flex items-center gap-1 text-neutral-400 text-xs">
               <img src={timeIcon} alt="Time" className="w-4 h-4" />
               <span>12:30 PM</span>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
+          <div className="relative">
             <input
-              type="tel"
-              value={formatPhoneNumber(guestPhone)}
-              onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))}
-              placeholder="(XXX) XXX-XXXX"
-              className="bg-transparent text-neutral-400 text-xs placeholder:text-neutral-500 outline-none flex-1"
+              ref={guestInputRef}
+              type="text"
+              value={guestName}
+              onChange={e => setGuestName(e.target.value)}
+              placeholder="Customer Name (for callout)"
+              className="bg-neutral-800 text-white text-sm placeholder:text-neutral-500 outline-none w-full px-3 py-2 rounded-lg"
             />
+            {showGuestDropdown && filteredGuests.length > 0 && (
+              <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-lg shadow-xl border border-neutral-600 z-50 w-full">
+                {filteredGuests.map(guest => (
+                  <button
+                    key={guest.id}
+                    onClick={() => selectGuest(guest)}
+                    className="w-full text-left px-3 py-2 hover:bg-neutral-600 text-white text-sm"
+                  >
+                    {guest.name}
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
         {/* Order Type */}
-        <div className="p-3 border-b border-neutral-700 flex items-center justify-between">
+        <div className="p-3 border-b border-neutral-700">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-1 text-xs font-medium bg-neutral-700 px-3 py-1.5 rounded">
@@ -420,10 +373,6 @@ const OrdersA = () => {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <div className="flex items-center gap-2 text-xs text-neutral-400">
-            <img src={runnerIcon} alt="Server" className="w-4 h-4" />
-            <span>Server</span>
-          </div>
         </div>
 
         {/* Order Notes */}
@@ -506,15 +455,13 @@ const OrdersA = () => {
               >
                 <img src={clearCIcon} alt="Clear" className="w-4 h-4" />
               </button>
-              <button className="w-10 h-10 rounded-full bg-neutral-600 flex items-center justify-center">
-                <img src={saveIcon} alt="Save" className="w-5 h-5" />
-              </button>
               <button 
+                onClick={completeOrder}
                 className="flex-1 h-10 rounded-full flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                style={{ background: 'linear-gradient(180deg, #4CAF50 0%, #2E7D32 100%)' }}
               >
-                <img src={fireIcon} alt="Fire" className="w-5 h-5" />
-                <span className="text-white font-semibold">FIRE</span>
+                <Printer className="w-5 h-5 text-white" />
+                <span className="text-white font-semibold">PRINT</span>
               </button>
               <button 
                 className="flex-1 h-10 rounded-full flex items-center justify-center"

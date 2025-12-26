@@ -14,7 +14,6 @@ import SwipeableCartItem from "@/components/SwipeableCartItem";
 import phoneIcon from "@/assets/icons/phone-icon.png";
 import timeIcon from "@/assets/icons/time-icon.png";
 import runnerIcon from "@/assets/icons/runner.png";
-import itemNotesIcon from "@/assets/icons/item-notes.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 
 // Food images - 20 custom images
@@ -211,16 +210,19 @@ const OrdersD = () => {
   return (
     <div className="flex h-full overflow-hidden gap-1 p-2">
       {/* Left Column - Categories Accordion */}
-      <div className="w-56 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
+      <div className="w-56 flex flex-col rounded-xl overflow-hidden" style={{
+        background: '#7575754D',
+        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+      }}>
         {/* Menu Selector */}
-        <div className="p-3 border-b border-neutral-700">
+        <div className="p-3 border-b border-sidebar-border">
           <Select value={selectedMenu} onValueChange={setSelectedMenu}>
-            <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white text-sm">
+            <SelectTrigger className="bg-neutral-700 border-sidebar-border text-foreground text-sm">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-neutral-800 border-neutral-700">
+            <SelectContent className="bg-neutral-800 border-sidebar-border z-50">
               {menuList.map(menu => (
-                <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700 text-sm">
+                <SelectItem key={menu} value={menu} className="text-foreground hover:bg-neutral-700 text-sm">
                   {menu}
                 </SelectItem>
               ))}
@@ -245,8 +247,8 @@ const OrdersD = () => {
             className="p-2"
           >
             {menuCategories[selectedMenu].map(category => (
-              <AccordionItem key={category} value={category} className="border-neutral-700">
-                <AccordionTrigger className={`text-sm py-3 px-3 rounded-lg hover:bg-neutral-800 ${activeCategory === category ? 'text-orange-500' : 'text-white'}`}>
+              <AccordionItem key={category} value={category} className="border-sidebar-border">
+                <AccordionTrigger className={`text-sm py-3 px-3 rounded-lg hover:bg-neutral-700/50 ${activeCategory === category ? 'text-primary' : 'text-foreground'}`}>
                   {category}
                 </AccordionTrigger>
                 <AccordionContent>
@@ -257,8 +259,8 @@ const OrdersD = () => {
                         onClick={() => setActiveSubcategory(sub)}
                         className={`w-full text-left px-3 py-2 rounded-md text-xs transition-colors ${
                           activeSubcategory === sub 
-                            ? 'bg-orange-500 text-white' 
-                            : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'
+                            ? 'bg-primary text-primary-foreground' 
+                            : 'text-muted-foreground hover:bg-neutral-700/50 hover:text-foreground'
                         }`}
                       >
                         {sub}
@@ -273,32 +275,38 @@ const OrdersD = () => {
       </div>
 
       {/* Center Column - Menu Items */}
-      <div className="flex-1 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
+      <div className="flex-1 flex flex-col rounded-xl overflow-hidden" style={{
+        background: '#7575754D',
+        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+      }}>
         {/* Search Bar */}
-        <div className="p-3 border-b border-neutral-700">
-          <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+        <div className="p-3 border-b border-sidebar-border">
+          <div className="flex items-center gap-2 rounded-lg px-3 py-2" style={{
+            background: '#7575754D',
+            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+          }}>
             <img src={searchIcon} alt="Search" className="w-4 h-4" />
             <input
               type="text"
               placeholder="Search items..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none"
+              className="flex-1 bg-transparent text-foreground text-sm placeholder:text-muted-foreground outline-none"
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery('')}>
-                <X className="w-4 h-4 text-neutral-400" />
+                <X className="w-4 h-4 text-muted-foreground" />
               </button>
             )}
           </div>
         </div>
 
         {/* Current Selection Header */}
-        <div className="px-4 py-2 border-b border-neutral-700">
+        <div className="px-4 py-2 border-b border-sidebar-border">
           <div className="flex items-center gap-2 text-sm">
-            <span className="text-neutral-400">{activeCategory}</span>
-            <ChevronRight className="w-4 h-4 text-neutral-500" />
-            <span className="text-orange-500 font-medium">{activeSubcategory}</span>
+            <span className="text-muted-foreground">{activeCategory}</span>
+            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <span className="text-primary font-medium">{activeSubcategory}</span>
           </div>
         </div>
 
@@ -310,7 +318,8 @@ const OrdersD = () => {
               .map((item, index) => (
                 <div
                   key={item.id}
-                  className="bg-neutral-800 rounded-lg overflow-hidden border border-neutral-700 hover:border-orange-500/50 transition-colors cursor-pointer"
+                  className="rounded-lg overflow-hidden border border-sidebar-border hover:border-primary/50 transition-colors cursor-pointer"
+                  style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
                   onClick={() => openCustomizationDialog(item, index)}
                 >
                   <div className="relative aspect-[4/3]">
@@ -324,16 +333,17 @@ const OrdersD = () => {
                         e.stopPropagation();
                         addToCart(item);
                       }}
-                      className="absolute top-2 right-2 w-8 h-8 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center"
+                      className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
+                      style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
                     >
                       <Plus className="w-4 h-4 text-white" strokeWidth={3} />
                     </button>
                     <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
-                      <span className="text-orange-500 font-bold text-sm">${item.price.toFixed(2)}</span>
+                      <span className="text-primary font-bold text-sm">${item.price.toFixed(2)}</span>
                     </div>
                   </div>
                   <div className="p-2">
-                    <h3 className="text-xs font-medium text-white line-clamp-2">{item.name}</h3>
+                    <h3 className="text-xs font-medium text-foreground line-clamp-2">{item.name}</h3>
                   </div>
                 </div>
               ))}
@@ -342,159 +352,228 @@ const OrdersD = () => {
       </div>
 
       {/* Right Column - Full Order Panel */}
-      <div className="w-80 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
-        {/* Guest Info Header */}
-        <div className="p-3 border-b border-neutral-700 space-y-2">
-          <div className="flex items-center justify-between">
-            <input
-              type="text"
-              value={guestName}
-              onChange={e => setGuestName(e.target.value)}
-              placeholder="Guest Name"
-              className="bg-neutral-800 px-3 py-2 rounded-lg text-white text-sm placeholder:text-neutral-500 outline-none flex-1 mr-2"
-            />
-            <span className="text-neutral-400 text-xs flex items-center gap-1">
-              <img src={timeIcon} alt="Time" className="w-4 h-4" />
-              12:30 PM
-            </span>
-          </div>
-          <div className="flex items-center gap-2 bg-neutral-800 px-3 py-2 rounded-lg">
-            <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
-            <input
-              type="tel"
-              value={formatPhoneNumber(guestPhone)}
-              onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))}
-              placeholder="(XXX) XXX-XXXX"
-              className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Order Type & Server */}
-        <div className="px-3 py-2 border-b border-neutral-700 flex items-center justify-between">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1 text-sm bg-neutral-700 px-3 py-1.5 rounded-lg">
-                {orderType} <ChevronDown className="w-3 h-3" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
-              {orderTypes.map(type => (
-                <DropdownMenuItem 
-                  key={type} 
-                  onClick={() => setOrderType(type)}
-                  className="text-white hover:bg-neutral-700"
-                >
-                  {type}
-                </DropdownMenuItem>
-              ))}
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <span className="text-neutral-400 text-sm flex items-center gap-1">
-            <img src={runnerIcon} alt="Server" className="w-4 h-4" />
-            Server
-          </span>
-        </div>
-
-        {/* Notes */}
-        <div className="p-3 border-b border-neutral-700">
-          <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
-            <img src={itemNotesIcon} alt="Notes" className="w-4 h-4" />
-            <input
-              type="text"
-              value={orderNotes}
-              onChange={e => setOrderNotes(e.target.value)}
-              placeholder="Order notes..."
-              className="flex-1 bg-transparent text-sm text-white placeholder:text-neutral-500 outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Order Items */}
-        <ScrollArea className="flex-1 p-3">
-          {orderItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full py-8">
-              <img src={emptyOrderIcon} alt="Empty" className="w-16 h-16 opacity-50 mb-3" />
-              <span className="text-neutral-500 text-sm">No items in order</span>
+      <div className="w-80 flex flex-col overflow-hidden">
+        {/* Order Header - Outside background container */}
+        <div className="px-1 pb-2 flex-shrink-0">
+          <div className="flex items-center text-xs mb-2 gap-2">
+            <div className="relative flex-1">
+              <input 
+                type="text" 
+                value={guestName} 
+                onChange={e => setGuestName(e.target.value)} 
+                placeholder="GUEST NAME" 
+                className="bg-transparent outline-none placeholder:text-[#808080] w-full min-w-0 font-medium text-[#808080]" 
+              />
+              {showGuestDropdown && filteredGuests.length > 0 && (
+                <div className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+                  {filteredGuests.map(guest => (
+                    <button 
+                      key={guest.id} 
+                      onClick={() => selectGuest(guest)} 
+                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                        {guest.initials}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-foreground font-medium text-sm">{guest.name}</span>
+                        <span className="text-muted-foreground text-xs">{guest.phone}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-          ) : (
-            <div className="space-y-2">
-              {orderItems.map(item => (
-                <SwipeableCartItem
-                  key={item.id}
-                  onDelete={() => removeFromCart(item.id)}
-                  itemOrderType={item.itemOrderType || "Dine In"}
-                  onOrderTypeChange={(type) => updateItemOrderType(item.id, type)}
-                  isOpen={activeSwipedItemId === item.id}
-                  onSwipeStart={() => setActiveSwipedItemId(item.id)}
-                >
-                  <div className="p-3 bg-neutral-800 rounded-lg border border-neutral-700">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center">
-                          {item.qty}
-                        </span>
-                        <span className="text-sm text-white">{item.name}</span>
+            <div className="relative flex items-center gap-0.5 flex-shrink-0">
+              <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
+              <input 
+                type="tel" 
+                inputMode="tel" 
+                value={formatPhoneNumber(guestPhone)} 
+                onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} 
+                placeholder="(XXX) XXX-XXXX" 
+                className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080] text-xs" 
+              />
+            </div>
+            <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
+              <img src={timeIcon} alt="Time" className="w-3 h-3" />
+              <span className="text-foreground text-[10px]">12:30 PM</span>
+            </div>
+          </div>
+          
+          <div className="overflow-x-auto scrollbar-hide mb-2">
+            <div className="flex items-center gap-1.5 w-max">
+              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-2 whitespace-nowrap">
+                Custom Item
+              </Button>
+              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-2 whitespace-nowrap">
+                Discount
+              </Button>
+              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-2 whitespace-nowrap">
+                No Tax
+              </Button>
+              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-2 whitespace-nowrap">
+                Register
+              </Button>
+              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-2 whitespace-nowrap">
+                Gift
+              </Button>
+              <Button variant="secondary" size="icon" className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border">
+                <Plus className="w-3 h-3" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Background Container for Order Content */}
+        <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{
+          background: '#7575754D',
+          boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+        }}>
+          {/* Order Type & Server */}
+          <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+            <div className="flex items-center gap-2">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="flex items-center gap-1 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
+                    {orderType} <ChevronDown className="w-3 h-3" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start" className="bg-neutral-800 border-sidebar-border min-w-[140px] z-50">
+                  {orderTypes.map(type => (
+                    <DropdownMenuItem 
+                      key={type} 
+                      onClick={() => setOrderType(type)}
+                      className="text-foreground hover:bg-neutral-700 cursor-pointer"
+                    >
+                      {type}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuContent>
+              </DropdownMenu>
+              {orderItems.length > 0 && (
+                <span className="bg-sidebar-accent px-2 py-0.5 rounded text-base font-bold">{orderItems.length}</span>
+              )}
+            </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <img src={runnerIcon} alt="Server" className="w-4 h-4" />
+              <span>Server</span>
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
+            <div className="flex items-center gap-2 rounded px-3 py-2" style={{
+              background: '#7575754D',
+              boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+            }}>
+              <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+              <input 
+                type="text" 
+                placeholder="Order notes" 
+                value={orderNotes} 
+                onChange={e => setOrderNotes(e.target.value)} 
+                className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none" 
+              />
+            </div>
+          </div>
+
+          {/* Order Items */}
+          <ScrollArea className="flex-1 min-h-0 px-2">
+            {orderItems.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full py-8">
+                <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
+                <span className="text-muted-foreground text-sm">Let's create an order</span>
+              </div>
+            ) : (
+              <div className="py-1 space-y-2">
+                {orderItems.map(item => (
+                  <SwipeableCartItem
+                    key={item.id}
+                    onDelete={() => removeFromCart(item.id)}
+                    itemOrderType={item.itemOrderType || "Dine In"}
+                    onOrderTypeChange={(type) => updateItemOrderType(item.id, type)}
+                    isOpen={activeSwipedItemId === item.id}
+                    onSwipeStart={() => setActiveSwipedItemId(item.id)}
+                  >
+                    <div 
+                      className="p-3 border border-sidebar-border rounded-lg"
+                      style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                    >
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <span className="w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs font-medium flex items-center justify-center flex-shrink-0">
+                            {item.qty}
+                          </span>
+                          <span className="text-sm font-medium text-foreground">{item.name}</span>
+                        </div>
+                        <span className="text-sm font-medium text-foreground">${item.price.toFixed(2)}</span>
                       </div>
-                      <span className="text-sm text-white">${item.price.toFixed(2)}</span>
+                      {item.modifiers && item.modifiers.length > 0 && (
+                        <div className="mt-2 ml-8 space-y-0.5">
+                          {item.modifiers.map((mod, idx) => (
+                            <div key={idx} className="flex items-center gap-1 text-xs text-primary">
+                              <span>{mod.startsWith("W/") ? "+" : "-"}</span>
+                              <span>{mod}</span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
-                    {item.modifiers && item.modifiers.length > 0 && (
-                      <div className="mt-2 ml-8 space-y-0.5">
-                        {item.modifiers.map((mod, idx) => (
-                          <div key={idx} className="text-xs text-orange-400">+ {mod}</div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </SwipeableCartItem>
-              ))}
+                  </SwipeableCartItem>
+                ))}
+              </div>
+            )}
+          </ScrollArea>
+
+          {/* Order Summary - Only show when cart has items */}
+          {orderItems.length > 0 && (
+            <div className="p-2 border-t border-sidebar-border flex-shrink-0">
+              <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
+                background: '#7575754D',
+                boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+              }}>
+                <div className="flex justify-between gap-3">
+                  <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+                  <span className="text-red-500">Discount: <span className="font-medium">$0.00</span></span>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <span className="text-foreground">Service Charge: <span className="font-medium">$0.00</span></span>
+                  <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                </div>
+              </div>
+
+              {/* Action Buttons */}
+              <div className="px-2 py-2 flex items-center gap-2 flex-shrink-0">
+                <button 
+                  onClick={() => setOrderItems([])} 
+                  className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0"
+                >
+                  <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
+                </button>
+                <button 
+                  className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
+                  style={{ backgroundColor: '#C9C9C9' }}
+                >
+                  <img src={saveIcon} alt="Save" className="w-4 h-4" />
+                </button>
+                <button 
+                  className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" 
+                  style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                >
+                  <img src={fireIcon} alt="Fire" className="w-4 h-4" />
+                  <span className="text-white font-semibold text-sm">FIRE</span>
+                </button>
+                <button 
+                  className="flex-1 h-8 rounded-full flex items-center justify-center" 
+                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                >
+                  <span className="text-black font-semibold text-xs">CHARGE ${total.toFixed(2)}</span>
+                </button>
+              </div>
             </div>
           )}
-        </ScrollArea>
-
-        {/* Summary & Actions */}
-        {orderItems.length > 0 && (
-          <div className="p-3 border-t border-neutral-700">
-            <div className="bg-neutral-800 rounded-lg p-3 text-sm space-y-1 mb-3">
-              <div className="flex justify-between text-neutral-400">
-                <span>Subtotal</span>
-                <span>${subtotal.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-neutral-400">
-                <span>Tax</span>
-                <span>${tax.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between text-white font-bold pt-2 border-t border-neutral-700">
-                <span>Total</span>
-                <span>${total.toFixed(2)}</span>
-              </div>
-            </div>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setOrderItems([])}
-                className="w-10 h-10 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center"
-              >
-                <img src={clearCIcon} alt="Clear" className="w-4 h-4" />
-              </button>
-              <button className="w-10 h-10 rounded-full bg-neutral-600 flex items-center justify-center">
-                <img src={saveIcon} alt="Save" className="w-5 h-5" />
-              </button>
-              <button 
-                className="flex-1 h-10 rounded-full flex items-center justify-center gap-2"
-                style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-              >
-                <img src={fireIcon} alt="Fire" className="w-5 h-5" />
-                <span className="text-white font-semibold">FIRE</span>
-              </button>
-              <button 
-                className="flex-1 h-10 rounded-full flex items-center justify-center"
-                style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-              >
-                <span className="text-black font-semibold text-sm">${total.toFixed(2)}</span>
-              </button>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
 
       <ItemCustomizationDialog

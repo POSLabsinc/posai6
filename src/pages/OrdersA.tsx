@@ -248,7 +248,7 @@ const OrdersA = () => {
                   const subs = categorySubcategories[category] || [];
                   if (subs.length > 0) setActiveSubcategory(subs[0]);
                 }}
-                className={`w-full justify-start rounded-full px-4 h-10 md:h-8 text-sm md:text-xs whitespace-nowrap border-2 ${
+                className={`w-full justify-start rounded-full px-4 h-8 text-xs whitespace-nowrap border-2 ${
                   activeCategory === category 
                     ? `${getCategoryBgColor(category)} ${getCategoryHoverBgColor(category)} text-white ${getCategoryBorderColor(category)}` 
                     : `bg-header text-header-foreground ${getCategoryBorderColor(category)} hover:bg-header/80`
@@ -287,7 +287,7 @@ const OrdersA = () => {
               <Button
                 key={sub}
                 variant="outline"
-                className={`rounded-md px-4 h-9 md:h-7 text-xs md:text-[10px] whitespace-nowrap border ${
+                className={`rounded-md px-4 h-7 text-[10px] whitespace-nowrap border ${
                   activeSubcategory === sub 
                     ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` 
                     : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`

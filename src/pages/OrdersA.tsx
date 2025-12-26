@@ -46,6 +46,36 @@ const categorySubcategories: Record<string, string[]> = {
   "Specials": ["Combo 1", "Combo 2", "Daily Special", "Kids Meal"]
 };
 
+// Category border colors
+const categoryBorderColors: Record<string, string> = {
+  "Mains": "border-orange-500",
+  "Sides": "border-amber-500",
+  "Drinks": "border-green-500",
+  "Specials": "border-fuchsia-500"
+};
+
+// Category background colors for active state
+const categoryBgColors: Record<string, string> = {
+  "Mains": "bg-orange-500",
+  "Sides": "bg-amber-500",
+  "Drinks": "bg-green-500",
+  "Specials": "bg-fuchsia-500"
+};
+
+// Category text colors for selected subcategory
+const categoryTextColors: Record<string, string> = {
+  "Mains": "text-orange-500",
+  "Sides": "text-amber-500",
+  "Drinks": "text-green-500",
+  "Specials": "text-fuchsia-500"
+};
+
+const getCategoryBorderColor = (category: string) => categoryBorderColors[category] || "border-orange-500";
+const getCategoryBgColor = (category: string) => categoryBgColors[category] || "bg-orange-500";
+const getCategoryHoverBgColor = (category: string) => (categoryBgColors[category] || "bg-orange-500").replace("bg-", "hover:bg-");
+const getCategoryTextColor = (category: string) => categoryTextColors[category] || "text-orange-500";
+const getCategoryHoverTextColor = (category: string) => (categoryTextColors[category] || "text-orange-500").replace("text-", "hover:text-");
+
 // Generate menu items
 const generateMenuItems = (subcategory: string) => {
   const items = categorySubcategories[subcategory] || ["Item 1", "Item 2", "Item 3", "Item 4"];
@@ -200,21 +230,22 @@ const OrdersA = () => {
         <ScrollArea className="flex-1">
           <div className="p-2 space-y-1">
             {foodTruckCategories.map(category => (
-              <button
+              <Button
                 key={category}
+                variant={activeCategory === category ? "default" : "outline"}
                 onClick={() => {
                   setActiveCategory(category);
                   const subs = categorySubcategories[category] || [];
                   if (subs.length > 0) setActiveSubcategory(subs[0]);
                 }}
-                className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${
+                className={`w-full justify-start rounded-full px-4 h-9 text-sm whitespace-nowrap border-2 ${
                   activeCategory === category 
-                    ? 'bg-orange-500 text-white' 
-                    : 'text-neutral-300 hover:bg-neutral-800'
+                    ? `${getCategoryBgColor(category)} ${getCategoryHoverBgColor(category)} text-white ${getCategoryBorderColor(category)}` 
+                    : `bg-neutral-800 text-neutral-300 ${getCategoryBorderColor(category)} hover:bg-neutral-700`
                 }`}
               >
                 {category}
-              </button>
+              </Button>
             ))}
           </div>
         </ScrollArea>
@@ -245,11 +276,11 @@ const OrdersA = () => {
             {(categorySubcategories[activeCategory] || []).map(sub => (
               <Button
                 key={sub}
-                variant={activeSubcategory === sub ? "default" : "outline"}
-                className={`rounded-full px-4 h-8 text-xs whitespace-nowrap ${
+                variant="outline"
+                className={`rounded-md px-4 h-8 text-xs whitespace-nowrap border ${
                   activeSubcategory === sub 
-                    ? 'bg-orange-500 hover:bg-orange-600 text-white border-orange-500' 
-                    : 'bg-neutral-800 text-neutral-300 border-neutral-700 hover:bg-neutral-700'
+                    ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` 
+                    : `bg-black text-neutral-300 ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`
                 }`}
                 onClick={() => setActiveSubcategory(sub)}
               >

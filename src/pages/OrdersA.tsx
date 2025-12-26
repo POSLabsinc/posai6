@@ -315,41 +315,39 @@ const OrdersA = () => {
 
       {/* Right Panel - Order */}
       <div className="w-80 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
-        {/* Order Header with Order Number */}
+        {/* Order Header with Name, Order Number, Time */}
         <div className="p-3 border-b border-neutral-700">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span className="bg-orange-500 text-white text-sm font-bold px-2 py-1 rounded">
-                #{String(orderNumber).padStart(3, '0')}
-              </span>
+          <div className="flex items-center gap-2">
+            <div className="relative flex-1">
+              <input
+                ref={guestInputRef}
+                type="text"
+                value={guestName}
+                onChange={e => setGuestName(e.target.value)}
+                placeholder="Name"
+                className="bg-neutral-800 text-white text-sm placeholder:text-neutral-500 outline-none w-full px-3 py-2 rounded-lg"
+              />
+              {showGuestDropdown && filteredGuests.length > 0 && (
+                <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-lg shadow-xl border border-neutral-600 z-50 w-full">
+                  {filteredGuests.map(guest => (
+                    <button
+                      key={guest.id}
+                      onClick={() => selectGuest(guest)}
+                      className="w-full text-left px-3 py-2 hover:bg-neutral-600 text-white text-sm"
+                    >
+                      {guest.name}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-            <div className="flex items-center gap-1 text-neutral-400 text-xs">
+            <span className="bg-orange-500 text-white text-sm font-bold px-2 py-1 rounded whitespace-nowrap">
+              #{String(orderNumber).padStart(3, '0')}
+            </span>
+            <div className="flex items-center gap-1 text-neutral-400 text-xs whitespace-nowrap">
               <img src={timeIcon} alt="Time" className="w-4 h-4" />
               <span>12:30 PM</span>
             </div>
-          </div>
-          <div className="relative">
-            <input
-              ref={guestInputRef}
-              type="text"
-              value={guestName}
-              onChange={e => setGuestName(e.target.value)}
-              placeholder="Customer Name (for callout)"
-              className="bg-neutral-800 text-white text-sm placeholder:text-neutral-500 outline-none w-full px-3 py-2 rounded-lg"
-            />
-            {showGuestDropdown && filteredGuests.length > 0 && (
-              <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-lg shadow-xl border border-neutral-600 z-50 w-full">
-                {filteredGuests.map(guest => (
-                  <button
-                    key={guest.id}
-                    onClick={() => selectGuest(guest)}
-                    className="w-full text-left px-3 py-2 hover:bg-neutral-600 text-white text-sm"
-                  >
-                    {guest.name}
-                  </button>
-                ))}
-              </div>
-            )}
           </div>
         </div>
 

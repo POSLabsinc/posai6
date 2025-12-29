@@ -331,12 +331,20 @@ const OrdersA = () => {
             <div className="grid grid-cols-2 gap-1 md:gap-1.5">
               {menuItems
                 .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                .map((item) => (
+                .map((item, index) => (
                   <div
                     key={item.id}
                     onClick={() => addToCart(item)}
-                    className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border min-h-[38px] md:min-h-[42px]"
+                    className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border min-h-[38px] md:min-h-[56px] lg:min-h-[60px]"
                   >
+                    {/* Image - Hidden on mobile, shown on tablet and desktop */}
+                    <div className="hidden md:block w-14 lg:w-16 flex-shrink-0">
+                      <img 
+                        src={foodImages[index % foodImages.length]} 
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
                     <div 
                       className="flex-1 p-1.5 md:p-2"
                       style={{

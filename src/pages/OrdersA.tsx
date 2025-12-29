@@ -226,125 +226,151 @@ const OrdersA = () => {
   const total = subtotal - discount + serviceCharge + tax;
 
   return (
-    <div className="flex h-full overflow-hidden gap-1 md:gap-2 p-1 md:p-2">
-      {/* Left Sidebar - Categories */}
-      <div className="flex flex-col bg-neutral-900 rounded-xl w-28 md:w-36 lg:w-48">
-        {/* Food Truck Header */}
-        <div className="p-2 md:p-3 border-b border-neutral-700">
-          <h2 className="text-white font-bold text-[10px] md:text-xs lg:text-sm">
-            FOOD TRUCK
-          </h2>
+    <div className="flex flex-col lg:flex-row h-full overflow-hidden gap-1 md:gap-2 p-1 md:p-2">
+      {/* Top Categories Bar - Tablet Only */}
+      <div className="lg:hidden bg-neutral-900 rounded-xl p-2 flex-shrink-0">
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          {foodTruckCategories.map(category => (
+            <Button
+              key={category}
+              variant={activeCategory === category ? "default" : "outline"}
+              onClick={() => {
+                setActiveCategory(category);
+                const subs = categorySubcategories[category] || [];
+                if (subs.length > 0) setActiveSubcategory(subs[0]);
+              }}
+              className={`rounded-full px-4 h-8 text-xs whitespace-nowrap border-2 flex-shrink-0 ${
+                activeCategory === category 
+                  ? `${getCategoryBgColor(category)} ${getCategoryHoverBgColor(category)} text-white ${getCategoryBorderColor(category)}` 
+                  : `bg-header text-header-foreground ${getCategoryBorderColor(category)} hover:bg-header/80`
+              }`}
+            >
+              {category}
+            </Button>
+          ))}
         </div>
-
-        {/* Categories List */}
-        <ScrollArea className="flex-1">
-          <div className="p-1.5 md:p-2 space-y-1">
-            {foodTruckCategories.map(category => (
-              <Button
-                key={category}
-                variant={activeCategory === category ? "default" : "outline"}
-                onClick={() => {
-                  setActiveCategory(category);
-                  const subs = categorySubcategories[category] || [];
-                  if (subs.length > 0) setActiveSubcategory(subs[0]);
-                }}
-                className={`w-full justify-start rounded-full px-2 md:px-3 lg:px-4 h-7 md:h-8 text-[10px] md:text-xs whitespace-nowrap border-2 ${
-                  activeCategory === category 
-                    ? `${getCategoryBgColor(category)} ${getCategoryHoverBgColor(category)} text-white ${getCategoryBorderColor(category)}` 
-                    : `bg-header text-header-foreground ${getCategoryBorderColor(category)} hover:bg-header/80`
-                }`}
-              >
-                {category}
-              </Button>
-            ))}
-          </div>
-        </ScrollArea>
       </div>
 
-      {/* Center Panel - Menu Items */}
-      <div className="flex-1 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
-        {/* Subcategories */}
-        <div className="p-2 md:p-3 border-b border-neutral-700">
-          <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
-            <div className="flex-1 flex items-center gap-1.5 md:gap-2 bg-neutral-800 rounded-lg px-2 md:px-3 py-1.5 md:py-2">
-              <img src={searchIcon} alt="Search" className="w-3 h-3 md:w-4 md:h-4" />
-              <input
-                type="text"
-                placeholder="Search..."
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent text-white text-xs md:text-sm placeholder:text-neutral-500 outline-none"
-              />
-              {searchQuery && (
-                <button onClick={() => setSearchQuery('')}>
-                  <X className="w-3 h-3 md:w-4 md:h-4 text-neutral-400" />
-                </button>
-              )}
+      {/* Main Content Row */}
+      <div className="flex flex-1 gap-1 md:gap-2 overflow-hidden">
+        {/* Left Sidebar - Categories (Desktop Only) */}
+        <div className="hidden lg:flex flex-col bg-neutral-900 rounded-xl w-48">
+          {/* Food Truck Header */}
+          <div className="p-3 border-b border-neutral-700">
+            <h2 className="text-white font-bold text-sm">
+              FOOD TRUCK
+            </h2>
+          </div>
+
+          {/* Categories List */}
+          <ScrollArea className="flex-1">
+            <div className="p-2 space-y-1">
+              {foodTruckCategories.map(category => (
+                <Button
+                  key={category}
+                  variant={activeCategory === category ? "default" : "outline"}
+                  onClick={() => {
+                    setActiveCategory(category);
+                    const subs = categorySubcategories[category] || [];
+                    if (subs.length > 0) setActiveSubcategory(subs[0]);
+                  }}
+                  className={`w-full justify-start rounded-full px-4 h-8 text-xs whitespace-nowrap border-2 ${
+                    activeCategory === category 
+                      ? `${getCategoryBgColor(category)} ${getCategoryHoverBgColor(category)} text-white ${getCategoryBorderColor(category)}` 
+                      : `bg-header text-header-foreground ${getCategoryBorderColor(category)} hover:bg-header/80`
+                  }`}
+                >
+                  {category}
+                </Button>
+              ))}
+            </div>
+          </ScrollArea>
+        </div>
+
+        {/* Center Panel - Menu Items */}
+        <div className="flex-1 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
+          {/* Subcategories */}
+          <div className="p-2 md:p-3 border-b border-neutral-700">
+            <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+              <div className="flex-1 flex items-center gap-1.5 md:gap-2 bg-neutral-800 rounded-lg px-2 md:px-3 py-1.5 md:py-2">
+                <img src={searchIcon} alt="Search" className="w-3 h-3 md:w-4 md:h-4" />
+                <input
+                  type="text"
+                  placeholder="Search..."
+                  value={searchQuery}
+                  onChange={e => setSearchQuery(e.target.value)}
+                  className="flex-1 bg-transparent text-white text-xs md:text-sm placeholder:text-neutral-500 outline-none"
+                />
+                {searchQuery && (
+                  <button onClick={() => setSearchQuery('')}>
+                    <X className="w-3 h-3 md:w-4 md:h-4 text-neutral-400" />
+                  </button>
+                )}
+              </div>
+            </div>
+            <div className="flex gap-1.5 md:gap-2 overflow-x-auto scrollbar-hide">
+              {(categorySubcategories[activeCategory] || []).map(sub => (
+                <Button
+                  key={sub}
+                  variant="outline"
+                  className={`rounded-md px-2 md:px-3 lg:px-4 h-6 md:h-7 text-[9px] md:text-[10px] whitespace-nowrap border ${
+                    activeSubcategory === sub 
+                      ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` 
+                      : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`
+                  }`}
+                  onClick={() => setActiveSubcategory(sub)}
+                >
+                  {sub}
+                </Button>
+              ))}
             </div>
           </div>
-          <div className="flex gap-1.5 md:gap-2 overflow-x-auto scrollbar-hide">
-            {(categorySubcategories[activeCategory] || []).map(sub => (
-              <Button
-                key={sub}
-                variant="outline"
-                className={`rounded-md px-2 md:px-3 lg:px-4 h-6 md:h-7 text-[9px] md:text-[10px] whitespace-nowrap border ${
-                  activeSubcategory === sub 
-                    ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` 
-                    : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`
-                }`}
-                onClick={() => setActiveSubcategory(sub)}
-              >
-                {sub}
-              </Button>
-            ))}
-          </div>
-        </div>
 
-        {/* Menu Items Grid */}
-        <ScrollArea className="flex-1 p-2 md:p-3">
-          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 lg:gap-3">
-            {menuItems
-              .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
-              .map((item, index) => (
-                <div
-                  key={item.id}
-                  className="bg-neutral-800 rounded-lg md:rounded-xl overflow-hidden border border-neutral-700 hover:border-orange-500 transition-all cursor-pointer shadow-lg hover:shadow-xl hover:shadow-orange-500/10"
-                  onClick={() => openCustomizationDialog(item, index)}
-                >
-                  <div className="relative aspect-[4/3] md:aspect-video">
-                    <img 
-                      src={foodImages[index % foodImages.length]} 
-                      alt={item.name} 
-                      className="w-full h-full object-cover" 
-                    />
-                    {/* Plus button on left side */}
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        addToCart(item);
-                      }}
-                      className="absolute top-1.5 left-1.5 md:top-2 md:left-2 w-6 h-6 md:w-8 md:h-8 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
-                    >
-                      <Plus className="w-3 h-3 md:w-4 md:h-4 text-white" strokeWidth={3} />
-                    </button>
-                  </div>
-                  {/* Separator line */}
-                  <div className="h-[1px] bg-gradient-to-r from-transparent via-neutral-600 to-transparent" />
-                  {/* Professional name/price background */}
-                  <div 
-                    className="p-2 md:p-3"
-                    style={{
-                      background: 'linear-gradient(180deg, #3D3D3D 0%, #2A2A2A 100%)'
-                    }}
+          {/* Menu Items Grid */}
+          <ScrollArea className="flex-1 p-2 md:p-3">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-2 lg:gap-3">
+              {menuItems
+                .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                .map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="bg-neutral-800 rounded-lg md:rounded-xl overflow-hidden border border-neutral-700 hover:border-orange-500 transition-all cursor-pointer shadow-lg hover:shadow-xl hover:shadow-orange-500/10"
+                    onClick={() => openCustomizationDialog(item, index)}
                   >
-                    <h3 className="text-xs md:text-sm font-medium text-white line-clamp-2">{item.name}</h3>
-                    <p className="text-orange-500 font-semibold text-xs md:text-base mt-0.5 md:mt-1">${item.price.toFixed(2)}</p>
+                    <div className="relative aspect-[4/3] md:aspect-video">
+                      <img 
+                        src={foodImages[index % foodImages.length]} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover" 
+                      />
+                      {/* Plus button on left side */}
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          addToCart(item);
+                        }}
+                        className="absolute top-1.5 left-1.5 md:top-2 md:left-2 w-6 h-6 md:w-8 md:h-8 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                      >
+                        <Plus className="w-3 h-3 md:w-4 md:h-4 text-white" strokeWidth={3} />
+                      </button>
+                    </div>
+                    {/* Separator line */}
+                    <div className="h-[1px] bg-gradient-to-r from-transparent via-neutral-600 to-transparent" />
+                    {/* Professional name/price background */}
+                    <div 
+                      className="p-2 md:p-3"
+                      style={{
+                        background: 'linear-gradient(180deg, #3D3D3D 0%, #2A2A2A 100%)'
+                      }}
+                    >
+                      <h3 className="text-xs md:text-sm font-medium text-white line-clamp-2">{item.name}</h3>
+                      <p className="text-orange-500 font-semibold text-xs md:text-base mt-0.5 md:mt-1">${item.price.toFixed(2)}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-          </div>
-        </ScrollArea>
-      </div>
+                ))}
+            </div>
+          </ScrollArea>
+        </div>
 
       {/* Right Panel - Order */}
       <div className="w-56 md:w-64 lg:w-80 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
@@ -495,6 +521,7 @@ const OrdersA = () => {
             </div>
           </div>
         )}
+      </div>
       </div>
 
       <ItemCustomizationDialog

@@ -468,9 +468,8 @@ const OrdersA = () => {
         {/* Order Summary */}
         {orderItems.length > 0 && (
           <div className="p-3 border-t border-neutral-700">
-            <div className="flex items-center justify-between text-xs mb-2 px-1">
+            <div className="flex items-center justify-center text-xs mb-2 px-1">
               <span className="text-neutral-400">Subtotal ${subtotal.toFixed(2)} · Tax ${tax.toFixed(2)}</span>
-              <span className="text-white font-semibold text-sm">Total ${total.toFixed(2)}</span>
             </div>
             <div className="flex gap-2">
               <button

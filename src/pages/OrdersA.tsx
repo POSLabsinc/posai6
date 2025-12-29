@@ -328,13 +328,13 @@ const OrdersA = () => {
 
           {/* Menu Items Grid */}
           <ScrollArea className="flex-1 p-2 md:p-3">
-            <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5 gap-1.5 md:gap-2">
+            <div className="grid grid-cols-4 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-1 md:gap-1.5">
               {menuItems
                 .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
                 .map((item, index) => (
                   <div
                     key={item.id}
-                    className="bg-neutral-800 rounded-md md:rounded-lg overflow-hidden border border-neutral-700 hover:border-orange-500 transition-all cursor-pointer shadow-md hover:shadow-lg hover:shadow-orange-500/10"
+                    className="bg-neutral-800 rounded overflow-hidden border border-neutral-700 hover:border-orange-500 transition-all cursor-pointer shadow-sm hover:shadow-md hover:shadow-orange-500/10"
                     onClick={() => openCustomizationDialog(item, index)}
                   >
                     <div className="relative aspect-square">
@@ -343,28 +343,24 @@ const OrdersA = () => {
                         alt={item.name} 
                         className="w-full h-full object-cover" 
                       />
-                      {/* Plus button on left side */}
                       <button
                         onClick={e => {
                           e.stopPropagation();
                           addToCart(item);
                         }}
-                        className="absolute top-1 left-1 md:top-1.5 md:left-1.5 w-5 h-5 md:w-6 md:h-6 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                        className="absolute top-0.5 left-0.5 md:top-1 md:left-1 w-4 h-4 md:w-5 md:h-5 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center shadow transition-transform hover:scale-110"
                       >
-                        <Plus className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" strokeWidth={3} />
+                        <Plus className="w-2 h-2 md:w-2.5 md:h-2.5 text-white" strokeWidth={3} />
                       </button>
                     </div>
-                    {/* Separator line */}
-                    <div className="h-[1px] bg-gradient-to-r from-transparent via-neutral-600 to-transparent" />
-                    {/* Professional name/price background */}
                     <div 
-                      className="p-1.5 md:p-2"
+                      className="p-1 md:p-1.5"
                       style={{
                         background: 'linear-gradient(180deg, #3D3D3D 0%, #2A2A2A 100%)'
                       }}
                     >
-                      <h3 className="text-[10px] md:text-xs font-medium text-white line-clamp-1">{item.name}</h3>
-                      <p className="text-orange-500 font-semibold text-[10px] md:text-sm mt-0.5">${item.price.toFixed(2)}</p>
+                      <h3 className="text-[8px] md:text-[9px] font-medium text-white line-clamp-1">{item.name}</h3>
+                      <p className="text-orange-500 font-semibold text-[8px] md:text-[10px]">${item.price.toFixed(2)}</p>
                     </div>
                   </div>
                 ))}

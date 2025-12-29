@@ -328,16 +328,16 @@ const OrdersA = () => {
 
           {/* Menu Items Grid */}
           <ScrollArea className="flex-1 p-2 md:p-3">
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-3 xl:grid-cols-4 gap-2 lg:gap-3">
+            <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-4 xl:grid-cols-5 gap-1.5 md:gap-2">
               {menuItems
                 .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
                 .map((item, index) => (
                   <div
                     key={item.id}
-                    className="bg-neutral-800 rounded-lg md:rounded-xl overflow-hidden border border-neutral-700 hover:border-orange-500 transition-all cursor-pointer shadow-lg hover:shadow-xl hover:shadow-orange-500/10"
+                    className="bg-neutral-800 rounded-md md:rounded-lg overflow-hidden border border-neutral-700 hover:border-orange-500 transition-all cursor-pointer shadow-md hover:shadow-lg hover:shadow-orange-500/10"
                     onClick={() => openCustomizationDialog(item, index)}
                   >
-                    <div className="relative aspect-[4/3] md:aspect-video">
+                    <div className="relative aspect-square">
                       <img 
                         src={foodImages[index % foodImages.length]} 
                         alt={item.name} 
@@ -349,22 +349,22 @@ const OrdersA = () => {
                           e.stopPropagation();
                           addToCart(item);
                         }}
-                        className="absolute top-1.5 left-1.5 md:top-2 md:left-2 w-6 h-6 md:w-8 md:h-8 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                        className="absolute top-1 left-1 md:top-1.5 md:left-1.5 w-5 h-5 md:w-6 md:h-6 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
                       >
-                        <Plus className="w-3 h-3 md:w-4 md:h-4 text-white" strokeWidth={3} />
+                        <Plus className="w-2.5 h-2.5 md:w-3 md:h-3 text-white" strokeWidth={3} />
                       </button>
                     </div>
                     {/* Separator line */}
                     <div className="h-[1px] bg-gradient-to-r from-transparent via-neutral-600 to-transparent" />
                     {/* Professional name/price background */}
                     <div 
-                      className="p-2 md:p-3"
+                      className="p-1.5 md:p-2"
                       style={{
                         background: 'linear-gradient(180deg, #3D3D3D 0%, #2A2A2A 100%)'
                       }}
                     >
-                      <h3 className="text-xs md:text-sm font-medium text-white line-clamp-2">{item.name}</h3>
-                      <p className="text-orange-500 font-semibold text-xs md:text-base mt-0.5 md:mt-1">${item.price.toFixed(2)}</p>
+                      <h3 className="text-[10px] md:text-xs font-medium text-white line-clamp-1">{item.name}</h3>
+                      <p className="text-orange-500 font-semibold text-[10px] md:text-sm mt-0.5">${item.price.toFixed(2)}</p>
                     </div>
                   </div>
                 ))}

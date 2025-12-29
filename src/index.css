@@ -151,4 +151,17 @@ All colors MUST be HSL.
       radial-gradient(ellipse at 80% 70%, hsla(220, 90%, 56%, 0.1) 0%, transparent 50%),
       radial-gradient(ellipse at 50% 50%, hsla(280, 80%, 60%, 0.08) 0%, transparent 60%);
   }
+
+  .animate-spin-slow {
+    animation: spin 3s linear infinite;
+  }
+
+  @keyframes spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
 }

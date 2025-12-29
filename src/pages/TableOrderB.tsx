@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X } from "lucide-react";
+import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X, Settings, Plus, Trash2, GripVertical, Pencil } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -192,6 +193,76 @@ const diningAreas = [
   "Bar Area",
   "Outdoor Terrace",
 ];
+
+// Floor area type for customizable areas
+type FloorArea = {
+  id: string;
+  name: string;
+  color: string;
+  bgColor: string;
+  x: number;
+  y: number;
+  anchor: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right';
+};
+
+// Divider type
+type DividerType = {
+  id: string;
+  orientation: 'horizontal' | 'vertical';
+  position: number; // percentage 0-100
+};
+
+// Default floor areas
+const defaultFloorAreas: FloorArea[] = [
+  { id: 'kitchen', name: 'Kitchen', color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', x: 4, y: 4, anchor: 'top-left' },
+  { id: 'bar', name: 'Bar', color: '#a855f7', bgColor: 'rgba(168, 85, 247, 0.15)', x: 96, y: 4, anchor: 'top-right' },
+  { id: 'patio', name: 'Patio', color: '#22c55e', bgColor: 'rgba(34, 197, 94, 0.15)', x: 4, y: 96, anchor: 'bottom-left' },
+  { id: 'entry', name: 'Entry', color: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.15)', x: 96, y: 96, anchor: 'bottom-right' },
+];
+
+// Default dividers
+const defaultDividers: DividerType[] = [
+  { id: 'div-h-1', orientation: 'horizontal', position: 45 },
+  { id: 'div-v-1', orientation: 'vertical', position: 50 },
+];
+
+// Area color presets
+const areaColorPresets = [
+  { color: '#f59e0b', bgColor: 'rgba(245, 158, 11, 0.15)', name: 'Amber' },
+  { color: '#a855f7', bgColor: 'rgba(168, 85, 247, 0.15)', name: 'Purple' },
+  { color: '#22c55e', bgColor: 'rgba(34, 197, 94, 0.15)', name: 'Green' },
+  { color: '#3b82f6', bgColor: 'rgba(59, 130, 246, 0.15)', name: 'Blue' },
+  { color: '#ef4444', bgColor: 'rgba(239, 68, 68, 0.15)', name: 'Red' },
+  { color: '#ec4899', bgColor: 'rgba(236, 72, 153, 0.15)', name: 'Pink' },
+  { color: '#14b8a6', bgColor: 'rgba(20, 184, 166, 0.15)', name: 'Teal' },
+  { color: '#f97316', bgColor: 'rgba(249, 115, 22, 0.15)', name: 'Orange' },
+];
+
+// Load saved floor areas from localStorage
+const loadSavedFloorAreas = (): FloorArea[] => {
+  try {
+    const saved = localStorage.getItem('floorplan-areas');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error('Error loading floor areas:', e);
+  }
+  return defaultFloorAreas;
+};
+
+// Load saved dividers from localStorage
+const loadSavedDividers = (): DividerType[] => {
+  try {
+    const saved = localStorage.getItem('floorplan-dividers');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error('Error loading dividers:', e);
+  }
+  return defaultDividers;
+};
 
 // Chair component for circular tables
 const CircularChair = ({ 
@@ -748,10 +819,31 @@ const TableOrderB = () => {
   const [seatEditTable, setSeatEditTable] = useState<string | null>(null);
   const [tempSeats, setTempSeats] = useState<number>(0);
   
+  // Customization state
+  const [isCustomizeMode, setIsCustomizeMode] = useState(false);
+  const [floorAreas, setFloorAreas] = useState<FloorArea[]>(loadSavedFloorAreas);
+  const [dividers, setDividers] = useState<DividerType[]>(loadSavedDividers);
+  const [showManageAreasDialog, setShowManageAreasDialog] = useState(false);
+  const [editingArea, setEditingArea] = useState<FloorArea | null>(null);
+  const [newAreaName, setNewAreaName] = useState("");
+  const [selectedColorPreset, setSelectedColorPreset] = useState(0);
+  const [draggingAreaId, setDraggingAreaId] = useState<string | null>(null);
+  const [draggingDividerId, setDraggingDividerId] = useState<string | null>(null);
+  
   const MERGE_THRESHOLD = 120; // pixels - distance at which tables can merge
   const SNAP_OFFSET = 160; // pixels - how far apart merged tables should be
   
   const filterCounts = getFilterCounts(tablePositions);
+
+  // Save floor areas to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('floorplan-areas', JSON.stringify(floorAreas));
+  }, [floorAreas]);
+
+  // Save dividers to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('floorplan-dividers', JSON.stringify(dividers));
+  }, [dividers]);
 
   // Save positions to localStorage when they change
   useEffect(() => {
@@ -1154,6 +1246,123 @@ const TableOrderB = () => {
   
   const mergedPairs = getMergedPairs();
 
+  // Area management functions
+  const handleAddArea = () => {
+    if (!newAreaName.trim()) return;
+    const preset = areaColorPresets[selectedColorPreset];
+    const newArea: FloorArea = {
+      id: `area-${Date.now()}`,
+      name: newAreaName.trim(),
+      color: preset.color,
+      bgColor: preset.bgColor,
+      x: 50,
+      y: 50,
+      anchor: 'top-left'
+    };
+    setFloorAreas(prev => [...prev, newArea]);
+    setNewAreaName("");
+    toast.success(`Area "${newArea.name}" added`);
+  };
+
+  const handleUpdateArea = (area: FloorArea) => {
+    setFloorAreas(prev => prev.map(a => a.id === area.id ? area : a));
+    setEditingArea(null);
+  };
+
+  const handleDeleteArea = (areaId: string) => {
+    const area = floorAreas.find(a => a.id === areaId);
+    setFloorAreas(prev => prev.filter(a => a.id !== areaId));
+    toast.success(`Area "${area?.name}" deleted`);
+  };
+
+  const handleAddDivider = (orientation: 'horizontal' | 'vertical') => {
+    const newDivider: DividerType = {
+      id: `div-${orientation[0]}-${Date.now()}`,
+      orientation,
+      position: 50
+    };
+    setDividers(prev => [...prev, newDivider]);
+    toast.success(`${orientation.charAt(0).toUpperCase() + orientation.slice(1)} divider added`);
+  };
+
+  const handleDeleteDivider = (dividerId: string) => {
+    setDividers(prev => prev.filter(d => d.id !== dividerId));
+    toast.success("Divider deleted");
+  };
+
+  // Handle area drag
+  const handleAreaDragStart = (e: React.MouseEvent | React.TouchEvent, areaId: string) => {
+    if (!isCustomizeMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingAreaId(areaId);
+  };
+
+  // Handle divider drag
+  const handleDividerDragStart = (e: React.MouseEvent | React.TouchEvent, dividerId: string) => {
+    if (!isCustomizeMode) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setDraggingDividerId(dividerId);
+  };
+
+  // Handle area/divider drag move
+  useEffect(() => {
+    if (!draggingAreaId && !draggingDividerId) return;
+
+    const handleMove = (e: MouseEvent | TouchEvent) => {
+      if (!mapContainerRef.current) return;
+      const rect = mapContainerRef.current.getBoundingClientRect();
+      const coords = 'touches' in e 
+        ? { x: e.touches[0].clientX, y: e.touches[0].clientY }
+        : { x: e.clientX, y: e.clientY };
+
+      const percentX = Math.max(2, Math.min(98, ((coords.x - rect.left) / rect.width) * 100));
+      const percentY = Math.max(2, Math.min(98, ((coords.y - rect.top) / rect.height) * 100));
+
+      if (draggingAreaId) {
+        setFloorAreas(prev => prev.map(a => 
+          a.id === draggingAreaId ? { ...a, x: percentX, y: percentY } : a
+        ));
+      }
+
+      if (draggingDividerId) {
+        const divider = dividers.find(d => d.id === draggingDividerId);
+        if (divider) {
+          const newPos = divider.orientation === 'horizontal' ? percentY : percentX;
+          setDividers(prev => prev.map(d => 
+            d.id === draggingDividerId ? { ...d, position: newPos } : d
+          ));
+        }
+      }
+    };
+
+    const handleEnd = () => {
+      setDraggingAreaId(null);
+      setDraggingDividerId(null);
+    };
+
+    window.addEventListener('mousemove', handleMove);
+    window.addEventListener('mouseup', handleEnd);
+    window.addEventListener('touchmove', handleMove);
+    window.addEventListener('touchend', handleEnd);
+
+    return () => {
+      window.removeEventListener('mousemove', handleMove);
+      window.removeEventListener('mouseup', handleEnd);
+      window.removeEventListener('touchmove', handleMove);
+      window.removeEventListener('touchend', handleEnd);
+    };
+  }, [draggingAreaId, draggingDividerId, dividers]);
+
+  const handleResetLayout = () => {
+    setFloorAreas(defaultFloorAreas);
+    setDividers(defaultDividers);
+    localStorage.removeItem('floorplan-areas');
+    localStorage.removeItem('floorplan-dividers');
+    toast.success("Floor plan layout reset");
+  };
+
   return (
     <div className="flex flex-col h-full bg-black p-3">
       {/* Filter Bar */}
@@ -1243,6 +1452,58 @@ const TableOrderB = () => {
           <span>Reset</span>
         </button>
 
+        {/* Customize Layout Button */}
+        {isCustomizeMode ? (
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setShowManageAreasDialog(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-600 text-white text-xs font-medium hover:bg-purple-500 transition-all"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Manage Areas</span>
+            </button>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-600 text-white text-xs font-medium hover:bg-amber-500 transition-all">
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Divider</span>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
+                <DropdownMenuItem onClick={() => handleAddDivider('horizontal')} className="text-white hover:bg-neutral-700 cursor-pointer">
+                  Horizontal Divider
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => handleAddDivider('vertical')} className="text-white hover:bg-neutral-700 cursor-pointer">
+                  Vertical Divider
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <button
+              onClick={handleResetLayout}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/80 text-white text-xs font-medium hover:bg-red-500 transition-all"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              <span>Reset Layout</span>
+            </button>
+            <button
+              onClick={() => setIsCustomizeMode(false)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all"
+              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)", color: "#000" }}
+            >
+              <X className="w-3.5 h-3.5" />
+              <span>Exit Customize</span>
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setIsCustomizeMode(true)}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-800 text-gray-300 hover:bg-neutral-700 text-xs font-medium transition-all"
+          >
+            <Settings className="w-3.5 h-3.5" />
+            <span>Customize</span>
+          </button>
+        )}
+
         {/* Filter Tabs */}
         <ScrollArea className="flex-1">
           <div className="flex items-center gap-2">
@@ -1285,30 +1546,93 @@ const TableOrderB = () => {
           }} 
         />
 
-        {/* Floor plan labels */}
-        <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/80 border border-neutral-800">
-          <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-          <span className="text-xs text-amber-400 font-medium">Kitchen</span>
-        </div>
+        {/* Dynamic Floor Plan Area Labels */}
+        {floorAreas.map((area) => {
+          const positionStyle: React.CSSProperties = {
+            left: `${area.x}%`,
+            top: `${area.y}%`,
+            transform: area.anchor === 'top-right' ? 'translateX(-100%)' 
+              : area.anchor === 'bottom-left' ? 'translateY(-100%)'
+              : area.anchor === 'bottom-right' ? 'translate(-100%, -100%)'
+              : 'none',
+          };
 
-        <div className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/80 border border-neutral-800">
-          <span className="text-xs text-blue-400 font-medium">Entry</span>
-          <div className="w-2 h-2 rounded-full bg-blue-500" />
-        </div>
+          return (
+            <div
+              key={area.id}
+              className={`absolute flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/80 border border-neutral-800 z-20 ${
+                isCustomizeMode ? 'cursor-grab active:cursor-grabbing ring-2 ring-white/30' : ''
+              } ${draggingAreaId === area.id ? 'opacity-70 scale-105' : ''}`}
+              style={positionStyle}
+              onMouseDown={(e) => handleAreaDragStart(e, area.id)}
+              onTouchStart={(e) => handleAreaDragStart(e, area.id)}
+            >
+              {isCustomizeMode && (
+                <GripVertical className="w-3 h-3 text-white/50" />
+              )}
+              <div 
+                className="w-2 h-2 rounded-full animate-pulse"
+                style={{ backgroundColor: area.color }}
+              />
+              <span className="text-xs font-medium" style={{ color: area.color }}>
+                {area.name}
+              </span>
+              {isCustomizeMode && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteArea(area.id);
+                  }}
+                  className="ml-1 p-0.5 rounded hover:bg-red-500/20 transition-colors"
+                >
+                  <X className="w-3 h-3 text-red-400" />
+                </button>
+              )}
+            </div>
+          );
+        })}
 
-        <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/80 border border-neutral-800">
-          <span className="text-xs text-purple-400 font-medium">Bar</span>
-          <div className="w-2 h-2 rounded-full bg-purple-500" />
-        </div>
-
-        <div className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/80 border border-neutral-800">
-          <div className="w-2 h-2 rounded-full bg-green-500" />
-          <span className="text-xs text-green-400 font-medium">Patio</span>
-        </div>
-
-        {/* Decorative divider lines */}
-        <div className="absolute top-[45%] left-0 right-0 h-px bg-gradient-to-r from-transparent via-neutral-700/50 to-transparent" />
-        <div className="absolute left-[50%] top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-neutral-700/30 to-transparent" />
+        {/* Dynamic Divider Lines */}
+        {dividers.map((divider) => (
+          <div
+            key={divider.id}
+            className={`absolute ${
+              divider.orientation === 'horizontal' 
+                ? 'left-0 right-0 h-px' 
+                : 'top-0 bottom-0 w-px'
+            } bg-gradient-to-${divider.orientation === 'horizontal' ? 'r' : 'b'} from-transparent via-neutral-700/50 to-transparent ${
+              isCustomizeMode ? 'cursor-grab z-30' : ''
+            } ${draggingDividerId === divider.id ? 'via-cyan-500/70' : ''}`}
+            style={
+              divider.orientation === 'horizontal'
+                ? { top: `${divider.position}%` }
+                : { left: `${divider.position}%` }
+            }
+            onMouseDown={(e) => handleDividerDragStart(e, divider.id)}
+            onTouchStart={(e) => handleDividerDragStart(e, divider.id)}
+          >
+            {isCustomizeMode && (
+              <div 
+                className={`absolute ${
+                  divider.orientation === 'horizontal'
+                    ? 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
+                    : 'top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2'
+                } flex items-center gap-1 px-2 py-1 bg-neutral-800 rounded-full border border-neutral-600`}
+              >
+                <GripVertical className="w-3 h-3 text-white/60" />
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteDivider(divider.id);
+                  }}
+                  className="p-0.5 rounded hover:bg-red-500/20 transition-colors"
+                >
+                  <Trash2 className="w-3 h-3 text-red-400" />
+                </button>
+              </div>
+            )}
+          </div>
+        ))}
 
         {/* Merge connector lines */}
         {mergedPairs.map(({ table1, table2 }) => (
@@ -1719,6 +2043,135 @@ const TableOrderB = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Manage Areas Dialog */}
+      <Dialog open={showManageAreasDialog} onOpenChange={setShowManageAreasDialog}>
+        <DialogContent className="bg-neutral-900 border-neutral-700 max-w-md">
+          <div className="flex justify-center pt-2 pb-4">
+            <div className="w-10 h-1 bg-white/30 rounded-full" />
+          </div>
+          
+          <div className="flex items-center gap-3 pb-4">
+            <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center">
+              <MapPin className="w-5 h-5 text-purple-400" />
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-lg">Manage Areas</h3>
+              <p className="text-white/50 text-sm">Add, edit, or remove floor plan areas</p>
+            </div>
+          </div>
+
+          {/* Add New Area */}
+          <div className="space-y-3 pb-4 border-b border-neutral-700">
+            <p className="text-white/60 text-sm font-medium">Add New Area</p>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Area name (e.g. VIP Section)"
+                value={newAreaName}
+                onChange={(e) => setNewAreaName(e.target.value)}
+                className="flex-1 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
+              />
+              <button
+                onClick={handleAddArea}
+                disabled={!newAreaName.trim()}
+                className="px-4 py-2 rounded-lg bg-purple-600 text-white text-sm font-medium hover:bg-purple-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="flex gap-1.5 flex-wrap">
+              {areaColorPresets.map((preset, index) => (
+                <button
+                  key={preset.name}
+                  onClick={() => setSelectedColorPreset(index)}
+                  className={`w-7 h-7 rounded-full border-2 transition-all ${
+                    selectedColorPreset === index ? 'border-white scale-110' : 'border-transparent'
+                  }`}
+                  style={{ backgroundColor: preset.color }}
+                  title={preset.name}
+                />
+              ))}
+            </div>
+          </div>
+
+          {/* Existing Areas */}
+          <div className="space-y-2 max-h-60 overflow-y-auto py-2">
+            <p className="text-white/60 text-sm font-medium">Current Areas</p>
+            {floorAreas.length === 0 ? (
+              <p className="text-neutral-500 text-sm py-4 text-center">No areas defined</p>
+            ) : (
+              floorAreas.map((area) => (
+                <div
+                  key={area.id}
+                  className="flex items-center gap-3 p-3 rounded-lg bg-neutral-800 border border-neutral-700"
+                >
+                  <div 
+                    className="w-4 h-4 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: area.color }}
+                  />
+                  {editingArea?.id === area.id ? (
+                    <div className="flex-1 flex gap-2">
+                      <Input
+                        value={editingArea.name}
+                        onChange={(e) => setEditingArea({ ...editingArea, name: e.target.value })}
+                        className="flex-1 bg-neutral-700 border-neutral-600 text-white h-8"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => handleUpdateArea(editingArea)}
+                        className="px-3 py-1 rounded bg-green-600 text-white text-xs font-medium hover:bg-green-500"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => setEditingArea(null)}
+                        className="px-3 py-1 rounded bg-neutral-600 text-white text-xs font-medium hover:bg-neutral-500"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <span className="flex-1 text-white text-sm">{area.name}</span>
+                      <button
+                        onClick={() => setEditingArea(area)}
+                        className="p-1.5 rounded hover:bg-neutral-700 transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-neutral-400" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteArea(area.id)}
+                        className="p-1.5 rounded hover:bg-red-500/20 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Close Button */}
+          <div className="pt-4">
+            <button
+              onClick={() => setShowManageAreasDialog(false)}
+              className="w-full py-2.5 rounded-full text-black font-medium text-sm"
+              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+            >
+              Done
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Customize Mode Indicator */}
+      {isCustomizeMode && (
+        <div className="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 flex items-center gap-2 px-4 py-2 rounded-full bg-purple-600 text-white text-sm font-medium shadow-lg shadow-purple-500/30">
+          <Settings className="w-4 h-4 animate-spin-slow" />
+          <span>Customize Mode - Drag areas and dividers to reposition</span>
+        </div>
+      )}
     </div>
   );
 };

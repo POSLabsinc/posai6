@@ -626,7 +626,7 @@ const Dashboard = () => {
       {/* Mobile Drawer for Order Panel */}
       <Drawer direction="top" open={isDrawerOpen && isMobile} onOpenChange={setIsDrawerOpen}>
         <DrawerContent className="bg-neutral-900 border-none !h-[100dvh] !top-0 !bottom-0 !rounded-none !max-h-none">
-          <DrawerClose className="absolute right-4 top-4 z-10 rounded-full p-1 bg-white/10 hover:bg-white/20">
+          <DrawerClose className="absolute right-4 top-2 z-10 rounded-full p-1 bg-white/10 hover:bg-white/20">
             <X className="w-4 h-4 text-white" />
           </DrawerClose>
           <div className="flex flex-col h-full overflow-hidden">

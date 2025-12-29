@@ -328,28 +328,40 @@ const OrdersA = () => {
 
           {/* Menu Items List */}
           <ScrollArea className="flex-1 p-2 md:p-3">
-            <div className="flex flex-col gap-1">
+            <div className="grid grid-cols-2 gap-1 md:gap-1.5">
               {menuItems
                 .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
                 .map((item) => (
                   <div
                     key={item.id}
-                    className="flex items-center justify-between bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700 hover:border-orange-500 transition-all cursor-pointer"
                     onClick={() => addToCart(item)}
+                    className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border min-h-[38px] md:min-h-[42px]"
                   >
-                    <span className="text-xs md:text-sm font-medium text-white">{item.name}</span>
-                    <div className="flex items-center gap-2">
-                      <span className="text-orange-500 font-semibold text-xs md:text-sm">${item.price.toFixed(2)}</span>
-                      <button
-                        onClick={e => {
-                          e.stopPropagation();
-                          addToCart(item);
-                        }}
-                        className="w-5 h-5 md:w-6 md:h-6 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center shadow transition-transform hover:scale-110"
-                      >
-                        <Plus className="w-3 h-3 md:w-3.5 md:h-3.5 text-white" strokeWidth={3} />
-                      </button>
+                    <div 
+                      className="flex-1 p-1.5 md:p-2"
+                      style={{
+                        background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
+                      }}
+                    >
+                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-white">
+                        ${item.price.toFixed(2)}
+                      </span>
+                      <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2">
+                        {item.name}
+                      </span>
                     </div>
+                    <button
+                      onClick={e => {
+                        e.stopPropagation();
+                        addToCart(item);
+                      }}
+                      className="w-6 md:w-8 text-white flex-shrink-0 flex items-center justify-center"
+                      style={{
+                        background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                      }}
+                    >
+                      <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" strokeWidth={4} />
+                    </button>
                   </div>
                 ))}
             </div>

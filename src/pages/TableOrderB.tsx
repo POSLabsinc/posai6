@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X, Settings, Plus, Trash2, GripVertical, Pencil } from "lucide-react";
+import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X, Settings, Plus, Trash2, GripVertical, Pencil, FolderOpen, Save, Check, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -13,6 +13,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import {
   AlertDialog,
@@ -262,6 +263,29 @@ const loadSavedDividers = (): DividerType[] => {
     console.error('Error loading dividers:', e);
   }
   return defaultDividers;
+};
+
+// Floor Plan Template type for saving/loading layouts
+type FloorPlanTemplate = {
+  id: string;
+  name: string;
+  createdAt: string;
+  tables: TableType[];
+  floorAreas: FloorArea[];
+  dividers: DividerType[];
+};
+
+// Load saved templates from localStorage
+const loadSavedTemplates = (): FloorPlanTemplate[] => {
+  try {
+    const saved = localStorage.getItem('floorplan-templates');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+  } catch (e) {
+    console.error('Error loading templates:', e);
+  }
+  return [];
 };
 
 // Chair component for circular tables
@@ -830,6 +854,14 @@ const TableOrderB = () => {
   const [draggingAreaId, setDraggingAreaId] = useState<string | null>(null);
   const [draggingDividerId, setDraggingDividerId] = useState<string | null>(null);
   
+  // Template state
+  const [templates, setTemplates] = useState<FloorPlanTemplate[]>(loadSavedTemplates);
+  const [activeTemplateId, setActiveTemplateId] = useState<string | null>(null);
+  const [showTemplatesDialog, setShowTemplatesDialog] = useState(false);
+  const [newTemplateName, setNewTemplateName] = useState("");
+  const [editingTemplateId, setEditingTemplateId] = useState<string | null>(null);
+  const [editingTemplateName, setEditingTemplateName] = useState("");
+  
   const MERGE_THRESHOLD = 120; // pixels - distance at which tables can merge
   const SNAP_OFFSET = 160; // pixels - how far apart merged tables should be
   
@@ -849,6 +881,11 @@ const TableOrderB = () => {
   useEffect(() => {
     localStorage.setItem('tablePositions', JSON.stringify(tablePositions));
   }, [tablePositions]);
+
+  // Save templates to localStorage when they change
+  useEffect(() => {
+    localStorage.setItem('floorplan-templates', JSON.stringify(templates));
+  }, [templates]);
   
   // Get merged table pairs (only return unique pairs)
   const getMergedPairs = useCallback(() => {
@@ -1363,6 +1400,73 @@ const TableOrderB = () => {
     toast.success("Floor plan layout reset");
   };
 
+  // Template management functions
+  const handleSaveAsTemplate = () => {
+    if (!newTemplateName.trim()) return;
+    
+    const newTemplate: FloorPlanTemplate = {
+      id: `template-${Date.now()}`,
+      name: newTemplateName.trim(),
+      createdAt: new Date().toISOString(),
+      tables: tablePositions,
+      floorAreas: floorAreas,
+      dividers: dividers,
+    };
+    
+    setTemplates(prev => [...prev, newTemplate]);
+    setActiveTemplateId(newTemplate.id);
+    setNewTemplateName("");
+    toast.success(`Template "${newTemplate.name}" saved`);
+  };
+
+  const handleLoadTemplate = (templateId: string) => {
+    const template = templates.find(t => t.id === templateId);
+    if (!template) return;
+    
+    setTablePositions(template.tables);
+    setFloorAreas(template.floorAreas);
+    setDividers(template.dividers);
+    setActiveTemplateId(templateId);
+    
+    // Also update localStorage for individual items
+    localStorage.setItem('tablePositions', JSON.stringify(template.tables));
+    localStorage.setItem('floorplan-areas', JSON.stringify(template.floorAreas));
+    localStorage.setItem('floorplan-dividers', JSON.stringify(template.dividers));
+    
+    toast.success(`Loaded template "${template.name}"`);
+  };
+
+  const handleDeleteTemplate = (templateId: string) => {
+    const template = templates.find(t => t.id === templateId);
+    setTemplates(prev => prev.filter(t => t.id !== templateId));
+    if (activeTemplateId === templateId) {
+      setActiveTemplateId(null);
+    }
+    toast.success(`Template "${template?.name}" deleted`);
+  };
+
+  const handleRenameTemplate = (templateId: string) => {
+    if (!editingTemplateName.trim()) return;
+    
+    setTemplates(prev => prev.map(t => 
+      t.id === templateId ? { ...t, name: editingTemplateName.trim() } : t
+    ));
+    setEditingTemplateId(null);
+    setEditingTemplateName("");
+    toast.success("Template renamed");
+  };
+
+  const handleLoadDefaultLayout = () => {
+    setTablePositions(defaultTables);
+    setFloorAreas(defaultFloorAreas);
+    setDividers(defaultDividers);
+    setActiveTemplateId(null);
+    localStorage.setItem('tablePositions', JSON.stringify(defaultTables));
+    localStorage.setItem('floorplan-areas', JSON.stringify(defaultFloorAreas));
+    localStorage.setItem('floorplan-dividers', JSON.stringify(defaultDividers));
+    toast.success("Loaded default layout");
+  };
+
   return (
     <div className="flex flex-col h-full bg-black p-3">
       {/* Filter Bar */}
@@ -1455,6 +1559,58 @@ const TableOrderB = () => {
         {/* Customize Layout Button */}
         {isCustomizeMode ? (
           <div className="flex items-center gap-2">
+            {/* Templates Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-600 text-white text-xs font-medium hover:bg-cyan-500 transition-all">
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Templates</span>
+                  <ChevronDown className="w-3 h-3 ml-0.5" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-neutral-800 border-neutral-700 min-w-[200px]">
+                <DropdownMenuItem 
+                  onClick={() => setShowTemplatesDialog(true)} 
+                  className="text-white hover:bg-neutral-700 cursor-pointer"
+                >
+                  <Save className="w-4 h-4 mr-2 text-cyan-400" />
+                  Save Current Layout...
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="bg-neutral-700" />
+                <DropdownMenuItem 
+                  onClick={handleLoadDefaultLayout}
+                  className={`text-white hover:bg-neutral-700 cursor-pointer ${!activeTemplateId ? 'bg-neutral-700/50' : ''}`}
+                >
+                  {!activeTemplateId && <Check className="w-4 h-4 mr-2 text-cyan-400" />}
+                  {activeTemplateId && <div className="w-4 h-4 mr-2" />}
+                  Default Layout
+                </DropdownMenuItem>
+                {templates.map(template => (
+                  <DropdownMenuItem 
+                    key={template.id}
+                    onClick={() => handleLoadTemplate(template.id)}
+                    className={`text-white hover:bg-neutral-700 cursor-pointer ${activeTemplateId === template.id ? 'bg-neutral-700/50' : ''}`}
+                  >
+                    {activeTemplateId === template.id && <Check className="w-4 h-4 mr-2 text-cyan-400" />}
+                    {activeTemplateId !== template.id && <FolderOpen className="w-4 h-4 mr-2 text-neutral-400" />}
+                    {template.name}
+                  </DropdownMenuItem>
+                ))}
+                {templates.length > 0 && (
+                  <>
+                    <DropdownMenuSeparator className="bg-neutral-700" />
+                    <DropdownMenuItem 
+                      onClick={() => setShowTemplatesDialog(true)} 
+                      className="text-white hover:bg-neutral-700 cursor-pointer"
+                    >
+                      <Settings className="w-4 h-4 mr-2 text-neutral-400" />
+                      Manage Templates...
+                    </DropdownMenuItem>
+                  </>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
+            
             <button
               onClick={() => setShowManageAreasDialog(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-600 text-white text-xs font-medium hover:bg-purple-500 transition-all"
@@ -2156,6 +2312,161 @@ const TableOrderB = () => {
           <div className="pt-4">
             <button
               onClick={() => setShowManageAreasDialog(false)}
+              className="w-full py-2.5 rounded-full text-black font-medium text-sm"
+              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+            >
+              Done
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Manage Templates Dialog */}
+      <Dialog open={showTemplatesDialog} onOpenChange={setShowTemplatesDialog}>
+        <DialogContent className="bg-neutral-900 border-neutral-700 max-w-md">
+          <div className="flex justify-center pt-2 pb-4">
+            <div className="w-10 h-1 bg-white/30 rounded-full" />
+          </div>
+          
+          <div className="flex items-center gap-3 pb-4">
+            <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
+              <FileText className="w-5 h-5 text-cyan-400" />
+            </div>
+            <div>
+              <h3 className="text-white font-semibold text-lg">Manage Templates</h3>
+              <p className="text-white/50 text-sm">Save and switch between floor plan layouts</p>
+            </div>
+          </div>
+
+          {/* Save Current Layout */}
+          <div className="space-y-3 pb-4 border-b border-neutral-700">
+            <p className="text-white/60 text-sm font-medium">Save Current Layout</p>
+            <div className="flex gap-2">
+              <Input
+                placeholder="Template name (e.g. Dinner Service)"
+                value={newTemplateName}
+                onChange={(e) => setNewTemplateName(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleSaveAsTemplate()}
+                className="flex-1 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
+              />
+              <button
+                onClick={handleSaveAsTemplate}
+                disabled={!newTemplateName.trim()}
+                className="px-4 py-2 rounded-lg bg-cyan-600 text-white text-sm font-medium hover:bg-cyan-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                <Save className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+
+          {/* Existing Templates */}
+          <div className="space-y-2 max-h-60 overflow-y-auto py-2">
+            <p className="text-white/60 text-sm font-medium">Saved Templates</p>
+            
+            {/* Default Layout */}
+            <div
+              className={`flex items-center gap-3 p-3 rounded-lg border transition-all cursor-pointer hover:bg-neutral-800 ${
+                !activeTemplateId 
+                  ? 'bg-cyan-500/10 border-cyan-500/50' 
+                  : 'bg-neutral-800 border-neutral-700'
+              }`}
+              onClick={handleLoadDefaultLayout}
+            >
+              <div className="w-8 h-8 rounded-lg bg-neutral-700 flex items-center justify-center flex-shrink-0">
+                <RotateCcw className="w-4 h-4 text-neutral-400" />
+              </div>
+              <div className="flex-1">
+                <span className="text-white text-sm font-medium">Default Layout</span>
+                <p className="text-neutral-500 text-xs">Original floor plan configuration</p>
+              </div>
+              {!activeTemplateId && (
+                <Check className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+              )}
+            </div>
+            
+            {templates.length === 0 ? (
+              <p className="text-neutral-500 text-sm py-4 text-center">No saved templates yet</p>
+            ) : (
+              templates.map((template) => (
+                <div
+                  key={template.id}
+                  className={`flex items-center gap-3 p-3 rounded-lg border transition-all ${
+                    activeTemplateId === template.id 
+                      ? 'bg-cyan-500/10 border-cyan-500/50' 
+                      : 'bg-neutral-800 border-neutral-700'
+                  }`}
+                >
+                  <div 
+                    className="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center flex-shrink-0 cursor-pointer hover:bg-cyan-500/30"
+                    onClick={() => handleLoadTemplate(template.id)}
+                  >
+                    <FolderOpen className="w-4 h-4 text-cyan-400" />
+                  </div>
+                  {editingTemplateId === template.id ? (
+                    <div className="flex-1 flex gap-2">
+                      <Input
+                        value={editingTemplateName}
+                        onChange={(e) => setEditingTemplateName(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleRenameTemplate(template.id)}
+                        className="flex-1 bg-neutral-700 border-neutral-600 text-white h-8"
+                        autoFocus
+                      />
+                      <button
+                        onClick={() => handleRenameTemplate(template.id)}
+                        className="px-3 py-1 rounded bg-green-600 text-white text-xs font-medium hover:bg-green-500"
+                      >
+                        Save
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingTemplateId(null);
+                          setEditingTemplateName("");
+                        }}
+                        className="px-3 py-1 rounded bg-neutral-600 text-white text-xs font-medium hover:bg-neutral-500"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div 
+                        className="flex-1 cursor-pointer"
+                        onClick={() => handleLoadTemplate(template.id)}
+                      >
+                        <span className="text-white text-sm font-medium">{template.name}</span>
+                        <p className="text-neutral-500 text-xs">
+                          {new Date(template.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
+                      {activeTemplateId === template.id && (
+                        <Check className="w-4 h-4 text-cyan-400 flex-shrink-0" />
+                      )}
+                      <button
+                        onClick={() => {
+                          setEditingTemplateId(template.id);
+                          setEditingTemplateName(template.name);
+                        }}
+                        className="p-1.5 rounded hover:bg-neutral-700 transition-colors"
+                      >
+                        <Pencil className="w-3.5 h-3.5 text-neutral-400" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteTemplate(template.id)}
+                        className="p-1.5 rounded hover:bg-red-500/20 transition-colors"
+                      >
+                        <Trash2 className="w-3.5 h-3.5 text-red-400" />
+                      </button>
+                    </>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Close Button */}
+          <div className="pt-4">
+            <button
+              onClick={() => setShowTemplatesDialog(false)}
               className="w-full py-2.5 rounded-full text-black font-medium text-sm"
               style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
             >

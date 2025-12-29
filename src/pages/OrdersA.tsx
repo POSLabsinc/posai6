@@ -369,7 +369,7 @@ const OrdersA = () => {
         </div>
 
         {/* Right Panel - Order (Bottom on Tablet, Right on Desktop) */}
-        <div className="lg:w-80 flex flex-col lg:flex-col bg-neutral-900 rounded-xl overflow-hidden lg:max-h-none max-h-[65vh]">
+        <div className="lg:w-80 flex flex-col lg:flex-col bg-neutral-900 rounded-xl overflow-hidden flex-1 min-h-0">
           {/* Horizontal layout for tablet order panel */}
           <div className="flex lg:flex-col flex-1 overflow-hidden">
             {/* Left side - Order Header, Type, Notes (Tablet) / Top section (Desktop) */}

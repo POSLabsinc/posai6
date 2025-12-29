@@ -32,7 +32,7 @@ const BottomNavigation = () => {
               <img
                 src={item.icon}
                 alt={item.label}
-                className={`w-5 h-5 ${isActive ? "" : "opacity-60"}`}
+                className={`w-7 h-7 ${isActive ? "" : "opacity-60"}`}
               />
               <span
                 className={`text-[9px] ${

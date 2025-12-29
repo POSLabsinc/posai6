@@ -328,33 +328,26 @@ const OrdersA = () => {
 
           {/* Menu Items List */}
           <ScrollArea className="flex-1 p-2 md:p-3">
-            <div className="grid grid-cols-2 gap-1 md:gap-1.5">
+            {/* Mobile: Compact list layout */}
+            <div className="grid grid-cols-2 gap-1 md:hidden">
               {menuItems
                 .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
-                .map((item, index) => (
+                .map((item) => (
                   <div
                     key={item.id}
                     onClick={() => addToCart(item)}
-                    className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border min-h-[38px] md:min-h-[56px] lg:min-h-[60px]"
+                    className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border min-h-[38px]"
                   >
-                    {/* Image - Hidden on mobile, shown on tablet and desktop */}
-                    <div className="hidden md:block w-14 lg:w-16 flex-shrink-0">
-                      <img 
-                        src={foodImages[index % foodImages.length]} 
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
                     <div 
-                      className="flex-1 p-1.5 md:p-2"
+                      className="flex-1 p-1.5"
                       style={{
                         background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
                       }}
                     >
-                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-white">
+                      <span className="float-right text-[9px] ml-1 text-white">
                         ${item.price.toFixed(2)}
                       </span>
-                      <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2">
+                      <span className="text-[10px] font-bold leading-tight uppercase text-foreground line-clamp-2">
                         {item.name}
                       </span>
                     </div>
@@ -363,13 +356,51 @@ const OrdersA = () => {
                         e.stopPropagation();
                         addToCart(item);
                       }}
-                      className="w-6 md:w-8 text-white flex-shrink-0 flex items-center justify-center"
+                      className="w-6 text-white flex-shrink-0 flex items-center justify-center"
                       style={{
                         background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
                       }}
                     >
-                      <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" strokeWidth={4} />
+                      <Plus className="w-2.5 h-2.5" strokeWidth={4} />
                     </button>
+                  </div>
+                ))}
+            </div>
+
+            {/* Tablet & Desktop: Card layout with images */}
+            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+              {menuItems
+                .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
+                .map((item, index) => (
+                  <div
+                    key={item.id}
+                    className="rounded-lg overflow-hidden border border-sidebar-border hover:border-primary/50 transition-colors cursor-pointer"
+                    style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                    onClick={() => addToCart(item)}
+                  >
+                    <div className="relative aspect-[4/3]">
+                      <img 
+                        src={foodImages[index % foodImages.length]} 
+                        alt={item.name} 
+                        className="w-full h-full object-cover" 
+                      />
+                      <button
+                        onClick={e => {
+                          e.stopPropagation();
+                          addToCart(item);
+                        }}
+                        className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
+                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                      >
+                        <Plus className="w-4 h-4 text-white" strokeWidth={3} />
+                      </button>
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2">
+                        <span className="text-primary font-bold text-sm">${item.price.toFixed(2)}</span>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      <h3 className="text-xs font-medium text-foreground line-clamp-2">{item.name}</h3>
+                    </div>
                   </div>
                 ))}
             </div>

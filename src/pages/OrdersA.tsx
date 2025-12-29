@@ -226,19 +226,19 @@ const OrdersA = () => {
   const total = subtotal - discount + serviceCharge + tax;
 
   return (
-    <div className="flex h-full overflow-hidden gap-2 p-2">
+    <div className="flex h-full overflow-hidden gap-1 md:gap-2 p-1 md:p-2">
       {/* Left Sidebar - Categories */}
-      <div className="flex flex-col bg-neutral-900 rounded-xl w-48">
+      <div className="flex flex-col bg-neutral-900 rounded-xl w-28 md:w-36 lg:w-48">
         {/* Food Truck Header */}
-        <div className="p-3 border-b border-neutral-700">
-          <h2 className="text-white font-bold text-sm">
-            FOOD TRUCK MENU
+        <div className="p-2 md:p-3 border-b border-neutral-700">
+          <h2 className="text-white font-bold text-[10px] md:text-xs lg:text-sm">
+            FOOD TRUCK
           </h2>
         </div>
 
         {/* Categories List */}
         <ScrollArea className="flex-1">
-          <div className="p-2 space-y-1">
+          <div className="p-1.5 md:p-2 space-y-1">
             {foodTruckCategories.map(category => (
               <Button
                 key={category}
@@ -248,7 +248,7 @@ const OrdersA = () => {
                   const subs = categorySubcategories[category] || [];
                   if (subs.length > 0) setActiveSubcategory(subs[0]);
                 }}
-                className={`w-full justify-start rounded-full px-4 h-8 text-xs whitespace-nowrap border-2 ${
+                className={`w-full justify-start rounded-full px-2 md:px-3 lg:px-4 h-7 md:h-8 text-[10px] md:text-xs whitespace-nowrap border-2 ${
                   activeCategory === category 
                     ? `${getCategoryBgColor(category)} ${getCategoryHoverBgColor(category)} text-white ${getCategoryBorderColor(category)}` 
                     : `bg-header text-header-foreground ${getCategoryBorderColor(category)} hover:bg-header/80`
@@ -264,30 +264,30 @@ const OrdersA = () => {
       {/* Center Panel - Menu Items */}
       <div className="flex-1 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
         {/* Subcategories */}
-        <div className="p-3 border-b border-neutral-700">
-          <div className="flex items-center gap-2 mb-3">
-            <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
-              <img src={searchIcon} alt="Search" className="w-4 h-4" />
+        <div className="p-2 md:p-3 border-b border-neutral-700">
+          <div className="flex items-center gap-1.5 md:gap-2 mb-2 md:mb-3">
+            <div className="flex-1 flex items-center gap-1.5 md:gap-2 bg-neutral-800 rounded-lg px-2 md:px-3 py-1.5 md:py-2">
+              <img src={searchIcon} alt="Search" className="w-3 h-3 md:w-4 md:h-4" />
               <input
                 type="text"
-                placeholder="Search items..."
+                placeholder="Search..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none"
+                className="flex-1 bg-transparent text-white text-xs md:text-sm placeholder:text-neutral-500 outline-none"
               />
               {searchQuery && (
                 <button onClick={() => setSearchQuery('')}>
-                  <X className="w-4 h-4 text-neutral-400" />
+                  <X className="w-3 h-3 md:w-4 md:h-4 text-neutral-400" />
                 </button>
               )}
             </div>
           </div>
-          <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+          <div className="flex gap-1.5 md:gap-2 overflow-x-auto scrollbar-hide">
             {(categorySubcategories[activeCategory] || []).map(sub => (
               <Button
                 key={sub}
                 variant="outline"
-                className={`rounded-md px-4 h-7 text-[10px] whitespace-nowrap border ${
+                className={`rounded-md px-2 md:px-3 lg:px-4 h-6 md:h-7 text-[9px] md:text-[10px] whitespace-nowrap border ${
                   activeSubcategory === sub 
                     ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` 
                     : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`
@@ -301,17 +301,17 @@ const OrdersA = () => {
         </div>
 
         {/* Menu Items Grid */}
-        <ScrollArea className="flex-1 p-3">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <ScrollArea className="flex-1 p-2 md:p-3">
+          <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2 lg:gap-3">
             {menuItems
               .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
               .map((item, index) => (
                 <div
                   key={item.id}
-                  className="bg-neutral-800 rounded-xl overflow-hidden border border-neutral-700 hover:border-orange-500 transition-all cursor-pointer shadow-lg hover:shadow-xl hover:shadow-orange-500/10"
+                  className="bg-neutral-800 rounded-lg md:rounded-xl overflow-hidden border border-neutral-700 hover:border-orange-500 transition-all cursor-pointer shadow-lg hover:shadow-xl hover:shadow-orange-500/10"
                   onClick={() => openCustomizationDialog(item, index)}
                 >
-                  <div className="relative aspect-video">
+                  <div className="relative aspect-[4/3] md:aspect-video">
                     <img 
                       src={foodImages[index % foodImages.length]} 
                       alt={item.name} 
@@ -323,22 +323,22 @@ const OrdersA = () => {
                         e.stopPropagation();
                         addToCart(item);
                       }}
-                      className="absolute top-2 left-2 w-8 h-8 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
+                      className="absolute top-1.5 left-1.5 md:top-2 md:left-2 w-6 h-6 md:w-8 md:h-8 bg-orange-500 hover:bg-orange-600 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110"
                     >
-                      <Plus className="w-4 h-4 text-white" strokeWidth={3} />
+                      <Plus className="w-3 h-3 md:w-4 md:h-4 text-white" strokeWidth={3} />
                     </button>
                   </div>
                   {/* Separator line */}
                   <div className="h-[1px] bg-gradient-to-r from-transparent via-neutral-600 to-transparent" />
                   {/* Professional name/price background */}
                   <div 
-                    className="p-3"
+                    className="p-2 md:p-3"
                     style={{
                       background: 'linear-gradient(180deg, #3D3D3D 0%, #2A2A2A 100%)'
                     }}
                   >
-                    <h3 className="text-sm font-medium text-white line-clamp-2">{item.name}</h3>
-                    <p className="text-orange-500 font-semibold mt-1">${item.price.toFixed(2)}</p>
+                    <h3 className="text-xs md:text-sm font-medium text-white line-clamp-2">{item.name}</h3>
+                    <p className="text-orange-500 font-semibold text-xs md:text-base mt-0.5 md:mt-1">${item.price.toFixed(2)}</p>
                   </div>
                 </div>
               ))}
@@ -347,52 +347,52 @@ const OrdersA = () => {
       </div>
 
       {/* Right Panel - Order */}
-      <div className="w-80 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
+      <div className="w-56 md:w-64 lg:w-80 flex flex-col bg-neutral-900 rounded-xl overflow-hidden">
         {/* Order Header with Name, Order Number, Time */}
-        <div className="px-3 py-2 border-b border-neutral-700">
-          <div className="flex items-center text-xs gap-2">
-            <div className="relative flex-1">
+        <div className="px-2 md:px-3 py-1.5 md:py-2 border-b border-neutral-700">
+          <div className="flex items-center text-[10px] md:text-xs gap-1.5 md:gap-2">
+            <div className="relative flex-1 min-w-0">
               <input
                 ref={guestInputRef}
                 type="text"
                 value={guestName}
                 onChange={e => setGuestName(e.target.value)}
-                placeholder="GUEST NAME"
-                className="bg-transparent outline-none placeholder:text-[#808080] w-full min-w-0 font-medium text-[#808080]"
+                placeholder="GUEST"
+                className="bg-transparent outline-none placeholder:text-[#808080] w-full min-w-0 font-medium text-[#808080] text-[10px] md:text-xs"
               />
               {showGuestDropdown && filteredGuests.length > 0 && (
-                <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+                <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[180px] md:min-w-[220px] py-1 overflow-hidden">
                   {filteredGuests.map(guest => (
                     <button
                       key={guest.id}
                       onClick={() => selectGuest(guest)}
-                      className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left"
+                      className="w-full flex items-center gap-2 md:gap-3 px-2 md:px-3 py-1.5 md:py-2 hover:bg-neutral-600 transition-colors text-left"
                     >
-                      <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                      <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-xs md:text-sm">
                         {guest.initials}
                       </div>
-                      <span className="text-white font-medium text-sm">{guest.name}</span>
+                      <span className="text-white font-medium text-xs md:text-sm">{guest.name}</span>
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            <span className="text-[#808080] text-xs whitespace-nowrap">
+            <span className="text-[#808080] text-[10px] md:text-xs whitespace-nowrap">
               #{String(orderNumber).padStart(3, '0')}
             </span>
-            <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
-              <img src={timeIcon} alt="Time" className="w-3 h-3" />
-              <span className="text-white text-[10px]">12:30 PM</span>
+            <div className="flex items-center gap-0.5 md:gap-1 whitespace-nowrap flex-shrink-0">
+              <img src={timeIcon} alt="Time" className="w-2.5 h-2.5 md:w-3 md:h-3" />
+              <span className="text-white text-[9px] md:text-[10px]">12:30</span>
             </div>
           </div>
         </div>
 
         {/* Order Type */}
-        <div className="p-3 border-b border-neutral-700">
+        <div className="p-2 md:p-3 border-b border-neutral-700">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-1 text-xs font-medium bg-neutral-700 px-3 py-1.5 rounded">
-                {orderType} <ChevronDown className="w-3 h-3" />
+              <button className="flex items-center gap-1 text-[10px] md:text-xs font-medium bg-neutral-700 px-2 md:px-3 py-1 md:py-1.5 rounded">
+                {orderType} <ChevronDown className="w-2.5 h-2.5 md:w-3 md:h-3" />
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
@@ -400,7 +400,7 @@ const OrdersA = () => {
                 <DropdownMenuItem 
                   key={type} 
                   onClick={() => setOrderType(type)}
-                  className="text-white hover:bg-neutral-700"
+                  className="text-white hover:bg-neutral-700 text-xs md:text-sm"
                 >
                   {type}
                 </DropdownMenuItem>
@@ -410,28 +410,28 @@ const OrdersA = () => {
         </div>
 
         {/* Order Notes */}
-        <div className="p-3 border-b border-neutral-700">
-          <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
-            <img src={itemNotesIcon} alt="Notes" className="w-4 h-4" />
+        <div className="p-2 md:p-3 border-b border-neutral-700">
+          <div className="flex items-center gap-1.5 md:gap-2 bg-neutral-800 rounded-lg px-2 md:px-3 py-1.5 md:py-2">
+            <img src={itemNotesIcon} alt="Notes" className="w-3 h-3 md:w-4 md:h-4" />
             <input
               type="text"
               value={orderNotes}
               onChange={e => setOrderNotes(e.target.value)}
-              placeholder="Order notes..."
-              className="flex-1 bg-transparent text-sm text-white placeholder:text-neutral-500 outline-none"
+              placeholder="Notes..."
+              className="flex-1 bg-transparent text-xs md:text-sm text-white placeholder:text-neutral-500 outline-none"
             />
           </div>
         </div>
 
         {/* Order Items */}
-        <ScrollArea className="flex-1 p-3">
+        <ScrollArea className="flex-1 p-2 md:p-3">
           {orderItems.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full py-8">
-              <img src={emptyOrderIcon} alt="Empty" className="w-16 h-16 opacity-50 mb-3" />
-              <span className="text-neutral-500 text-sm">No items yet</span>
+            <div className="flex flex-col items-center justify-center h-full py-6 md:py-8">
+              <img src={emptyOrderIcon} alt="Empty" className="w-12 h-12 md:w-16 md:h-16 opacity-50 mb-2 md:mb-3" />
+              <span className="text-neutral-500 text-xs md:text-sm">No items yet</span>
             </div>
           ) : (
-            <div className="space-y-2">
+            <div className="space-y-1.5 md:space-y-2">
               {orderItems.map(item => (
                 <SwipeableCartItem
                   key={item.id}
@@ -441,20 +441,20 @@ const OrdersA = () => {
                   isOpen={activeSwipedItemId === item.id}
                   onSwipeStart={() => setActiveSwipedItemId(item.id)}
                 >
-                  <div className="p-3 bg-neutral-800 rounded-lg border border-neutral-700">
+                  <div className="p-2 md:p-3 bg-neutral-800 rounded-lg border border-neutral-700">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center">
+                      <div className="flex items-center gap-1.5 md:gap-2">
+                        <span className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-orange-500 text-white text-[10px] md:text-xs font-medium flex items-center justify-center">
                           {item.qty}
                         </span>
-                        <span className="text-sm text-white">{item.name}</span>
+                        <span className="text-xs md:text-sm text-white line-clamp-1">{item.name}</span>
                       </div>
-                      <span className="text-sm text-white">${item.price.toFixed(2)}</span>
+                      <span className="text-xs md:text-sm text-white ml-1">${item.price.toFixed(2)}</span>
                     </div>
                     {item.modifiers && item.modifiers.length > 0 && (
-                      <div className="mt-2 ml-8 space-y-0.5">
+                      <div className="mt-1.5 md:mt-2 ml-6 md:ml-8 space-y-0.5">
                         {item.modifiers.map((mod, idx) => (
-                          <div key={idx} className="text-xs text-orange-400">+ {mod}</div>
+                          <div key={idx} className="text-[10px] md:text-xs text-orange-400">+ {mod}</div>
                         ))}
                       </div>
                     )}
@@ -467,30 +467,30 @@ const OrdersA = () => {
 
         {/* Order Summary */}
         {orderItems.length > 0 && (
-          <div className="p-3 border-t border-neutral-700">
-            <div className="flex items-center justify-center text-xs mb-2 px-1">
-              <span className="text-neutral-400">Subtotal ${subtotal.toFixed(2)} · Tax ${tax.toFixed(2)}</span>
+          <div className="p-2 md:p-3 border-t border-neutral-700">
+            <div className="flex items-center justify-center text-[10px] md:text-xs mb-1.5 md:mb-2 px-1">
+              <span className="text-neutral-400">Sub ${subtotal.toFixed(2)} · Tax ${tax.toFixed(2)}</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-1.5 md:gap-2">
               <button
                 onClick={() => setOrderItems([])}
-                className="w-10 h-10 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center"
+                className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center"
               >
-                <img src={clearCIcon} alt="Clear" className="w-4 h-4" />
+                <img src={clearCIcon} alt="Clear" className="w-3 h-3 md:w-4 md:h-4" />
               </button>
               <button 
                 onClick={completeOrder}
-                className="flex-1 h-10 rounded-full flex items-center justify-center gap-2"
+                className="flex-1 h-8 md:h-10 rounded-full flex items-center justify-center gap-1 md:gap-2"
                 style={{ background: 'linear-gradient(180deg, #4CAF50 0%, #2E7D32 100%)' }}
               >
-                <Printer className="w-5 h-5 text-white" />
-                <span className="text-white font-semibold">PRINT</span>
+                <Printer className="w-4 h-4 md:w-5 md:h-5 text-white" />
+                <span className="text-white font-semibold text-xs md:text-sm">PRINT</span>
               </button>
               <button 
-                className="flex-1 h-10 rounded-full flex items-center justify-center"
+                className="flex-1 h-8 md:h-10 rounded-full flex items-center justify-center"
                 style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
               >
-                <span className="text-black font-semibold text-sm">${total.toFixed(2)}</span>
+                <span className="text-black font-semibold text-xs md:text-sm">${total.toFixed(2)}</span>
               </button>
             </div>
           </div>

@@ -26,10 +26,43 @@ import {
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 
 // Import icons
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
 import burgerCloseIcon from "@/assets/icons/burger-close.png";
+
+// Mock orders for each table (for the merge flow display)
+const tableOrdersMap: Record<string, { id: string; name: string; table: string; amount: string; partySize: number; time: string; status: string; timer: string; server: string; check: string; revenueCenter: string; paymentType: string; phone?: string }> = {
+  "T1": { id: "1", name: "Amanda White", table: "T1", amount: "$156.00", partySize: 5, time: "7:00 PM", status: "UNPAID", timer: "1:30 Hrs", server: "Dustin H", check: "123491", revenueCenter: "Private Room", paymentType: "--", phone: "(415) 555-6789" },
+  "T2": { id: "2", name: "Sarah Kim", table: "T2", amount: "$72.00", partySize: 3, time: "7:30 PM", status: "ORDERING", timer: "00:25", server: "Mia Jones", check: "--", revenueCenter: "FF Balcony", paymentType: "--", phone: "(415) 555-1234" },
+  "T3": { id: "3", name: "Emily Wilson", table: "T3", amount: "$54.00", partySize: 2, time: "8:15 PM", status: "ORDERING", timer: "00:20", server: "Alex M", check: "--", revenueCenter: "Patio", paymentType: "--", phone: "(415) 555-2345" },
+  "T4": { id: "4", name: "Reserved Guest", table: "T4", amount: "$0.00", partySize: 4, time: "7:30 PM", status: "RESERVED", timer: "--", server: "--", check: "--", revenueCenter: "Main", paymentType: "--", phone: "" },
+  "T5": { id: "5", name: "Williams", table: "T5", amount: "$120.75", partySize: 4, time: "7:30 PM", status: "ORDERED", timer: "2:10 Hrs", server: "Dustin H", check: "1236", revenueCenter: "Patio", paymentType: "--", phone: "" },
+  "T6": { id: "6", name: "Brown", table: "T6", amount: "$65.50", partySize: 2, time: "7:15 PM", status: "PREPARING", timer: "2:30 Hrs", server: "Mia J", check: "1237", revenueCenter: "Main", paymentType: "Card", phone: "" },
+  "T7": { id: "7", name: "James Brown", table: "T7", amount: "$62.00", partySize: 4, time: "7:45 PM", status: "1ST COURSE", timer: "0:35 Hrs", server: "Dustin H", check: "123489", revenueCenter: "Online", paymentType: "--", phone: "(415) 555-3456" },
+  "T8": { id: "8", name: "Lisa Garcia", table: "T8", amount: "$54.00", partySize: 3, time: "7:50 PM", status: "2ND COURSE", timer: "0:50 Hrs", server: "Mia Jones", check: "123490", revenueCenter: "Main Dining", paymentType: "--", phone: "(415) 555-4567" },
+};
+
+// Helper to get order for a table
+const getTableOrder = (tableId: string) => tableOrdersMap[tableId] || null;
+
+// Helper to convert table order to OrderLayoutTemplate format
+const toOrderTemplateData = (order: typeof tableOrdersMap[string]) => ({
+  id: Number(order.id),
+  name: order.name,
+  table: order.table,
+  amount: order.amount,
+  partySize: order.partySize,
+  time: order.time,
+  status: order.status,
+  timer: order.timer || "00:00",
+  server: order.server,
+  check: order.check || "--",
+  revenueCenter: order.revenueCenter,
+  paymentType: order.paymentType || "--",
+  phone: order.phone,
+});
 
 // Table status configurations with semantic colors
 const statusConfig: Record<string, { color: string; bgColor: string; label: string }> = {
@@ -1528,14 +1561,14 @@ const TableOrderB = () => {
         <StatusLegend />
       </div>
       
-      {/* Merge Confirmation Dialog - Simpler Design for Floor Plan */}
+      {/* Merge Confirmation Dialog - Full Order Details Flow */}
       <Dialog open={showMergeDialog} onOpenChange={setShowMergeDialog}>
-        <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-sm overflow-hidden">
+        <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-2xl overflow-hidden">
           {pendingMerge && (() => {
             const sourceTable = tablePositions.find(t => t.id === pendingMerge.source);
             const targetTable = tablePositions.find(t => t.id === pendingMerge.target);
-            const sourceConfig = statusConfig[sourceTable?.status || "Available"];
-            const targetConfig = statusConfig[targetTable?.status || "Available"];
+            const sourceOrder = getTableOrder(pendingMerge.source);
+            const targetOrder = getTableOrder(pendingMerge.target);
 
             const handleSwapMergeDirection = () => {
               setPendingMerge({
@@ -1546,67 +1579,89 @@ const TableOrderB = () => {
 
             return (
               <>
+                {/* Grabber */}
+                <div className="flex justify-center pt-3 pb-4">
+                  <div className="w-10 h-1 bg-white/30 rounded-full" />
+                </div>
+
                 {/* Header */}
-                <div className="flex items-center gap-3 px-5 pt-5 pb-4">
+                <div className="flex items-center gap-3 px-6 pb-4">
                   <div className="w-10 h-10 rounded-full bg-cyan-500/20 flex items-center justify-center">
                     <Merge className="w-5 h-5 text-cyan-400" />
                   </div>
                   <div>
                     <h3 className="text-white font-semibold text-lg">Merge Tables</h3>
-                    <p className="text-white/50 text-sm">Combine tables together</p>
+                    <p className="text-white/50 text-sm">Combine {sourceTable?.id} → {targetTable?.id}</p>
                   </div>
                 </div>
 
-                {/* Simple Table Info */}
-                <div className="px-5 pb-4">
-                  <div className="flex items-center justify-center gap-4 py-4 bg-neutral-800/50 rounded-xl">
-                    {/* Source Table */}
-                    <div className="text-center">
-                      <div 
-                        className="w-14 h-14 rounded-lg bg-neutral-700 flex items-center justify-center border-2"
-                        style={{ borderColor: sourceConfig.color }}
-                      >
-                        <span className="text-white font-bold text-xl">{sourceTable?.id}</span>
-                      </div>
-                      <span className="text-xs text-white/50 mt-1 block">{sourceTable?.seats} seats</span>
+                {/* Merge From Order */}
+                <div className="px-6 pb-4">
+                  <p className="text-white/60 text-sm mb-2">Merge From</p>
+                  {sourceOrder ? (
+                    <OrderLayoutTemplate order={toOrderTemplateData(sourceOrder)} />
+                  ) : (
+                    <div className="rounded-xl border border-neutral-700 p-4 text-center" style={{ backgroundColor: '#1B1C20' }}>
+                      <span className="text-white font-bold text-lg">{sourceTable?.id}</span>
+                      <p className="text-white/50 text-sm mt-1">
+                        {sourceTable?.status === "Available" ? "Available Table" : sourceTable?.status}
+                        {sourceTable?.guests ? ` • ${sourceTable.guests} guests` : ""}
+                      </p>
+                      <p className="text-white/40 text-xs mt-1">{sourceTable?.seats} seats</p>
                     </div>
-                    
-                    {/* Arrow + Swap Button */}
-                    <div className="flex flex-col items-center gap-1">
-                      <button 
-                        onClick={handleSwapMergeDirection}
-                        className="p-2 rounded-full bg-neutral-700 hover:bg-neutral-600 transition-colors"
-                      >
-                        <ArrowUpDown className="w-4 h-4 text-white" />
-                      </button>
+                  )}
+                </div>
+
+                {/* Swap Button */}
+                <div className="flex justify-center py-2">
+                  <button 
+                    onClick={handleSwapMergeDirection}
+                    className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20 hover:bg-neutral-700 transition-colors"
+                  >
+                    <ArrowUpDown className="w-4 h-4 text-white" />
+                  </button>
+                </div>
+
+                {/* Merge To Order */}
+                <div className="px-6 pb-4">
+                  <p className="text-white/60 text-sm mb-2">Merge To</p>
+                  {targetOrder ? (
+                    <OrderLayoutTemplate order={toOrderTemplateData(targetOrder)} />
+                  ) : (
+                    <div className="rounded-xl border border-neutral-700 p-4 text-center" style={{ backgroundColor: '#1B1C20' }}>
+                      <span className="text-white font-bold text-lg">{targetTable?.id}</span>
+                      <p className="text-white/50 text-sm mt-1">
+                        {targetTable?.status === "Available" ? "Available Table" : targetTable?.status}
+                        {targetTable?.guests ? ` • ${targetTable.guests} guests` : ""}
+                      </p>
+                      <p className="text-white/40 text-xs mt-1">{targetTable?.seats} seats</p>
                     </div>
-                    
-                    {/* Target Table */}
-                    <div className="text-center">
-                      <div 
-                        className="w-14 h-14 rounded-lg bg-neutral-700 flex items-center justify-center border-2"
-                        style={{ borderColor: targetConfig.color }}
-                      >
-                        <span className="text-white font-bold text-xl">{targetTable?.id}</span>
-                      </div>
-                      <span className="text-xs text-white/50 mt-1 block">{targetTable?.seats} seats</span>
-                    </div>
-                  </div>
-                  
-                  {/* Result Summary */}
-                  <div className="flex items-center justify-center gap-2 mt-3 text-sm">
-                    <span className="text-white/50">Result:</span>
+                  )}
+                </div>
+
+                {/* Result Summary */}
+                <div className="px-6 pb-4">
+                  <div className="flex items-center justify-center gap-2 text-sm bg-neutral-800/50 rounded-xl py-3">
+                    <span className="text-white/50">Combined Result:</span>
                     <span className="text-cyan-400 font-medium">
                       {(sourceTable?.seats || 0) + (targetTable?.seats || 0)} total seats
                     </span>
+                    {((sourceTable?.guests || 0) + (targetTable?.guests || 0)) > 0 && (
+                      <>
+                        <span className="text-white/30">•</span>
+                        <span className="text-cyan-400 font-medium">
+                          {(sourceTable?.guests || 0) + (targetTable?.guests || 0)} guests
+                        </span>
+                      </>
+                    )}
                   </div>
                 </div>
 
                 {/* Action Buttons */}
-                <div className="px-5 pb-5 flex gap-3">
+                <div className="px-6 pb-6 flex gap-3">
                   <button 
                     onClick={handleCancelMerge}
-                    className="flex-1 py-2.5 rounded-full text-white font-medium text-sm bg-neutral-800 hover:bg-neutral-700 transition-colors"
+                    className="px-6 py-2.5 rounded-full text-white font-medium text-sm bg-neutral-800 hover:bg-neutral-700 transition-colors"
                   >
                     Cancel
                   </button>
@@ -1615,7 +1670,7 @@ const TableOrderB = () => {
                     className="flex-1 py-2.5 rounded-full text-black font-medium text-sm"
                     style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
                   >
-                    Merge
+                    Confirm Merge
                   </button>
                 </div>
               </>

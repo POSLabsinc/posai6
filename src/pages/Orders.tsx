@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete } from "lucide-react";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
@@ -5993,6 +5993,10 @@ const Orders = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isDesktopSearchOpen, setIsDesktopSearchOpen] = useState(false);
   const [customizationDialogOpen, setCustomizationDialogOpen] = useState(false);
+  const [showCustomItemPanel, setShowCustomItemPanel] = useState(false);
+  const [customItemName, setCustomItemName] = useState("");
+  const [customItemPrice, setCustomItemPrice] = useState("");
+  const [activeCustomItemField, setActiveCustomItemField] = useState<'name' | 'price'>('price');
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
     id: number;
     name: string;
@@ -6294,6 +6298,54 @@ const Orders = () => {
       item.id === itemId ? { ...item, itemOrderType: newOrderType } : item
     ));
   };
+
+  // Custom Item Panel functions
+  const handleCustomItemNumpadClick = (value: string) => {
+    if (activeCustomItemField === 'price') {
+      if (value === 'clear') {
+        setCustomItemPrice("");
+      } else if (value === 'backspace') {
+        setCustomItemPrice(prev => prev.slice(0, -1));
+      } else if (value === '.') {
+        if (!customItemPrice.includes('.')) {
+          setCustomItemPrice(prev => prev + value);
+        }
+      } else {
+        // Limit decimal places to 2
+        const parts = customItemPrice.split('.');
+        if (parts.length === 2 && parts[1].length >= 2) return;
+        setCustomItemPrice(prev => prev + value);
+      }
+    }
+  };
+
+  const addCustomItemToOrder = () => {
+    const price = parseFloat(customItemPrice) || 0;
+    if (customItemName.trim() && price > 0) {
+      setOrderItems(prev => [...prev, {
+        id: Date.now(),
+        qty: 1,
+        name: customItemName.trim(),
+        price: price
+      }]);
+      setCustomItemName("");
+      setCustomItemPrice("");
+      setShowCustomItemPanel(false);
+    }
+  };
+
+  const toggleCustomItemPanel = () => {
+    if (showCustomItemPanel) {
+      // Going back to menu
+      setShowCustomItemPanel(false);
+      setCustomItemName("");
+      setCustomItemPrice("");
+    } else {
+      // Opening custom item panel
+      setShowCustomItemPanel(true);
+      setMenuPosition('full');
+    }
+  };
   const handleMenuSelect = (value: string) => {
     setSelectedMenu(value);
     setIsMenuSelectOpen(false);
@@ -6378,8 +6430,13 @@ const Orders = () => {
           {/* Action buttons - hidden on mobile, shown via three-dot dropdown */}
           <div className="hidden md:block overflow-x-auto scrollbar-hide mb-2">
             <div className="flex items-center gap-2 w-max">
-              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
-                Custom Item
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap"
+                onClick={toggleCustomItemPanel}
+              >
+                {showCustomItemPanel ? "Menu" : "Custom Item"}
               </Button>
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
                 Discount
@@ -6582,10 +6639,117 @@ const Orders = () => {
         </div>
         {/* Menu Content - Hidden when minimized */}
       <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-[12px] md:rounded-[16px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
-        {/* Inline Item Customization for Mobile - Inside Menu Panel */}
-        {showInlineCustomization && selectedItemForCustomization ? <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
+        {/* Custom Item Panel */}
+        {showCustomItemPanel ? (
+          <div className="flex-1 flex flex-col p-3 md:p-4">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-white text-lg font-semibold">Custom Item</h2>
+              <button 
+                onClick={toggleCustomItemPanel}
+                className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+
+            {/* Name Input */}
+            <div className="mb-3">
+              <div 
+                className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? 'border-orange-500' : 'border-neutral-700'}`}
+                onClick={() => setActiveCustomItemField('name')}
+              >
+                <span className="text-neutral-500 text-sm uppercase">NAME</span>
+                <input
+                  type="text"
+                  value={customItemName}
+                  onChange={(e) => setCustomItemName(e.target.value)}
+                  onFocus={() => setActiveCustomItemField('name')}
+                  placeholder="Enter item name"
+                  className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500"
+                />
+              </div>
+            </div>
+
+            {/* Price Input */}
+            <div className="mb-3">
+              <div 
+                className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'price' ? 'border-orange-500' : 'border-neutral-700'}`}
+                onClick={() => setActiveCustomItemField('price')}
+              >
+                <span className="text-neutral-500 text-sm uppercase">PRICE</span>
+                <div className="flex-1 flex items-center">
+                  <span className="text-white text-sm mr-1">$</span>
+                  <input
+                    type="text"
+                    value={customItemPrice}
+                    readOnly
+                    onFocus={() => setActiveCustomItemField('price')}
+                    placeholder="0.00"
+                    className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Add to Order Button */}
+            <button
+              onClick={addCustomItemToOrder}
+              disabled={!customItemName.trim() || !customItemPrice}
+              className="w-full py-3 rounded-lg font-semibold text-black mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{
+                background: 'linear-gradient(180deg, #FFC107 0%, #FF9800 100%)'
+              }}
+            >
+              <Plus className="w-4 h-4" />
+              Add to Order
+              {customItemPrice && <span className="ml-2">${parseFloat(customItemPrice).toFixed(2)}</span>}
+            </button>
+
+            {/* Numpad */}
+            <div className="grid grid-cols-3 gap-2 flex-1">
+              {['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((num) => (
+                <button
+                  key={num}
+                  onClick={() => handleCustomItemNumpadClick(num)}
+                  className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
+                >
+                  {num}
+                </button>
+              ))}
+              <button
+                onClick={() => handleCustomItemNumpadClick('clear')}
+                className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-lg font-medium py-4 transition-colors"
+              >
+                Clear
+              </button>
+              <button
+                onClick={() => handleCustomItemNumpadClick('0')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
+              >
+                0
+              </button>
+              <button
+                onClick={() => handleCustomItemNumpadClick('.')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
+              >
+                .
+              </button>
+            </div>
+            
+            {/* Backspace Button */}
+            <button
+              onClick={() => handleCustomItemNumpadClick('backspace')}
+              className="w-full mt-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors"
+            >
+              <Delete className="w-5 h-5 text-white" />
+            </button>
+          </div>
+        ) : showInlineCustomization && selectedItemForCustomization ? (
+          <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
             <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />
-          </div> : <>
+          </div>
+        ) : <>
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Desktop Search Button - Top Right Corner */}
@@ -6784,9 +6948,14 @@ const Orders = () => {
             
             <div className="flex items-center gap-1.5 mb-2">
               <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide gap-1.5">
-                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
+                  onClick={toggleCustomItemPanel}
+                >
                   <img src={customItemIcon} alt="" className="w-3 h-3" />
-                  Custom Item
+                  {showCustomItemPanel ? "Menu" : "Custom Item"}
                 </Button>
                 <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />

@@ -5,14 +5,14 @@ import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
 import { toast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-import logoIcon from "@/assets/icons/logo.png";
+import bbLogo from "@/assets/icons/bb-logo.png";
 import dashboardIcon from "@/assets/icons/dashboard.png";
 import orderIcon from "@/assets/icons/order.png";
 import tableManagementIcon from "@/assets/icons/table-management.png";
 import ticketIcon from "@/assets/icons/ticket.png";
 import versionIcon from "@/assets/icons/version.png";
 
-const logoItem = { title: "Home", url: "/home", icon: logoIcon, isLogo: true };
+const logoItem = { title: "Home", url: "/home", icon: bbLogo, isLogo: true };
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: dashboardIcon },

@@ -12,13 +12,12 @@ import tableManagementIcon from "@/assets/icons/table-management.png";
 import ticketIcon from "@/assets/icons/ticket.png";
 import versionIcon from "@/assets/icons/version.png";
 
-const logoItem = { title: "Home", url: "/home", icon: bbLogo, isLogo: true };
-
 const menuItems = [
   { title: "Dashboard", url: "/", icon: dashboardIcon },
   { title: "Orders", url: "/orders", icon: orderIcon },
   { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
   { title: "Tickets", url: "/tickets", icon: ticketIcon },
+  { title: "Home", url: "/home", icon: bbLogo },
   { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Settings, isGlass: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
@@ -224,19 +223,6 @@ export function DraggableSidebar() {
             </Tooltip>
           </div>
 
-          {/* Logo */}
-          <div className={`flex items-center justify-center ${isHorizontal ? 'h-full w-14' : 'h-14 w-full'} shrink-0`}>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center cursor-pointer">
-                  <img src={logoItem.icon} alt={logoItem.title} className="w-10 h-10" />
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side={tooltipSide} className="bg-neutral-800 text-white border-neutral-700">
-                {logoItem.title}
-              </TooltipContent>
-            </Tooltip>
-          </div>
 
           {/* Menu items */}
           {menuItems.map((item) => (

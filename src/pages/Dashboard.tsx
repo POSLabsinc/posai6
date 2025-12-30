@@ -375,50 +375,49 @@ const Dashboard = () => {
 
   return (
     <div className="h-full flex flex-col bg-black text-white overflow-hidden p-3 gap-3">
-      {/* ROW 1: Date Filters + Stats/Insights */}
-      <div className="flex flex-col gap-2 flex-shrink-0">
-        {/* Date Filters */}
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4 text-white/60" />
-            <Select value={dateFilter} onValueChange={setDateFilter}>
-              <SelectTrigger 
-                className="h-8 px-3 border-0 text-sm text-white"
-                style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-neutral-800 border-neutral-700">
-                {dateFilters.map((filter) => (
-                  <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
-                    {filter}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <span className="text-white/40 text-sm">vs</span>
-          <div className="flex items-center gap-2">
-            <Select value={compareDate} onValueChange={setCompareDate}>
-              <SelectTrigger 
-                className="h-8 px-3 border-0 text-sm text-white"
-                style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-neutral-800 border-neutral-700">
-                {dateFilters.map((filter) => (
-                  <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
-                    {filter}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+      {/* ROW 1: Date Filters (Vertical) + Stats/Insights */}
+      <div className="flex gap-3 flex-shrink-0 items-stretch">
+        {/* Date Filters - Vertical */}
+        <div 
+          className="flex flex-col gap-2 p-3 rounded-xl items-center justify-center"
+          style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+        >
+          <Calendar className="w-4 h-4 text-white/60" />
+          <Select value={dateFilter} onValueChange={setDateFilter}>
+            <SelectTrigger 
+              className="h-7 px-2 border-0 text-xs text-white w-[90px]"
+              style={{ background: "#5555554D" }}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-neutral-800 border-neutral-700">
+              {dateFilters.map((filter) => (
+                <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
+                  {filter}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <span className="text-white/40 text-xs">vs</span>
+          <Select value={compareDate} onValueChange={setCompareDate}>
+            <SelectTrigger 
+              className="h-7 px-2 border-0 text-xs text-white w-[90px]"
+              style={{ background: "#5555554D" }}
+            >
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent className="bg-neutral-800 border-neutral-700">
+              {dateFilters.map((filter) => (
+                <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
+                  {filter}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
 
         {/* Stats/Insights Row */}
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+        <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
           {stats.map((stat, index) => (
             <div
               key={index}

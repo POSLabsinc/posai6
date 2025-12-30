@@ -226,9 +226,9 @@ const OrdersA = () => {
   const total = subtotal - discount + serviceCharge + tax;
 
   return (
-    <div className="flex flex-col lg:flex-row h-full overflow-hidden gap-1 md:gap-2 p-1 md:p-2">
-      {/* Top Categories Bar - Tablet Only */}
-      <div className="lg:hidden bg-neutral-900 rounded-xl p-2 flex-shrink-0">
+    <div className="flex flex-col md:flex-row h-full overflow-hidden gap-1 md:gap-2 p-1 md:p-2">
+      {/* Top Categories Bar - Mobile Only */}
+      <div className="md:hidden bg-neutral-900 rounded-xl p-2 flex-shrink-0">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {foodTruckCategories.map(category => (
             <Button
@@ -251,10 +251,10 @@ const OrdersA = () => {
         </div>
       </div>
 
-      {/* Main Content - Vertical on Tablet, Horizontal on Desktop */}
-      <div className="flex flex-col lg:flex-row flex-1 gap-1 md:gap-2 overflow-hidden">
-        {/* Left Sidebar - Categories (Desktop Only) */}
-        <div className="hidden lg:flex flex-col bg-neutral-900 rounded-xl w-48">
+      {/* Main Content - Horizontal on Tablet & Desktop */}
+      <div className="flex flex-col md:flex-row flex-1 gap-1 md:gap-2 overflow-hidden">
+        {/* Left Sidebar - Categories (Tablet & Desktop) */}
+        <div className="hidden md:flex flex-col bg-neutral-900 rounded-xl w-48">
           {/* Food Truck Header */}
           <div className="p-3 border-b border-neutral-700">
             <h2 className="text-white font-bold text-sm">
@@ -368,7 +368,7 @@ const OrdersA = () => {
             </div>
 
             {/* Tablet & Desktop: Card layout with images */}
-            <div className="hidden md:grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="hidden md:grid md:grid-cols-3 gap-3">
               {menuItems
                 .filter(item => !searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase()))
                 .map((item, index) => (
@@ -407,12 +407,12 @@ const OrdersA = () => {
           </ScrollArea>
         </div>
 
-        {/* Right Panel - Order (Bottom on Tablet, Right on Desktop) */}
-        <div className="lg:w-80 flex flex-col lg:flex-col bg-neutral-900 rounded-xl overflow-hidden flex-1 min-h-0">
-          {/* Horizontal layout for tablet order panel */}
-          <div className="flex lg:flex-col flex-1 overflow-hidden">
-            {/* Left side - Order Header, Type, Notes (Tablet) / Top section (Desktop) */}
-            <div className="flex flex-col lg:flex-col flex-shrink-0 lg:flex-shrink lg:w-auto w-1/3 border-r lg:border-r-0 border-neutral-700">
+        {/* Right Panel - Order */}
+        <div className="md:w-80 flex flex-col bg-neutral-900 rounded-xl overflow-hidden flex-1 min-h-0">
+          {/* Vertical layout for tablet and desktop order panel */}
+          <div className="flex flex-col flex-1 overflow-hidden">
+            {/* Top section - Order Header, Type, Notes */}
+            <div className="flex flex-col flex-shrink-0">
               {/* Order Header with Name, Order Number, Time */}
               <div className="px-2 md:px-3 py-1.5 md:py-2 border-b border-neutral-700">
                 <div className="flex items-center text-[10px] md:text-xs gap-1.5 md:gap-2">
@@ -475,7 +475,7 @@ const OrdersA = () => {
               </div>
 
               {/* Order Notes */}
-              <div className="p-2 md:p-3 lg:border-b border-neutral-700">
+              <div className="p-2 md:p-3 border-b border-neutral-700">
                 <div className="flex items-center gap-1.5 md:gap-2 bg-neutral-800 rounded-lg px-2 md:px-3 py-1.5 md:py-2">
                   <img src={itemNotesIcon} alt="Notes" className="w-3 h-3 md:w-4 md:h-4" />
                   <input
@@ -489,7 +489,7 @@ const OrdersA = () => {
               </div>
             </div>
 
-            {/* Right side - Order Items (Tablet) / Middle section (Desktop) */}
+            {/* Order Items */}
             <ScrollArea className="flex-1 p-2 md:p-3">
               {orderItems.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-full py-4 md:py-6 lg:py-8">

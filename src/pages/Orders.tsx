@@ -6761,11 +6761,8 @@ const Orders = () => {
               <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap">
                 Register
               </Button>
-              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap">
-                Gift
-              </Button>
               <Button variant="secondary" size="icon" className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border">
-                <Plus className="w-3 h-3" />
+                <MoreVertical className="w-3 h-3" />
               </Button>
             </div>
           </div>

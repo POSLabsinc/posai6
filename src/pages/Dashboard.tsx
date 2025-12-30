@@ -270,11 +270,11 @@ const OrderPanelContent = ({ selectedOrder, orderItems, subtotal, total, phoneIc
       <div className="px-2 py-3">
         <div className="flex items-center justify-between mb-2">
           <span className="text-white font-medium flex-1">{selectedOrder?.guest || "GUEST NAME"}</span>
-          <div className="flex items-center gap-1 text-white/50 text-sm flex-1 justify-center">
+          <div className="flex items-center gap-1 text-white/50 text-[10px] flex-1 justify-center whitespace-nowrap">
             <img src={phoneIcon} alt="phone" className="w-3 h-3 opacity-60" />
             <span>(XXX) XXX-XXXX</span>
           </div>
-          <div className="flex items-center gap-1 text-white/50 text-sm flex-1 justify-end">
+          <div className="flex items-center gap-1 text-white/50 text-[10px] flex-1 justify-end whitespace-nowrap">
             <span>⚡</span>
             <span>{selectedOrder?.arrivedAt || "12:30 PM"}</span>
           </div>

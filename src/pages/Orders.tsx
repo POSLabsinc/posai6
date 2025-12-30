@@ -6895,41 +6895,39 @@ const Orders = () => {
             {/* Right Side Actions Sidebar */}
             {isOrderActionsSidebarOpen && (
               <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
-                <div className="flex-1 flex flex-col rounded-lg" style={{
-                  background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)',
+                <div className="flex-1 flex flex-col rounded-2xl p-1.5 gap-1" style={{
+                  background: '#7575754D',
                   boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
                 }}>
                   {/* Action Buttons */}
-                  <div className="flex-1 flex flex-col items-center py-2 gap-2 overflow-y-auto">
-                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                      <Gift className="w-5 h-5 text-white" />
-                      <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
-                    </button>
-                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                      <DollarSign className="w-5 h-5 text-white" />
-                      <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
-                    </button>
-                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                      <UserPlus className="w-5 h-5 text-white" />
-                      <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
-                    </button>
-                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                      <FolderOpen className="w-5 h-5 text-white" />
-                      <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
-                    </button>
-                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                      <AlertCircle className="w-5 h-5 text-white" />
-                      <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
-                    </button>
-                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                      <SplitSquareVertical className="w-5 h-5 text-white" />
-                      <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
-                    </button>
-                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                      <RotateCcw className="w-5 h-5 text-white" />
-                      <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
-                    </button>
-                  </div>
+                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    <Gift className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
+                  </button>
+                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    <DollarSign className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
+                  </button>
+                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    <UserPlus className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
+                  </button>
+                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    <FolderOpen className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
+                  </button>
+                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    <AlertCircle className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
+                  </button>
+                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    <SplitSquareVertical className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
+                  </button>
+                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    <RotateCcw className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
+                  </button>
                 </div>
               </div>
             )}

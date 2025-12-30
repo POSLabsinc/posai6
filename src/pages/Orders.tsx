@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star } from "lucide-react";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
@@ -5586,7 +5586,23 @@ const orderTypes = [
   { label: "CUSTOM", icon: customOrderIcon }
 ];
 
-// Mock user data for guest name dropdown
+// Discount types data
+interface DiscountType {
+  id: string;
+  name: string;
+  description: string;
+  percentage: number;
+  icon: 'briefcase' | 'heart' | 'graduation' | 'shield' | 'star';
+}
+
+const discountTypes: DiscountType[] = [
+  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
+  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
+  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
+  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
+  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
+];
+
 interface GuestUser {
   id: number;
   name: string;
@@ -5999,6 +6015,8 @@ const Orders = () => {
   const [customItemPrice, setCustomItemPrice] = useState("");
   const [activeCustomItemField, setActiveCustomItemField] = useState<'name' | 'price'>('price');
   const [isShiftActive, setIsShiftActive] = useState(false);
+  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
+  const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
     id: number;
     name: string;
@@ -6392,10 +6410,12 @@ const Orders = () => {
     setActiveSubcategory(firstSubcategory);
   };
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const discount = 0.00;
+  const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
+  const discountPercentage = selectedDiscount?.percentage || 0;
+  const discount = subtotal * (discountPercentage / 100);
   const serviceCharge = 0.00;
   const taxRate = 0.02;
-  const tax = subtotal * taxRate;
+  const tax = (subtotal - discount) * taxRate;
   const total = subtotal - discount + serviceCharge + tax;
   
   // Calculate new items total for add-item mode when existing order is paid
@@ -6465,7 +6485,12 @@ const Orders = () => {
                 <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-4 h-4" />
                 {showCustomItemPanel ? "Menu" : "Custom Item"}
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap"
+                onClick={() => setShowDiscountDialog(true)}
+              >
                 Discount
               </Button>
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
@@ -7063,7 +7088,12 @@ const Orders = () => {
                   <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-3 h-3" />
                   {showCustomItemPanel ? "Menu" : "Custom Item"}
                 </Button>
-                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
+                  onClick={() => setShowDiscountDialog(true)}
+                >
                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />
                   Discount
                 </Button>
@@ -7250,6 +7280,71 @@ const Orders = () => {
 
       {/* Item Customization Dialog */}
       <ItemCustomizationDialog open={customizationDialogOpen} onOpenChange={setCustomizationDialogOpen} item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={addToCartWithModifiers} />
+
+      {/* Discount Dialog */}
+      {showDiscountDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+              <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
+              <button 
+                onClick={() => setShowDiscountDialog(false)}
+                className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-neutral-400" />
+              </button>
+            </div>
+
+            {/* Discount Options */}
+            <div className="p-2 space-y-2">
+              {discountTypes.map((discountType) => {
+                const discountAmount = subtotal * (discountType.percentage / 100);
+                const isSelected = selectedDiscountId === discountType.id;
+                
+                return (
+                  <button
+                    key={discountType.id}
+                    onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
+                    className={`w-full flex items-center gap-4 p-4 rounded-lg transition-colors ${
+                      isSelected 
+                        ? 'bg-orange-500/20 border border-orange-500' 
+                        : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
+                    }`}
+                  >
+                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+                      isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
+                    }`}>
+                      {discountType.icon === 'briefcase' && <Briefcase className="w-5 h-5 text-neutral-400" />}
+                      {discountType.icon === 'heart' && <Heart className="w-5 h-5 text-neutral-400" />}
+                      {discountType.icon === 'graduation' && <GraduationCap className="w-5 h-5 text-neutral-400" />}
+                      {discountType.icon === 'shield' && <Shield className="w-5 h-5 text-neutral-400" />}
+                      {discountType.icon === 'star' && <Star className="w-5 h-5 text-neutral-400" />}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-white font-medium">{discountType.name}</div>
+                      <div className="text-neutral-400 text-sm">{discountType.description}</div>
+                    </div>
+                    <div className="text-red-400 font-medium">
+                      -${discountAmount.toFixed(2)}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Apply Button */}
+            <div className="p-4 border-t border-neutral-700">
+              <button
+                onClick={() => setShowDiscountDialog(false)}
+                className="w-full py-3 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>;
 };
 export default Orders;

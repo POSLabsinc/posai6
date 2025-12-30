@@ -1,4 +1,5 @@
 import { useState, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import { Check, ChevronDown, Clock, Calendar, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -414,6 +415,7 @@ const OrderPanelContent = ({ selectedOrder, orderItems, subtotal, total, phoneIc
 
 
 const Dashboard = () => {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState<typeof mockOrders[0] | null>(mockOrders[0]);
   const [dateFilter, setDateFilter] = useState("Today");
@@ -662,14 +664,20 @@ const Dashboard = () => {
                         <button 
                           className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
                           style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/tableorder/T${order.seats}/merge?orderId=${order.id}`);
+                          }}
                         >
                           <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
                         </button>
                         <button 
                           className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
                           style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                          onClick={(e) => e.stopPropagation()}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            navigate(`/tableorder/T${order.seats}/transfer?orderId=${order.id}`);
+                          }}
                         >
                           <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
                         </button>

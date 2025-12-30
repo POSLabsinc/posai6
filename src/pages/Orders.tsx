@@ -6747,8 +6747,8 @@ const Orders = () => {
             </div>
           </div>
           
-          <div className="flex items-center justify-between gap-1.5 mb-2">
-            <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
+          <div className="flex items-center gap-1.5 mb-2">
+            <div className="flex items-center gap-1.5 flex-1 overflow-x-auto scrollbar-hide">
               <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap">
                 Custom Item
               </Button>

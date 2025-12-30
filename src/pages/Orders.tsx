@@ -6023,6 +6023,8 @@ const Orders = () => {
   const [customItemPrice, setCustomItemPrice] = useState("");
   const [activeCustomItemField, setActiveCustomItemField] = useState<'name' | 'price'>('price');
   const [isShiftActive, setIsShiftActive] = useState(false);
+  const [showNoTaxDialog, setShowNoTaxDialog] = useState(false);
+  const [isTaxExempt, setIsTaxExempt] = useState(false);
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
@@ -6424,7 +6426,7 @@ const Orders = () => {
     : 0;
   const serviceCharge = 0.00;
   const taxRate = 0.02;
-  const tax = (subtotal - discount) * taxRate;
+  const tax = isTaxExempt ? 0 : (subtotal - discount) * taxRate;
   const total = subtotal - discount + serviceCharge + tax;
   
   // Calculate new items total for add-item mode when existing order is paid
@@ -6502,7 +6504,12 @@ const Orders = () => {
               >
                 Discount
               </Button>
-              <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className={`text-xs rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-7 px-3 whitespace-nowrap`}
+                onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
+              >
                 No Tax
               </Button>
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
@@ -7106,7 +7113,12 @@ const Orders = () => {
                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />
                   Discount
                 </Button>
-                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className={`text-[10px] rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
+                  onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
+                >
                   <img src={noTaxBtnIcon} alt="" className="w-3 h-3" />
                   No Tax
                 </Button>
@@ -7358,6 +7370,35 @@ const Orders = () => {
                 className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
               >
                 Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* No Tax Confirmation Dialog */}
+      {showNoTaxDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-[300px] mx-4 overflow-hidden animate-scale-in">
+            <div className="p-6 text-center">
+              <h2 className="text-white text-lg font-semibold mb-2">Disable Tax?</h2>
+              <p className="text-neutral-400 text-sm">Are you sure you want to remove tax from this order?</p>
+            </div>
+            <div className="flex border-t border-neutral-700">
+              <button
+                onClick={() => setShowNoTaxDialog(false)}
+                className="flex-1 py-3 text-white font-medium hover:bg-neutral-800 transition-colors border-r border-neutral-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setIsTaxExempt(true);
+                  setShowNoTaxDialog(false);
+                }}
+                className="flex-1 py-3 text-orange-500 font-medium hover:bg-neutral-800 transition-colors"
+              >
+                Remove
               </button>
             </div>
           </div>

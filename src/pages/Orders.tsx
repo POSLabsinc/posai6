@@ -6708,7 +6708,9 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order (Desktop only) */}
-      <div className={`hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0 pb-2 pr-2 relative ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
+      <div className={`hidden md:flex w-[280px] lg:w-[345px] flex-row overflow-hidden flex-shrink-0 pb-2 pr-2 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
+        {/* Main Order Content */}
+        <div className={`flex-1 flex flex-col overflow-hidden transition-all duration-300 ${isActionSidebarOpen ? 'mr-0' : ''}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center text-xs mb-2 gap-2">
@@ -6773,42 +6775,6 @@ const Orders = () => {
             </Button>
           </div>
         </div>
-
-        {/* Action Sidebar */}
-        {isActionSidebarOpen && (
-          <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col items-center py-3 gap-2 z-10 border-l border-sidebar-border" style={{
-            background: 'linear-gradient(180deg, #4D4D4D 0%, #3D3D3D 100%)'
-          }}>
-            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
-              <Gift className="w-5 h-5 text-white" />
-              <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
-            </button>
-            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
-              <DollarSign className="w-5 h-5 text-white" />
-              <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
-            </button>
-            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
-              <UserPlus className="w-5 h-5 text-white" />
-              <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
-            </button>
-            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
-              <ClipboardList className="w-5 h-5 text-white" />
-              <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
-            </button>
-            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
-              <Settings className="w-5 h-5 text-white" />
-              <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
-            </button>
-            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
-              <GitFork className="w-5 h-5 text-white" />
-              <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
-            </button>
-            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
-              <ListRestart className="w-5 h-5 text-white" />
-              <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
-            </button>
-          </div>
-        )}
 
         {/* Background Container for Order Content */}
         <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{
@@ -6923,6 +6889,43 @@ const Orders = () => {
         </div>
         )}
         </div>
+        </div>
+        
+        {/* Action Sidebar */}
+        {isActionSidebarOpen && (
+          <div className="w-16 flex flex-col items-center py-3 gap-2 flex-shrink-0 border-l border-sidebar-border animate-slide-in-right" style={{
+            background: 'linear-gradient(180deg, #4D4D4D 0%, #3D3D3D 100%)'
+          }}>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <Gift className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <DollarSign className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <UserPlus className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <ClipboardList className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <Settings className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <GitFork className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <ListRestart className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
+            </button>
+          </div>
+        )}
       </div>
 
 

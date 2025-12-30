@@ -6771,7 +6771,7 @@ const Orders = () => {
                 className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0"
                 onClick={() => setIsOrderActionsSidebarOpen(!isOrderActionsSidebarOpen)}
               >
-                <MoreVertical className="w-3 h-3" />
+                {isOrderActionsSidebarOpen ? <X className="w-3 h-3" /> : <MoreVertical className="w-3 h-3" />}
               </Button>
             </div>
           </div>
@@ -6899,16 +6899,6 @@ const Orders = () => {
                   background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)',
                   boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
                 }}>
-                  {/* Close Button */}
-                  <div className="flex justify-center pt-2 pb-1">
-                    <button 
-                      onClick={() => setIsOrderActionsSidebarOpen(false)}
-                      className="w-6 h-6 rounded-full bg-neutral-600 hover:bg-neutral-500 flex items-center justify-center transition-colors"
-                    >
-                      <X className="w-3 h-3 text-white" />
-                    </button>
-                  </div>
-                  
                   {/* Action Buttons */}
                   <div className="flex-1 flex flex-col items-center py-2 gap-2 overflow-y-auto">
                     <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">

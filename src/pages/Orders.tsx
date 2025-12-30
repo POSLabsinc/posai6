@@ -55,6 +55,7 @@ import curbSideIcon from "@/assets/icons/curb-side.svg";
 import scheduledIcon from "@/assets/icons/scheduled.svg";
 import phoneInIcon from "@/assets/icons/phone-in.svg";
 import customOrderIcon from "@/assets/icons/custom-order.svg";
+import menuIcon from "@/assets/icons/menu-icon.svg";
 import tableOrderIcon from "@/assets/icons/table-order.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
 import settingsIcon from "@/assets/icons/settings.png";
@@ -6458,9 +6459,10 @@ const Orders = () => {
               <Button 
                 variant="secondary" 
                 size="sm" 
-                className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap"
+                className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5"
                 onClick={toggleCustomItemPanel}
               >
+                <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-4 h-4" />
                 {showCustomItemPanel ? "Menu" : "Custom Item"}
               </Button>
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
@@ -7058,7 +7060,7 @@ const Orders = () => {
                   className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
                   onClick={toggleCustomItemPanel}
                 >
-                  <img src={customItemIcon} alt="" className="w-3 h-3" />
+                  <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-3 h-3" />
                   {showCustomItemPanel ? "Menu" : "Custom Item"}
                 </Button>
                 <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">

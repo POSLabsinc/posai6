@@ -238,6 +238,11 @@ const mockTables = [
   { id: "T15", seats: 2, status: "Available", statusColor: "#6B7280" },
 ];
 
+// Import additional icons for order panel
+import seatIcon from "@/assets/icons/seat-icon.png";
+import splitIcon from "@/assets/icons/split-icon.png";
+import clearIcon from "@/assets/icons/clear-c.png";
+
 // Order Panel Content Component
 interface OrderPanelContentProps {
   selectedOrder: typeof mockOrders[0] | null;
@@ -248,95 +253,164 @@ interface OrderPanelContentProps {
   timeIcon: string;
   itemNotesIcon: string;
   fireIcon: string;
+  selectedSeats: number[];
+  toggleSeat: (seat: number) => void;
 }
 
-const OrderPanelContent = ({ selectedOrder, orderItems, subtotal, total, phoneIcon, timeIcon, itemNotesIcon, fireIcon }: OrderPanelContentProps) => (
-  <>
-    {/* Guest Header */}
-    <div className="px-3 py-2 border-b border-white/10">
-      <div className="flex items-center justify-between flex-wrap gap-2">
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium">{selectedOrder?.guest || "GUEST NAME"}</span>
-        </div>
-        <div className="flex items-center gap-3 text-xs text-white/60">
-          <div className="flex items-center gap-1">
-            <img src={phoneIcon} alt="phone" className="w-3 h-3 opacity-60" />
-            <span>(XXX) XXX-XXXX</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <img src={timeIcon} alt="time" className="w-3 h-3 opacity-60" />
-            <span>12:30 PM</span>
-          </div>
-        </div>
-      </div>
-    </div>
+const OrderPanelContent = ({ selectedOrder, orderItems, subtotal, total, phoneIcon, timeIcon, itemNotesIcon, fireIcon, selectedSeats, toggleSeat }: OrderPanelContentProps) => {
+  const tax = subtotal * 0.02;
+  const serviceCharge = subtotal * 0.1;
+  const discount = 0;
+  const finalTotal = subtotal + tax + serviceCharge - discount;
 
-    {/* Order Notes */}
-    <div className="px-3 py-2 border-b border-white/10">
-      <div 
-        className="flex items-center gap-2 rounded-lg px-3 py-2"
-        style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-      >
-        <img src={itemNotesIcon} alt="notes" className="w-4 h-4 opacity-60" />
-        <span className="text-xs text-amber-400">No Onions, Extra Tomato Sauce</span>
-      </div>
-    </div>
-
-    {/* Order Items */}
-    <ScrollArea className="flex-1 px-3 py-2 max-h-[300px] md:max-h-none">
-      <div className="space-y-2">
-        {orderItems.map((item, index) => (
-          <div
-            key={index}
-            className="p-2 border border-white/10 rounded-lg"
-            style={{ background: "linear-gradient(180deg, #4D4D4D 0%, #616161 100%)" }}
-          >
-            <div className="flex items-center gap-3">
-              <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
-                {item.qty}
-              </span>
-              <span className="flex-1 text-sm font-medium">{item.name}</span>
-              <span className="text-sm font-medium">$ {item.price.toFixed(2)}</span>
+  return (
+    <>
+      {/* Guest Header - Outside the box */}
+      <div className="px-2 py-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-white font-medium">{selectedOrder?.guest || "GUEST NAME"}</span>
+          <div className="flex items-center gap-3 text-white/50 text-sm">
+            <div className="flex items-center gap-1">
+              <img src={phoneIcon} alt="phone" className="w-3 h-3 opacity-60" />
+              <span>(XXX) XXX-XXXX</span>
+            </div>
+            <div className="flex items-center gap-1">
+              <span>⚡</span>
+              <span>{selectedOrder?.arrivedAt || "12:30 PM"}</span>
             </div>
           </div>
-        ))}
-      </div>
-    </ScrollArea>
-
-    {/* Order Summary */}
-    <div className="px-3 py-2 border-t border-white/10">
-      <div 
-        className="text-xs rounded-lg px-3 py-2 space-y-1"
-        style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-      >
-        <div className="flex justify-between">
-          <span className="text-white/50">Sub Total</span>
-          <span>$ {subtotal.toFixed(2)}</span>
         </div>
-        <div className="flex justify-between">
-          <span className="text-white/50">Tax (2%)</span>
-          <span>$ {(subtotal * 0.02).toFixed(2)}</span>
+        <div className="flex gap-2">
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Add Item
+          </button>
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Discount
+          </button>
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Receipt
+          </button>
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Cash Register
+          </button>
         </div>
       </div>
-    </div>
 
-    {/* Action Buttons */}
-    <div className="px-3 py-2 flex items-center gap-2">
-      <button
-        className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
-        style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
-      >
-        <img src={fireIcon} alt="fire" className="w-4 h-4" />
-      </button>
-      <button
-        className="flex-1 h-8 rounded-full text-sm font-medium text-black flex items-center justify-center"
-        style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-      >
-        CHARGE $ {total.toFixed(2)}
-      </button>
-    </div>
-  </>
-);
+      {/* Main Panel Box */}
+      <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{
+        background: "#7575754D",
+        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+      }}>
+        {/* Table Order Info */}
+        <div className="px-4 py-3 border-b border-white/10">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2">
+              <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
+              <span className="text-white font-bold">{selectedOrder?.id || "—"}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-white/50 text-sm">DUSTIN H</span>
+            </div>
+          </div>
+          
+          {/* Seat Buttons */}
+          <div className="flex items-center gap-2">
+            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={seatIcon} alt="Seat" className="w-4 h-4" />
+            </button>
+            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={splitIcon} alt="Split" className="w-4 h-4" />
+            </button>
+            {[1, 2, 3, 4].map(seat => (
+              <button 
+                key={seat} 
+                onClick={() => toggleSeat(seat)} 
+                className={`w-7 h-7 rounded text-sm font-medium transition-colors ${
+                  selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"
+                }`}
+              >
+                {seat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Notes */}
+        <div className="px-4 py-3 border-b border-white/10">
+          <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
+            <span>📝</span>
+            <span className="text-amber-400">No Onions, Extra Tomato Sauce</span>
+          </div>
+        </div>
+
+        {/* Order Items */}
+        <ScrollArea className="flex-1 px-4 max-h-[300px] md:max-h-none">
+          <div className="py-2 space-y-2">
+            {orderItems.map((item, index) => (
+              <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-2">
+                    <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                      {item.qty}
+                    </span>
+                    <div>
+                      <span className="text-white font-medium">{item.name}</span>
+                    </div>
+                  </div>
+                  <span className="text-white font-medium">$ {item.price.toFixed(2)}</span>
+                </div>
+                {/* Seat indicators */}
+                <div className="flex items-center gap-1 mt-2">
+                  <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                  {[1, 2].map(seat => (
+                    <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                      {seat}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </ScrollArea>
+
+        {/* Order Summary - Compact Mode */}
+        <div className="p-2 border-t border-white/10 flex-shrink-0">
+          <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
+            background: '#7575754D',
+            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+          }}>
+            <div className="flex justify-between gap-3">
+              <span className="text-white">Sub Total: <span className="font-medium">$ {subtotal.toFixed(2)}</span></span>
+              <span className="text-red-500">Discount: <span className="font-medium">$ {discount.toFixed(2)}</span></span>
+            </div>
+            <div className="flex justify-between gap-3">
+              <span className="text-white">Service Charge: <span className="font-medium">$ {serviceCharge.toFixed(2)}</span></span>
+              <span className="text-white">Tax: <span className="font-medium">$ {tax.toFixed(2)}</span></span>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Actions */}
+        <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
+          <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+            <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+          </button>
+          <button className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium" style={{
+            background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+          }}>
+            <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+            <span>FIRE</span>
+          </button>
+          <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{
+            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+          }}>
+            CHARGE $ {finalTotal.toFixed(2)}
+          </button>
+        </div>
+      </div>
+    </>
+  );
+};
 
 
 const Dashboard = () => {
@@ -345,10 +419,15 @@ const Dashboard = () => {
   const [dateFilter, setDateFilter] = useState("Today");
   const [compareDate, setCompareDate] = useState("Yesterday");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const isMobile = useIsMobile();
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = subtotal;
+
+  const toggleSeat = (seat: number) => {
+    setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
+  };
 
   // Filter orders based on active filter
   const filteredOrders = useMemo(() => {
@@ -653,6 +732,8 @@ const Dashboard = () => {
             timeIcon={timeIcon}
             itemNotesIcon={itemNotesIcon}
             fireIcon={fireIcon}
+            selectedSeats={selectedSeats}
+            toggleSeat={toggleSeat}
           />
         </div>
       </div>
@@ -673,6 +754,8 @@ const Dashboard = () => {
               timeIcon={timeIcon}
               itemNotesIcon={itemNotesIcon}
               fireIcon={fireIcon}
+              selectedSeats={selectedSeats}
+              toggleSeat={toggleSeat}
             />
           </div>
         </DrawerContent>

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, ClipboardList, Settings, GitFork, ListRestart } from "lucide-react";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
@@ -5980,6 +5980,7 @@ const Orders = () => {
   const mobilePhoneInputRef = useRef<HTMLInputElement>(null);
   const mobilePhoneDropdownRef = useRef<HTMLDivElement>(null);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<number | null>(null);
+  const [isActionSidebarOpen, setIsActionSidebarOpen] = useState(false);
   
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
@@ -6707,7 +6708,7 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order (Desktop only) */}
-      <div className={`hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0 pb-2 pr-2 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
+      <div className={`hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0 pb-2 pr-2 relative ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
         {/* Order Header - Outside background container */}
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center text-xs mb-2 gap-2">
@@ -6762,11 +6763,52 @@ const Orders = () => {
                 Register
               </Button>
             </div>
-            <Button variant="secondary" size="icon" className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0">
-              <MoreVertical className="w-3 h-3" />
+            <Button 
+              variant="secondary" 
+              size="icon" 
+              className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0"
+              onClick={() => setIsActionSidebarOpen(!isActionSidebarOpen)}
+            >
+              {isActionSidebarOpen ? <X className="w-3 h-3" /> : <MoreVertical className="w-3 h-3" />}
             </Button>
           </div>
         </div>
+
+        {/* Action Sidebar */}
+        {isActionSidebarOpen && (
+          <div className="absolute right-0 top-0 bottom-0 w-16 flex flex-col items-center py-3 gap-2 z-10 border-l border-sidebar-border" style={{
+            background: 'linear-gradient(180deg, #4D4D4D 0%, #3D3D3D 100%)'
+          }}>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <Gift className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <DollarSign className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <UserPlus className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <ClipboardList className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <Settings className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <GitFork className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
+            </button>
+            <button className="flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-lg hover:bg-white/10 transition-colors">
+              <ListRestart className="w-5 h-5 text-white" />
+              <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
+            </button>
+          </div>
+        )}
 
         {/* Background Container for Order Content */}
         <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{

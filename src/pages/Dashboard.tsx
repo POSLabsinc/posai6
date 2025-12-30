@@ -448,9 +448,45 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* ROW 2: Orders + Order Panel */}
+      {/* ROW 2: Table Status - Compact */}
+      <div className="flex-shrink-0">
+        <div className="flex items-center gap-2 mb-1">
+          <button
+            className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded"
+            style={{ background: "#7575754D" }}
+          >
+            First Floor <ChevronDown className="w-2.5 h-2.5" />
+          </button>
+          <h3 className="text-xs font-medium text-white/60">Table Status</h3>
+        </div>
+        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
+          {mockTables.map((table, index) => (
+            <div
+              key={index}
+              className="flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5"
+              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-base font-bold">{table.id}</span>
+                <span className="text-[10px] text-white/50">{table.seats}S</span>
+              </div>
+              <div
+                className="text-[10px] font-medium py-1 rounded-md text-center w-full"
+                style={{ 
+                  backgroundColor: table.statusColor,
+                  color: table.status === "Available" ? "#fff" : "#000"
+                }}
+              >
+                {table.status}
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ROW 3: Orders + Order Panel - Extends to bottom */}
       <div className="flex-1 flex gap-3 min-h-0 overflow-hidden">
-        {/* Left: Orders List with Scroll */}
+        {/* Left: Order Tabs + Orders List */}
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Order Filters */}
           <div className="flex gap-1.5 mb-2 overflow-x-auto scrollbar-hide flex-shrink-0">
@@ -605,7 +641,7 @@ const Dashboard = () => {
           </ScrollArea>
         </div>
 
-        {/* Right: Order Panel - Hidden on mobile, shown as drawer */}
+        {/* Right: Order Panel - Extends to bottom */}
         <div
           className="hidden md:flex w-[240px] lg:w-[345px] flex-shrink-0 rounded-xl flex-col"
           style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
@@ -643,42 +679,6 @@ const Dashboard = () => {
           </div>
         </DrawerContent>
       </Drawer>
-
-      {/* ROW 3: Table Status - Compact */}
-      <div className="flex-shrink-0">
-        <div className="flex items-center gap-2 mb-1">
-          <button
-            className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded"
-            style={{ background: "#7575754D" }}
-          >
-            First Floor <ChevronDown className="w-2.5 h-2.5" />
-          </button>
-          <h3 className="text-xs font-medium text-white/60">Table Status</h3>
-        </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-          {mockTables.map((table, index) => (
-            <div
-              key={index}
-              className="flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5"
-              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-            >
-              <div className="flex items-center justify-between">
-                <span className="text-base font-bold">{table.id}</span>
-                <span className="text-[10px] text-white/50">{table.seats}S</span>
-              </div>
-              <div
-                className="text-[10px] font-medium py-1 rounded-md text-center w-full"
-                style={{ 
-                  backgroundColor: table.statusColor,
-                  color: table.status === "Available" ? "#fff" : "#000"
-                }}
-              >
-                {table.status}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 };

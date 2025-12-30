@@ -752,10 +752,12 @@ const Dashboard = () => {
           hideHandle
           className="bg-neutral-900 border-none !inset-0 !h-[100dvh] !rounded-none !max-h-none !mt-0"
         >
-          <DrawerClose className="absolute right-4 top-4 z-10 rounded-full p-1 bg-white/10 hover:bg-white/20">
-            <X className="w-4 h-4 text-white" />
-          </DrawerClose>
-          <div className="flex flex-col h-full overflow-hidden pt-2">
+          <div className="flex items-center justify-end px-4 pt-2">
+            <DrawerClose className="rounded-full p-1 bg-white/10 hover:bg-white/20">
+              <X className="w-4 h-4 text-white" />
+            </DrawerClose>
+          </div>
+          <div className="flex flex-col h-full overflow-hidden">
             <OrderPanelContent
               selectedOrder={selectedOrder}
               orderItems={orderItems}

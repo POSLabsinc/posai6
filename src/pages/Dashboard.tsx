@@ -453,7 +453,7 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="h-full flex flex-col bg-black text-white overflow-hidden p-3 gap-3">
+    <div className="h-full flex flex-col bg-black text-white overflow-hidden px-3 pb-3 gap-3">
       {/* ROW 1: Date Filters (Vertical) + Stats/Insights */}
       <div className="flex gap-3 flex-shrink-0 items-stretch">
         {/* Date Filters - Vertical */}

@@ -226,9 +226,9 @@ const OrdersA = () => {
   const total = subtotal - discount + serviceCharge + tax;
 
   return (
-    <div className="flex flex-col md:flex-row h-full overflow-hidden gap-1 md:gap-2 p-1 md:p-2">
-      {/* Top Categories Bar - Mobile Only */}
-      <div className="md:hidden bg-neutral-900 rounded-xl p-2 flex-shrink-0">
+    <div className="flex flex-col h-full overflow-hidden gap-1 md:gap-2 p-1 md:p-2">
+      {/* Top Categories Bar - Mobile & Tablet */}
+      <div className="lg:hidden bg-neutral-900 rounded-xl p-2 flex-shrink-0">
         <div className="flex gap-2 overflow-x-auto scrollbar-hide">
           {foodTruckCategories.map(category => (
             <Button
@@ -253,8 +253,8 @@ const OrdersA = () => {
 
       {/* Main Content - Horizontal on Tablet & Desktop */}
       <div className="flex flex-col md:flex-row flex-1 gap-1 md:gap-2 overflow-hidden">
-        {/* Left Sidebar - Categories (Tablet & Desktop) */}
-        <div className="hidden md:flex flex-col bg-neutral-900 rounded-xl w-48">
+        {/* Left Sidebar - Categories (Desktop Only) */}
+        <div className="hidden lg:flex flex-col bg-neutral-900 rounded-xl w-48">
           {/* Food Truck Header */}
           <div className="p-3 border-b border-neutral-700">
             <h2 className="text-white font-bold text-sm">

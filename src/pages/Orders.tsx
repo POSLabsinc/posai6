@@ -5997,6 +5997,7 @@ const Orders = () => {
   const [customItemName, setCustomItemName] = useState("");
   const [customItemPrice, setCustomItemPrice] = useState("");
   const [activeCustomItemField, setActiveCustomItemField] = useState<'name' | 'price'>('price');
+  const [isShiftActive, setIsShiftActive] = useState(false);
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
     id: number;
     name: string;
@@ -6315,6 +6316,30 @@ const Orders = () => {
         const parts = customItemPrice.split('.');
         if (parts.length === 2 && parts[1].length >= 2) return;
         setCustomItemPrice(prev => prev + value);
+      }
+    }
+  };
+
+  const handleCustomItemKeyboardClick = (key: string) => {
+    if (activeCustomItemField === 'name') {
+      if (key === 'backspace') {
+        setCustomItemName(prev => prev.slice(0, -1));
+      } else if (key === 'clear') {
+        setCustomItemName("");
+      } else if (key === 'space') {
+        setCustomItemName(prev => prev + ' ');
+      } else if (key === 'shift') {
+        setIsShiftActive(prev => !prev);
+      } else if (key === '123') {
+        // Switch to price field when 123 is pressed
+        setActiveCustomItemField('price');
+      } else {
+        const char = isShiftActive ? key.toUpperCase() : key.toLowerCase();
+        setCustomItemName(prev => prev + char);
+        // Auto-disable shift after typing a character
+        if (isShiftActive) {
+          setIsShiftActive(false);
+        }
       }
     }
   };
@@ -6706,44 +6731,123 @@ const Orders = () => {
               {customItemPrice && <span className="ml-2">${parseFloat(customItemPrice).toFixed(2)}</span>}
             </button>
 
-            {/* Numpad */}
-            <div className="grid grid-cols-3 gap-2 flex-1">
-              {['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((num) => (
+            {/* Keyboard / Numpad */}
+            {activeCustomItemField === 'name' ? (
+              /* QWERTY Keyboard for Name */
+              <div className="flex flex-col gap-1.5 flex-1">
+                {/* Row 1: q-p */}
+                <div className="grid grid-cols-10 gap-1">
+                  {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => handleCustomItemKeyboardClick(key)}
+                      className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors"
+                    >
+                      {isShiftActive ? key.toUpperCase() : key}
+                    </button>
+                  ))}
+                </div>
+                {/* Row 2: a-l */}
+                <div className="grid grid-cols-10 gap-1">
+                  {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => handleCustomItemKeyboardClick(key)}
+                      className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors"
+                    >
+                      {isShiftActive ? key.toUpperCase() : key}
+                    </button>
+                  ))}
+                  <div /> {/* Empty space to align */}
+                </div>
+                {/* Row 3: shift, z-m, backspace */}
+                <div className="grid grid-cols-10 gap-1">
+                  <button
+                    onClick={() => handleCustomItemKeyboardClick('shift')}
+                    className={`bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors ${isShiftActive ? 'bg-blue-600 hover:bg-blue-500' : ''}`}
+                  >
+                    ⇧
+                  </button>
+                  {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => handleCustomItemKeyboardClick(key)}
+                      className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors"
+                    >
+                      {isShiftActive ? key.toUpperCase() : key}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => handleCustomItemKeyboardClick('backspace')}
+                    className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-2 flex items-center justify-center"
+                  >
+                    <Delete className="w-5 h-5" />
+                  </button>
+                </div>
+                {/* Row 4: 123, Space, Clear */}
+                <div className="grid grid-cols-6 gap-1">
+                  <button
+                    onClick={() => handleCustomItemKeyboardClick('123')}
+                    className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors"
+                  >
+                    123
+                  </button>
+                  <button
+                    onClick={() => handleCustomItemKeyboardClick('space')}
+                    className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-4"
+                  >
+                    Space
+                  </button>
+                  <button
+                    onClick={() => handleCustomItemKeyboardClick('clear')}
+                    className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-sm font-medium py-3 transition-colors"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Numpad for Price */
+              <>
+                <div className="grid grid-cols-3 gap-2 flex-1">
+                  {['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((num) => (
+                    <button
+                      key={num}
+                      onClick={() => handleCustomItemNumpadClick(num)}
+                      className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
+                    >
+                      {num}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => handleCustomItemNumpadClick('clear')}
+                    className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-lg font-medium py-4 transition-colors"
+                  >
+                    Clear
+                  </button>
+                  <button
+                    onClick={() => handleCustomItemNumpadClick('0')}
+                    className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
+                  >
+                    0
+                  </button>
+                  <button
+                    onClick={() => handleCustomItemNumpadClick('.')}
+                    className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
+                  >
+                    .
+                  </button>
+                </div>
+                
+                {/* Backspace Button */}
                 <button
-                  key={num}
-                  onClick={() => handleCustomItemNumpadClick(num)}
-                  className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
+                  onClick={() => handleCustomItemNumpadClick('backspace')}
+                  className="w-full mt-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors"
                 >
-                  {num}
+                  <Delete className="w-5 h-5 text-white" />
                 </button>
-              ))}
-              <button
-                onClick={() => handleCustomItemNumpadClick('clear')}
-                className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-lg font-medium py-4 transition-colors"
-              >
-                Clear
-              </button>
-              <button
-                onClick={() => handleCustomItemNumpadClick('0')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
-              >
-                0
-              </button>
-              <button
-                onClick={() => handleCustomItemNumpadClick('.')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
-              >
-                .
-              </button>
-            </div>
-            
-            {/* Backspace Button */}
-            <button
-              onClick={() => handleCustomItemNumpadClick('backspace')}
-              className="w-full mt-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors"
-            >
-              <Delete className="w-5 h-5 text-white" />
-            </button>
+              </>
+            )}
           </div>
         ) : showInlineCustomization && selectedItemForCustomization ? (
           <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">

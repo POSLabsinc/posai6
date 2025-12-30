@@ -6774,13 +6774,11 @@ const Orders = () => {
           </div>
         </div>
 
-        {/* Background Container for Order Content with Inline Sidebar */}
-        <div className="flex-1 flex rounded-lg overflow-hidden min-h-0 gap-0">
-          {/* Order Content */}
-          <div className="flex-1 flex flex-col min-h-0" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-          }}>
+        {/* Background Container for Order Content */}
+        <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{
+          background: '#7575754D',
+          boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+        }}>
           {/* Order Type & Guest Info */}
           <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
             <div className="flex items-center gap-2">
@@ -6889,59 +6887,59 @@ const Orders = () => {
         </div>
         )}
         </div>
-
-          {/* Inline Actions Sidebar */}
-          {isOrderActionsSidebarOpen && (
-            <div className="w-[70px] flex flex-col rounded-r-lg" style={{
-              background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)',
-              boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-            }}>
-              {/* Close Button */}
-              <div className="flex justify-center pt-2 pb-1">
-                <button 
-                  onClick={() => setIsOrderActionsSidebarOpen(false)}
-                  className="w-6 h-6 rounded-full bg-neutral-600 hover:bg-neutral-500 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-3 h-3 text-white" />
-                </button>
-              </div>
-              
-              {/* Action Buttons */}
-              <div className="flex-1 flex flex-col items-center py-2 gap-2 overflow-y-auto">
-                <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                  <Gift className="w-5 h-5 text-white" />
-                  <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
-                </button>
-                <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                  <DollarSign className="w-5 h-5 text-white" />
-                  <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
-                </button>
-                <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                  <UserPlus className="w-5 h-5 text-white" />
-                  <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
-                </button>
-                <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                  <FolderOpen className="w-5 h-5 text-white" />
-                  <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
-                </button>
-                <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                  <AlertCircle className="w-5 h-5 text-white" />
-                  <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
-                </button>
-                <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                  <SplitSquareVertical className="w-5 h-5 text-white" />
-                  <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
-                </button>
-                <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                  <RotateCcw className="w-5 h-5 text-white" />
-                  <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
-                </button>
-              </div>
-            </div>
-          )}
-        </div>
       </div>
 
+      {/* Right Side Actions Sidebar - Separate from Order Panel */}
+      {isOrderActionsSidebarOpen && (
+        <div className="hidden md:flex w-[70px] flex-col flex-shrink-0 pb-2 pr-2">
+          <div className="flex-1 flex flex-col rounded-lg" style={{
+            background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)',
+            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+          }}>
+            {/* Close Button */}
+            <div className="flex justify-center pt-2 pb-1">
+              <button 
+                onClick={() => setIsOrderActionsSidebarOpen(false)}
+                className="w-6 h-6 rounded-full bg-neutral-600 hover:bg-neutral-500 flex items-center justify-center transition-colors"
+              >
+                <X className="w-3 h-3 text-white" />
+              </button>
+            </div>
+            
+            {/* Action Buttons */}
+            <div className="flex-1 flex flex-col items-center py-2 gap-2 overflow-y-auto">
+              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                <Gift className="w-5 h-5 text-white" />
+                <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
+              </button>
+              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                <DollarSign className="w-5 h-5 text-white" />
+                <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
+              </button>
+              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                <UserPlus className="w-5 h-5 text-white" />
+                <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
+              </button>
+              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                <FolderOpen className="w-5 h-5 text-white" />
+                <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
+              </button>
+              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                <AlertCircle className="w-5 h-5 text-white" />
+                <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
+              </button>
+              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                <SplitSquareVertical className="w-5 h-5 text-white" />
+                <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
+              </button>
+              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                <RotateCcw className="w-5 h-5 text-white" />
+                <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Item Customization Dialog */}
       <ItemCustomizationDialog open={customizationDialogOpen} onOpenChange={setCustomizationDialogOpen} item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={addToCartWithModifiers} />

@@ -6407,9 +6407,10 @@ const Orders = () => {
             <div className="flex items-center gap-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
+                  <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
                   background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
                 }}>
+                    <img src={orderTypes.find(t => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
                     {orderType} <ChevronDown className="w-3 h-3" />
                   </button>
                 </DropdownMenuTrigger>
@@ -6823,7 +6824,8 @@ const Orders = () => {
                 <div className="flex items-center gap-2">
                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-1 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
+                      <button className="flex items-center gap-1.5 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
+                        <img src={orderTypes.find(t => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
                         {orderType} <ChevronDown className="w-3 h-3" />
                       </button>
                     </DropdownMenuTrigger>

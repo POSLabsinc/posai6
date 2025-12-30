@@ -269,16 +269,14 @@ const OrderPanelContent = ({ selectedOrder, orderItems, subtotal, total, phoneIc
       {/* Guest Header - Outside the box */}
       <div className="px-2 py-3">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-white font-medium">{selectedOrder?.guest || "GUEST NAME"}</span>
-          <div className="flex items-center gap-3 text-white/50 text-sm">
-            <div className="flex items-center gap-1">
-              <img src={phoneIcon} alt="phone" className="w-3 h-3 opacity-60" />
-              <span>(XXX) XXX-XXXX</span>
-            </div>
-            <div className="flex items-center gap-1">
-              <span>⚡</span>
-              <span>{selectedOrder?.arrivedAt || "12:30 PM"}</span>
-            </div>
+          <span className="text-white font-medium flex-1">{selectedOrder?.guest || "GUEST NAME"}</span>
+          <div className="flex items-center gap-1 text-white/50 text-sm flex-1 justify-center">
+            <img src={phoneIcon} alt="phone" className="w-3 h-3 opacity-60" />
+            <span>(XXX) XXX-XXXX</span>
+          </div>
+          <div className="flex items-center gap-1 text-white/50 text-sm flex-1 justify-end">
+            <span>⚡</span>
+            <span>{selectedOrder?.arrivedAt || "12:30 PM"}</span>
           </div>
         </div>
         <div className="flex gap-2">

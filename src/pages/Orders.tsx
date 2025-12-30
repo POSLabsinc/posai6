@@ -38,6 +38,13 @@ import giftCardIcon from "@/assets/icons/gift-card.png";
 import itemNotesIcon from "@/assets/icons/item-notes.png";
 import expandPanelIcon from "@/assets/icons/expand-panel.png";
 import collapsePanelIcon from "@/assets/icons/collapse-panel.png";
+import giftCardBtnIcon from "@/assets/icons/gift-card-btn.svg";
+import serviceChargeIcon from "@/assets/icons/service-charge.svg";
+import addGuestIcon from "@/assets/icons/add-guest.svg";
+import openOrdersIcon from "@/assets/icons/open-orders.svg";
+import allergyIcon from "@/assets/icons/allergy.svg";
+import splitCheckIcon from "@/assets/icons/split-check.svg";
+import reopenCheckIcon from "@/assets/icons/reopen-check.svg";
 import newOrderIcon from "@/assets/icons/new-order.png";
 import tableOrderIcon from "@/assets/icons/table-order.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
@@ -6909,31 +6916,31 @@ const Orders = () => {
                 }}>
                   {/* Action Buttons */}
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <Gift className="w-5 h-5 text-white" />
+                    <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
                   </button>
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <DollarSign className="w-5 h-5 text-white" />
+                    <img src={serviceChargeIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
                   </button>
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <UserPlus className="w-5 h-5 text-white" />
+                    <img src={addGuestIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
                   </button>
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <FolderOpen className="w-5 h-5 text-white" />
+                    <img src={openOrdersIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
                   </button>
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <AlertCircle className="w-5 h-5 text-white" />
+                    <img src={allergyIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
                   </button>
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <SplitSquareVertical className="w-5 h-5 text-white" />
+                    <img src={splitCheckIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
                   </button>
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <RotateCcw className="w-5 h-5 text-white" />
+                    <img src={reopenCheckIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
                   </button>
                 </div>

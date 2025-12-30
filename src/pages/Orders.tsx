@@ -6708,76 +6708,78 @@ const Orders = () => {
       </div>
 
       {/* Right Panel - Order (Desktop only) */}
-      <div className={`hidden md:flex w-[280px] lg:w-[345px] flex-col overflow-hidden flex-shrink-0 pb-2 pr-2 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
-        {/* Order Header - Outside background container */}
-        <div className="px-1 pb-2 flex-shrink-0">
-          <div className="flex items-center text-xs mb-2 gap-2">
-            <div className="relative flex-1">
-              <input ref={guestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-full min-w-0 font-medium text-[#808080]" />
-              {showGuestDropdown && filteredGuests.length > 0 && <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
-                  {filteredGuests.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
-                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
-                          {guest.initials}
-                        </div>}
-                      <div className="flex flex-col">
-                        <span className="text-white font-medium text-sm">{guest.name}</span>
-                        <span className="text-neutral-400 text-xs">{guest.phone}</span>
-                      </div>
-                    </button>)}
-                </div>}
+      <div className={`hidden md:flex ${isOrderActionsSidebarOpen ? 'w-[350px] lg:w-[415px]' : 'w-[280px] lg:w-[345px]'} overflow-hidden flex-shrink-0 pb-2 pr-2 gap-0 transition-all duration-300 ${panelLayout === 'menu-right' ? 'md:order-1' : 'md:order-2'}`}>
+        {/* Order Panel Content */}
+        <div className="flex-1 flex flex-col min-w-0">
+          {/* Order Header - Outside background container */}
+          <div className="px-1 pb-2 flex-shrink-0">
+            <div className="flex items-center text-xs mb-2 gap-2">
+              <div className="relative flex-1">
+                <input ref={guestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-full min-w-0 font-medium text-[#808080]" />
+                {showGuestDropdown && filteredGuests.length > 0 && <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+                    {filteredGuests.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
+                        {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                            {guest.initials}
+                          </div>}
+                        <div className="flex flex-col">
+                          <span className="text-white font-medium text-sm">{guest.name}</span>
+                          <span className="text-neutral-400 text-xs">{guest.phone}</span>
+                        </div>
+                      </button>)}
+                  </div>}
+              </div>
+              <div className="relative flex items-center gap-0.5 flex-shrink-0">
+                <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
+                <input ref={phoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080] text-xs" />
+                {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={phoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
+                    {filteredByPhone.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
+                        {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
+                            {guest.initials}
+                          </div>}
+                        <div className="flex flex-col">
+                          <span className="text-white font-medium text-sm">{guest.name}</span>
+                          <span className="text-neutral-400 text-xs">{guest.phone}</span>
+                        </div>
+                      </button>)}
+                  </div>}
+              </div>
+              <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
+                <img src={timeIcon} alt="Time" className="w-3 h-3" />
+                <span className="text-white text-[10px]">12:30 PM</span>
+                <DraggablePanelHandle panelId="order" className="flex-shrink-0" />
+              </div>
             </div>
-            <div className="relative flex items-center gap-0.5 flex-shrink-0">
-              <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
-              <input ref={phoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080] text-xs" />
-              {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={phoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
-                  {filteredByPhone.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
-                      {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
-                          {guest.initials}
-                        </div>}
-                      <div className="flex flex-col">
-                        <span className="text-white font-medium text-sm">{guest.name}</span>
-                        <span className="text-neutral-400 text-xs">{guest.phone}</span>
-                      </div>
-                    </button>)}
-                </div>}
-            </div>
-            <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
-              <img src={timeIcon} alt="Time" className="w-3 h-3" />
-              <span className="text-white text-[10px]">12:30 PM</span>
-              <DraggablePanelHandle panelId="order" className="flex-shrink-0" />
+            
+            <div className="flex items-center gap-1.5 mb-2">
+              <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide">
+                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-4 whitespace-nowrap flex-1">
+                  Custom Item
+                </Button>
+                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-4 whitespace-nowrap flex-1">
+                  Discount
+                </Button>
+                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-4 whitespace-nowrap flex-1">
+                  No Tax
+                </Button>
+                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-4 whitespace-nowrap flex-1">
+                  Register
+                </Button>
+              </div>
+              <Button 
+                variant="secondary" 
+                size="icon" 
+                className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0"
+                onClick={() => setIsOrderActionsSidebarOpen(!isOrderActionsSidebarOpen)}
+              >
+                <MoreVertical className="w-3 h-3" />
+              </Button>
             </div>
           </div>
-          
-          <div className="flex items-center gap-1.5 mb-2">
-            <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide">
-              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-4 whitespace-nowrap flex-1">
-                Custom Item
-              </Button>
-              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-4 whitespace-nowrap flex-1">
-                Discount
-              </Button>
-              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-4 whitespace-nowrap flex-1">
-                No Tax
-              </Button>
-              <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-4 whitespace-nowrap flex-1">
-                Register
-              </Button>
-            </div>
-            <Button 
-              variant="secondary" 
-              size="icon" 
-              className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0"
-              onClick={() => setIsOrderActionsSidebarOpen(!isOrderActionsSidebarOpen)}
-            >
-              <MoreVertical className="w-3 h-3" />
-            </Button>
-          </div>
-        </div>
 
-        {/* Background Container for Order Content */}
-        <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{
-          background: '#7575754D',
-          boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+          {/* Background Container for Order Content */}
+          <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{
+            background: '#7575754D',
+            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
         }}>
           {/* Order Type & Guest Info */}
           <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
@@ -6886,60 +6888,61 @@ const Orders = () => {
           </div>
         </div>
         )}
-        </div>
-      </div>
-
-      {/* Right Side Actions Sidebar - Separate from Order Panel */}
-      {isOrderActionsSidebarOpen && (
-        <div className="hidden md:flex w-[70px] flex-col flex-shrink-0 pb-2 pr-2">
-          <div className="flex-1 flex flex-col rounded-lg" style={{
-            background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-          }}>
-            {/* Close Button */}
-            <div className="flex justify-center pt-2 pb-1">
-              <button 
-                onClick={() => setIsOrderActionsSidebarOpen(false)}
-                className="w-6 h-6 rounded-full bg-neutral-600 hover:bg-neutral-500 flex items-center justify-center transition-colors"
-              >
-                <X className="w-3 h-3 text-white" />
-              </button>
-            </div>
-            
-            {/* Action Buttons */}
-            <div className="flex-1 flex flex-col items-center py-2 gap-2 overflow-y-auto">
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                <Gift className="w-5 h-5 text-white" />
-                <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
-              </button>
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                <DollarSign className="w-5 h-5 text-white" />
-                <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
-              </button>
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                <UserPlus className="w-5 h-5 text-white" />
-                <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
-              </button>
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                <FolderOpen className="w-5 h-5 text-white" />
-                <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
-              </button>
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                <AlertCircle className="w-5 h-5 text-white" />
-                <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
-              </button>
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                <SplitSquareVertical className="w-5 h-5 text-white" />
-                <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
-              </button>
-              <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                <RotateCcw className="w-5 h-5 text-white" />
-                <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
-              </button>
-            </div>
           </div>
         </div>
-      )}
+
+        {/* Right Side Actions Sidebar - Inside Order Panel */}
+        {isOrderActionsSidebarOpen && (
+            <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
+              <div className="flex-1 flex flex-col rounded-lg mt-[52px]" style={{
+                background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)',
+                boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+              }}>
+                {/* Close Button */}
+                <div className="flex justify-center pt-2 pb-1">
+                  <button 
+                    onClick={() => setIsOrderActionsSidebarOpen(false)}
+                    className="w-6 h-6 rounded-full bg-neutral-600 hover:bg-neutral-500 flex items-center justify-center transition-colors"
+                  >
+                    <X className="w-3 h-3 text-white" />
+                  </button>
+                </div>
+                
+                {/* Action Buttons */}
+                <div className="flex-1 flex flex-col items-center py-2 gap-2 overflow-y-auto">
+                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                    <Gift className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
+                  </button>
+                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                    <DollarSign className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
+                  </button>
+                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                    <UserPlus className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
+                  </button>
+                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                    <FolderOpen className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
+                  </button>
+                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                    <AlertCircle className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
+                  </button>
+                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                    <SplitSquareVertical className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
+                  </button>
+                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                    <RotateCcw className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+      </div>
 
       {/* Item Customization Dialog */}
       <ItemCustomizationDialog open={customizationDialogOpen} onOpenChange={setCustomizationDialogOpen} item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={addToCartWithModifiers} />

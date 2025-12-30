@@ -382,7 +382,6 @@ const Dashboard = () => {
           className="flex flex-col gap-2 p-3 rounded-xl items-center justify-center"
           style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
         >
-          <Calendar className="w-4 h-4 text-white/60" />
           <Select value={dateFilter} onValueChange={setDateFilter}>
             <SelectTrigger 
               className="h-7 px-2 border-0 text-xs text-white w-[90px]"

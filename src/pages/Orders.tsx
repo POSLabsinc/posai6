@@ -46,6 +46,15 @@ import allergyIcon from "@/assets/icons/allergy.svg";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import reopenCheckIcon from "@/assets/icons/reopen-check.svg";
 import newOrderIcon from "@/assets/icons/new-order.png";
+import dineInIcon from "@/assets/icons/dine-in-icon.svg";
+import takeOutIcon from "@/assets/icons/take-out.svg";
+import deliveryIcon from "@/assets/icons/delivery.svg";
+import banquetIcon from "@/assets/icons/banquet.svg";
+import driveThruIcon from "@/assets/icons/drive-thru.svg";
+import curbSideIcon from "@/assets/icons/curb-side.svg";
+import scheduledIcon from "@/assets/icons/scheduled.svg";
+import phoneInIcon from "@/assets/icons/phone-in.svg";
+import customOrderIcon from "@/assets/icons/custom-order.svg";
 import tableOrderIcon from "@/assets/icons/table-order.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
 import settingsIcon from "@/assets/icons/settings.png";
@@ -5564,7 +5573,17 @@ interface OrderItem {
   itemOrderType?: string;
 }
 const initialOrderItems: OrderItem[] = [];
-const orderTypes = ["DINE IN", "TAKE OUT", "DELIVERY", "BANQUET", "DRIVE THRU", "CURB SIDE", "SCHEDULED", "PHONE-IN", "CUSTOM"];
+const orderTypes = [
+  { label: "DINE IN", icon: dineInIcon },
+  { label: "TAKE OUT", icon: takeOutIcon },
+  { label: "DELIVERY", icon: deliveryIcon },
+  { label: "BANQUET", icon: banquetIcon },
+  { label: "DRIVE THRU", icon: driveThruIcon },
+  { label: "CURB SIDE", icon: curbSideIcon },
+  { label: "SCHEDULED", icon: scheduledIcon },
+  { label: "PHONE-IN", icon: phoneInIcon },
+  { label: "CUSTOM", icon: customOrderIcon }
+];
 
 // Mock user data for guest name dropdown
 interface GuestUser {
@@ -6395,8 +6414,9 @@ const Orders = () => {
                   </button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[100px] p-1">
-                  {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2">
-                      {type}
+                  {orderTypes.map(type => <DropdownMenuItem key={type.label} onClick={() => setOrderType(type.label)} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
+                      <img src={type.icon} alt="" className="w-4 h-4" />
+                      {type.label}
                     </DropdownMenuItem>)}
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -6808,8 +6828,9 @@ const Orders = () => {
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
-                      {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-white hover:bg-neutral-700 cursor-pointer">
-                          {type}
+                      {orderTypes.map(type => <DropdownMenuItem key={type.label} onClick={() => setOrderType(type.label)} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
+                          <img src={type.icon} alt="" className="w-4 h-4" />
+                          {type.label}
                         </DropdownMenuItem>)}
                     </DropdownMenuContent>
                   </DropdownMenu>

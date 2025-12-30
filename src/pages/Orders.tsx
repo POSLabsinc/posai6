@@ -6776,172 +6776,175 @@ const Orders = () => {
             </div>
           </div>
 
-          {/* Background Container for Order Content */}
-          <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-        }}>
-          {/* Order Type & Guest Info */}
-          <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
-                    {orderType} <ChevronDown className="w-3 h-3" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
-                  {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-white hover:bg-neutral-700 cursor-pointer">
-                      {type}
-                    </DropdownMenuItem>)}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-base font-bold">20</span>}
-            </div>
-            <div className="flex items-center gap-2 text-xs">
-              <span>👤</span>
-              <span>MIA JONE</span>
-            </div>
-          </div>
-
-          {/* Order Notes */}
-          <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
-          <div className="flex items-center gap-2 rounded px-3 py-2" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-          }}>
-            <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            <input type="text" placeholder="Order notes" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none" />
-          </div>
-        </div>
-
-        {/* Order Items */}
-        <ScrollArea className="flex-1 min-h-0 px-2">
-          {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center h-full py-8">
-              <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
-              <span className="text-muted-foreground text-sm">Let's create an order</span>
-            </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
-              {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
-                  <div className="p-2 md:p-1.5 lg:p-3 border border-sidebar-border rounded-md md:rounded lg:rounded-lg" style={{
-                background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
-              }}>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 md:gap-1.5 lg:gap-3">
-                        <span className="w-5 h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full bg-orange-500 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0">
-                          {item.qty}
-                        </span>
-                        <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
-                      </div>
-                      <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">${item.price.toFixed(2)}</span>
-                    </div>
-                    {item.modifiers && item.modifiers.length > 0 && <div className="mt-1.5 md:mt-1 lg:mt-2 ml-7 md:ml-5 lg:ml-8 space-y-0.5">
-                        {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs md:text-[10px] lg:text-xs text-primary">
-                            <span>{mod.startsWith("W/") ? "+" : "-"}</span>
-                            <span>{mod}</span>
-                          </div>)}
-                      </div>}
-                  </div>
-                </SwipeableCartItem>)}
-            </div>}
-        </ScrollArea>
-
-        {/* Order Summary - Only show when cart has items */}
-        {orderItems.length > 0 && (
-        <div className="p-2 border-t border-sidebar-border flex-shrink-0">
-          <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-          }}>
-            <div className="flex justify-between gap-3">
-              <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-              <span className="text-red-500">Discount: <span className="font-medium">${discount.toFixed(2)}</span></span>
-            </div>
-            <div className="flex justify-between gap-3">
-              <span className="text-foreground">Service Charge: <span className="font-medium">${serviceCharge.toFixed(2)}</span></span>
-              <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
-            </div>
-          </div>
-
-          {/* Action Buttons - Inside background container */}
-          <div className="px-2 py-2 flex items-center gap-2 flex-shrink-0">
-            <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
-              <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
-            </button>
-            <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
-              backgroundColor: '#C9C9C9'
+          {/* Order Content Area with Sidebar */}
+          <div className="flex-1 flex gap-2 min-h-0">
+            {/* Background Container for Order Content */}
+            <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{
+              background: '#7575754D',
+              boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
             }}>
-              <img src={saveIcon} alt="Save" className="w-4 h-4" />
-            </button>
-            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
-              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-            }}>
-              <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-              <span className="text-white font-semibold text-sm">FIRE</span>
-            </button>
-            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
-              background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-            }}>
-              <span className="text-black font-semibold text-xs">
-                CHARGE ${chargeAmount.toFixed(2)}{chargeLabel && ` (${chargeLabel})`}
-              </span>
-            </button>
-          </div>
-        </div>
-        )}
-          </div>
-        </div>
-
-        {/* Right Side Actions Sidebar - Inside Order Panel */}
-        {isOrderActionsSidebarOpen && (
-            <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
-              <div className="flex-1 flex flex-col rounded-lg mt-[52px]" style={{
-                background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)',
-                boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-              }}>
-                {/* Close Button */}
-                <div className="flex justify-center pt-2 pb-1">
-                  <button 
-                    onClick={() => setIsOrderActionsSidebarOpen(false)}
-                    className="w-6 h-6 rounded-full bg-neutral-600 hover:bg-neutral-500 flex items-center justify-center transition-colors"
-                  >
-                    <X className="w-3 h-3 text-white" />
-                  </button>
+              {/* Order Type & Guest Info */}
+              <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+                <div className="flex items-center gap-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <button className="flex items-center gap-1 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
+                        {orderType} <ChevronDown className="w-3 h-3" />
+                      </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
+                      {orderTypes.map(type => <DropdownMenuItem key={type} onClick={() => setOrderType(type)} className="text-white hover:bg-neutral-700 cursor-pointer">
+                          {type}
+                        </DropdownMenuItem>)}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                  {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-base font-bold">20</span>}
                 </div>
-                
-                {/* Action Buttons */}
-                <div className="flex-1 flex flex-col items-center py-2 gap-2 overflow-y-auto">
-                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                    <Gift className="w-5 h-5 text-white" />
-                    <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
+                <div className="flex items-center gap-2 text-xs">
+                  <span>👤</span>
+                  <span>MIA JONE</span>
+                </div>
+              </div>
+
+              {/* Order Notes */}
+              <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
+                <div className="flex items-center gap-2 rounded px-3 py-2" style={{
+                  background: '#7575754D',
+                  boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+                }}>
+                  <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <input type="text" placeholder="Order notes" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none" />
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <ScrollArea className="flex-1 min-h-0 px-2">
+                {orderItems.length === 0 ? <div className="flex flex-col items-center justify-center h-full py-8">
+                    <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
+                    <span className="text-muted-foreground text-sm">Let's create an order</span>
+                  </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
+                    {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
+                        <div className="p-2 md:p-1.5 lg:p-3 border border-sidebar-border rounded-md md:rounded lg:rounded-lg" style={{
+                      background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
+                    }}>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 md:gap-1.5 lg:gap-3">
+                              <span className="w-5 h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full bg-orange-500 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0">
+                                {item.qty}
+                              </span>
+                              <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
+                            </div>
+                            <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">${item.price.toFixed(2)}</span>
+                          </div>
+                          {item.modifiers && item.modifiers.length > 0 && <div className="mt-1.5 md:mt-1 lg:mt-2 ml-7 md:ml-5 lg:ml-8 space-y-0.5">
+                              {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs md:text-[10px] lg:text-xs text-primary">
+                                  <span>{mod.startsWith("W/") ? "+" : "-"}</span>
+                                  <span>{mod}</span>
+                                </div>)}
+                            </div>}
+                        </div>
+                      </SwipeableCartItem>)}
+                  </div>}
+              </ScrollArea>
+
+              {/* Order Summary - Only show when cart has items */}
+              {orderItems.length > 0 && (
+              <div className="p-2 border-t border-sidebar-border flex-shrink-0">
+                <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
+                  background: '#7575754D',
+                  boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+                }}>
+                  <div className="flex justify-between gap-3">
+                    <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+                    <span className="text-red-500">Discount: <span className="font-medium">${discount.toFixed(2)}</span></span>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <span className="text-foreground">Service Charge: <span className="font-medium">${serviceCharge.toFixed(2)}</span></span>
+                    <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                  </div>
+                </div>
+
+                {/* Action Buttons - Inside background container */}
+                <div className="px-2 py-2 flex items-center gap-2 flex-shrink-0">
+                  <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+                    <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
                   </button>
-                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                    <DollarSign className="w-5 h-5 text-white" />
-                    <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
+                  <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                    backgroundColor: '#C9C9C9'
+                  }}>
+                    <img src={saveIcon} alt="Save" className="w-4 h-4" />
                   </button>
-                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                    <UserPlus className="w-5 h-5 text-white" />
-                    <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
+                  <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
+                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                  }}>
+                    <img src={fireIcon} alt="Fire" className="w-4 h-4" />
+                    <span className="text-white font-semibold text-sm">FIRE</span>
                   </button>
-                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                    <FolderOpen className="w-5 h-5 text-white" />
-                    <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
-                  </button>
-                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                    <AlertCircle className="w-5 h-5 text-white" />
-                    <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
-                  </button>
-                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                    <SplitSquareVertical className="w-5 h-5 text-white" />
-                    <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
-                  </button>
-                  <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
-                    <RotateCcw className="w-5 h-5 text-white" />
-                    <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
+                  <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
+                    background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                  }}>
+                    <span className="text-black font-semibold text-xs">
+                      CHARGE ${chargeAmount.toFixed(2)}{chargeLabel && ` (${chargeLabel})`}
+                    </span>
                   </button>
                 </div>
               </div>
+              )}
             </div>
-          )}
+
+            {/* Right Side Actions Sidebar */}
+            {isOrderActionsSidebarOpen && (
+              <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
+                <div className="flex-1 flex flex-col rounded-lg" style={{
+                  background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)',
+                  boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+                }}>
+                  {/* Close Button */}
+                  <div className="flex justify-center pt-2 pb-1">
+                    <button 
+                      onClick={() => setIsOrderActionsSidebarOpen(false)}
+                      className="w-6 h-6 rounded-full bg-neutral-600 hover:bg-neutral-500 flex items-center justify-center transition-colors"
+                    >
+                      <X className="w-3 h-3 text-white" />
+                    </button>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex-1 flex flex-col items-center py-2 gap-2 overflow-y-auto">
+                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                      <Gift className="w-5 h-5 text-white" />
+                      <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                      <DollarSign className="w-5 h-5 text-white" />
+                      <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                      <UserPlus className="w-5 h-5 text-white" />
+                      <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                      <FolderOpen className="w-5 h-5 text-white" />
+                      <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                      <AlertCircle className="w-5 h-5 text-white" />
+                      <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                      <SplitSquareVertical className="w-5 h-5 text-white" />
+                      <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
+                    </button>
+                    <button className="flex flex-col items-center gap-1 p-2 rounded-lg hover:bg-white/10 transition-colors w-full">
+                      <RotateCcw className="w-5 h-5 text-white" />
+                      <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       {/* Item Customization Dialog */}

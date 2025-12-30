@@ -1,10 +1,14 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Clock, Calendar, X } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { format } from "date-fns";
+import { DateRange } from "react-day-picker";
 import fireIcon from "@/assets/icons/fire.png";
 import itemNotesIcon from "@/assets/icons/item-notes.png";
 import phoneIcon from "@/assets/icons/phone-icon.png";
@@ -420,7 +424,45 @@ const Dashboard = () => {
   const [compareDate, setCompareDate] = useState("Yesterday");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
+  const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>();
+  const [isCustomCalendarOpen, setIsCustomCalendarOpen] = useState(false);
+  const [compareCustomDateRange, setCompareCustomDateRange] = useState<DateRange | undefined>();
+  const [isCompareCustomCalendarOpen, setIsCompareCustomCalendarOpen] = useState(false);
   const isMobile = useIsMobile();
+
+  const handleDateFilterChange = (value: string) => {
+    setDateFilter(value);
+    if (value === "Custom") {
+      setIsCustomCalendarOpen(true);
+    }
+  };
+
+  const handleCompareDateChange = (value: string) => {
+    setCompareDate(value);
+    if (value === "Custom") {
+      setIsCompareCustomCalendarOpen(true);
+    }
+  };
+
+  const getDateFilterDisplay = () => {
+    if (dateFilter === "Custom" && customDateRange?.from) {
+      if (customDateRange.to) {
+        return `${format(customDateRange.from, "MMM d")} - ${format(customDateRange.to, "MMM d")}`;
+      }
+      return format(customDateRange.from, "MMM d, yyyy");
+    }
+    return dateFilter;
+  };
+
+  const getCompareDateDisplay = () => {
+    if (compareDate === "Custom" && compareCustomDateRange?.from) {
+      if (compareCustomDateRange.to) {
+        return `${format(compareCustomDateRange.from, "MMM d")} - ${format(compareCustomDateRange.to, "MMM d")}`;
+      }
+      return format(compareCustomDateRange.from, "MMM d, yyyy");
+    }
+    return compareDate;
+  };
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = subtotal;
@@ -461,37 +503,73 @@ const Dashboard = () => {
           className="flex flex-col gap-2 p-3 rounded-xl items-center justify-center"
           style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
         >
-          <Select value={dateFilter} onValueChange={setDateFilter}>
-            <SelectTrigger 
-              className="h-7 px-2 border-0 text-xs text-white w-[90px]"
-              style={{ background: "#5555554D" }}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-neutral-800 border-neutral-700">
-              {dateFilters.map((filter) => (
-                <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
-                  {filter}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={isCustomCalendarOpen} onOpenChange={setIsCustomCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Select value={dateFilter} onValueChange={handleDateFilterChange}>
+                <SelectTrigger 
+                  className="h-7 px-2 border-0 text-xs text-white w-[90px]"
+                  style={{ background: "#5555554D" }}
+                >
+                  <SelectValue>{getDateFilterDisplay()}</SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-800 border-neutral-700">
+                  {dateFilters.map((filter) => (
+                    <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
+                      {filter}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700" align="start">
+              <Calendar
+                mode="range"
+                selected={customDateRange}
+                onSelect={(range) => {
+                  setCustomDateRange(range);
+                  if (range?.to) {
+                    setIsCustomCalendarOpen(false);
+                  }
+                }}
+                initialFocus
+                className="p-3 pointer-events-auto text-white"
+              />
+            </PopoverContent>
+          </Popover>
           <span className="text-white/40 text-xs">vs</span>
-          <Select value={compareDate} onValueChange={setCompareDate}>
-            <SelectTrigger 
-              className="h-7 px-2 border-0 text-xs text-white w-[90px]"
-              style={{ background: "#5555554D" }}
-            >
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-neutral-800 border-neutral-700">
-              {dateFilters.map((filter) => (
-                <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
-                  {filter}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Popover open={isCompareCustomCalendarOpen} onOpenChange={setIsCompareCustomCalendarOpen}>
+            <PopoverTrigger asChild>
+              <Select value={compareDate} onValueChange={handleCompareDateChange}>
+                <SelectTrigger 
+                  className="h-7 px-2 border-0 text-xs text-white w-[90px]"
+                  style={{ background: "#5555554D" }}
+                >
+                  <SelectValue>{getCompareDateDisplay()}</SelectValue>
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-800 border-neutral-700">
+                  {dateFilters.map((filter) => (
+                    <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
+                      {filter}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700" align="start">
+              <Calendar
+                mode="range"
+                selected={compareCustomDateRange}
+                onSelect={(range) => {
+                  setCompareCustomDateRange(range);
+                  if (range?.to) {
+                    setIsCompareCustomCalendarOpen(false);
+                  }
+                }}
+                initialFocus
+                className="p-3 pointer-events-auto text-white"
+              />
+            </PopoverContent>
+          </Popover>
         </div>
 
         {/* Stats/Insights Row */}

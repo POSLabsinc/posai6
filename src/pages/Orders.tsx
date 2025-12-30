@@ -6784,19 +6784,19 @@ const Orders = () => {
             
             <div className="flex items-center gap-1.5 mb-2">
               <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide gap-1.5">
-                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap flex-1 gap-1">
+                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
                   <img src={customItemIcon} alt="" className="w-3 h-3" />
                   Custom Item
                 </Button>
-                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap flex-1 gap-1">
+                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />
                   Discount
                 </Button>
-                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap flex-1 gap-1">
+                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
                   <img src={noTaxBtnIcon} alt="" className="w-3 h-3" />
                   No Tax
                 </Button>
-                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap flex-1 gap-1">
+                <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5">
                   <img src={registerBtnIcon} alt="" className="w-3 h-3" />
                   Register
                 </Button>

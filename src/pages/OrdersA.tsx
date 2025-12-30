@@ -389,7 +389,7 @@ const OrdersA = () => {
                           e.stopPropagation();
                           addToCart(item);
                         }}
-                        className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center"
+                        className="absolute top-2 left-2 w-8 h-8 rounded-full flex items-center justify-center"
                         style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
                       >
                         <Plus className="w-4 h-4 text-white" strokeWidth={3} />

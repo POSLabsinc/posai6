@@ -646,14 +646,14 @@ const Dashboard = () => {
 
       {/* ROW 3: Table Status - Compact */}
       <div className="flex-shrink-0">
-        <div className="flex items-center justify-between mb-1">
-          <h3 className="text-xs font-medium text-white/60">Table Status</h3>
+        <div className="flex items-center gap-2 mb-1">
           <button
             className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded"
             style={{ background: "#7575754D" }}
           >
             First Floor <ChevronDown className="w-2.5 h-2.5" />
           </button>
+          <h3 className="text-xs font-medium text-white/60">Table Status</h3>
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
           {mockTables.map((table, index) => (

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete } from "lucide-react";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
@@ -5591,16 +5591,23 @@ interface DiscountType {
   id: string;
   name: string;
   description: string;
-  percentage: number;
-  icon: 'briefcase' | 'heart' | 'graduation' | 'shield' | 'star';
+  percentage?: number;
+  fixedAmount?: number;
 }
 
 const discountTypes: DiscountType[] = [
-  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
-  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
-  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
-  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
-  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
+  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20 },
+  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15 },
+  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10 },
+  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15 },
+  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5 },
+  { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25 },
+  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30 },
+  { id: 'first', name: 'First Visit', description: '10% off', percentage: 10 },
+  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5 },
+  { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10 },
+  { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15 },
+  { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20 },
 ];
 
 interface GuestUser {
@@ -6411,8 +6418,9 @@ const Orders = () => {
   };
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
-  const discountPercentage = selectedDiscount?.percentage || 0;
-  const discount = subtotal * (discountPercentage / 100);
+  const discount = selectedDiscount 
+    ? (selectedDiscount.fixedAmount || (subtotal * ((selectedDiscount.percentage || 0) / 100)))
+    : 0;
   const serviceCharge = 0.00;
   const taxRate = 0.02;
   const tax = (subtotal - discount) * taxRate;
@@ -7297,35 +7305,26 @@ const Orders = () => {
             </div>
 
             {/* Discount Options */}
-            <div className="p-2 space-y-2">
+            <div className="p-2 max-h-[400px] overflow-y-auto space-y-1">
               {discountTypes.map((discountType) => {
-                const discountAmount = subtotal * (discountType.percentage / 100);
+                const discountAmount = discountType.fixedAmount || (subtotal * ((discountType.percentage || 0) / 100));
                 const isSelected = selectedDiscountId === discountType.id;
                 
                 return (
                   <button
                     key={discountType.id}
                     onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
-                    className={`w-full flex items-center gap-4 p-4 rounded-lg transition-colors ${
+                    className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg transition-colors ${
                       isSelected 
                         ? 'bg-orange-500/20 border border-orange-500' 
                         : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
                     }`}
                   >
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
-                      isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
-                    }`}>
-                      {discountType.icon === 'briefcase' && <Briefcase className="w-5 h-5 text-neutral-400" />}
-                      {discountType.icon === 'heart' && <Heart className="w-5 h-5 text-neutral-400" />}
-                      {discountType.icon === 'graduation' && <GraduationCap className="w-5 h-5 text-neutral-400" />}
-                      {discountType.icon === 'shield' && <Shield className="w-5 h-5 text-neutral-400" />}
-                      {discountType.icon === 'star' && <Star className="w-5 h-5 text-neutral-400" />}
-                    </div>
                     <div className="flex-1 text-left">
-                      <div className="text-white font-medium">{discountType.name}</div>
-                      <div className="text-neutral-400 text-sm">{discountType.description}</div>
+                      <div className="text-white text-sm font-medium">{discountType.name}</div>
+                      <div className="text-neutral-400 text-xs">{discountType.description}</div>
                     </div>
-                    <div className="text-red-400 font-medium">
+                    <div className="text-red-400 text-sm font-medium">
                       -${discountAmount.toFixed(2)}
                     </div>
                   </button>
@@ -7334,10 +7333,10 @@ const Orders = () => {
             </div>
 
             {/* Apply Button */}
-            <div className="p-4 border-t border-neutral-700">
+            <div className="p-3 border-t border-neutral-700">
               <button
                 onClick={() => setShowDiscountDialog(false)}
-                className="w-full py-3 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors"
+                className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
               >
                 Apply
               </button>

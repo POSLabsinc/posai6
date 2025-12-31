@@ -11,6 +11,7 @@ import orderIcon from "@/assets/icons/order.png";
 import tableManagementIcon from "@/assets/icons/table-management.png";
 import ticketIcon from "@/assets/icons/ticket.png";
 import versionIcon from "@/assets/icons/version.png";
+import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: dashboardIcon },
@@ -223,6 +224,10 @@ export function DraggableSidebar() {
             </Tooltip>
           </div>
 
+          {/* Restaurant Logo */}
+          <div className={`flex items-center justify-center ${isHorizontal ? 'h-full w-14' : 'w-full h-14'} shrink-0`}>
+            <img src={restaurantLogo} alt="Restaurant Logo" className="w-12 h-12 object-contain" />
+          </div>
 
           {/* Menu items */}
           {menuItems.map((item) => (

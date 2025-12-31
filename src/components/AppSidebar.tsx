@@ -6,14 +6,14 @@ import {
   SidebarContent,
 } from "@/components/ui/sidebar";
 
-import bbLogo from "@/assets/icons/bb-logo.png";
+import orderosLogo from "@/assets/icons/orderos-logo.png";
 import dashboardIcon from "@/assets/icons/dashboard.png";
 import orderIcon from "@/assets/icons/order.png";
 import tableManagementIcon from "@/assets/icons/table-management.png";
 import ticketIcon from "@/assets/icons/ticket.png";
 import versionIcon from "@/assets/icons/version.png";
 
-const logoItem = { title: "Home", url: "/home", icon: bbLogo, isLogo: true };
+const logoItem = { title: "orderOS", url: "/home", icon: orderosLogo, isLogo: true };
 
 const menuItems = [
   { title: "Dashboard", url: "/", icon: dashboardIcon },

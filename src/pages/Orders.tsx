@@ -5,6 +5,7 @@ import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPri
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 import GiftCardDialog from "@/components/GiftCardDialog";
+import ServiceChargeDialog from "@/components/ServiceChargeDialog";
 import InlineItemCustomization from "@/components/InlineItemCustomization";
 import clearIcon from "@/assets/icons/clear.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
@@ -6049,6 +6050,9 @@ const Orders = () => {
   const [isOrderActionsSidebarOpen, setIsOrderActionsSidebarOpen] = useState(false);
   const [showGiftCardDialog, setShowGiftCardDialog] = useState(false);
   const [appliedGiftCardAmount, setAppliedGiftCardAmount] = useState(0);
+  const [showServiceChargeDialog, setShowServiceChargeDialog] = useState(false);
+  const [appliedServiceCharge, setAppliedServiceCharge] = useState(0);
+  const [appliedServiceChargeName, setAppliedServiceChargeName] = useState('');
   
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
@@ -6429,7 +6433,7 @@ const Orders = () => {
   const discount = selectedDiscount 
     ? (selectedDiscount.fixedAmount || (subtotal * ((selectedDiscount.percentage || 0) / 100)))
     : 0;
-  const serviceCharge = 0.00;
+  const serviceCharge = appliedServiceCharge;
   const taxRate = 0.02;
   const tax = isTaxExempt ? 0 : (subtotal - discount) * taxRate;
   const total = subtotal - discount + serviceCharge + tax;
@@ -7289,7 +7293,10 @@ const Orders = () => {
                     <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
                   </button>
-                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                  <button 
+                    onClick={() => setShowServiceChargeDialog(true)}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                  >
                     <img src={serviceChargeIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
                   </button>
@@ -7432,6 +7439,17 @@ const Orders = () => {
         onClose={() => setShowGiftCardDialog(false)}
         onApply={(amount) => setAppliedGiftCardAmount(amount)}
         orderTotal={total}
+      />
+
+      {/* Service Charge Dialog */}
+      <ServiceChargeDialog
+        open={showServiceChargeDialog}
+        onOpenChange={setShowServiceChargeDialog}
+        subtotal={subtotal}
+        onApply={(amount, name) => {
+          setAppliedServiceCharge(amount);
+          setAppliedServiceChargeName(name);
+        }}
       />
     </div>;
 };

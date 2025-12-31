@@ -7205,7 +7205,7 @@ const Orders = () => {
               </div>
 
               {/* Dine In Guest Form */}
-              {orderType === "DINE IN" && showDineInForm && !dineInGuestData ? (
+{orderType === "DINE IN" && showDineInForm && !dineInGuestData ? (
                 <DineInGuestForm
                   onSave={(data) => {
                     setDineInGuestData(data);
@@ -7213,6 +7213,7 @@ const Orders = () => {
                     setGuestPhone(data.phoneNumber);
                     setShowDineInForm(false);
                   }}
+                  onClose={() => setShowDineInForm(false)}
                 />
               ) : (
                 <>

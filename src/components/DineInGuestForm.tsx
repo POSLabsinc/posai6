@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { Search } from "lucide-react";
+import { useState, useMemo } from "react";
+import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface DineInGuestFormProps {
   onSave: (data: DineInGuestData) => void;
   onCancel?: () => void;
+  onClose?: () => void;
 }
 
 export interface DineInGuestData {
@@ -19,7 +20,23 @@ export interface DineInGuestData {
 
 const tableNumbers = Array.from({ length: 30 }, (_, i) => String(i + 1));
 
-const DineInGuestForm = ({ onSave, onCancel }: DineInGuestFormProps) => {
+// Mock guest data for search
+const mockGuests = [
+  { name: "John Smith", phone: "(555) 123-4567", email: "john@example.com" },
+  { name: "Jane Doe", phone: "(555) 987-6543", email: "jane@example.com" },
+  { name: "Mike Johnson", phone: "(555) 456-7890", email: "mike@example.com" },
+  { name: "Sarah Williams", phone: "(555) 321-0987", email: "sarah@example.com" },
+];
+
+const formatPhoneNumber = (value: string): string => {
+  const digits = value.replace(/\D/g, "").slice(0, 10);
+  if (digits.length === 0) return "";
+  if (digits.length <= 3) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
+};
+
+const DineInGuestForm = ({ onSave, onCancel, onClose }: DineInGuestFormProps) => {
   const [formData, setFormData] = useState<DineInGuestData>({
     guestName: "",
     tableNumber: "",
@@ -27,11 +44,38 @@ const DineInGuestForm = ({ onSave, onCancel }: DineInGuestFormProps) => {
     email: "",
     notes: "",
   });
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
 
   const maxNotes = 70;
 
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return mockGuests.filter(
+      (guest) =>
+        guest.name.toLowerCase().includes(query) ||
+        guest.phone.replace(/\D/g, "").includes(query.replace(/\D/g, ""))
+    );
+  }, [searchQuery]);
+
+  const handleSelectGuest = (guest: typeof mockGuests[0]) => {
+    setFormData((prev) => ({
+      ...prev,
+      guestName: guest.name,
+      phoneNumber: guest.phone,
+      email: guest.email,
+    }));
+    setSearchQuery("");
+    setShowSearchResults(false);
+  };
+
   const handleInputChange = (field: keyof DineInGuestData, value: string) => {
     if (field === "notes" && value.length > maxNotes) return;
+    if (field === "phoneNumber") {
+      setFormData((prev) => ({ ...prev, [field]: formatPhoneNumber(value) }));
+      return;
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -47,15 +91,45 @@ const DineInGuestForm = ({ onSave, onCancel }: DineInGuestFormProps) => {
     <div className="p-4 border-b border-sidebar-border" style={{
       background: 'rgba(117, 117, 117, 0.3)',
     }}>
-      <h3 className="text-sm font-semibold text-foreground mb-3">Guest Information</h3>
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-foreground">Guest Information</h3>
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="p-1 hover:bg-white/10 rounded transition-colors"
+          >
+            <X className="w-4 h-4 text-muted-foreground" />
+          </button>
+        )}
+      </div>
       
       {/* Search Field */}
       <div className="relative mb-3">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
         <Input
           placeholder="Search by Guest Name or Number"
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setShowSearchResults(true);
+          }}
+          onFocus={() => setShowSearchResults(true)}
           className="pl-9 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
         />
+        {showSearchResults && searchResults.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+            {searchResults.map((guest, index) => (
+              <button
+                key={index}
+                onClick={() => handleSelectGuest(guest)}
+                className="w-full px-3 py-2 text-left hover:bg-neutral-700 text-sm text-white flex flex-col"
+              >
+                <span className="font-medium">{guest.name}</span>
+                <span className="text-xs text-muted-foreground">{guest.phone}</span>
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Guest Name and Table Number */}

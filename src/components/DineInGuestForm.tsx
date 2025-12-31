@@ -81,7 +81,12 @@ const DineInGuestForm = ({ onSave, onCancel, onClose }: DineInGuestFormProps) =>
 
   const handleSave = () => {
     if (formData.guestName && formData.tableNumber) {
-      onSave(formData);
+      // Strip formatting from phone number - only pass digits
+      const cleanPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
+      onSave({
+        ...formData,
+        phoneNumber: cleanPhoneNumber,
+      });
     }
   };
 

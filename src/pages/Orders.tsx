@@ -7205,7 +7205,7 @@ const Orders = () => {
               </div>
 
               {/* Dine In Guest Form */}
-{orderType === "DINE IN" && showDineInForm && !dineInGuestData ? (
+              {orderType === "DINE IN" && showDineInForm ? (
                 <DineInGuestForm
                   onSave={(data) => {
                     setDineInGuestData(data);
@@ -7217,6 +7217,17 @@ const Orders = () => {
                 />
               ) : (
                 <>
+                  {/* Edit Guest Info Button for Dine In */}
+                  {orderType === "DINE IN" && dineInGuestData && (
+                    <button
+                      onClick={() => setShowDineInForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
+                      <span>Guest: {dineInGuestData.guestName} | Table {dineInGuestData.tableNumber}</span>
+                      <span className="text-xs underline">Edit</span>
+                    </button>
+                  )}
                   {/* Order Notes */}
                   <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
                     <div className="flex items-center gap-2 rounded px-3 py-2" style={{

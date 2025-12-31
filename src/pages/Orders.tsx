@@ -6399,6 +6399,7 @@ const Orders = () => {
       // Opening custom item panel
       setShowCustomItemPanel(true);
       setMenuPosition('full');
+      setActiveCustomItemField('name');
     }
   };
   const handleMenuSelect = (value: string) => {
@@ -6765,9 +6766,9 @@ const Orders = () => {
             <button
               onClick={addCustomItemToOrder}
               disabled={!customItemName.trim() || !customItemPrice}
-              className="w-full py-3 rounded-lg font-semibold text-black mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{
-                background: 'linear-gradient(180deg, #FFC107 0%, #FF9800 100%)'
+                background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
               }}
             >
               <Plus className="w-4 h-4" />

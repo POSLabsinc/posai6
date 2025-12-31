@@ -13,7 +13,6 @@ const GiftCardDialog = ({ isOpen, onClose, orderTotal = 0 }: GiftCardDialogProps
   const [isValidated, setIsValidated] = useState(false);
   const [cardBalance, setCardBalance] = useState(0);
   const [customAmount, setCustomAmount] = useState("");
-  const [amountToApply, setAmountToApply] = useState(0);
 
   const formatCardNumber = (value: string) => {
     // Remove all non-digits
@@ -43,7 +42,7 @@ const GiftCardDialog = ({ isOpen, onClose, orderTotal = 0 }: GiftCardDialogProps
 
   const handleQuickAdd = (amount: number) => {
     if (!isValidated) return;
-    setCardBalance(prev => prev + amount);
+    setCustomAmount(amount.toString());
   };
 
   const handleAddCustomAmount = () => {
@@ -54,6 +53,9 @@ const GiftCardDialog = ({ isOpen, onClose, orderTotal = 0 }: GiftCardDialogProps
       setCustomAmount("");
     }
   };
+
+  // Calculate amount to apply: min of card balance and order total
+  const calculatedAmountToApply = Math.min(cardBalance, orderTotal);
 
   const handleApply = () => {
     // Apply the gift card to order logic here
@@ -66,7 +68,6 @@ const GiftCardDialog = ({ isOpen, onClose, orderTotal = 0 }: GiftCardDialogProps
     setIsValidated(false);
     setCardBalance(0);
     setCustomAmount("");
-    setAmountToApply(0);
     onClose();
   };
 
@@ -222,7 +223,7 @@ const GiftCardDialog = ({ isOpen, onClose, orderTotal = 0 }: GiftCardDialogProps
                 <div className="border-t border-neutral-700 pt-3">
                   <div className="flex justify-between items-center">
                     <span className="text-white font-medium">Amount to Apply</span>
-                    <span className="text-orange-500 font-bold">${amountToApply.toFixed(2)}</span>
+                    <span className="text-orange-500 font-bold">${calculatedAmountToApply.toFixed(2)}</span>
                   </div>
                 </div>
               </div>
@@ -249,7 +250,7 @@ const GiftCardDialog = ({ isOpen, onClose, orderTotal = 0 }: GiftCardDialogProps
                   : "linear-gradient(180deg, #4A4A4A 0%, #3A3A3A 100%)"
               }}
             >
-              Apply ${amountToApply.toFixed(2)}
+              Apply ${calculatedAmountToApply.toFixed(2)}
             </button>
           </div>
         </div>

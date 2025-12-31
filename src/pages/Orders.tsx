@@ -67,6 +67,7 @@ import { PanelDropZones } from "@/components/PanelDropZone";
 import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 import AddGuestForm from "@/components/AddGuestForm";
 import DineInGuestForm, { DineInGuestData } from "@/components/DineInGuestForm";
+import TakeOutGuestForm, { TakeOutGuestData } from "@/components/TakeOutGuestForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6007,6 +6008,8 @@ const Orders = () => {
   const [orderType, setOrderType] = useState("DINE IN");
   const [showDineInForm, setShowDineInForm] = useState(true);
   const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
+  const [showTakeOutForm, setShowTakeOutForm] = useState(true);
+  const [takeOutGuestData, setTakeOutGuestData] = useState<TakeOutGuestData | null>(null);
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
@@ -7215,6 +7218,16 @@ const Orders = () => {
                   }}
                   onClose={() => setShowDineInForm(false)}
                 />
+              ) : orderType === "TAKE OUT" && showTakeOutForm ? (
+                <TakeOutGuestForm
+                  onSave={(data) => {
+                    setTakeOutGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowTakeOutForm(false);
+                  }}
+                  onClose={() => setShowTakeOutForm(false)}
+                />
               ) : (
                 <>
                   {/* Edit Guest Info Button for Dine In */}
@@ -7225,6 +7238,17 @@ const Orders = () => {
                       style={{ background: 'rgba(117, 117, 117, 0.2)' }}
                     >
                       <span>Guest: {dineInGuestData.guestName} | Table {dineInGuestData.tableNumber}</span>
+                      <span className="text-xs underline">Edit</span>
+                    </button>
+                  )}
+                  {/* Edit Guest Info Button for Take Out */}
+                  {orderType === "TAKE OUT" && takeOutGuestData && (
+                    <button
+                      onClick={() => setShowTakeOutForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
+                      <span>Guest: {takeOutGuestData.guestName}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
                   )}

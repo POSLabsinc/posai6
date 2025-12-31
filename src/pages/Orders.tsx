@@ -7233,7 +7233,20 @@ const Orders = () => {
                     <span className="text-red-500">Discount: <span className="font-medium">${discount.toFixed(2)}</span></span>
                   </div>
                   <div className="flex justify-between gap-3">
-                    <span className="text-foreground">Service Charge: <span className="font-medium">${serviceCharge.toFixed(2)}</span></span>
+                    <span className="text-foreground flex items-center gap-1">
+                      Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                      {appliedServiceCharge > 0 && (
+                        <button 
+                          onClick={() => {
+                            setAppliedServiceCharge(0);
+                            setAppliedServiceChargeName('');
+                          }}
+                          className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </span>
                     <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
                   </div>
                   {appliedGiftCardAmount > 0 && (

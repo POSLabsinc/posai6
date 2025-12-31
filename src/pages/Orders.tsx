@@ -4,6 +4,7 @@ import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, 
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
+import GiftCardDialog from "@/components/GiftCardDialog";
 import InlineItemCustomization from "@/components/InlineItemCustomization";
 import clearIcon from "@/assets/icons/clear.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
@@ -6046,6 +6047,7 @@ const Orders = () => {
   const mobilePhoneDropdownRef = useRef<HTMLDivElement>(null);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<number | null>(null);
   const [isOrderActionsSidebarOpen, setIsOrderActionsSidebarOpen] = useState(false);
+  const [showGiftCardDialog, setShowGiftCardDialog] = useState(false);
   
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
@@ -7273,7 +7275,10 @@ const Orders = () => {
                     </button>
                   )}
                   {/* Action Buttons */}
-                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                  <button 
+                    onClick={() => setShowGiftCardDialog(true)}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                  >
                     <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
                   </button>
@@ -7413,6 +7418,13 @@ const Orders = () => {
           </div>
         </div>
       )}
+
+      {/* Gift Card Dialog */}
+      <GiftCardDialog 
+        isOpen={showGiftCardDialog}
+        onClose={() => setShowGiftCardDialog(false)}
+        orderTotal={total}
+      />
     </div>;
 };
 export default Orders;

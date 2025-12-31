@@ -5,10 +5,11 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 interface GiftCardDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onApply: (amount: number) => void;
   orderTotal?: number;
 }
 
-const GiftCardDialog = ({ isOpen, onClose, orderTotal = 0 }: GiftCardDialogProps) => {
+const GiftCardDialog = ({ isOpen, onClose, onApply, orderTotal = 0 }: GiftCardDialogProps) => {
   const [cardNumber, setCardNumber] = useState("");
   const [isValidated, setIsValidated] = useState(false);
   const [cardBalance, setCardBalance] = useState(0);
@@ -58,8 +59,9 @@ const GiftCardDialog = ({ isOpen, onClose, orderTotal = 0 }: GiftCardDialogProps
   const calculatedAmountToApply = Math.min(cardBalance, orderTotal);
 
   const handleApply = () => {
-    // Apply the gift card to order logic here
-    onClose();
+    // Apply the gift card to order
+    onApply(calculatedAmountToApply);
+    handleClose();
   };
 
   const handleClose = () => {

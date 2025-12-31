@@ -6048,6 +6048,7 @@ const Orders = () => {
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<number | null>(null);
   const [isOrderActionsSidebarOpen, setIsOrderActionsSidebarOpen] = useState(false);
   const [showGiftCardDialog, setShowGiftCardDialog] = useState(false);
+  const [appliedGiftCardAmount, setAppliedGiftCardAmount] = useState(0);
   
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
@@ -6440,8 +6441,9 @@ const Orders = () => {
   const newItemsTax = newItemsSubtotal * taxRate;
   const newItemsTotal = newItemsSubtotal + newItemsTax;
   
-  // Determine what to charge based on payment status
-  const chargeAmount = addItemMode && isExistingOrderPaid ? newItemsTotal : total;
+  // Determine what to charge based on payment status and gift card
+  const baseChargeAmount = addItemMode && isExistingOrderPaid ? newItemsTotal : total;
+  const chargeAmount = Math.max(0, baseChargeAmount - appliedGiftCardAmount);
   const chargeLabel = addItemMode 
     ? (isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER') 
     : '';
@@ -7230,6 +7232,11 @@ const Orders = () => {
                     <span className="text-foreground">Service Charge: <span className="font-medium">${serviceCharge.toFixed(2)}</span></span>
                     <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
                   </div>
+                  {appliedGiftCardAmount > 0 && (
+                    <div className="flex justify-between gap-3 pt-1 border-t border-white/10">
+                      <span className="text-green-500">Gift Card: <span className="font-medium">-${appliedGiftCardAmount.toFixed(2)}</span></span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Action Buttons - Inside background container */}
@@ -7423,6 +7430,7 @@ const Orders = () => {
       <GiftCardDialog 
         isOpen={showGiftCardDialog}
         onClose={() => setShowGiftCardDialog(false)}
+        onApply={(amount) => setAppliedGiftCardAmount(amount)}
         orderTotal={total}
       />
     </div>;

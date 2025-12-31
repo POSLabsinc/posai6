@@ -82,6 +82,7 @@ const App = () => (
               <Route path="/tickets" element={<Tickets />} />
               <Route path="/settings" element={<Settings />} />
               <Route path="/reports" element={<Reports />} />
+              <Route path="/orderos" element={<Reports />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Layout>

@@ -17,7 +17,7 @@ const menuItems = [
   { title: "Orders", url: "/orders", icon: orderIcon },
   { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
   { title: "Tickets", url: "/tickets", icon: ticketIcon },
-  { title: "Home", url: "/home", icon: homeIcon, isHome: true },
+  { title: "orderOS", url: "/orderos", icon: homeIcon },
   { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Settings, isGlass: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
@@ -257,7 +257,7 @@ export function DraggableSidebar() {
                       {item.lucideIcon ? (
                         <item.lucideIcon className="h-5 w-5" />
                       ) : (
-                        <img src={item.icon as string} alt={item.title} className={item.isHome ? "w-10 h-10" : "w-6 h-6"} />
+                        <img src={item.icon as string} alt={item.title} className="w-6 h-6" />
                       )}
                     </NavLink>
                   )}

@@ -66,6 +66,7 @@ import { usePanelPosition } from "@/contexts/PanelPositionContext";
 import { PanelDropZones } from "@/components/PanelDropZone";
 import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 import AddGuestForm from "@/components/AddGuestForm";
+import DineInGuestForm, { DineInGuestData } from "@/components/DineInGuestForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6004,6 +6005,8 @@ const Orders = () => {
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
   const [orderType, setOrderType] = useState("DINE IN");
+  const [showDineInForm, setShowDineInForm] = useState(true);
+  const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
@@ -7179,7 +7182,15 @@ const Orders = () => {
                       </button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
-                      {orderTypes.map(type => <DropdownMenuItem key={type.label} onClick={() => setOrderType(type.label)} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
+                      {orderTypes.map(type => <DropdownMenuItem key={type.label} onClick={() => {
+                          setOrderType(type.label);
+                          if (type.label === "DINE IN") {
+                            setShowDineInForm(true);
+                            setDineInGuestData(null);
+                          } else {
+                            setShowDineInForm(false);
+                          }
+                        }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
                           <img src={type.icon} alt="" className="w-4 h-4" />
                           {type.label}
                         </DropdownMenuItem>)}
@@ -7192,6 +7203,18 @@ const Orders = () => {
                   <span>MIA JONE</span>
                 </div>
               </div>
+
+              {/* Dine In Guest Form */}
+              {orderType === "DINE IN" && showDineInForm && !dineInGuestData && (
+                <DineInGuestForm
+                  onSave={(data) => {
+                    setDineInGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowDineInForm(false);
+                  }}
+                />
+              )}
 
               {/* Order Notes */}
               <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">

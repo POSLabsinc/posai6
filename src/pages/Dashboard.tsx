@@ -825,18 +825,14 @@ const Dashboard = () => {
 
           {/* Table Status - Below Orders */}
           <div className="flex-shrink-0 mt-2 pt-2 border-t border-white/10">
-            <div className="flex items-center gap-2 mb-2">
-              <button
-                className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded"
-                style={{ background: "#7575754D" }}
-              >
-                First Floor <ChevronDown className="w-2.5 h-2.5" />
-              </button>
-              <h3 className="text-xs font-medium text-white/60">Table Status</h3>
-            </div>
-            
             {/* Table Filters */}
             <div className="flex gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
+              <button
+                className="flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium text-white"
+                style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+              >
+                First Floor <ChevronDown className="w-2.5 h-2.5 inline ml-0.5" />
+              </button>
               {tableFilters.map((filter) => (
                 <button
                   key={filter.label}

@@ -5,7 +5,7 @@ import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
 import { toast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
-import bbLogo from "@/assets/icons/bb-logo.png";
+import homeIcon from "@/assets/icons/home-button.png";
 import dashboardIcon from "@/assets/icons/dashboard.png";
 import orderIcon from "@/assets/icons/order.png";
 import tableManagementIcon from "@/assets/icons/table-management.png";
@@ -17,7 +17,7 @@ const menuItems = [
   { title: "Orders", url: "/orders", icon: orderIcon },
   { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
   { title: "Tickets", url: "/tickets", icon: ticketIcon },
-  { title: "Home", url: "/home", icon: bbLogo, isHome: true },
+  { title: "Home", url: "/home", icon: homeIcon, isHome: true },
   { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Settings, isGlass: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];

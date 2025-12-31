@@ -32,8 +32,8 @@ export function AppSidebar() {
         <div className="flex-1 rounded-2xl flex flex-col gap-1 p-1.5" style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
           {/* Logo */}
           <div className="flex items-center justify-center h-14 shrink-0">
-            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-              <img src={logoItem.icon} alt={logoItem.title} className="w-10 h-10" />
+            <div className="w-14 h-14 rounded-xl flex items-center justify-center">
+              <img src={logoItem.icon} alt={logoItem.title} className="w-12 h-12" />
             </div>
           </div>
 

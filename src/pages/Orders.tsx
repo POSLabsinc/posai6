@@ -45,6 +45,7 @@ import openOrdersIcon from "@/assets/icons/open-orders.svg";
 import allergyIcon from "@/assets/icons/allergy.svg";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import reopenCheckIcon from "@/assets/icons/reopen-check.svg";
+import transferCheckIcon from "@/assets/icons/transfer-check.svg";
 import newOrderIcon from "@/assets/icons/new-order.png";
 import dineInIcon from "@/assets/icons/dine-in-icon.svg";
 import takeOutIcon from "@/assets/icons/take-out.svg";
@@ -7263,6 +7264,13 @@ const Orders = () => {
                   background: '#7575754D',
                   boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
                 }}>
+                  {/* Transfer Check - Only show when items in cart */}
+                  {orderItems.length > 0 && (
+                    <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                      <img src={transferCheckIcon} alt="" className="w-5 h-5" />
+                      <span className="text-[9px] text-white text-center leading-tight">Transfer<br/>Check</span>
+                    </button>
+                  )}
                   {/* Action Buttons */}
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
                     <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />

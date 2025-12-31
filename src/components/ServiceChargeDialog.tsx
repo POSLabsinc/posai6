@@ -60,8 +60,14 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="bg-[#1a1a2e] border-white/10 text-white max-w-md p-0 gap-0">
-        <DialogHeader className="p-4 pb-2 flex flex-row items-center justify-between">
+      <DialogContent 
+        className="border-0 text-white max-w-md p-0 gap-0 rounded-2xl overflow-hidden"
+        style={{
+          background: 'linear-gradient(180deg, #4D4D4D 0%, #3A3A3A 100%)',
+          boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
+        }}
+      >
+        <DialogHeader className="p-4 pb-2 flex flex-row items-center justify-between border-b border-white/10">
           <DialogTitle className="text-lg font-semibold text-white">
             Select Service Charge
           </DialogTitle>
@@ -73,7 +79,7 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
           </button>
         </DialogHeader>
 
-        <div className="p-4 pt-2 space-y-2">
+        <div className="p-4 pt-3 space-y-2">
           {serviceChargeOptions.map((option) => {
             const amount = calculateAmount(option.percentage);
             const isSelected = selectedOption === option.id;
@@ -82,16 +88,21 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
               <button
                 key={option.id}
                 onClick={() => setSelectedOption(option.id)}
-                className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all ${
+                className={`w-full flex items-center justify-between p-3 rounded-xl border transition-all ${
                   isSelected
-                    ? 'border-primary bg-primary/10'
-                    : 'border-white/10 bg-white/5 hover:bg-white/10'
+                    ? 'border-primary bg-primary/20'
+                    : 'border-white/10 hover:border-white/20'
                 }`}
+                style={{
+                  background: isSelected 
+                    ? 'linear-gradient(180deg, rgba(255, 94, 0, 0.15) 0%, rgba(255, 94, 0, 0.05) 100%)'
+                    : 'linear-gradient(180deg, #5A5A5A 0%, #4A4A4A 100%)'
+                }}
               >
                 <div className="flex items-center gap-3">
                   <div
                     className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-                      isSelected ? 'border-primary' : 'border-white/40'
+                      isSelected ? 'border-primary bg-primary/20' : 'border-white/40'
                     }`}
                   >
                     {isSelected && (
@@ -99,11 +110,11 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
                     )}
                   </div>
                   <div className="text-left">
-                    <p className="text-white font-medium">{option.name}</p>
-                    <p className="text-white/50 text-sm">{option.percentage}%</p>
+                    <p className="text-white font-medium text-sm">{option.name}</p>
+                    <p className="text-white/50 text-xs">{option.percentage}%</p>
                   </div>
                 </div>
-                <span className="text-white font-medium">+${amount.toFixed(2)}</span>
+                <span className="text-primary font-semibold">+${amount.toFixed(2)}</span>
               </button>
             );
           })}
@@ -113,7 +124,13 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
           <Button
             onClick={handleApply}
             disabled={!selectedOption}
-            className="w-full bg-white text-black hover:bg-white/90 disabled:opacity-50 disabled:cursor-not-allowed h-12 text-base font-medium"
+            className="w-full h-11 text-base font-semibold rounded-full disabled:opacity-50 disabled:cursor-not-allowed"
+            style={{
+              background: selectedOption 
+                ? 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                : 'linear-gradient(180deg, #6A6A6A 0%, #5A5A5A 100%)',
+              color: selectedOption ? '#000' : '#999'
+            }}
           >
             Apply
           </Button>

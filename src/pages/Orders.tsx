@@ -65,6 +65,7 @@ import settingsIcon from "@/assets/icons/settings.png";
 import { usePanelPosition } from "@/contexts/PanelPositionContext";
 import { PanelDropZones } from "@/components/PanelDropZone";
 import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
+import AddGuestForm from "@/components/AddGuestForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6053,6 +6054,7 @@ const Orders = () => {
   const [showServiceChargeDialog, setShowServiceChargeDialog] = useState(false);
   const [appliedServiceCharge, setAppliedServiceCharge] = useState(0);
   const [appliedServiceChargeName, setAppliedServiceChargeName] = useState('');
+  const [showAddGuestForm, setShowAddGuestForm] = useState(false);
   
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
@@ -7151,10 +7153,21 @@ const Orders = () => {
           {/* Order Content Area with Sidebar */}
           <div className="flex-1 flex gap-2 min-h-0">
             {/* Background Container for Order Content */}
-            <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0" style={{
+            <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0 relative" style={{
               background: '#7575754D',
               boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
             }}>
+              {/* Add Guest Form Overlay */}
+              {showAddGuestForm && (
+                <AddGuestForm
+                  onClose={() => setShowAddGuestForm(false)}
+                  onSave={(guestData) => {
+                    setGuestName(`${guestData.firstName} ${guestData.lastName}`);
+                    setGuestPhone(guestData.phoneNumber);
+                    setShowAddGuestForm(false);
+                  }}
+                />
+              )}
               {/* Order Type & Guest Info */}
               <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
                 <div className="flex items-center gap-2">
@@ -7313,7 +7326,10 @@ const Orders = () => {
                     <img src={serviceChargeIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
                   </button>
-                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                  <button 
+                    onClick={() => setShowAddGuestForm(true)}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                  >
                     <img src={addGuestIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
                   </button>

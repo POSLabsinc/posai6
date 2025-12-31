@@ -416,9 +416,13 @@ const OrderPanelContent = ({ selectedOrder, orderItems, subtotal, total, phoneIc
 };
 
 
+// Table filter labels
+const tableFilterLabels = ["All", "Available", "Ordering", "Ordered", "Payment"];
+
 const Dashboard = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
+  const [activeTableFilter, setActiveTableFilter] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState<typeof mockOrders[0] | null>(mockOrders[0]);
   const [dateFilter, setDateFilter] = useState("Today");
   const [compareDate, setCompareDate] = useState("Yesterday");
@@ -484,6 +488,22 @@ const Dashboard = () => {
       count: label === "All" 
         ? mockOrders.length 
         : mockOrders.filter(order => order.filterCategory === label).length
+    }));
+  }, []);
+
+  // Filter tables based on active table filter
+  const filteredTables = useMemo(() => {
+    if (activeTableFilter === "All") return mockTables;
+    return mockTables.filter(table => table.status === activeTableFilter);
+  }, [activeTableFilter]);
+
+  // Calculate counts for each table filter
+  const tableFilters = useMemo(() => {
+    return tableFilterLabels.map(label => ({
+      label,
+      count: label === "All" 
+        ? mockTables.length 
+        : mockTables.filter(table => table.status === label).length
     }));
   }, []);
 
@@ -805,7 +825,7 @@ const Dashboard = () => {
 
           {/* Table Status - Below Orders */}
           <div className="flex-shrink-0 mt-2 pt-2 border-t border-white/10">
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-2">
               <button
                 className="flex items-center gap-1 text-[10px] px-2 py-0.5 rounded"
                 style={{ background: "#7575754D" }}
@@ -814,8 +834,31 @@ const Dashboard = () => {
               </button>
               <h3 className="text-xs font-medium text-white/60">Table Status</h3>
             </div>
+            
+            {/* Table Filters */}
+            <div className="flex gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
+              {tableFilters.map((filter) => (
+                <button
+                  key={filter.label}
+                  onClick={() => setActiveTableFilter(filter.label)}
+                  className={`flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium transition-all ${
+                    activeTableFilter === filter.label
+                      ? "text-black"
+                      : "text-white"
+                  }`}
+                  style={
+                    activeTableFilter === filter.label
+                      ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }
+                      : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
+                  }
+                >
+                  {filter.label} <span className="font-bold ml-0.5">{filter.count}</span>
+                </button>
+              ))}
+            </div>
+
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-              {mockTables.map((table, index) => (
+              {filteredTables.map((table, index) => (
                 <div
                   key={index}
                   className="flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5"

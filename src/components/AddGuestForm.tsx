@@ -1,9 +1,10 @@
-import { useState } from "react";
-import { X, Camera, Car, ChevronUp, ChevronDown, MapPin, Calendar } from "lucide-react";
+import { useState, useRef } from "react";
+import { X, Camera, Car, ChevronUp, ChevronDown, MapPin, Calendar, Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import addGuestIcon from "@/assets/icons/add-guest.svg";
 
 interface AddGuestFormProps {
@@ -43,6 +44,8 @@ const vehicleBrands: Record<string, string[]> = {
 
 const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
   const [showVehicleDetails, setShowVehicleDetails] = useState(false);
+  const [photoMenuOpen, setPhotoMenuOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [formData, setFormData] = useState<GuestFormData>({
     firstName: "",
     middleName: "",
@@ -59,6 +62,35 @@ const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
     licensePlate: "",
     profilePhoto: null,
   });
+
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        handleInputChange("profilePhoto", reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+    setPhotoMenuOpen(false);
+  };
+
+  const handleCameraCapture = () => {
+    // For camera, we use the file input with capture attribute
+    if (fileInputRef.current) {
+      fileInputRef.current.setAttribute('capture', 'user');
+      fileInputRef.current.click();
+    }
+    setPhotoMenuOpen(false);
+  };
+
+  const handleUploadFromSystem = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.removeAttribute('capture');
+      fileInputRef.current.click();
+    }
+    setPhotoMenuOpen(false);
+  };
 
   const handleInputChange = (field: keyof GuestFormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -94,9 +126,40 @@ const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
         <div className="p-4 space-y-4">
           {/* Profile Photo */}
           <div className="flex flex-col items-center gap-2 py-2">
-            <div className="w-16 h-16 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-transparent hover:border-white/50 transition-colors cursor-pointer">
-              <Camera className="w-6 h-6 text-white/50" />
-            </div>
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleFileUpload}
+              accept="image/*"
+              className="hidden"
+            />
+            <Popover open={photoMenuOpen} onOpenChange={setPhotoMenuOpen}>
+              <PopoverTrigger asChild>
+                <div className="w-16 h-16 rounded-full border-2 border-dashed border-white/30 flex items-center justify-center bg-transparent hover:border-white/50 transition-colors cursor-pointer overflow-hidden">
+                  {formData.profilePhoto ? (
+                    <img src={formData.profilePhoto} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <Camera className="w-6 h-6 text-white/50" />
+                  )}
+                </div>
+              </PopoverTrigger>
+              <PopoverContent className="w-40 p-1 bg-[#3A3A3A] border-white/10" align="center">
+                <button
+                  onClick={handleCameraCapture}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-white text-sm hover:bg-white/10 rounded transition-colors"
+                >
+                  <Camera className="w-4 h-4" />
+                  Camera
+                </button>
+                <button
+                  onClick={handleUploadFromSystem}
+                  className="flex items-center gap-2 w-full px-3 py-2 text-white text-sm hover:bg-white/10 rounded transition-colors"
+                >
+                  <Upload className="w-4 h-4" />
+                  Upload from system
+                </button>
+              </PopoverContent>
+            </Popover>
             <span className="text-white/50 text-xs">Profile Photo</span>
           </div>
 

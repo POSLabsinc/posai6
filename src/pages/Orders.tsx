@@ -7327,7 +7327,10 @@ const Orders = () => {
                     <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
                   </button>
                   <button 
-                    onClick={() => setShowAddGuestForm(true)}
+                    onClick={() => {
+                      setShowAddGuestForm(true);
+                      setIsOrderActionsSidebarOpen(false);
+                    }}
                     className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
                   >
                     <img src={addGuestIcon} alt="" className="w-5 h-5" />

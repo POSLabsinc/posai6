@@ -7190,8 +7190,14 @@ const Orders = () => {
                           if (type.label === "DINE IN") {
                             setShowDineInForm(true);
                             setDineInGuestData(null);
+                            setShowTakeOutForm(false);
+                          } else if (type.label === "TAKE OUT") {
+                            setShowTakeOutForm(true);
+                            setTakeOutGuestData(null);
+                            setShowDineInForm(false);
                           } else {
                             setShowDineInForm(false);
+                            setShowTakeOutForm(false);
                           }
                         }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
                           <img src={type.icon} alt="" className="w-4 h-4" />

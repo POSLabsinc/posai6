@@ -316,9 +316,13 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
                 
                 {/* Address 1 */}
                 <div className="flex items-center justify-between py-2 border-b border-white/10">
-                  <div className="flex flex-col">
+                  <div className="flex flex-col flex-1 mr-2">
                     <span className="text-xs text-muted-foreground">Address 1</span>
-                    <span className="text-sm text-foreground">{formData.address.address1}</span>
+                    <Input
+                      value={formData.address.address1}
+                      onChange={(e) => handleAddressFieldChange('address1', e.target.value)}
+                      className="bg-transparent border-none p-0 h-6 text-sm text-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
                   </div>
                   <button
                     onClick={() => clearAddressField('address1')}
@@ -330,13 +334,14 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
                 
                 {/* Address 2 */}
                 <div className="flex items-center justify-between py-2 border-b border-white/10">
-                  <div className="flex flex-col">
-                    <span className="text-xs text-muted-foreground">Address 2</span>
-                    {formData.address.address2 ? (
-                      <span className="text-sm text-foreground">{formData.address.address2}</span>
-                    ) : (
-                      <span className="text-sm text-muted-foreground">Optional</span>
-                    )}
+                  <div className="flex flex-col flex-1 mr-2">
+                    <span className="text-xs text-muted-foreground">Address 1</span>
+                    <Input
+                      value={formData.address.address2}
+                      onChange={(e) => handleAddressFieldChange('address2', e.target.value)}
+                      placeholder="Optional"
+                      className="bg-transparent border-none p-0 h-6 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
                   </div>
                   <button
                     onClick={() => clearAddressField('address2')}
@@ -348,9 +353,13 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
                 
                 {/* City */}
                 <div className="flex items-center justify-between py-2">
-                  <div className="flex flex-col">
+                  <div className="flex flex-col flex-1 mr-2">
                     <span className="text-xs text-muted-foreground">City</span>
-                    <span className="text-sm text-foreground">{formData.address.city}</span>
+                    <Input
+                      value={formData.address.city}
+                      onChange={(e) => handleAddressFieldChange('city', e.target.value)}
+                      className="bg-transparent border-none p-0 h-6 text-sm text-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
                   </div>
                   <button
                     onClick={() => clearAddressField('city')}

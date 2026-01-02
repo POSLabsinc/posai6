@@ -6656,8 +6656,11 @@ const Orders = () => {
                 <span className="text-muted-foreground text-xs">Let's create an order</span>
               </div> : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
                 <div className="px-1.5 py-0.5 space-y-0.5">
-                  {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
-                      <div className="flex items-center justify-between bg-neutral-800 rounded px-1.5 py-1">
+                  {orderItems.map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
+                      <div 
+                        className="flex items-center justify-between bg-neutral-800 rounded px-1.5 py-1 cursor-pointer"
+                        onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}
+                      >
                         <div className="flex items-center gap-1.5">
                           <span className="w-4 h-4 rounded border border-white/50 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
                             {item.qty}
@@ -7516,10 +7519,12 @@ const Orders = () => {
                         <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                         <span className="text-muted-foreground text-sm">Let's create an order</span>
                       </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
-                        {orderItems.map(item => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
-                            <div className="p-2 md:p-1.5 lg:p-3 border border-sidebar-border rounded-md md:rounded lg:rounded-lg" style={{
-                          background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
-                        }}>
+                        {orderItems.map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
+                            <div 
+                              className="p-2 md:p-1.5 lg:p-3 border border-sidebar-border rounded-md md:rounded lg:rounded-lg cursor-pointer" 
+                              style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                              onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}
+                            >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2 md:gap-1.5 lg:gap-3">
                                   <span className="w-5 h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full bg-orange-500 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0">

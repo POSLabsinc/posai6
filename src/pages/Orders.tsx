@@ -6741,6 +6741,141 @@ const Orders = () => {
             </div>
           </div>
 
+          {/* Mobile Guest Forms */}
+          {orderType === "DINE IN" && showDineInForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
+              <DineInGuestForm
+                onSave={(data) => {
+                  setDineInGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowDineInForm(false);
+                }}
+                onCancel={() => setShowDineInForm(false)}
+                onClose={() => setShowDineInForm(false)}
+                initialData={dineInGuestData || undefined}
+              />
+            </div>
+          )}
+          {orderType === "TAKE OUT" && showTakeOutForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
+              <TakeOutGuestForm
+                onSave={(data) => {
+                  setTakeOutGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowTakeOutForm(false);
+                }}
+                onCancel={() => setShowTakeOutForm(false)}
+                onClose={() => setShowTakeOutForm(false)}
+                initialData={takeOutGuestData || undefined}
+              />
+            </div>
+          )}
+          {orderType === "DELIVERY" && showDeliveryForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
+              <DeliveryGuestForm
+                onSave={(data) => {
+                  setDeliveryGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowDeliveryForm(false);
+                }}
+                onCancel={() => setShowDeliveryForm(false)}
+                onClose={() => setShowDeliveryForm(false)}
+                initialData={deliveryGuestData || undefined}
+              />
+            </div>
+          )}
+          {orderType === "BANQUET" && showBanquetForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
+              <BanquetGuestForm
+                onSave={(data) => {
+                  setBanquetGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowBanquetForm(false);
+                }}
+                onCancel={() => setShowBanquetForm(false)}
+                onClose={() => setShowBanquetForm(false)}
+                initialData={banquetGuestData || undefined}
+              />
+            </div>
+          )}
+          {orderType === "DRIVE THRU" && showDriveThruForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
+              <DriveThruGuestForm
+                onSave={(data) => {
+                  setDriveThruGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowDriveThruForm(false);
+                }}
+                onCancel={() => setShowDriveThruForm(false)}
+                onClose={() => setShowDriveThruForm(false)}
+                initialData={driveThruGuestData || undefined}
+              />
+            </div>
+          )}
+          {orderType === "CURB SIDE" && showCurbSideForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
+              <CurbSideGuestForm
+                onSave={(data) => {
+                  setCurbSideGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowCurbSideForm(false);
+                }}
+                onCancel={() => setShowCurbSideForm(false)}
+                onClose={() => setShowCurbSideForm(false)}
+                initialData={curbSideGuestData || undefined}
+              />
+            </div>
+          )}
+          {orderType === "SCHEDULED" && showScheduledForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
+              <ScheduledGuestForm
+                onSave={(data) => {
+                  setScheduledGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowScheduledForm(false);
+                }}
+                onCancel={() => setShowScheduledForm(false)}
+                onClose={() => setShowScheduledForm(false)}
+                initialData={scheduledGuestData || undefined}
+              />
+            </div>
+          )}
+          {orderType === "PHONE-IN" && showPhoneInForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
+              <PhoneInGuestForm
+                onSave={(data) => {
+                  setPhoneInGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowPhoneInForm(false);
+                }}
+                onClose={() => setShowPhoneInForm(false)}
+                initialData={phoneInGuestData || undefined}
+              />
+            </div>
+          )}
+          {orderType === "CUSTOM" && showCustomOrderForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
+              <CustomOrderGuestForm
+                onSave={(data) => {
+                  setCustomOrderGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowCustomOrderForm(false);
+                }}
+                onClose={() => setShowCustomOrderForm(false)}
+                initialData={customOrderGuestData || undefined}
+              />
+            </div>
+          )}
+
           {/* Mobile Cart Items */}
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? <div className="flex-1 flex flex-col items-center justify-center pb-2">

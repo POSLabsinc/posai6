@@ -68,6 +68,7 @@ import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 import AddGuestForm from "@/components/AddGuestForm";
 import DineInGuestForm, { DineInGuestData } from "@/components/DineInGuestForm";
 import TakeOutGuestForm, { TakeOutGuestData } from "@/components/TakeOutGuestForm";
+import DeliveryGuestForm, { DeliveryGuestData } from "@/components/DeliveryGuestForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6010,6 +6011,8 @@ const Orders = () => {
   const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
   const [showTakeOutForm, setShowTakeOutForm] = useState(true);
   const [takeOutGuestData, setTakeOutGuestData] = useState<TakeOutGuestData | null>(null);
+  const [showDeliveryForm, setShowDeliveryForm] = useState(true);
+  const [deliveryGuestData, setDeliveryGuestData] = useState<DeliveryGuestData | null>(null);
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
@@ -7191,13 +7194,21 @@ const Orders = () => {
                             setShowDineInForm(true);
                             setDineInGuestData(null);
                             setShowTakeOutForm(false);
+                            setShowDeliveryForm(false);
                           } else if (type.label === "TAKE OUT") {
                             setShowTakeOutForm(true);
                             setTakeOutGuestData(null);
                             setShowDineInForm(false);
+                            setShowDeliveryForm(false);
+                          } else if (type.label === "DELIVERY") {
+                            setShowDeliveryForm(true);
+                            setDeliveryGuestData(null);
+                            setShowDineInForm(false);
+                            setShowTakeOutForm(false);
                           } else {
                             setShowDineInForm(false);
                             setShowTakeOutForm(false);
+                            setShowDeliveryForm(false);
                           }
                         }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
                           <img src={type.icon} alt="" className="w-4 h-4" />
@@ -7234,6 +7245,16 @@ const Orders = () => {
                   }}
                   onClose={() => setShowTakeOutForm(false)}
                 />
+              ) : orderType === "DELIVERY" && showDeliveryForm ? (
+                <DeliveryGuestForm
+                  onSave={(data) => {
+                    setDeliveryGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowDeliveryForm(false);
+                  }}
+                  onClose={() => setShowDeliveryForm(false)}
+                />
               ) : (
                 <>
                   {/* Edit Guest Info Button for Dine In */}
@@ -7255,6 +7276,17 @@ const Orders = () => {
                       style={{ background: 'rgba(117, 117, 117, 0.2)' }}
                     >
                       <span>Guest: {takeOutGuestData.guestName}</span>
+                      <span className="text-xs underline">Edit</span>
+                    </button>
+                  )}
+                  {/* Edit Guest Info Button for Delivery */}
+                  {orderType === "DELIVERY" && deliveryGuestData && (
+                    <button
+                      onClick={() => setShowDeliveryForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
+                      <span>Guest: {deliveryGuestData.guestName} | {deliveryGuestData.address.slice(0, 25)}...</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
                   )}

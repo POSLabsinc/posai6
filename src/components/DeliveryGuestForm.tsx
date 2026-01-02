@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, X, Locate, ChevronRight, ChevronDown, Home } from "lucide-react";
+import { Search, X, ChevronRight, ChevronDown, Home, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -38,10 +38,10 @@ const mockGuests = [
 
 // Mock address suggestions for autocomplete
 const mockAddressSuggestions = [
-  { address1: "123 Main Street", city: "Los Angeles", state: "California", zip: "90001", country: "USA" },
-  { address1: "Main Street 123", city: "Los Angeles", state: "California", zip: "90001", country: "United States" },
-  { address1: "456 Main Avenue", city: "Los Angeles", state: "California", zip: "90002", country: "USA" },
-  { address1: "789 Main Boulevard", city: "Los Angeles", state: "California", zip: "90003", country: "USA" },
+  { label: "Office", address1: "123 Main Street", city: "Los Angeles", state: "California", zip: "90001", country: "USA" },
+  { label: "Home", address1: "Main Street 123", city: "Los Angeles", state: "California", zip: "90001", country: "United States" },
+  { label: "Work", address1: "456 Main Avenue", city: "Los Angeles", state: "California", zip: "90002", country: "USA" },
+  { label: "Other", address1: "789 Main Boulevard", city: "Los Angeles", state: "California", zip: "90003", country: "USA" },
 ];
 
 const formatPhoneNumber = (value: string): string => {
@@ -100,11 +100,10 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
   };
 
   const handleSelectAddress = (suggestion: typeof mockAddressSuggestions[0]) => {
-    const fullAddress = `${suggestion.address1}, ${suggestion.city} ${suggestion.state}...`;
     setFormData((prev) => ({
       ...prev,
       address: {
-        label: "Office",
+        label: suggestion.label,
         address1: suggestion.address1,
         address2: "",
         city: suggestion.city,
@@ -154,10 +153,6 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
         address: formData.address,
       });
     }
-  };
-
-  const handleLocateAddress = () => {
-    console.log("Locate address clicked");
   };
 
   const removeAddress = () => {
@@ -247,52 +242,37 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
         />
       </div>
 
-      {/* Address Search Field - Always visible when no address selected */}
-      {!formData.address && (
-        <div className="mb-3 relative">
-          <Input
-            placeholder="Search for an address..."
-            value={addressSearchQuery}
-            onChange={(e) => {
-              setAddressSearchQuery(e.target.value);
-              setShowAddressSuggestions(true);
-            }}
-            onFocus={() => setShowAddressSuggestions(true)}
-            className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground pr-10"
-          />
-          {addressSearchQuery && (
-            <button
-              onClick={() => setAddressSearchQuery("")}
-              className="absolute right-10 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded transition-colors"
-              type="button"
-            >
-              <X className="w-3 h-3 text-muted-foreground" />
-            </button>
-          )}
-          <button
-            onClick={handleLocateAddress}
-            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded transition-colors"
-            type="button"
-          >
-            <Locate className="w-4 h-4 text-muted-foreground" />
-          </button>
-          
-          {/* Address Suggestions Dropdown */}
-          {showAddressSuggestions && addressSuggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-neutral-200 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
-              {addressSuggestions.map((addr, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleSelectAddress(addr)}
-                  className="w-full px-3 py-2 text-left hover:bg-neutral-100 text-sm text-neutral-800 border-b border-neutral-100 last:border-0"
-                >
-                  <span>{addr.address1},  {addr.city} {addr.state}, {addr.zip} {addr.country}</span>
-                </button>
-              ))}
-            </div>
-          )}
+      {/* Address Search Field - Always visible */}
+      <div className="mb-3 relative">
+        <Input
+          placeholder="Search for an address..."
+          value={addressSearchQuery}
+          onChange={(e) => {
+            setAddressSearchQuery(e.target.value);
+            setShowAddressSuggestions(true);
+          }}
+          onFocus={() => setShowAddressSuggestions(true)}
+          className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground pr-10"
+        />
+        <div className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center border border-white/30 rounded">
+          <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
         </div>
-      )}
+        
+        {/* Address Suggestions Dropdown */}
+        {showAddressSuggestions && addressSuggestions.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-neutral-200 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+            {addressSuggestions.map((addr, index) => (
+              <button
+                key={index}
+                onClick={() => handleSelectAddress(addr)}
+                className="w-full px-3 py-2 text-left hover:bg-neutral-100 text-sm text-neutral-800 border-b border-neutral-100 last:border-0"
+              >
+                <span>{addr.address1}, {addr.city} {addr.state}, {addr.zip} {addr.country}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
 
       {/* Selected Address Display */}
       {formData.address && (

@@ -39,7 +39,7 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
   const [orderFulfillmentType, setOrderFulfillmentType] = useState<"Pickup" | "Delivery">(
     initialData?.orderFulfillmentType || "Pickup"
   );
-  const [pickupTime, setPickupTime] = useState(initialData?.pickupTime || "");
+  const [pickupTime, setPickupTime] = useState(initialData?.pickupTime || "12:00");
   const [showFulfillmentDropdown, setShowFulfillmentDropdown] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
   

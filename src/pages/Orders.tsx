@@ -70,6 +70,7 @@ import DineInGuestForm, { DineInGuestData } from "@/components/DineInGuestForm";
 import TakeOutGuestForm, { TakeOutGuestData } from "@/components/TakeOutGuestForm";
 import DeliveryGuestForm, { DeliveryGuestData } from "@/components/DeliveryGuestForm";
 import BanquetGuestForm, { BanquetGuestData } from "@/components/BanquetGuestForm";
+import DriveThruGuestForm, { DriveThruGuestData } from "@/components/DriveThruGuestForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6016,6 +6017,8 @@ const Orders = () => {
   const [deliveryGuestData, setDeliveryGuestData] = useState<DeliveryGuestData | null>(null);
   const [showBanquetForm, setShowBanquetForm] = useState(true);
   const [banquetGuestData, setBanquetGuestData] = useState<BanquetGuestData | null>(null);
+  const [showDriveThruForm, setShowDriveThruForm] = useState(true);
+  const [driveThruGuestData, setDriveThruGuestData] = useState<DriveThruGuestData | null>(null);
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
@@ -7198,20 +7201,30 @@ const Orders = () => {
                             setDineInGuestData(null);
                             setShowTakeOutForm(false);
                             setShowDeliveryForm(false);
+                            setShowDriveThruForm(false);
                           } else if (type.label === "TAKE OUT") {
                             setShowTakeOutForm(true);
                             setTakeOutGuestData(null);
                             setShowDineInForm(false);
                             setShowDeliveryForm(false);
+                            setShowDriveThruForm(false);
                           } else if (type.label === "DELIVERY") {
                             setShowDeliveryForm(true);
                             setDeliveryGuestData(null);
                             setShowDineInForm(false);
                             setShowTakeOutForm(false);
+                            setShowDriveThruForm(false);
+                          } else if (type.label === "DRIVE THRU") {
+                            setShowDriveThruForm(true);
+                            setDriveThruGuestData(null);
+                            setShowDineInForm(false);
+                            setShowTakeOutForm(false);
+                            setShowDeliveryForm(false);
                           } else {
                             setShowDineInForm(false);
                             setShowTakeOutForm(false);
                             setShowDeliveryForm(false);
+                            setShowDriveThruForm(false);
                           }
                         }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
                           <img src={type.icon} alt="" className="w-4 h-4" />
@@ -7268,6 +7281,16 @@ const Orders = () => {
                   }}
                   onClose={() => setShowBanquetForm(false)}
                 />
+              ) : orderType === "DRIVE THRU" && showDriveThruForm ? (
+                <DriveThruGuestForm
+                  onSave={(data) => {
+                    setDriveThruGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowDriveThruForm(false);
+                  }}
+                  onClose={() => setShowDriveThruForm(false)}
+                />
               ) : (
                 <>
                   {/* Edit Guest Info Button for Dine In */}
@@ -7311,6 +7334,17 @@ const Orders = () => {
                       style={{ background: 'rgba(117, 117, 117, 0.2)' }}
                     >
                       <span>Guest: {banquetGuestData.guestName} | {banquetGuestData.eventType}</span>
+                      <span className="text-xs underline">Edit</span>
+                    </button>
+                  )}
+                  {/* Edit Guest Info Button for Drive Thru */}
+                  {orderType === "DRIVE THRU" && driveThruGuestData && (
+                    <button
+                      onClick={() => setShowDriveThruForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
+                      <span>Guest: {driveThruGuestData.guestName}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
                   )}

@@ -71,6 +71,7 @@ import TakeOutGuestForm, { TakeOutGuestData } from "@/components/TakeOutGuestFor
 import DeliveryGuestForm, { DeliveryGuestData } from "@/components/DeliveryGuestForm";
 import BanquetGuestForm, { BanquetGuestData } from "@/components/BanquetGuestForm";
 import DriveThruGuestForm, { DriveThruGuestData } from "@/components/DriveThruGuestForm";
+import CurbSideGuestForm, { CurbSideGuestData } from "@/components/CurbSideGuestForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6019,6 +6020,8 @@ const Orders = () => {
   const [banquetGuestData, setBanquetGuestData] = useState<BanquetGuestData | null>(null);
   const [showDriveThruForm, setShowDriveThruForm] = useState(true);
   const [driveThruGuestData, setDriveThruGuestData] = useState<DriveThruGuestData | null>(null);
+  const [showCurbSideForm, setShowCurbSideForm] = useState(true);
+  const [curbSideGuestData, setCurbSideGuestData] = useState<CurbSideGuestData | null>(null);
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
@@ -7202,29 +7205,41 @@ const Orders = () => {
                             setShowTakeOutForm(false);
                             setShowDeliveryForm(false);
                             setShowDriveThruForm(false);
+                            setShowCurbSideForm(false);
                           } else if (type.label === "TAKE OUT") {
                             setShowTakeOutForm(true);
                             setTakeOutGuestData(null);
                             setShowDineInForm(false);
                             setShowDeliveryForm(false);
                             setShowDriveThruForm(false);
+                            setShowCurbSideForm(false);
                           } else if (type.label === "DELIVERY") {
                             setShowDeliveryForm(true);
                             setDeliveryGuestData(null);
                             setShowDineInForm(false);
                             setShowTakeOutForm(false);
                             setShowDriveThruForm(false);
+                            setShowCurbSideForm(false);
                           } else if (type.label === "DRIVE THRU") {
                             setShowDriveThruForm(true);
                             setDriveThruGuestData(null);
                             setShowDineInForm(false);
                             setShowTakeOutForm(false);
                             setShowDeliveryForm(false);
+                            setShowCurbSideForm(false);
+                          } else if (type.label === "CURB SIDE") {
+                            setShowCurbSideForm(true);
+                            setCurbSideGuestData(null);
+                            setShowDineInForm(false);
+                            setShowTakeOutForm(false);
+                            setShowDeliveryForm(false);
+                            setShowDriveThruForm(false);
                           } else {
                             setShowDineInForm(false);
                             setShowTakeOutForm(false);
                             setShowDeliveryForm(false);
                             setShowDriveThruForm(false);
+                            setShowCurbSideForm(false);
                           }
                         }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
                           <img src={type.icon} alt="" className="w-4 h-4" />
@@ -7291,6 +7306,16 @@ const Orders = () => {
                   }}
                   onClose={() => setShowDriveThruForm(false)}
                 />
+              ) : orderType === "CURB SIDE" && showCurbSideForm ? (
+                <CurbSideGuestForm
+                  onSave={(data) => {
+                    setCurbSideGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowCurbSideForm(false);
+                  }}
+                  onClose={() => setShowCurbSideForm(false)}
+                />
               ) : (
                 <>
                   {/* Edit Guest Info Button for Dine In */}
@@ -7345,6 +7370,17 @@ const Orders = () => {
                       style={{ background: 'rgba(117, 117, 117, 0.2)' }}
                     >
                       <span>Guest: {driveThruGuestData.guestName}</span>
+                      <span className="text-xs underline">Edit</span>
+                    </button>
+                  )}
+                  {/* Edit Guest Info Button for Curb Side */}
+                  {orderType === "CURB SIDE" && curbSideGuestData && (
+                    <button
+                      onClick={() => setShowCurbSideForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
+                      <span>Guest: {curbSideGuestData.guestName}{curbSideGuestData.parkingSpot ? ` | ${curbSideGuestData.parkingSpot}` : ''}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
                   )}

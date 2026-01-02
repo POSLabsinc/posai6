@@ -273,7 +273,8 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose }: BanquetGuestFormProps) 
             type="date"
             value={formData.eventDate}
             onChange={(e) => handleInputChange("eventDate", e.target.value)}
-            className="pl-9 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+            onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
+            className="pl-9 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
           />
         </div>
       </div>
@@ -286,7 +287,8 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose }: BanquetGuestFormProps) 
             type="time"
             value={formData.eventTime}
             onChange={(e) => handleInputChange("eventTime", e.target.value)}
-            className="pl-9 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+            onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
+            className="pl-9 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
           />
         </div>
         <div>

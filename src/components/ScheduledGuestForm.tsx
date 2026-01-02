@@ -266,12 +266,13 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20 pointer-events-auto" align="start">
+            <PopoverContent className="w-[260px] p-0 bg-zinc-900 border border-zinc-700 shadow-xl rounded-2xl pointer-events-auto" align="start" sideOffset={8}>
               <IOSTimePicker
                 value={formData.scheduledTime}
                 onChange={(time) => {
                   setFormData((prev) => ({ ...prev, scheduledTime: time }));
                 }}
+                className="p-3"
               />
               <div className="p-2 border-t border-white/10">
                 <Button

@@ -252,13 +252,14 @@ const CustomOrderGuestForm = ({ onSave, onClose, initialData }: CustomOrderGuest
                 <ChevronDown className="w-4 h-4 text-white/70" />
               </button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 pointer-events-auto" align="start">
+            <PopoverContent className="w-[260px] p-0 bg-zinc-900 border border-zinc-700 shadow-xl rounded-2xl pointer-events-auto" align="start" sideOffset={8}>
               <IOSTimePicker
                 value={estimatedCompletionTime}
                 onChange={(val) => {
                   setEstimatedCompletionTime(val);
                   setShowTimePicker(false);
                 }}
+                className="p-3"
               />
             </PopoverContent>
           </Popover>

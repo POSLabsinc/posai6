@@ -355,11 +355,12 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
                 }
               </span>
             </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-[260px] p-3 bg-white border border-gray-200 shadow-xl rounded-2xl" align="start" sideOffset={8}>
+        </PopoverTrigger>
+          <PopoverContent className="w-[260px] p-0 bg-zinc-900 border border-zinc-700 shadow-xl rounded-2xl" align="start" sideOffset={8}>
             <IOSTimePicker
               value={formData.eventTime || "09:00"}
               onChange={(time) => handleInputChange("eventTime", time)}
+              className="p-3"
             />
           </PopoverContent>
         </Popover>

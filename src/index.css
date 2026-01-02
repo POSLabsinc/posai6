@@ -164,4 +164,9 @@ All colors MUST be HSL.
       transform: rotate(360deg);
     }
   }
+
+  /* Hide scrollbar for iOS time picker */
+  .ios-picker-scroll::-webkit-scrollbar {
+    display: none;
+  }
 }

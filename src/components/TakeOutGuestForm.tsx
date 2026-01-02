@@ -7,6 +7,7 @@ interface TakeOutGuestFormProps {
   onSave: (data: TakeOutGuestData) => void;
   onCancel?: () => void;
   onClose?: () => void;
+  initialData?: TakeOutGuestData | null;
 }
 
 export interface TakeOutGuestData {
@@ -32,12 +33,12 @@ const formatPhoneNumber = (value: string): string => {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 };
 
-const TakeOutGuestForm = ({ onSave, onCancel, onClose }: TakeOutGuestFormProps) => {
+const TakeOutGuestForm = ({ onSave, onCancel, onClose, initialData }: TakeOutGuestFormProps) => {
   const [formData, setFormData] = useState<TakeOutGuestData>({
-    guestName: "",
-    phoneNumber: "",
-    email: "",
-    notes: "",
+    guestName: initialData?.guestName || "",
+    phoneNumber: initialData?.phoneNumber ? formatPhoneNumber(initialData.phoneNumber) : "",
+    email: initialData?.email || "",
+    notes: initialData?.notes || "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);

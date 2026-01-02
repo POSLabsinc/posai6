@@ -8,6 +8,7 @@ interface DineInGuestFormProps {
   onSave: (data: DineInGuestData) => void;
   onCancel?: () => void;
   onClose?: () => void;
+  initialData?: DineInGuestData | null;
 }
 
 export interface DineInGuestData {
@@ -36,13 +37,13 @@ const formatPhoneNumber = (value: string): string => {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 };
 
-const DineInGuestForm = ({ onSave, onCancel, onClose }: DineInGuestFormProps) => {
+const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuestFormProps) => {
   const [formData, setFormData] = useState<DineInGuestData>({
-    guestName: "",
-    tableNumber: "",
-    phoneNumber: "",
-    email: "",
-    notes: "",
+    guestName: initialData?.guestName || "",
+    tableNumber: initialData?.tableNumber || "",
+    phoneNumber: initialData?.phoneNumber ? formatPhoneNumber(initialData.phoneNumber) : "",
+    email: initialData?.email || "",
+    notes: initialData?.notes || "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);

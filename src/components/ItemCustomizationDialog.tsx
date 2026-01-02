@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { ChevronDown, FileText, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 interface ModifierOption {
   name: string;
@@ -102,6 +103,7 @@ export const ItemCustomizationDialog = ({
   const [activeTab, setActiveTab] = useState<'item' | 'addons'>('item');
   const [activeModifierCategory, setActiveModifierCategory] = useState(itemModifiers[0]?.name || "");
   const [itemNotes, setItemNotes] = useState("");
+  const [quantityPickerOpen, setQuantityPickerOpen] = useState(false);
 
   if (!item) return null;
 
@@ -178,10 +180,38 @@ export const ItemCustomizationDialog = ({
               <div className="bg-neutral-700 px-3 py-1.5 rounded-lg">
                 <span className="text-white font-bold">${item.price.toFixed(2)}</span>
               </div>
-              <div className="flex items-center gap-1 bg-neutral-700 rounded-lg px-2 py-1">
-                <span className="text-white font-medium">{quantity}</span>
-                <ChevronDown className="w-4 h-4 text-neutral-400" />
-              </div>
+              <Popover open={quantityPickerOpen} onOpenChange={setQuantityPickerOpen}>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center gap-1 bg-neutral-700 rounded-lg px-2 py-1.5 hover:bg-neutral-600 transition-colors">
+                    <span className="text-white font-medium">{quantity}</span>
+                    <ChevronDown className="w-4 h-4 text-neutral-400" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent 
+                  className="w-20 p-1 bg-zinc-900 border-zinc-700 z-[100]" 
+                  align="end"
+                  sideOffset={4}
+                >
+                  <div className="flex flex-col max-h-48 overflow-y-auto scrollbar-hide">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                      <button
+                        key={num}
+                        onClick={() => {
+                          setQuantity(num);
+                          setQuantityPickerOpen(false);
+                        }}
+                        className={`px-3 py-2 text-sm text-center rounded transition-colors ${
+                          quantity === num 
+                            ? 'bg-white text-black font-medium' 
+                            : 'text-white hover:bg-zinc-700'
+                        }`}
+                      >
+                        {num}
+                      </button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
         </div>

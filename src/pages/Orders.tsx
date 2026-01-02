@@ -69,6 +69,7 @@ import AddGuestForm from "@/components/AddGuestForm";
 import DineInGuestForm, { DineInGuestData } from "@/components/DineInGuestForm";
 import TakeOutGuestForm, { TakeOutGuestData } from "@/components/TakeOutGuestForm";
 import DeliveryGuestForm, { DeliveryGuestData } from "@/components/DeliveryGuestForm";
+import BanquetGuestForm, { BanquetGuestData } from "@/components/BanquetGuestForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6013,6 +6014,8 @@ const Orders = () => {
   const [takeOutGuestData, setTakeOutGuestData] = useState<TakeOutGuestData | null>(null);
   const [showDeliveryForm, setShowDeliveryForm] = useState(true);
   const [deliveryGuestData, setDeliveryGuestData] = useState<DeliveryGuestData | null>(null);
+  const [showBanquetForm, setShowBanquetForm] = useState(true);
+  const [banquetGuestData, setBanquetGuestData] = useState<BanquetGuestData | null>(null);
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
@@ -7255,6 +7258,16 @@ const Orders = () => {
                   }}
                   onClose={() => setShowDeliveryForm(false)}
                 />
+              ) : orderType === "BANQUET" && showBanquetForm ? (
+                <BanquetGuestForm
+                  onSave={(data) => {
+                    setBanquetGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowBanquetForm(false);
+                  }}
+                  onClose={() => setShowBanquetForm(false)}
+                />
               ) : (
                 <>
                   {/* Edit Guest Info Button for Dine In */}
@@ -7287,6 +7300,17 @@ const Orders = () => {
                       style={{ background: 'rgba(117, 117, 117, 0.2)' }}
                     >
                       <span>Guest: {deliveryGuestData.guestName} | {deliveryGuestData.address.fullAddress.slice(0, 25)}...</span>
+                      <span className="text-xs underline">Edit</span>
+                    </button>
+                  )}
+                  {/* Edit Guest Info Button for Banquet */}
+                  {orderType === "BANQUET" && banquetGuestData && (
+                    <button
+                      onClick={() => setShowBanquetForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
+                      <span>Guest: {banquetGuestData.guestName} | {banquetGuestData.eventType}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
                   )}

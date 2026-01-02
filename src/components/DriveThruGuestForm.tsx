@@ -60,6 +60,22 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormPro
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showVehicleInfo, setShowVehicleInfo] = useState(false);
+  const [vehicleSaved, setVehicleSaved] = useState(false);
+
+  // Check if vehicle info is complete enough to save
+  const hasVehicleInfo = formData.vehicleBrand || formData.licensePlate || formData.vehicleColor;
+
+  const handleSaveVehicle = () => {
+    if (hasVehicleInfo) {
+      setVehicleSaved(true);
+      setShowVehicleInfo(false);
+    }
+  };
+
+  const handleEditVehicle = () => {
+    setVehicleSaved(false);
+    setShowVehicleInfo(true);
+  };
 
   const maxNotes = 70;
 
@@ -155,25 +171,34 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormPro
       {/* Vehicle Information Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-foreground">Vehicle Information</h3>
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            onClick={() => setShowVehicleInfo(!showVehicleInfo)}
-            className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors"
-          >
-            <Car className="w-4 h-4 text-muted-foreground" />
-          </button>
-          {showVehicleInfo && (
-            <button
-              type="button"
-              onClick={() => setShowVehicleInfo(false)}
-              className="p-1 hover:bg-white/10 rounded transition-colors"
-            >
-              <X className="w-4 h-4 text-red-400" />
-            </button>
-          )}
-        </div>
+        <button
+          type="button"
+          onClick={() => vehicleSaved ? handleEditVehicle() : setShowVehicleInfo(!showVehicleInfo)}
+          className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors"
+        >
+          <Car className="w-4 h-4 text-muted-foreground" />
+        </button>
       </div>
+
+      {/* Vehicle Info Saved Display */}
+      {vehicleSaved && hasVehicleInfo && !showVehicleInfo && (
+        <div 
+          className="mb-3 p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-colors"
+          onClick={handleEditVehicle}
+        >
+          <div className="p-2 bg-white/10 rounded">
+            <Car className="w-5 h-5 text-muted-foreground" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-medium text-foreground">
+              {formData.vehicleBrand}{formData.vehicleType ? ` (${formData.vehicleType})` : ''}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              {[formData.licensePlate, formData.vehicleColor].filter(Boolean).join(' | ')}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* Vehicle Information Fields - Collapsible */}
       {showVehicleInfo && (
@@ -212,7 +237,7 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormPro
               </Select>
             </div>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-2 gap-3 mb-3">
             <div>
               <label className="text-xs text-muted-foreground mb-1 block">Brand</label>
               <Input
@@ -231,6 +256,24 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormPro
                 className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
               />
             </div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setShowVehicleInfo(false)}
+              className="flex-1 h-8 text-xs bg-white/5 border-white/20 hover:bg-white/10"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              onClick={handleSaveVehicle}
+              disabled={!hasVehicleInfo}
+              className="flex-1 h-8 text-xs bg-primary hover:bg-primary/90"
+            >
+              Save Vehicle
+            </Button>
           </div>
         </div>
       )}

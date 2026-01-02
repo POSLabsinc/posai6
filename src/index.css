@@ -166,7 +166,11 @@ All colors MUST be HSL.
   }
 
   /* Hide scrollbar for iOS time picker */
+  .ios-picker-scroll {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
+  }
   .ios-picker-scroll::-webkit-scrollbar {
-    display: none;
+    display: none; /* Chrome/Safari/Opera */
   }
 }

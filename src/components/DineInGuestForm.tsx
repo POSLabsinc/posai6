@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+
 
 interface DineInGuestFormProps {
   onSave: (data: DineInGuestData) => void;
@@ -19,7 +19,7 @@ export interface DineInGuestData {
   notes: string;
 }
 
-const tableNumbers = Array.from({ length: 30 }, (_, i) => String(i + 1));
+
 
 // Mock guest data for search
 const mockGuests = [
@@ -149,18 +149,16 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
           />
         </div>
         <div>
-          <Select value={formData.tableNumber} onValueChange={(value) => handleInputChange("tableNumber", value)}>
-            <SelectTrigger className="bg-white/10 border-white/20 text-sm h-9 text-foreground">
-              <SelectValue placeholder="Table Number*" />
-            </SelectTrigger>
-            <SelectContent className="bg-neutral-800 border-neutral-700">
-              {tableNumbers.map((num) => (
-                <SelectItem key={num} value={num} className="text-white hover:bg-neutral-700">
-                  Table {num}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <Input
+            type="number"
+            min={1}
+            max={30}
+            inputMode="numeric"
+            placeholder="Table Number*"
+            value={formData.tableNumber}
+            onChange={(e) => handleInputChange("tableNumber", e.target.value)}
+            className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+          />
         </div>
       </div>
 

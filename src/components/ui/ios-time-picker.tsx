@@ -106,9 +106,11 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
           {/* Scrollable items */}
           <div
             ref={scrollRef}
-            className="h-full overflow-y-auto scrollbar-hide snap-y snap-mandatory relative z-[1]"
+            className="h-full overflow-y-scroll relative z-[1] snap-y snap-mandatory ios-picker-scroll"
             onScroll={() => handleScroll(scrollRef, items, onSelect)}
-            style={{ scrollBehavior: "smooth" }}
+            style={{ 
+              WebkitOverflowScrolling: "touch"
+            }}
           >
             {/* Padding for centering - 54px = (144px - 36px) / 2 */}
             <div className="h-[54px]" />
@@ -116,7 +118,7 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
               <div
                 key={idx}
                 className={cn(
-                  "h-9 flex items-center justify-center text-lg font-semibold snap-center cursor-pointer transition-colors",
+                  "h-9 flex items-center justify-center text-lg font-semibold snap-center cursor-pointer transition-colors select-none",
                   selected === item ? "text-gray-900" : "text-gray-300"
                 )}
                 onClick={() => {

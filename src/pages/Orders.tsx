@@ -73,6 +73,8 @@ import BanquetGuestForm, { BanquetGuestData } from "@/components/BanquetGuestFor
 import DriveThruGuestForm, { DriveThruGuestData } from "@/components/DriveThruGuestForm";
 import CurbSideGuestForm, { CurbSideGuestData } from "@/components/CurbSideGuestForm";
 import ScheduledGuestForm, { ScheduledGuestData } from "@/components/ScheduledGuestForm";
+import PhoneInGuestForm, { PhoneInGuestData } from "@/components/PhoneInGuestForm";
+import CustomOrderGuestForm, { CustomOrderGuestData } from "@/components/CustomOrderGuestForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6025,6 +6027,10 @@ const Orders = () => {
   const [curbSideGuestData, setCurbSideGuestData] = useState<CurbSideGuestData | null>(null);
   const [showScheduledForm, setShowScheduledForm] = useState(true);
   const [scheduledGuestData, setScheduledGuestData] = useState<ScheduledGuestData | null>(null);
+  const [showPhoneInForm, setShowPhoneInForm] = useState(true);
+  const [phoneInGuestData, setPhoneInGuestData] = useState<PhoneInGuestData | null>(null);
+  const [showCustomOrderForm, setShowCustomOrderForm] = useState(true);
+  const [customOrderGuestData, setCustomOrderGuestData] = useState<CustomOrderGuestData | null>(null);
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
@@ -7246,6 +7252,28 @@ const Orders = () => {
                             setShowDeliveryForm(false);
                             setShowDriveThruForm(false);
                             setShowCurbSideForm(false);
+                            setShowPhoneInForm(false);
+                            setShowCustomOrderForm(false);
+                          } else if (type.label === "PHONE-IN") {
+                            setShowPhoneInForm(true);
+                            setPhoneInGuestData(null);
+                            setShowDineInForm(false);
+                            setShowTakeOutForm(false);
+                            setShowDeliveryForm(false);
+                            setShowDriveThruForm(false);
+                            setShowCurbSideForm(false);
+                            setShowScheduledForm(false);
+                            setShowCustomOrderForm(false);
+                          } else if (type.label === "CUSTOM") {
+                            setShowCustomOrderForm(true);
+                            setCustomOrderGuestData(null);
+                            setShowDineInForm(false);
+                            setShowTakeOutForm(false);
+                            setShowDeliveryForm(false);
+                            setShowDriveThruForm(false);
+                            setShowCurbSideForm(false);
+                            setShowScheduledForm(false);
+                            setShowPhoneInForm(false);
                           } else {
                             setShowDineInForm(false);
                             setShowTakeOutForm(false);
@@ -7253,6 +7281,8 @@ const Orders = () => {
                             setShowDriveThruForm(false);
                             setShowCurbSideForm(false);
                             setShowScheduledForm(false);
+                            setShowPhoneInForm(false);
+                            setShowCustomOrderForm(false);
                           }
                         }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
                           <img src={type.icon} alt="" className="w-4 h-4" />
@@ -7340,6 +7370,28 @@ const Orders = () => {
                   onClose={() => setShowScheduledForm(false)}
                   initialData={scheduledGuestData}
                 />
+              ) : orderType === "PHONE-IN" && showPhoneInForm ? (
+                <PhoneInGuestForm
+                  onSave={(data) => {
+                    setPhoneInGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowPhoneInForm(false);
+                  }}
+                  onClose={() => setShowPhoneInForm(false)}
+                  initialData={phoneInGuestData}
+                />
+              ) : orderType === "CUSTOM" && showCustomOrderForm ? (
+                <CustomOrderGuestForm
+                  onSave={(data) => {
+                    setCustomOrderGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowCustomOrderForm(false);
+                  }}
+                  onClose={() => setShowCustomOrderForm(false)}
+                  initialData={customOrderGuestData}
+                />
               ) : (
                 <>
                   {/* Edit Guest Info Button for Dine In */}
@@ -7416,6 +7468,28 @@ const Orders = () => {
                       style={{ background: 'rgba(117, 117, 117, 0.2)' }}
                     >
                       <span>Guest: {scheduledGuestData.guestName} | {scheduledGuestData.scheduledDate ? new Date(scheduledGuestData.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : ''}</span>
+                      <span className="text-xs underline">Edit</span>
+                    </button>
+                  )}
+                  {/* Edit Guest Info Button for Phone-In */}
+                  {orderType === "PHONE-IN" && phoneInGuestData && (
+                    <button
+                      onClick={() => setShowPhoneInForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
+                      <span>Guest: {phoneInGuestData.guestName} | {phoneInGuestData.orderFulfillmentType}</span>
+                      <span className="text-xs underline">Edit</span>
+                    </button>
+                  )}
+                  {/* Edit Guest Info Button for Custom Order */}
+                  {orderType === "CUSTOM" && customOrderGuestData && (
+                    <button
+                      onClick={() => setShowCustomOrderForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
+                      <span>Guest: {customOrderGuestData.guestName} | {customOrderGuestData.orderType || 'Custom'} {customOrderGuestData.priority !== "Normal" ? `(${customOrderGuestData.priority})` : ''}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
                   )}

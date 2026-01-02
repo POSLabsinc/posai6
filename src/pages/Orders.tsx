@@ -72,6 +72,7 @@ import DeliveryGuestForm, { DeliveryGuestData } from "@/components/DeliveryGuest
 import BanquetGuestForm, { BanquetGuestData } from "@/components/BanquetGuestForm";
 import DriveThruGuestForm, { DriveThruGuestData } from "@/components/DriveThruGuestForm";
 import CurbSideGuestForm, { CurbSideGuestData } from "@/components/CurbSideGuestForm";
+import ScheduledGuestForm, { ScheduledGuestData } from "@/components/ScheduledGuestForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6022,6 +6023,8 @@ const Orders = () => {
   const [driveThruGuestData, setDriveThruGuestData] = useState<DriveThruGuestData | null>(null);
   const [showCurbSideForm, setShowCurbSideForm] = useState(true);
   const [curbSideGuestData, setCurbSideGuestData] = useState<CurbSideGuestData | null>(null);
+  const [showScheduledForm, setShowScheduledForm] = useState(true);
+  const [scheduledGuestData, setScheduledGuestData] = useState<ScheduledGuestData | null>(null);
   const [guestName, setGuestName] = useState("");
   const [guestPhone, setGuestPhone] = useState("");
   const [orderNotes, setOrderNotes] = useState("");
@@ -7234,12 +7237,22 @@ const Orders = () => {
                             setShowTakeOutForm(false);
                             setShowDeliveryForm(false);
                             setShowDriveThruForm(false);
+                            setShowScheduledForm(false);
+                          } else if (type.label === "SCHEDULED") {
+                            setShowScheduledForm(true);
+                            setScheduledGuestData(null);
+                            setShowDineInForm(false);
+                            setShowTakeOutForm(false);
+                            setShowDeliveryForm(false);
+                            setShowDriveThruForm(false);
+                            setShowCurbSideForm(false);
                           } else {
                             setShowDineInForm(false);
                             setShowTakeOutForm(false);
                             setShowDeliveryForm(false);
                             setShowDriveThruForm(false);
                             setShowCurbSideForm(false);
+                            setShowScheduledForm(false);
                           }
                         }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
                           <img src={type.icon} alt="" className="w-4 h-4" />
@@ -7316,6 +7329,17 @@ const Orders = () => {
                   }}
                   onClose={() => setShowCurbSideForm(false)}
                 />
+              ) : orderType === "SCHEDULED" && showScheduledForm ? (
+                <ScheduledGuestForm
+                  onSave={(data) => {
+                    setScheduledGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowScheduledForm(false);
+                  }}
+                  onClose={() => setShowScheduledForm(false)}
+                  initialData={scheduledGuestData}
+                />
               ) : (
                 <>
                   {/* Edit Guest Info Button for Dine In */}
@@ -7381,6 +7405,17 @@ const Orders = () => {
                       style={{ background: 'rgba(117, 117, 117, 0.2)' }}
                     >
                       <span>Guest: {curbSideGuestData.guestName}{curbSideGuestData.parkingSpot ? ` | ${curbSideGuestData.parkingSpot}` : ''}</span>
+                      <span className="text-xs underline">Edit</span>
+                    </button>
+                  )}
+                  {/* Edit Guest Info Button for Scheduled */}
+                  {orderType === "SCHEDULED" && scheduledGuestData && (
+                    <button
+                      onClick={() => setShowScheduledForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
+                      <span>Guest: {scheduledGuestData.guestName} | {scheduledGuestData.scheduledDate ? new Date(scheduledGuestData.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : ''}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
                   )}

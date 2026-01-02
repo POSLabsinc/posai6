@@ -159,9 +159,9 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
   const isFormValid = formData.guestName && formData.scheduledDate && formData.scheduledTime;
 
   return (
-    <div className="flex flex-col gap-4 p-4 bg-white/5 rounded-xl border border-white/10">
-      {/* Header */}
-      <div className="flex items-center justify-between">
+    <div className="flex flex-col bg-white/5 rounded-xl border border-white/10 max-h-[calc(100vh-200px)]">
+      {/* Fixed Header */}
+      <div className="flex items-center justify-between p-4 border-b border-white/10 shrink-0">
         <h3 className="text-white font-medium text-lg">Scheduled Order</h3>
         <button
           onClick={onClose}
@@ -171,7 +171,8 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
         </button>
       </div>
 
-      {/* Search */}
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
         <Input
@@ -265,7 +266,7 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20" align="start">
+            <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20 pointer-events-auto" align="start">
               <IOSTimePicker
                 value={formData.scheduledTime}
                 onChange={(time) => {
@@ -383,15 +384,18 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
           {wordCount}/70 Words
         </div>
       </div>
+      </div>
 
-      {/* Save Button */}
-      <Button
-        onClick={handleSave}
-        disabled={!isFormValid}
-        className="w-full bg-amber-500 hover:bg-amber-600 text-black font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-      >
-        Save Scheduled Order
-      </Button>
+      {/* Fixed Footer */}
+      <div className="p-4 border-t border-white/10 shrink-0">
+        <Button
+          onClick={handleSave}
+          disabled={!isFormValid}
+          className="w-full bg-amber-500 hover:bg-amber-600 text-black font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Save Scheduled Order
+        </Button>
+      </div>
     </div>
   );
 };

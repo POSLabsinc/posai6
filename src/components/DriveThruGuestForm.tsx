@@ -1,5 +1,5 @@
-import { useState, useMemo } from "react";
-import { Search, X, Car } from "lucide-react";
+import { useState, useMemo, useRef } from "react";
+import { Search, X, Car, Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,6 +61,12 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormPro
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showVehicleInfo, setShowVehicleInfo] = useState(false);
   const [vehicleSaved, setVehicleSaved] = useState(false);
+  
+  // Swipe states for vehicle info
+  const [vehicleSwipeX, setVehicleSwipeX] = useState(0);
+  const [isVehicleSwiping, setIsVehicleSwiping] = useState(false);
+  const vehicleStartX = useRef(0);
+  const swipeThreshold = -80; // Width to reveal buttons
 
   // Check if vehicle info is complete enough to save
   const hasVehicleInfo = formData.vehicleBrand || formData.licensePlate || formData.vehicleColor;
@@ -73,8 +79,74 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormPro
   };
 
   const handleEditVehicle = () => {
+    setVehicleSwipeX(0);
     setVehicleSaved(false);
     setShowVehicleInfo(true);
+  };
+
+  const handleDeleteVehicle = () => {
+    setFormData(prev => ({
+      ...prev,
+      vehicleType: "",
+      vehicleColor: "",
+      vehicleBrand: "",
+      licensePlate: "",
+    }));
+    setVehicleSaved(false);
+    setVehicleSwipeX(0);
+  };
+
+  // Touch handlers for vehicle swipe
+  const handleVehicleTouchStart = (e: React.TouchEvent) => {
+    vehicleStartX.current = e.touches[0].clientX;
+    setIsVehicleSwiping(true);
+  };
+
+  const handleVehicleTouchMove = (e: React.TouchEvent) => {
+    if (!isVehicleSwiping) return;
+    const diff = e.touches[0].clientX - vehicleStartX.current;
+    setVehicleSwipeX(Math.max(swipeThreshold, Math.min(0, diff)));
+  };
+
+  const handleVehicleTouchEnd = () => {
+    setIsVehicleSwiping(false);
+    if (vehicleSwipeX < swipeThreshold / 2) {
+      setVehicleSwipeX(swipeThreshold);
+    } else {
+      setVehicleSwipeX(0);
+    }
+  };
+
+  // Mouse handlers for vehicle swipe
+  const handleVehicleMouseDown = (e: React.MouseEvent) => {
+    vehicleStartX.current = e.clientX;
+    setIsVehicleSwiping(true);
+  };
+
+  const handleVehicleMouseMove = (e: React.MouseEvent) => {
+    if (!isVehicleSwiping) return;
+    const diff = e.clientX - vehicleStartX.current;
+    setVehicleSwipeX(Math.max(swipeThreshold, Math.min(0, diff)));
+  };
+
+  const handleVehicleMouseUp = () => {
+    setIsVehicleSwiping(false);
+    if (vehicleSwipeX < swipeThreshold / 2) {
+      setVehicleSwipeX(swipeThreshold);
+    } else {
+      setVehicleSwipeX(0);
+    }
+  };
+
+  const handleVehicleMouseLeave = () => {
+    if (isVehicleSwiping) {
+      setIsVehicleSwiping(false);
+      if (vehicleSwipeX < swipeThreshold / 2) {
+        setVehicleSwipeX(swipeThreshold);
+      } else {
+        setVehicleSwipeX(0);
+      }
+    }
   };
 
   const maxNotes = 70;
@@ -180,22 +252,51 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormPro
         </button>
       </div>
 
-      {/* Vehicle Info Saved Display */}
+      {/* Vehicle Info Saved Display - Swipeable */}
       {vehicleSaved && hasVehicleInfo && !showVehicleInfo && (
-        <div 
-          className="mb-3 p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-3 cursor-pointer hover:bg-white/10 transition-colors"
-          onClick={handleEditVehicle}
-        >
-          <div className="p-2 bg-white/10 rounded">
-            <Car className="w-5 h-5 text-muted-foreground" />
+        <div className="mb-3 relative overflow-hidden rounded-lg">
+          {/* Action buttons revealed on swipe */}
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+            <button
+              onClick={handleEditVehicle}
+              className="w-8 h-8 flex items-center justify-center bg-muted/50 rounded-full hover:bg-muted transition-colors"
+            >
+              <Pencil className="w-4 h-4 text-muted-foreground" />
+            </button>
+            <button
+              onClick={handleDeleteVehicle}
+              className="w-8 h-8 flex items-center justify-center bg-red-500/20 rounded-full hover:bg-red-500/30 transition-colors"
+            >
+              <Trash2 className="w-4 h-4 text-red-400" />
+            </button>
           </div>
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-foreground">
-              {formData.vehicleBrand}{formData.vehicleType ? ` (${formData.vehicleType})` : ''}
-            </span>
-            <span className="text-xs text-muted-foreground">
-              {[formData.licensePlate, formData.vehicleColor].filter(Boolean).join(' | ')}
-            </span>
+          
+          {/* Swipeable content */}
+          <div 
+            className="relative p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-3 cursor-grab active:cursor-grabbing"
+            style={{
+              transform: `translateX(${vehicleSwipeX}px)`,
+              transition: isVehicleSwiping ? "none" : "transform 0.2s ease-out",
+            }}
+            onTouchStart={handleVehicleTouchStart}
+            onTouchMove={handleVehicleTouchMove}
+            onTouchEnd={handleVehicleTouchEnd}
+            onMouseDown={handleVehicleMouseDown}
+            onMouseMove={handleVehicleMouseMove}
+            onMouseUp={handleVehicleMouseUp}
+            onMouseLeave={handleVehicleMouseLeave}
+          >
+            <div className="p-2 bg-white/10 rounded">
+              <Car className="w-5 h-5 text-muted-foreground" />
+            </div>
+            <div className="flex flex-col flex-1">
+              <span className="text-sm font-medium text-foreground">
+                {formData.vehicleBrand}{formData.vehicleType ? ` (${formData.vehicleType})` : ''}
+              </span>
+              <span className="text-xs text-muted-foreground">
+                {[formData.licensePlate, formData.vehicleColor].filter(Boolean).join(' | ')}
+              </span>
+            </div>
           </div>
         </div>
       )}

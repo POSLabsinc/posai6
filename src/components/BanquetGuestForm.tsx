@@ -1,9 +1,14 @@
 import { useState, useMemo } from "react";
-import { Search, X, MapPin, Calendar, Clock, Loader2 } from "lucide-react";
+import { Search, X, MapPin, Calendar, Clock, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { IOSTimePicker } from "@/components/ui/ios-time-picker";
+import { format } from "date-fns";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 interface BanquetGuestFormProps {
   onSave: (data: BanquetGuestData) => void;
@@ -77,6 +82,8 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose }: BanquetGuestFormProps) 
   const [venueSearchQuery, setVenueSearchQuery] = useState("");
   const [showVenueResults, setShowVenueResults] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [timePickerOpen, setTimePickerOpen] = useState(false);
 
   const maxNotes = 70;
 
@@ -267,30 +274,73 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose }: BanquetGuestFormProps) 
             </SelectContent>
           </Select>
         </div>
-        <div className="relative">
-          <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-          <Input
-            type="date"
-            value={formData.eventDate}
-            onChange={(e) => handleInputChange("eventDate", e.target.value)}
-            onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
-            className="pl-9 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-          />
-        </div>
+        <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+          <PopoverTrigger asChild>
+            <button
+              className={cn(
+                "flex items-center gap-2 w-full h-9 px-3 rounded-md border bg-white/10 border-white/20 text-sm text-foreground cursor-pointer hover:bg-white/15 transition-colors",
+                !formData.eventDate && "text-muted-foreground"
+              )}
+            >
+              <Calendar className="w-4 h-4 text-muted-foreground" />
+              <span>
+                {formData.eventDate 
+                  ? format(new Date(formData.eventDate), "MMM d, yyyy")
+                  : "Select Date"
+                }
+              </span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0 bg-white border-0 shadow-xl rounded-2xl" align="start">
+            <CalendarComponent
+              mode="single"
+              selected={formData.eventDate ? new Date(formData.eventDate) : undefined}
+              onSelect={(date) => {
+                if (date) {
+                  handleInputChange("eventDate", format(date, "yyyy-MM-dd"));
+                  setDatePickerOpen(false);
+                }
+              }}
+              initialFocus
+              className="p-3 pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Time and Number of Guests */}
       <div className="grid grid-cols-2 gap-3 mb-3">
-        <div className="relative">
-          <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
-          <Input
-            type="time"
-            value={formData.eventTime}
-            onChange={(e) => handleInputChange("eventTime", e.target.value)}
-            onClick={(e) => (e.target as HTMLInputElement).showPicker?.()}
-            className="pl-9 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground cursor-pointer [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-          />
-        </div>
+        <Popover open={timePickerOpen} onOpenChange={setTimePickerOpen}>
+          <PopoverTrigger asChild>
+            <button
+              className={cn(
+                "flex items-center gap-2 w-full h-9 px-3 rounded-md border bg-white/10 border-white/20 text-sm text-foreground cursor-pointer hover:bg-white/15 transition-colors",
+                !formData.eventTime && "text-muted-foreground"
+              )}
+            >
+              <Clock className="w-4 h-4 text-muted-foreground" />
+              <span>
+                {formData.eventTime 
+                  ? (() => {
+                      const [h, m] = formData.eventTime.split(":").map(Number);
+                      const hour12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+                      const period = h >= 12 ? "PM" : "AM";
+                      return `${hour12}:${m.toString().padStart(2, "0")} ${period}`;
+                    })()
+                  : "Select Time"
+                }
+              </span>
+            </button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[280px] p-0 bg-white border-0 shadow-xl rounded-2xl" align="start">
+            <div className="p-2">
+              <IOSTimePicker
+                value={formData.eventTime || "09:00"}
+                onChange={(time) => handleInputChange("eventTime", time)}
+              />
+            </div>
+          </PopoverContent>
+        </Popover>
         <div>
           <Input
             type="number"

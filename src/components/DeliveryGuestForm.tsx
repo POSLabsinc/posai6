@@ -247,8 +247,8 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
         />
       </div>
 
-      {/* Address Field with Search or Display */}
-      {!formData.address ? (
+      {/* Address Search Field - Always visible when no address selected */}
+      {!formData.address && (
         <div className="mb-3 relative">
           <Input
             placeholder="Search for an address..."
@@ -292,7 +292,10 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
             </div>
           )}
         </div>
-      ) : (
+      )}
+
+      {/* Selected Address Display */}
+      {formData.address && (
         <div className="mb-3">
           {/* Collapsed Address Display */}
           <div 

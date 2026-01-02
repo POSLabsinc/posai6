@@ -28,10 +28,6 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
     const [selectedMinute, setSelectedMinute] = React.useState(minute);
     const [selectedPeriod, setSelectedPeriod] = React.useState(period);
 
-    const hourRef = React.useRef<HTMLDivElement>(null);
-    const minuteRef = React.useRef<HTMLDivElement>(null);
-    const periodRef = React.useRef<HTMLDivElement>(null);
-
     // Update parent when selection changes
     React.useEffect(() => {
       let hour24 = selectedHour;
@@ -44,102 +40,160 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
       onChange(timeStr);
     }, [selectedHour, selectedMinute, selectedPeriod, onChange]);
 
-    // Scroll to selected values on mount
-    React.useEffect(() => {
-      const scrollToSelected = (ref: React.RefObject<HTMLDivElement>, index: number) => {
-        if (ref.current) {
-          const itemHeight = 36;
-          ref.current.scrollTop = index * itemHeight;
-        }
-      };
-
-      setTimeout(() => {
-        scrollToSelected(hourRef, hours.indexOf(selectedHour));
-        scrollToSelected(minuteRef, selectedMinute);
-        scrollToSelected(periodRef, periods.indexOf(selectedPeriod));
-      }, 50);
-    }, []);
-
-    const handleScroll = (
-      ref: React.RefObject<HTMLDivElement>,
-      items: (number | string)[],
-      setter: (val: any) => void
-    ) => {
-      if (ref.current) {
-        const itemHeight = 36;
-        const scrollTop = ref.current.scrollTop;
-        const index = Math.round(scrollTop / itemHeight);
-        const clampedIndex = Math.max(0, Math.min(index, items.length - 1));
-        setter(items[clampedIndex]);
-      }
-    };
-
     const PickerColumn = ({
       items,
       selected,
       onSelect,
-      scrollRef,
       formatItem,
       label,
     }: {
       items: (number | string)[];
       selected: number | string;
       onSelect: (val: any) => void;
-      scrollRef: React.RefObject<HTMLDivElement>;
       formatItem?: (item: number | string) => string;
       label: string;
-    }) => (
-      <div className="relative flex-1 flex flex-col">
-        {/* Column label */}
-        <div className="text-center text-xs font-medium text-gray-400 pb-1 uppercase tracking-wide">
-          {label}
-        </div>
+    }) => {
+      const scrollRef = React.useRef<HTMLDivElement>(null);
+      const isDragging = React.useRef(false);
+      const startY = React.useRef(0);
+      const startScrollTop = React.useRef(0);
+      const scrollTimeout = React.useRef<NodeJS.Timeout | null>(null);
+      const lastIndex = React.useRef(-1);
+      const itemHeight = 36;
+
+      // Scroll to selected value on mount
+      React.useEffect(() => {
+        if (scrollRef.current) {
+          const index = items.indexOf(selected);
+          if (index !== -1) {
+            scrollRef.current.scrollTop = index * itemHeight;
+          }
+        }
+      }, []);
+
+      const snapToNearest = React.useCallback(() => {
+        if (scrollRef.current) {
+          const scrollTop = scrollRef.current.scrollTop;
+          const index = Math.round(scrollTop / itemHeight);
+          const clampedIndex = Math.max(0, Math.min(index, items.length - 1));
+          
+          scrollRef.current.scrollTo({
+            top: clampedIndex * itemHeight,
+            behavior: "smooth",
+          });
+          
+          if (clampedIndex !== lastIndex.current) {
+            lastIndex.current = clampedIndex;
+            onSelect(items[clampedIndex]);
+          }
+        }
+      }, [items, onSelect]);
+
+      const handleScroll = React.useCallback(() => {
+        if (scrollTimeout.current) {
+          clearTimeout(scrollTimeout.current);
+        }
         
-        <div className="relative h-[144px]">
-          {/* Fade overlays */}
-          <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-white via-white/80 to-transparent z-10 pointer-events-none" />
-          <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white/80 to-transparent z-10 pointer-events-none" />
+        // Debounce snap to prevent jank during active scrolling
+        scrollTimeout.current = setTimeout(() => {
+          snapToNearest();
+        }, 100);
+      }, [snapToNearest]);
+
+      // Mouse/pointer drag handlers
+      const handlePointerDown = (e: React.PointerEvent) => {
+        if (e.pointerType === "mouse") {
+          e.preventDefault();
+          isDragging.current = true;
+          startY.current = e.clientY;
+          startScrollTop.current = scrollRef.current?.scrollTop || 0;
+          (e.target as HTMLElement).setPointerCapture(e.pointerId);
+        }
+      };
+
+      const handlePointerMove = (e: React.PointerEvent) => {
+        if (isDragging.current && scrollRef.current) {
+          const deltaY = startY.current - e.clientY;
+          scrollRef.current.scrollTop = startScrollTop.current + deltaY;
+        }
+      };
+
+      const handlePointerUp = (e: React.PointerEvent) => {
+        if (isDragging.current) {
+          isDragging.current = false;
+          (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+          snapToNearest();
+        }
+      };
+
+      const handleWheel = (e: React.WheelEvent) => {
+        e.stopPropagation();
+        if (scrollRef.current) {
+          scrollRef.current.scrollTop += e.deltaY;
+          handleScroll();
+        }
+      };
+
+      const handleItemClick = (item: number | string, idx: number) => {
+        onSelect(item);
+        lastIndex.current = idx;
+        if (scrollRef.current) {
+          scrollRef.current.scrollTo({
+            top: idx * itemHeight,
+            behavior: "smooth",
+          });
+        }
+      };
+
+      return (
+        <div className="relative flex-1 flex flex-col">
+          {/* Column label */}
+          <div className="text-center text-xs font-medium text-gray-400 pb-1 uppercase tracking-wide">
+            {label}
+          </div>
           
-          {/* Selection highlight */}
-          <div className="absolute top-1/2 left-0 right-0 h-9 -translate-y-1/2 bg-gray-100/80 rounded-lg z-0" />
-          
-          {/* Scrollable items */}
-          <div
-            ref={scrollRef}
-            className="h-full overflow-y-scroll relative z-[1] snap-y snap-mandatory ios-picker-scroll"
-            onScroll={() => handleScroll(scrollRef, items, onSelect)}
-            style={{ 
-              WebkitOverflowScrolling: "touch"
-            }}
-          >
-            {/* Padding for centering - 54px = (144px - 36px) / 2 */}
-            <div className="h-[54px]" />
-            {items.map((item, idx) => (
-              <div
-                key={idx}
-                className={cn(
-                  "h-9 flex items-center justify-center text-lg font-semibold snap-center cursor-pointer transition-colors select-none",
-                  selected === item ? "text-gray-900" : "text-gray-300"
-                )}
-                onClick={() => {
-                  onSelect(item);
-                  if (scrollRef.current) {
-                    const itemHeight = 36;
-                    scrollRef.current.scrollTo({
-                      top: idx * itemHeight,
-                      behavior: "smooth",
-                    });
-                  }
-                }}
-              >
-                {formatItem ? formatItem(item) : item}
-              </div>
-            ))}
-            <div className="h-[54px]" />
+          <div className="relative h-[144px]">
+            {/* Fade overlays */}
+            <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-white via-white/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white/80 to-transparent z-10 pointer-events-none" />
+            
+            {/* Selection highlight */}
+            <div className="absolute top-1/2 left-0 right-0 h-9 -translate-y-1/2 bg-gray-100/80 rounded-lg z-0" />
+            
+            {/* Scrollable items */}
+            <div
+              ref={scrollRef}
+              className="h-full overflow-y-scroll relative z-[1] ios-picker-scroll cursor-grab active:cursor-grabbing touch-pan-y overscroll-contain"
+              onScroll={handleScroll}
+              onPointerDown={handlePointerDown}
+              onPointerMove={handlePointerMove}
+              onPointerUp={handlePointerUp}
+              onPointerCancel={handlePointerUp}
+              onWheel={handleWheel}
+              style={{ 
+                WebkitOverflowScrolling: "touch",
+              }}
+            >
+              {/* Padding for centering - 54px = (144px - 36px) / 2 */}
+              <div className="h-[54px]" />
+              {items.map((item, idx) => (
+                <div
+                  key={idx}
+                  className={cn(
+                    "h-9 flex items-center justify-center text-lg font-semibold cursor-pointer transition-colors select-none",
+                    selected === item ? "text-gray-900" : "text-gray-300"
+                  )}
+                  onClick={() => handleItemClick(item, idx)}
+                >
+                  {formatItem ? formatItem(item) : item}
+                </div>
+              ))}
+              <div className="h-[54px]" />
+            </div>
           </div>
         </div>
-      </div>
-    );
+      );
+    };
 
     return (
       <div ref={ref} className={cn("flex bg-white rounded-xl gap-0", className)}>
@@ -147,14 +201,12 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
           items={hours}
           selected={selectedHour}
           onSelect={setSelectedHour}
-          scrollRef={hourRef}
           label="Hour"
         />
         <PickerColumn
           items={minutes}
           selected={selectedMinute}
           onSelect={setSelectedMinute}
-          scrollRef={minuteRef}
           formatItem={(m) => String(m).padStart(2, "0")}
           label="Min"
         />
@@ -162,7 +214,6 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
           items={periods}
           selected={selectedPeriod}
           onSelect={setSelectedPeriod}
-          scrollRef={periodRef}
           label=""
         />
       </div>

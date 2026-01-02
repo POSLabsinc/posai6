@@ -2,6 +2,13 @@ import { useState, useMemo } from "react";
 import { Search, X, Car } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DriveThruGuestFormProps {
   onSave: (data: DriveThruGuestData) => void;
@@ -14,6 +21,10 @@ export interface DriveThruGuestData {
   phoneNumber: string;
   email: string;
   notes: string;
+  vehicleType: string;
+  vehicleColor: string;
+  vehicleBrand: string;
+  licensePlate: string;
 }
 
 // Mock guest data for search
@@ -32,15 +43,23 @@ const formatPhoneNumber = (value: string): string => {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 };
 
+const vehicleTypes = ["Sedan", "SUV", "Truck", "Van", "Coupe", "Hatchback", "Convertible", "Wagon"];
+const vehicleColors = ["Black", "White", "Silver", "Gray", "Red", "Blue", "Green", "Yellow", "Orange", "Brown"];
+
 const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormProps) => {
   const [formData, setFormData] = useState<DriveThruGuestData>({
     guestName: "",
     phoneNumber: "",
     email: "",
     notes: "",
+    vehicleType: "",
+    vehicleColor: "",
+    vehicleBrand: "",
+    licensePlate: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [showVehicleInfo, setShowVehicleInfo] = useState(false);
 
   const maxNotes = 70;
 
@@ -136,10 +155,85 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormPro
       {/* Vehicle Information Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-foreground">Vehicle Information</h3>
-        <div className="p-1.5 bg-white/10 rounded">
-          <Car className="w-4 h-4 text-muted-foreground" />
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setShowVehicleInfo(!showVehicleInfo)}
+            className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors"
+          >
+            <Car className="w-4 h-4 text-muted-foreground" />
+          </button>
+          {showVehicleInfo && (
+            <button
+              type="button"
+              onClick={() => setShowVehicleInfo(false)}
+              className="p-1 hover:bg-white/10 rounded transition-colors"
+            >
+              <X className="w-4 h-4 text-red-400" />
+            </button>
+          )}
         </div>
       </div>
+
+      {/* Vehicle Information Fields - Collapsible */}
+      {showVehicleInfo && (
+        <div className="mb-3 p-3 bg-white/5 rounded-lg border border-white/10">
+          <div className="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Vehicle Type*</label>
+              <Select
+                value={formData.vehicleType}
+                onValueChange={(value) => handleInputChange("vehicleType", value)}
+              >
+                <SelectTrigger className="bg-white/10 border-white/20 text-sm h-9 text-foreground">
+                  <SelectValue placeholder="Choose" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vehicleTypes.map((type) => (
+                    <SelectItem key={type} value={type}>{type}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Color*</label>
+              <Select
+                value={formData.vehicleColor}
+                onValueChange={(value) => handleInputChange("vehicleColor", value)}
+              >
+                <SelectTrigger className="bg-white/10 border-white/20 text-sm h-9 text-foreground">
+                  <SelectValue placeholder="Choose" />
+                </SelectTrigger>
+                <SelectContent>
+                  {vehicleColors.map((color) => (
+                    <SelectItem key={color} value={color}>{color}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Brand</label>
+              <Input
+                placeholder="Optional"
+                value={formData.vehicleBrand}
+                onChange={(e) => handleInputChange("vehicleBrand", e.target.value)}
+                className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">License Plate</label>
+              <Input
+                placeholder="Optional"
+                value={formData.licensePlate}
+                onChange={(e) => handleInputChange("licensePlate", e.target.value)}
+                className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Guest Name and Phone Number */}
       <div className="grid grid-cols-2 gap-3 mb-3">

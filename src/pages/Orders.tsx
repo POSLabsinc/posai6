@@ -7308,6 +7308,7 @@ const Orders = () => {
                     setShowDineInForm(false);
                   }}
                   onClose={() => setShowDineInForm(false)}
+                  initialData={dineInGuestData}
                 />
               ) : orderType === "TAKE OUT" && showTakeOutForm ? (
                 <TakeOutGuestForm
@@ -7318,6 +7319,7 @@ const Orders = () => {
                     setShowTakeOutForm(false);
                   }}
                   onClose={() => setShowTakeOutForm(false)}
+                  initialData={takeOutGuestData}
                 />
               ) : orderType === "DELIVERY" && showDeliveryForm ? (
                 <DeliveryGuestForm
@@ -7328,6 +7330,7 @@ const Orders = () => {
                     setShowDeliveryForm(false);
                   }}
                   onClose={() => setShowDeliveryForm(false)}
+                  initialData={deliveryGuestData}
                 />
               ) : orderType === "BANQUET" && showBanquetForm ? (
                 <BanquetGuestForm
@@ -7338,6 +7341,7 @@ const Orders = () => {
                     setShowBanquetForm(false);
                   }}
                   onClose={() => setShowBanquetForm(false)}
+                  initialData={banquetGuestData}
                 />
               ) : orderType === "DRIVE THRU" && showDriveThruForm ? (
                 <DriveThruGuestForm
@@ -7348,6 +7352,7 @@ const Orders = () => {
                     setShowDriveThruForm(false);
                   }}
                   onClose={() => setShowDriveThruForm(false)}
+                  initialData={driveThruGuestData}
                 />
               ) : orderType === "CURB SIDE" && showCurbSideForm ? (
                 <CurbSideGuestForm
@@ -7358,6 +7363,7 @@ const Orders = () => {
                     setShowCurbSideForm(false);
                   }}
                   onClose={() => setShowCurbSideForm(false)}
+                  initialData={curbSideGuestData}
                 />
               ) : orderType === "SCHEDULED" && showScheduledForm ? (
                 <ScheduledGuestForm

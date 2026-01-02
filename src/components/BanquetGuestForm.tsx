@@ -14,6 +14,7 @@ interface BanquetGuestFormProps {
   onSave: (data: BanquetGuestData) => void;
   onCancel?: () => void;
   onClose?: () => void;
+  initialData?: BanquetGuestData | null;
 }
 
 export interface BanquetGuestData {
@@ -65,17 +66,17 @@ const formatPhoneNumber = (value: string): string => {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 };
 
-const BanquetGuestForm = ({ onSave, onCancel, onClose }: BanquetGuestFormProps) => {
+const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGuestFormProps) => {
   const [formData, setFormData] = useState<BanquetGuestData>({
-    guestName: "",
-    eventType: "",
-    eventDate: "",
-    eventTime: "",
-    numberOfGuests: "",
-    venue: "",
-    phoneNumber: "",
-    email: "",
-    notes: "",
+    guestName: initialData?.guestName || "",
+    eventType: initialData?.eventType || "",
+    eventDate: initialData?.eventDate || "",
+    eventTime: initialData?.eventTime || "",
+    numberOfGuests: initialData?.numberOfGuests || "",
+    venue: initialData?.venue || "",
+    phoneNumber: initialData?.phoneNumber ? formatPhoneNumber(initialData.phoneNumber) : "",
+    email: initialData?.email || "",
+    notes: initialData?.notes || "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);

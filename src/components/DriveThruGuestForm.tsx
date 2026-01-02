@@ -14,6 +14,7 @@ interface DriveThruGuestFormProps {
   onSave: (data: DriveThruGuestData) => void;
   onCancel?: () => void;
   onClose?: () => void;
+  initialData?: DriveThruGuestData | null;
 }
 
 export interface DriveThruGuestData {
@@ -46,21 +47,21 @@ const formatPhoneNumber = (value: string): string => {
 const vehicleTypes = ["Sedan", "SUV", "Truck", "Van", "Coupe", "Hatchback", "Convertible", "Wagon"];
 const vehicleColors = ["Black", "White", "Silver", "Gray", "Red", "Blue", "Green", "Yellow", "Orange", "Brown"];
 
-const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormProps) => {
+const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThruGuestFormProps) => {
   const [formData, setFormData] = useState<DriveThruGuestData>({
-    guestName: "",
-    phoneNumber: "",
-    email: "",
-    notes: "",
-    vehicleType: "",
-    vehicleColor: "",
-    vehicleBrand: "",
-    licensePlate: "",
+    guestName: initialData?.guestName || "",
+    phoneNumber: initialData?.phoneNumber ? formatPhoneNumber(initialData.phoneNumber) : "",
+    email: initialData?.email || "",
+    notes: initialData?.notes || "",
+    vehicleType: initialData?.vehicleType || "",
+    vehicleColor: initialData?.vehicleColor || "",
+    vehicleBrand: initialData?.vehicleBrand || "",
+    licensePlate: initialData?.licensePlate || "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showVehicleInfo, setShowVehicleInfo] = useState(false);
-  const [vehicleSaved, setVehicleSaved] = useState(false);
+  const [vehicleSaved, setVehicleSaved] = useState(!!(initialData?.vehicleBrand || initialData?.licensePlate || initialData?.vehicleColor));
   
   // Swipe states for vehicle info
   const [vehicleSwipeX, setVehicleSwipeX] = useState(0);

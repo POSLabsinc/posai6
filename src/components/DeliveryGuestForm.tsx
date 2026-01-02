@@ -8,6 +8,7 @@ interface DeliveryGuestFormProps {
   onSave: (data: DeliveryGuestData) => void;
   onCancel?: () => void;
   onClose?: () => void;
+  initialData?: DeliveryGuestData | null;
 }
 
 export interface DeliveryGuestData {
@@ -53,14 +54,14 @@ const formatPhoneNumber = (value: string): string => {
   return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
 };
 
-const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps) => {
+const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryGuestFormProps) => {
   const { toast } = useToast();
   const [formData, setFormData] = useState<Omit<DeliveryGuestData, 'address'> & { address: AddressData | null }>({
-    guestName: "",
-    phoneNumber: "",
-    email: "",
-    address: null,
-    notes: "",
+    guestName: initialData?.guestName || "",
+    phoneNumber: initialData?.phoneNumber ? formatPhoneNumber(initialData.phoneNumber) : "",
+    email: initialData?.email || "",
+    address: initialData?.address || null,
+    notes: initialData?.notes || "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);

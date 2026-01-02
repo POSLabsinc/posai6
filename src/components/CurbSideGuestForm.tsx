@@ -14,6 +14,7 @@ interface CurbSideGuestFormProps {
   onSave: (data: CurbSideGuestData) => void;
   onCancel?: () => void;
   onClose?: () => void;
+  initialData?: CurbSideGuestData | null;
 }
 
 export interface CurbSideGuestData {
@@ -48,22 +49,22 @@ const vehicleTypes = ["Sedan", "SUV", "Truck", "Van", "Coupe", "Hatchback", "Con
 const vehicleColors = ["Black", "White", "Silver", "Gray", "Red", "Blue", "Green", "Yellow", "Orange", "Brown"];
 const parkingSpots = Array.from({ length: 20 }, (_, i) => `Spot ${i + 1}`);
 
-const CurbSideGuestForm = ({ onSave, onCancel, onClose }: CurbSideGuestFormProps) => {
+const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideGuestFormProps) => {
   const [formData, setFormData] = useState<CurbSideGuestData>({
-    guestName: "",
-    phoneNumber: "",
-    email: "",
-    notes: "",
-    parkingSpot: "",
-    vehicleType: "",
-    vehicleColor: "",
-    vehicleBrand: "",
-    licensePlate: "",
+    guestName: initialData?.guestName || "",
+    phoneNumber: initialData?.phoneNumber ? formatPhoneNumber(initialData.phoneNumber) : "",
+    email: initialData?.email || "",
+    notes: initialData?.notes || "",
+    parkingSpot: initialData?.parkingSpot || "",
+    vehicleType: initialData?.vehicleType || "",
+    vehicleColor: initialData?.vehicleColor || "",
+    vehicleBrand: initialData?.vehicleBrand || "",
+    licensePlate: initialData?.licensePlate || "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
   const [showVehicleInfo, setShowVehicleInfo] = useState(false);
-  const [vehicleSaved, setVehicleSaved] = useState(false);
+  const [vehicleSaved, setVehicleSaved] = useState(!!(initialData?.vehicleBrand || initialData?.licensePlate || initialData?.vehicleColor));
   
   // Swipe states for vehicle info
   const [vehicleSwipeX, setVehicleSwipeX] = useState(0);

@@ -148,17 +148,17 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
       return (
         <div className="relative flex-1 flex flex-col">
           {/* Column label */}
-          <div className="text-center text-xs font-medium text-gray-400 pb-1 uppercase tracking-wide">
+          <div className="text-center text-xs font-medium text-white/50 pb-1 uppercase tracking-wide">
             {label}
           </div>
           
           <div className="relative h-[144px]">
             {/* Fade overlays */}
-            <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-white via-white/80 to-transparent z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white via-white/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-zinc-900 via-zinc-900/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-zinc-900 via-zinc-900/80 to-transparent z-10 pointer-events-none" />
             
             {/* Selection highlight */}
-            <div className="absolute top-1/2 left-0 right-0 h-9 -translate-y-1/2 bg-gray-100/80 rounded-lg z-0" />
+            <div className="absolute top-1/2 left-0 right-0 h-9 -translate-y-1/2 bg-white/20 rounded-lg z-0" />
             
             {/* Scrollable items */}
             <div
@@ -181,7 +181,7 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
                   key={idx}
                   className={cn(
                     "h-9 flex items-center justify-center text-lg font-semibold cursor-pointer transition-colors select-none",
-                    selected === item ? "text-gray-900" : "text-gray-300"
+                    selected === item ? "text-white" : "text-white/30"
                   )}
                   onClick={() => handleItemClick(item, idx)}
                 >
@@ -196,7 +196,7 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
     };
 
     return (
-      <div ref={ref} className={cn("flex bg-white rounded-xl gap-0", className)}>
+      <div ref={ref} className={cn("flex bg-zinc-900 rounded-xl gap-0 pointer-events-auto", className)}>
         <PickerColumn
           items={hours}
           selected={selectedHour}

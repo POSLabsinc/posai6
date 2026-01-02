@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
-import { Search, X, ChevronRight, ChevronDown, Home, MapPin } from "lucide-react";
+import { Search, X, ChevronRight, ChevronDown, Home, MapPin, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -53,6 +54,7 @@ const formatPhoneNumber = (value: string): string => {
 };
 
 const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps) => {
+  const { toast } = useToast();
   const [formData, setFormData] = useState<Omit<DeliveryGuestData, 'address'> & { address: AddressData | null }>({
     guestName: "",
     phoneNumber: "",
@@ -65,6 +67,7 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
   const [addressSearchQuery, setAddressSearchQuery] = useState("");
   const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
   const [isAddressExpanded, setIsAddressExpanded] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
 
   const maxNotes = 70;
 
@@ -158,6 +161,110 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
   const removeAddress = () => {
     setFormData((prev) => ({ ...prev, address: null }));
     setIsAddressExpanded(false);
+  };
+
+  const handleGetCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      toast({
+        title: "Geolocation not supported",
+        description: "Your browser doesn't support geolocation.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsLocating(true);
+
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        
+        try {
+          // Use reverse geocoding API to get address from coordinates
+          const response = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
+          );
+          
+          if (response.ok) {
+            const data = await response.json();
+            const address = data.address || {};
+            
+            const address1 = [address.house_number, address.road].filter(Boolean).join(' ') || data.display_name?.split(',')[0] || '';
+            const city = address.city || address.town || address.village || address.municipality || '';
+            const state = address.state || '';
+            const zip = address.postcode || '';
+            
+            setFormData((prev) => ({
+              ...prev,
+              address: {
+                label: "Current Location",
+                address1: address1,
+                address2: "",
+                city: city,
+                state: state,
+                zip: zip,
+                fullAddress: data.display_name || `${address1}, ${city} ${state}, ${zip}`,
+              },
+            }));
+            
+            toast({
+              title: "Location found",
+              description: "Your current address has been added.",
+            });
+          } else {
+            throw new Error("Failed to fetch address");
+          }
+        } catch (error) {
+          // Fallback: Set coordinates as address
+          setFormData((prev) => ({
+            ...prev,
+            address: {
+              label: "Current Location",
+              address1: `Lat: ${latitude.toFixed(6)}`,
+              address2: `Lng: ${longitude.toFixed(6)}`,
+              city: "",
+              state: "",
+              zip: "",
+              fullAddress: `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`,
+            },
+          }));
+          
+          toast({
+            title: "Location found",
+            description: "Coordinates captured. Please enter the full address manually.",
+          });
+        }
+        
+        setIsLocating(false);
+      },
+      (error) => {
+        setIsLocating(false);
+        let errorMessage = "Unable to retrieve your location.";
+        
+        switch (error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage = "Location permission denied. Please enable location access.";
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage = "Location information is unavailable.";
+            break;
+          case error.TIMEOUT:
+            errorMessage = "Location request timed out.";
+            break;
+        }
+        
+        toast({
+          title: "Location error",
+          description: errorMessage,
+          variant: "destructive",
+        });
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0,
+      }
+    );
   };
 
   const wordCount = formData.notes.split(/\s+/).filter(Boolean).length;
@@ -254,9 +361,19 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
           onFocus={() => setShowAddressSuggestions(true)}
           className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground pr-10"
         />
-        <div className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center border border-white/30 rounded">
-          <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
-        </div>
+        <button
+          onClick={handleGetCurrentLocation}
+          disabled={isLocating}
+          className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center border border-white/30 rounded hover:bg-white/10 transition-colors disabled:opacity-50"
+          type="button"
+          title="Get current location"
+        >
+          {isLocating ? (
+            <Loader2 className="w-3.5 h-3.5 text-muted-foreground animate-spin" />
+          ) : (
+            <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
+          )}
+        </button>
         
         {/* Address Suggestions Dropdown */}
         {showAddressSuggestions && addressSuggestions.length > 0 && (

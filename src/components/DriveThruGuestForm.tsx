@@ -255,8 +255,14 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormPro
       {/* Vehicle Info Saved Display - Swipeable */}
       {vehicleSaved && hasVehicleInfo && !showVehicleInfo && (
         <div className="mb-3 relative overflow-hidden rounded-lg">
-          {/* Action buttons revealed on swipe */}
-          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2">
+          {/* Action buttons - positioned behind the card, only visible when swiped */}
+          <div 
+            className="absolute inset-y-0 right-0 flex items-center gap-2 pr-2"
+            style={{
+              opacity: vehicleSwipeX < 0 ? 1 : 0,
+              pointerEvents: vehicleSwipeX < swipeThreshold / 2 ? 'auto' : 'none',
+            }}
+          >
             <button
               onClick={handleEditVehicle}
               className="w-8 h-8 flex items-center justify-center bg-muted/50 rounded-full hover:bg-muted transition-colors"
@@ -271,12 +277,13 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose }: DriveThruGuestFormPro
             </button>
           </div>
           
-          {/* Swipeable content */}
+          {/* Swipeable content - full width card that slides to reveal buttons */}
           <div 
-            className="relative p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-3 cursor-grab active:cursor-grabbing"
+            className="relative p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-3 cursor-grab active:cursor-grabbing select-none"
             style={{
               transform: `translateX(${vehicleSwipeX}px)`,
               transition: isVehicleSwiping ? "none" : "transform 0.2s ease-out",
+              backgroundColor: 'rgba(255, 255, 255, 0.05)',
             }}
             onTouchStart={handleVehicleTouchStart}
             onTouchMove={handleVehicleTouchMove}

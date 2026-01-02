@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, X, Locate } from "lucide-react";
+import { Search, X, Locate, ChevronRight, ChevronDown, Home } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
@@ -13,8 +13,18 @@ export interface DeliveryGuestData {
   guestName: string;
   phoneNumber: string;
   email: string;
-  address: string;
+  address: AddressData;
   notes: string;
+}
+
+interface AddressData {
+  label: string;
+  address1: string;
+  address2: string;
+  city: string;
+  state: string;
+  zip: string;
+  fullAddress: string;
 }
 
 // Mock guest data for search
@@ -26,6 +36,14 @@ const mockGuests = [
   { name: "Alexander Johnson", phone: "(897) 654-3210", email: "alexander.johnson@gmail.com", address: "555 Park Ave, Manhattan, NY 10022" },
 ];
 
+// Mock address suggestions for autocomplete
+const mockAddressSuggestions = [
+  { address1: "123 Main Street", city: "Los Angeles", state: "California", zip: "90001", country: "USA" },
+  { address1: "Main Street 123", city: "Los Angeles", state: "California", zip: "90001", country: "United States" },
+  { address1: "456 Main Avenue", city: "Los Angeles", state: "California", zip: "90002", country: "USA" },
+  { address1: "789 Main Boulevard", city: "Los Angeles", state: "California", zip: "90003", country: "USA" },
+];
+
 const formatPhoneNumber = (value: string): string => {
   const digits = value.replace(/\D/g, "").slice(0, 10);
   if (digits.length === 0) return "";
@@ -35,15 +53,18 @@ const formatPhoneNumber = (value: string): string => {
 };
 
 const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps) => {
-  const [formData, setFormData] = useState<DeliveryGuestData>({
+  const [formData, setFormData] = useState<Omit<DeliveryGuestData, 'address'> & { address: AddressData | null }>({
     guestName: "",
     phoneNumber: "",
     email: "",
-    address: "",
+    address: null,
     notes: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
+  const [addressSearchQuery, setAddressSearchQuery] = useState("");
+  const [showAddressSuggestions, setShowAddressSuggestions] = useState(false);
+  const [isAddressExpanded, setIsAddressExpanded] = useState(false);
 
   const maxNotes = 70;
 
@@ -57,19 +78,46 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
     );
   }, [searchQuery]);
 
+  const addressSuggestions = useMemo(() => {
+    if (!addressSearchQuery.trim()) return [];
+    const query = addressSearchQuery.toLowerCase();
+    return mockAddressSuggestions.filter(
+      (addr) =>
+        addr.address1.toLowerCase().includes(query) ||
+        addr.city.toLowerCase().includes(query)
+    );
+  }, [addressSearchQuery]);
+
   const handleSelectGuest = (guest: typeof mockGuests[0]) => {
     setFormData((prev) => ({
       ...prev,
       guestName: guest.name,
       phoneNumber: guest.phone,
       email: guest.email,
-      address: guest.address,
     }));
     setSearchQuery("");
     setShowSearchResults(false);
   };
 
-  const handleInputChange = (field: keyof DeliveryGuestData, value: string) => {
+  const handleSelectAddress = (suggestion: typeof mockAddressSuggestions[0]) => {
+    const fullAddress = `${suggestion.address1}, ${suggestion.city} ${suggestion.state}...`;
+    setFormData((prev) => ({
+      ...prev,
+      address: {
+        label: "Office",
+        address1: suggestion.address1,
+        address2: "",
+        city: suggestion.city,
+        state: suggestion.state,
+        zip: suggestion.zip,
+        fullAddress: `${suggestion.address1}, ${suggestion.city} ${suggestion.state}, ${suggestion.zip} ${suggestion.country}`,
+      },
+    }));
+    setAddressSearchQuery("");
+    setShowAddressSuggestions(false);
+  };
+
+  const handleInputChange = (field: keyof Omit<DeliveryGuestData, 'address'>, value: string) => {
     if (field === "notes" && value.length > maxNotes) return;
     if (field === "phoneNumber") {
       setFormData((prev) => ({ ...prev, [field]: formatPhoneNumber(value) }));
@@ -78,20 +126,43 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const handleAddressFieldChange = (field: keyof AddressData, value: string) => {
+    if (!formData.address) return;
+    setFormData((prev) => ({
+      ...prev,
+      address: prev.address ? {
+        ...prev.address,
+        [field]: value,
+        fullAddress: field === 'address1' || field === 'city' || field === 'state' || field === 'zip'
+          ? `${field === 'address1' ? value : prev.address.address1}, ${field === 'city' ? value : prev.address.city} ${field === 'state' ? value : prev.address.state}, ${field === 'zip' ? value : prev.address.zip}`
+          : prev.address.fullAddress,
+      } : null,
+    }));
+  };
+
+  const clearAddressField = (field: keyof AddressData) => {
+    if (!formData.address) return;
+    handleAddressFieldChange(field, "");
+  };
+
   const handleSave = () => {
     if (formData.guestName && formData.phoneNumber && formData.address) {
-      // Strip formatting from phone number - only pass digits
       const cleanPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
       onSave({
         ...formData,
         phoneNumber: cleanPhoneNumber,
+        address: formData.address,
       });
     }
   };
 
   const handleLocateAddress = () => {
-    // Placeholder for address location functionality
     console.log("Locate address clicked");
+  };
+
+  const removeAddress = () => {
+    setFormData((prev) => ({ ...prev, address: null }));
+    setIsAddressExpanded(false);
   };
 
   const wordCount = formData.notes.split(/\s+/).filter(Boolean).length;
@@ -176,22 +247,148 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose }: DeliveryGuestFormProps
         />
       </div>
 
-      {/* Address Field with Location Icon */}
-      <div className="mb-3 relative">
-        <Input
-          placeholder="Search for an address..."
-          value={formData.address}
-          onChange={(e) => handleInputChange("address", e.target.value)}
-          className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground pr-10"
-        />
-        <button
-          onClick={handleLocateAddress}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded transition-colors"
-          type="button"
-        >
-          <Locate className="w-4 h-4 text-muted-foreground" />
-        </button>
-      </div>
+      {/* Address Field with Search or Display */}
+      {!formData.address ? (
+        <div className="mb-3 relative">
+          <Input
+            placeholder="Search for an address..."
+            value={addressSearchQuery}
+            onChange={(e) => {
+              setAddressSearchQuery(e.target.value);
+              setShowAddressSuggestions(true);
+            }}
+            onFocus={() => setShowAddressSuggestions(true)}
+            className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground pr-10"
+          />
+          {addressSearchQuery && (
+            <button
+              onClick={() => setAddressSearchQuery("")}
+              className="absolute right-10 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded transition-colors"
+              type="button"
+            >
+              <X className="w-3 h-3 text-muted-foreground" />
+            </button>
+          )}
+          <button
+            onClick={handleLocateAddress}
+            className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded transition-colors"
+            type="button"
+          >
+            <Locate className="w-4 h-4 text-muted-foreground" />
+          </button>
+          
+          {/* Address Suggestions Dropdown */}
+          {showAddressSuggestions && addressSuggestions.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-neutral-200 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+              {addressSuggestions.map((addr, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleSelectAddress(addr)}
+                  className="w-full px-3 py-2 text-left hover:bg-neutral-100 text-sm text-neutral-800 border-b border-neutral-100 last:border-0"
+                >
+                  <span>{addr.address1},  {addr.city} {addr.state}, {addr.zip} {addr.country}</span>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="mb-3">
+          {/* Collapsed Address Display */}
+          <div 
+            className="bg-white/10 border border-white/20 rounded-md overflow-hidden"
+          >
+            <button
+              onClick={() => setIsAddressExpanded(!isAddressExpanded)}
+              className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-white/5 transition-colors"
+            >
+              <div className="flex items-center gap-2">
+                <Home className="w-4 h-4 text-muted-foreground" />
+                <span className="text-sm font-medium text-foreground">{formData.address.label}</span>
+                <span className="text-sm text-muted-foreground truncate max-w-[180px]">
+                  {formData.address.address1}, {formData.address.city} {formData.address.state}...
+                </span>
+              </div>
+              {isAddressExpanded ? (
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <ChevronRight className="w-4 h-4 text-muted-foreground" />
+              )}
+            </button>
+            
+            {/* Expanded Address Details */}
+            {isAddressExpanded && (
+              <div className="px-3 pb-3 pt-1 border-t border-white/10">
+                {/* Label */}
+                <div className="flex items-center gap-2 mb-2">
+                  <Home className="w-4 h-4 text-muted-foreground" />
+                  <span className="text-sm font-medium text-foreground">{formData.address.label}</span>
+                  <button
+                    onClick={() => setIsAddressExpanded(false)}
+                    className="ml-auto"
+                  >
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                  </button>
+                </div>
+                
+                {/* Address 1 */}
+                <div className="flex items-center justify-between py-2 border-b border-white/10">
+                  <div className="flex flex-col">
+                    <span className="text-xs text-muted-foreground">Address 1</span>
+                    <span className="text-sm text-foreground">{formData.address.address1}</span>
+                  </div>
+                  <button
+                    onClick={() => clearAddressField('address1')}
+                    className="p-1 hover:bg-white/10 rounded transition-colors"
+                  >
+                    <X className="w-3 h-3 text-muted-foreground" />
+                  </button>
+                </div>
+                
+                {/* Address 2 */}
+                <div className="flex items-center justify-between py-2 border-b border-white/10">
+                  <div className="flex flex-col">
+                    <span className="text-xs text-muted-foreground">Address 2</span>
+                    {formData.address.address2 ? (
+                      <span className="text-sm text-foreground">{formData.address.address2}</span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Optional</span>
+                    )}
+                  </div>
+                  <button
+                    onClick={() => clearAddressField('address2')}
+                    className="p-1 hover:bg-white/10 rounded transition-colors"
+                  >
+                    <X className="w-3 h-3 text-muted-foreground" />
+                  </button>
+                </div>
+                
+                {/* City */}
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex flex-col">
+                    <span className="text-xs text-muted-foreground">City</span>
+                    <span className="text-sm text-foreground">{formData.address.city}</span>
+                  </div>
+                  <button
+                    onClick={() => clearAddressField('city')}
+                    className="p-1 hover:bg-white/10 rounded transition-colors"
+                  >
+                    <X className="w-3 h-3 text-muted-foreground" />
+                  </button>
+                </div>
+
+                {/* Remove Address Button */}
+                <button
+                  onClick={removeAddress}
+                  className="w-full mt-2 text-xs text-red-400 hover:text-red-300 transition-colors"
+                >
+                  Remove Address
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Notes */}
       <div className="mb-3 relative">

@@ -7286,7 +7286,7 @@ const Orders = () => {
                       className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
                       style={{ background: 'rgba(117, 117, 117, 0.2)' }}
                     >
-                      <span>Guest: {deliveryGuestData.guestName} | {deliveryGuestData.address.slice(0, 25)}...</span>
+                      <span>Guest: {deliveryGuestData.guestName} | {deliveryGuestData.address.fullAddress.slice(0, 25)}...</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
                   )}

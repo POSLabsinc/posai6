@@ -7,6 +7,7 @@ import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 import GiftCardDialog from "@/components/GiftCardDialog";
 import ServiceChargeDialog from "@/components/ServiceChargeDialog";
 import InlineItemCustomization from "@/components/InlineItemCustomization";
+import OrderNotesAutocomplete from "@/components/OrderNotesAutocomplete";
 import clearIcon from "@/assets/icons/clear.png";
 import clearCIcon from "@/assets/icons/clear-c.png";
 import saveIcon from "@/assets/icons/save.png";
@@ -6763,10 +6764,11 @@ const Orders = () => {
 
           {/* Order Notes */}
           <div className="px-2 py-1.5 border-b border-sidebar-border">
-            <div className="flex items-center gap-2 bg-neutral-700 rounded px-2 py-1.5">
-              <img src={itemNotesIcon} alt="Notes" className="w-3.5 h-3.5 flex-shrink-0" />
-              <input type="text" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="bg-transparent outline-none text-xs text-white placeholder:text-muted-foreground flex-1 min-w-0" placeholder="Order notes and Allergies" />
-            </div>
+            <OrderNotesAutocomplete
+              value={orderNotes}
+              onChange={setOrderNotes}
+              placeholder="Order notes and Allergies"
+            />
           </div>
 
           {/* Mobile Guest Forms */}
@@ -7764,13 +7766,11 @@ const Orders = () => {
                   )}
                   {/* Order Notes */}
                   <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
-                    <div className="flex items-center gap-2 rounded px-3 py-2" style={{
-                      background: '#7575754D',
-                      boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-                    }}>
-                      <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                      <input type="text" placeholder="Order notes" value={orderNotes} onChange={e => setOrderNotes(e.target.value)} className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none" />
-                    </div>
+                    <OrderNotesAutocomplete
+                      value={orderNotes}
+                      onChange={setOrderNotes}
+                      placeholder="Order notes"
+                    />
                   </div>
 
                   {/* Order Items */}

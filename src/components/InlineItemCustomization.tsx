@@ -466,7 +466,7 @@ export const InlineItemCustomization = ({
       </div>
 
       {/* Numpad */}
-      <div className="grid grid-cols-3 gap-1.5 flex-1 mb-3">
+      <div className="grid grid-cols-3 gap-1.5 mb-3">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
           <button
             key={num}

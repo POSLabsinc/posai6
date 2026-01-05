@@ -148,21 +148,13 @@ export const ItemCustomizationDialog = ({
     }
   }, [open, item?.id]);
 
-  // Handle PIN verification
+  // Handle PIN verification - any 4-digit PIN works
   useEffect(() => {
     if (pin.length === 4) {
-      if (pin === correctPin) {
-        setTimeout(() => {
-          setCurrentView('priceOverride');
-          setPin("");
-        }, 200);
-      } else {
-        setPinError(true);
-        setTimeout(() => {
-          setPin("");
-          setPinError(false);
-        }, 500);
-      }
+      setTimeout(() => {
+        setCurrentView('priceOverride');
+        setPin("");
+      }, 200);
     }
   }, [pin]);
 

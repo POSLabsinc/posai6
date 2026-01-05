@@ -12,9 +12,10 @@ interface OrderNotesAutocompleteProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  storageKey?: string;
 }
 
-const STORAGE_KEY = 'order-notes-history';
+const DEFAULT_STORAGE_KEY = 'order-notes-history';
 
 // Default allergy notes that are always available
 const DEFAULT_ALLERGY_NOTES: SavedNote[] = [
@@ -43,6 +44,7 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
   onChange,
   placeholder = "Order notes",
   className = "",
+  storageKey = DEFAULT_STORAGE_KEY,
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [savedNotes, setSavedNotes] = useState<SavedNote[]>([]);
@@ -59,7 +61,7 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
 
   // Load saved notes from localStorage on mount
   useEffect(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    const stored = localStorage.getItem(storageKey);
     if (stored) {
       try {
         const parsed = JSON.parse(stored) as SavedNote[];
@@ -100,7 +102,7 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
     }
     
     setSavedNotes(updatedNotes);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedNotes));
+    localStorage.setItem(storageKey, JSON.stringify(updatedNotes));
   };
 
   // Filter suggestions based on input (excluding already selected notes)

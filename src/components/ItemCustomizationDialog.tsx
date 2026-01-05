@@ -1,10 +1,8 @@
 import { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, FileText } from "lucide-react";
+import { Minus, Plus, FileText, ChevronLeft, ChevronDown, Delete } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import MPINDialog from "@/components/MPINDialog";
-import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 
 interface ModifierOption {
   name: string;
@@ -29,7 +27,18 @@ interface ItemCustomizationDialogProps {
   item: MenuItem | null;
   itemImage?: string;
   onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string, totalPrice: number) => void;
+  isManager?: boolean;
 }
+
+const overrideReasons = [
+  "Manager Discount",
+  "Customer Complaint",
+  "Price Match",
+  "Promotional Offer",
+  "Employee Discount",
+  "Loyalty Reward",
+  "Other"
+];
 
 // Mock modifier data
 const itemModifiers: ModifierCategory[] = [
@@ -96,7 +105,8 @@ export const ItemCustomizationDialog = ({
   onOpenChange,
   item,
   itemImage,
-  onAddToCart
+  onAddToCart,
+  isManager = false
 }: ItemCustomizationDialogProps) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedModifiers, setSelectedModifiers] = useState<string[]>([]);
@@ -105,10 +115,22 @@ export const ItemCustomizationDialog = ({
   const [activeModifierCategory, setActiveModifierCategory] = useState(itemModifiers[0]?.name || "");
   const [itemNotes, setItemNotes] = useState("");
   const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
-  const [showMPINDialog, setShowMPINDialog] = useState(false);
-  const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
+  
+  // View state: 'customization' | 'mpin' | 'priceOverride'
+  const [currentView, setCurrentView] = useState<'customization' | 'mpin' | 'priceOverride'>('customization');
+  
+  // MPIN state
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const correctPin = "1234";
+  
+  // Price Override state
+  const [newPriceInput, setNewPriceInput] = useState("");
+  const [selectedReason, setSelectedReason] = useState("");
+  const [overrideNotes, setOverrideNotes] = useState("");
+  const [showReasonDropdown, setShowReasonDropdown] = useState(false);
 
-  // Reset overriddenPrice when item changes or dialog opens
+  // Reset all state when dialog opens/closes or item changes
   useEffect(() => {
     if (open && item) {
       setOverriddenPrice(null);
@@ -117,21 +139,110 @@ export const ItemCustomizationDialog = ({
       setSelectedAddOns([]);
       setItemNotes("");
       setActiveTab('item');
+      setCurrentView('customization');
+      setPin("");
+      setPinError(false);
+      setNewPriceInput("");
+      setSelectedReason("");
+      setOverrideNotes("");
     }
   }, [open, item?.id]);
 
+  // Handle PIN verification
+  useEffect(() => {
+    if (pin.length === 4) {
+      if (pin === correctPin) {
+        setTimeout(() => {
+          setCurrentView('priceOverride');
+          setPin("");
+        }, 200);
+      } else {
+        setPinError(true);
+        setTimeout(() => {
+          setPin("");
+          setPinError(false);
+        }, 500);
+      }
+    }
+  }, [pin]);
+
   const handlePriceClick = () => {
-    setShowMPINDialog(true);
+    if (isManager) {
+      setCurrentView('priceOverride');
+    } else {
+      setCurrentView('mpin');
+    }
   };
 
-  const handleMPINSuccess = () => {
-    setShowPriceOverrideDialog(true);
+  const handleBackToCustomization = () => {
+    setCurrentView('customization');
+    setPin("");
+    setPinError(false);
+    setNewPriceInput("");
+    setSelectedReason("");
+    setOverrideNotes("");
   };
 
-  const handlePriceOverrideApply = (newPrice: number, reason: string, notes: string) => {
-    setOverriddenPrice(newPrice);
-    setShowPriceOverrideDialog(false);
+  const handlePinNumberClick = (num: string) => {
+    if (pin.length < 4) {
+      setPin(prev => prev + num);
+    }
   };
+
+  const handlePinBackspace = () => {
+    setPin(prev => prev.slice(0, -1));
+  };
+
+  const handlePinClear = () => {
+    setPin("");
+  };
+
+  const handlePriceNumberClick = (num: string) => {
+    if (newPriceInput.length < 8) {
+      setNewPriceInput(prev => prev + num);
+    }
+  };
+
+  const handlePriceBackspace = () => {
+    setNewPriceInput(prev => prev.slice(0, -1));
+  };
+
+  const handlePriceClear = () => {
+    setNewPriceInput("");
+  };
+
+  const handleApplyPriceOverride = () => {
+    const newPrice = parseFloat(newPriceInput) / 100;
+    if (!isNaN(newPrice) && newPrice >= 0) {
+      setOverriddenPrice(newPrice);
+      setCurrentView('customization');
+      setNewPriceInput("");
+      setSelectedReason("");
+      setOverrideNotes("");
+    }
+  };
+
+  const formatPriceDisplay = (input: string) => {
+    const cents = parseInt(input || "0");
+    return (cents / 100).toFixed(2);
+  };
+
+  const renderPinDots = () => (
+    <div className="flex gap-3 justify-center">
+      {[0, 1, 2, 3].map((index) => (
+        <div
+          key={index}
+          className={`w-4 h-4 rounded-full transition-all duration-200 ${
+            pinError 
+              ? 'bg-red-500 animate-shake' 
+              : index < pin.length 
+                ? 'bg-white' 
+                : 'bg-neutral-600'
+          }`}
+        />
+      ))}
+    </div>
+  );
 
   if (!item) return null;
 
@@ -186,217 +297,391 @@ export const ItemCustomizationDialog = ({
 
   const activeCategory = itemModifiers.find(cat => cat.name === activeModifierCategory);
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full max-h-[90vh] overflow-hidden rounded-2xl flex flex-col">
-        {/* Grabber Handle */}
-        <div className="flex justify-center pt-2 pb-1">
-          <div className="w-12 h-1 bg-neutral-600 rounded-full" />
+  // MPIN Screen
+  const renderMPINView = () => (
+    <div className="flex flex-col h-full">
+      {/* Header with back button */}
+      <div className="flex items-center gap-3 p-4 border-b border-neutral-700">
+        <button
+          onClick={handleBackToCustomization}
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5 text-white" />
+        </button>
+        <div>
+          <h3 className="text-white font-bold text-lg">Access Restricted</h3>
+          <p className="text-neutral-400 text-sm">Enter Manager PIN to Adjust Price</p>
+        </div>
+      </div>
+
+      {/* PIN Display */}
+      <div className="flex-1 flex flex-col items-center justify-center py-8">
+        {renderPinDots()}
+        <p className="text-neutral-500 text-sm mt-4">Enter 4-digit PIN</p>
+      </div>
+
+      {/* Numpad */}
+      <div className="p-4 pb-6">
+        <div className="grid grid-cols-3 gap-3 max-w-[280px] mx-auto">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+            <button
+              key={num}
+              onClick={() => handlePinNumberClick(num.toString())}
+              className="h-14 rounded-xl bg-neutral-800 text-white text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+            >
+              {num}
+            </button>
+          ))}
+          <button
+            onClick={handlePinClear}
+            className="h-14 rounded-xl bg-neutral-800 text-neutral-400 text-sm font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+          >
+            C
+          </button>
+          <button
+            onClick={() => handlePinNumberClick("0")}
+            className="h-14 rounded-xl bg-neutral-800 text-white text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+          >
+            0
+          </button>
+          <button
+            onClick={handlePinBackspace}
+            className="h-14 rounded-xl bg-neutral-800 text-white hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+          >
+            <Delete className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Price Override Screen
+  const renderPriceOverrideView = () => (
+    <div className="flex flex-col h-full">
+      {/* Header with back button */}
+      <div className="flex items-center gap-3 p-4 border-b border-neutral-700">
+        <button
+          onClick={handleBackToCustomization}
+          className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5 text-white" />
+        </button>
+        <div className="flex-1">
+          <h3 className="text-white font-bold text-lg">Price Override</h3>
+          <p className="text-neutral-400 text-sm">{item?.name}</p>
+        </div>
+      </div>
+
+      <div className="flex-1 flex flex-col p-4 gap-4">
+        {/* Reason Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setShowReasonDropdown(!showReasonDropdown)}
+            className="w-full flex items-center justify-between px-4 py-3 bg-neutral-800 rounded-xl text-left"
+          >
+            <span className={selectedReason ? "text-white" : "text-neutral-500"}>
+              {selectedReason || "Select Reason"}
+            </span>
+            <ChevronDown className={`w-5 h-5 text-neutral-400 transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
+          </button>
+          {showReasonDropdown && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700">
+              {overrideReasons.map(reason => (
+                <button
+                  key={reason}
+                  onClick={() => {
+                    setSelectedReason(reason);
+                    setShowReasonDropdown(false);
+                  }}
+                  className={`w-full px-4 py-3 text-left hover:bg-neutral-700 transition-colors ${
+                    selectedReason === reason ? 'text-orange-500' : 'text-white'
+                  }`}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Item Header */}
-        <div className="px-4 pb-2">
-          <div className="flex items-center gap-3">
-            {itemImage && (
-              <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                <img src={itemImage} alt={item.name} className="w-full h-full object-cover" />
-              </div>
-            )}
-            <div className="flex-1 min-w-0">
-              <h3 className="text-white font-bold text-base leading-tight">{item.name}</h3>
-            </div>
-            <div className="flex items-center gap-2 flex-shrink-0">
-              <button 
-                onClick={handlePriceClick}
-                className="bg-neutral-700 px-3 py-1.5 rounded-lg hover:bg-neutral-600 transition-colors cursor-pointer"
-              >
-                {overriddenPrice !== null ? (
-                  <div className="flex flex-col items-center">
-                    <span className="text-white font-bold">${overriddenPrice.toFixed(2)}</span>
-                    <span className="text-neutral-400 text-[10px] line-through">${item.price.toFixed(2)}</span>
-                  </div>
-                ) : (
-                  <span className="text-white font-bold">${item.price.toFixed(2)}</span>
-                )}
-              </button>
-              <div className="flex items-center gap-1 bg-neutral-700 rounded-lg">
-                <button
-                  onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                  disabled={quantity <= 1}
-                  className="w-9 h-9 flex items-center justify-center text-white hover:bg-neutral-600 rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <Minus className="w-4 h-4" />
-                </button>
-                <span className="w-8 text-center text-white font-medium text-base">{quantity}</span>
-                <button
-                  onClick={() => setQuantity(Math.min(99, quantity + 1))}
-                  disabled={quantity >= 99}
-                  className="w-9 h-9 flex items-center justify-center text-white hover:bg-neutral-600 rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
+        {/* Notes field for "Other" reason */}
+        {selectedReason === "Other" && (
+          <input
+            type="text"
+            placeholder="Enter reason..."
+            value={overrideNotes}
+            onChange={(e) => setOverrideNotes(e.target.value)}
+            className="w-full px-4 py-3 bg-neutral-800 rounded-xl text-white placeholder:text-neutral-500 outline-none"
+          />
+        )}
+
+        {/* Price Display */}
+        <div className="flex items-center justify-between py-4">
+          <div className="text-center">
+            <p className="text-neutral-500 text-xs mb-1">Original</p>
+            <p className="text-neutral-400 text-lg line-through">${item?.price.toFixed(2)}</p>
+          </div>
+          <div className="text-center flex-1">
+            <p className="text-neutral-500 text-xs mb-1">New Price</p>
+            <p className="text-white text-3xl font-bold">${formatPriceDisplay(newPriceInput)}</p>
           </div>
         </div>
 
-        {/* Selected Modifiers Pills */}
-        {selectedModifiers.length > 0 && (
+        {/* Numpad */}
+        <div className="grid grid-cols-3 gap-2">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+            <button
+              key={num}
+              onClick={() => handlePriceNumberClick(num.toString())}
+              className="h-12 rounded-xl bg-neutral-800 text-white text-lg font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+            >
+              {num}
+            </button>
+          ))}
+          <button
+            onClick={handlePriceClear}
+            className="h-12 rounded-xl bg-neutral-800 text-neutral-400 text-sm font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+          >
+            C
+          </button>
+          <button
+            onClick={() => handlePriceNumberClick("0")}
+            className="h-12 rounded-xl bg-neutral-800 text-white text-lg font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+          >
+            0
+          </button>
+          <button
+            onClick={handlePriceBackspace}
+            className="h-12 rounded-xl bg-neutral-800 text-white hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+          >
+            <Delete className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="p-4 border-t border-neutral-700 flex gap-3">
+        <Button
+          onClick={handleBackToCustomization}
+          variant="outline"
+          className="flex-1 py-3 rounded-xl bg-neutral-800 border-neutral-700 text-white hover:bg-neutral-700"
+        >
+          Cancel
+        </Button>
+        <Button
+          onClick={handleApplyPriceOverride}
+          disabled={!newPriceInput || !selectedReason}
+          className="flex-1 py-3 rounded-xl text-white font-bold disabled:opacity-50"
+          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+        >
+          Apply
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Customization Screen
+  const renderCustomizationView = () => (
+    <>
+      {/* Grabber Handle */}
+      <div className="flex justify-center pt-2 pb-1">
+        <div className="w-12 h-1 bg-neutral-600 rounded-full" />
+      </div>
+
+      {/* Item Header */}
+      <div className="px-4 pb-2">
+        <div className="flex items-center gap-3">
+          {itemImage && (
+            <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+              <img src={itemImage} alt={item?.name} className="w-full h-full object-cover" />
+            </div>
+          )}
+          <div className="flex-1 min-w-0">
+            <h3 className="text-white font-bold text-base leading-tight">{item?.name}</h3>
+          </div>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <button 
+              onClick={handlePriceClick}
+              className="bg-neutral-700 px-3 py-1.5 rounded-lg hover:bg-neutral-600 transition-colors cursor-pointer"
+            >
+              {overriddenPrice !== null ? (
+                <div className="flex flex-col items-center">
+                  <span className="text-white font-bold">${overriddenPrice.toFixed(2)}</span>
+                  <span className="text-neutral-400 text-[10px] line-through">${item?.price.toFixed(2)}</span>
+                </div>
+              ) : (
+                <span className="text-white font-bold">${item?.price.toFixed(2)}</span>
+              )}
+            </button>
+            <div className="flex items-center gap-1 bg-neutral-700 rounded-lg">
+              <button
+                onClick={() => setQuantity(Math.max(1, quantity - 1))}
+                disabled={quantity <= 1}
+                className="w-9 h-9 flex items-center justify-center text-white hover:bg-neutral-600 rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <span className="w-8 text-center text-white font-medium text-base">{quantity}</span>
+              <button
+                onClick={() => setQuantity(Math.min(99, quantity + 1))}
+                disabled={quantity >= 99}
+                className="w-9 h-9 flex items-center justify-center text-white hover:bg-neutral-600 rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Selected Modifiers Pills */}
+      {selectedModifiers.length > 0 && (
+        <div className="px-4 pb-2">
+          <div className="flex flex-wrap gap-1.5">
+            {selectedModifiers.map(modifier => (
+              <span 
+                key={modifier}
+                className="px-3 py-1 bg-neutral-700 text-white text-xs rounded-full"
+              >
+                {modifier}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Item Notes */}
+      <div className="px-4 pb-2">
+        <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
+          <FileText className="w-4 h-4 text-neutral-400" />
+          <input
+            type="text"
+            placeholder="Item notes"
+            value={itemNotes}
+            onChange={(e) => setItemNotes(e.target.value)}
+            className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none"
+          />
+        </div>
+      </div>
+
+      {/* Tabs */}
+      <div className="px-4 pb-2">
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab('item')}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === 'item' 
+                ? 'bg-neutral-700 text-white' 
+                : 'bg-transparent text-neutral-400'
+            }`}
+          >
+            Item
+          </button>
+          <button
+            onClick={() => setActiveTab('addons')}
+            className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+              activeTab === 'addons' 
+                ? 'bg-neutral-700 text-white' 
+                : 'bg-transparent text-neutral-400'
+            }`}
+          >
+            Add-Ons
+          </button>
+        </div>
+      </div>
+
+      {activeTab === 'item' ? (
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* Required Modifiers Label */}
           <div className="px-4 pb-2">
-            <div className="flex flex-wrap gap-1.5">
-              {selectedModifiers.map(modifier => (
-                <span 
-                  key={modifier}
-                  className="px-3 py-1 bg-neutral-700 text-white text-xs rounded-full"
+            <span className="text-white text-sm font-medium">Required Modifiers</span>
+            <span className="text-red-500 ml-0.5">*</span>
+          </div>
+
+          {/* Modifier Categories */}
+          <div className="px-4 pb-2">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {itemModifiers.map(category => (
+                <button
+                  key={category.name}
+                  onClick={() => setActiveModifierCategory(category.name)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
+                    activeModifierCategory === category.name
+                      ? 'bg-white text-black border-white'
+                      : 'bg-transparent text-neutral-400 border-neutral-600'
+                  }`}
                 >
-                  {modifier}
-                </span>
+                  {category.name}
+                </button>
               ))}
             </div>
           </div>
-        )}
 
-        {/* Item Notes */}
-        <div className="px-4 pb-2">
-          <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
-            <FileText className="w-4 h-4 text-neutral-400" />
-            <input
-              type="text"
-              placeholder="Item notes"
-              value={itemNotes}
-              onChange={(e) => setItemNotes(e.target.value)}
-              className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Tabs */}
-        <div className="px-4 pb-2">
-          <div className="flex gap-2">
-            <button
-              onClick={() => setActiveTab('item')}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === 'item' 
-                  ? 'bg-neutral-700 text-white' 
-                  : 'bg-transparent text-neutral-400'
-              }`}
-            >
-              Item
-            </button>
-            <button
-              onClick={() => setActiveTab('addons')}
-              className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
-                activeTab === 'addons' 
-                  ? 'bg-neutral-700 text-white' 
-                  : 'bg-transparent text-neutral-400'
-              }`}
-            >
-              Add-Ons
-            </button>
-          </div>
-        </div>
-
-        {activeTab === 'item' ? (
-          <div className="flex-1 flex flex-col min-h-0">
-            {/* Required Modifiers Label */}
-            <div className="px-4 pb-2">
-              <span className="text-white text-sm font-medium">Required Modifiers</span>
-              <span className="text-red-500 ml-0.5">*</span>
-            </div>
-
-            {/* Modifier Categories */}
-            <div className="px-4 pb-2">
-              <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                {itemModifiers.map(category => (
-                  <button
-                    key={category.name}
-                    onClick={() => setActiveModifierCategory(category.name)}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
-                      activeModifierCategory === category.name
-                        ? 'bg-white text-black border-white'
-                        : 'bg-transparent text-neutral-400 border-neutral-600'
-                    }`}
-                  >
-                    {category.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Modifier Options */}
-            <ScrollArea className="flex-1 min-h-0 max-h-[180px]">
-              <div className="px-4 pb-3">
-                <div className="flex flex-wrap gap-2">
-                  {activeCategory?.options.map(option => (
-                    <button
-                      key={option.name}
-                      onClick={() => toggleModifier(option.name)}
-                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                        selectedModifiers.includes(option.name)
-                          ? 'bg-white text-black'
-                          : 'bg-neutral-800 text-neutral-300'
-                      }`}
-                    >
-                      {option.name}
-                      {option.price && <span className="ml-1 text-neutral-500">${option.price.toFixed(2)}</span>}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </ScrollArea>
-          </div>
-        ) : (
-          <ScrollArea className="flex-1 min-h-0 max-h-[250px]">
-            <div className="px-4 py-2">
+          {/* Modifier Options */}
+          <ScrollArea className="flex-1 min-h-0 max-h-[180px]">
+            <div className="px-4 pb-3">
               <div className="flex flex-wrap gap-2">
-                {addOnItems.map(addOn => (
+                {activeCategory?.options.map(option => (
                   <button
-                    key={addOn.name}
-                    onClick={() => toggleAddOn(addOn.name)}
+                    key={option.name}
+                    onClick={() => toggleModifier(option.name)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      selectedAddOns.includes(addOn.name)
+                      selectedModifiers.includes(option.name)
                         ? 'bg-white text-black'
                         : 'bg-neutral-800 text-neutral-300'
                     }`}
                   >
-                    {addOn.name}
-                    {addOn.price && <span className="ml-1 text-neutral-500">${addOn.price.toFixed(2)}</span>}
+                    {option.name}
+                    {option.price && <span className="ml-1 text-neutral-500">${option.price.toFixed(2)}</span>}
                   </button>
                 ))}
               </div>
             </div>
           </ScrollArea>
-        )}
-
-        {/* Add to Cart Button */}
-        <div className="p-4 pt-2 border-t border-neutral-700 mt-auto">
-          <Button
-            onClick={handleAddToCart}
-            className="w-full py-3 rounded-xl text-white font-bold text-base"
-            style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-          >
-            Add to Order
-          </Button>
         </div>
-      </DialogContent>
-
-      {/* MPIN Dialog */}
-      <MPINDialog
-        open={showMPINDialog}
-        onOpenChange={setShowMPINDialog}
-        onSuccess={handleMPINSuccess}
-      />
-
-      {/* Price Override Dialog */}
-      {item && (
-        <PriceOverrideDialog
-          open={showPriceOverrideDialog}
-          onOpenChange={setShowPriceOverrideDialog}
-          itemName={item.name}
-          originalPrice={item.price}
-          onApply={handlePriceOverrideApply}
-        />
+      ) : (
+        <ScrollArea className="flex-1 min-h-0 max-h-[250px]">
+          <div className="px-4 py-2">
+            <div className="flex flex-wrap gap-2">
+              {addOnItems.map(addOn => (
+                <button
+                  key={addOn.name}
+                  onClick={() => toggleAddOn(addOn.name)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    selectedAddOns.includes(addOn.name)
+                      ? 'bg-white text-black'
+                      : 'bg-neutral-800 text-neutral-300'
+                  }`}
+                >
+                  {addOn.name}
+                  {addOn.price && <span className="ml-1 text-neutral-500">${addOn.price.toFixed(2)}</span>}
+                </button>
+              ))}
+            </div>
+          </div>
+        </ScrollArea>
       )}
+
+      {/* Add to Cart Button */}
+      <div className="p-4 pt-2 border-t border-neutral-700 mt-auto">
+        <Button
+          onClick={handleAddToCart}
+          className="w-full py-3 rounded-xl text-white font-bold text-base"
+          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+        >
+          Add to Order
+        </Button>
+      </div>
+    </>
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full max-h-[90vh] overflow-hidden rounded-2xl flex flex-col">
+        {currentView === 'customization' && renderCustomizationView()}
+        {currentView === 'mpin' && renderMPINView()}
+        {currentView === 'priceOverride' && renderPriceOverrideView()}
+      </DialogContent>
     </Dialog>
   );
 };

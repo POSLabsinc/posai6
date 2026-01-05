@@ -414,8 +414,7 @@ export const InlineItemCustomization = ({
           </div>
         )}
         <div className="flex-1 min-w-0">
-          <h3 className="text-white font-bold text-sm leading-tight truncate">{item.name}</h3>
-          <p className="text-neutral-400 text-xs">Original: ${item.price.toFixed(2)}</p>
+          <h3 className="text-white font-bold text-base leading-tight truncate">{item.name}</h3>
         </div>
       </div>
 

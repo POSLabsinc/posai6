@@ -371,133 +371,135 @@ export const ItemCustomizationDialog = ({
 
   // Price Override Screen
   const renderPriceOverrideView = () => (
-    <div className="flex flex-col bg-neutral-900 p-6 pb-6">
-      {/* Header - Center aligned */}
-      <div className="text-center mb-4">
-        <h3 className="text-foreground font-bold text-xl">Price Override</h3>
-      </div>
-
-      {/* Item row with image and name */}
-      <div className="flex items-center gap-3 mb-4">
-        {itemImage && (
-          <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0">
-            <img src={itemImage} alt={item?.name} className="w-full h-full object-cover" />
-          </div>
-        )}
-        <span className="text-foreground font-semibold text-base">{item?.name}</span>
-      </div>
-
-      {/* Reason Dropdown */}
-      <div className="relative mb-4">
-        <button
-          onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-          className="w-full flex items-center justify-between px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-left"
-        >
-          <span className={selectedReason ? "text-foreground" : "text-muted-foreground"}>
-            {selectedReason || "Select reason for override"}
-          </span>
-          <ChevronDown className={`w-5 h-5 text-muted-foreground transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
-        </button>
-        {showReasonDropdown && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700 max-h-48 overflow-y-auto">
-            {overrideReasons.map(reason => (
-              <button
-                key={reason}
-                onClick={() => {
-                  setSelectedReason(reason);
-                  setShowReasonDropdown(false);
-                }}
-                className={`w-full px-4 py-3 text-left hover:bg-neutral-700 transition-colors ${
-                  selectedReason === reason ? 'text-orange-500' : 'text-foreground'
-                }`}
-              >
-                {reason}
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Notes field for "Other" reason */}
-      {selectedReason === "Other" && (
-        <input
-          type="text"
-          placeholder="Enter reason..."
-          value={overrideNotes}
-          onChange={(e) => setOverrideNotes(e.target.value)}
-          className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-foreground placeholder:text-muted-foreground outline-none mb-4"
-        />
-      )}
-
-      {/* Price Display Rows */}
-      <div className="bg-neutral-800 border border-neutral-700 rounded-xl mb-4 overflow-hidden">
-        <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700">
-          <span className="text-destructive font-medium">Price</span>
-          <span className="text-destructive font-semibold">${item?.price.toFixed(2)}</span>
+    <ScrollArea className="max-h-[85vh]">
+      <div className="flex flex-col bg-neutral-900 p-5 pb-5">
+        {/* Header - Center aligned */}
+        <div className="text-center mb-3">
+          <h3 className="text-foreground font-bold text-lg">Price Override</h3>
         </div>
-        <div className="flex items-center justify-between px-4 py-3">
-          <span className="text-foreground font-medium">New Price</span>
-          <span className="text-green-500 font-semibold">${formatPriceDisplay(newPriceInput)}</span>
-        </div>
-      </div>
 
-      {/* Numpad */}
-      <div className="grid grid-cols-3 gap-3 max-w-[280px] mx-auto w-full mb-4">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+        {/* Item row with image and name */}
+        <div className="flex items-center gap-2 mb-3">
+          {itemImage && (
+            <div className="w-9 h-9 rounded-lg overflow-hidden flex-shrink-0">
+              <img src={itemImage} alt={item?.name} className="w-full h-full object-cover" />
+            </div>
+          )}
+          <span className="text-foreground font-semibold text-sm">{item?.name}</span>
+        </div>
+
+        {/* Reason Dropdown */}
+        <div className="relative mb-3">
           <button
-            key={num}
-            onClick={() => handlePriceNumberClick(num.toString())}
-            className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+            onClick={() => setShowReasonDropdown(!showReasonDropdown)}
+            className="w-full flex items-center justify-between px-3 py-2.5 bg-neutral-800 border border-neutral-700 rounded-xl text-left text-sm"
           >
-            {num}
+            <span className={selectedReason ? "text-foreground" : "text-muted-foreground"}>
+              {selectedReason || "Select reason for override"}
+            </span>
+            <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
           </button>
-        ))}
-        {/* Decimal point (left) */}
-        <button
-          onClick={() => {
-            if (!newPriceInput.includes('.')) {
-              setNewPriceInput(prev => prev + '.');
-            }
-          }}
-          className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-bold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-        >
-          .
-        </button>
-        {/* Zero button (center) */}
-        <button
-          onClick={() => handlePriceNumberClick("0")}
-          className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-        >
-          0
-        </button>
-        {/* Backspace button (right) */}
-        <button
-          onClick={handlePriceBackspace}
-          className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
-        >
-          <Delete className="w-5 h-5" />
-        </button>
-      </div>
+          {showReasonDropdown && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700 max-h-40 overflow-y-auto">
+              {overrideReasons.map(reason => (
+                <button
+                  key={reason}
+                  onClick={() => {
+                    setSelectedReason(reason);
+                    setShowReasonDropdown(false);
+                  }}
+                  className={`w-full px-3 py-2.5 text-left text-sm hover:bg-neutral-700 transition-colors ${
+                    selectedReason === reason ? 'text-orange-500' : 'text-foreground'
+                  }`}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
 
-      {/* Action Buttons */}
-      <div className="flex gap-3 max-w-[280px] mx-auto w-full">
-        <Button
-          onClick={handleBackToCustomization}
-          variant="outline"
-          className="flex-1 py-3 rounded-xl bg-neutral-800 border-neutral-700 text-foreground hover:bg-neutral-700"
-        >
-          CANCEL
-        </Button>
-        <Button
-          onClick={handleApplyPriceOverride}
-          disabled={!newPriceInput || !selectedReason}
-          className="flex-1 py-3 rounded-xl text-white font-bold disabled:opacity-40 disabled:bg-neutral-600"
-          style={{ background: !newPriceInput || !selectedReason ? undefined : 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-        >
-          APPLY
-        </Button>
+        {/* Notes field for "Other" reason */}
+        {selectedReason === "Other" && (
+          <input
+            type="text"
+            placeholder="Enter reason..."
+            value={overrideNotes}
+            onChange={(e) => setOverrideNotes(e.target.value)}
+            className="w-full px-3 py-2.5 bg-neutral-800 border border-neutral-700 rounded-xl text-foreground placeholder:text-muted-foreground outline-none mb-3 text-sm"
+          />
+        )}
+
+        {/* Price Display Rows */}
+        <div className="bg-neutral-800 border border-neutral-700 rounded-xl mb-3 overflow-hidden">
+          <div className="flex items-center justify-between px-3 py-2.5 border-b border-neutral-700">
+            <span className="text-destructive font-medium text-sm">Price</span>
+            <span className="text-destructive font-semibold text-sm">${item?.price.toFixed(2)}</span>
+          </div>
+          <div className="flex items-center justify-between px-3 py-2.5">
+            <span className="text-foreground font-medium text-sm">New Price</span>
+            <span className="text-green-500 font-semibold text-sm">${formatPriceDisplay(newPriceInput)}</span>
+          </div>
+        </div>
+
+        {/* Numpad */}
+        <div className="grid grid-cols-3 gap-2 max-w-[260px] mx-auto w-full mb-3">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+            <button
+              key={num}
+              onClick={() => handlePriceNumberClick(num.toString())}
+              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+            >
+              {num}
+            </button>
+          ))}
+          {/* Decimal point (left) */}
+          <button
+            onClick={() => {
+              if (!newPriceInput.includes('.')) {
+                setNewPriceInput(prev => prev + '.');
+              }
+            }}
+            className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-bold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+          >
+            .
+          </button>
+          {/* Zero button (center) */}
+          <button
+            onClick={() => handlePriceNumberClick("0")}
+            className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+          >
+            0
+          </button>
+          {/* Backspace button (right) */}
+          <button
+            onClick={handlePriceBackspace}
+            className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+          >
+            <Delete className="w-5 h-5" />
+          </button>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2 max-w-[260px] mx-auto w-full">
+          <Button
+            onClick={handleBackToCustomization}
+            variant="outline"
+            className="flex-1 py-2.5 rounded-xl bg-neutral-800 border-neutral-700 text-foreground hover:bg-neutral-700 text-sm"
+          >
+            CANCEL
+          </Button>
+          <Button
+            onClick={handleApplyPriceOverride}
+            disabled={!newPriceInput || !selectedReason}
+            className="flex-1 py-2.5 rounded-xl text-white font-bold disabled:opacity-40 disabled:bg-neutral-600 text-sm"
+            style={{ background: !newPriceInput || !selectedReason ? undefined : 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+          >
+            APPLY
+          </Button>
+        </div>
       </div>
-    </div>
+    </ScrollArea>
   );
 
   // Customization Screen

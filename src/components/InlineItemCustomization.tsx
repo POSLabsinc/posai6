@@ -181,6 +181,7 @@ export const InlineItemCustomization = ({
   const [newPrice, setNewPrice] = useState("");
   const [overrideNotes, setOverrideNotes] = useState("");
   const [isReasonDropdownOpen, setIsReasonDropdownOpen] = useState(false);
+  const [isPriceEdited, setIsPriceEdited] = useState(false);
 
   // Reset overriddenPrice when item changes
   useEffect(() => {
@@ -206,6 +207,7 @@ export const InlineItemCustomization = ({
         setCurrentView('priceOverride');
         setPin("");
         setNewPrice(item.price.toFixed(2));
+        setIsPriceEdited(false);
       }, 200);
     }
   }, [pin, item.price]);
@@ -234,6 +236,16 @@ export const InlineItemCustomization = ({
 
   // Price Override handlers
   const handlePriceNumberClick = (num: string) => {
+    // On first keypress, clear the initial price
+    if (!isPriceEdited) {
+      setIsPriceEdited(true);
+      if (num === '.') {
+        setNewPrice("0.");
+      } else {
+        setNewPrice(num);
+      }
+      return;
+    }
     if (num === '.' && newPrice.includes('.')) return;
     if (newPrice.includes('.') && newPrice.split('.')[1]?.length >= 2) return;
     setNewPrice(prev => prev + num);

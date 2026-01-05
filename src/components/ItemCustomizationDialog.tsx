@@ -291,15 +291,15 @@ export const ItemCustomizationDialog = ({
 
   // MPIN Screen
   const renderMPINView = () => (
-    <div className="flex flex-col h-full bg-background">
+    <div className="flex flex-col bg-neutral-900 p-6 pb-8">
       {/* Header - Center aligned */}
-      <div className="text-center pt-8 pb-6">
+      <div className="text-center mb-6">
         <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
         <p className="text-muted-foreground text-sm">Enter Manager PIN to Adjust Price.</p>
       </div>
 
       {/* PIN Display with asterisks */}
-      <div className={`flex justify-center gap-3 mb-8 ${pinError ? 'animate-shake' : ''}`}>
+      <div className={`flex justify-center gap-3 mb-6 ${pinError ? 'animate-shake' : ''}`}>
         {[0, 1, 2, 3].map((index) => (
           <div
             key={index}
@@ -307,59 +307,57 @@ export const ItemCustomizationDialog = ({
               index < pin.length
                 ? pinError
                   ? "border-red-500 bg-red-500/10"
-                  : "border-muted-foreground/20 bg-muted/30"
-                : "border-muted-foreground/20 bg-muted/30"
+                  : "border-neutral-600 bg-neutral-800"
+                : "border-neutral-600 bg-neutral-800"
             }`}
           >
-            {index < pin.length ? "✱" : ""}
+            {index < pin.length ? <span className="text-foreground">✱</span> : ""}
           </div>
         ))}
       </div>
 
       {/* Numpad */}
-      <div className="flex-1 flex flex-col justify-center px-6">
-        <div className="grid grid-cols-3 gap-3 max-w-[300px] mx-auto">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-            <button
-              key={num}
-              onClick={() => handlePinNumberClick(num.toString())}
-              className="h-16 rounded-xl bg-muted/50 border border-border text-foreground text-2xl font-semibold hover:bg-muted active:bg-muted/80 transition-colors"
-            >
-              {num}
-            </button>
-          ))}
-          {/* Backspace button (left) */}
+      <div className="grid grid-cols-3 gap-3 max-w-[280px] mx-auto w-full">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
           <button
-            onClick={handlePinBackspace}
-            className="h-16 rounded-xl bg-muted/50 border border-border text-foreground hover:bg-muted active:bg-muted/80 transition-colors flex items-center justify-center"
+            key={num}
+            onClick={() => handlePinNumberClick(num.toString())}
+            className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
           >
-            <Delete className="w-6 h-6" />
+            {num}
           </button>
-          {/* Zero button (center) */}
-          <button
-            onClick={() => handlePinNumberClick("0")}
-            className="h-16 rounded-xl bg-muted/50 border border-border text-foreground text-2xl font-semibold hover:bg-muted active:bg-muted/80 transition-colors"
-          >
-            0
-          </button>
-          {/* Clear button (right) - red C */}
-          <button
-            onClick={handlePinClear}
-            className="h-16 rounded-xl bg-muted/50 border border-border text-2xl font-bold text-destructive hover:bg-muted active:bg-muted/80 transition-colors"
-          >
-            C
-          </button>
-        </div>
+        ))}
+        {/* Backspace button (left) */}
+        <button
+          onClick={handlePinBackspace}
+          className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+        >
+          <Delete className="w-5 h-5" />
+        </button>
+        {/* Zero button (center) */}
+        <button
+          onClick={() => handlePinNumberClick("0")}
+          className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+        >
+          0
+        </button>
+        {/* Clear button (right) - red C */}
+        <button
+          onClick={handlePinClear}
+          className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-2xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+        >
+          C
+        </button>
+      </div>
 
-        {/* Biometric Options - Below keypad */}
-        <div className="flex justify-center gap-3 mt-6 max-w-[300px] mx-auto w-full">
-          <button className="flex-1 flex items-center justify-center py-4 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-            <Fingerprint className="w-6 h-6" />
-          </button>
-          <button className="flex-1 flex items-center justify-center py-4 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-            <ScanFace className="w-6 h-6" />
-          </button>
-        </div>
+      {/* Biometric Options - Below keypad */}
+      <div className="flex justify-center gap-3 mt-4 max-w-[280px] mx-auto w-full">
+        <button className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+          <Fingerprint className="w-6 h-6" />
+        </button>
+        <button className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+          <ScanFace className="w-6 h-6" />
+        </button>
       </div>
     </div>
   );
@@ -686,7 +684,11 @@ export const ItemCustomizationDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full max-h-[90vh] overflow-hidden rounded-2xl flex flex-col">
+      <DialogContent 
+        className={`bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full overflow-hidden rounded-2xl flex flex-col ${
+          currentView === 'mpin' ? 'h-auto' : 'max-h-[90vh]'
+        }`}
+      >
         {currentView === 'customization' && renderCustomizationView()}
         {currentView === 'mpin' && renderMPINView()}
         {currentView === 'priceOverride' && renderPriceOverrideView()}

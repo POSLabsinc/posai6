@@ -4,6 +4,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import offerIcon from "@/assets/icons/offer.png";
+import MPINDialog from "@/components/MPINDialog";
+import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 interface ModifierOption {
   name: string;
   price?: number;
@@ -153,6 +155,23 @@ export const InlineItemCustomization = ({
   const [addOnSearchQuery, setAddOnSearchQuery] = useState("");
   const [activeAddOnCategory, setActiveAddOnCategory] = useState("House Favorites");
   const [activeAddOnSubcategory, setActiveAddOnSubcategory] = useState("Beverages");
+  const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
+  const [showMPINDialog, setShowMPINDialog] = useState(false);
+  const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
+
+  const handlePriceClick = () => {
+    setShowMPINDialog(true);
+  };
+
+  const handleMPINSuccess = () => {
+    setShowPriceOverrideDialog(true);
+  };
+
+  const handlePriceOverrideApply = (newPrice: number, reason: string, notes: string) => {
+    setOverriddenPrice(newPrice);
+    setShowPriceOverrideDialog(false);
+  };
+
   const toggleModifier = (modifier: string) => {
     setSelectedModifiers(prev => prev.includes(modifier) ? prev.filter(m => m !== modifier) : [...prev, modifier]);
   };
@@ -179,7 +198,8 @@ export const InlineItemCustomization = ({
     }
     return total;
   }, 0);
-  const totalPrice = (item.price + addOnTotal + modifierTotal) * quantity;
+  const basePrice = overriddenPrice !== null ? overriddenPrice : item.price;
+  const totalPrice = (basePrice + addOnTotal + modifierTotal) * quantity;
   return <div className={`flex flex-col h-full ${className || ''}`}>
       {/* Item Header */}
       <div className="px-3 pb-2">
@@ -188,9 +208,19 @@ export const InlineItemCustomization = ({
             <h3 className="text-white font-bold text-sm leading-tight">{item.name}</h3>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <div className="bg-neutral-700 px-2 py-1 rounded-lg">
-              <span className="text-white font-bold text-sm">${item.price.toFixed(2)}</span>
-            </div>
+            <button 
+              onClick={handlePriceClick}
+              className="bg-neutral-700 px-2 py-1 rounded-lg hover:bg-neutral-600 transition-colors cursor-pointer"
+            >
+              {overriddenPrice !== null ? (
+                <div className="flex flex-col items-center">
+                  <span className="text-white font-bold text-sm">${overriddenPrice.toFixed(2)}</span>
+                  <span className="text-neutral-400 text-[8px] line-through">${item.price.toFixed(2)}</span>
+                </div>
+              ) : (
+                <span className="text-white font-bold text-sm">${item.price.toFixed(2)}</span>
+              )}
+            </button>
             <Select value={quantity.toString()} onValueChange={val => setQuantity(parseInt(val))}>
               <SelectTrigger className="w-auto bg-neutral-700 border-none text-white font-medium text-sm h-auto px-2 py-1 gap-1 rounded-lg">
                 <SelectValue />
@@ -362,6 +392,22 @@ export const InlineItemCustomization = ({
           ADD ${totalPrice.toFixed(2)}
         </Button>
       </div>
+
+      {/* MPIN Dialog */}
+      <MPINDialog
+        open={showMPINDialog}
+        onOpenChange={setShowMPINDialog}
+        onSuccess={handleMPINSuccess}
+      />
+
+      {/* Price Override Dialog */}
+      <PriceOverrideDialog
+        open={showPriceOverrideDialog}
+        onOpenChange={setShowPriceOverrideDialog}
+        itemName={item.name}
+        originalPrice={item.price}
+        onApply={handlePriceOverrideApply}
+      />
     </div>;
 };
 export default InlineItemCustomization;

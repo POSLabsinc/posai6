@@ -400,7 +400,7 @@ export const ItemCustomizationDialog = ({
             <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
           </button>
           {showReasonDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700 max-h-36 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700 max-h-36 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
               {overrideReasons.map(reason => (
                 <button
                   key={reason}

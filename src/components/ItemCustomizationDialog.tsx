@@ -443,7 +443,7 @@ export const ItemCustomizationDialog = ({
         </div>
 
         {/* Numpad */}
-        <div className="grid grid-cols-3 gap-2 max-w-[260px] mx-auto w-full mb-3">
+        <div className="grid grid-cols-3 gap-2 w-full mb-3">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
             <button
               key={num}
@@ -481,7 +481,7 @@ export const ItemCustomizationDialog = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-2 max-w-[260px] mx-auto w-full">
+        <div className="flex gap-2 w-full">
           <Button
             onClick={handleBackToCustomization}
             variant="outline"

@@ -177,37 +177,34 @@ const PriceOverrideDialog = ({
 
           {/* Numpad */}
           <div className="flex flex-col gap-2">
-            {numpadButtons.map((row, rowIndex) => (
+            {numpadButtons.slice(0, 3).map((row, rowIndex) => (
               <div key={rowIndex} className="flex justify-center gap-2">
                 {row.map((btn) => (
-                  btn === "backspace" ? (
-                    <button
-                      key={btn}
-                      onClick={handleBackspace}
-                      className="w-[100px] h-12 rounded-lg bg-neutral-800 border border-neutral-700 flex items-center justify-center hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-                    >
-                      <Delete className="w-5 h-5 text-foreground" />
-                    </button>
-                  ) : btn === "." ? (
-                    <button
-                      key={btn}
-                      onClick={handleClear}
-                      className="w-[100px] h-12 rounded-lg bg-neutral-800 border border-neutral-700 text-lg font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-                    >
-                      •
-                    </button>
-                  ) : (
-                    <button
-                      key={btn}
-                      onClick={() => handleNumberClick(btn)}
-                      className="w-[100px] h-12 rounded-lg bg-neutral-800 border border-neutral-700 text-xl font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-                    >
-                      {btn}
-                    </button>
-                  )
+                  <button
+                    key={btn}
+                    onClick={() => handleNumberClick(btn)}
+                    className="w-[100px] h-12 rounded-lg bg-neutral-800 border border-neutral-700 text-xl font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  >
+                    {btn}
+                  </button>
                 ))}
               </div>
             ))}
+            {/* Last row with 0 and backspace spanning full width */}
+            <div className="flex justify-center gap-2">
+              <button
+                onClick={() => handleNumberClick("0")}
+                className="w-[154px] h-12 rounded-lg bg-neutral-800 border border-neutral-700 text-xl font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              >
+                0
+              </button>
+              <button
+                onClick={handleBackspace}
+                className="w-[154px] h-12 rounded-lg bg-neutral-800 border border-neutral-700 flex items-center justify-center hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              >
+                <Delete className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
           </div>
 
           {/* Action Buttons */}

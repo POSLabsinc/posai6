@@ -533,7 +533,7 @@ export const InlineItemCustomization = ({
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
             <button onClick={handleProductInfoClick} className="text-left">
-              <h3 className="text-white font-bold text-sm leading-tight hover:text-neutral-300 transition-colors">{item.name}</h3>
+              <h3 className="text-white font-bold text-base leading-tight hover:text-neutral-300 transition-colors">{item.name}</h3>
             </button>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">

@@ -169,8 +169,8 @@ export const InlineItemCustomization = ({
   const [activeAddOnSubcategory, setActiveAddOnSubcategory] = useState("Beverages");
   const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
   
-  // View state: 'customization' | 'mpin' | 'priceOverride'
-  const [currentView, setCurrentView] = useState<'customization' | 'mpin' | 'priceOverride'>('customization');
+  // View state: 'customization' | 'mpin' | 'priceOverride' | 'productInfo'
+  const [currentView, setCurrentView] = useState<'customization' | 'mpin' | 'priceOverride' | 'productInfo'>('customization');
   
   // MPIN state
   const [pin, setPin] = useState("");
@@ -214,6 +214,10 @@ export const InlineItemCustomization = ({
 
   const handlePriceClick = () => {
     setCurrentView('mpin');
+  };
+
+  const handleProductInfoClick = () => {
+    setCurrentView('productInfo');
   };
 
   // MPIN handlers
@@ -528,7 +532,9 @@ export const InlineItemCustomization = ({
       <div className="px-3 pb-2">
         <div className="flex items-center gap-3">
           <div className="flex-1 min-w-0">
-            <h3 className="text-white font-bold text-sm leading-tight">{item.name}</h3>
+            <button onClick={handleProductInfoClick} className="text-left">
+              <h3 className="text-white font-bold text-sm leading-tight hover:text-neutral-300 transition-colors">{item.name}</h3>
+            </button>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
             <button 
@@ -717,11 +723,112 @@ export const InlineItemCustomization = ({
     </>
   );
 
+  // Render Product Info View
+  const renderProductInfoView = () => {
+    const productDescription = "A juicy chicken patty topped with fresh lettuce, tomato, and our special sauce on a toasted brioche bun. Our chicken burgers are made from premium quality chicken that's seasoned to perfection.";
+    const ingredients = ["Chicken Patty (Seasoned)", "Brioche Bun", "Lettuce", "Tomato", "Special Sauce", "Pickles", "Red Onions"];
+    const nutritionalInfo = {
+      calories: 520,
+      protein: "28g",
+      carbs: "42g",
+      fat: "24g"
+    };
+
+    return (
+      <ScrollArea className="flex-1 overflow-auto scrollbar-hide [&>div>div]:!block" style={{ maxHeight: '85vh' }}>
+        <div className="flex flex-col bg-neutral-900 p-4 pb-6">
+          {/* Header */}
+          <div className="text-center mb-4">
+            <h3 className="text-foreground font-bold text-xl">Product Information</h3>
+          </div>
+
+          {/* Item Name and Price */}
+          <div className="flex justify-between items-center mb-4 px-1">
+            <span className="text-foreground font-medium text-sm">{item?.name}</span>
+            <span className="text-foreground font-medium text-sm">${item?.price.toFixed(2)}</span>
+          </div>
+
+          {/* Product Image */}
+          <div className="border border-neutral-700 rounded-xl p-3 mb-4">
+            {itemImage ? (
+              <img 
+                src={itemImage} 
+                alt={item?.name} 
+                className="w-full h-40 object-contain rounded-lg"
+              />
+            ) : (
+              <div className="w-full h-40 bg-neutral-800 rounded-lg flex items-center justify-center">
+                <span className="text-neutral-500">No image</span>
+              </div>
+            )}
+          </div>
+
+          {/* Description */}
+          <div className="mb-4">
+            <h4 className="text-foreground font-bold text-base mb-2">Description</h4>
+            <p className="text-muted-foreground text-sm leading-relaxed">{productDescription}</p>
+          </div>
+
+          {/* Ingredients */}
+          <div className="mb-4">
+            <h4 className="text-foreground font-bold text-base mb-2">Ingredients</h4>
+            <div className="flex flex-wrap gap-2">
+              {ingredients.map((ingredient, index) => (
+                <span 
+                  key={index}
+                  className="px-3 py-1.5 bg-neutral-800 border border-neutral-700 text-foreground text-xs rounded-full"
+                >
+                  {ingredient}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Nutritional Information */}
+          <div className="mb-4">
+            <h4 className="text-foreground font-bold text-base mb-3">Nutritional Information</h4>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-center">
+                <span className="text-muted-foreground text-xs block mb-1">Calories</span>
+                <span className="text-foreground font-bold text-lg">{nutritionalInfo.calories}</span>
+              </div>
+              <div className="bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-center">
+                <span className="text-muted-foreground text-xs block mb-1">Protein</span>
+                <span className="text-foreground font-bold text-lg">{nutritionalInfo.protein}</span>
+              </div>
+              <div className="bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-center">
+                <span className="text-muted-foreground text-xs block mb-1">Carbs</span>
+                <span className="text-foreground font-bold text-lg">{nutritionalInfo.carbs}</span>
+              </div>
+              <div className="bg-neutral-800 border border-neutral-700 rounded-xl p-3 text-center">
+                <span className="text-muted-foreground text-xs block mb-1">Fat</span>
+                <span className="text-foreground font-bold text-lg">{nutritionalInfo.fat}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Back Button */}
+          <Button 
+            onClick={() => setCurrentView('customization')} 
+            className="w-full py-3 rounded-full font-bold text-sm"
+            style={{
+              background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
+              color: 'black'
+            }}
+          >
+            Back to Order
+          </Button>
+        </div>
+      </ScrollArea>
+    );
+  };
+
   return (
     <div className={`flex flex-col h-full ${className || ''}`}>
       {currentView === 'customization' && renderCustomizationView()}
       {currentView === 'mpin' && renderMPINView()}
       {currentView === 'priceOverride' && renderPriceOverrideView()}
+      {currentView === 'productInfo' && renderProductInfoView()}
     </div>
   );
 };

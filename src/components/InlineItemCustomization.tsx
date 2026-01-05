@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, FileText, X, Search, Mic, ArrowUpDown, Delete, Fingerprint, ScanFace } from "lucide-react";
+import { ChevronDown, X, Search, Mic, ArrowUpDown, Delete, Fingerprint, ScanFace } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import offerIcon from "@/assets/icons/offer.png";
 
 interface ModifierOption {
@@ -590,10 +591,12 @@ export const InlineItemCustomization = ({
 
       {/* Item Notes */}
       <div className="px-3 pb-2">
-        <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-2 py-1.5">
-          <FileText className="w-3 h-3 text-neutral-400" />
-          <input type="text" placeholder="Item notes" value={itemNotes} onChange={e => setItemNotes(e.target.value)} className="flex-1 bg-transparent text-white text-xs placeholder:text-neutral-500 outline-none" />
-        </div>
+        <OrderNotesAutocomplete
+          value={itemNotes}
+          onChange={setItemNotes}
+          placeholder="Item notes"
+          storageKey="item-notes-history"
+        />
       </div>
 
       {/* Tabs */}

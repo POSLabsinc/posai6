@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, FileText, ChevronLeft, ChevronDown, Delete } from "lucide-react";
+import { Minus, Plus, FileText, ChevronLeft, ChevronDown, Delete, Fingerprint, ScanFace } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ModifierOption {
@@ -291,56 +291,73 @@ export const ItemCustomizationDialog = ({
 
   // MPIN Screen
   const renderMPINView = () => (
-    <div className="flex flex-col h-full">
-      {/* Header with back button */}
-      <div className="flex items-center gap-3 p-4 border-b border-neutral-700">
-        <button
-          onClick={handleBackToCustomization}
-          className="w-10 h-10 flex items-center justify-center rounded-full bg-neutral-800 hover:bg-neutral-700 transition-colors"
-        >
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-        <div>
-          <h3 className="text-white font-bold text-lg">Access Restricted</h3>
-          <p className="text-neutral-400 text-sm">Enter Manager PIN to Adjust Price</p>
-        </div>
+    <div className="flex flex-col h-full bg-background">
+      {/* Header - Center aligned */}
+      <div className="text-center pt-8 pb-6">
+        <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
+        <p className="text-muted-foreground text-sm">Enter Manager PIN to Adjust Price.</p>
       </div>
 
-      {/* PIN Display */}
-      <div className="flex-1 flex flex-col items-center justify-center py-8">
-        {renderPinDots()}
-        <p className="text-neutral-500 text-sm mt-4">Enter 4-digit PIN</p>
+      {/* PIN Display with asterisks */}
+      <div className={`flex justify-center gap-3 mb-8 ${pinError ? 'animate-shake' : ''}`}>
+        {[0, 1, 2, 3].map((index) => (
+          <div
+            key={index}
+            className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center text-3xl font-bold transition-all ${
+              index < pin.length
+                ? pinError
+                  ? "border-red-500 bg-red-500/10"
+                  : "border-muted-foreground/20 bg-muted/30"
+                : "border-muted-foreground/20 bg-muted/30"
+            }`}
+          >
+            {index < pin.length ? "✱" : ""}
+          </div>
+        ))}
       </div>
 
       {/* Numpad */}
-      <div className="p-4 pb-6">
-        <div className="grid grid-cols-3 gap-3 max-w-[280px] mx-auto">
+      <div className="flex-1 flex flex-col justify-center px-6">
+        <div className="grid grid-cols-3 gap-3 max-w-[300px] mx-auto">
           {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
             <button
               key={num}
               onClick={() => handlePinNumberClick(num.toString())}
-              className="h-14 rounded-xl bg-neutral-800 text-white text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              className="h-16 rounded-xl bg-muted/50 border border-border text-foreground text-2xl font-semibold hover:bg-muted active:bg-muted/80 transition-colors"
             >
               {num}
             </button>
           ))}
+          {/* Backspace button (left) */}
           <button
-            onClick={handlePinClear}
-            className="h-14 rounded-xl bg-neutral-800 text-neutral-400 text-sm font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+            onClick={handlePinBackspace}
+            className="h-16 rounded-xl bg-muted/50 border border-border text-foreground hover:bg-muted active:bg-muted/80 transition-colors flex items-center justify-center"
           >
-            C
+            <Delete className="w-6 h-6" />
           </button>
+          {/* Zero button (center) */}
           <button
             onClick={() => handlePinNumberClick("0")}
-            className="h-14 rounded-xl bg-neutral-800 text-white text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+            className="h-16 rounded-xl bg-muted/50 border border-border text-foreground text-2xl font-semibold hover:bg-muted active:bg-muted/80 transition-colors"
           >
             0
           </button>
+          {/* Clear button (right) - red C */}
           <button
-            onClick={handlePinBackspace}
-            className="h-14 rounded-xl bg-neutral-800 text-white hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+            onClick={handlePinClear}
+            className="h-16 rounded-xl bg-muted/50 border border-border text-2xl font-bold text-destructive hover:bg-muted active:bg-muted/80 transition-colors"
           >
-            <Delete className="w-5 h-5" />
+            C
+          </button>
+        </div>
+
+        {/* Biometric Options - Below keypad */}
+        <div className="flex justify-center gap-3 mt-6 max-w-[300px] mx-auto w-full">
+          <button className="flex-1 flex items-center justify-center py-4 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+            <Fingerprint className="w-6 h-6" />
+          </button>
+          <button className="flex-1 flex items-center justify-center py-4 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+            <ScanFace className="w-6 h-6" />
           </button>
         </div>
       </div>

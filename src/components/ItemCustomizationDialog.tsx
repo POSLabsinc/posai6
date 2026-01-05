@@ -451,39 +451,39 @@ export const ItemCustomizationDialog = ({
         {/* Numpad - Row based like desktop */}
         <div className="flex flex-col gap-2 mb-4">
           {[["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"]].map((row, rowIndex) => (
-            <div key={rowIndex} className="flex justify-center gap-2">
+            <div key={rowIndex} className="grid grid-cols-3 gap-2">
               {row.map((btn) => (
                 <button
                   key={btn}
                   onClick={() => handlePriceNumberClick(btn)}
-                  className="w-[100px] h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
                 >
                   {btn}
                 </button>
               ))}
             </div>
           ))}
-          {/* Last row: 0 and backspace spanning full width */}
-          <div className="flex justify-center gap-2">
+          {/* Last row: decimal, 0 and backspace */}
+          <div className="grid grid-cols-3 gap-2">
             <button
               onClick={() => {
                 if (!newPriceInput.includes('.')) {
                   setNewPriceInput(prev => prev + '.');
                 }
               }}
-              className="w-[100px] h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
             >
               .
             </button>
             <button
               onClick={() => handlePriceNumberClick("0")}
-              className="w-[100px] h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
             >
               0
             </button>
             <button
               onClick={handlePriceBackspace}
-              className="w-[100px] h-12 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
             >
               <Delete className="w-5 h-5 text-foreground" />
             </button>

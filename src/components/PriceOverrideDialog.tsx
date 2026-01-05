@@ -101,7 +101,7 @@ const PriceOverrideDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full h-full max-w-none max-h-none rounded-none sm:w-auto sm:h-auto sm:max-w-[420px] sm:max-h-[90vh] sm:rounded-lg bg-[#1a1a1a] border-none sm:border sm:border-neutral-700 p-0 gap-0 flex flex-col overflow-hidden">
+      <DialogContent className="w-full h-full max-w-none max-h-none rounded-none sm:w-[480px] sm:h-auto sm:max-h-[90vh] sm:rounded-xl bg-[#1a1a1a] border-none sm:border sm:border-neutral-700 p-0 gap-0 flex flex-col overflow-hidden">
         {/* Grab Bar - mobile only */}
         <div 
           className="flex justify-center py-3 cursor-grab active:cursor-grabbing sm:hidden"
@@ -111,7 +111,7 @@ const PriceOverrideDialog = ({
         </div>
 
         {/* Header */}
-        <DialogHeader className="px-6 pb-4 border-b border-neutral-700">
+        <DialogHeader className="px-6 pt-6 sm:pt-6 pb-4 border-b border-neutral-700">
           <DialogTitle className="flex items-center gap-3 text-foreground">
             {itemImage && (
               <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-neutral-800">

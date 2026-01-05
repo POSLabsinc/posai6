@@ -1,11 +1,10 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, FileText, X, Search, Mic, ArrowUpDown } from "lucide-react";
+import { ChevronDown, FileText, X, Search, Mic, ArrowUpDown, Delete, Fingerprint, ScanFace } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import offerIcon from "@/assets/icons/offer.png";
-import MPINDialog from "@/components/MPINDialog";
-import PriceOverrideDialog from "@/components/PriceOverrideDialog";
+
 interface ModifierOption {
   name: string;
   price?: number;
@@ -139,6 +138,19 @@ const addOnItems: ModifierOption[] = [{
   price: 2.00,
   category: "Extras"
 }];
+
+// Price override reasons
+const overrideReasons = [
+  "Manager Discount",
+  "Price Match",
+  "Customer Complaint",
+  "Damaged Item",
+  "Employee Discount",
+  "VIP Customer",
+  "Promotion",
+  "Other"
+];
+
 export const InlineItemCustomization = ({
   item,
   itemImage,
@@ -156,8 +168,19 @@ export const InlineItemCustomization = ({
   const [activeAddOnCategory, setActiveAddOnCategory] = useState("House Favorites");
   const [activeAddOnSubcategory, setActiveAddOnSubcategory] = useState("Beverages");
   const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
-  const [showMPINDialog, setShowMPINDialog] = useState(false);
-  const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
+  
+  // View state: 'customization' | 'mpin' | 'priceOverride'
+  const [currentView, setCurrentView] = useState<'customization' | 'mpin' | 'priceOverride'>('customization');
+  
+  // MPIN state
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState(false);
+  
+  // Price Override state
+  const [selectedReason, setSelectedReason] = useState("");
+  const [newPrice, setNewPrice] = useState("");
+  const [overrideNotes, setOverrideNotes] = useState("");
+  const [isReasonDropdownOpen, setIsReasonDropdownOpen] = useState(false);
 
   // Reset overriddenPrice when item changes
   useEffect(() => {
@@ -168,19 +191,71 @@ export const InlineItemCustomization = ({
     setItemNotes("");
     setActiveTab('item');
     setAddOnSearchQuery("");
+    setCurrentView('customization');
+    setPin("");
+    setPinError(false);
+    setSelectedReason("");
+    setNewPrice("");
+    setOverrideNotes("");
   }, [item.id]);
 
+  // Handle PIN verification - any 4-digit PIN works
+  useEffect(() => {
+    if (pin.length === 4) {
+      setTimeout(() => {
+        setCurrentView('priceOverride');
+        setPin("");
+        setNewPrice(item.price.toFixed(2));
+      }, 200);
+    }
+  }, [pin, item.price]);
+
   const handlePriceClick = () => {
-    setShowMPINDialog(true);
+    setCurrentView('mpin');
   };
 
-  const handleMPINSuccess = () => {
-    setShowPriceOverrideDialog(true);
+  // MPIN handlers
+  const handlePinNumberClick = (num: string) => {
+    if (pin.length < 4) {
+      setPin(prev => prev + num);
+      setPinError(false);
+    }
   };
 
-  const handlePriceOverrideApply = (newPrice: number, reason: string, notes: string) => {
-    setOverriddenPrice(newPrice);
-    setShowPriceOverrideDialog(false);
+  const handlePinBackspace = () => {
+    setPin(prev => prev.slice(0, -1));
+    setPinError(false);
+  };
+
+  const handlePinClear = () => {
+    setPin("");
+    setPinError(false);
+  };
+
+  // Price Override handlers
+  const handlePriceNumberClick = (num: string) => {
+    if (num === '.' && newPrice.includes('.')) return;
+    if (newPrice.includes('.') && newPrice.split('.')[1]?.length >= 2) return;
+    setNewPrice(prev => prev + num);
+  };
+
+  const handlePriceBackspace = () => {
+    setNewPrice(prev => prev.slice(0, -1));
+  };
+
+  const handlePriceClear = () => {
+    setNewPrice("");
+  };
+
+  const handlePriceOverrideApply = () => {
+    const parsedPrice = parseFloat(newPrice);
+    if (!isNaN(parsedPrice) && selectedReason) {
+      setOverriddenPrice(parsedPrice);
+      setCurrentView('customization');
+      setSelectedReason("");
+      setNewPrice("");
+      setOverrideNotes("");
+    }
   };
 
   const toggleModifier = (modifier: string) => {
@@ -211,7 +286,226 @@ export const InlineItemCustomization = ({
   }, 0);
   const basePrice = overriddenPrice !== null ? overriddenPrice : item.price;
   const totalPrice = (basePrice + addOnTotal + modifierTotal) * quantity;
-  return <div className={`flex flex-col h-full ${className || ''}`}>
+
+  // Render MPIN View (Desktop style)
+  const renderMPINView = () => (
+    <div className="flex flex-col bg-neutral-900 p-4 h-full">
+      {/* Header - Center aligned */}
+      <div className="text-center mb-4">
+        <h3 className="text-foreground font-bold text-lg mb-1">Access Restricted</h3>
+        <p className="text-muted-foreground text-xs">Enter Manager PIN to Adjust Price.</p>
+      </div>
+
+      {/* PIN Display with asterisks */}
+      <div className={`flex justify-center gap-2 mb-4 ${pinError ? 'animate-shake' : ''}`}>
+        {[0, 1, 2, 3].map((index) => (
+          <div
+            key={index}
+            className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${
+              index < pin.length
+                ? pinError
+                  ? "border-red-500 bg-red-500/10"
+                  : "border-neutral-600 bg-neutral-800"
+                : "border-neutral-600 bg-neutral-800"
+            }`}
+          >
+            {index < pin.length ? <span className="text-foreground">✱</span> : ""}
+          </div>
+        ))}
+      </div>
+
+      {/* Numpad */}
+      <div className="grid grid-cols-3 gap-2 max-w-[220px] mx-auto w-full flex-1">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+          <button
+            key={num}
+            onClick={() => handlePinNumberClick(num.toString())}
+            className="h-11 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+          >
+            {num}
+          </button>
+        ))}
+        {/* Backspace button (left) */}
+        <button
+          onClick={handlePinBackspace}
+          className="h-11 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+        >
+          <Delete className="w-4 h-4" />
+        </button>
+        {/* Zero button (center) */}
+        <button
+          onClick={() => handlePinNumberClick("0")}
+          className="h-11 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+        >
+          0
+        </button>
+        {/* Clear button (right) - red C */}
+        <button
+          onClick={handlePinClear}
+          className="h-11 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+        >
+          C
+        </button>
+      </div>
+
+      {/* Biometric Options - Below keypad */}
+      <div className="flex justify-center gap-2 mt-3 max-w-[220px] mx-auto w-full">
+        <button className="flex-1 flex items-center justify-center py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+          <Fingerprint className="w-5 h-5" />
+        </button>
+        <button className="flex-1 flex items-center justify-center py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+          <ScanFace className="w-5 h-5" />
+        </button>
+      </div>
+
+      {/* Cancel button */}
+      <div className="mt-4 px-4">
+        <Button 
+          variant="outline" 
+          onClick={() => setCurrentView('customization')} 
+          className="w-full py-2 rounded-full text-white font-medium text-xs bg-transparent border border-neutral-500 hover:bg-neutral-800 h-8"
+        >
+          CANCEL
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Render Price Override View (Desktop style)
+  const renderPriceOverrideView = () => (
+    <div className="flex flex-col bg-neutral-900 p-3 h-full">
+      {/* Item Header */}
+      <div className="flex items-center gap-3 mb-3">
+        {itemImage && (
+          <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
+            <img src={itemImage} alt={item.name} className="w-full h-full object-cover" />
+          </div>
+        )}
+        <div className="flex-1 min-w-0">
+          <h3 className="text-white font-bold text-sm leading-tight truncate">{item.name}</h3>
+          <p className="text-neutral-400 text-xs">Original: ${item.price.toFixed(2)}</p>
+        </div>
+      </div>
+
+      {/* Reason Dropdown */}
+      <div className="mb-3">
+        <label className="text-neutral-400 text-[10px] uppercase mb-1 block">Reason *</label>
+        <div className="relative">
+          <button
+            onClick={() => setIsReasonDropdownOpen(!isReasonDropdownOpen)}
+            className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-left text-white text-xs flex items-center justify-between"
+          >
+            <span className={selectedReason ? "text-white" : "text-neutral-500"}>
+              {selectedReason || "Select reason"}
+            </span>
+            <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${isReasonDropdownOpen ? 'rotate-180' : ''}`} />
+          </button>
+          {isReasonDropdownOpen && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-lg overflow-hidden z-50 max-h-32 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {overrideReasons.map(reason => (
+                <button
+                  key={reason}
+                  onClick={() => {
+                    setSelectedReason(reason);
+                    setIsReasonDropdownOpen(false);
+                  }}
+                  className={`w-full px-3 py-2 text-left text-xs hover:bg-neutral-700 transition-colors ${
+                    selectedReason === reason ? 'bg-neutral-700 text-white' : 'text-neutral-300'
+                  }`}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Other Reason Notes */}
+      {selectedReason === "Other" && (
+        <div className="mb-3">
+          <label className="text-neutral-400 text-[10px] uppercase mb-1 block">Notes *</label>
+          <input
+            type="text"
+            value={overrideNotes}
+            onChange={(e) => setOverrideNotes(e.target.value)}
+            placeholder="Enter reason..."
+            className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white text-xs placeholder:text-neutral-500 outline-none"
+          />
+        </div>
+      )}
+
+      {/* New Price Display */}
+      <div className="mb-3">
+        <label className="text-neutral-400 text-[10px] uppercase mb-1 block">New Price</label>
+        <div className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2">
+          <span className="text-white text-lg font-bold">${newPrice || "0.00"}</span>
+        </div>
+      </div>
+
+      {/* Numpad */}
+      <div className="grid grid-cols-3 gap-1.5 flex-1 mb-3">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+          <button
+            key={num}
+            onClick={() => handlePriceNumberClick(num.toString())}
+            className="h-9 rounded-lg bg-neutral-800 border border-neutral-700 text-foreground text-base font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+          >
+            {num}
+          </button>
+        ))}
+        <button
+          onClick={() => handlePriceNumberClick(".")}
+          className="h-9 rounded-lg bg-neutral-800 border border-neutral-700 text-foreground text-base font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+        >
+          .
+        </button>
+        <button
+          onClick={() => handlePriceNumberClick("0")}
+          className="h-9 rounded-lg bg-neutral-800 border border-neutral-700 text-foreground text-base font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+        >
+          0
+        </button>
+        <button
+          onClick={handlePriceBackspace}
+          className="h-9 rounded-lg bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+        >
+          <Delete className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex items-center gap-2">
+        <Button 
+          variant="outline" 
+          onClick={() => {
+            setCurrentView('customization');
+            setSelectedReason("");
+            setNewPrice("");
+            setOverrideNotes("");
+          }} 
+          className="flex-1 py-1.5 rounded-full text-white font-medium text-[10px] bg-transparent border border-neutral-500 hover:bg-neutral-800 h-8"
+        >
+          CANCEL
+        </Button>
+        <Button 
+          onClick={handlePriceOverrideApply}
+          disabled={!selectedReason || !newPrice || (selectedReason === "Other" && !overrideNotes)}
+          className="flex-1 py-1.5 rounded-full font-bold text-[10px] h-8 disabled:opacity-50" 
+          style={{
+            background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
+            color: 'black'
+          }}
+        >
+          APPLY
+        </Button>
+      </div>
+    </div>
+  );
+
+  // Render Customization View (Original)
+  const renderCustomizationView = () => (
+    <>
       {/* Item Header */}
       <div className="px-3 pb-2">
         <div className="flex items-center gap-3">
@@ -366,7 +660,6 @@ export const InlineItemCustomization = ({
                 {addOnItems
                   .filter(addOn => {
                     const matchesSearch = addOnSearchQuery === "" || addOn.name.toLowerCase().includes(addOnSearchQuery.toLowerCase());
-                    const matchesCategory = activeAddOnCategory === "All" || activeAddOnCategory === "House Favorites" || addOn.category === activeAddOnSubcategory;
                     const matchesSubcategory = activeAddOnCategory === "All" || addOn.category === activeAddOnSubcategory;
                     return matchesSearch && matchesSubcategory;
                   })
@@ -403,22 +696,15 @@ export const InlineItemCustomization = ({
           ADD ${totalPrice.toFixed(2)}
         </Button>
       </div>
+    </>
+  );
 
-      {/* MPIN Dialog */}
-      <MPINDialog
-        open={showMPINDialog}
-        onOpenChange={setShowMPINDialog}
-        onSuccess={handleMPINSuccess}
-      />
-
-      {/* Price Override Dialog */}
-      <PriceOverrideDialog
-        open={showPriceOverrideDialog}
-        onOpenChange={setShowPriceOverrideDialog}
-        itemName={item.name}
-        originalPrice={item.price}
-        onApply={handlePriceOverrideApply}
-      />
-    </div>;
+  return (
+    <div className={`flex flex-col h-full ${className || ''}`}>
+      {currentView === 'customization' && renderCustomizationView()}
+      {currentView === 'mpin' && renderMPINView()}
+      {currentView === 'priceOverride' && renderPriceOverrideView()}
+    </div>
+  );
 };
 export default InlineItemCustomization;

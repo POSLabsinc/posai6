@@ -315,7 +315,7 @@ export const InlineItemCustomization = ({
       </div>
 
       {/* Numpad */}
-      <div className="grid grid-cols-3 gap-2 max-w-[220px] mx-auto w-full flex-1">
+      <div className="grid grid-cols-3 gap-2 px-4 w-full flex-1">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
           <button
             key={num}
@@ -349,7 +349,7 @@ export const InlineItemCustomization = ({
       </div>
 
       {/* Biometric Options - Below keypad */}
-      <div className="flex justify-center gap-2 mt-3 max-w-[220px] mx-auto w-full">
+      <div className="flex justify-center gap-2 mt-3 px-4 w-full">
         <button className="flex-1 flex items-center justify-center py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
           <Fingerprint className="w-5 h-5" />
         </button>

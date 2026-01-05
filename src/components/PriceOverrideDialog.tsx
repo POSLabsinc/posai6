@@ -101,10 +101,10 @@ const PriceOverrideDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full h-full max-w-none max-h-none rounded-none bg-[#1a1a1a] border-none p-0 gap-0 flex flex-col">
-        {/* Grab Bar */}
+      <DialogContent className="w-full h-full max-w-none max-h-none rounded-none sm:w-auto sm:h-auto sm:max-w-[420px] sm:max-h-[90vh] sm:rounded-lg bg-[#1a1a1a] border-none sm:border sm:border-neutral-700 p-0 gap-0 flex flex-col overflow-hidden">
+        {/* Grab Bar - mobile only */}
         <div 
-          className="flex justify-center py-3 cursor-grab active:cursor-grabbing"
+          className="flex justify-center py-3 cursor-grab active:cursor-grabbing sm:hidden"
           onClick={() => onOpenChange(false)}
         >
           <div className="w-12 h-1.5 bg-neutral-600 rounded-full" />

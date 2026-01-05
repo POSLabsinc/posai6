@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronDown, FileText, X, Search, Mic, ArrowUpDown } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -158,6 +158,17 @@ export const InlineItemCustomization = ({
   const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
+
+  // Reset overriddenPrice when item changes
+  useEffect(() => {
+    setOverriddenPrice(null);
+    setQuantity(1);
+    setSelectedModifiers([]);
+    setSelectedAddOns([]);
+    setItemNotes("");
+    setActiveTab('item');
+    setAddOnSearchQuery("");
+  }, [item.id]);
 
   const handlePriceClick = () => {
     setShowMPINDialog(true);

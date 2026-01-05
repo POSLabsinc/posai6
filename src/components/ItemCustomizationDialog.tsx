@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, FileText } from "lucide-react";
@@ -107,6 +107,18 @@ export const ItemCustomizationDialog = ({
   const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
+
+  // Reset overriddenPrice when item changes or dialog opens
+  useEffect(() => {
+    if (open && item) {
+      setOverriddenPrice(null);
+      setQuantity(1);
+      setSelectedModifiers([]);
+      setSelectedAddOns([]);
+      setItemNotes("");
+      setActiveTab('item');
+    }
+  }, [open, item?.id]);
 
   const handlePriceClick = () => {
     setShowMPINDialog(true);

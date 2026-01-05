@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { FileText, AlertTriangle, Clock } from 'lucide-react';
+import { FileText, AlertTriangle, Clock, X } from 'lucide-react';
 
 interface SavedNote {
   text: string;
@@ -35,6 +35,9 @@ const DEFAULT_GENERAL_NOTES: SavedNote[] = [
   { text: 'VIP customer', category: 'general', timestamp: 0 },
 ];
 
+// Delimiter used to separate multiple notes
+const NOTE_DELIMITER = ' | ';
+
 export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
   value,
   onChange,
@@ -43,8 +46,16 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [savedNotes, setSavedNotes] = useState<SavedNote[]>([]);
+  const [inputValue, setInputValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Parse selected notes from value string
+  const selectedNotes = useMemo(() => {
+    if (!value.trim()) return [];
+    return value.split(NOTE_DELIMITER).map(n => n.trim()).filter(Boolean);
+  }, [value]);
 
   // Load saved notes from localStorage on mount
   useEffect(() => {
@@ -59,7 +70,7 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
     }
   }, []);
 
-  // Save note to history when input loses focus (if there's a value)
+  // Save note to history
   const saveNoteToHistory = (noteText: string) => {
     if (!noteText.trim()) return;
     
@@ -92,9 +103,9 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
     localStorage.setItem(STORAGE_KEY, JSON.stringify(updatedNotes));
   };
 
-  // Filter suggestions based on input
+  // Filter suggestions based on input (excluding already selected notes)
   const filteredSuggestions = useMemo(() => {
-    const searchTerm = value.toLowerCase().trim();
+    const searchTerm = inputValue.toLowerCase().trim();
     
     // Combine all notes: saved (recent) + default allergies + default general
     const allNotes = [
@@ -107,10 +118,15 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
       ),
     ];
     
+    // Filter out already selected notes
+    const availableNotes = allNotes.filter(
+      n => !selectedNotes.some(s => s.toLowerCase() === n.text.toLowerCase())
+    );
+    
     // Filter by search term
     const filtered = searchTerm 
-      ? allNotes.filter(n => n.text.toLowerCase().includes(searchTerm))
-      : allNotes;
+      ? availableNotes.filter(n => n.text.toLowerCase().includes(searchTerm))
+      : availableNotes;
     
     // Sort: recent first (by timestamp), then allergies, then general
     return filtered.sort((a, b) => {
@@ -127,28 +143,49 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
       
       return 0;
     }).slice(0, 8); // Show max 8 suggestions
-  }, [value, savedNotes]);
+  }, [inputValue, savedNotes, selectedNotes]);
 
   // Handle click outside to close dropdown
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        dropdownRef.current && 
-        !dropdownRef.current.contains(event.target as Node) &&
-        inputRef.current &&
-        !inputRef.current.contains(event.target as Node)
+        containerRef.current && 
+        !containerRef.current.contains(event.target as Node)
       ) {
         setIsOpen(false);
-        saveNoteToHistory(value);
+        // If there's text in the input, add it as a note
+        if (inputValue.trim()) {
+          addNote(inputValue.trim());
+          setInputValue('');
+        }
       }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [value, savedNotes]);
+  }, [inputValue, selectedNotes]);
+
+  const addNote = (noteText: string) => {
+    const trimmedNote = noteText.trim();
+    if (!trimmedNote) return;
+    
+    // Check if already selected
+    if (selectedNotes.some(n => n.toLowerCase() === trimmedNote.toLowerCase())) {
+      return;
+    }
+    
+    const newNotes = [...selectedNotes, trimmedNote];
+    onChange(newNotes.join(NOTE_DELIMITER));
+    saveNoteToHistory(trimmedNote);
+  };
+
+  const removeNote = (noteToRemove: string) => {
+    const newNotes = selectedNotes.filter(n => n !== noteToRemove);
+    onChange(newNotes.join(NOTE_DELIMITER));
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    onChange(e.target.value);
+    setInputValue(e.target.value);
     setIsOpen(true);
   };
 
@@ -157,19 +194,23 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
   };
 
   const handleSelectSuggestion = (note: SavedNote) => {
-    onChange(note.text);
+    addNote(note.text);
+    setInputValue('');
     setIsOpen(false);
-    saveNoteToHistory(note.text);
-    inputRef.current?.blur();
+    inputRef.current?.focus();
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Escape') {
       setIsOpen(false);
       inputRef.current?.blur();
-    } else if (e.key === 'Enter') {
-      setIsOpen(false);
-      saveNoteToHistory(value);
+    } else if (e.key === 'Enter' && inputValue.trim()) {
+      e.preventDefault();
+      addNote(inputValue.trim());
+      setInputValue('');
+    } else if (e.key === 'Backspace' && !inputValue && selectedNotes.length > 0) {
+      // Remove last note if backspace is pressed with empty input
+      removeNote(selectedNotes[selectedNotes.length - 1]);
     }
   };
 
@@ -189,25 +230,61 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
     return null;
   };
 
+  const getNoteCategory = (noteText: string): 'allergy' | 'recent' | 'general' => {
+    if (noteText.toLowerCase().includes('allerg')) return 'allergy';
+    return 'general';
+  };
+
   return (
-    <div className={`relative ${className}`}>
+    <div className={`relative ${className}`} ref={containerRef}>
       <div 
-        className="flex items-center gap-2 rounded px-3 py-2" 
+        className="flex items-center gap-2 rounded px-3 py-2 flex-wrap min-h-[40px] cursor-text" 
         style={{
           background: '#7575754D',
           boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
         }}
+        onClick={() => inputRef.current?.focus()}
       >
         <FileText className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+        
+        {/* Selected notes as tags */}
+        {selectedNotes.map((note, index) => {
+          const isAllergy = getNoteCategory(note) === 'allergy';
+          return (
+            <span
+              key={`${note}-${index}`}
+              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs ${
+                isAllergy 
+                  ? 'bg-red-900/50 text-red-300 border border-red-700/50' 
+                  : 'bg-neutral-600 text-neutral-200 border border-neutral-500/50'
+              }`}
+            >
+              {isAllergy && <AlertTriangle className="w-3 h-3" />}
+              <span className="truncate max-w-[120px]">{note}</span>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeNote(note);
+                }}
+                className="ml-0.5 hover:text-white transition-colors"
+              >
+                <X className="w-3 h-3" />
+              </button>
+            </span>
+          );
+        })}
+        
+        {/* Input field */}
         <input
           ref={inputRef}
           type="text"
-          placeholder={placeholder}
-          value={value}
+          placeholder={selectedNotes.length === 0 ? placeholder : "Add more..."}
+          value={inputValue}
           onChange={handleInputChange}
           onFocus={handleInputFocus}
           onKeyDown={handleKeyDown}
-          className="flex-1 bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
+          className="flex-1 min-w-[80px] bg-transparent text-sm text-muted-foreground placeholder:text-muted-foreground outline-none"
         />
       </div>
 
@@ -215,7 +292,7 @@ export const OrderNotesAutocomplete: React.FC<OrderNotesAutocompleteProps> = ({
       {isOpen && filteredSuggestions.length > 0 && (
         <div
           ref={dropdownRef}
-          className="absolute top-full left-0 right-0 mt-1 rounded-lg overflow-hidden z-50 shadow-lg border border-sidebar-border"
+          className="absolute top-full left-0 right-0 mt-1 rounded-lg overflow-hidden z-50 shadow-lg border border-sidebar-border max-h-[240px] overflow-y-auto"
           style={{
             background: '#2D2D2D',
           }}

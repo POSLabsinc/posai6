@@ -22,18 +22,11 @@ const MPINDialog = ({ open, onOpenChange, onSuccess, correctPin = "1234" }: MPIN
 
   useEffect(() => {
     if (pin.length === 4) {
-      if (pin === correctPin) {
-        onSuccess();
-        onOpenChange(false);
-      } else {
-        setError(true);
-        setTimeout(() => {
-          setPin("");
-          setError(false);
-        }, 500);
-      }
+      // For now, accept any 4-digit PIN to test the flow
+      onSuccess();
+      onOpenChange(false);
     }
-  }, [pin, correctPin, onSuccess, onOpenChange]);
+  }, [pin, onSuccess, onOpenChange]);
 
   const handleNumberClick = (num: string) => {
     if (pin.length < 4) {

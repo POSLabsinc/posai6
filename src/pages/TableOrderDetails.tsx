@@ -52,6 +52,19 @@ const getOrderItems = (order: GuestOrder) => order.items.map(item => ({
   price: formatPrice(item.price * item.qty)
 }));
 
+// Helper function to filter items by selected seats
+const filterItemsBySeats = (items: OrderItem[], selectedSeats: number[], allSeatsSelected: boolean) => {
+  // If all seats are selected (or no specific filtering), show all items
+  if (allSeatsSelected) return items;
+  
+  return items.filter(item => {
+    // Items with no seat assignment are shared items - show them when any seat is selected
+    if (item.seats.length === 0) return true;
+    // Show item if any of its assigned seats are in the selected seats
+    return item.seats.some(seat => selectedSeats.includes(seat));
+  });
+};
+
 // Mock merged orders data for display
 const mergedOrdersData = {
   "1": {
@@ -407,28 +420,34 @@ const TableOrderDetails = () => {
         {/* Order Items */}
         <ScrollArea className="flex-1 px-3">
           <div className="py-2 space-y-2">
-            {getOrderItems(currentSelectedGuest).map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-2">
-                    <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
-                      {item.qty}
-                    </span>
-                    <div>
-                      <span className="text-white font-medium text-sm">{item.name}</span>
-                      {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-xs space-y-0.5">
-                          {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                        </div>}
+            {(() => {
+              const allSeatsSelected = selectedSeats.length === 4;
+              const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
+              return filteredItems.map((item, index) => (
+                <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-2">
+                      <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                        {item.qty}
+                      </span>
+                      <div>
+                        <span className="text-white font-medium text-sm">{item.name}</span>
+                        {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-xs space-y-0.5">
+                            {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                          </div>}
+                      </div>
                     </div>
+                    <span className="text-white font-medium text-sm">{formatPrice(item.price * item.qty)}</span>
                   </div>
-                  <span className="text-white font-medium text-sm">{item.price}</span>
+                  {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
+                      <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                      {item.seats.map(seat => <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
+                          {seat}
+                        </span>)}
+                    </div>}
                 </div>
-                {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
-                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                    {item.seats.map(seat => <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                        {seat}
-                      </span>)}
-                  </div>}
-              </div>)}
+              ));
+            })()}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
@@ -987,28 +1006,34 @@ const TableOrderDetails = () => {
         {/* Order Items */}
         <ScrollArea className="flex-1 px-4">
           <div className="py-2 space-y-2">
-            {currentSelectedGuest && getOrderItems(currentSelectedGuest).map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-2">
-                    <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
-                      {item.qty}
-                    </span>
-                    <div>
-                      <span className="text-white font-medium">{item.name}</span>
-                      {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-sm space-y-0.5">
-                          {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                        </div>}
+            {currentSelectedGuest && (() => {
+              const allSeatsSelected = selectedSeats.length === 4;
+              const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
+              return filteredItems.map((item, index) => (
+                <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-2">
+                      <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                        {item.qty}
+                      </span>
+                      <div>
+                        <span className="text-white font-medium">{item.name}</span>
+                        {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-sm space-y-0.5">
+                            {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                          </div>}
+                      </div>
                     </div>
+                    <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
                   </div>
-                  <span className="text-white font-medium">{item.price}</span>
+                  {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
+                      <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                      {item.seats.map(seat => <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
+                          {seat}
+                        </span>)}
+                    </div>}
                 </div>
-                {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
-                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                    {item.seats.map(seat => <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                        {seat}
-                      </span>)}
-                  </div>}
-              </div>)}
+              ));
+            })()}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
@@ -1279,88 +1304,97 @@ const TableOrderDetails = () => {
                 {/* Check if this order has merged items */}
                 {hasMergedOrTransferredItems(currentSelectedGuest) ? (
                   // Display items grouped by source
-                  getMergedOrderDisplay(currentSelectedGuest).map((section, sectionIndex) => (
-                    <div key={sectionIndex} className="space-y-2">
-                      {/* Section Header */}
-                      <div className={`flex items-center gap-2 py-2 ${sectionIndex > 0 ? 'mt-3 pt-3 border-t border-white/20' : ''}`}>
-                        {section.isOriginal ? (
-                          <span className="text-white/70 text-xs font-medium uppercase tracking-wide">
-                            {section.label}
-                          </span>
-                        ) : (
-                          <div className="flex items-center gap-2">
-                            <img src={mergeIcon} alt="Merged" className="w-4 h-4 opacity-60" />
-                            <span className="text-[#FFC48A] text-xs font-medium uppercase tracking-wide">
+                  getMergedOrderDisplay(currentSelectedGuest).map((section, sectionIndex) => {
+                    const allSeatsSelected = selectedSeats.length === 4;
+                    const filteredSectionItems = filterItemsBySeats(section.items, selectedSeats, allSeatsSelected);
+                    if (filteredSectionItems.length === 0) return null;
+                    return (
+                      <div key={sectionIndex} className="space-y-2">
+                        {/* Section Header */}
+                        <div className={`flex items-center gap-2 py-2 ${sectionIndex > 0 ? 'mt-3 pt-3 border-t border-white/20' : ''}`}>
+                          {section.isOriginal ? (
+                            <span className="text-white/70 text-xs font-medium uppercase tracking-wide">
                               {section.label}
                             </span>
-                          </div>
-                        )}
-                      </div>
-                      {/* Section Items */}
-                      {section.items.map((item, index) => (
-                        <div key={`${sectionIndex}-${index}`} className={`p-3 rounded-xl border ${section.isOriginal ? 'bg-white/5 border-white/10' : 'bg-[#FFC48A]/5 border-[#FFC48A]/20'}`}>
-                          <div className="flex items-start justify-between">
-                            <div className="flex items-start gap-2">
-                              <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${section.isOriginal ? 'bg-white text-black' : 'bg-[#FFC48A] text-black'}`}>
-                                {item.qty}
+                          ) : (
+                            <div className="flex items-center gap-2">
+                              <img src={mergeIcon} alt="Merged" className="w-4 h-4 opacity-60" />
+                              <span className="text-[#FFC48A] text-xs font-medium uppercase tracking-wide">
+                                {section.label}
                               </span>
-                              <div>
-                                <span className="text-white font-medium">{item.name}</span>
-                                {item.modifiers.length > 0 && (
-                                  <div className="mt-1 text-white/50 text-sm space-y-0.5">
-                                    {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                                  </div>
-                                )}
-                              </div>
-                            </div>
-                            <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
-                          </div>
-                          {item.seats.length > 0 && (
-                            <div className="flex items-center gap-1 mt-2">
-                              <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                              {item.seats.map(seat => (
-                                <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                                  {seat}
-                                </span>
-                              ))}
                             </div>
                           )}
                         </div>
-                      ))}
-                    </div>
-                  ))
-                ) : (
-                  // Display regular items (no merge)
-                  getOrderItems(currentSelectedGuest).map((item, index) => (
-                    <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-2">
-                          <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
-                            {item.qty}
-                          </span>
-                          <div>
-                            <span className="text-white font-medium">{item.name}</span>
-                            {item.modifiers.length > 0 && (
-                              <div className="mt-1 text-white/50 text-sm space-y-0.5">
-                                {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                        {/* Section Items */}
+                        {filteredSectionItems.map((item, index) => (
+                          <div key={`${sectionIndex}-${index}`} className={`p-3 rounded-xl border ${section.isOriginal ? 'bg-white/5 border-white/10' : 'bg-[#FFC48A]/5 border-[#FFC48A]/20'}`}>
+                            <div className="flex items-start justify-between">
+                              <div className="flex items-start gap-2">
+                                <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${section.isOriginal ? 'bg-white text-black' : 'bg-[#FFC48A] text-black'}`}>
+                                  {item.qty}
+                                </span>
+                                <div>
+                                  <span className="text-white font-medium">{item.name}</span>
+                                  {item.modifiers.length > 0 && (
+                                    <div className="mt-1 text-white/50 text-sm space-y-0.5">
+                                      {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
+                              <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
+                            </div>
+                            {item.seats.length > 0 && (
+                              <div className="flex items-center gap-1 mt-2">
+                                <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                                {item.seats.map(seat => (
+                                  <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
+                                    {seat}
+                                  </span>
+                                ))}
                               </div>
                             )}
                           </div>
-                        </div>
-                        <span className="text-white font-medium">{item.price}</span>
+                        ))}
                       </div>
-                      {item.seats.length > 0 && (
-                        <div className="flex items-center gap-1 mt-2">
-                          <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                          {item.seats.map(seat => (
-                            <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                              {seat}
+                    );
+                  })
+                ) : (
+                  // Display regular items (no merge)
+                  (() => {
+                    const allSeatsSelected = selectedSeats.length === 4;
+                    const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
+                    return filteredItems.map((item, index) => (
+                      <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-start gap-2">
+                            <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                              {item.qty}
                             </span>
-                          ))}
+                            <div>
+                              <span className="text-white font-medium">{item.name}</span>
+                              {item.modifiers.length > 0 && (
+                                <div className="mt-1 text-white/50 text-sm space-y-0.5">
+                                  {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                          <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
                         </div>
-                      )}
-                    </div>
-                  ))
+                        {item.seats.length > 0 && (
+                          <div className="flex items-center gap-1 mt-2">
+                            <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                            {item.seats.map(seat => (
+                              <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
+                                {seat}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ));
+                  })()
                 )}
               </>
             )}

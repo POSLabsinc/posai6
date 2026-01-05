@@ -435,11 +435,17 @@ export const InlineItemCustomization = ({
         </div>
       )}
 
-      {/* New Price Display */}
-      <div className="mb-3">
-        <label className="text-neutral-400 text-[10px] uppercase mb-1 block">New Price</label>
-        <div className="bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2">
-          <span className="text-white text-lg font-bold">${newPrice || "0.00"}</span>
+      {/* Price Display - Original and New */}
+      <div className="mb-3 bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2">
+        {/* Original Price Row */}
+        <div className="flex items-center justify-between mb-1">
+          <span className="text-green-500 text-xs font-medium">Price</span>
+          <span className="text-green-500 text-xs font-bold">${item.price.toFixed(2)}</span>
+        </div>
+        {/* New Price Row */}
+        <div className="flex items-center justify-between">
+          <span className="text-neutral-400 text-xs font-medium">New Price</span>
+          <span className="text-red-500 text-sm font-bold">${newPrice || "0.00"}</span>
         </div>
       </div>
 

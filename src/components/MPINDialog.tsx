@@ -68,7 +68,7 @@ const MPINDialog = ({ open, onOpenChange, onSuccess, correctPin = "1234" }: MPIN
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[380px] bg-[#1a1a1a] border-neutral-700 p-6 gap-0">
+      <DialogContent className="w-full h-full max-w-none max-h-none rounded-none bg-[#1a1a1a] border-none p-6 gap-0 flex flex-col justify-center">
         {/* Manager Profile */}
         <div className="flex flex-col items-center mb-6">
           <div className="w-16 h-16 rounded-full overflow-hidden mb-3 border-2 border-primary/30">

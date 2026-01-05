@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Minus, Plus, FileText } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import MPINDialog from "@/components/MPINDialog";
+import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 
 interface ModifierOption {
   name: string;
@@ -102,7 +104,22 @@ export const ItemCustomizationDialog = ({
   const [activeTab, setActiveTab] = useState<'item' | 'addons'>('item');
   const [activeModifierCategory, setActiveModifierCategory] = useState(itemModifiers[0]?.name || "");
   const [itemNotes, setItemNotes] = useState("");
-  
+  const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
+  const [showMPINDialog, setShowMPINDialog] = useState(false);
+  const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
+
+  const handlePriceClick = () => {
+    setShowMPINDialog(true);
+  };
+
+  const handleMPINSuccess = () => {
+    setShowPriceOverrideDialog(true);
+  };
+
+  const handlePriceOverrideApply = (newPrice: number, reason: string, notes: string) => {
+    setOverriddenPrice(newPrice);
+    setShowPriceOverrideDialog(false);
+  };
 
   if (!item) return null;
 
@@ -142,7 +159,8 @@ export const ItemCustomizationDialog = ({
       return total + (addOn?.price || 0);
     }, 0);
     
-    const totalPrice = (item.price + modifierTotal + addOnTotal) * quantity;
+    const basePrice = overriddenPrice !== null ? overriddenPrice : item.price;
+    const totalPrice = (basePrice + modifierTotal + addOnTotal) * quantity;
     
     onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice);
     // Reset state
@@ -176,9 +194,19 @@ export const ItemCustomizationDialog = ({
               <h3 className="text-white font-bold text-base leading-tight">{item.name}</h3>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
-              <div className="bg-neutral-700 px-3 py-1.5 rounded-lg">
-                <span className="text-white font-bold">${item.price.toFixed(2)}</span>
-              </div>
+              <button 
+                onClick={handlePriceClick}
+                className="bg-neutral-700 px-3 py-1.5 rounded-lg hover:bg-neutral-600 transition-colors cursor-pointer"
+              >
+                {overriddenPrice !== null ? (
+                  <div className="flex flex-col items-center">
+                    <span className="text-white font-bold">${overriddenPrice.toFixed(2)}</span>
+                    <span className="text-neutral-400 text-[10px] line-through">${item.price.toFixed(2)}</span>
+                  </div>
+                ) : (
+                  <span className="text-white font-bold">${item.price.toFixed(2)}</span>
+                )}
+              </button>
               <div className="flex items-center gap-1 bg-neutral-700 rounded-lg">
                 <button
                   onClick={() => setQuantity(Math.max(1, quantity - 1))}
@@ -339,6 +367,24 @@ export const ItemCustomizationDialog = ({
           </Button>
         </div>
       </DialogContent>
+
+      {/* MPIN Dialog */}
+      <MPINDialog
+        open={showMPINDialog}
+        onOpenChange={setShowMPINDialog}
+        onSuccess={handleMPINSuccess}
+      />
+
+      {/* Price Override Dialog */}
+      {item && (
+        <PriceOverrideDialog
+          open={showPriceOverrideDialog}
+          onOpenChange={setShowPriceOverrideDialog}
+          itemName={item.name}
+          originalPrice={item.price}
+          onApply={handlePriceOverrideApply}
+        />
+      )}
     </Dialog>
   );
 };

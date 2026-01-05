@@ -75,6 +75,8 @@ import CurbSideGuestForm, { CurbSideGuestData } from "@/components/CurbSideGuest
 import ScheduledGuestForm, { ScheduledGuestData } from "@/components/ScheduledGuestForm";
 import PhoneInGuestForm, { PhoneInGuestData } from "@/components/PhoneInGuestForm";
 import CustomOrderGuestForm, { CustomOrderGuestData } from "@/components/CustomOrderGuestForm";
+import MPINDialog from "@/components/MPINDialog";
+import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -5585,6 +5587,8 @@ interface OrderItem {
   price: number;
   modifiers?: string[];
   itemOrderType?: string;
+  priceOverrideReason?: string;
+  priceOverrideNotes?: string;
 }
 const initialOrderItems: OrderItem[] = [];
 const orderTypes = [
@@ -6082,6 +6086,9 @@ const Orders = () => {
   const [appliedServiceCharge, setAppliedServiceCharge] = useState(0);
   const [appliedServiceChargeName, setAppliedServiceChargeName] = useState('');
   const [showAddGuestForm, setShowAddGuestForm] = useState(false);
+  const [showMPINDialog, setShowMPINDialog] = useState(false);
+  const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
+  const [priceOverrideItem, setPriceOverrideItem] = useState<{ id: number; name: string; price: number; image?: string } | null>(null);
   
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
@@ -6364,6 +6371,27 @@ const Orders = () => {
     setOrderItems(prev => prev.map(item => 
       item.id === itemId ? { ...item, itemOrderType: newOrderType } : item
     ));
+  };
+
+  // Price Override functions
+  const handlePriceClick = (item: { id: number; name: string; price: number }, image?: string) => {
+    setPriceOverrideItem({ ...item, image });
+    setShowMPINDialog(true);
+  };
+
+  const handleMPINSuccess = () => {
+    setShowPriceOverrideDialog(true);
+  };
+
+  const handlePriceOverrideApply = (newPrice: number, reason: string, notes?: string) => {
+    if (priceOverrideItem) {
+      setOrderItems(prev => prev.map(item => 
+        item.id === priceOverrideItem.id 
+          ? { ...item, price: newPrice, priceOverrideReason: reason, priceOverrideNotes: notes }
+          : item
+      ));
+      setPriceOverrideItem(null);
+    }
   };
 
   // Custom Item Panel functions
@@ -6891,7 +6919,15 @@ const Orders = () => {
                           </span>
                           <span className="text-[11px] font-medium text-foreground">{item.name}</span>
                         </div>
-                        <span className="text-[11px] font-medium text-foreground">${item.price.toFixed(2)}</span>
+                        <span 
+                          className="text-[11px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                          }}
+                        >
+                          ${item.price.toFixed(2)}
+                        </span>
                       </div>
                     </SwipeableCartItem>)}
                 </div>
@@ -7756,7 +7792,15 @@ const Orders = () => {
                                   </span>
                                   <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
                                 </div>
-                                <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">${item.price.toFixed(2)}</span>
+                                <span 
+                                  className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                                  }}
+                                >
+                                  ${item.price.toFixed(2)}
+                                </span>
                               </div>
                               {item.modifiers && item.modifiers.length > 0 && <div className="mt-1.5 md:mt-1 lg:mt-2 ml-7 md:ml-5 lg:ml-8 space-y-0.5">
                                   {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs md:text-[10px] lg:text-xs text-primary">
@@ -8019,6 +8063,24 @@ const Orders = () => {
           setAppliedServiceCharge(amount);
           setAppliedServiceChargeName(name);
         }}
+      />
+
+      {/* MPIN Dialog for Price Override */}
+      <MPINDialog
+        open={showMPINDialog}
+        onOpenChange={setShowMPINDialog}
+        onSuccess={handleMPINSuccess}
+        correctPin="1234"
+      />
+
+      {/* Price Override Dialog */}
+      <PriceOverrideDialog
+        open={showPriceOverrideDialog}
+        onOpenChange={setShowPriceOverrideDialog}
+        itemName={priceOverrideItem?.name || ""}
+        itemImage={priceOverrideItem?.image}
+        originalPrice={priceOverrideItem?.price || 0}
+        onApply={handlePriceOverrideApply}
       />
     </div>;
 };

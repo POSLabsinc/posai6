@@ -101,9 +101,17 @@ const PriceOverrideDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[420px] bg-[#1a1a1a] border-neutral-700 p-0 gap-0 overflow-hidden">
+      <DialogContent className="w-full h-full max-w-none max-h-none rounded-none bg-[#1a1a1a] border-none p-0 gap-0 flex flex-col">
+        {/* Grab Bar */}
+        <div 
+          className="flex justify-center py-3 cursor-grab active:cursor-grabbing"
+          onClick={() => onOpenChange(false)}
+        >
+          <div className="w-12 h-1.5 bg-neutral-600 rounded-full" />
+        </div>
+
         {/* Header */}
-        <DialogHeader className="px-6 pt-6 pb-4 border-b border-neutral-700">
+        <DialogHeader className="px-6 pb-4 border-b border-neutral-700">
           <DialogTitle className="flex items-center gap-3 text-foreground">
             {itemImage && (
               <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-neutral-800">
@@ -121,7 +129,7 @@ const PriceOverrideDialog = ({
         </DialogHeader>
 
         {/* Content */}
-        <div className="p-6 space-y-4">
+        <div className="flex-1 flex flex-col justify-center p-6 space-y-4 overflow-auto">
           {/* Reason Dropdown */}
           <Select value={selectedReason} onValueChange={setSelectedReason}>
             <SelectTrigger className="w-full bg-neutral-800 border-neutral-700 text-foreground">

@@ -238,37 +238,44 @@ export const InlineItemCustomization = ({
     setPinError(false);
   };
 
-  // Price Override handlers - currency style (typing cents)
+  // Price Override handlers - standard input style
   const handlePriceNumberClick = (num: string) => {
-    if (num === '.') return; // Ignore decimal key in currency mode
-    
-    // On first keypress, clear the initial price
+    // On first keypress, clear the initial price and start fresh
     if (!isPriceEdited) {
       setIsPriceEdited(true);
-      // Start fresh with the new digit as cents
-      const cents = parseInt(num) || 0;
-      setNewPrice((cents / 100).toFixed(2));
+      if (num === '.') {
+        setNewPrice("0.");
+      } else {
+        setNewPrice(num);
+      }
       return;
     }
     
-    // Get current value in cents, add new digit
-    const currentCents = Math.round(parseFloat(newPrice || "0") * 100);
-    const newCents = currentCents * 10 + (parseInt(num) || 0);
+    // Prevent multiple decimals
+    if (num === '.' && newPrice.includes('.')) return;
     
-    // Limit to reasonable max (99999.99)
-    if (newCents > 9999999) return;
+    // Limit decimal places to 2
+    if (newPrice.includes('.') && newPrice.split('.')[1]?.length >= 2) return;
     
-    setNewPrice((newCents / 100).toFixed(2));
+    // Limit total length
+    if (newPrice.length >= 8) return;
+    
+    setNewPrice(prev => prev + num);
   };
 
   const handlePriceBackspace = () => {
-    const currentCents = Math.round(parseFloat(newPrice || "0") * 100);
-    const newCents = Math.floor(currentCents / 10);
-    setNewPrice((newCents / 100).toFixed(2));
+    setNewPrice(prev => {
+      const newVal = prev.slice(0, -1);
+      if (newVal === '' || newVal === '0') {
+        setIsPriceEdited(false);
+        return item.price.toFixed(2);
+      }
+      return newVal;
+    });
   };
 
   const handlePriceClear = () => {
-    setNewPrice("0.00");
+    setNewPrice(item.price.toFixed(2));
     setIsPriceEdited(false);
   };
 

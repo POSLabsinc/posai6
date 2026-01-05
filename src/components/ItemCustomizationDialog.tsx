@@ -525,7 +525,7 @@ export const ItemCustomizationDialog = ({
     };
 
     return (
-      <ScrollArea className="flex-1 overflow-auto" style={{ maxHeight: '85vh' }}>
+      <ScrollArea className="flex-1 overflow-auto scrollbar-hide [&>div>div]:!block" style={{ maxHeight: '85vh' }}>
         <div className="flex flex-col bg-neutral-900 p-4 pb-6">
           {/* Header */}
           <div className="text-center mb-4">

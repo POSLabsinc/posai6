@@ -6999,7 +6999,27 @@ const Orders = () => {
                           <span className="w-4 h-4 rounded border border-white/50 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
                             {item.qty}
                           </span>
-                          <span className="text-[11px] font-medium text-foreground">{item.name}</span>
+                          <div className="flex flex-col">
+                            <span className="text-[11px] font-medium text-foreground">{item.name}</span>
+                            {/* Seat Assignment Display - Mobile */}
+                            {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
+                              <div className="mt-0.5 flex items-center gap-1">
+                                <img src={chairWhiteIcon} alt="Seats" className="w-3 h-3 opacity-70" />
+                                {item.assignedSeats.length === guestCount ? (
+                                  <Share2 className="w-3 h-3 text-white/70" />
+                                ) : (
+                                  item.assignedSeats.map(seat => (
+                                    <span 
+                                      key={seat}
+                                      className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center"
+                                    >
+                                      {seat}
+                                    </span>
+                                  ))
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                         <span 
                           className="text-[11px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors"
@@ -7944,6 +7964,24 @@ const Orders = () => {
                                       <span>{mod}</span>
                                     </div>)}
                                 </div>}
+                              {/* Seat Assignment Display - Desktop/Tablet */}
+                              {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
+                                <div className="mt-1.5 md:mt-1 lg:mt-2 ml-7 md:ml-5 lg:ml-8 flex items-center gap-1.5">
+                                  <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
+                                  {item.assignedSeats.length === guestCount ? (
+                                    <Share2 className="w-4 h-4 text-white/70" />
+                                  ) : (
+                                    item.assignedSeats.map(seat => (
+                                      <span 
+                                        key={seat}
+                                        className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                                      >
+                                        {seat}
+                                      </span>
+                                    ))
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </SwipeableCartItem>)}
                       </div>}

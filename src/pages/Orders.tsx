@@ -6414,7 +6414,7 @@ const Orders = () => {
     setIsProductInfoFullScreen(false);
   };
   const handleInlineViewChange = (view: 'customization' | 'mpin' | 'priceOverride' | 'productInfo') => {
-    setIsProductInfoFullScreen(view === 'productInfo');
+    setIsProductInfoFullScreen(view === 'productInfo' || view === 'mpin' || view === 'priceOverride');
   };
   const removeFromCart = (itemId: number) => {
     setOrderItems(prev => prev.filter(item => item.id !== itemId));

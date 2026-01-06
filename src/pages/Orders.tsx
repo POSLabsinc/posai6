@@ -6077,6 +6077,7 @@ const Orders = () => {
   } | null>(null);
   const [selectedItemImage, setSelectedItemImage] = useState<string | undefined>(undefined);
   const [showInlineCustomization, setShowInlineCustomization] = useState(false);
+  const [isProductInfoFullScreen, setIsProductInfoFullScreen] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const guestInputRef = useRef<HTMLInputElement>(null);
   const guestDropdownRef = useRef<HTMLDivElement>(null);
@@ -6410,6 +6411,10 @@ const Orders = () => {
     setShowInlineCustomization(false);
     setSelectedItemForCustomization(null);
     setMenuPosition('center');
+    setIsProductInfoFullScreen(false);
+  };
+  const handleInlineViewChange = (view: 'customization' | 'mpin' | 'priceOverride' | 'productInfo') => {
+    setIsProductInfoFullScreen(view === 'productInfo');
   };
   const removeFromCart = (itemId: number) => {
     setOrderItems(prev => prev.filter(item => item.id !== itemId));
@@ -7325,9 +7330,30 @@ const Orders = () => {
             )}
           </div>
         ) : showInlineCustomization && selectedItemForCustomization ? (
-          <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
-            <InlineItemCustomization item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={handleInlineAddToCart} onCancel={handleInlineCancel} className="h-full" />
-          </div>
+          isProductInfoFullScreen ? (
+            // Full-screen product info overlay on mobile
+            <div className="fixed inset-0 z-50 bg-neutral-900 md:hidden flex flex-col" style={{ bottom: '56px' }}>
+              <InlineItemCustomization 
+                item={selectedItemForCustomization} 
+                itemImage={selectedItemImage} 
+                onAddToCart={handleInlineAddToCart} 
+                onCancel={handleInlineCancel} 
+                onViewChange={handleInlineViewChange}
+                className="h-full" 
+              />
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
+              <InlineItemCustomization 
+                item={selectedItemForCustomization} 
+                itemImage={selectedItemImage} 
+                onAddToCart={handleInlineAddToCart} 
+                onCancel={handleInlineCancel} 
+                onViewChange={handleInlineViewChange}
+                className="h-full" 
+              />
+            </div>
+          )
         ) : <>
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>

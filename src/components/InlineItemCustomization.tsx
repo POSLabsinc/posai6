@@ -208,17 +208,15 @@ export const InlineItemCustomization = ({
     if (pin.length === 4) {
       setTimeout(() => {
         setCurrentView('priceOverride');
-        onViewChange?.('priceOverride');
         setPin("");
         setNewPrice(item.price.toFixed(2));
         setIsPriceEdited(false);
       }, 200);
     }
-  }, [pin, item.price, onViewChange]);
+  }, [pin, item.price]);
 
   const handlePriceClick = () => {
     setCurrentView('mpin');
-    onViewChange?.('mpin');
   };
 
   const handleProductInfoClick = () => {
@@ -400,10 +398,7 @@ export const InlineItemCustomization = ({
       <div className="mt-4 px-4">
         <Button 
           variant="outline" 
-          onClick={() => {
-            setCurrentView('customization');
-            onViewChange?.('customization');
-          }} 
+          onClick={() => setCurrentView('customization')} 
           className="w-full py-2 rounded-full text-white font-medium text-xs bg-transparent border border-neutral-500 hover:bg-neutral-800 h-8"
         >
           CANCEL
@@ -526,7 +521,6 @@ export const InlineItemCustomization = ({
           variant="outline" 
           onClick={() => {
             setCurrentView('customization');
-            onViewChange?.('customization');
             setSelectedReason("");
             setNewPrice("");
             setOverrideNotes("");

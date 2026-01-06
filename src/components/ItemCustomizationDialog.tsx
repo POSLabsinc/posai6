@@ -557,7 +557,7 @@ export const ItemCustomizationDialog = ({
     };
 
     return (
-      <ScrollArea className="flex-1 overflow-auto scrollbar-hide [&>div>div]:!block h-full">
+      <ScrollArea className="flex-1 overflow-auto scrollbar-hide [&>div>div]:!block" style={{ maxHeight: '85vh' }}>
         <div className="flex flex-col bg-neutral-900 p-4 pb-6">
           {/* Header */}
           <div className="text-center mb-4">
@@ -877,12 +877,8 @@ export const ItemCustomizationDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`bg-neutral-900 border-neutral-700 p-0 overflow-hidden flex flex-col ${
-          currentView === 'mpin' 
-            ? 'h-auto rounded-2xl max-w-md w-[95vw] md:w-full' 
-            : currentView === 'productInfo' 
-              ? 'w-full h-full max-w-full max-h-full rounded-none md:max-w-md md:w-full md:h-auto md:max-h-[90vh] md:rounded-2xl fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2' 
-              : 'max-h-[90vh] rounded-2xl max-w-md w-[95vw] md:w-full'
+        className={`bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full overflow-hidden rounded-2xl flex flex-col ${
+          currentView === 'mpin' ? 'h-auto' : 'max-h-[90vh]'
         }`}
       >
         {currentView === 'customization' && renderCustomizationView()}

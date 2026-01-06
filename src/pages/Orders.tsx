@@ -6095,6 +6095,7 @@ const Orders = () => {
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [priceOverrideItem, setPriceOverrideItem] = useState<{ id: number; name: string; price: number; image?: string } | null>(null);
+  const [orderNumber, setOrderNumber] = useState(1);
   
   // Table order seat selection state - initialize with all seats selected when coming from table orders
   const [selectedSeats, setSelectedSeats] = useState<number[]>(() => {
@@ -7547,7 +7548,7 @@ const Orders = () => {
                       </span>
                       <Users className="w-4 h-4 text-neutral-400" />
                       <span className="text-neutral-400 text-xs">{guestCount}</span>
-                      <span className="font-bold text-white text-sm">{guestCount}</span>
+                      <span className="font-bold text-white text-sm">{orderNumber}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
                       <span>👤</span>

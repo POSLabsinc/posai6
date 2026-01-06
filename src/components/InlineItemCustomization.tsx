@@ -26,6 +26,7 @@ interface InlineItemCustomizationProps {
   itemImage?: string;
   onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string, totalPrice: number) => void;
   onCancel: () => void;
+  onViewChange?: (view: 'customization' | 'mpin' | 'priceOverride' | 'productInfo') => void;
   className?: string;
 }
 
@@ -157,6 +158,7 @@ export const InlineItemCustomization = ({
   itemImage,
   onAddToCart,
   onCancel,
+  onViewChange,
   className
 }: InlineItemCustomizationProps) => {
   const [quantity, setQuantity] = useState(1);
@@ -219,6 +221,7 @@ export const InlineItemCustomization = ({
 
   const handleProductInfoClick = () => {
     setCurrentView('productInfo');
+    onViewChange?.('productInfo');
   };
 
   // MPIN handlers
@@ -827,7 +830,10 @@ export const InlineItemCustomization = ({
 
           {/* Back Button */}
           <Button 
-            onClick={() => setCurrentView('customization')} 
+            onClick={() => {
+              setCurrentView('customization');
+              onViewChange?.('customization');
+            }} 
             className="w-full py-3 rounded-full font-bold text-sm"
             style={{
               background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',

@@ -408,7 +408,7 @@ export const ItemCustomizationDialog = ({
         {/* Header with item info */}
         <div className="flex items-center gap-3 pb-4 border-b border-neutral-700 mb-4">
           {itemImage && (
-            <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-neutral-800">
+            <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-neutral-800 border border-neutral-600">
               <img src={itemImage} alt={item?.name} className="w-full h-full object-cover" />
             </div>
           )}

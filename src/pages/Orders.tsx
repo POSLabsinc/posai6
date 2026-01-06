@@ -6327,6 +6327,9 @@ const Orders = () => {
     name: string;
     price: number;
   }) => {
+    // When coming from table order, assign all seats by default
+    const allSeats = isTableOrder ? Array.from({ length: guestCount }, (_, i) => i + 1) : undefined;
+    
     setOrderItems(prev => {
       const existing = prev.find(o => o.name === item.name && (!o.modifiers || o.modifiers.length === 0));
       if (existing) {
@@ -6339,7 +6342,8 @@ const Orders = () => {
         id: Date.now(),
         qty: 1,
         name: item.name,
-        price: item.price
+        price: item.price,
+        assignedSeats: allSeats
       }];
     });
   };

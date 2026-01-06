@@ -7009,9 +7009,11 @@ const Orders = () => {
                             {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
                               <div className="mt-0.5 flex items-center gap-1">
                                 <img src={chairWhiteIcon} alt="Seats" className="w-3 h-3 opacity-70" />
-                                {item.assignedSeats.length === guestCount ? (
-                                  <Share2 className="w-3 h-3 text-white/70" />
-                                ) : (
+                          {item.assignedSeats.length === guestCount ? (
+                            <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
+                              <Share2 className="w-2.5 h-2.5" />
+                            </span>
+                          ) : (
                                   item.assignedSeats.map(seat => (
                                     <span 
                                       key={seat}
@@ -7972,9 +7974,11 @@ const Orders = () => {
                               {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
                                 <div className="mt-1.5 md:mt-1 lg:mt-2 ml-7 md:ml-5 lg:ml-8 flex items-center gap-1.5">
                                   <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
-                                  {item.assignedSeats.length === guestCount ? (
-                                    <Share2 className="w-4 h-4 text-white/70" />
-                                  ) : (
+                            {item.assignedSeats.length === guestCount ? (
+                              <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                                <Share2 className="w-3 h-3" />
+                              </span>
+                            ) : (
                                     item.assignedSeats.map(seat => (
                                       <span 
                                         key={seat}

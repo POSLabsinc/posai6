@@ -406,7 +406,7 @@ const TableOrder = () => {
                 console.log(`Selected ${guestCount} guests for table ${table.id}`);
                 setGuestDropdownTable(null);
                 setSelectedTable(table.id);
-                navigate(`/orders`);
+                navigate(`/orders?tableId=${table.id}&seats=${table.seats}&guests=${guestCount}`);
               };
 
               return (

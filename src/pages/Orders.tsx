@@ -7561,8 +7561,22 @@ const Orders = () => {
                     <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
                       <img src={chairWhiteIcon} alt="Chair" className="w-4 h-4" />
                     </button>
-                    <button className="px-2 py-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors text-white text-xs font-medium">
-                      All
+                    <button 
+                      onClick={() => {
+                        // Select all seats if not all are selected, otherwise deselect all
+                        if (selectedSeats.length === guestCount) {
+                          setSelectedSeats([]);
+                        } else {
+                          setSelectedSeats(Array.from({ length: guestCount }, (_, i) => i + 1));
+                        }
+                      }}
+                      className={`p-1.5 rounded transition-colors ${
+                        selectedSeats.length === guestCount 
+                          ? 'bg-white' 
+                          : 'bg-neutral-700 hover:bg-neutral-600'
+                      }`}
+                    >
+                      <Share2 className={`w-4 h-4 ${selectedSeats.length === guestCount ? 'text-black' : 'text-white'}`} />
                     </button>
                     {Array.from({ length: guestCount }).map((_, i) => (
                       <button

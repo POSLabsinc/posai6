@@ -403,7 +403,7 @@ export const ItemCustomizationDialog = ({
 
   // Price Override Screen
   const renderPriceOverrideView = () => (
-    <ScrollArea className="max-h-[85vh]">
+    <ScrollArea className="max-h-[85vh] scrollbar-hide [&>div>div]:!block [&_[data-radix-scroll-area-viewport]]:!overflow-y-auto">
       <div className="flex flex-col bg-neutral-900 p-6 pb-6">
         {/* Header with item info */}
         <div className="flex items-center gap-3 pb-4 border-b border-neutral-700 mb-4">

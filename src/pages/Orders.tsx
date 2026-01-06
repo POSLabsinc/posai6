@@ -7561,8 +7561,8 @@ const Orders = () => {
                     <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
                       <img src={chairWhiteIcon} alt="Chair" className="w-4 h-4" />
                     </button>
-                    <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
-                      <Share2 className="w-4 h-4 text-white" />
+                    <button className="px-2 py-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors text-white text-xs font-medium">
+                      All
                     </button>
                     {Array.from({ length: guestCount }).map((_, i) => (
                       <button

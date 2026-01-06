@@ -61,6 +61,7 @@ import phoneInIcon from "@/assets/icons/phone-in.svg";
 import customOrderIcon from "@/assets/icons/custom-order.svg";
 import menuIcon from "@/assets/icons/menu-icon.svg";
 import tableOrderIcon from "@/assets/icons/table-order.png";
+import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
 import settingsIcon from "@/assets/icons/settings.png";
 import { usePanelPosition } from "@/contexts/PanelPositionContext";
@@ -7558,7 +7559,7 @@ const Orders = () => {
                   {/* Table Order Header - Row 2: Seat buttons */}
                   <div className="flex items-center gap-2 px-2 py-2 border-b border-sidebar-border">
                     <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
-                      <img src={tableOrderIcon} alt="Table" className="w-4 h-4" />
+                      <img src={chairWhiteIcon} alt="Chair" className="w-4 h-4" />
                     </button>
                     <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
                       <Share2 className="w-4 h-4 text-white" />

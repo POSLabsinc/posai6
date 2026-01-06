@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, ChevronLeft, ChevronDown, Delete, Fingerprint, ScanFace, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronDown, Delete, Fingerprint, ScanFace, Share2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 
@@ -682,23 +683,22 @@ export const ItemCustomizationDialog = ({
                 <span className="text-white font-bold">${item?.price.toFixed(2)}</span>
               )}
             </button>
-            <div className="flex items-center gap-1 bg-neutral-700 rounded-lg">
-              <button
-                onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                disabled={quantity <= 1}
-                className="w-9 h-9 flex items-center justify-center text-white hover:bg-neutral-600 rounded-l-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Minus className="w-4 h-4" />
-              </button>
-              <span className="w-8 text-center text-white font-medium text-base">{quantity}</span>
-              <button
-                onClick={() => setQuantity(Math.min(99, quantity + 1))}
-                disabled={quantity >= 99}
-                className="w-9 h-9 flex items-center justify-center text-white hover:bg-neutral-600 rounded-r-lg transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
+            <Select value={quantity.toString()} onValueChange={(val) => setQuantity(parseInt(val))}>
+              <SelectTrigger className="w-20 h-9 bg-neutral-700 border-none text-white font-medium text-base rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                {Array.from({ length: 99 }, (_, i) => i + 1).map((num) => (
+                  <SelectItem 
+                    key={num} 
+                    value={num.toString()}
+                    className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white"
+                  >
+                    {num}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </div>

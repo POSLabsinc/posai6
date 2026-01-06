@@ -670,29 +670,29 @@ export const ItemCustomizationDialog = ({
             </button>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
-            <button 
+            <button
               onClick={handlePriceClick}
-              className="bg-neutral-700 px-3 py-1.5 rounded-lg hover:bg-neutral-600 transition-colors cursor-pointer"
+              className="bg-neutral-700 px-2.5 py-1 rounded-md hover:bg-neutral-600 transition-colors cursor-pointer"
             >
               {overriddenPrice !== null ? (
-                <div className="flex flex-col items-center">
-                  <span className="text-white font-bold">${overriddenPrice.toFixed(2)}</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-white font-medium text-sm">${overriddenPrice.toFixed(2)}</span>
                   <span className="text-neutral-400 text-[10px] line-through">${item?.price.toFixed(2)}</span>
                 </div>
               ) : (
-                <span className="text-white font-bold">${item?.price.toFixed(2)}</span>
+                <span className="text-white font-medium text-sm">${item?.price.toFixed(2)}</span>
               )}
             </button>
             <Select value={quantity.toString()} onValueChange={(val) => setQuantity(parseInt(val))}>
-              <SelectTrigger className="w-20 h-9 bg-neutral-700 border-none text-white font-medium text-base rounded-lg">
+              <SelectTrigger className="w-12 h-7 bg-neutral-700 border-none text-white font-medium text-sm rounded-md px-2 gap-0.5">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+              <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999] min-w-[3rem]">
                 {Array.from({ length: 99 }, (_, i) => i + 1).map((num) => (
                   <SelectItem 
                     key={num} 
                     value={num.toString()}
-                    className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white"
+                    className="text-white text-sm hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white py-1"
                   >
                     {num}
                   </SelectItem>

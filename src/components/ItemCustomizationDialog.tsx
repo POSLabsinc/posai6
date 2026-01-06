@@ -877,8 +877,12 @@ export const ItemCustomizationDialog = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className={`bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full overflow-hidden flex flex-col ${
-          currentView === 'mpin' ? 'h-auto rounded-2xl' : currentView === 'productInfo' ? 'h-[100vh] max-h-[100vh] rounded-none' : 'max-h-[90vh] rounded-2xl'
+        className={`bg-neutral-900 border-neutral-700 p-0 overflow-hidden flex flex-col ${
+          currentView === 'mpin' 
+            ? 'h-auto rounded-2xl max-w-md w-[95vw] md:w-full' 
+            : currentView === 'productInfo' 
+              ? 'w-full h-full max-w-full max-h-full rounded-none md:max-w-md md:w-full md:h-auto md:max-h-[90vh] md:rounded-2xl fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2' 
+              : 'max-h-[90vh] rounded-2xl max-w-md w-[95vw] md:w-full'
         }`}
       >
         {currentView === 'customization' && renderCustomizationView()}

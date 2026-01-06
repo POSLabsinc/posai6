@@ -5591,6 +5591,7 @@ interface OrderItem {
   itemOrderType?: string;
   priceOverrideReason?: string;
   priceOverrideNotes?: string;
+  assignedSeats?: number[];
 }
 const initialOrderItems: OrderItem[] = [];
 const orderTypes = [
@@ -6346,14 +6347,15 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
-  }, quantity: number, modifiers: string[], notes: string, totalPrice: number) => {
+  }, quantity: number, modifiers: string[], notes: string, totalPrice: number, assignedSeats?: number[]) => {
     setOrderItems(prev => {
       return [...prev, {
         id: Date.now(),
         qty: quantity,
         name: item.name,
         price: totalPrice / quantity, // Store the unit price including modifiers/add-ons
-        modifiers: modifiers.length > 0 ? modifiers : undefined
+        modifiers: modifiers.length > 0 ? modifiers : undefined,
+        assignedSeats: assignedSeats && assignedSeats.length > 0 ? assignedSeats : undefined
       }];
     });
   };
@@ -8075,7 +8077,15 @@ const Orders = () => {
       </div>
 
       {/* Item Customization Dialog */}
-      <ItemCustomizationDialog open={customizationDialogOpen} onOpenChange={setCustomizationDialogOpen} item={selectedItemForCustomization} itemImage={selectedItemImage} onAddToCart={addToCartWithModifiers} />
+      <ItemCustomizationDialog 
+        open={customizationDialogOpen} 
+        onOpenChange={setCustomizationDialogOpen} 
+        item={selectedItemForCustomization} 
+        itemImage={selectedItemImage} 
+        onAddToCart={addToCartWithModifiers}
+        isTableOrder={isTableOrder}
+        guestCount={guestCount}
+      />
 
       {/* Discount Dialog */}
       {showDiscountDialog && (

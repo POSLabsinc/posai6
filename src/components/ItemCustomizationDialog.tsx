@@ -1,9 +1,10 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Minus, Plus, ChevronLeft, ChevronDown, Delete, Fingerprint, ScanFace } from "lucide-react";
+import { Minus, Plus, ChevronLeft, ChevronDown, Delete, Fingerprint, ScanFace, Share2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
+import chairWhiteIcon from "@/assets/icons/chair-white.png";
 
 interface ModifierOption {
   name: string;
@@ -27,8 +28,10 @@ interface ItemCustomizationDialogProps {
   onOpenChange: (open: boolean) => void;
   item: MenuItem | null;
   itemImage?: string;
-  onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string, totalPrice: number) => void;
+  onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string, totalPrice: number, selectedSeats?: number[]) => void;
   isManager?: boolean;
+  isTableOrder?: boolean;
+  guestCount?: number;
 }
 
 const overrideReasons = [
@@ -107,7 +110,9 @@ export const ItemCustomizationDialog = ({
   item,
   itemImage,
   onAddToCart,
-  isManager = false
+  isManager = false,
+  isTableOrder = false,
+  guestCount = 0
 }: ItemCustomizationDialogProps) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedModifiers, setSelectedModifiers] = useState<string[]>([]);
@@ -131,6 +136,25 @@ export const ItemCustomizationDialog = ({
   const [overrideNotes, setOverrideNotes] = useState("");
   const [showReasonDropdown, setShowReasonDropdown] = useState(false);
 
+  // Seat selection state for table orders
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+
+  const toggleSeat = (seat: number) => {
+    setSelectedSeats(prev => 
+      prev.includes(seat) 
+        ? prev.filter(s => s !== seat)
+        : [...prev, seat]
+    );
+  };
+
+  const toggleAllSeats = () => {
+    if (selectedSeats.length === guestCount) {
+      setSelectedSeats([]);
+    } else {
+      setSelectedSeats(Array.from({ length: guestCount }, (_, i) => i + 1));
+    }
+  };
+
   // Reset all state when dialog opens/closes or item changes
   useEffect(() => {
     if (open && item) {
@@ -146,6 +170,7 @@ export const ItemCustomizationDialog = ({
       setNewPriceInput("");
       setSelectedReason("");
       setOverrideNotes("");
+      setSelectedSeats([]);
     }
   }, [open, item?.id]);
 
@@ -289,13 +314,15 @@ export const ItemCustomizationDialog = ({
     const basePrice = overriddenPrice !== null ? overriddenPrice : item.price;
     const totalPrice = (basePrice + modifierTotal + addOnTotal) * quantity;
     
-    onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice);
+    // Pass selectedSeats only for table orders
+    onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice, isTableOrder ? selectedSeats : undefined);
     // Reset state
     setQuantity(1);
     setSelectedModifiers([]);
     setSelectedAddOns([]);
     setItemNotes("");
     setActiveTab('item');
+    setSelectedSeats([]);
     onOpenChange(false);
   };
 
@@ -672,6 +699,40 @@ export const ItemCustomizationDialog = ({
           </div>
         </div>
       </div>
+
+      {/* Seat Selection Row - Only shown for table orders */}
+      {isTableOrder && guestCount > 0 && (
+        <div className="px-4 pb-2">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 bg-neutral-700 rounded">
+              <img src={chairWhiteIcon} alt="Chair" className="w-4 h-4" />
+            </div>
+            <button 
+              onClick={toggleAllSeats}
+              className={`p-1.5 rounded transition-colors ${
+                selectedSeats.length === guestCount 
+                  ? 'bg-white' 
+                  : 'bg-neutral-700 hover:bg-neutral-600'
+              }`}
+            >
+              <Share2 className={`w-4 h-4 ${selectedSeats.length === guestCount ? 'text-black' : 'text-white'}`} />
+            </button>
+            {Array.from({ length: guestCount }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => toggleSeat(i + 1)}
+                className={`w-7 h-7 rounded flex items-center justify-center text-sm font-bold transition-colors ${
+                  selectedSeats.includes(i + 1) 
+                    ? 'bg-white text-black' 
+                    : 'bg-neutral-600 text-white hover:bg-neutral-500'
+                }`}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Selected Modifiers Pills */}
       {selectedModifiers.length > 0 && (

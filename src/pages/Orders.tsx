@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2 } from "lucide-react";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
@@ -5986,6 +5986,11 @@ const Orders = () => {
   const addItemMode = searchParams.get('mode') === 'addItem';
   const existingOrderId = searchParams.get('orderId');
   const tableIdFromParams = searchParams.get('tableId');
+  const seatsFromParams = searchParams.get('seats');
+  const guestsFromParams = searchParams.get('guests');
+  const isTableOrder = !!tableIdFromParams && !!seatsFromParams && !!guestsFromParams;
+  const totalSeats = seatsFromParams ? parseInt(seatsFromParams) : 0;
+  const guestCount = guestsFromParams ? parseInt(guestsFromParams) : 0;
   
   // Get existing order data if in add-item mode
   const existingOrder = addItemMode && existingOrderId ? getOrderById(existingOrderId) : null;
@@ -6090,6 +6095,24 @@ const Orders = () => {
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [priceOverrideItem, setPriceOverrideItem] = useState<{ id: number; name: string; price: number; image?: string } | null>(null);
+  
+  // Table order seat selection state - initialize with all seats selected when coming from table orders
+  const [selectedSeats, setSelectedSeats] = useState<number[]>(() => {
+    if (isTableOrder && guestCount > 0) {
+      return Array.from({ length: guestCount }, (_, i) => i + 1);
+    }
+    return [];
+  });
+  
+  // Toggle seat selection for table orders
+  const toggleSeatSelection = (seatNumber: number) => {
+    setSelectedSeats(prev => {
+      if (prev.includes(seatNumber)) {
+        return prev.filter(s => s !== seatNumber);
+      }
+      return [...prev, seatNumber].sort((a, b) => a - b);
+    });
+  };
   
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
@@ -6596,171 +6619,224 @@ const Orders = () => {
         {/* Background Container for Order Content */}
         <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden mx-1 transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 min-h-0' : 'min-h-0'}`}>
           {/* Order Type & Guest Info */}
-          <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
-                  background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-                }}>
-                    <img src={orderTypes.find(t => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
-                    {orderType} <ChevronDown className="w-3 h-3" />
+          {isTableOrder ? (
+            <>
+              {/* Table Order Header - Row 1 */}
+              <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+                <div className="flex items-center gap-2">
+                  <span className="bg-neutral-700 border border-neutral-600 px-2 py-1 rounded text-xs font-medium text-white">
+                    TABLE {tableIdFromParams}
+                  </span>
+                  <Users className="w-4 h-4 text-neutral-400" />
+                  <span className="text-neutral-400 text-xs">{totalSeats}</span>
+                  <span className="font-bold text-white text-sm">{guestCount}</span>
+                </div>
+                <div className="flex items-center gap-2 text-xs">
+                  <img src={runnerIcon} alt="User" className="w-4 h-4" />
+                  <span className="text-neutral-400">{guestName || "Mia Jone"}</span>
+                  <button onClick={() => {
+                    const newExpanded = !isOrderPanelExpanded;
+                    setIsOrderPanelExpanded(newExpanded);
+                    if (newExpanded) {
+                      setMenuPosition('minimized');
+                    } else {
+                      setMenuPosition('center');
+                    }
+                  }} className="p-1 rounded hover:bg-neutral-700 transition-colors">
+                    <img src={isOrderPanelExpanded ? collapsePanelIcon : expandPanelIcon} alt="Toggle panel" className="w-4 h-4" />
                   </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px] p-1 z-50">
-                  {orderTypes.map(type => <DropdownMenuItem key={type.label} onClick={() => {
-                      setOrderType(type.label);
-                      if (type.label === "DINE IN") {
-                        setShowDineInForm(true);
-                        setDineInGuestData(null);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowPhoneInForm(false);
-                        setShowCustomOrderForm(false);
-                      } else if (type.label === "TAKE OUT") {
-                        setShowTakeOutForm(true);
-                        setTakeOutGuestData(null);
-                        setShowDineInForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowPhoneInForm(false);
-                        setShowCustomOrderForm(false);
-                      } else if (type.label === "DELIVERY") {
-                        setShowDeliveryForm(true);
-                        setDeliveryGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowPhoneInForm(false);
-                        setShowCustomOrderForm(false);
-                      } else if (type.label === "DRIVE THRU") {
-                        setShowDriveThruForm(true);
-                        setDriveThruGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowPhoneInForm(false);
-                        setShowCustomOrderForm(false);
-                      } else if (type.label === "CURB SIDE") {
-                        setShowCurbSideForm(true);
-                        setCurbSideGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowScheduledForm(false);
-                        setShowPhoneInForm(false);
-                        setShowCustomOrderForm(false);
-                      } else if (type.label === "SCHEDULED") {
-                        setShowScheduledForm(true);
-                        setScheduledGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowPhoneInForm(false);
-                        setShowCustomOrderForm(false);
-                      } else if (type.label === "PHONE-IN") {
-                        setShowPhoneInForm(true);
-                        setPhoneInGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowCustomOrderForm(false);
-                      } else if (type.label === "CUSTOM") {
-                        setShowCustomOrderForm(true);
-                        setCustomOrderGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowPhoneInForm(false);
-                      } else {
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowPhoneInForm(false);
-                        setShowCustomOrderForm(false);
-                      }
-                    }} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
-                      <img src={type.icon} alt="" className="w-4 h-4" />
-                      {type.label}
-                    </DropdownMenuItem>)}
-                </DropdownMenuContent>
-              </DropdownMenu>
-              {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-xs font-bold">20</span>}
-            </div>
-            <div className="flex items-center gap-2 text-xs">
-              <img src={runnerIcon} alt="User" className="w-4 h-4" />
-              <span>Dustin H</span>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="w-5 h-5 bg-white rounded-full flex items-center justify-center ml-2">
-                    <MoreVertical className="w-3 h-3 text-black" />
+                </div>
+              </div>
+              {/* Table Order Header - Row 2: Seat buttons */}
+              <div className="flex items-center gap-2 px-2 py-2 border-b border-sidebar-border">
+                <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+                  <img src={tableOrderIcon} alt="Table" className="w-4 h-4" />
+                </button>
+                <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+                  <Share2 className="w-4 h-4 text-white" />
+                </button>
+                {Array.from({ length: guestCount }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => toggleSeatSelection(i + 1)}
+                    className={`w-7 h-7 rounded flex items-center justify-center text-sm font-bold transition-colors ${
+                      selectedSeats.includes(i + 1) 
+                        ? 'bg-white text-black' 
+                        : 'bg-neutral-600 text-white hover:bg-neutral-500'
+                    }`}
+                  >
+                    {i + 1}
                   </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="bg-neutral-800 border-neutral-700 min-w-[160px] p-1 z-50">
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <img src={noTaxIcon} alt="" className="w-3.5 h-3.5" />
-                    No Tax
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
-                    Discount
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <img src={giftCardIcon} alt="" className="w-3.5 h-3.5" />
-                    Gift Card
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <Plus className="w-3.5 h-3.5" />
-                    Add Guest
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <Plus className="w-3.5 h-3.5" />
-                    Custom Item
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <img src={cashRegisterIcon} alt="" className="w-3.5 h-3.5" />
-                    Open Register
-                  </DropdownMenuItem>
-                  <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                    <Receipt className="w-3.5 h-3.5" />
-                    Service Charge
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <button onClick={() => {
-              const newExpanded = !isOrderPanelExpanded;
-              setIsOrderPanelExpanded(newExpanded);
-              if (newExpanded) {
-                setMenuPosition('minimized');
-              } else {
-                setMenuPosition('center');
-              }
-            }} className="p-1 rounded hover:bg-neutral-700 transition-colors">
-                <img src={isOrderPanelExpanded ? collapsePanelIcon : expandPanelIcon} alt="Toggle panel" className="w-4 h-4" />
-              </button>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+              <div className="flex items-center gap-2">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
+                    background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                  }}>
+                      <img src={orderTypes.find(t => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
+                      {orderType} <ChevronDown className="w-3 h-3" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px] p-1 z-50">
+                    {orderTypes.map(type => <DropdownMenuItem key={type.label} onClick={() => {
+                        setOrderType(type.label);
+                        if (type.label === "DINE IN") {
+                          setShowDineInForm(true);
+                          setDineInGuestData(null);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "TAKE OUT") {
+                          setShowTakeOutForm(true);
+                          setTakeOutGuestData(null);
+                          setShowDineInForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "DELIVERY") {
+                          setShowDeliveryForm(true);
+                          setDeliveryGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "DRIVE THRU") {
+                          setShowDriveThruForm(true);
+                          setDriveThruGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "CURB SIDE") {
+                          setShowCurbSideForm(true);
+                          setCurbSideGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "SCHEDULED") {
+                          setShowScheduledForm(true);
+                          setScheduledGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "PHONE-IN") {
+                          setShowPhoneInForm(true);
+                          setPhoneInGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "CUSTOM") {
+                          setShowCustomOrderForm(true);
+                          setCustomOrderGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                        } else {
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        }
+                      }} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
+                        <img src={type.icon} alt="" className="w-4 h-4" />
+                        {type.label}
+                      </DropdownMenuItem>)}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-xs font-bold">20</span>}
+              </div>
+              <div className="flex items-center gap-2 text-xs">
+                <img src={runnerIcon} alt="User" className="w-4 h-4" />
+                <span>Dustin H</span>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button className="w-5 h-5 bg-white rounded-full flex items-center justify-center ml-2">
+                      <MoreVertical className="w-3 h-3 text-black" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="bg-neutral-800 border-neutral-700 min-w-[160px] p-1 z-50">
+                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={noTaxIcon} alt="" className="w-3.5 h-3.5" />
+                      No Tax
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
+                      Discount
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={giftCardIcon} alt="" className="w-3.5 h-3.5" />
+                      Gift Card
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <Plus className="w-3.5 h-3.5" />
+                      Add Guest
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <Plus className="w-3.5 h-3.5" />
+                      Custom Item
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={cashRegisterIcon} alt="" className="w-3.5 h-3.5" />
+                      Open Register
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <Receipt className="w-3.5 h-3.5" />
+                      Service Charge
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                <button onClick={() => {
+                const newExpanded = !isOrderPanelExpanded;
+                setIsOrderPanelExpanded(newExpanded);
+                if (newExpanded) {
+                  setMenuPosition('minimized');
+                } else {
+                  setMenuPosition('center');
+                }
+              }} className="p-1 rounded hover:bg-neutral-700 transition-colors">
+                  <img src={isOrderPanelExpanded ? collapsePanelIcon : expandPanelIcon} alt="Toggle panel" className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Order Notes */}
           <div className="px-2 py-1.5 border-b border-sidebar-border">
@@ -7461,107 +7537,149 @@ const Orders = () => {
                 />
               )}
               {/* Order Type & Guest Info */}
-              <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
-                <div className="flex items-center gap-2">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <button className="flex items-center gap-1.5 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
-                        <img src={orderTypes.find(t => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
-                        {orderType} <ChevronDown className="w-3 h-3" />
+              {isTableOrder ? (
+                <>
+                  {/* Table Order Header - Row 1 */}
+                  <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+                    <div className="flex items-center gap-2">
+                      <span className="bg-neutral-700 border border-neutral-600 px-2 py-1 rounded text-xs font-medium text-white">
+                        TABLE {tableIdFromParams}
+                      </span>
+                      <Users className="w-4 h-4 text-neutral-400" />
+                      <span className="text-neutral-400 text-xs">{totalSeats}</span>
+                      <span className="font-bold text-white text-sm">{guestCount}</span>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs">
+                      <span>👤</span>
+                      <span className="text-neutral-400">{guestName || "MIA JONE"}</span>
+                    </div>
+                  </div>
+                  {/* Table Order Header - Row 2: Seat buttons */}
+                  <div className="flex items-center gap-2 px-2 py-2 border-b border-sidebar-border">
+                    <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+                      <img src={tableOrderIcon} alt="Table" className="w-4 h-4" />
+                    </button>
+                    <button className="p-1.5 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+                      <Share2 className="w-4 h-4 text-white" />
+                    </button>
+                    {Array.from({ length: guestCount }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => toggleSeatSelection(i + 1)}
+                        className={`w-7 h-7 rounded flex items-center justify-center text-sm font-bold transition-colors ${
+                          selectedSeats.includes(i + 1) 
+                            ? 'bg-white text-black' 
+                            : 'bg-neutral-600 text-white hover:bg-neutral-500'
+                        }`}
+                      >
+                        {i + 1}
                       </button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
-                      {orderTypes.map(type => <DropdownMenuItem key={type.label} onClick={() => {
-                          setOrderType(type.label);
-                          if (type.label === "DINE IN") {
-                            setShowDineInForm(true);
-                            setDineInGuestData(null);
-                            setShowTakeOutForm(false);
-                            setShowDeliveryForm(false);
-                            setShowDriveThruForm(false);
-                            setShowCurbSideForm(false);
-                          } else if (type.label === "TAKE OUT") {
-                            setShowTakeOutForm(true);
-                            setTakeOutGuestData(null);
-                            setShowDineInForm(false);
-                            setShowDeliveryForm(false);
-                            setShowDriveThruForm(false);
-                            setShowCurbSideForm(false);
-                          } else if (type.label === "DELIVERY") {
-                            setShowDeliveryForm(true);
-                            setDeliveryGuestData(null);
-                            setShowDineInForm(false);
-                            setShowTakeOutForm(false);
-                            setShowDriveThruForm(false);
-                            setShowCurbSideForm(false);
-                          } else if (type.label === "DRIVE THRU") {
-                            setShowDriveThruForm(true);
-                            setDriveThruGuestData(null);
-                            setShowDineInForm(false);
-                            setShowTakeOutForm(false);
-                            setShowDeliveryForm(false);
-                            setShowCurbSideForm(false);
-                          } else if (type.label === "CURB SIDE") {
-                            setShowCurbSideForm(true);
-                            setCurbSideGuestData(null);
-                            setShowDineInForm(false);
-                            setShowTakeOutForm(false);
-                            setShowDeliveryForm(false);
-                            setShowDriveThruForm(false);
-                            setShowScheduledForm(false);
-                          } else if (type.label === "SCHEDULED") {
-                            setShowScheduledForm(true);
-                            setScheduledGuestData(null);
-                            setShowDineInForm(false);
-                            setShowTakeOutForm(false);
-                            setShowDeliveryForm(false);
-                            setShowDriveThruForm(false);
-                            setShowCurbSideForm(false);
-                            setShowPhoneInForm(false);
-                            setShowCustomOrderForm(false);
-                          } else if (type.label === "PHONE-IN") {
-                            setShowPhoneInForm(true);
-                            setPhoneInGuestData(null);
-                            setShowDineInForm(false);
-                            setShowTakeOutForm(false);
-                            setShowDeliveryForm(false);
-                            setShowDriveThruForm(false);
-                            setShowCurbSideForm(false);
-                            setShowScheduledForm(false);
-                            setShowCustomOrderForm(false);
-                          } else if (type.label === "CUSTOM") {
-                            setShowCustomOrderForm(true);
-                            setCustomOrderGuestData(null);
-                            setShowDineInForm(false);
-                            setShowTakeOutForm(false);
-                            setShowDeliveryForm(false);
-                            setShowDriveThruForm(false);
-                            setShowCurbSideForm(false);
-                            setShowScheduledForm(false);
-                            setShowPhoneInForm(false);
-                          } else {
-                            setShowDineInForm(false);
-                            setShowTakeOutForm(false);
-                            setShowDeliveryForm(false);
-                            setShowDriveThruForm(false);
-                            setShowCurbSideForm(false);
-                            setShowScheduledForm(false);
-                            setShowPhoneInForm(false);
-                            setShowCustomOrderForm(false);
-                          }
-                        }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
-                          <img src={type.icon} alt="" className="w-4 h-4" />
-                          {type.label}
-                        </DropdownMenuItem>)}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                  {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-base font-bold">20</span>}
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+                  <div className="flex items-center gap-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button className="flex items-center gap-1.5 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
+                          <img src={orderTypes.find(t => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
+                          {orderType} <ChevronDown className="w-3 h-3" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
+                        {orderTypes.map(type => <DropdownMenuItem key={type.label} onClick={() => {
+                            setOrderType(type.label);
+                            if (type.label === "DINE IN") {
+                              setShowDineInForm(true);
+                              setDineInGuestData(null);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                            } else if (type.label === "TAKE OUT") {
+                              setShowTakeOutForm(true);
+                              setTakeOutGuestData(null);
+                              setShowDineInForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                            } else if (type.label === "DELIVERY") {
+                              setShowDeliveryForm(true);
+                              setDeliveryGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                            } else if (type.label === "DRIVE THRU") {
+                              setShowDriveThruForm(true);
+                              setDriveThruGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowCurbSideForm(false);
+                            } else if (type.label === "CURB SIDE") {
+                              setShowCurbSideForm(true);
+                              setCurbSideGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowScheduledForm(false);
+                            } else if (type.label === "SCHEDULED") {
+                              setShowScheduledForm(true);
+                              setScheduledGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                              setShowPhoneInForm(false);
+                              setShowCustomOrderForm(false);
+                            } else if (type.label === "PHONE-IN") {
+                              setShowPhoneInForm(true);
+                              setPhoneInGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                              setShowScheduledForm(false);
+                              setShowCustomOrderForm(false);
+                            } else if (type.label === "CUSTOM") {
+                              setShowCustomOrderForm(true);
+                              setCustomOrderGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                              setShowScheduledForm(false);
+                              setShowPhoneInForm(false);
+                            } else {
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                              setShowScheduledForm(false);
+                              setShowPhoneInForm(false);
+                              setShowCustomOrderForm(false);
+                            }
+                          }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
+                            <img src={type.icon} alt="" className="w-4 h-4" />
+                            {type.label}
+                          </DropdownMenuItem>)}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-base font-bold">20</span>}
+                  </div>
+                  <div className="flex items-center gap-2 text-xs">
+                    <span>👤</span>
+                    <span>MIA JONE</span>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2 text-xs">
-                  <span>👤</span>
-                  <span>MIA JONE</span>
-                </div>
-              </div>
+              )}
 
               {/* Dine In Guest Form */}
               {orderType === "DINE IN" && showDineInForm ? (

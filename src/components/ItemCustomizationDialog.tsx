@@ -656,7 +656,7 @@ export const ItemCustomizationDialog = ({
           {itemImage && (
             <button 
               onClick={handleProductInfoClick}
-              className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-orange-500 transition-all cursor-pointer"
+              className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 hover:ring-2 hover:ring-orange-500 transition-all cursor-pointer border-2 border-white"
             >
               <img src={itemImage} alt={item?.name} className="w-full h-full object-cover" />
             </button>

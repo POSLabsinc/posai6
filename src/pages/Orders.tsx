@@ -7546,7 +7546,7 @@ const Orders = () => {
                         TABLE {tableIdFromParams}
                       </span>
                       <Users className="w-4 h-4 text-neutral-400" />
-                      <span className="text-neutral-400 text-xs">{totalSeats}</span>
+                      <span className="text-neutral-400 text-xs">{guestCount}</span>
                       <span className="font-bold text-white text-sm">{guestCount}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">

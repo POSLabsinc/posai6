@@ -403,10 +403,10 @@ export const ItemCustomizationDialog = ({
 
   // Price Override Screen
   const renderPriceOverrideView = () => (
-    <ScrollArea className="max-h-[85vh] scrollbar-hide [&>div>div]:!block [&_[data-radix-scroll-area-viewport]]:!overflow-y-auto">
-      <div className="flex flex-col bg-neutral-900 p-6 pb-6">
+    <ScrollArea className="scrollbar-hide [&>div>div]:!block [&_[data-radix-scroll-area-viewport]]:!overflow-y-auto [&_[data-radix-scroll-area-viewport]]:max-h-[85vh] [&_[data-radix-scroll-area-viewport]]:!h-auto">
+      <div className="flex flex-col bg-neutral-900 p-4 pb-4">
         {/* Header with item info */}
-        <div className="flex items-center gap-3 pb-4 border-b border-neutral-700 mb-4">
+        <div className="flex items-center gap-3 pb-3 border-b border-neutral-700 mb-3">
           {itemImage && (
             <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-neutral-800 border border-neutral-600">
               <img src={itemImage} alt={item?.name} className="w-full h-full object-cover" />
@@ -419,10 +419,10 @@ export const ItemCustomizationDialog = ({
         </div>
 
         {/* Reason Dropdown */}
-        <div className="relative mb-3">
+        <div className="relative mb-2">
           <button
             onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-            className="w-full flex items-center justify-between px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-left"
+            className="w-full flex items-center justify-between px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-xl text-left"
           >
             <span className={selectedReason ? "text-foreground" : "text-muted-foreground"}>
               {selectedReason || "Select reason for override"}
@@ -430,7 +430,10 @@ export const ItemCustomizationDialog = ({
             <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform ${showReasonDropdown ? 'rotate-180' : ''}`} />
           </button>
           {showReasonDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700 max-h-36 overflow-y-auto scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            <div
+              className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700 max-h-36 overflow-y-auto scrollbar-hide"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
               {overrideReasons.map(reason => (
                 <button
                   key={reason}
@@ -438,7 +441,7 @@ export const ItemCustomizationDialog = ({
                     setSelectedReason(reason);
                     setShowReasonDropdown(false);
                   }}
-                  className={`w-full px-4 py-3 text-left hover:bg-neutral-700 transition-colors ${
+                  className={`w-full px-4 py-2.5 text-left hover:bg-neutral-700 transition-colors ${
                     selectedReason === reason ? 'text-orange-500' : 'text-foreground'
                   }`}
                 >
@@ -451,13 +454,13 @@ export const ItemCustomizationDialog = ({
 
         {/* Notes field for "Other" reason */}
         {selectedReason === "Other" && (
-          <div className="mb-3 space-y-2">
+          <div className="mb-2 space-y-2">
             <label className="text-xs text-muted-foreground">Please specify the reason for override</label>
             <textarea
               placeholder="Enter reason..."
               value={overrideNotes}
               onChange={(e) => setOverrideNotes(e.target.value)}
-              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 rounded-xl text-foreground placeholder:text-muted-foreground outline-none resize-none h-20"
+              className="w-full px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-xl text-foreground placeholder:text-muted-foreground outline-none resize-none h-16"
               maxLength={200}
             />
             <p className="text-xs text-muted-foreground text-right">{overrideNotes.length}/200</p>
@@ -465,7 +468,7 @@ export const ItemCustomizationDialog = ({
         )}
 
         {/* Price Display */}
-        <div className="rounded-xl p-4 space-y-2 mb-4" style={{ background: 'rgba(117, 117, 117, 0.3)' }}>
+        <div className="rounded-xl p-3 space-y-2 mb-3" style={{ background: 'rgba(117, 117, 117, 0.3)' }}>
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground">Price</span>
             <span className="text-sm font-medium text-foreground">${item?.price.toFixed(2)}</span>
@@ -477,14 +480,14 @@ export const ItemCustomizationDialog = ({
         </div>
 
         {/* Numpad - Row based like desktop */}
-        <div className="flex flex-col gap-2 mb-4">
-          {[["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"]].map((row, rowIndex) => (
+        <div className="flex flex-col gap-2 mb-3">
+          {[['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']].map((row, rowIndex) => (
             <div key={rowIndex} className="grid grid-cols-3 gap-2">
               {row.map((btn) => (
                 <button
                   key={btn}
                   onClick={() => handlePriceNumberClick(btn)}
-                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  className="h-10 rounded-xl bg-neutral-800 border border-neutral-700 text-lg font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
                 >
                   {btn}
                 </button>
@@ -499,19 +502,19 @@ export const ItemCustomizationDialog = ({
                   setNewPriceInput(prev => prev + '.');
                 }
               }}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              className="h-10 rounded-xl bg-neutral-800 border border-neutral-700 text-lg font-bold text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
             >
               .
             </button>
             <button
-              onClick={() => handlePriceNumberClick("0")}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              onClick={() => handlePriceNumberClick('0')}
+              className="h-10 rounded-xl bg-neutral-800 border border-neutral-700 text-lg font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
             >
               0
             </button>
             <button
               onClick={handlePriceBackspace}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              className="h-10 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
             >
               <Delete className="w-5 h-5 text-foreground" />
             </button>
@@ -519,18 +522,18 @@ export const ItemCustomizationDialog = ({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex gap-3">
+        <div className="flex gap-2">
           <Button
             onClick={handleBackToCustomization}
             variant="outline"
-            className="flex-1 h-12 rounded-xl bg-transparent border-neutral-600 text-foreground hover:bg-neutral-800"
+            className="flex-1 h-10 rounded-xl bg-transparent border-neutral-600 text-foreground hover:bg-neutral-800"
           >
             CANCEL
           </Button>
           <Button
             onClick={handleApplyPriceOverride}
             disabled={!newPriceInput || !selectedReason}
-            className="flex-1 h-12 rounded-xl text-white font-bold disabled:opacity-40 disabled:bg-neutral-600"
+            className="flex-1 h-10 rounded-xl text-white font-bold disabled:opacity-40 disabled:bg-neutral-600"
             style={{ background: !newPriceInput || !selectedReason ? undefined : 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
           >
             APPLY

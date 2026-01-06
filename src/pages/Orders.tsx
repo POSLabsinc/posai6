@@ -6828,33 +6828,68 @@ const Orders = () => {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-neutral-800 border-neutral-700 min-w-[160px] p-1 z-50">
-                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <img src={noTaxIcon} alt="" className="w-3.5 h-3.5" />
-                      No Tax
+                    <DropdownMenuItem 
+                      onClick={toggleCustomItemPanel}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
+                      <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />
+                      Custom Item
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                       <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
                       Discount
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <img src={giftCardIcon} alt="" className="w-3.5 h-3.5" />
-                      Gift Card
+                    <DropdownMenuItem 
+                      onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
+                      <img src={noTaxBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      No Tax
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <Plus className="w-3.5 h-3.5" />
+                      <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      Register
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
+                      Transfer Check
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => setShowGiftCardDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
+                      <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      Gift Card
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => setShowServiceChargeDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
+                      <img src={serviceChargeIcon} alt="" className="w-3.5 h-3.5" />
+                      Service Charge
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      onClick={() => setShowAddGuestForm(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
+                      <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />
                       Add Guest
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <Plus className="w-3.5 h-3.5" />
-                      Custom Item
+                      <img src={openOrdersIcon} alt="" className="w-3.5 h-3.5" />
+                      Open Orders
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <img src={cashRegisterIcon} alt="" className="w-3.5 h-3.5" />
-                      Open Register
+                      <img src={allergyIcon} alt="" className="w-3.5 h-3.5" />
+                      Allergy
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <Receipt className="w-3.5 h-3.5" />
-                      Service Charge
+                      <img src={splitCheckIcon} alt="" className="w-3.5 h-3.5" />
+                      Split Check
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />
+                      Reopen Check
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

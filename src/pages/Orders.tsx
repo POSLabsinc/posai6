@@ -8040,49 +8040,78 @@ const Orders = () => {
                               style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
                               onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}
                             >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2 md:gap-1.5 lg:gap-3">
-                                  <span className="w-5 h-5 md:w-4 md:h-4 lg:w-5 lg:h-5 rounded-full bg-orange-500 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0">
-                                    {item.qty}
-                                  </span>
-                                  <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
-                                </div>
-                                <span 
-                                  className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
-                                  }}
-                                >
-                                  ${item.price.toFixed(2)}
+                              <div className="flex items-start gap-2 md:gap-1.5 lg:gap-3">
+                                <span className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0 mt-0.5">
+                                  {item.qty}
                                 </span>
-                              </div>
-                              {item.modifiers && item.modifiers.length > 0 && <div className="mt-1.5 md:mt-1 lg:mt-2 ml-7 md:ml-5 lg:ml-8 space-y-0.5">
-                                  {item.modifiers.map((mod, idx) => <div key={idx} className="flex items-center gap-1 text-xs md:text-[10px] lg:text-xs text-primary">
-                                      <span>{mod.startsWith("W/") ? "+" : "-"}</span>
-                                      <span>{mod}</span>
-                                    </div>)}
-                                </div>}
-                              {/* Seat Assignment Display - Desktop/Tablet */}
-                              {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
-                                <div className="mt-1.5 md:mt-1 lg:mt-2 ml-7 md:ml-5 lg:ml-8 flex items-center gap-1.5">
-                                  <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
-                            {item.assignedSeats.length === guestCount ? (
-                              <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
-                                <Share2 className="w-3 h-3" />
-                              </span>
-                            ) : (
-                                    item.assignedSeats.map(seat => (
-                                      <span 
-                                        key={seat}
-                                        className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
+                                    <span 
+                                      className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors ml-2"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                                      }}
+                                    >
+                                      ${item.price.toFixed(2)}
+                                    </span>
+                                  </div>
+                                  {item.modifiers && item.modifiers.length > 0 && (
+                                    <div className="mt-1.5 space-y-0.5">
+                                      {item.modifiers.map((mod, idx) => {
+                                        const isAddition = mod.startsWith("W/") || mod.startsWith("Add") || mod.startsWith("Side:");
+                                        const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                        const hasPrice = mod.includes("$");
+                                        
+                                        return (
+                                          <div key={idx} className="flex items-center justify-between text-xs md:text-[10px] lg:text-xs">
+                                            <div className="flex items-center gap-1.5">
+                                              <span className={`w-2 ${hasPrice ? 'text-green-400' : isRemoval ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+                                                {hasPrice ? '+' : isRemoval ? '-' : '•'}
+                                              </span>
+                                              <span className={`${hasPrice ? 'text-green-400' : isRemoval ? 'text-muted-foreground line-through' : 'text-muted-foreground'}`}>
+                                                {mod}
+                                              </span>
+                                            </div>
+                                            {hasPrice && (
+                                              <span className="text-green-400 ml-2">
+                                                {mod.match(/\$[\d.]+/)?.[0] || ''}
+                                              </span>
+                                            )}
+                                          </div>
+                                        );
+                                      })}
+                                      <button 
+                                        className="text-xs text-muted-foreground hover:text-foreground mt-1"
+                                        onClick={(e) => e.stopPropagation()}
                                       >
-                                        {seat}
-                                      </span>
-                                    ))
+                                        Show less
+                                      </button>
+                                    </div>
+                                  )}
+                                  {/* Seat Assignment Display - Desktop/Tablet */}
+                                  {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
+                                    <div className="mt-1.5 md:mt-1 lg:mt-2 flex items-center gap-1.5">
+                                      <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
+                                      {item.assignedSeats.length === guestCount ? (
+                                        <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                                          <Share2 className="w-3 h-3" />
+                                        </span>
+                                      ) : (
+                                        item.assignedSeats.map(seat => (
+                                          <span 
+                                            key={seat}
+                                            className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                                          >
+                                            {seat}
+                                          </span>
+                                        ))
+                                      )}
+                                    </div>
                                   )}
                                 </div>
-                              )}
+                              </div>
                             </div>
                           </SwipeableCartItem>)}
                       </div>}

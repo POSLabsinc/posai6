@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2 } from "lucide-react";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 
 // Import shared order data
@@ -33,6 +33,10 @@ import mergeIcon from "@/assets/icons/merge-icon.png";
 import transferIcon from "@/assets/icons/transfer-icon.png";
 import searchIcon from "@/assets/icons/search.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
+import chairWhiteIcon from "@/assets/icons/chair-white.png";
+import saveIcon from "@/assets/icons/save.png";
+import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
+import SwipeableCartItem from "@/components/SwipeableCartItem";
 
 // Extended guest order interface with calculated totals
 interface GuestOrder extends Order {
@@ -203,6 +207,9 @@ const TableOrderDetails = () => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [expandedOrderId, setExpandedOrderId] = useState<string | null>(null);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
+  const [orderNotes, setOrderNotes] = useState("");
+  const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
+  const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>(['all']);
   
   // Set initial selected guest when guestOrders changes
   const currentSelectedGuest = selectedGuest || guestOrders[0];
@@ -345,6 +352,20 @@ const TableOrderDetails = () => {
   });
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
+  };
+  const toggleSeatFilter = (seat: number | 'all') => {
+    if (seat === 'all') {
+      setSeatFilter(prev => prev.includes('all') ? [] : ['all']);
+    } else {
+      setSeatFilter(prev => {
+        const newFilter = prev.filter(s => s !== 'all');
+        if (newFilter.includes(seat)) {
+          return newFilter.filter(s => s !== seat);
+        } else {
+          return [...newFilter, seat];
+        }
+      });
+    }
   };
   const toggleOrderExpand = (orderId: string) => {
     setExpandedOrderId(prev => prev === orderId ? null : orderId);
@@ -968,109 +989,170 @@ const TableOrderDetails = () => {
         boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
       }}>
 
-        {/* Table Order Info */}
-        <div className="px-4 py-3 border-b border-white/10">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
-              <span className="text-white font-bold">{currentSelectedGuest?.id}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
-              <span className="text-white/50 text-sm">DUSTIN H</span>
-            </div>
-          </div>
-          
-          {/* Seat Buttons */}
+        {/* Table Order Header - Row 1 */}
+        <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
-            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-              <img src={seatIcon} alt="Seat" className="w-4 h-4" />
-            </button>
-            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-              <img src={splitIcon} alt="Split" className="w-4 h-4" />
-            </button>
-            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeat(seat)} className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
-                {seat}
-              </button>)}
+            <span className="bg-neutral-700 border border-neutral-600 px-2 py-1 rounded text-xs font-medium text-white">
+              TABLE {tableId?.replace("T", "")}
+            </span>
+            <Users className="w-4 h-4 text-neutral-400" />
+            <span className="text-neutral-400 text-xs">{currentSelectedGuest?.items.length || 4}</span>
+            <span className="font-bold text-white text-sm">{currentSelectedGuest?.id}</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
+            <span className="text-neutral-400">{currentSelectedGuest?.server || "DUSTIN H"}</span>
           </div>
         </div>
+        
+        {/* Table Order Header - Row 2: Seat buttons */}
+        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-sidebar-border">
+          <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+            <img src={chairWhiteIcon} alt="Chair" className="w-3.5 h-3.5" />
+          </button>
+          <button 
+            onClick={() => toggleSeatFilter('all')}
+            className={`p-1 rounded transition-colors ${
+              seatFilter.includes('all') 
+                ? 'bg-white' 
+                : 'bg-neutral-700 hover:bg-neutral-600'
+            }`}
+          >
+            <Share2 className={`w-3.5 h-3.5 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
+          </button>
+          {[1, 2, 3, 4].map((seat) => (
+            <button
+              key={seat}
+              onClick={() => toggleSeatFilter(seat)}
+              className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold transition-colors ${
+                seatFilter.includes(seat) 
+                  ? 'bg-white text-black' 
+                  : 'bg-neutral-600 text-white hover:bg-neutral-500'
+              }`}
+            >
+              {seat}
+            </button>
+          ))}
+        </div>
 
-        {/* Notes */}
-        <div className="px-4 py-3 border-b border-white/10">
-          <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
-            <span>📝</span>
-            <span>{currentSelectedGuest?.notes || "No notes"}</span>
-          </div>
+        {/* Order Notes */}
+        <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
+          <OrderNotesAutocomplete
+            value={orderNotes}
+            onChange={setOrderNotes}
+            placeholder="Order notes and Allergies"
+          />
         </div>
 
         {/* Order Items */}
-        <ScrollArea className="flex-1 px-4">
-          <div className="py-2 space-y-2">
+        <ScrollArea className="flex-1 min-h-0 px-2">
+          <div className="py-1 space-y-1">
             {currentSelectedGuest && (() => {
-              const allSeatsSelected = selectedSeats.length === 4;
-              const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
+              const allSeatsSelected = seatFilter.includes('all') || seatFilter.length === 0;
+              const numericSeats = seatFilter.filter((s): s is number => typeof s === 'number');
+              const filteredItems = filterItemsBySeats(currentSelectedGuest.items, numericSeats, allSeatsSelected);
               return filteredItems.map((item, index) => (
-                <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-2">
-                      <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
-                        {item.qty}
-                      </span>
-                      <div>
-                        <span className="text-white font-medium">{item.name}</span>
-                        {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-sm space-y-0.5">
-                            {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                          </div>}
+                <SwipeableCartItem 
+                  key={`${currentSelectedGuest.id}-${index}`}
+                  onDelete={() => {}}
+                  itemOrderType="Dine In"
+                  onOrderTypeChange={() => {}}
+                  isOpen={activeSwipedItemId === `${currentSelectedGuest.id}-${index}`}
+                  onSwipeStart={() => setActiveSwipedItemId(`${currentSelectedGuest.id}-${index}`)}
+                >
+                  <div 
+                    className="p-2 border border-sidebar-border rounded-md cursor-pointer" 
+                    style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                          {item.qty}
+                        </span>
+                        <span className="text-sm font-medium text-foreground">{item.name}</span>
                       </div>
+                      <span className="text-sm font-medium text-foreground">
+                        {formatPrice(item.price * item.qty)}
+                      </span>
                     </div>
-                    <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
+                    {item.modifiers.length > 0 && (
+                      <div className="mt-1.5 ml-7 space-y-0.5">
+                        {item.modifiers.map((mod, idx) => (
+                          <div key={idx} className="flex items-center gap-1 text-xs text-primary">
+                            <span>{mod.startsWith("W/") || mod.startsWith("Add") ? "+" : "-"}</span>
+                            <span>{mod}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Seat Assignment Display */}
+                    {item.seats.length > 0 && (
+                      <div className="mt-1.5 ml-7 flex items-center gap-1.5">
+                        <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
+                        {item.seats.length === 4 ? (
+                          <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                            <Share2 className="w-3 h-3" />
+                          </span>
+                        ) : (
+                          item.seats.map(seat => (
+                            <span 
+                              key={seat}
+                              className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                            >
+                              {seat}
+                            </span>
+                          ))
+                        )}
+                      </div>
+                    )}
                   </div>
-                  {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
-                      <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                      {item.seats.map(seat => <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
-                          {seat}
-                        </span>)}
-                    </div>}
-                </div>
+                </SwipeableCartItem>
               ));
             })()}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
 
-        {/* Order Summary - Compact Mode */}
-        <div className="p-2 border-t border-white/10 flex-shrink-0">
+        {/* Order Summary */}
+        <div className="p-2 border-t border-sidebar-border flex-shrink-0">
           <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
             background: '#7575754D',
             boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
           }}>
             <div className="flex justify-between gap-3">
-              <span className="text-white">Sub Total: <span className="font-medium">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span></span>
+              <span className="text-foreground">Sub Total: <span className="font-medium">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span></span>
               <span className="text-red-500">Discount: <span className="font-medium">{formatPrice(currentSelectedGuest?.discount || 0)}</span></span>
             </div>
             <div className="flex justify-between gap-3">
-              <span className="text-white">Service Charge: <span className="font-medium">{formatPrice(currentSelectedGuest?.serviceCharge || 0)}</span></span>
-              <span className="text-white">Tax: <span className="font-medium">{formatPrice(currentSelectedGuest?.tax || 0)}</span></span>
+              <span className="text-foreground">Service Charge: <span className="font-medium text-primary">+{formatPrice(currentSelectedGuest?.serviceCharge || 0)}</span></span>
+              <span className="text-foreground">Tax: <span className="font-medium">{formatPrice(currentSelectedGuest?.tax || 0)}</span></span>
             </div>
           </div>
-        </div>
 
-        {/* Bottom Actions */}
-        <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
-          <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
-            <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
-          </button>
-          <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{
-            background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
-          }}>
-            <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
-            <span>FIRE</span>
-          </button>
-          <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{
-            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-          }}>
-            CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
-          </button>
+          {/* Action Buttons */}
+          <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
+            <button className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+              <img src={clearIcon} alt="Clear" className="w-3 h-3" />
+            </button>
+            <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
+              backgroundColor: '#C9C9C9'
+            }}>
+              <img src={saveIcon} alt="Save" className="w-4 h-4" />
+            </button>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
+              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+            }}>
+              <img src={fireIcon} alt="Fire" className="w-4 h-4" />
+              <span className="text-white font-semibold text-sm">FIRE</span>
+            </button>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
+              background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+            }}>
+              <span className="text-black font-semibold text-xs">
+                CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
+              </span>
+            </button>
+          </div>
         </div>
         </div>
       </div>}

@@ -7079,8 +7079,8 @@ const Orders = () => {
 
           {/* Mobile Add Guest Form Overlay */}
           {showAddGuestForm && (
-            <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
-              <div className="w-full max-w-md max-h-[85vh] rounded-xl overflow-hidden relative" style={{ background: '#2A2A2A' }}>
+            <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
+              <div className="w-full max-w-md h-[85vh] rounded-xl overflow-hidden relative" style={{ background: '#2A2A2A' }}>
                 <AddGuestForm
                   onClose={() => setShowAddGuestForm(false)}
                   onSave={(guestData) => {

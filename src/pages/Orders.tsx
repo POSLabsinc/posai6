@@ -6108,8 +6108,8 @@ const Orders = () => {
     return [];
   });
   
-  // Seat filter for cart display - null means show all, number means filter by that seat
-  const [seatFilter, setSeatFilter] = useState<number | 'all' | null>(null);
+  // Seat filter for cart display - empty array means show all, 'all' for shared items, numbers for specific seats (multi-select)
+  const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>([]);
   
   // Toggle seat selection for table orders
   const toggleSeatSelection = (seatNumber: number) => {
@@ -6123,15 +6123,26 @@ const Orders = () => {
   
   // Toggle seat filter for cart display
   const toggleSeatFilter = (seatNumber: number | 'all') => {
-    setSeatFilter(prev => prev === seatNumber ? null : seatNumber);
+    setSeatFilter(prev => {
+      if (prev.includes(seatNumber)) {
+        return prev.filter(s => s !== seatNumber);
+      }
+      return [...prev, seatNumber];
+    });
   };
   
-  // Filter order items based on seat filter
-  const filteredOrderItems = seatFilter === null 
+  // Filter order items based on seat filter (multi-select)
+  const filteredOrderItems = seatFilter.length === 0 
     ? orderItems 
-    : seatFilter === 'all'
-      ? orderItems.filter(item => item.assignedSeats?.length === guestCount)
-      : orderItems.filter(item => item.assignedSeats?.includes(seatFilter as number));
+    : orderItems.filter(item => {
+        // Check if item matches any of the selected filters
+        return seatFilter.some(filter => {
+          if (filter === 'all') {
+            return item.assignedSeats?.length === guestCount;
+          }
+          return item.assignedSeats?.includes(filter as number);
+        });
+      });
   
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
@@ -6689,19 +6700,19 @@ const Orders = () => {
                 <button 
                   onClick={() => toggleSeatFilter('all')}
                   className={`p-1 rounded transition-colors ${
-                    seatFilter === 'all' 
+                    seatFilter.includes('all') 
                       ? 'bg-white' 
                       : 'bg-neutral-700 hover:bg-neutral-600'
                   }`}
                 >
-                  <Share2 className={`w-3 h-3 ${seatFilter === 'all' ? 'text-black' : 'text-white'}`} />
+                  <Share2 className={`w-3 h-3 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
                 </button>
                 {Array.from({ length: guestCount }).map((_, i) => (
                   <button
                     key={i}
                     onClick={() => toggleSeatFilter(i + 1)}
                     className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold transition-colors ${
-                      seatFilter === i + 1 
+                      seatFilter.includes(i + 1) 
                         ? 'bg-white text-black' 
                         : 'bg-neutral-600 text-white hover:bg-neutral-500'
                     }`}
@@ -7681,19 +7692,19 @@ const Orders = () => {
                     <button 
                       onClick={() => toggleSeatFilter('all')}
                       className={`p-1 rounded transition-colors ${
-                        seatFilter === 'all' 
+                        seatFilter.includes('all') 
                           ? 'bg-white' 
                           : 'bg-neutral-700 hover:bg-neutral-600'
                       }`}
                     >
-                      <Share2 className={`w-3.5 h-3.5 ${seatFilter === 'all' ? 'text-black' : 'text-white'}`} />
+                      <Share2 className={`w-3.5 h-3.5 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
                     </button>
                     {Array.from({ length: guestCount }).map((_, i) => (
                       <button
                         key={i}
                         onClick={() => toggleSeatFilter(i + 1)}
                         className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold transition-colors ${
-                          seatFilter === i + 1 
+                          seatFilter.includes(i + 1) 
                             ? 'bg-white text-black' 
                             : 'bg-neutral-600 text-white hover:bg-neutral-500'
                         }`}

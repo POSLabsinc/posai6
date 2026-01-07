@@ -749,26 +749,47 @@ export const InlineItemCustomization = ({
     const productDescription = "A juicy chicken patty topped with fresh lettuce, tomato, and our special sauce on a toasted brioche bun. Our chicken burgers are made from premium quality chicken that's seasoned to perfection.";
     const ingredients = ["Chicken Patty (Seasoned)", "Brioche Bun", "Lettuce", "Tomato", "Special Sauce", "Pickles", "Red Onions"];
     
-    // Allergen colors matching the reference design
+    // Allergen colors - vibrant and visible
     const allergenColors: Record<string, string> = {
-      'Almonds': '#c4547a',
-      'Corn': '#f5d5d5',
-      'Eggs': '#ffe4c4',
-      'Fish': '#ffe4b5',
-      'Gelatin': '#e8dcd0',
-      'Gluten': '#d4a574',
-      'Meat': '#f5f5a0',
-      'Milk': '#d4e8d4',
-      'Soy': '#c4547a',
-      'Peanuts': '#d4a574',
-      'Shellfish': '#b85c38',
-      'Sesame': '#8b5cf6',
-      'Tree Nuts': '#5d4037',
-      'Wheat': '#ef5350'
+      'Almonds': '#D64D7A',
+      'Corn': '#E8A0B0',
+      'Eggs': '#F5C89A',
+      'Fish': '#E8C89A',
+      'Gelatin': '#C9A988',
+      'Gluten': '#C98A5A',
+      'Meat': '#D4D470',
+      'Milk': '#8BC98B',
+      'Soy': '#D64D7A',
+      'Peanuts': '#C9A078',
+      'Shellfish': '#C96A38',
+      'Sesame': '#9B6DD6',
+      'Tree Nuts': '#7D5040',
+      'Wheat': '#E85050'
     };
     
-    // Sample allergens for this item - would come from database in production
-    const allergens = ["Gluten", "Eggs", "Milk", "Sesame"];
+    // Different allergens based on item category - would come from database in production
+    const getItemAllergens = (itemName: string): string[] => {
+      const name = itemName?.toLowerCase() || '';
+      if (name.includes('burger') || name.includes('sandwich')) {
+        return ['Gluten', 'Eggs', 'Milk', 'Sesame'];
+      } else if (name.includes('pasta') || name.includes('spaghetti') || name.includes('fettuccine') || name.includes('ravioli') || name.includes('gnocchi') || name.includes('rigatoni')) {
+        return ['Gluten', 'Eggs', 'Milk'];
+      } else if (name.includes('salmon') || name.includes('shrimp') || name.includes('calamari') || name.includes('tuna') || name.includes('seafood')) {
+        return ['Fish', 'Shellfish', 'Soy'];
+      } else if (name.includes('chicken')) {
+        return ['Eggs', 'Gluten'];
+      } else if (name.includes('steak') || name.includes('ribs') || name.includes('meatball')) {
+        return ['Meat', 'Soy', 'Gluten'];
+      } else if (name.includes('salad')) {
+        return ['Tree Nuts', 'Sesame'];
+      } else if (name.includes('pancake') || name.includes('mac') || name.includes('cheese')) {
+        return ['Gluten', 'Milk', 'Eggs'];
+      } else {
+        return ['Gluten', 'Milk'];
+      }
+    };
+    
+    const allergens = getItemAllergens(item?.name || '');
     
     const nutritionalInfo = {
       calories: 520,

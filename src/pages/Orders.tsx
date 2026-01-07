@@ -6498,8 +6498,12 @@ const Orders = () => {
         // Switch to price field when 123 is pressed
         setActiveCustomItemField('price');
       } else {
-        const char = isShiftActive ? key.toUpperCase() : key.toLowerCase();
-        setCustomItemName(prev => prev + char);
+        // Auto-capitalize first letter of each word
+        setCustomItemName(prev => {
+          const shouldCapitalize = prev.length === 0 || prev.endsWith(' ');
+          const char = shouldCapitalize || isShiftActive ? key.toUpperCase() : key.toLowerCase();
+          return prev + char;
+        });
         // Auto-disable shift after typing a character
         if (isShiftActive) {
           setIsShiftActive(false);
@@ -7291,7 +7295,12 @@ const Orders = () => {
                 <input
                   type="text"
                   value={customItemName}
-                  onChange={(e) => setCustomItemName(e.target.value)}
+                  onChange={(e) => {
+                    // Auto-capitalize first letter of each word
+                    const value = e.target.value;
+                    const capitalizedValue = value.replace(/\b\w/g, (char) => char.toUpperCase());
+                    setCustomItemName(capitalizedValue);
+                  }}
                   onFocus={() => setActiveCustomItemField('name')}
                   placeholder="Enter item name"
                   className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500"

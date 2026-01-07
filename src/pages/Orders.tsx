@@ -8093,10 +8093,10 @@ const Orders = () => {
                                             )}
                                             {/* Content */}
                                             <div className="flex items-center gap-2 ml-5">
-                                              <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-white/60' : 'text-white'}`}>
+                                              <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-red-400' : 'text-white'}`}>
                                                 {isAddOn ? '+' : isRemoval ? '-' : '•'}
                                               </span>
-                                              <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-white/60 line-through' : 'text-white'}`}>
+                                              <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-red-400 line-through' : 'text-white'}`}>
                                                 {displayMod}
                                               </span>
                                             </div>

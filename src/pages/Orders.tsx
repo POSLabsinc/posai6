@@ -7680,7 +7680,7 @@ const Orders = () => {
                       <span className="font-bold text-white text-sm">{orderNumber}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
-                      <span>👤</span>
+                      <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
                       <span className="text-neutral-400">{guestName || "MIA JONE"}</span>
                     </div>
                   </div>

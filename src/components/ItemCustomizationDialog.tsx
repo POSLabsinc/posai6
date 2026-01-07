@@ -316,7 +316,8 @@ export const ItemCustomizationDialog = ({
     const totalPrice = (basePrice + modifierTotal + addOnTotal) * quantity;
     
     // Pass selectedSeats only for table orders
-    onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice, isTableOrder ? selectedSeats : undefined);
+    // If no seats are selected, pass empty array to indicate "share on table" (all seats)
+    onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice, isTableOrder ? (selectedSeats.length > 0 ? selectedSeats : []) : undefined);
     // Reset state
     setQuantity(1);
     setSelectedModifiers([]);

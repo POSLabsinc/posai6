@@ -61,25 +61,25 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent 
-        className="border-0 text-white max-w-md p-0 gap-0 rounded-xl overflow-hidden [&>button]:hidden"
+        className="border-0 text-white w-[calc(100%-32px)] max-w-[360px] p-0 gap-0 rounded-xl overflow-hidden [&>button]:hidden"
         style={{
           background: '#2A2A2A',
           boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)'
         }}
       >
-        <DialogHeader className="p-5 pb-4 flex flex-row items-center justify-between">
-          <DialogTitle className="text-xl font-semibold text-white">
+        <DialogHeader className="p-3 pb-2 flex flex-row items-center justify-between">
+          <DialogTitle className="text-base font-semibold text-white">
             Select Service Charge
           </DialogTitle>
           <button
             onClick={handleClose}
             className="text-white/60 hover:text-white transition-colors"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </DialogHeader>
 
-        <div className="px-4 pb-2 space-y-2">
+        <div className="px-3 pb-2 space-y-1.5">
           {serviceChargeOptions.map((option) => {
             const amount = calculateAmount(option.percentage);
             const isSelected = selectedOption === option.id;
@@ -88,38 +88,37 @@ const ServiceChargeDialog: React.FC<ServiceChargeDialogProps> = ({
               <button
                 key={option.id}
                 onClick={() => setSelectedOption(option.id)}
-                className={`w-full flex items-center justify-between p-4 rounded-lg border transition-all ${
+                className={`w-full flex items-center justify-between p-2.5 rounded-lg border transition-all ${
                   isSelected
                     ? 'border-white/30 bg-[#3A3A3A]'
                     : 'border-white/10 bg-[#3A3A3A] hover:border-white/20'
                 }`}
               >
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                   <div
-                    className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                    className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
                       isSelected ? 'border-white bg-transparent' : 'border-white/40'
                     }`}
                   >
                     {isSelected && (
-                      <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                      <div className="w-2 h-2 rounded-full bg-white" />
                     )}
                   </div>
                   <div className="text-left">
-                    <p className="text-white font-medium">{option.name}</p>
-                    <p className="text-white/40 text-sm">{option.percentage}%</p>
+                    <p className="text-white text-sm font-medium">{option.name}</p>
                   </div>
                 </div>
-                <span className="text-white font-medium">+${amount.toFixed(2)}</span>
+                <span className="text-white text-sm font-medium">+${amount.toFixed(2)}</span>
               </button>
             );
           })}
         </div>
 
-        <div className="p-4 pt-3">
+        <div className="p-3 pt-2">
           <Button
             onClick={handleApply}
             disabled={!selectedOption}
-            className="w-full h-12 text-base font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed bg-[#1A1A1A] hover:bg-[#252525] text-white border-0"
+            className="w-full h-10 text-sm font-medium rounded-lg disabled:opacity-50 disabled:cursor-not-allowed bg-[#1A1A1A] hover:bg-[#252525] text-white border-0"
           >
             Apply
           </Button>

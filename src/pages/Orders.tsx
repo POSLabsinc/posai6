@@ -8042,9 +8042,16 @@ const Orders = () => {
                               onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}
                             >
                               <div className="flex items-start gap-2 md:gap-1.5 lg:gap-3">
-                                <span className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0 mt-0.5">
-                                  {item.qty}
-                                </span>
+                                {/* Quantity badge with vertical line container */}
+                                <div className="relative flex flex-col items-center flex-shrink-0">
+                                  <span className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center">
+                                    {item.qty}
+                                  </span>
+                                  {/* Vertical line extending from quantity badge */}
+                                  {item.modifiers && item.modifiers.length > 0 && (
+                                    <div className="w-px bg-white/60 flex-1 min-h-[20px]" />
+                                  )}
+                                </div>
                                 <div className="flex-1 min-w-0">
                                   <div className="flex items-center justify-between">
                                     <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
@@ -8061,13 +8068,9 @@ const Orders = () => {
                                   {item.modifiers && item.modifiers.length > 0 && (() => {
                                     const displayedModifiers = expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2);
                                     const hasShowButton = item.modifiers.length > 2;
-                                    const totalItems = displayedModifiers.length + (hasShowButton ? 1 : 0);
                                     
                                     return (
-                                      <div className="mt-1.5 relative pl-3">
-                                        {/* Vertical line */}
-                                        <div className="absolute left-0 top-0 w-px bg-white/60" style={{ height: `calc(100% - 10px)` }} />
-                                        
+                                      <div className="mt-1.5 relative" style={{ marginLeft: '-20px', paddingLeft: '20px' }}>
                                         {displayedModifiers.map((mod, idx) => {
                                           const isAddOn = mod.startsWith("Add:");
                                           const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
@@ -8076,13 +8079,9 @@ const Orders = () => {
                                           
                                           return (
                                             <div key={idx} className="relative flex items-center justify-between text-xs md:text-[10px] lg:text-xs py-0.5">
-                                              {/* Horizontal connector line */}
-                                              <div className="absolute left-[-12px] top-1/2 w-2.5 h-px bg-white/60" />
-                                              {/* L-corner for last item */}
-                                              {isLastItem && (
-                                                <div className="absolute left-[-12px] top-0 w-px h-1/2 bg-white/60" />
-                                              )}
-                                              <div className="flex items-center gap-1.5">
+                                              {/* Horizontal connector line from vertical line to content */}
+                                              <div className="absolute left-0 top-1/2 w-4 h-px bg-white/60" />
+                                              <div className="flex items-center gap-1.5 ml-4">
                                                 <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-white/60' : 'text-white'}`}>
                                                   {isAddOn ? '+' : isRemoval ? '-' : '•'}
                                                 </span>
@@ -8096,11 +8095,9 @@ const Orders = () => {
                                         {hasShowButton && (
                                           <div className="relative py-0.5">
                                             {/* Horizontal connector for show button */}
-                                            <div className="absolute left-[-12px] top-1/2 w-2.5 h-px bg-white/60" />
-                                            {/* L-corner for show button (always last) */}
-                                            <div className="absolute left-[-12px] top-0 w-px h-1/2 bg-white/60" />
+                                            <div className="absolute left-0 top-1/2 w-4 h-px bg-white/60" />
                                             <button 
-                                              className="text-xs text-white/60 hover:text-white"
+                                              className="text-xs text-white/60 hover:text-white ml-4"
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 setExpandedCartItems(prev => {

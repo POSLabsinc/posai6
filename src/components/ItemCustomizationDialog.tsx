@@ -105,6 +105,14 @@ const addOnItems: ModifierOption[] = [
   { name: "Extra Patty", price: 4.00 },
 ];
 
+// Default modifiers data - only for first 4 items
+const defaultModifiersByItemId: Record<number, string[]> = {
+  1: ['Lettuce', 'Tomato', 'Onions', 'Pickles'],
+  2: ['Mayo', 'Mustard', 'Lettuce', 'Tomato'],
+  3: ['Cheese', 'Onions', 'Mushrooms'],
+  4: ['Croutons', 'Parmesan', 'Caesar Dressing'],
+};
+
 export const ItemCustomizationDialog = ({
   open,
   onOpenChange,
@@ -139,6 +147,9 @@ export const ItemCustomizationDialog = ({
 
   // Seat selection state for table orders
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
+  
+  // Default modifiers - tracks which ones are deselected (excluded from item)
+  const [deselectedDefaults, setDeselectedDefaults] = useState<string[]>([]);
 
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => 
@@ -172,6 +183,7 @@ export const ItemCustomizationDialog = ({
       setSelectedReason("");
       setOverrideNotes("");
       setSelectedSeats([]);
+      setDeselectedDefaults([]);
     }
   }, [open, item?.id]);
 
@@ -292,8 +304,21 @@ export const ItemCustomizationDialog = ({
     );
   };
 
+  const toggleDefaultModifier = (modifier: string) => {
+    setDeselectedDefaults(prev => 
+      prev.includes(modifier) 
+        ? prev.filter(m => m !== modifier)  // Re-select
+        : [...prev, modifier]                // Deselect
+    );
+  };
+
   const handleAddToCart = () => {
-    const allModifiers = [...selectedModifiers, ...selectedAddOns];
+    // Include deselected defaults with "No " prefix
+    const allModifiers = [
+      ...selectedModifiers, 
+      ...deselectedDefaults.map(mod => `No ${mod}`),
+      ...selectedAddOns
+    ];
     
     // Calculate modifier prices
     const modifierTotal = selectedModifiers.reduce((total, modName) => {
@@ -877,7 +902,7 @@ export const ItemCustomizationDialog = ({
           </div>
 
           {/* Modifier Options */}
-          <ScrollArea className="flex-1 min-h-0 max-h-[180px]">
+          <ScrollArea className="flex-1 min-h-0 max-h-[140px]">
             <div className="px-4 pb-3">
               <div className="flex flex-wrap gap-2">
                 {activeCategory?.options.map(option => (
@@ -897,6 +922,32 @@ export const ItemCustomizationDialog = ({
               </div>
             </div>
           </ScrollArea>
+
+          {/* Default Modifiers Section - Only show if item has defaults */}
+          {item && defaultModifiersByItemId[item.id] && (
+            <>
+              <div className="px-4 py-2">
+                <span className="text-white text-sm font-medium">Default Modifiers</span>
+              </div>
+              <div className="px-4 pb-3">
+                <div className="flex flex-wrap gap-2">
+                  {defaultModifiersByItemId[item.id].map(modifier => (
+                    <button
+                      key={modifier}
+                      onClick={() => toggleDefaultModifier(modifier)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        !deselectedDefaults.includes(modifier)
+                          ? 'bg-white text-black'
+                          : 'bg-neutral-800 text-neutral-300'
+                      }`}
+                    >
+                      {modifier}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
         </div>
       ) : (
         <ScrollArea className="flex-1 min-h-0 max-h-[250px]">

@@ -313,11 +313,14 @@ export const ItemCustomizationDialog = ({
   };
 
   const handleAddToCart = () => {
-    // Include deselected defaults with "No " prefix
+    // Include deselected defaults with "No " prefix, and Add-Ons with "Add:" prefix
     const allModifiers = [
       ...selectedModifiers, 
       ...deselectedDefaults.map(mod => `No ${mod}`),
-      ...selectedAddOns
+      ...selectedAddOns.map(addOn => {
+        const addOnItem = addOnItems.find(a => a.name === addOn);
+        return addOnItem?.price ? `Add: ${addOn} +$${addOnItem.price.toFixed(2)}` : `Add: ${addOn}`;
+      })
     ];
     
     // Calculate modifier prices

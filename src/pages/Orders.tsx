@@ -8066,7 +8066,7 @@ const Orders = () => {
                                     return (
                                       <div className="mt-1.5 relative pl-3">
                                         {/* Vertical line */}
-                                        <div className="absolute left-0 top-0 w-px bg-neutral-600" style={{ height: `calc(100% - 10px)` }} />
+                                        <div className="absolute left-0 top-0 w-px bg-white/60" style={{ height: `calc(100% - 10px)` }} />
                                         
                                         {displayedModifiers.map((mod, idx) => {
                                           const isAddOn = mod.startsWith("Add:");
@@ -8077,16 +8077,16 @@ const Orders = () => {
                                           return (
                                             <div key={idx} className="relative flex items-center justify-between text-xs md:text-[10px] lg:text-xs py-0.5">
                                               {/* Horizontal connector line */}
-                                              <div className={`absolute left-[-12px] top-1/2 w-2.5 h-px bg-neutral-600 ${isLastItem ? '' : ''}`} />
+                                              <div className="absolute left-[-12px] top-1/2 w-2.5 h-px bg-white/60" />
                                               {/* L-corner for last item */}
                                               {isLastItem && (
-                                                <div className="absolute left-[-12px] top-0 w-px h-1/2 bg-neutral-600" />
+                                                <div className="absolute left-[-12px] top-0 w-px h-1/2 bg-white/60" />
                                               )}
                                               <div className="flex items-center gap-1.5">
-                                                <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+                                                <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-white/60' : 'text-white'}`}>
                                                   {isAddOn ? '+' : isRemoval ? '-' : '•'}
                                                 </span>
-                                                <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-muted-foreground line-through' : 'text-muted-foreground'}`}>
+                                                <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-white/60 line-through' : 'text-white'}`}>
                                                   {displayMod}
                                                 </span>
                                               </div>
@@ -8096,11 +8096,11 @@ const Orders = () => {
                                         {hasShowButton && (
                                           <div className="relative py-0.5">
                                             {/* Horizontal connector for show button */}
-                                            <div className="absolute left-[-12px] top-1/2 w-2.5 h-px bg-neutral-600" />
+                                            <div className="absolute left-[-12px] top-1/2 w-2.5 h-px bg-white/60" />
                                             {/* L-corner for show button (always last) */}
-                                            <div className="absolute left-[-12px] top-0 w-px h-1/2 bg-neutral-600" />
+                                            <div className="absolute left-[-12px] top-0 w-px h-1/2 bg-white/60" />
                                             <button 
-                                              className="text-xs text-muted-foreground hover:text-foreground"
+                                              className="text-xs text-white/60 hover:text-white"
                                               onClick={(e) => {
                                                 e.stopPropagation();
                                                 setExpandedCartItems(prev => {

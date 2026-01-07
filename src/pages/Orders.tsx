@@ -6088,6 +6088,7 @@ const Orders = () => {
   const mobilePhoneInputRef = useRef<HTMLInputElement>(null);
   const mobilePhoneDropdownRef = useRef<HTMLDivElement>(null);
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<number | null>(null);
+  const [expandedCartItems, setExpandedCartItems] = useState<Set<number>>(new Set());
   const [isOrderActionsSidebarOpen, setIsOrderActionsSidebarOpen] = useState(false);
   const [showGiftCardDialog, setShowGiftCardDialog] = useState(false);
   const [appliedGiftCardAmount, setAppliedGiftCardAmount] = useState(0);
@@ -8059,7 +8060,7 @@ const Orders = () => {
                                   </div>
                                   {item.modifiers && item.modifiers.length > 0 && (
                                     <div className="mt-1.5 space-y-0.5">
-                                      {item.modifiers.map((mod, idx) => {
+                                      {(expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2)).map((mod, idx) => {
                                         const isAddOn = mod.startsWith("Add:");
                                         const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
                                         const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
@@ -8077,12 +8078,25 @@ const Orders = () => {
                                           </div>
                                         );
                                       })}
-                                      <button 
-                                        className="text-xs text-muted-foreground hover:text-foreground mt-1"
-                                        onClick={(e) => e.stopPropagation()}
-                                      >
-                                        Show less
-                                      </button>
+                                      {item.modifiers.length > 2 && (
+                                        <button 
+                                          className="text-xs text-muted-foreground hover:text-foreground mt-1"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setExpandedCartItems(prev => {
+                                              const newSet = new Set(prev);
+                                              if (newSet.has(item.id)) {
+                                                newSet.delete(item.id);
+                                              } else {
+                                                newSet.add(item.id);
+                                              }
+                                              return newSet;
+                                            });
+                                          }}
+                                        >
+                                          {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                        </button>
+                                      )}
                                     </div>
                                   )}
                                   {/* Seat Assignment Display - Desktop/Tablet */}

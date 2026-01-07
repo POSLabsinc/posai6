@@ -6857,7 +6857,10 @@ const Orders = () => {
                       <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />
                       Custom Item
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                    <DropdownMenuItem 
+                      onClick={() => setShowDiscountDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
                       <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
                       Discount
                     </DropdownMenuItem>

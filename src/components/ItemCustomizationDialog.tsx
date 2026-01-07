@@ -549,6 +549,28 @@ export const ItemCustomizationDialog = ({
     // Mock product data - in real app this would come from props or API
     const productDescription = "A juicy chicken patty topped with fresh lettuce, tomato, and our special sauce on a toasted brioche bun. Our chicken burgers are made from premium quality chicken that's seasoned to perfection.";
     const ingredients = ["Chicken Patty (Seasoned)", "Brioche Bun", "Lettuce", "Tomato", "Special Sauce", "Pickles", "Red Onions"];
+    
+    // Allergen colors matching the reference design
+    const allergenColors: Record<string, string> = {
+      'Almonds': '#c4547a',
+      'Corn': '#f5d5d5',
+      'Eggs': '#ffe4c4',
+      'Fish': '#ffe4b5',
+      'Gelatin': '#e8dcd0',
+      'Gluten': '#d4a574',
+      'Meat': '#f5f5a0',
+      'Milk': '#d4e8d4',
+      'Soy': '#c4547a',
+      'Peanuts': '#d4a574',
+      'Shellfish': '#b85c38',
+      'Sesame': '#8b5cf6',
+      'Tree Nuts': '#5d4037',
+      'Wheat': '#ef5350'
+    };
+    
+    // Sample allergens for this item - would come from database in production
+    const allergens = ["Gluten", "Eggs", "Milk", "Sesame"];
+    
     const nutritionalInfo = {
       calories: 520,
       protein: "28g",
@@ -589,6 +611,22 @@ export const ItemCustomizationDialog = ({
           <div className="mb-4">
             <h4 className="text-foreground font-bold text-base mb-2">Description</h4>
             <p className="text-muted-foreground text-sm leading-relaxed">{productDescription}</p>
+          </div>
+
+          {/* Allergens */}
+          <div className="mb-4">
+            <h4 className="text-foreground font-bold text-base mb-2">Allergens</h4>
+            <div className="flex flex-wrap gap-2">
+              {allergens.map((allergen, index) => (
+                <span 
+                  key={index}
+                  className="px-4 py-1.5 text-white text-xs font-semibold rounded-full"
+                  style={{ backgroundColor: allergenColors[allergen] || '#6b7280' }}
+                >
+                  {allergen}
+                </span>
+              ))}
+            </div>
           </div>
 
           {/* Ingredients */}

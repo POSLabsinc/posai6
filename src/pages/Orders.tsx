@@ -8041,104 +8041,116 @@ const Orders = () => {
                               style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
                               onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}
                             >
-                              <div className="flex items-start gap-2 md:gap-1.5 lg:gap-3">
-                                {/* Quantity badge with vertical line container */}
-                                <div className="relative flex flex-col items-center flex-shrink-0">
-                                  <span className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center">
+                              <div className="flex flex-col">
+                                {/* Item header row */}
+                                <div className="flex items-start gap-2 md:gap-1.5 lg:gap-3">
+                                  <span className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0">
                                     {item.qty}
                                   </span>
-                                  {/* Vertical line extending from quantity badge */}
-                                  {item.modifiers && item.modifiers.length > 0 && (
-                                    <div className="w-px bg-white/60 flex-1 min-h-[20px]" />
-                                  )}
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
-                                    <span 
-                                      className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors ml-2"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
-                                      }}
-                                    >
-                                      ${item.price.toFixed(2)}
-                                    </span>
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center justify-between">
+                                      <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
+                                      <span 
+                                        className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors ml-2"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                                        }}
+                                      >
+                                        ${item.price.toFixed(2)}
+                                      </span>
+                                    </div>
                                   </div>
-                                  {item.modifiers && item.modifiers.length > 0 && (() => {
-                                    const displayedModifiers = expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2);
-                                    const hasShowButton = item.modifiers.length > 2;
-                                    
-                                    return (
-                                      <div className="mt-1.5 relative" style={{ marginLeft: '-20px', paddingLeft: '20px' }}>
-                                        {displayedModifiers.map((mod, idx) => {
-                                          const isAddOn = mod.startsWith("Add:");
-                                          const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
-                                          const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
-                                          const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
-                                          
-                                          return (
-                                            <div key={idx} className="relative flex items-center justify-between text-xs md:text-[10px] lg:text-xs py-0.5">
-                                              {/* Horizontal connector line from vertical line to content */}
-                                              <div className="absolute left-0 top-1/2 w-4 h-px bg-white/60" />
-                                              <div className="flex items-center gap-1.5 ml-4">
-                                                <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-white/60' : 'text-white'}`}>
-                                                  {isAddOn ? '+' : isRemoval ? '-' : '•'}
-                                                </span>
-                                                <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-white/60 line-through' : 'text-white'}`}>
-                                                  {displayMod}
-                                                </span>
-                                              </div>
+                                </div>
+                                
+                                {/* Modifiers with tree hierarchy */}
+                                {item.modifiers && item.modifiers.length > 0 && (() => {
+                                  const displayedModifiers = expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2);
+                                  const hasShowButton = item.modifiers.length > 2;
+                                  const totalRows = displayedModifiers.length + (hasShowButton ? 1 : 0);
+                                  
+                                  return (
+                                    <div className="ml-3 mt-1 relative">
+                                      {/* Main vertical line */}
+                                      <div 
+                                        className="absolute left-0 top-0 w-px bg-white/60" 
+                                        style={{ height: `calc(100% - ${totalRows > 0 ? '10px' : '0px'})` }} 
+                                      />
+                                      
+                                      {displayedModifiers.map((mod, idx) => {
+                                        const isAddOn = mod.startsWith("Add:");
+                                        const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                        const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                        const isLastRow = !hasShowButton && idx === displayedModifiers.length - 1;
+                                        
+                                        return (
+                                          <div key={idx} className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
+                                            {/* Horizontal connector */}
+                                            <div className="absolute left-0 top-1/2 w-3 h-px bg-white/60" />
+                                            {/* Hide vertical line below for last item */}
+                                            {isLastRow && (
+                                              <div className="absolute left-0 top-1/2 bottom-0 w-px bg-neutral-800" style={{ marginTop: '1px' }} />
+                                            )}
+                                            {/* Content */}
+                                            <div className="flex items-center gap-2 ml-5">
+                                              <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-white/60' : 'text-white'}`}>
+                                                {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                              </span>
+                                              <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-white/60 line-through' : 'text-white'}`}>
+                                                {displayMod}
+                                              </span>
                                             </div>
-                                          );
-                                        })}
-                                        {hasShowButton && (
-                                          <div className="relative py-0.5">
-                                            {/* Horizontal connector for show button */}
-                                            <div className="absolute left-0 top-1/2 w-4 h-px bg-white/60" />
-                                            <button 
-                                              className="text-xs text-white/60 hover:text-white ml-4"
-                                              onClick={(e) => {
-                                                e.stopPropagation();
-                                                setExpandedCartItems(prev => {
-                                                  const newSet = new Set(prev);
-                                                  if (newSet.has(item.id)) {
-                                                    newSet.delete(item.id);
-                                                  } else {
-                                                    newSet.add(item.id);
-                                                  }
-                                                  return newSet;
-                                                });
-                                              }}
-                                            >
-                                              {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
-                                            </button>
                                           </div>
-                                        )}
-                                      </div>
-                                    );
-                                  })()}
-                                  {/* Seat Assignment Display - Desktop/Tablet */}
-                                  {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
-                                    <div className="mt-1.5 md:mt-1 lg:mt-2 flex items-center gap-1.5">
-                                      <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
-                                      {item.assignedSeats.length === guestCount ? (
-                                        <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
-                                          <Share2 className="w-3 h-3" />
-                                        </span>
-                                      ) : (
-                                        item.assignedSeats.map(seat => (
-                                          <span 
-                                            key={seat}
-                                            className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                                        );
+                                      })}
+                                      {hasShowButton && (
+                                        <div className="relative flex items-center py-[3px]">
+                                          {/* Horizontal connector */}
+                                          <div className="absolute left-0 top-1/2 w-3 h-px bg-white/60" />
+                                          {/* Hide vertical line below (this is last) */}
+                                          <div className="absolute left-0 top-1/2 bottom-0 w-px bg-neutral-800" style={{ marginTop: '1px' }} />
+                                          <button 
+                                            className="text-xs text-white/60 hover:text-white ml-5"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setExpandedCartItems(prev => {
+                                                const newSet = new Set(prev);
+                                                if (newSet.has(item.id)) {
+                                                  newSet.delete(item.id);
+                                                } else {
+                                                  newSet.add(item.id);
+                                                }
+                                                return newSet;
+                                              });
+                                            }}
                                           >
-                                            {seat}
-                                          </span>
-                                        ))
+                                            {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                          </button>
+                                        </div>
                                       )}
                                     </div>
-                                  )}
-                                </div>
+                                  );
+                                })()}
+                                {/* Seat Assignment Display - Desktop/Tablet */}
+                                {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
+                                  <div className="mt-1.5 md:mt-1 lg:mt-2 flex items-center gap-1.5 ml-8">
+                                    <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
+                                    {item.assignedSeats.length === guestCount ? (
+                                      <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                                        <Share2 className="w-3 h-3" />
+                                      </span>
+                                    ) : (
+                                      item.assignedSeats.map(seat => (
+                                        <span 
+                                          key={seat}
+                                          className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                                        >
+                                          {seat}
+                                        </span>
+                                      ))
+                                    )}
+                                  </div>
+                                )}
                               </div>
                             </div>
                           </SwipeableCartItem>)}

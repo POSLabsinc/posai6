@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
@@ -16,6 +16,11 @@ import timeIcon from "@/assets/icons/time-icon.png";
 import arrowRightIcon from "@/assets/icons/arrow-right.png";
 import shareOrderIcon from "@/assets/icons/share-order.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
+import chairWhiteIcon from "@/assets/icons/chair-white.png";
+import saveIcon from "@/assets/icons/save.png";
+import runnerIcon from "@/assets/icons/runner.png";
+import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
+import SwipeableCartItem from "@/components/SwipeableCartItem";
 
 // Stats data
 const stats = [
@@ -244,8 +249,6 @@ const mockTables = [
 ];
 
 // Import additional icons for order panel
-import seatIcon from "@/assets/icons/seat-icon.png";
-import splitIcon from "@/assets/icons/split-icon.png";
 import clearIcon from "@/assets/icons/clear-c.png";
 
 // Order Panel Content Component
@@ -258,15 +261,35 @@ interface OrderPanelContentProps {
   timeIcon: string;
   itemNotesIcon: string;
   fireIcon: string;
-  selectedSeats: number[];
-  toggleSeat: (seat: number) => void;
+  seatFilter: (number | 'all')[];
+  toggleSeatFilter: (seat: number | 'all') => void;
+  orderNotes: string;
+  setOrderNotes: (notes: string) => void;
+  activeSwipedItemId: string | null;
+  setActiveSwipedItemId: (id: string | null) => void;
 }
 
-const OrderPanelContent = ({ selectedOrder, orderItems, subtotal, total, phoneIcon, timeIcon, itemNotesIcon, fireIcon, selectedSeats, toggleSeat }: OrderPanelContentProps) => {
+const OrderPanelContent = ({ 
+  selectedOrder, 
+  orderItems, 
+  subtotal, 
+  total, 
+  phoneIcon, 
+  timeIcon, 
+  itemNotesIcon, 
+  fireIcon, 
+  seatFilter, 
+  toggleSeatFilter,
+  orderNotes,
+  setOrderNotes,
+  activeSwipedItemId,
+  setActiveSwipedItemId
+}: OrderPanelContentProps) => {
   const tax = subtotal * 0.02;
   const serviceCharge = subtotal * 0.1;
   const discount = 0;
   const finalTotal = subtotal + tax + serviceCharge - discount;
+  const guestCount = selectedOrder?.seats || 4;
 
   return (
     <>
@@ -304,32 +327,46 @@ const OrderPanelContent = ({ selectedOrder, orderItems, subtotal, total, phoneIc
         background: "#7575754D",
         boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
       }}>
-        {/* Table Order Info */}
-        <div className="px-4 py-3 border-b border-white/10">
-          <div className="flex items-center justify-between mb-2">
+        {/* Table Order Info - Row 1 */}
+        <div className="px-3 py-2 border-b border-white/10">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
-              <span className="text-white font-bold">{selectedOrder?.id || "—"}</span>
+              <span className="px-2 py-0.5 bg-neutral-700 text-white text-xs rounded border border-white/20">
+                TABLE T{selectedOrder?.seats || 2}
+              </span>
+              <div className="flex items-center gap-1">
+                <Users className="w-3 h-3 text-white/60" />
+                <span className="text-white/60 text-xs">{guestCount}</span>
+              </div>
+              <span className="text-white font-bold text-sm">{selectedOrder?.id || "—"}</span>
             </div>
-            <div className="flex items-center gap-2">
-              <span className="text-white/50 text-sm">DUSTIN H</span>
+            <div className="flex items-center gap-1">
+              <img src={runnerIcon} alt="Server" className="w-4 h-4" />
+              <span className="text-white/70 text-xs">DUSTIN H</span>
             </div>
           </div>
+        </div>
           
-          {/* Seat Buttons */}
-          <div className="flex items-center gap-2">
-            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-              <img src={seatIcon} alt="Seat" className="w-4 h-4" />
+        {/* Seat Buttons - Row 2 */}
+        <div className="px-3 py-2 border-b border-white/10">
+          <div className="flex items-center gap-1.5">
+            <button className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center hover:bg-neutral-500 transition-colors">
+              <img src={chairWhiteIcon} alt="Chair" className="w-3.5 h-3.5" />
             </button>
-            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-              <img src={splitIcon} alt="Split" className="w-4 h-4" />
+            <button 
+              onClick={() => toggleSeatFilter('all')}
+              className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${
+                seatFilter.includes('all') ? 'bg-white' : 'bg-neutral-600 hover:bg-neutral-500'
+              }`}
+            >
+              <Share2 className={`w-3.5 h-3.5 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
             </button>
-            {[1, 2, 3, 4].map(seat => (
+            {Array.from({ length: guestCount }, (_, i) => i + 1).map(seat => (
               <button 
                 key={seat} 
-                onClick={() => toggleSeat(seat)} 
-                className={`w-7 h-7 rounded text-sm font-medium transition-colors ${
-                  selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"
+                onClick={() => toggleSeatFilter(seat)} 
+                className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
+                  seatFilter.includes(seat) ? "bg-white text-black" : "bg-neutral-600 text-white hover:bg-neutral-500"
                 }`}
               >
                 {seat}
@@ -338,76 +375,95 @@ const OrderPanelContent = ({ selectedOrder, orderItems, subtotal, total, phoneIc
           </div>
         </div>
 
-        {/* Notes */}
-        <div className="px-4 py-3 border-b border-white/10">
-          <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
-            <span>📝</span>
-            <span className="text-amber-400">No Onions, Extra Tomato Sauce</span>
-          </div>
+        {/* Notes - with Autocomplete */}
+        <div className="px-3 py-2 border-b border-white/10">
+          <OrderNotesAutocomplete
+            value={orderNotes}
+            onChange={setOrderNotes}
+            placeholder="Order notes and Allergies"
+            storageKey="dashboard-order-notes"
+          />
         </div>
 
         {/* Order Items */}
-        <ScrollArea className="flex-1 px-4 max-h-[300px] md:max-h-none">
-          <div className="py-2 space-y-2">
-            {orderItems.map((item, index) => (
-              <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-2">
-                    <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
-                      {item.qty}
-                    </span>
-                    <div>
-                      <span className="text-white font-medium">{item.name}</span>
+        <ScrollArea className="flex-1 px-3 max-h-[300px] md:max-h-none">
+          <div className="py-2 space-y-1.5">
+            {orderItems.map((item, index) => {
+              const itemId = `item-${index}`;
+              const itemSeats = [1, 2]; // Mock seat assignment
+              const isAllSeats = itemSeats.length === guestCount;
+              
+              return (
+                <SwipeableCartItem
+                  key={index}
+                  onDelete={() => console.log('Delete item', index)}
+                  onFire={() => console.log('Fire item', index)}
+                  onNoTax={() => console.log('No tax', index)}
+                  isOpen={activeSwipedItemId === itemId}
+                  onSwipeStart={() => setActiveSwipedItemId(itemId)}
+                >
+                  <div 
+                    className="rounded px-2 py-1.5"
+                    style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                  >
+                    <div className="flex items-center gap-2">
+                      {/* Quantity Badge */}
+                      <span className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                        {item.qty}
+                      </span>
+                      
+                      {/* Item Name */}
+                      <span className="text-white text-sm font-medium flex-1 truncate">{item.name}</span>
+                      
+                      {/* Price */}
+                      <span className="text-white text-sm font-medium flex-shrink-0">${item.price.toFixed(2)}</span>
+                    </div>
+                    
+                    {/* Seat indicators */}
+                    <div className="flex items-center gap-1 mt-1 ml-7">
+                      <img src={chairWhiteIcon} alt="Seat" className="w-3 h-3 opacity-60" />
+                      {isAllSeats ? (
+                        <Share2 className="w-3 h-3 text-white/60" />
+                      ) : (
+                        itemSeats.map(seat => (
+                          <span key={seat} className="text-white/60 text-xs">{seat}</span>
+                        ))
+                      )}
                     </div>
                   </div>
-                  <span className="text-white font-medium">$ {item.price.toFixed(2)}</span>
-                </div>
-                {/* Seat indicators */}
-                <div className="flex items-center gap-1 mt-2">
-                  <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                  {[1, 2].map(seat => (
-                    <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                      {seat}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            ))}
+                </SwipeableCartItem>
+              );
+            })}
           </div>
         </ScrollArea>
 
-        {/* Order Summary - Compact Mode */}
-        <div className="p-2 border-t border-white/10 flex-shrink-0">
-          <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-          }}>
-            <div className="flex justify-between gap-3">
-              <span className="text-white">Sub Total: <span className="font-medium">$ {subtotal.toFixed(2)}</span></span>
-              <span className="text-red-500">Discount: <span className="font-medium">$ {discount.toFixed(2)}</span></span>
-            </div>
-            <div className="flex justify-between gap-3">
-              <span className="text-white">Service Charge: <span className="font-medium">$ {serviceCharge.toFixed(2)}</span></span>
-              <span className="text-white">Tax: <span className="font-medium">$ {tax.toFixed(2)}</span></span>
-            </div>
+        {/* Order Summary - Compact Single Row */}
+        <div className="px-3 py-2 border-t border-white/10 flex-shrink-0">
+          <div className="text-xs flex items-center justify-between gap-2">
+            <span className="text-white">Sub: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+            <span className="text-red-500">Disc: <span className="font-medium">${discount.toFixed(2)}</span></span>
+            <span className="text-white">Svc: <span className="font-medium">${serviceCharge.toFixed(2)}</span></span>
           </div>
         </div>
 
         {/* Bottom Actions */}
-        <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
-          <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+        <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
+          <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0">
             <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
           </button>
-          <button className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium" style={{
+          <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ background: '#C9C9C9' }}>
+            <img src={saveIcon} alt="Save" className="w-4 h-4 brightness-0" />
+          </button>
+          <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" style={{
             background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
           }}>
             <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
             <span>FIRE</span>
           </button>
-          <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{
+          <button className="flex-1 h-8 rounded-full text-black text-sm font-bold" style={{
             background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
           }}>
-            CHARGE $ {finalTotal.toFixed(2)}
+            CHARGE ${finalTotal.toFixed(2)}
           </button>
         </div>
       </div>
@@ -427,7 +483,9 @@ const Dashboard = () => {
   const [dateFilter, setDateFilter] = useState("Today");
   const [compareDate, setCompareDate] = useState("Yesterday");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
+  const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>([]);
+  const [orderNotes, setOrderNotes] = useState('');
+  const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
   const [customDateRange, setCustomDateRange] = useState<DateRange | undefined>();
   const [isCustomCalendarOpen, setIsCustomCalendarOpen] = useState(false);
   const [compareCustomDateRange, setCompareCustomDateRange] = useState<DateRange | undefined>();
@@ -471,8 +529,8 @@ const Dashboard = () => {
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = subtotal;
 
-  const toggleSeat = (seat: number) => {
-    setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
+  const toggleSeatFilter = (seat: number | 'all') => {
+    setSeatFilter(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
   };
 
   // Filter orders based on active filter
@@ -893,8 +951,12 @@ const Dashboard = () => {
             timeIcon={timeIcon}
             itemNotesIcon={itemNotesIcon}
             fireIcon={fireIcon}
-            selectedSeats={selectedSeats}
-            toggleSeat={toggleSeat}
+            seatFilter={seatFilter}
+            toggleSeatFilter={toggleSeatFilter}
+            orderNotes={orderNotes}
+            setOrderNotes={setOrderNotes}
+            activeSwipedItemId={activeSwipedItemId}
+            setActiveSwipedItemId={setActiveSwipedItemId}
           />
         </div>
       </div>
@@ -920,8 +982,12 @@ const Dashboard = () => {
               timeIcon={timeIcon}
               itemNotesIcon={itemNotesIcon}
               fireIcon={fireIcon}
-              selectedSeats={selectedSeats}
-              toggleSeat={toggleSeat}
+              seatFilter={seatFilter}
+              toggleSeatFilter={toggleSeatFilter}
+              orderNotes={orderNotes}
+              setOrderNotes={setOrderNotes}
+              activeSwipedItemId={activeSwipedItemId}
+              setActiveSwipedItemId={setActiveSwipedItemId}
             />
           </div>
         </DrawerContent>

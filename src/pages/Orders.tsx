@@ -7273,9 +7273,9 @@ const Orders = () => {
       <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-[12px] md:rounded-[16px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
         {/* Custom Item Panel */}
         {showCustomItemPanel ? (
-          <div className="flex-1 flex flex-col p-3 md:p-4">
+          <div className="flex-1 flex flex-col p-3 md:p-4 overflow-y-auto scrollbar-hide min-h-0">
             {/* Header */}
-            <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
               <h2 className="text-white text-lg font-semibold">Custom Item</h2>
               <button 
                 onClick={toggleCustomItemPanel}
@@ -7286,7 +7286,7 @@ const Orders = () => {
             </div>
 
             {/* Name Input */}
-            <div className="mb-3">
+            <div className="mb-3 flex-shrink-0">
               <div 
                 className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? 'border-orange-500' : 'border-neutral-700'}`}
                 onClick={() => setActiveCustomItemField('name')}
@@ -7309,7 +7309,7 @@ const Orders = () => {
             </div>
 
             {/* Price Input */}
-            <div className="mb-3">
+            <div className="mb-3 flex-shrink-0">
               <div 
                 className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'price' ? 'border-orange-500' : 'border-neutral-700'}`}
                 onClick={() => setActiveCustomItemField('price')}
@@ -7333,7 +7333,7 @@ const Orders = () => {
             <button
               onClick={addCustomItemToOrder}
               disabled={!customItemName.trim() || !customItemPrice}
-              className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
               style={{
                 background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
               }}
@@ -7346,7 +7346,7 @@ const Orders = () => {
             {/* Keyboard / Numpad */}
             {activeCustomItemField === 'name' ? (
               /* QWERTY Keyboard for Name */
-              <div className="flex flex-col gap-1.5 flex-1">
+              <div className="flex flex-col gap-1.5 min-h-0">
                 {/* Row 1: q-p */}
                 <div className="grid grid-cols-10 gap-1">
                   {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map((key) => (
@@ -7420,8 +7420,8 @@ const Orders = () => {
               </div>
             ) : (
               /* Numpad for Price */
-              <>
-                <div className="grid grid-cols-3 gap-2 flex-1">
+              <div className="flex flex-col gap-2 min-h-0">
+                <div className="grid grid-cols-3 gap-2">
                   {['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((num) => (
                     <button
                       key={num}
@@ -7454,11 +7454,11 @@ const Orders = () => {
                 {/* Backspace Button */}
                 <button
                   onClick={() => handleCustomItemNumpadClick('backspace')}
-                  className="w-full mt-2 bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors"
+                  className="w-full bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors"
                 >
                   <Delete className="w-5 h-5 text-white" />
                 </button>
-              </>
+              </div>
             )}
           </div>
         ) : showInlineCustomization && selectedItemForCustomization ? (

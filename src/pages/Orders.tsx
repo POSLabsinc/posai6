@@ -8058,47 +8058,69 @@ const Orders = () => {
                                       ${item.price.toFixed(2)}
                                     </span>
                                   </div>
-                                  {item.modifiers && item.modifiers.length > 0 && (
-                                    <div className="mt-1.5 space-y-0.5">
-                                      {(expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2)).map((mod, idx) => {
-                                        const isAddOn = mod.startsWith("Add:");
-                                        const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
-                                        const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                  {item.modifiers && item.modifiers.length > 0 && (() => {
+                                    const displayedModifiers = expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2);
+                                    const hasShowButton = item.modifiers.length > 2;
+                                    const totalItems = displayedModifiers.length + (hasShowButton ? 1 : 0);
+                                    
+                                    return (
+                                      <div className="mt-1.5 relative pl-3">
+                                        {/* Vertical line */}
+                                        <div className="absolute left-0 top-0 w-px bg-neutral-600" style={{ height: `calc(100% - 10px)` }} />
                                         
-                                        return (
-                                          <div key={idx} className="flex items-center justify-between text-xs md:text-[10px] lg:text-xs">
-                                            <div className="flex items-center gap-1.5">
-                                              <span className={`w-2 ${isAddOn ? 'text-green-400' : isRemoval ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
-                                                {isAddOn ? '+' : isRemoval ? '-' : '•'}
-                                              </span>
-                                              <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-muted-foreground line-through' : 'text-muted-foreground'}`}>
-                                                {displayMod}
-                                              </span>
+                                        {displayedModifiers.map((mod, idx) => {
+                                          const isAddOn = mod.startsWith("Add:");
+                                          const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                          const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                          const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
+                                          
+                                          return (
+                                            <div key={idx} className="relative flex items-center justify-between text-xs md:text-[10px] lg:text-xs py-0.5">
+                                              {/* Horizontal connector line */}
+                                              <div className={`absolute left-[-12px] top-1/2 w-2.5 h-px bg-neutral-600 ${isLastItem ? '' : ''}`} />
+                                              {/* L-corner for last item */}
+                                              {isLastItem && (
+                                                <div className="absolute left-[-12px] top-0 w-px h-1/2 bg-neutral-600" />
+                                              )}
+                                              <div className="flex items-center gap-1.5">
+                                                <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+                                                  {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                                </span>
+                                                <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-muted-foreground line-through' : 'text-muted-foreground'}`}>
+                                                  {displayMod}
+                                                </span>
+                                              </div>
                                             </div>
+                                          );
+                                        })}
+                                        {hasShowButton && (
+                                          <div className="relative py-0.5">
+                                            {/* Horizontal connector for show button */}
+                                            <div className="absolute left-[-12px] top-1/2 w-2.5 h-px bg-neutral-600" />
+                                            {/* L-corner for show button (always last) */}
+                                            <div className="absolute left-[-12px] top-0 w-px h-1/2 bg-neutral-600" />
+                                            <button 
+                                              className="text-xs text-muted-foreground hover:text-foreground"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setExpandedCartItems(prev => {
+                                                  const newSet = new Set(prev);
+                                                  if (newSet.has(item.id)) {
+                                                    newSet.delete(item.id);
+                                                  } else {
+                                                    newSet.add(item.id);
+                                                  }
+                                                  return newSet;
+                                                });
+                                              }}
+                                            >
+                                              {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                            </button>
                                           </div>
-                                        );
-                                      })}
-                                      {item.modifiers.length > 2 && (
-                                        <button 
-                                          className="text-xs text-muted-foreground hover:text-foreground mt-1"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setExpandedCartItems(prev => {
-                                              const newSet = new Set(prev);
-                                              if (newSet.has(item.id)) {
-                                                newSet.delete(item.id);
-                                              } else {
-                                                newSet.add(item.id);
-                                              }
-                                              return newSet;
-                                            });
-                                          }}
-                                        >
-                                          {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
-                                        </button>
-                                      )}
-                                    </div>
-                                  )}
+                                        )}
+                                      </div>
+                                    );
+                                  })()}
                                   {/* Seat Assignment Display - Desktop/Tablet */}
                                   {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
                                     <div className="mt-1.5 md:mt-1 lg:mt-2 flex items-center gap-1.5">

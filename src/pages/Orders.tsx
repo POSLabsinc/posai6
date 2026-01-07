@@ -7077,6 +7077,22 @@ const Orders = () => {
             </div>
           )}
 
+          {/* Mobile Add Guest Form Overlay */}
+          {showAddGuestForm && (
+            <div className="fixed inset-0 z-50 bg-black/50 flex items-center justify-center p-4">
+              <div className="w-full max-w-md max-h-[85vh] rounded-xl overflow-hidden relative" style={{ background: '#2A2A2A' }}>
+                <AddGuestForm
+                  onClose={() => setShowAddGuestForm(false)}
+                  onSave={(guestData) => {
+                    setGuestName(`${guestData.firstName} ${guestData.lastName}`);
+                    setGuestPhone(guestData.phoneNumber);
+                    setShowAddGuestForm(false);
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           {/* Mobile Cart Items */}
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? null : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>

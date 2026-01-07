@@ -8060,25 +8060,20 @@ const Orders = () => {
                                   {item.modifiers && item.modifiers.length > 0 && (
                                     <div className="mt-1.5 space-y-0.5">
                                       {item.modifiers.map((mod, idx) => {
-                                        const isAddition = mod.startsWith("W/") || mod.startsWith("Add") || mod.startsWith("Side:");
+                                        const isAddOn = mod.startsWith("Add:");
                                         const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
-                                        const hasPrice = mod.includes("$");
+                                        const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
                                         
                                         return (
                                           <div key={idx} className="flex items-center justify-between text-xs md:text-[10px] lg:text-xs">
                                             <div className="flex items-center gap-1.5">
-                                              <span className={`w-2 ${hasPrice ? 'text-green-400' : isRemoval ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
-                                                {hasPrice ? '+' : isRemoval ? '-' : '•'}
+                                              <span className={`w-2 ${isAddOn ? 'text-green-400' : isRemoval ? 'text-muted-foreground' : 'text-muted-foreground'}`}>
+                                                {isAddOn ? '+' : isRemoval ? '-' : '•'}
                                               </span>
-                                              <span className={`${hasPrice ? 'text-green-400' : isRemoval ? 'text-muted-foreground line-through' : 'text-muted-foreground'}`}>
-                                                {mod}
+                                              <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-muted-foreground line-through' : 'text-muted-foreground'}`}>
+                                                {displayMod}
                                               </span>
                                             </div>
-                                            {hasPrice && (
-                                              <span className="text-green-400 ml-2">
-                                                {mod.match(/\$[\d.]+/)?.[0] || ''}
-                                              </span>
-                                            )}
                                           </div>
                                         );
                                       })}

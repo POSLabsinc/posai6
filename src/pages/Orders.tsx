@@ -6368,6 +6368,12 @@ const Orders = () => {
     name: string;
     price: number;
   }, quantity: number, modifiers: string[], notes: string, totalPrice: number, assignedSeats?: number[]) => {
+    // When assignedSeats is defined (from table order) but empty, treat as "share on table" (all seats)
+    const allSeats = isTableOrder ? Array.from({ length: guestCount }, (_, i) => i + 1) : undefined;
+    const seatsToAssign = assignedSeats !== undefined 
+      ? (assignedSeats.length > 0 ? assignedSeats : allSeats) 
+      : undefined;
+    
     setOrderItems(prev => {
       return [...prev, {
         id: Date.now(),
@@ -6375,7 +6381,7 @@ const Orders = () => {
         name: item.name,
         price: totalPrice / quantity, // Store the unit price including modifiers/add-ons
         modifiers: modifiers.length > 0 ? modifiers : undefined,
-        assignedSeats: assignedSeats && assignedSeats.length > 0 ? assignedSeats : undefined
+        assignedSeats: seatsToAssign
       }];
     });
   };

@@ -1020,7 +1020,7 @@ const Dashboard = () => {
                     <div className="flex flex-col gap-1">
                       {/* Row 1: Name + Table, Server, Status */}
                       <div className="flex items-center justify-between">
-                        <span className="text-white font-medium text-sm">{order.guest} - T{order.seats}</span>
+                        <span className="text-white font-medium text-sm">{order.guest} - {order.table}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
                           <span className="text-sm font-medium" style={{ color: order.statusColor }}>{order.status}</span>
@@ -1066,7 +1066,7 @@ const Dashboard = () => {
                           <div className="flex items-center gap-1 lg:gap-2 w-[180px] lg:w-[220px] flex-shrink-0">
                             <span className="text-white font-medium truncate">{order.guest}</span>
                             <span className="text-white/60">·</span>
-                            <span className="text-white font-medium">T{order.seats}</span>
+                            <span className="text-white font-medium">{order.table}</span>
                           </div>
                           <span className="text-white/60 flex-1 truncate px-1 lg:px-2">{order.server}</span>
                           <span 

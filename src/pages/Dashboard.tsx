@@ -276,7 +276,7 @@ const orderItems = [
 
 // Table status configurations (matching /tableorder screen)
 const tableStatusConfig: Record<string, { textColor: string; bgColor: string }> = {
-  "Available": { textColor: "#FFFFFF", bgColor: "#404040" },
+  "Available": { textColor: "#FFFFFF", bgColor: "#22C55E" },
   "Ordering": { textColor: "#000000", bgColor: "#FACC15" },
   "Ordered": { textColor: "#000000", bgColor: "#F97316" },
   "Reserved": { textColor: "#FFFFFF", bgColor: "#6B7280" },

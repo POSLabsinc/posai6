@@ -773,18 +773,20 @@ export const InlineItemCustomization = ({
         <Button variant="outline" onClick={onCancel} className="flex-1 py-1 rounded-full text-white font-medium text-[10px] bg-transparent border border-neutral-500 hover:bg-neutral-800 h-7">
           CANCEL
         </Button>
-        <button 
+        <Button 
+          variant="outline"
           onClick={() => setShowDiscountDialog(true)}
-          className={`w-7 h-7 rounded-full overflow-hidden flex-shrink-0 transition-all ${
-            selectedDiscountId ? 'ring-2 ring-orange-500 ring-offset-1 ring-offset-neutral-900' : ''
+          className={`flex-1 py-1 rounded-full text-white font-medium text-[10px] bg-transparent border h-7 flex items-center justify-center gap-1 ${
+            selectedDiscountId ? 'border-orange-500 text-orange-400' : 'border-neutral-500 hover:bg-neutral-800'
           }`}
         >
-          <img src={offerIcon} alt="Offer" className="w-full h-full object-cover" />
-        </button>
+          <img src={offerIcon} alt="" className="w-4 h-4" />
+          {selectedDiscountId ? 'Discount Applied' : 'Discount'}
+        </Button>
         <Button onClick={handleAddToCart} className="flex-[2] py-1 rounded-full font-bold text-[10px] h-7" style={{
-        background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
-        color: 'black'
-      }}>
+          background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
+          color: 'black'
+        }}>
           ADD ${totalPrice.toFixed(2)}
         </Button>
       </div>

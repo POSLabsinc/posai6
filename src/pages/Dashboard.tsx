@@ -974,7 +974,14 @@ const Dashboard = () => {
               {filteredTables.map((table, index) => (
                 <div
                   key={index}
-                  className="flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5"
+                  onClick={() => {
+                    if (table.status === "Available") {
+                      navigate(`/tableorder/${table.id}`);
+                    } else {
+                      navigate(`/tableorder/${table.id}/details`);
+                    }
+                  }}
+                  className="flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
                   style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
                 >
                   <div className="flex items-center justify-between">

@@ -99,6 +99,8 @@ const mockOrders = [
     tip: "$8.50",
     paymentType: "Cash",
     isPaid: false,
+    server: "Mia Jones",
+    total: 70.96,
   },
   {
     id: 11,
@@ -117,6 +119,8 @@ const mockOrders = [
     tip: "$12.00",
     paymentType: "Cash",
     isPaid: false,
+    server: "John Smith",
+    total: 85.50,
   },
   {
     id: 12,
@@ -135,6 +139,8 @@ const mockOrders = [
     tip: "$5.00",
     paymentType: "Card",
     isPaid: false,
+    server: "Sarah Lee",
+    total: 42.00,
   },
   {
     id: 13,
@@ -153,6 +159,8 @@ const mockOrders = [
     tip: "$8.00",
     paymentType: "Card",
     isPaid: true,
+    server: "Mia Jones",
+    total: 125.00,
   },
   {
     id: 14,
@@ -171,6 +179,8 @@ const mockOrders = [
     tip: "$3.00",
     paymentType: "Cash",
     isPaid: true,
+    server: "John Smith",
+    total: 55.00,
   },
   {
     id: 15,
@@ -189,6 +199,8 @@ const mockOrders = [
     tip: "$15.00",
     paymentType: "Pending",
     isPaid: false,
+    server: "Sarah Lee",
+    total: 98.75,
   },
   {
     id: 16,
@@ -207,6 +219,8 @@ const mockOrders = [
     tip: "$18.50",
     paymentType: "Pending",
     isPaid: false,
+    server: "Mia Jones",
+    total: 115.50,
   },
   {
     id: 17,
@@ -225,6 +239,8 @@ const mockOrders = [
     tip: "$5.00",
     paymentType: "Card",
     isPaid: true,
+    server: "John Smith",
+    total: 65.00,
   },
   {
     id: 18,
@@ -243,6 +259,8 @@ const mockOrders = [
     tip: "$10.00",
     paymentType: "Card",
     isPaid: true,
+    server: "Sarah Lee",
+    total: 180.00,
   },
   {
     id: 19,
@@ -261,6 +279,8 @@ const mockOrders = [
     tip: "$6.00",
     paymentType: "Pending",
     isPaid: false,
+    server: "Mia Jones",
+    total: 35.25,
   },
 ];
 
@@ -901,7 +921,7 @@ const Dashboard = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-white font-medium text-sm">{order.guest} - T{order.seats}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm" style={{ color: '#B5B6BB' }}>Server</span>
+                          <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
                           <span className="text-sm font-medium" style={{ color: order.statusColor }}>{order.status}</span>
                         </div>
                       </div>
@@ -913,15 +933,15 @@ const Dashboard = () => {
                           <span className="text-gray-500">|</span>
                           <span>{order.timer}</span>
                         </div>
-                        <span className="text-white font-semibold text-sm">$0.00</span>
+                        <span className="text-white font-semibold text-sm">${order.total.toFixed(2)}</span>
                       </div>
                       
                       {/* Row 3: Revenue center, Payment status */}
                       <div className="flex items-center justify-between">
                         <span className="text-white font-medium text-sm">{order.revenueCenter}</span>
                         <div className="flex items-center gap-2 text-sm">
-                          <span style={{ color: '#B5B6BB' }}>Un Paid</span>
-                          <span className="text-white">$0.00</span>
+                          <span style={{ color: '#B5B6BB' }}>{order.isPaid ? "Paid" : "Un Paid"}</span>
+                          <span className="text-white">{order.tip}</span>
                         </div>
                       </div>
                     </div>
@@ -935,7 +955,7 @@ const Dashboard = () => {
                       {/* Order Number Box */}
                       <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
                         <span className="text-lg font-bold text-white">{order.id}</span>
-                        <span className="text-xs text-white/40">000</span>
+                        <span className="text-xs text-white/40">{String(order.check).padStart(3, '0')}</span>
                       </div>
 
                       {/* Main Content */}
@@ -947,7 +967,7 @@ const Dashboard = () => {
                             <span className="text-white/60">·</span>
                             <span className="text-white font-medium">T{order.seats}</span>
                           </div>
-                          <span className="text-white/60 flex-1 truncate px-1 lg:px-2">Mia Jone</span>
+                          <span className="text-white/60 flex-1 truncate px-1 lg:px-2">{order.server}</span>
                           <span 
                             className="font-semibold uppercase flex-shrink-0"
                             style={{ color: order.statusColor }}
@@ -965,7 +985,7 @@ const Dashboard = () => {
                             <span>{order.timer}</span>
                           </div>
                           <div className="flex-1"></div>
-                          <span className="text-white font-semibold flex-shrink-0">$70.96</span>
+                          <span className="text-white font-semibold flex-shrink-0">${order.total.toFixed(2)}</span>
                         </div>
                         
                         {/* Row 3: Revenue Center | Payment Status | Amount */}

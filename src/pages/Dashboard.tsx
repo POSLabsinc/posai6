@@ -878,13 +878,22 @@ const OrderPanelContent = ({
                     </p>
                   </div>
 
-                  {/* Change Due Box */}
-                  <div className="mx-6 mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
-                    <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
-                    <p className="text-green-500 text-3xl font-bold text-center">
-                      ${Math.max(0, paidAmount - finalTotal).toFixed(2)}
-                    </p>
-                  </div>
+                  {/* Change Due / Due Amount Box */}
+                  {paidAmount >= finalTotal ? (
+                    <div className="mx-6 mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
+                      <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
+                      <p className="text-green-500 text-3xl font-bold text-center">
+                        ${(paidAmount - finalTotal).toFixed(2)}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="mx-6 mb-6 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
+                      <p className="text-red-500 text-sm text-center mb-1">Due Amount</p>
+                      <p className="text-red-500 text-3xl font-bold text-center">
+                        ${(finalTotal - paidAmount).toFixed(2)}
+                      </p>
+                    </div>
+                  )}
 
                   {/* Receipt Section */}
                   <div className="px-6 pb-6">
@@ -1148,9 +1157,14 @@ const OrderPanelContent = ({
                   <span className="text-white font-medium text-sm">Check {selectedOrder?.check || "62"} a</span>
                   <span className="text-white font-bold">${finalTotal.toFixed(2)}</span>
                 </div>
-                {paymentProcessed && (
+                {paymentProcessed && paidAmount >= finalTotal && (
                   <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
                     PAID
+                  </span>
+                )}
+                {paymentProcessed && paidAmount < finalTotal && (
+                  <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-yellow-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
+                    PARTIAL
                   </span>
                 )}
                 <div className="flex items-center justify-between mt-1">
@@ -1195,6 +1209,12 @@ const OrderPanelContent = ({
                     </div>
                     <span className="text-green-500 text-xs font-medium">${paidAmount.toFixed(2)}</span>
                   </div>
+                  {paidAmount < finalTotal && (
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-neutral-600">
+                      <span className="text-neutral-400 text-xs">Remaining Due</span>
+                      <span className="text-red-500 text-xs font-medium">${(finalTotal - paidAmount).toFixed(2)}</span>
+                    </div>
+                  )}
                 </div>
               )}
 

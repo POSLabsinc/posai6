@@ -486,32 +486,36 @@ const OrderPanelContent = ({
                   onSwipeStart={() => setActiveSwipedItemId(itemId)}
                 >
                   <div 
-                    className="rounded px-2 py-1.5"
+                    className="p-2 border border-sidebar-border rounded-lg cursor-pointer"
                     style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
                   >
-                    <div className="flex items-center gap-2">
-                      {/* Quantity Badge */}
-                      <span className="w-5 h-5 rounded-full bg-orange-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
-                        {item.qty}
-                      </span>
+                    <div className="flex flex-col">
+                      {/* Item header row */}
+                      <div className="flex items-start gap-2">
+                        <span className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                          {item.qty}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-foreground">{item.name}</span>
+                            <span className="text-sm font-medium text-foreground ml-2">
+                              ${item.price.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
                       
-                      {/* Item Name */}
-                      <span className="text-white text-sm font-medium flex-1 truncate">{item.name}</span>
-                      
-                      {/* Price */}
-                      <span className="text-white text-sm font-medium flex-shrink-0">${item.price.toFixed(2)}</span>
-                    </div>
-                    
-                    {/* Seat indicators */}
-                    <div className="flex items-center gap-1 mt-1 ml-7">
-                      <img src={chairWhiteIcon} alt="Seat" className="w-3 h-3 opacity-60" />
-                      {isAllSeats ? (
-                        <Share2 className="w-3 h-3 text-white/60" />
-                      ) : (
-                        itemSeats.map(seat => (
-                          <span key={seat} className="text-white/60 text-xs">{seat}</span>
-                        ))
-                      )}
+                      {/* Seat indicators */}
+                      <div className="flex items-center gap-1 mt-1 ml-8">
+                        <img src={chairWhiteIcon} alt="Seat" className="w-3 h-3 opacity-60" />
+                        {isAllSeats ? (
+                          <Share2 className="w-3 h-3 text-white/60" />
+                        ) : (
+                          itemSeats.map(seat => (
+                            <span key={seat} className="text-white/60 text-xs">{seat}</span>
+                          ))
+                        )}
+                      </div>
                     </div>
                   </div>
                 </SwipeableCartItem>

@@ -585,6 +585,7 @@ const Dashboard = () => {
   const [compareCustomDateRange, setCompareCustomDateRange] = useState<DateRange | undefined>();
   const [isCompareCustomCalendarOpen, setIsCompareCustomCalendarOpen] = useState(false);
   const [orderItems, setOrderItems] = useState(initialOrderItems);
+  const [selectedFloor, setSelectedFloor] = useState("first");
   const isMobile = useIsMobile();
 
   // Toggle no tax for an item
@@ -1011,12 +1012,20 @@ const Dashboard = () => {
           <div className="flex-shrink-0 mt-2 pt-2 border-t border-white/10">
             {/* Table Filters */}
             <div className="flex gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
-              <button
-                className="flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium text-white"
-                style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-              >
-                First Floor <ChevronDown className="w-2.5 h-2.5 inline ml-0.5" />
-              </button>
+              <Select value={selectedFloor} onValueChange={setSelectedFloor}>
+                <SelectTrigger 
+                  className="flex-shrink-0 h-auto px-2 py-1 rounded-full text-xs font-medium text-white border-0 w-auto gap-1"
+                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                >
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-800 border-white/10">
+                  <SelectItem value="first" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">First Floor</SelectItem>
+                  <SelectItem value="second" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">Second Floor</SelectItem>
+                  <SelectItem value="outdoor" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">Outdoor Patio</SelectItem>
+                  <SelectItem value="rooftop" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">Rooftop Bar</SelectItem>
+                </SelectContent>
+              </Select>
               {tableFilters.map((filter) => (
                 <button
                   key={filter.label}

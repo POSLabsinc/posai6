@@ -22,15 +22,57 @@ import runnerIcon from "@/assets/icons/runner.png";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
-// Stats data
-const stats = [
-  { label: "Total Sale", value: "$ 1,400.00", change: "2.2%", isUp: true, icon: "💵" },
-  { label: "Total Tip", value: "$ 285.00", change: "2.2%", isUp: true, icon: "💵" },
-  { label: "Total Hours", value: "6h 28min", change: "0.5%", isUp: false, icon: "clock" },
-  { label: "Ordering", value: "12", change: "2.5%", isUp: true, icon: "clock" },
-  { label: "Ready to Served", value: "5", change: "1%", isUp: false, hasCheckbox: true },
-  { label: "Ready to Served", value: "8", change: "1%", isUp: false, hasCheckbox: true },
-];
+// Stats data by date filter
+const statsData: Record<string, Array<{ label: string; value: string; change: string; isUp: boolean; icon?: string; hasCheckbox?: boolean }>> = {
+  "Today": [
+    { label: "Total Sale", value: "$ 1,400.00", change: "2.2%", isUp: true, icon: "💵" },
+    { label: "Total Tip", value: "$ 285.00", change: "2.2%", isUp: true, icon: "💵" },
+    { label: "Total Hours", value: "6h 28min", change: "0.5%", isUp: false, icon: "clock" },
+    { label: "Ordering", value: "12", change: "2.5%", isUp: true, icon: "clock" },
+    { label: "Ready to Served", value: "5", change: "1%", isUp: false, hasCheckbox: true },
+    { label: "Ready to Served", value: "8", change: "1%", isUp: false, hasCheckbox: true },
+  ],
+  "Yesterday": [
+    { label: "Total Sale", value: "$ 1,250.00", change: "1.8%", isUp: false, icon: "💵" },
+    { label: "Total Tip", value: "$ 210.00", change: "1.5%", isUp: false, icon: "💵" },
+    { label: "Total Hours", value: "5h 45min", change: "1.2%", isUp: true, icon: "clock" },
+    { label: "Ordering", value: "9", change: "1.0%", isUp: false, icon: "clock" },
+    { label: "Ready to Served", value: "3", change: "2%", isUp: true, hasCheckbox: true },
+    { label: "Ready to Served", value: "6", change: "0.5%", isUp: true, hasCheckbox: true },
+  ],
+  "This Week": [
+    { label: "Total Sale", value: "$ 8,750.00", change: "5.5%", isUp: true, icon: "💵" },
+    { label: "Total Tip", value: "$ 1,420.00", change: "4.2%", isUp: true, icon: "💵" },
+    { label: "Total Hours", value: "42h 15min", change: "2.1%", isUp: true, icon: "clock" },
+    { label: "Ordering", value: "78", change: "3.8%", isUp: true, icon: "clock" },
+    { label: "Ready to Served", value: "28", change: "1.5%", isUp: true, hasCheckbox: true },
+    { label: "Ready to Served", value: "45", change: "2.2%", isUp: true, hasCheckbox: true },
+  ],
+  "Last Week": [
+    { label: "Total Sale", value: "$ 7,920.00", change: "3.2%", isUp: false, icon: "💵" },
+    { label: "Total Tip", value: "$ 1,180.00", change: "2.8%", isUp: false, icon: "💵" },
+    { label: "Total Hours", value: "38h 30min", change: "1.5%", isUp: false, icon: "clock" },
+    { label: "Ordering", value: "65", change: "2.1%", isUp: false, icon: "clock" },
+    { label: "Ready to Served", value: "22", change: "0.8%", isUp: false, hasCheckbox: true },
+    { label: "Ready to Served", value: "38", change: "1.2%", isUp: false, hasCheckbox: true },
+  ],
+  "This Month": [
+    { label: "Total Sale", value: "$ 32,500.00", change: "8.5%", isUp: true, icon: "💵" },
+    { label: "Total Tip", value: "$ 5,200.00", change: "6.2%", isUp: true, icon: "💵" },
+    { label: "Total Hours", value: "168h 45min", change: "4.5%", isUp: true, icon: "clock" },
+    { label: "Ordering", value: "312", change: "5.8%", isUp: true, icon: "clock" },
+    { label: "Ready to Served", value: "120", change: "3.2%", isUp: true, hasCheckbox: true },
+    { label: "Ready to Served", value: "185", change: "4.1%", isUp: true, hasCheckbox: true },
+  ],
+  "Last Month": [
+    { label: "Total Sale", value: "$ 28,400.00", change: "4.2%", isUp: false, icon: "💵" },
+    { label: "Total Tip", value: "$ 4,580.00", change: "3.5%", isUp: false, icon: "💵" },
+    { label: "Total Hours", value: "155h 20min", change: "2.8%", isUp: false, icon: "clock" },
+    { label: "Ordering", value: "275", change: "3.2%", isUp: false, icon: "clock" },
+    { label: "Ready to Served", value: "98", change: "1.8%", isUp: false, hasCheckbox: true },
+    { label: "Ready to Served", value: "162", change: "2.5%", isUp: false, hasCheckbox: true },
+  ],
+};
 
 // Date filter options
 const dateFilters = ["Today", "Yesterday", "This Week", "Last Week", "This Month", "Last Month", "Custom"];
@@ -537,6 +579,11 @@ const Dashboard = () => {
     }
     return compareDate;
   };
+
+  // Get stats based on selected date filter
+  const stats = useMemo(() => {
+    return statsData[dateFilter] || statsData["Today"];
+  }, [dateFilter]);
 
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = subtotal;

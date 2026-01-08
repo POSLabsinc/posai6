@@ -837,20 +837,16 @@ const OrderPanelContent = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in">
             {/* Payment Options Panel */}
-            <div className="w-[400px] flex flex-col">
+            <div className="w-[480px] flex flex-col bg-white">
               {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                <div className="flex-1" />
-                <div className="flex-1 text-center">
-                  <span className="text-white text-sm">Total Due</span>
-                  <div className="text-red-500 text-xl font-bold">${finalTotal.toFixed(2)}</div>
-                </div>
-                <div className="flex-1" />
+              <div className="flex items-center justify-center py-6 border-b border-neutral-200">
+                <span className="text-neutral-800 text-lg font-medium">Total Due</span>
+                <span className="text-red-500 text-lg font-bold ml-2">${finalTotal.toFixed(2)}</span>
               </div>
 
               {/* Payment Methods */}
-              <div className="p-4 border-b border-neutral-700">
-                <div className="flex flex-wrap justify-center gap-3">
+              <div className="p-6 border-b border-neutral-200">
+                <div className="flex justify-center gap-4">
                   {paymentMethods.map((method) => {
                     const IconComponent = method.icon;
                     const isSelected = selectedPaymentMethod === method.id;
@@ -858,16 +854,16 @@ const OrderPanelContent = ({
                       <button
                         key={method.id}
                         onClick={() => setSelectedPaymentMethod(method.id)}
-                        className="flex flex-col items-center gap-1"
+                        className="flex flex-col items-center gap-1.5"
                       >
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${
                           isSelected 
-                            ? 'bg-neutral-700 ring-2 ring-white' 
-                            : 'bg-neutral-800 hover:bg-neutral-700'
+                            ? 'bg-neutral-900 border-neutral-900' 
+                            : 'bg-white border-neutral-300 hover:border-neutral-400'
                         }`}>
-                          <IconComponent className="w-5 h-5 text-white" />
+                          <IconComponent className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-neutral-700'}`} />
                         </div>
-                        <span className={`text-[10px] ${isSelected ? 'text-white' : 'text-neutral-400'}`}>
+                        <span className={`text-[11px] ${isSelected ? 'text-neutral-900 font-medium' : 'text-neutral-500'}`}>
                           {method.name}
                         </span>
                       </button>
@@ -877,24 +873,24 @@ const OrderPanelContent = ({
               </div>
 
               {/* Amount Display */}
-              <div className="p-4 border-b border-neutral-700">
-                <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-4 py-3">
-                  <span className="flex-1 text-white text-lg font-medium">${paymentAmount}</span>
-                  <button className="w-8 h-8 rounded bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors">
-                    <Grid3X3 className="w-4 h-4 text-white" />
+              <div className="px-6 py-4 border-b border-neutral-200">
+                <div className="flex items-center gap-2 bg-neutral-100 rounded-lg px-4 py-4">
+                  <span className="flex-1 text-green-500 text-2xl font-bold">${paymentAmount}</span>
+                  <button className="w-10 h-10 rounded-lg bg-white border border-neutral-200 flex items-center justify-center hover:bg-neutral-50 transition-colors">
+                    <Grid3X3 className="w-5 h-5 text-neutral-600" />
                   </button>
                 </div>
               </div>
 
               {/* Quick Amount Buttons */}
-              <div className="p-4 space-y-2">
-                <div className="flex gap-2">
+              <div className="p-6 space-y-3 flex-1">
+                <div className="flex gap-3">
                   <button
                     onClick={() => setPaymentAmount(finalTotal.toFixed(2))}
-                    className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                    className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
                       paymentAmount === finalTotal.toFixed(2)
-                        ? 'bg-white text-black border-white'
-                        : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
+                        ? 'bg-neutral-900 text-white'
+                        : 'bg-white text-neutral-700 border border-neutral-300 hover:border-neutral-400'
                     }`}
                   >
                     ${finalTotal.toFixed(2)}
@@ -903,25 +899,25 @@ const OrderPanelContent = ({
                     <button
                       key={`${amount}-${idx}`}
                       onClick={() => setPaymentAmount(amount.toFixed(2))}
-                      className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                      className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
                         paymentAmount === amount.toFixed(2)
-                          ? 'bg-white text-black border-white'
-                          : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
+                          ? 'bg-neutral-900 text-white'
+                          : 'bg-white text-neutral-700 border border-neutral-300 hover:border-neutral-400'
                       }`}
                     >
                       ${amount}
                     </button>
                   ))}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   {quickAmounts.slice(4).map((amount, idx) => (
                     <button
                       key={`${amount}-${idx + 4}`}
                       onClick={() => setPaymentAmount(amount.toFixed(2))}
-                      className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                      className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
                         paymentAmount === amount.toFixed(2)
-                          ? 'bg-white text-black border-white'
-                          : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
+                          ? 'bg-neutral-900 text-white'
+                          : 'bg-white text-neutral-700 border border-neutral-300 hover:border-neutral-400'
                       }`}
                     >
                       ${amount}
@@ -931,10 +927,10 @@ const OrderPanelContent = ({
               </div>
 
               {/* Charge Button */}
-              <div className="p-4 border-t border-neutral-700">
+              <div className="p-6 pt-0">
                 <button
                   onClick={() => setShowPaymentDialog(false)}
-                  className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-lg transition-colors text-sm"
+                  className="w-full py-4 bg-neutral-900 hover:bg-neutral-800 text-white font-bold rounded-xl transition-colors text-sm"
                 >
                   CHARGE ${paymentAmount}
                 </button>

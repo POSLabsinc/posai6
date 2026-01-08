@@ -597,7 +597,12 @@ export const InlineItemCustomization = ({
               onClick={handlePriceClick}
               className="bg-neutral-700 px-2 py-1 rounded-lg hover:bg-neutral-600 transition-colors cursor-pointer"
             >
-              {overriddenPrice !== null ? (
+              {selectedDiscountId ? (
+                <div className="flex flex-col items-center">
+                  <span className="text-green-400 font-bold text-sm">${(totalPrice / quantity).toFixed(2)}</span>
+                  <span className="text-neutral-400 text-[8px] line-through">${(overriddenPrice !== null ? overriddenPrice : item.price).toFixed(2)}</span>
+                </div>
+              ) : overriddenPrice !== null ? (
                 <div className="flex flex-col items-center">
                   <span className="text-white font-bold text-sm">${overriddenPrice.toFixed(2)}</span>
                   <span className="text-neutral-400 text-[8px] line-through">${item.price.toFixed(2)}</span>

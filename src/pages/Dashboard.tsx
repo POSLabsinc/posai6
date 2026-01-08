@@ -96,7 +96,7 @@ const mockOrders = [
     type: "Dine In",
     check: 12,
     revenueCenter: "FF Balcony",
-    tip: "$0.00",
+    tip: "$8.50",
     paymentType: "Cash",
     isPaid: false,
   },
@@ -114,7 +114,7 @@ const mockOrders = [
     type: "Dine In",
     check: 12,
     revenueCenter: "FF Balcony",
-    tip: "$0.00",
+    tip: "$12.00",
     paymentType: "Cash",
     isPaid: false,
   },
@@ -186,7 +186,7 @@ const mockOrders = [
     type: "Dine In",
     check: 20,
     revenueCenter: "Main Hall",
-    tip: "$0.00",
+    tip: "$15.00",
     paymentType: "Pending",
     isPaid: false,
   },
@@ -204,7 +204,7 @@ const mockOrders = [
     type: "Dine In",
     check: 18,
     revenueCenter: "FF Balcony",
-    tip: "$0.00",
+    tip: "$18.50",
     paymentType: "Pending",
     isPaid: false,
   },
@@ -258,7 +258,7 @@ const mockOrders = [
     type: "Take Out",
     check: 9,
     revenueCenter: "Main Hall",
-    tip: "$0.00",
+    tip: "$6.00",
     paymentType: "Pending",
     isPaid: false,
   },
@@ -971,8 +971,8 @@ const Dashboard = () => {
                         {/* Row 3: Revenue Center | Payment Status | Amount */}
                         <div className="flex items-center text-xs lg:text-sm">
                           <span className="text-white font-medium w-[180px] lg:w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
-                          <span className="text-white/60 flex-1 truncate px-1 lg:px-2">Un Paid</span>
-                          <span className="text-white flex-shrink-0">$0.00</span>
+                          <span className="text-white/60 flex-1 truncate px-1 lg:px-2">{order.isPaid ? "Paid" : "Un Paid"}</span>
+                          <span className="text-white flex-shrink-0">{order.tip}</span>
                         </div>
                       </div>
                     </div>

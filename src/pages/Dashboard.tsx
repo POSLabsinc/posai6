@@ -837,15 +837,16 @@ const OrderPanelContent = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in">
             {/* Payment Options Panel */}
-            <div className="w-[480px] flex flex-col bg-white">
+            {/* Payment Options Panel - Dark Mode */}
+            <div className="w-[480px] flex flex-col bg-neutral-900">
               {/* Header */}
-              <div className="flex items-center justify-center py-6 border-b border-neutral-200">
-                <span className="text-neutral-800 text-lg font-medium">Total Due</span>
+              <div className="flex items-center justify-center py-6 border-b border-neutral-700">
+                <span className="text-white text-lg font-medium">Total Due</span>
                 <span className="text-red-500 text-lg font-bold ml-2">${finalTotal.toFixed(2)}</span>
               </div>
 
               {/* Payment Methods */}
-              <div className="p-6 border-b border-neutral-200">
+              <div className="p-6 border-b border-neutral-700">
                 <div className="flex justify-center gap-4">
                   {paymentMethods.map((method) => {
                     const IconComponent = method.icon;
@@ -858,12 +859,12 @@ const OrderPanelContent = ({
                       >
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${
                           isSelected 
-                            ? 'bg-neutral-900 border-neutral-900' 
-                            : 'bg-white border-neutral-300 hover:border-neutral-400'
+                            ? 'bg-white border-white' 
+                            : 'bg-neutral-800 border-neutral-600 hover:border-neutral-500'
                         }`}>
-                          <IconComponent className={`w-5 h-5 ${isSelected ? 'text-white' : 'text-neutral-700'}`} />
+                          <IconComponent className={`w-5 h-5 ${isSelected ? 'text-neutral-900' : 'text-neutral-300'}`} />
                         </div>
-                        <span className={`text-[11px] ${isSelected ? 'text-neutral-900 font-medium' : 'text-neutral-500'}`}>
+                        <span className={`text-[11px] ${isSelected ? 'text-white font-medium' : 'text-neutral-400'}`}>
                           {method.name}
                         </span>
                       </button>
@@ -873,11 +874,11 @@ const OrderPanelContent = ({
               </div>
 
               {/* Amount Display */}
-              <div className="px-6 py-4 border-b border-neutral-200">
-                <div className="flex items-center gap-2 bg-neutral-100 rounded-lg px-4 py-4">
+              <div className="px-6 py-4 border-b border-neutral-700">
+                <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
                   <span className="flex-1 text-green-500 text-2xl font-bold">${paymentAmount}</span>
-                  <button className="w-10 h-10 rounded-lg bg-white border border-neutral-200 flex items-center justify-center hover:bg-neutral-50 transition-colors">
-                    <Grid3X3 className="w-5 h-5 text-neutral-600" />
+                  <button className="w-10 h-10 rounded-lg bg-neutral-700 border border-neutral-600 flex items-center justify-center hover:bg-neutral-600 transition-colors">
+                    <Grid3X3 className="w-5 h-5 text-neutral-300" />
                   </button>
                 </div>
               </div>
@@ -889,8 +890,8 @@ const OrderPanelContent = ({
                     onClick={() => setPaymentAmount(finalTotal.toFixed(2))}
                     className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
                       paymentAmount === finalTotal.toFixed(2)
-                        ? 'bg-neutral-900 text-white'
-                        : 'bg-white text-neutral-700 border border-neutral-300 hover:border-neutral-400'
+                        ? 'bg-white text-neutral-900'
+                        : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
                     }`}
                   >
                     ${finalTotal.toFixed(2)}
@@ -901,8 +902,8 @@ const OrderPanelContent = ({
                       onClick={() => setPaymentAmount(amount.toFixed(2))}
                       className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
                         paymentAmount === amount.toFixed(2)
-                          ? 'bg-neutral-900 text-white'
-                          : 'bg-white text-neutral-700 border border-neutral-300 hover:border-neutral-400'
+                          ? 'bg-white text-neutral-900'
+                          : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
                       }`}
                     >
                       ${amount}
@@ -916,8 +917,8 @@ const OrderPanelContent = ({
                       onClick={() => setPaymentAmount(amount.toFixed(2))}
                       className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
                         paymentAmount === amount.toFixed(2)
-                          ? 'bg-neutral-900 text-white'
-                          : 'bg-white text-neutral-700 border border-neutral-300 hover:border-neutral-400'
+                          ? 'bg-white text-neutral-900'
+                          : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
                       }`}
                     >
                       ${amount}
@@ -930,7 +931,7 @@ const OrderPanelContent = ({
               <div className="p-6 pt-0">
                 <button
                   onClick={() => setShowPaymentDialog(false)}
-                  className="w-full py-4 bg-neutral-900 hover:bg-neutral-800 text-white font-bold rounded-xl transition-colors text-sm"
+                  className="w-full py-4 bg-white hover:bg-neutral-100 text-neutral-900 font-bold rounded-xl transition-colors text-sm"
                 >
                   CHARGE ${paymentAmount}
                 </button>
@@ -939,31 +940,37 @@ const OrderPanelContent = ({
 
             {/* Order Details Panel */}
             <div className="w-[280px] border-l border-neutral-700 flex flex-col">
-              {/* Guest Info Header */}
-              <div className="p-3 border-b border-neutral-700">
+              {/* Guest Info Header - Matching Order Panel Style */}
+              <div className="p-3 border-b border-neutral-700" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
                 <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="text-white font-semibold text-sm">{selectedOrder?.guest || "GUEST NAME"}</h3>
-                    <p className="text-neutral-400 text-xs">Order At {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
-                  </div>
+                  <h3 className="text-white font-semibold text-sm">{selectedOrder?.guest || "John Doe"}</h3>
                   <button 
                     onClick={() => setShowPaymentDialog(false)}
-                    className="w-6 h-6 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                    className="w-6 h-6 rounded-full hover:bg-neutral-600 flex items-center justify-center transition-colors"
                   >
-                    <X className="w-4 h-4 text-neutral-400" />
+                    <X className="w-4 h-4 text-neutral-300" />
                   </button>
                 </div>
-                <div className="flex items-center gap-4 mt-2 text-xs">
-                  <span className="text-neutral-400">ORDER# {selectedOrder?.orderNo || "105"}</span>
-                  <span className="text-neutral-400">TABLE# {selectedOrder?.table || "14"}</span>
-                  <span className="text-red-400 font-medium">{selectedOrder?.type?.toUpperCase() || "DINE IN"}</span>
+                <p className="text-neutral-300 text-xs mt-0.5">Order At {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+                
+                {/* Order Info Row */}
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center gap-1 bg-neutral-700/50 rounded px-1.5 py-0.5">
+                    <span className="text-neutral-400 text-[10px]">ORDER#</span>
+                    <span className="text-white text-[10px] font-medium">{selectedOrder?.orderNo || "Order No 8"}</span>
+                  </div>
+                  <div className="flex items-center gap-1 bg-neutral-700/50 rounded px-1.5 py-0.5">
+                    <span className="text-neutral-400 text-[10px]">TABLE#</span>
+                    <span className="text-white text-[10px] font-medium">{selectedOrder?.table || "T2"}</span>
+                  </div>
+                  <span className="text-red-400 text-[10px] font-medium bg-red-500/20 rounded px-1.5 py-0.5">{selectedOrder?.type?.toUpperCase() || "DINE IN"}</span>
                 </div>
               </div>
 
               {/* Check Info */}
               <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-white font-medium text-sm">Check {selectedOrder?.check || "62"}</span>
+                  <span className="text-white font-medium text-sm">Check {selectedOrder?.check || "12"}</span>
                   <span className="text-white font-bold">${finalTotal.toFixed(2)}</span>
                 </div>
                 <div className="flex items-center justify-between mt-1">
@@ -972,57 +979,29 @@ const OrderPanelContent = ({
                 </div>
               </div>
 
-              {/* Order Items */}
+              {/* Order Items - Without seat indicators */}
               <div className="flex-1 overflow-y-auto p-3 space-y-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                {orderItems.map((item) => {
-                  const itemSeats = item.seats || [1];
-                  const totalSeats = selectedOrder?.seats || 4;
-                  const isAllSeats = itemSeats.length >= totalSeats;
-                  
-                  return (
-                    <div 
-                      key={item.id}
-                      className="p-2 border border-sidebar-border rounded-lg"
-                      style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
-                    >
-                      <div className="flex flex-col">
-                        {/* Item header row */}
-                        <div className="flex items-start gap-2">
-                          <span className="w-5 h-5 rounded bg-neutral-700 border border-neutral-600 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
-                            {item.qty}
+                {orderItems.map((item) => (
+                  <div 
+                    key={item.id}
+                    className="p-2 border border-sidebar-border rounded-lg"
+                    style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                  >
+                    <div className="flex items-center gap-2">
+                      <span className="w-5 h-5 rounded bg-neutral-700 border border-neutral-600 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
+                        {item.qty}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-medium text-foreground">{item.name}</span>
+                          <span className="text-xs font-medium text-foreground ml-2">
+                            ${item.price.toFixed(2)}
                           </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs font-medium text-foreground">{item.name}</span>
-                              <span className="text-xs font-medium text-foreground ml-2">
-                                ${item.price.toFixed(2)}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                        
-                        {/* Seat indicators */}
-                        <div className="flex items-center gap-1 mt-1.5 ml-7">
-                          <img src={chairWhiteIcon} alt="Seat" className="w-3 h-3 opacity-70" />
-                          {isAllSeats ? (
-                            <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
-                              <Share2 className="w-2.5 h-2.5" />
-                            </span>
-                          ) : (
-                            itemSeats.map(seat => (
-                              <span 
-                                key={seat} 
-                                className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center"
-                              >
-                                {seat}
-                              </span>
-                            ))
-                          )}
                         </div>
                       </div>
                     </div>
-                  );
-                })}
+                  </div>
+                ))}
               </div>
 
               {/* Order Summary */}

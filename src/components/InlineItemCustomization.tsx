@@ -1,10 +1,35 @@
 import { useState, useEffect } from "react";
-import { ChevronDown, X, Search, Mic, ArrowUpDown, Delete, Fingerprint, ScanFace } from "lucide-react";
+import { ChevronDown, X, Search, Mic, ArrowUpDown, Delete, Fingerprint, ScanFace, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import offerIcon from "@/assets/icons/offer.png";
+
+// Discount types for item-level discounts
+interface DiscountType {
+  id: string;
+  name: string;
+  description: string;
+  percentage?: number;
+  fixedAmount?: number;
+  icon: 'briefcase' | 'heart' | 'graduation' | 'shield' | 'star' | 'clock' | 'cake' | 'mappin' | 'dollar' | 'tag';
+}
+
+const discountTypes: DiscountType[] = [
+  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
+  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
+  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
+  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
+  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
+  { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
+  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
+  { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
+  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
+  { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
+  { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
+  { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
+];
 
 interface ModifierOption {
   name: string;
@@ -185,6 +210,10 @@ export const InlineItemCustomization = ({
   const [overrideNotes, setOverrideNotes] = useState("");
   const [isReasonDropdownOpen, setIsReasonDropdownOpen] = useState(false);
   const [isPriceEdited, setIsPriceEdited] = useState(false);
+  
+  // Discount state
+  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
+  const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
 
   // Reset overriddenPrice when item changes
   useEffect(() => {
@@ -201,6 +230,7 @@ export const InlineItemCustomization = ({
     setSelectedReason("");
     setNewPrice("");
     setOverrideNotes("");
+    setSelectedDiscountId(null);
   }, [item.id]);
 
   // Handle PIN verification - any 4-digit PIN works
@@ -321,7 +351,14 @@ export const InlineItemCustomization = ({
     return total;
   }, 0);
   const basePrice = overriddenPrice !== null ? overriddenPrice : item.price;
-  const totalPrice = (basePrice + addOnTotal + modifierTotal) * quantity;
+  const priceBeforeDiscount = (basePrice + addOnTotal + modifierTotal) * quantity;
+  
+  // Calculate discount
+  const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
+  const discountAmount = selectedDiscount 
+    ? (selectedDiscount.fixedAmount || (priceBeforeDiscount * ((selectedDiscount.percentage || 0) / 100)))
+    : 0;
+  const totalPrice = priceBeforeDiscount - discountAmount;
 
   // Render MPIN View (Desktop style)
   const renderMPINView = () => (
@@ -731,9 +768,14 @@ export const InlineItemCustomization = ({
         <Button variant="outline" onClick={onCancel} className="flex-1 py-1 rounded-full text-white font-medium text-[10px] bg-transparent border border-neutral-500 hover:bg-neutral-800 h-7">
           CANCEL
         </Button>
-        <div className="w-7 h-7 rounded-full overflow-hidden flex-shrink-0">
+        <button 
+          onClick={() => setShowDiscountDialog(true)}
+          className={`w-7 h-7 rounded-full overflow-hidden flex-shrink-0 transition-all ${
+            selectedDiscountId ? 'ring-2 ring-orange-500 ring-offset-1 ring-offset-neutral-900' : ''
+          }`}
+        >
           <img src={offerIcon} alt="Offer" className="w-full h-full object-cover" />
-        </div>
+        </button>
         <Button onClick={handleAddToCart} className="flex-[2] py-1 rounded-full font-bold text-[10px] h-7" style={{
         background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
         color: 'black'
@@ -912,6 +954,80 @@ export const InlineItemCustomization = ({
       {currentView === 'mpin' && renderMPINView()}
       {currentView === 'priceOverride' && renderPriceOverrideView()}
       {currentView === 'productInfo' && renderProductInfoView()}
+      
+      {/* Discount Dialog */}
+      {showDiscountDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+              <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
+              <button 
+                onClick={() => setShowDiscountDialog(false)}
+                className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-neutral-400" />
+              </button>
+            </div>
+
+            {/* Discount Options */}
+            <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-none space-y-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {discountTypes.map((discountType) => {
+                const discountValue = discountType.fixedAmount || (priceBeforeDiscount * ((discountType.percentage || 0) / 100));
+                const isSelected = selectedDiscountId === discountType.id;
+                
+                const IconComponent = {
+                  briefcase: Briefcase,
+                  heart: Heart,
+                  graduation: GraduationCap,
+                  shield: Shield,
+                  star: Star,
+                  clock: Clock,
+                  cake: Cake,
+                  mappin: MapPin,
+                  dollar: BadgeDollarSign,
+                  tag: Tag
+                }[discountType.icon];
+                
+                return (
+                  <button
+                    key={discountType.id}
+                    onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                      isSelected 
+                        ? 'bg-orange-500/20 border border-orange-500' 
+                        : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
+                    }`}>
+                      <IconComponent className="w-4 h-4 text-neutral-400" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-white text-sm font-medium">{discountType.name}</div>
+                      <div className="text-neutral-400 text-xs">{discountType.description}</div>
+                    </div>
+                    <div className="text-red-400 text-sm font-medium">
+                      -${discountValue.toFixed(2)}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Apply Button */}
+            <div className="p-3 border-t border-neutral-700">
+              <button
+                onClick={() => setShowDiscountDialog(false)}
+                className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

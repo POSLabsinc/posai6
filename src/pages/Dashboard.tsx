@@ -224,9 +224,12 @@ const mockOrders = [
 
 // Mock order items for right panel
 const orderItems = [
-  { qty: 1, name: "Classic Crispy Burger", price: 12.00 },
-  { qty: 1, name: "Meatballs", price: 16.00 },
-  { qty: 2, name: "Rigatoni Pasta", price: 8.00 },
+  { qty: 1, name: "Classic Crispy Burger", price: 12.00, seats: [1] },
+  { qty: 1, name: "Meatballs", price: 16.00, seats: [2] },
+  { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [1, 2] },
+  { qty: 1, name: "Caesar Salad", price: 9.50, seats: [3] },
+  { qty: 1, name: "Grilled Salmon", price: 22.00, seats: [4] },
+  { qty: 1, name: "Garlic Bread", price: 5.00, seats: [1, 2, 3, 4] },
 ];
 
 // Mock table data
@@ -388,9 +391,18 @@ const OrderPanelContent = ({
         {/* Order Items */}
         <ScrollArea className="flex-1 px-3 max-h-[300px] md:max-h-none">
           <div className="py-2 space-y-1.5">
-            {orderItems.map((item, index) => {
+            {orderItems
+              .filter(item => {
+                // If 'all' is selected, show all items
+                if (seatFilter.includes('all')) return true;
+                // If no filter selected, show all items
+                if (seatFilter.length === 0) return true;
+                // Show item if any of its seats match the filter
+                return item.seats.some(seat => seatFilter.includes(seat));
+              })
+              .map((item, index) => {
               const itemId = `item-${index}`;
-              const itemSeats = [1, 2]; // Mock seat assignment
+              const itemSeats = item.seats;
               const isAllSeats = itemSeats.length === guestCount;
               
               return (

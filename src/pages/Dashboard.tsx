@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2 } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
@@ -431,6 +431,31 @@ const mockTables = [
 // Import additional icons for order panel
 import clearIcon from "@/assets/icons/clear-c.png";
 
+// Discount types data
+interface DiscountType {
+  id: string;
+  name: string;
+  description: string;
+  percentage?: number;
+  fixedAmount?: number;
+  icon: 'briefcase' | 'heart' | 'graduation' | 'shield' | 'star' | 'clock' | 'cake' | 'mappin' | 'dollar' | 'tag';
+}
+
+const discountTypes: DiscountType[] = [
+  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
+  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
+  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
+  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
+  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
+  { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
+  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
+  { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
+  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
+  { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
+  { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
+  { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
+];
+
 // Order Panel Content Component
 interface OrderPanelContentProps {
   selectedOrder: typeof mockOrders[0] | null;
@@ -451,6 +476,10 @@ interface OrderPanelContentProps {
   onOrderTypeChange: (itemId: number, orderType: string) => void;
   onDeleteItem: (itemId: number) => void;
   onFireItem: (itemId: number) => void;
+  showDiscountDialog: boolean;
+  setShowDiscountDialog: (show: boolean) => void;
+  selectedDiscountId: string | null;
+  setSelectedDiscountId: (id: string | null) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -471,13 +500,21 @@ const OrderPanelContent = ({
   onToggleNoTax,
   onOrderTypeChange,
   onDeleteItem,
-  onFireItem
+  onFireItem,
+  showDiscountDialog,
+  setShowDiscountDialog,
+  selectedDiscountId,
+  setSelectedDiscountId
 }: OrderPanelContentProps) => {
+  const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
+  const discount = selectedDiscount 
+    ? (selectedDiscount.fixedAmount || (subtotal * ((selectedDiscount.percentage || 0) / 100)))
+    : 0;
   const tax = subtotal * 0.02;
   const serviceCharge = subtotal * 0.1;
-  const discount = 0;
-  const finalTotal = subtotal + tax + serviceCharge - discount;
+  const finalTotal = subtotal - discount + tax + serviceCharge;
   const guestCount = selectedOrder?.seats || 4;
+  const isOrderDisabled = selectedOrder && ['Completed', 'Paid', 'Closed'].includes(selectedOrder.status);
 
   return (
     <>
@@ -500,11 +537,12 @@ const OrderPanelContent = ({
           </button>
           <button 
             className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
-              selectedOrder && ['Completed', 'Paid', 'Closed'].includes(selectedOrder.status)
+              isOrderDisabled
                 ? 'bg-neutral-800 text-white/40 cursor-not-allowed'
                 : 'bg-neutral-700 text-white hover:bg-neutral-600'
             }`}
-            disabled={selectedOrder ? ['Completed', 'Paid', 'Closed'].includes(selectedOrder.status) : false}
+            disabled={!!isOrderDisabled}
+            onClick={() => !isOrderDisabled && setShowDiscountDialog(true)}
           >
             Discount
           </button>
@@ -686,6 +724,80 @@ const OrderPanelContent = ({
           </button>
         </div>
       </div>
+
+      {/* Discount Dialog */}
+      {showDiscountDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+              <h2 className="text-white text-lg font-semibold">Select Discount</h2>
+              <button 
+                onClick={() => setShowDiscountDialog(false)}
+                className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-neutral-400" />
+              </button>
+            </div>
+
+            {/* Discount Options */}
+            <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-hide space-y-1">
+              {discountTypes.map((discountType) => {
+                const discountValue = discountType.fixedAmount || (subtotal * ((discountType.percentage || 0) / 100));
+                const isSelected = selectedDiscountId === discountType.id;
+                
+                const IconComponent = {
+                  briefcase: Briefcase,
+                  heart: Heart,
+                  graduation: GraduationCap,
+                  shield: Shield,
+                  star: Star,
+                  clock: Clock,
+                  cake: Cake,
+                  mappin: MapPin,
+                  dollar: BadgeDollarSign,
+                  tag: Tag
+                }[discountType.icon];
+                
+                return (
+                  <button
+                    key={discountType.id}
+                    onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                      isSelected 
+                        ? 'bg-orange-500/20 border border-orange-500' 
+                        : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
+                    }`}>
+                      {IconComponent && <IconComponent className="w-4 h-4 text-neutral-400" />}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-white text-sm font-medium">{discountType.name}</div>
+                      <div className="text-neutral-400 text-xs">{discountType.description}</div>
+                    </div>
+                    <div className="text-red-400 text-sm font-medium">
+                      -${discountValue.toFixed(2)}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Apply Button */}
+            <div className="p-3 border-t border-neutral-700">
+              <button
+                onClick={() => setShowDiscountDialog(false)}
+                className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
@@ -711,6 +823,8 @@ const Dashboard = () => {
   const [isCompareCustomCalendarOpen, setIsCompareCustomCalendarOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItemType[]>(mockOrders[0]?.items || []);
   const [selectedFloor, setSelectedFloor] = useState("first");
+  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
+  const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
   const isMobile = useIsMobile();
 
   // Toggle no tax for an item
@@ -1233,6 +1347,10 @@ const Dashboard = () => {
             onOrderTypeChange={handleOrderTypeChange}
             onDeleteItem={handleDeleteItem}
             onFireItem={handleFireItem}
+            showDiscountDialog={showDiscountDialog}
+            setShowDiscountDialog={setShowDiscountDialog}
+            selectedDiscountId={selectedDiscountId}
+            setSelectedDiscountId={setSelectedDiscountId}
           />
         </div>
       </div>
@@ -1268,6 +1386,10 @@ const Dashboard = () => {
               onOrderTypeChange={handleOrderTypeChange}
               onDeleteItem={handleDeleteItem}
               onFireItem={handleFireItem}
+              showDiscountDialog={showDiscountDialog}
+              setShowDiscountDialog={setShowDiscountDialog}
+              selectedDiscountId={selectedDiscountId}
+              setSelectedDiscountId={setSelectedDiscountId}
             />
           </div>
         </DrawerContent>

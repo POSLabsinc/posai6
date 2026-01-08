@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
@@ -456,6 +456,20 @@ const discountTypes: DiscountType[] = [
   { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
 ];
 
+// Payment methods data
+const paymentMethods = [
+  { id: 'account', name: 'Account', icon: User },
+  { id: 'card', name: 'Card', icon: CreditCard },
+  { id: 'cash', name: 'Cash', icon: Banknote },
+  { id: 'gift-card', name: 'Gift Card', icon: Gift },
+  { id: 'pay-link', name: 'Pay by Link', icon: Link },
+  { id: 'qr-code', name: 'QR Code', icon: QrCode },
+  { id: 'other', name: 'Other', icon: ArrowRightCircle },
+];
+
+// Quick amount values
+const quickAmounts = [1, 2, 5, 10, 10, 20, 50, 100];
+
 // Order Panel Content Component
 interface OrderPanelContentProps {
   selectedOrder: typeof mockOrders[0] | null;
@@ -480,6 +494,12 @@ interface OrderPanelContentProps {
   setShowDiscountDialog: (show: boolean) => void;
   selectedDiscountId: string | null;
   setSelectedDiscountId: (id: string | null) => void;
+  showPaymentDialog: boolean;
+  setShowPaymentDialog: (show: boolean) => void;
+  selectedPaymentMethod: string;
+  setSelectedPaymentMethod: (method: string) => void;
+  paymentAmount: string;
+  setPaymentAmount: (amount: string) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -504,7 +524,13 @@ const OrderPanelContent = ({
   showDiscountDialog,
   setShowDiscountDialog,
   selectedDiscountId,
-  setSelectedDiscountId
+  setSelectedDiscountId,
+  showPaymentDialog,
+  setShowPaymentDialog,
+  selectedPaymentMethod,
+  setSelectedPaymentMethod,
+  paymentAmount,
+  setPaymentAmount
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount 
@@ -717,9 +743,16 @@ const OrderPanelContent = ({
             <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
             <span>FIRE</span>
           </button>
-          <button className="flex-1 h-8 rounded-full text-black text-sm font-bold" style={{
-            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-          }}>
+          <button 
+            onClick={() => {
+              setPaymentAmount(finalTotal.toFixed(2));
+              setShowPaymentDialog(true);
+            }}
+            className="flex-1 h-8 rounded-full text-black text-sm font-bold" 
+            style={{
+              background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+            }}
+          >
             CHARGE ${finalTotal.toFixed(2)}
           </button>
         </div>
@@ -798,6 +831,122 @@ const OrderPanelContent = ({
           </div>
         </div>
       )}
+
+      {/* Payment Dialog */}
+      {showPaymentDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+              <div className="flex-1" />
+              <div className="flex-1 text-center">
+                <span className="text-white text-sm">Total Due</span>
+                <div className="text-red-500 text-xl font-bold">${finalTotal.toFixed(2)}</div>
+              </div>
+              <div className="flex-1 flex justify-end">
+                <button 
+                  onClick={() => setShowPaymentDialog(false)}
+                  className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5 text-neutral-400" />
+                </button>
+              </div>
+            </div>
+
+            {/* Payment Methods */}
+            <div className="p-4 border-b border-neutral-700">
+              <div className="flex flex-wrap justify-center gap-3">
+                {paymentMethods.map((method) => {
+                  const IconComponent = method.icon;
+                  const isSelected = selectedPaymentMethod === method.id;
+                  return (
+                    <button
+                      key={method.id}
+                      onClick={() => setSelectedPaymentMethod(method.id)}
+                      className="flex flex-col items-center gap-1"
+                    >
+                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                        isSelected 
+                          ? 'bg-neutral-700 ring-2 ring-white' 
+                          : 'bg-neutral-800 hover:bg-neutral-700'
+                      }`}>
+                        <IconComponent className="w-5 h-5 text-white" />
+                      </div>
+                      <span className={`text-[10px] ${isSelected ? 'text-white' : 'text-neutral-400'}`}>
+                        {method.name}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Amount Display */}
+            <div className="p-4 border-b border-neutral-700">
+              <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-4 py-3">
+                <span className="flex-1 text-white text-lg font-medium">${paymentAmount}</span>
+                <button className="w-8 h-8 rounded bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors">
+                  <Grid3X3 className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            </div>
+
+            {/* Quick Amount Buttons */}
+            <div className="p-4 space-y-2">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setPaymentAmount(finalTotal.toFixed(2))}
+                  className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                    paymentAmount === finalTotal.toFixed(2)
+                      ? 'bg-white text-black border-white'
+                      : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
+                  }`}
+                >
+                  ${finalTotal.toFixed(2)}
+                </button>
+                {quickAmounts.slice(0, 4).map((amount, idx) => (
+                  <button
+                    key={`${amount}-${idx}`}
+                    onClick={() => setPaymentAmount(amount.toFixed(2))}
+                    className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                      paymentAmount === amount.toFixed(2)
+                        ? 'bg-white text-black border-white'
+                        : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
+                    }`}
+                  >
+                    ${amount}
+                  </button>
+                ))}
+              </div>
+              <div className="flex gap-2">
+                {quickAmounts.slice(4).map((amount, idx) => (
+                  <button
+                    key={`${amount}-${idx + 4}`}
+                    onClick={() => setPaymentAmount(amount.toFixed(2))}
+                    className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                      paymentAmount === amount.toFixed(2)
+                        ? 'bg-white text-black border-white'
+                        : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
+                    }`}
+                  >
+                    ${amount}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Charge Button */}
+            <div className="p-4 border-t border-neutral-700">
+              <button
+                onClick={() => setShowPaymentDialog(false)}
+                className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-lg transition-colors text-sm"
+              >
+                CHARGE ${paymentAmount}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };
@@ -825,6 +974,9 @@ const Dashboard = () => {
   const [selectedFloor, setSelectedFloor] = useState("first");
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cash');
+  const [paymentAmount, setPaymentAmount] = useState('');
   const isMobile = useIsMobile();
 
   // Toggle no tax for an item
@@ -1351,6 +1503,12 @@ const Dashboard = () => {
             setShowDiscountDialog={setShowDiscountDialog}
             selectedDiscountId={selectedDiscountId}
             setSelectedDiscountId={setSelectedDiscountId}
+            showPaymentDialog={showPaymentDialog}
+            setShowPaymentDialog={setShowPaymentDialog}
+            selectedPaymentMethod={selectedPaymentMethod}
+            setSelectedPaymentMethod={setSelectedPaymentMethod}
+            paymentAmount={paymentAmount}
+            setPaymentAmount={setPaymentAmount}
           />
         </div>
       </div>
@@ -1386,11 +1544,17 @@ const Dashboard = () => {
               onOrderTypeChange={handleOrderTypeChange}
               onDeleteItem={handleDeleteItem}
               onFireItem={handleFireItem}
-              showDiscountDialog={showDiscountDialog}
-              setShowDiscountDialog={setShowDiscountDialog}
-              selectedDiscountId={selectedDiscountId}
-              setSelectedDiscountId={setSelectedDiscountId}
-            />
+            showDiscountDialog={showDiscountDialog}
+            setShowDiscountDialog={setShowDiscountDialog}
+            selectedDiscountId={selectedDiscountId}
+            setSelectedDiscountId={setSelectedDiscountId}
+            showPaymentDialog={showPaymentDialog}
+            setShowPaymentDialog={setShowPaymentDialog}
+            selectedPaymentMethod={selectedPaymentMethod}
+            setSelectedPaymentMethod={setSelectedPaymentMethod}
+            paymentAmount={paymentAmount}
+            setPaymentAmount={setPaymentAmount}
+          />
           </div>
         </DrawerContent>
       </Drawer>

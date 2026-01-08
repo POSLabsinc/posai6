@@ -468,7 +468,7 @@ const paymentMethods = [
 ];
 
 // Quick amount values
-const quickAmounts = [1, 2, 5, 10, 10, 20, 50, 100];
+const quickAmounts = [1, 2, 5, 10, 20, 50, 100];
 
 // Order Panel Content Component
 interface OrderPanelContentProps {
@@ -946,24 +946,26 @@ const OrderPanelContent = ({
                 ) : (
                   /* Quick Amount Buttons with quantity tracking */
                   <>
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => {
-                          setAmountQuantities({});
-                          setPaymentAmount(finalTotal.toFixed(2));
-                        }}
-                        className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors relative ${
-                          paymentAmount === finalTotal.toFixed(2) && Object.keys(amountQuantities).length === 0
-                            ? 'bg-neutral-900 text-white border border-neutral-600'
-                            : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                        }`}
-                      >
-                        ${finalTotal.toFixed(2)}
-                      </button>
-                      {quickAmounts.slice(0, 4).map((amount) => {
+                    <div className="flex gap-4 px-2">
+                      <div className="flex-1 relative py-1">
+                        <button
+                          onClick={() => {
+                            setAmountQuantities({});
+                            setPaymentAmount(finalTotal.toFixed(2));
+                          }}
+                          className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                            paymentAmount === finalTotal.toFixed(2) && Object.keys(amountQuantities).length === 0
+                              ? 'bg-neutral-900 text-white border border-neutral-600'
+                              : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                          }`}
+                        >
+                          ${finalTotal.toFixed(2)}
+                        </button>
+                      </div>
+                      {quickAmounts.slice(0, 3).map((amount) => {
                         const qty = amountQuantities[amount] || 0;
                         return (
-                          <div key={amount} className="flex-1 relative">
+                          <div key={amount} className="flex-1 relative py-1">
                             <button
                               onClick={() => handleAddAmount(amount)}
                               className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
@@ -981,26 +983,24 @@ const OrderPanelContent = ({
                                     e.stopPropagation();
                                     handleRemoveAmount(amount);
                                   }}
-                                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                                  className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
                                 >
                                   ×
                                 </button>
-                                {qty > 1 && (
-                                  <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium">
-                                    x{qty}
-                                  </span>
-                                )}
+                                <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
+                                  x{qty}
+                                </span>
                               </>
                             )}
                           </div>
                         );
                       })}
                     </div>
-                    <div className="flex gap-2">
-                      {quickAmounts.slice(4).map((amount) => {
+                    <div className="flex gap-4 px-2">
+                      {quickAmounts.slice(3).map((amount) => {
                         const qty = amountQuantities[amount] || 0;
                         return (
-                          <div key={amount} className="flex-1 relative">
+                          <div key={amount} className="flex-1 relative py-1">
                             <button
                               onClick={() => handleAddAmount(amount)}
                               className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
@@ -1018,15 +1018,13 @@ const OrderPanelContent = ({
                                     e.stopPropagation();
                                     handleRemoveAmount(amount);
                                   }}
-                                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                                  className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
                                 >
                                   ×
                                 </button>
-                                {qty > 1 && (
-                                  <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium">
-                                    x{qty}
-                                  </span>
-                                )}
+                                <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
+                                  x{qty}
+                                </span>
                               </>
                             )}
                           </div>

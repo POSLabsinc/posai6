@@ -92,6 +92,14 @@ interface OrderItemType {
   isFired: boolean;
 }
 
+// Helper function to calculate order total from items (subtotal + 2% tax + 10% service)
+const calculateOrderTotal = (items: OrderItemType[]): number => {
+  const subtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+  const tax = subtotal * 0.02;
+  const serviceCharge = subtotal * 0.1;
+  return subtotal + tax + serviceCharge;
+};
+
 // Mock orders with filter categories
 const mockOrders = [
   {
@@ -1026,7 +1034,7 @@ const Dashboard = () => {
                           <span className="text-gray-500">|</span>
                           <span>{order.timer}</span>
                         </div>
-                        <span className="text-white font-semibold text-sm">${order.total.toFixed(2)}</span>
+                        <span className="text-white font-semibold text-sm">${calculateOrderTotal(order.items).toFixed(2)}</span>
                       </div>
                       
                       {/* Row 3: Revenue center, Payment status */}
@@ -1078,7 +1086,7 @@ const Dashboard = () => {
                             <span>{order.timer}</span>
                           </div>
                           <div className="flex-1"></div>
-                          <span className="text-white font-semibold flex-shrink-0">${order.total.toFixed(2)}</span>
+                          <span className="text-white font-semibold flex-shrink-0">${calculateOrderTotal(order.items).toFixed(2)}</span>
                         </div>
                         
                         {/* Row 3: Revenue Center | Payment Status | Amount */}

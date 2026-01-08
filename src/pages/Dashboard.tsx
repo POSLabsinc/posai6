@@ -274,23 +274,40 @@ const orderItems = [
   { qty: 1, name: "Garlic Bread", price: 5.00, seats: [1, 2, 3, 4] },
 ];
 
-// Mock table data
+// Table status configurations (matching /tableorder screen)
+const tableStatusConfig: Record<string, { textColor: string; bgColor: string }> = {
+  "Available": { textColor: "#FFFFFF", bgColor: "#404040" },
+  "Ordering": { textColor: "#000000", bgColor: "#FACC15" },
+  "Ordered": { textColor: "#000000", bgColor: "#F97316" },
+  "Reserved": { textColor: "#FFFFFF", bgColor: "#6B7280" },
+  "Seated": { textColor: "#FFFFFF", bgColor: "#9CA3AF" },
+  "Running Late": { textColor: "#FFFFFF", bgColor: "#EF4444" },
+  "1st Course": { textColor: "#FFFFFF", bgColor: "#A855F7" },
+  "2nd Course": { textColor: "#000000", bgColor: "#FACC15" },
+  "3rd Course": { textColor: "#000000", bgColor: "#F97316" },
+  "Dessert": { textColor: "#FFFFFF", bgColor: "#EC4899" },
+  "Partially Seated": { textColor: "#000000", bgColor: "#4ADE80" },
+  "Served": { textColor: "#FFFFFF", bgColor: "#3B82F6" },
+  "Paid": { textColor: "#000000", bgColor: "#34D399" },
+};
+
+// Mock table data (matching /tableorder screen)
 const mockTables = [
-  { id: "T1", seats: 6, status: "Ordering", statusColor: "#4ADE80" },
-  { id: "T2", seats: 4, status: "Payment", statusColor: "#F59E0B" },
-  { id: "T3", seats: 6, status: "Ordered", statusColor: "#F97316" },
-  { id: "T4", seats: 10, status: "Available", statusColor: "#6B7280" },
-  { id: "T5", seats: 10, status: "Available", statusColor: "#6B7280" },
-  { id: "T6", seats: 8, status: "Available", statusColor: "#6B7280" },
-  { id: "T7", seats: 6, status: "Ordering", statusColor: "#4ADE80" },
-  { id: "T8", seats: 4, status: "Available", statusColor: "#6B7280" },
-  { id: "T9", seats: 2, status: "Ordered", statusColor: "#F97316" },
-  { id: "T10", seats: 6, status: "Payment", statusColor: "#F59E0B" },
-  { id: "T11", seats: 4, status: "Available", statusColor: "#6B7280" },
-  { id: "T12", seats: 8, status: "Ordering", statusColor: "#4ADE80" },
-  { id: "T13", seats: 6, status: "Available", statusColor: "#6B7280" },
-  { id: "T14", seats: 4, status: "Ordered", statusColor: "#F97316" },
-  { id: "T15", seats: 2, status: "Available", statusColor: "#6B7280" },
+  { id: "T1", seats: 6, status: "Available" },
+  { id: "T2", seats: 4, status: "Ordering" },
+  { id: "T3", seats: 6, status: "Ordered" },
+  { id: "T4", seats: 10, status: "Reserved" },
+  { id: "T5", seats: 10, status: "Seated" },
+  { id: "T6", seats: 8, status: "Running Late" },
+  { id: "T7", seats: 6, status: "1st Course" },
+  { id: "T8", seats: 4, status: "2nd Course" },
+  { id: "T9", seats: 2, status: "3rd Course" },
+  { id: "T10", seats: 6, status: "Dessert" },
+  { id: "T11", seats: 4, status: "Partially Seated" },
+  { id: "T12", seats: 8, status: "Served" },
+  { id: "T13", seats: 6, status: "Available" },
+  { id: "T14", seats: 4, status: "Paid" },
+  { id: "T15", seats: 2, status: "Ordering" },
 ];
 
 // Import additional icons for order panel
@@ -526,8 +543,8 @@ const OrderPanelContent = ({
 };
 
 
-// Table filter labels
-const tableFilterLabels = ["All", "Available", "Ordering", "Ordered", "Payment"];
+// Table filter labels (matching /tableorder screen)
+const tableFilterLabels = ["All", "Available", "Ordering", "Ordered", "Reserved", "Seated", "Served", "Paid"];
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -971,34 +988,37 @@ const Dashboard = () => {
             </div>
 
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
-              {filteredTables.map((table, index) => (
-                <div
-                  key={index}
-                  onClick={() => {
-                    if (table.status === "Available") {
-                      navigate(`/tableorder/${table.id}`);
-                    } else {
-                      navigate(`/tableorder/${table.id}/details`);
-                    }
-                  }}
-                  className="flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
-                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span className="text-base font-bold">{table.id}</span>
-                    <span className="text-[10px] text-white/50">{table.seats}S</span>
-                  </div>
+              {filteredTables.map((table, index) => {
+                const statusStyle = tableStatusConfig[table.status] || tableStatusConfig["Available"];
+                return (
                   <div
-                    className="text-[10px] font-medium py-1 rounded-md text-center w-full"
-                    style={{ 
-                      backgroundColor: table.statusColor,
-                      color: table.status === "Available" ? "#fff" : "#000"
+                    key={index}
+                    onClick={() => {
+                      if (table.status === "Available") {
+                        navigate(`/tableorder/${table.id}`);
+                      } else {
+                        navigate(`/tableorder/${table.id}/details`);
+                      }
                     }}
+                    className="flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5 cursor-pointer hover:opacity-80 transition-opacity"
+                    style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
                   >
-                    {table.status}
+                    <div className="flex items-center justify-between">
+                      <span className="text-base font-bold">{table.id}</span>
+                      <span className="text-[10px] text-white/50">{table.seats}S</span>
+                    </div>
+                    <div
+                      className="text-[10px] font-medium py-1 rounded-md text-center w-full"
+                      style={{ 
+                        backgroundColor: statusStyle.bgColor,
+                        color: statusStyle.textColor
+                      }}
+                    >
+                      {table.status}
+                    </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
           </div>
         </div>

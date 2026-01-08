@@ -897,61 +897,41 @@ const OrderPanelContent = ({
               </div>
 
               {/* Quick Amount Buttons OR Keypad */}
-              <div className="p-6 space-y-3 flex-1">
+              <div className="p-4 space-y-2 flex-1">
                 {showKeypad ? (
-                  /* Numeric Keypad */
-                  <div className="flex flex-col gap-3">
-                    <div className="flex gap-3">
-                      {['7', '8', '9'].map((key) => (
-                        <button
-                          key={key}
-                          onClick={() => handleKeypadPress(key)}
-                          className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                        >
-                          {key}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex gap-3">
-                      {['4', '5', '6'].map((key) => (
-                        <button
-                          key={key}
-                          onClick={() => handleKeypadPress(key)}
-                          className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                        >
-                          {key}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex gap-3">
-                      {['1', '2', '3'].map((key) => (
-                        <button
-                          key={key}
-                          onClick={() => handleKeypadPress(key)}
-                          className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                        >
-                          {key}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex gap-3">
+                  /* Numeric Keypad - Compact */
+                  <div className="flex flex-col gap-2">
+                    {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
+                      <div key={rowIndex} className="flex gap-2">
+                        {row.map((key) => (
+                          <button
+                            key={key}
+                            onClick={() => handleKeypadPress(key)}
+                            className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                          >
+                            {key}
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                    <div className="flex gap-2">
                       <button
                         onClick={() => handleKeypadPress('.')}
-                        className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
                       >
                         .
                       </button>
                       <button
                         onClick={() => handleKeypadPress('0')}
-                        className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
                       >
                         0
                       </button>
                       <button
                         onClick={() => handleKeypadPress('backspace')}
-                        className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
+                        className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
                       >
-                        <Delete className="w-5 h-5" />
+                        <Delete className="w-4 h-4" />
                       </button>
                     </div>
                   </div>

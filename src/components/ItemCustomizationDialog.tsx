@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronDown, Delete, Fingerprint, ScanFace, Share2, X, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -1067,7 +1068,11 @@ export const ItemCustomizationDialog = ({
           CANCEL
         </Button>
         <button 
-          onClick={() => setShowDiscountDialog(true)}
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            setShowDiscountDialog(true);
+          }}
           className={`w-10 h-10 rounded-full overflow-hidden flex-shrink-0 transition-all ${
             selectedDiscountId ? 'ring-2 ring-orange-500 ring-offset-1 ring-offset-neutral-900' : ''
           }`}
@@ -1110,79 +1115,80 @@ export const ItemCustomizationDialog = ({
         </DialogContent>
       </Dialog>
 
-      {/* Discount Dialog */}
-      {showDiscountDialog && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-              <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
-              <button 
-                onClick={() => setShowDiscountDialog(false)}
-                className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-              >
-                <X className="w-5 h-5 text-neutral-400" />
-              </button>
-            </div>
-
-            {/* Discount Options */}
-            <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-none space-y-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-              {discountTypes.map((discountType) => {
-                const discountValue = discountType.fixedAmount || (getDisplayPrice().priceBeforeDiscount * ((discountType.percentage || 0) / 100));
-                const isSelected = selectedDiscountId === discountType.id;
-                
-                const IconComponent = {
-                  briefcase: Briefcase,
-                  heart: Heart,
-                  graduation: GraduationCap,
-                  shield: Shield,
-                  star: Star,
-                  clock: Clock,
-                  cake: Cake,
-                  mappin: MapPin,
-                  dollar: BadgeDollarSign,
-                  tag: Tag
-                }[discountType.icon];
-                
-                return (
-                  <button
-                    key={discountType.id}
-                    onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                      isSelected 
-                        ? 'bg-orange-500/20 border border-orange-500' 
-                        : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
-                    }`}
-                  >
-                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
-                    }`}>
-                      {IconComponent && <IconComponent className="w-4 h-4 text-neutral-400" />}
-                    </div>
-                    <div className="flex-1 text-left">
-                      <div className="text-white text-sm font-medium">{discountType.name}</div>
-                      <div className="text-neutral-400 text-xs">{discountType.description}</div>
-                    </div>
-                    <div className="text-red-400 text-sm font-medium">
-                      -${discountValue.toFixed(2)}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Apply Button */}
-            <div className="p-3 border-t border-neutral-700">
-              <button
-                onClick={() => setShowDiscountDialog(false)}
-                className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
-              >
-                Apply
-              </button>
-            </div>
+      {/* Discount Dialog - Using AlertDialog for proper portal layering */}
+      <AlertDialog open={showDiscountDialog} onOpenChange={setShowDiscountDialog}>
+        <AlertDialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[90vw] overflow-hidden rounded-xl">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+            <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
+            <button 
+              type="button"
+              onClick={() => setShowDiscountDialog(false)}
+              className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5 text-neutral-400" />
+            </button>
           </div>
-        </div>
-      )}
+
+          {/* Discount Options */}
+          <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-hide space-y-1">
+            {discountTypes.map((discountType) => {
+              const discountValue = discountType.fixedAmount || (getDisplayPrice().priceBeforeDiscount * ((discountType.percentage || 0) / 100));
+              const isSelected = selectedDiscountId === discountType.id;
+              
+              const IconComponent = {
+                briefcase: Briefcase,
+                heart: Heart,
+                graduation: GraduationCap,
+                shield: Shield,
+                star: Star,
+                clock: Clock,
+                cake: Cake,
+                mappin: MapPin,
+                dollar: BadgeDollarSign,
+                tag: Tag
+              }[discountType.icon];
+              
+              return (
+                <button
+                  type="button"
+                  key={discountType.id}
+                  onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                    isSelected 
+                      ? 'bg-orange-500/20 border border-orange-500' 
+                      : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
+                  }`}>
+                    {IconComponent && <IconComponent className="w-4 h-4 text-neutral-400" />}
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="text-white text-sm font-medium">{discountType.name}</div>
+                    <div className="text-neutral-400 text-xs">{discountType.description}</div>
+                  </div>
+                  <div className="text-red-400 text-sm font-medium">
+                    -${discountValue.toFixed(2)}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Apply Button */}
+          <div className="p-3 border-t border-neutral-700">
+            <button
+              type="button"
+              onClick={() => setShowDiscountDialog(false)}
+              className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
+            >
+              Apply
+            </button>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

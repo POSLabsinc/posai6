@@ -18,6 +18,7 @@ interface SwipeableCartItemProps {
   onOrderTypeChange?: (type: string) => void;
   itemOrderType?: string;
   isNoTax?: boolean;
+  isFired?: boolean;
   isOpen?: boolean;
   onSwipeStart?: () => void;
 }
@@ -42,6 +43,7 @@ const SwipeableCartItem = ({
   onOrderTypeChange,
   itemOrderType = "Dine In",
   isNoTax = false,
+  isFired = false,
   isOpen,
   onSwipeStart
 }: SwipeableCartItemProps) => {
@@ -187,13 +189,19 @@ const SwipeableCartItem = ({
           <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
         </button>
         
-        {/* Fire button - Orange gradient */}
+        {/* Fire button - Orange gradient, changes when fired */}
         <button
           onClick={() => onFire?.()}
-          className="w-9 h-6 flex items-center justify-center rounded-full transition-colors"
-          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+          className={`w-9 h-6 flex items-center justify-center rounded-full transition-colors ${
+            isFired ? 'ring-2 ring-orange-400' : ''
+          }`}
+          style={{ 
+            background: isFired 
+              ? 'linear-gradient(180deg, #FF5E00 0%, #CC4A00 100%)' 
+              : 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' 
+          }}
         >
-          <img src={fireVectorIcon} alt="Fire" className="w-3 h-3" />
+          <img src={fireVectorIcon} alt="Fire" className={`w-3 h-3 ${isFired ? 'animate-pulse' : ''}`} />
         </button>
       </div>
 

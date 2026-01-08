@@ -266,12 +266,12 @@ const mockOrders = [
 
 // Mock order items for right panel
 const initialOrderItems = [
-  { id: 1, qty: 1, name: "Classic Crispy Burger", price: 12.00, seats: [1], noTax: false, itemOrderType: "Dine In" },
-  { id: 2, qty: 1, name: "Meatballs", price: 16.00, seats: [2], noTax: false, itemOrderType: "Dine In" },
-  { id: 3, qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [1, 2], noTax: false, itemOrderType: "Dine In" },
-  { id: 4, qty: 1, name: "Caesar Salad", price: 9.50, seats: [3], noTax: false, itemOrderType: "Dine In" },
-  { id: 5, qty: 1, name: "Grilled Salmon", price: 22.00, seats: [4], noTax: false, itemOrderType: "Dine In" },
-  { id: 6, qty: 1, name: "Garlic Bread", price: 5.00, seats: [1, 2, 3, 4], noTax: false, itemOrderType: "Dine In" },
+  { id: 1, qty: 1, name: "Classic Crispy Burger", price: 12.00, seats: [1], noTax: false, itemOrderType: "Dine In", isFired: false },
+  { id: 2, qty: 1, name: "Meatballs", price: 16.00, seats: [2], noTax: false, itemOrderType: "Dine In", isFired: false },
+  { id: 3, qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [1, 2], noTax: false, itemOrderType: "Dine In", isFired: false },
+  { id: 4, qty: 1, name: "Caesar Salad", price: 9.50, seats: [3], noTax: false, itemOrderType: "Dine In", isFired: false },
+  { id: 5, qty: 1, name: "Grilled Salmon", price: 22.00, seats: [4], noTax: false, itemOrderType: "Dine In", isFired: false },
+  { id: 6, qty: 1, name: "Garlic Bread", price: 5.00, seats: [1, 2, 3, 4], noTax: false, itemOrderType: "Dine In", isFired: false },
 ];
 
 // Table status configurations (matching /tableorder screen)
@@ -331,6 +331,8 @@ interface OrderPanelContentProps {
   setActiveSwipedItemId: (id: string | null) => void;
   onToggleNoTax: (itemId: number) => void;
   onOrderTypeChange: (itemId: number, orderType: string) => void;
+  onDeleteItem: (itemId: number) => void;
+  onFireItem: (itemId: number) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -349,7 +351,9 @@ const OrderPanelContent = ({
   activeSwipedItemId,
   setActiveSwipedItemId,
   onToggleNoTax,
-  onOrderTypeChange
+  onOrderTypeChange,
+  onDeleteItem,
+  onFireItem
 }: OrderPanelContentProps) => {
   const tax = subtotal * 0.02;
   const serviceCharge = subtotal * 0.1;
@@ -471,10 +475,11 @@ const OrderPanelContent = ({
               return (
                 <SwipeableCartItem
                   key={item.id}
-                  onDelete={() => console.log('Delete item', item.id)}
-                  onFire={() => console.log('Fire item', item.id)}
+                  onDelete={() => onDeleteItem(item.id)}
+                  onFire={() => onFireItem(item.id)}
                   onNoTax={() => onToggleNoTax(item.id)}
                   isNoTax={item.noTax}
+                  isFired={item.isFired}
                   itemOrderType={item.itemOrderType}
                   onOrderTypeChange={(type) => onOrderTypeChange(item.id, type)}
                   isOpen={activeSwipedItemId === itemId}
@@ -582,6 +587,18 @@ const Dashboard = () => {
   const handleOrderTypeChange = (itemId: number, orderType: string) => {
     setOrderItems(prev => prev.map(item => 
       item.id === itemId ? { ...item, itemOrderType: orderType } : item
+    ));
+  };
+
+  // Delete an item from the order
+  const handleDeleteItem = (itemId: number) => {
+    setOrderItems(prev => prev.filter(item => item.id !== itemId));
+  };
+
+  // Toggle fire status for an item
+  const handleFireItem = (itemId: number) => {
+    setOrderItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, isFired: !item.isFired } : item
     ));
   };
 
@@ -1066,6 +1083,8 @@ const Dashboard = () => {
             setActiveSwipedItemId={setActiveSwipedItemId}
             onToggleNoTax={handleToggleNoTax}
             onOrderTypeChange={handleOrderTypeChange}
+            onDeleteItem={handleDeleteItem}
+            onFireItem={handleFireItem}
           />
         </div>
       </div>
@@ -1099,6 +1118,8 @@ const Dashboard = () => {
               setActiveSwipedItemId={setActiveSwipedItemId}
               onToggleNoTax={handleToggleNoTax}
               onOrderTypeChange={handleOrderTypeChange}
+              onDeleteItem={handleDeleteItem}
+              onFireItem={handleFireItem}
             />
           </div>
         </DrawerContent>

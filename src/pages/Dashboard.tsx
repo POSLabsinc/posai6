@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, Mail, CheckCircle } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
@@ -467,6 +467,19 @@ const paymentMethods = [
   { id: 'other', name: 'Other', icon: ArrowRightCircle },
 ];
 
+// Other payment methods (shown when "Other" is clicked)
+const otherPaymentMethods = [
+  { id: 'loyalty', name: 'Loyalty', icon: Tag },
+  { id: 'account2', name: 'Account', icon: User },
+  { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
+  { id: 'external-cc', name: 'External CC', icon: ExternalLink },
+  { id: 'manual-card', name: 'Manual card', icon: Clipboard },
+  { id: 'blizzful', name: 'Blizzful', icon: Utensils },
+  { id: 'ubereats', name: 'UberEats', icon: ShoppingBag },
+  { id: 'doordash', name: 'DoorDash', icon: Truck },
+  { id: 'grubhub', name: 'Grubhub', icon: UtensilsCrossed },
+];
+
 // Quick amount values
 const quickAmounts = [1, 2, 5, 10, 20, 50, 100];
 
@@ -511,6 +524,8 @@ interface OrderPanelContentProps {
   setPaymentProcessed: (processed: boolean) => void;
   paidAmount: number;
   setPaidAmount: (amount: number) => void;
+  showOtherPayments: boolean;
+  setShowOtherPayments: (show: boolean) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -552,7 +567,9 @@ const OrderPanelContent = ({
   paymentProcessed,
   setPaymentProcessed,
   paidAmount,
-  setPaidAmount
+  setPaidAmount,
+  showOtherPayments,
+  setShowOtherPayments
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount 
@@ -772,6 +789,7 @@ const OrderPanelContent = ({
               setAmountQuantities({});
               setPaymentProcessed(false);
               setShowKeypad(false);
+              setShowOtherPayments(false);
               setPaymentAmount(finalTotal.toFixed(2));
               setShowPaymentDialog(true);
             }}
@@ -941,7 +959,13 @@ const OrderPanelContent = ({
                         return (
                           <button
                             key={method.id}
-                            onClick={() => setSelectedPaymentMethod(method.id)}
+                            onClick={() => {
+                              if (method.id === 'other') {
+                                setShowOtherPayments(true);
+                              } else {
+                                setSelectedPaymentMethod(method.id);
+                              }
+                            }}
                             className="flex flex-col items-center gap-1.5"
                           >
                             <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${
@@ -959,6 +983,68 @@ const OrderPanelContent = ({
                       })}
                     </div>
                   </div>
+
+                  {/* Other Payment Methods Panel */}
+                  {showOtherPayments && (
+                    <div className="px-6 pb-4">
+                      <div className="bg-neutral-800 rounded-lg border border-neutral-600 p-4">
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-white font-medium">Other Payment Methods</span>
+                          <button 
+                            onClick={() => setShowOtherPayments(false)}
+                            className="w-6 h-6 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                          >
+                            <X className="w-4 h-4 text-neutral-400" />
+                          </button>
+                        </div>
+                        
+                        {/* Payment Options Grid - First Row (6 items) */}
+                        <div className="grid grid-cols-6 gap-3 mb-3">
+                          {otherPaymentMethods.slice(0, 6).map((method) => {
+                            const IconComponent = method.icon;
+                            return (
+                              <button 
+                                key={method.id}
+                                onClick={() => {
+                                  setSelectedPaymentMethod(method.id);
+                                  setShowOtherPayments(false);
+                                }}
+                                className="flex flex-col items-center gap-1"
+                              >
+                                <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
+                                  <IconComponent className="w-5 h-5 text-neutral-300" />
+                                </div>
+                                <span className="text-[10px] text-neutral-400 text-center leading-tight">{method.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        
+                        {/* Second Row (remaining items) */}
+                        <div className="flex justify-start gap-3">
+                          {otherPaymentMethods.slice(6).map((method) => {
+                            const IconComponent = method.icon;
+                            return (
+                              <button 
+                                key={method.id}
+                                onClick={() => {
+                                  setSelectedPaymentMethod(method.id);
+                                  setShowOtherPayments(false);
+                                }}
+                                className="flex flex-col items-center gap-1"
+                              >
+                                <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
+                                  <IconComponent className="w-5 h-5 text-neutral-300" />
+                                </div>
+                                <span className="text-[10px] text-neutral-400 text-center leading-tight">{method.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  )}
 
                   {/* Amount Display */}
                   <div className="px-6 py-4 border-b border-neutral-700">
@@ -1273,6 +1359,7 @@ const Dashboard = () => {
   const [amountQuantities, setAmountQuantities] = useState<Record<number, number>>({});
   const [paymentProcessed, setPaymentProcessed] = useState(false);
   const [paidAmount, setPaidAmount] = useState(0);
+  const [showOtherPayments, setShowOtherPayments] = useState(false);
 
   // Calculate payment amount from quantities
   useEffect(() => {
@@ -1864,6 +1951,8 @@ const Dashboard = () => {
             setPaymentProcessed={setPaymentProcessed}
             paidAmount={paidAmount}
             setPaidAmount={setPaidAmount}
+            showOtherPayments={showOtherPayments}
+            setShowOtherPayments={setShowOtherPayments}
           />
         </div>
       </div>
@@ -1920,6 +2009,8 @@ const Dashboard = () => {
             setPaymentProcessed={setPaymentProcessed}
             paidAmount={paidAmount}
             setPaidAmount={setPaidAmount}
+            showOtherPayments={showOtherPayments}
+            setShowOtherPayments={setShowOtherPayments}
           />
           </div>
         </DrawerContent>

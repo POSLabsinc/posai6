@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -503,6 +503,10 @@ interface OrderPanelContentProps {
   showKeypad: boolean;
   setShowKeypad: (show: boolean) => void;
   handleKeypadPress: (key: string) => void;
+  amountQuantities: Record<number, number>;
+  setAmountQuantities: React.Dispatch<React.SetStateAction<Record<number, number>>>;
+  handleAddAmount: (amount: number) => void;
+  handleRemoveAmount: (amount: number) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -536,7 +540,11 @@ const OrderPanelContent = ({
   setPaymentAmount,
   showKeypad,
   setShowKeypad,
-  handleKeypadPress
+  handleKeypadPress,
+  amountQuantities,
+  setAmountQuantities,
+  handleAddAmount,
+  handleRemoveAmount
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount 
@@ -936,47 +944,94 @@ const OrderPanelContent = ({
                     </div>
                   </div>
                 ) : (
-                  /* Quick Amount Buttons */
+                  /* Quick Amount Buttons with quantity tracking */
                   <>
-                    <div className="flex gap-3">
+                    <div className="flex gap-2">
                       <button
-                        onClick={() => setPaymentAmount(finalTotal.toFixed(2))}
-                        className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
-                          paymentAmount === finalTotal.toFixed(2)
-                            ? 'bg-white text-neutral-900'
+                        onClick={() => {
+                          setAmountQuantities({});
+                          setPaymentAmount(finalTotal.toFixed(2));
+                        }}
+                        className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors relative ${
+                          paymentAmount === finalTotal.toFixed(2) && Object.keys(amountQuantities).length === 0
+                            ? 'bg-neutral-900 text-white border border-neutral-600'
                             : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
                         }`}
                       >
                         ${finalTotal.toFixed(2)}
                       </button>
-                      {quickAmounts.slice(0, 4).map((amount, idx) => (
-                        <button
-                          key={`${amount}-${idx}`}
-                          onClick={() => setPaymentAmount(amount.toFixed(2))}
-                          className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
-                            paymentAmount === amount.toFixed(2)
-                              ? 'bg-white text-neutral-900'
-                              : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                          }`}
-                        >
-                          ${amount}
-                        </button>
-                      ))}
+                      {quickAmounts.slice(0, 4).map((amount) => {
+                        const qty = amountQuantities[amount] || 0;
+                        return (
+                          <div key={amount} className="flex-1 relative">
+                            <button
+                              onClick={() => handleAddAmount(amount)}
+                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                qty > 0
+                                  ? 'bg-neutral-900 text-white border border-neutral-600'
+                                  : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                              }`}
+                            >
+                              ${amount}
+                            </button>
+                            {qty > 0 && (
+                              <>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveAmount(amount);
+                                  }}
+                                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                                >
+                                  ×
+                                </button>
+                                {qty > 1 && (
+                                  <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium">
+                                    x{qty}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
-                    <div className="flex gap-3">
-                      {quickAmounts.slice(4).map((amount, idx) => (
-                        <button
-                          key={`${amount}-${idx + 4}`}
-                          onClick={() => setPaymentAmount(amount.toFixed(2))}
-                          className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
-                            paymentAmount === amount.toFixed(2)
-                              ? 'bg-white text-neutral-900'
-                              : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                          }`}
-                        >
-                          ${amount}
-                        </button>
-                      ))}
+                    <div className="flex gap-2">
+                      {quickAmounts.slice(4).map((amount) => {
+                        const qty = amountQuantities[amount] || 0;
+                        return (
+                          <div key={amount} className="flex-1 relative">
+                            <button
+                              onClick={() => handleAddAmount(amount)}
+                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                qty > 0
+                                  ? 'bg-neutral-900 text-white border border-neutral-600'
+                                  : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                              }`}
+                            >
+                              ${amount}
+                            </button>
+                            {qty > 0 && (
+                              <>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveAmount(amount);
+                                  }}
+                                  className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors"
+                                >
+                                  ×
+                                </button>
+                                {qty > 1 && (
+                                  <span className="absolute -top-1.5 -left-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium">
+                                    x{qty}
+                                  </span>
+                                )}
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   </>
                 )}
@@ -1109,9 +1164,42 @@ const Dashboard = () => {
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cash');
   const [paymentAmount, setPaymentAmount] = useState('');
   const [showKeypad, setShowKeypad] = useState(false);
+  const [amountQuantities, setAmountQuantities] = useState<Record<number, number>>({});
+
+  // Calculate payment amount from quantities
+  useEffect(() => {
+    const total = Object.entries(amountQuantities).reduce((sum, [amount, qty]) => {
+      return sum + (parseFloat(amount) * qty);
+    }, 0);
+    if (total > 0) {
+      setPaymentAmount(total.toFixed(2));
+    }
+  }, [amountQuantities]);
+
+  // Handle adding an amount (increases quantity)
+  const handleAddAmount = (amount: number) => {
+    setAmountQuantities(prev => ({
+      ...prev,
+      [amount]: (prev[amount] || 0) + 1
+    }));
+  };
+
+  // Handle removing an amount (decreases quantity)
+  const handleRemoveAmount = (amount: number) => {
+    setAmountQuantities(prev => {
+      const current = prev[amount] || 0;
+      if (current <= 1) {
+        const { [amount]: _, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [amount]: current - 1 };
+    });
+  };
 
   // Keypad handler functions
   const handleKeypadPress = (key: string) => {
+    // Reset quantities when using keypad
+    setAmountQuantities({});
     if (key === 'backspace') {
       setPaymentAmount(prev => prev.slice(0, -1) || '0.00');
     } else if (key === '.') {
@@ -1660,6 +1748,10 @@ const Dashboard = () => {
             showKeypad={showKeypad}
             setShowKeypad={setShowKeypad}
             handleKeypadPress={handleKeypadPress}
+            amountQuantities={amountQuantities}
+            setAmountQuantities={setAmountQuantities}
+            handleAddAmount={handleAddAmount}
+            handleRemoveAmount={handleRemoveAmount}
           />
         </div>
       </div>
@@ -1708,6 +1800,10 @@ const Dashboard = () => {
             showKeypad={showKeypad}
             setShowKeypad={setShowKeypad}
             handleKeypadPress={handleKeypadPress}
+            amountQuantities={amountQuantities}
+            setAmountQuantities={setAmountQuantities}
+            handleAddAmount={handleAddAmount}
+            handleRemoveAmount={handleRemoveAmount}
           />
           </div>
         </DrawerContent>

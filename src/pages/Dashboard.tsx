@@ -1055,6 +1055,10 @@ const OrderPanelContent = ({
                             onClick={() => {
                               setSelectedPaymentMethod(method.id);
                               setShowOtherPayments(false);
+                              // Auto-show keypad for Card payment
+                              if (method.id === 'card') {
+                                setShowKeypad(true);
+                              }
                             }}
                             className="flex flex-col items-center gap-1.5"
                           >

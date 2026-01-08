@@ -1,12 +1,34 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronDown, Delete, Fingerprint, ScanFace, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronDown, Delete, Fingerprint, ScanFace, Share2, X, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
+import offerIcon from "@/assets/icons/offer.png";
 
+interface DiscountType {
+  id: string;
+  name: string;
+  description: string;
+  percentage?: number;
+  fixedAmount?: number;
+  icon: string;
+}
+
+const discountTypes: DiscountType[] = [
+  { id: 'employee', name: 'Employee Discount', description: '25% off for staff members', percentage: 25, icon: 'briefcase' },
+  { id: 'senior', name: 'Senior Discount', description: '15% off for seniors 65+', percentage: 15, icon: 'heart' },
+  { id: 'student', name: 'Student Discount', description: '10% off with valid student ID', percentage: 10, icon: 'graduation' },
+  { id: 'military', name: 'Military Discount', description: '20% off for active & veterans', percentage: 20, icon: 'shield' },
+  { id: 'loyalty', name: 'Loyalty Member', description: '5% off for loyalty members', percentage: 5, icon: 'star' },
+  { id: 'happy-hour', name: 'Happy Hour', description: '$2 off during happy hour', fixedAmount: 2, icon: 'clock' },
+  { id: 'birthday', name: 'Birthday Special', description: '30% off on your birthday', percentage: 30, icon: 'cake' },
+  { id: 'local', name: 'Local Resident', description: '10% off for locals', percentage: 10, icon: 'mappin' },
+  { id: 'first-time', name: 'First Time Customer', description: '$5 off first order', fixedAmount: 5, icon: 'dollar' },
+  { id: 'promo', name: 'Promotional Offer', description: '15% promotional discount', percentage: 15, icon: 'tag' },
+];
 interface ModifierOption {
   name: string;
   price?: number;
@@ -151,6 +173,9 @@ export const ItemCustomizationDialog = ({
   // Default modifiers - tracks which ones are deselected (excluded from item)
   const [deselectedDefaults, setDeselectedDefaults] = useState<string[]>([]);
 
+  // Discount state
+  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
+  const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => 
       prev.includes(seat) 
@@ -184,6 +209,8 @@ export const ItemCustomizationDialog = ({
       setOverrideNotes("");
       setSelectedSeats([]);
       setDeselectedDefaults([]);
+      setSelectedDiscountId(null);
+      setShowDiscountDialog(false);
     }
   }, [open, item?.id]);
 
@@ -341,7 +368,19 @@ export const ItemCustomizationDialog = ({
     }, 0);
     
     const basePrice = overriddenPrice !== null ? overriddenPrice : item.price;
-    const totalPrice = (basePrice + modifierTotal + addOnTotal) * quantity;
+    const priceBeforeDiscount = (basePrice + modifierTotal + addOnTotal) * quantity;
+    
+    // Apply discount
+    const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
+    let discountAmount = 0;
+    if (selectedDiscount) {
+      if (selectedDiscount.fixedAmount) {
+        discountAmount = selectedDiscount.fixedAmount;
+      } else if (selectedDiscount.percentage) {
+        discountAmount = priceBeforeDiscount * (selectedDiscount.percentage / 100);
+      }
+    }
+    const totalPrice = Math.max(0, priceBeforeDiscount - discountAmount);
     
     // Pass selectedSeats only for table orders
     // If no seats are selected, pass empty array to indicate "share on table" (all seats)
@@ -353,7 +392,45 @@ export const ItemCustomizationDialog = ({
     setItemNotes("");
     setActiveTab('item');
     setSelectedSeats([]);
+    setSelectedDiscountId(null);
     onOpenChange(false);
+  };
+
+  // Calculate display price with discount
+  const getDisplayPrice = () => {
+    const modifierTotal = selectedModifiers.reduce((total, modName) => {
+      for (const category of itemModifiers) {
+        const option = category.options.find(o => o.name === modName);
+        if (option?.price) {
+          return total + option.price;
+        }
+      }
+      return total;
+    }, 0);
+    
+    const addOnTotal = selectedAddOns.reduce((total, addOnName) => {
+      const addOn = addOnItems.find(a => a.name === addOnName);
+      return total + (addOn?.price || 0);
+    }, 0);
+    
+    const basePrice = overriddenPrice !== null ? overriddenPrice : item.price;
+    const priceBeforeDiscount = (basePrice + modifierTotal + addOnTotal) * quantity;
+    
+    const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
+    let discountAmount = 0;
+    if (selectedDiscount) {
+      if (selectedDiscount.fixedAmount) {
+        discountAmount = selectedDiscount.fixedAmount;
+      } else if (selectedDiscount.percentage) {
+        discountAmount = priceBeforeDiscount * (selectedDiscount.percentage / 100);
+      }
+    }
+    
+    return {
+      priceBeforeDiscount,
+      discountAmount,
+      finalPrice: Math.max(0, priceBeforeDiscount - discountAmount)
+    };
   };
 
   const activeCategory = itemModifiers.find(cat => cat.name === activeModifierCategory);
@@ -975,32 +1052,133 @@ export const ItemCustomizationDialog = ({
         </ScrollArea>
       )}
 
-      {/* Add to Cart Button */}
-      <div className="p-4 pt-2 border-t border-neutral-700 mt-auto">
-        <Button
-          onClick={handleAddToCart}
-          className="w-full py-3 rounded-xl text-white font-bold text-base"
-          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+      {/* Action Buttons */}
+      <div className="px-4 py-3 border-t border-neutral-700 mt-auto flex items-center gap-2">
+        <Button 
+          variant="outline" 
+          onClick={() => onOpenChange(false)} 
+          className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-transparent border border-neutral-500 hover:bg-neutral-800 h-10"
         >
-          Add to Order
+          CANCEL
+        </Button>
+        <button 
+          onClick={() => setShowDiscountDialog(true)}
+          className={`w-10 h-10 rounded-full overflow-hidden flex-shrink-0 transition-all ${
+            selectedDiscountId ? 'ring-2 ring-orange-500 ring-offset-1 ring-offset-neutral-900' : ''
+          }`}
+        >
+          <img src={offerIcon} alt="Offer" className="w-full h-full object-cover" />
+        </button>
+        <Button 
+          onClick={handleAddToCart} 
+          className="flex-[2] py-2 rounded-full font-bold text-sm h-10" 
+          style={{
+            background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
+            color: 'black'
+          }}
+        >
+          {selectedDiscountId ? (
+            <>
+              ADD <span className="line-through text-neutral-500 mx-1">${getDisplayPrice().priceBeforeDiscount.toFixed(2)}</span>
+              <span className="text-green-600">${getDisplayPrice().finalPrice.toFixed(2)}</span>
+            </>
+          ) : (
+            `ADD $${getDisplayPrice().finalPrice.toFixed(2)}`
+          )}
         </Button>
       </div>
     </>
   );
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent 
-        className={`bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full overflow-hidden rounded-2xl flex flex-col ${
-          currentView === 'mpin' ? 'h-auto' : 'max-h-[90vh]'
-        }`}
-      >
-        {currentView === 'customization' && renderCustomizationView()}
-        {currentView === 'mpin' && renderMPINView()}
-        {currentView === 'priceOverride' && renderPriceOverrideView()}
-        {currentView === 'productInfo' && renderProductInfoView()}
-      </DialogContent>
-    </Dialog>
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent 
+          className={`bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full overflow-hidden rounded-2xl flex flex-col ${
+            currentView === 'mpin' ? 'h-auto' : 'max-h-[90vh]'
+          }`}
+        >
+          {currentView === 'customization' && renderCustomizationView()}
+          {currentView === 'mpin' && renderMPINView()}
+          {currentView === 'priceOverride' && renderPriceOverrideView()}
+          {currentView === 'productInfo' && renderProductInfoView()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Discount Dialog */}
+      {showDiscountDialog && (
+        <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+              <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
+              <button 
+                onClick={() => setShowDiscountDialog(false)}
+                className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-neutral-400" />
+              </button>
+            </div>
+
+            {/* Discount Options */}
+            <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-none space-y-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              {discountTypes.map((discountType) => {
+                const discountValue = discountType.fixedAmount || (getDisplayPrice().priceBeforeDiscount * ((discountType.percentage || 0) / 100));
+                const isSelected = selectedDiscountId === discountType.id;
+                
+                const IconComponent = {
+                  briefcase: Briefcase,
+                  heart: Heart,
+                  graduation: GraduationCap,
+                  shield: Shield,
+                  star: Star,
+                  clock: Clock,
+                  cake: Cake,
+                  mappin: MapPin,
+                  dollar: BadgeDollarSign,
+                  tag: Tag
+                }[discountType.icon];
+                
+                return (
+                  <button
+                    key={discountType.id}
+                    onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                      isSelected 
+                        ? 'bg-orange-500/20 border border-orange-500' 
+                        : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
+                    }`}
+                  >
+                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
+                    }`}>
+                      {IconComponent && <IconComponent className="w-4 h-4 text-neutral-400" />}
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="text-white text-sm font-medium">{discountType.name}</div>
+                      <div className="text-neutral-400 text-xs">{discountType.description}</div>
+                    </div>
+                    <div className="text-red-400 text-sm font-medium">
+                      -${discountValue.toFixed(2)}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Apply Button */}
+            <div className="p-3 border-t border-neutral-700">
+              <button
+                onClick={() => setShowDiscountDialog(false)}
+                className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
+              >
+                Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 

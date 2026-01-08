@@ -560,7 +560,8 @@ const OrderPanelContent = ({
     : 0;
   const tax = subtotal * 0.02;
   const serviceCharge = subtotal * 0.1;
-  const finalTotal = subtotal - discount + tax + serviceCharge;
+  const tip = selectedOrder?.tip ? parseFloat(selectedOrder.tip.replace('$', '')) || 0 : 0;
+  const finalTotal = subtotal - discount + tax + serviceCharge + tip;
   const guestCount = selectedOrder?.seats || 4;
   const isOrderDisabled = selectedOrder && ['Completed', 'Paid', 'Closed'].includes(selectedOrder.status);
 

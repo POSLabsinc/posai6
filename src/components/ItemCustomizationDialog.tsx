@@ -839,10 +839,15 @@ export const ItemCustomizationDialog = ({
               onClick={handlePriceClick}
               className="bg-neutral-700 px-2.5 py-1 rounded-md hover:bg-neutral-600 transition-colors cursor-pointer"
             >
-              {overriddenPrice !== null ? (
-                <div className="flex items-center gap-1">
-                  <span className="text-white font-medium text-sm">${overriddenPrice.toFixed(2)}</span>
-                  <span className="text-neutral-400 text-[10px] line-through">${item?.price.toFixed(2)}</span>
+              {selectedDiscountId ? (
+                <div className="flex flex-col items-center">
+                  <span className="text-green-400 font-bold text-sm">${(getDisplayPrice().finalPrice / quantity).toFixed(2)}</span>
+                  <span className="text-neutral-400 text-[8px] line-through">${(overriddenPrice !== null ? overriddenPrice : item?.price || 0).toFixed(2)}</span>
+                </div>
+              ) : overriddenPrice !== null ? (
+                <div className="flex flex-col items-center">
+                  <span className="text-white font-bold text-sm">${overriddenPrice.toFixed(2)}</span>
+                  <span className="text-neutral-400 text-[8px] line-through">${item?.price.toFixed(2)}</span>
                 </div>
               ) : (
                 <span className="text-white font-medium text-sm">${item?.price.toFixed(2)}</span>

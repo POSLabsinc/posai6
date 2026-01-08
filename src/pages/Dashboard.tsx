@@ -506,13 +506,20 @@ const OrderPanelContent = ({
                       </div>
                       
                       {/* Seat indicators */}
-                      <div className="flex items-center gap-1 mt-1 ml-8">
-                        <img src={chairWhiteIcon} alt="Seat" className="w-3 h-3 opacity-60" />
+                      <div className="flex items-center gap-1.5 mt-1.5 ml-8">
+                        <img src={chairWhiteIcon} alt="Seat" className="w-4 h-4 opacity-70" />
                         {isAllSeats ? (
-                          <Share2 className="w-3 h-3 text-white/60" />
+                          <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                            <Share2 className="w-3 h-3" />
+                          </span>
                         ) : (
                           itemSeats.map(seat => (
-                            <span key={seat} className="text-white/60 text-xs">{seat}</span>
+                            <span 
+                              key={seat} 
+                              className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                            >
+                              {seat}
+                            </span>
                           ))
                         )}
                       </div>

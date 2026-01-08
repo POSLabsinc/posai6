@@ -951,21 +951,110 @@ const OrderPanelContent = ({
                   </div>
 
                   {/* Payment Methods */}
-                  <div className="p-6 border-b border-neutral-700 relative">
+                  <div className="p-6 border-b border-neutral-700">
                     <div className="flex justify-center gap-4">
                       {paymentMethods.map((method) => {
                         const IconComponent = method.icon;
                         const isSelected = selectedPaymentMethod === method.id;
+                        
+                        // Wrap the "Other" button with relative positioning for dropdown
+                        if (method.id === 'other') {
+                          return (
+                            <div key={method.id} className="relative">
+                              <button
+                                onClick={() => setShowOtherPayments(!showOtherPayments)}
+                                className="flex flex-col items-center gap-1.5"
+                              >
+                                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${
+                                  isSelected 
+                                    ? 'bg-white border-white' 
+                                    : 'bg-neutral-800 border-neutral-600 hover:border-neutral-500'
+                                }`}>
+                                  <IconComponent className={`w-5 h-5 ${isSelected ? 'text-neutral-900' : 'text-neutral-300'}`} />
+                                </div>
+                                <span className={`text-[11px] ${isSelected ? 'text-white font-medium' : 'text-neutral-400'}`}>
+                                  {method.name}
+                                </span>
+                              </button>
+                              
+                              {/* Other Payment Methods Dropdown */}
+                              {showOtherPayments && (
+                                <>
+                                  {/* Backdrop to close dropdown when clicking outside */}
+                                  <div 
+                                    className="fixed inset-0 z-[100]" 
+                                    onClick={() => setShowOtherPayments(false)}
+                                  />
+                                  
+                                  {/* Dropdown Panel - right edge aligned with button */}
+                                  <div className="absolute top-full right-0 mt-2 z-[101] bg-neutral-800 rounded-lg border border-neutral-600 p-4 shadow-xl min-w-[420px]">
+                                    {/* Header */}
+                                    <div className="flex items-center justify-between mb-4">
+                                      <span className="text-white font-medium">Other Payment Methods</span>
+                                      <button 
+                                        onClick={() => setShowOtherPayments(false)}
+                                        className="w-6 h-6 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                                      >
+                                        <X className="w-4 h-4 text-neutral-400" />
+                                      </button>
+                                    </div>
+                                    
+                                    {/* Payment Options Grid - First Row (6 items) */}
+                                    <div className="grid grid-cols-6 gap-3 mb-3">
+                                      {otherPaymentMethods.slice(0, 6).map((otherMethod) => {
+                                        const OtherIcon = otherMethod.icon;
+                                        return (
+                                          <button 
+                                            key={otherMethod.id}
+                                            onClick={() => {
+                                              setSelectedPaymentMethod(otherMethod.id);
+                                              setShowOtherPayments(false);
+                                            }}
+                                            className="flex flex-col items-center gap-1"
+                                          >
+                                            <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
+                                              <OtherIcon className="w-5 h-5 text-neutral-300" />
+                                            </div>
+                                            <span className="text-[10px] text-neutral-400 text-center leading-tight">{otherMethod.name}</span>
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                    
+                                    {/* Second Row (remaining items) - Centered */}
+                                    <div className="flex justify-center gap-3">
+                                      {otherPaymentMethods.slice(6).map((otherMethod) => {
+                                        const OtherIcon = otherMethod.icon;
+                                        return (
+                                          <button 
+                                            key={otherMethod.id}
+                                            onClick={() => {
+                                              setSelectedPaymentMethod(otherMethod.id);
+                                              setShowOtherPayments(false);
+                                            }}
+                                            className="flex flex-col items-center gap-1"
+                                          >
+                                            <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
+                                              <OtherIcon className="w-5 h-5 text-neutral-300" />
+                                            </div>
+                                            <span className="text-[10px] text-neutral-400 text-center leading-tight">{otherMethod.name}</span>
+                                          </button>
+                                        );
+                                      })}
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+                            </div>
+                          );
+                        }
+                        
                         return (
                           <button
                             key={method.id}
                             onClick={() => {
-                              if (method.id === 'other') {
-                                setShowOtherPayments(!showOtherPayments);
-                              } else {
-                                setSelectedPaymentMethod(method.id);
-                                setShowOtherPayments(false);
-                              }
+                              setSelectedPaymentMethod(method.id);
+                              setShowOtherPayments(false);
                             }}
                             className="flex flex-col items-center gap-1.5"
                           >
@@ -983,75 +1072,6 @@ const OrderPanelContent = ({
                         );
                       })}
                     </div>
-
-                    {/* Other Payment Methods Dropdown Overlay */}
-                    {showOtherPayments && (
-                      <>
-                        {/* Backdrop to close dropdown when clicking outside */}
-                        <div 
-                          className="fixed inset-0 z-[100]" 
-                          onClick={() => setShowOtherPayments(false)}
-                        />
-                        
-                        {/* Dropdown Panel */}
-                        <div className="absolute top-full right-0 mt-2 z-[101] bg-neutral-800 rounded-lg border border-neutral-600 p-4 shadow-xl min-w-[420px]">
-                          {/* Header */}
-                          <div className="flex items-center justify-between mb-4">
-                            <span className="text-white font-medium">Other Payment Methods</span>
-                            <button 
-                              onClick={() => setShowOtherPayments(false)}
-                              className="w-6 h-6 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                            >
-                              <X className="w-4 h-4 text-neutral-400" />
-                            </button>
-                          </div>
-                          
-                          {/* Payment Options Grid - First Row (6 items) */}
-                          <div className="grid grid-cols-6 gap-3 mb-3">
-                            {otherPaymentMethods.slice(0, 6).map((method) => {
-                              const IconComponent = method.icon;
-                              return (
-                                <button 
-                                  key={method.id}
-                                  onClick={() => {
-                                    setSelectedPaymentMethod(method.id);
-                                    setShowOtherPayments(false);
-                                  }}
-                                  className="flex flex-col items-center gap-1"
-                                >
-                                  <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
-                                    <IconComponent className="w-5 h-5 text-neutral-300" />
-                                  </div>
-                                  <span className="text-[10px] text-neutral-400 text-center leading-tight">{method.name}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                          
-                          {/* Second Row (remaining items) - Centered */}
-                          <div className="flex justify-center gap-3">
-                            {otherPaymentMethods.slice(6).map((method) => {
-                              const IconComponent = method.icon;
-                              return (
-                                <button 
-                                  key={method.id}
-                                  onClick={() => {
-                                    setSelectedPaymentMethod(method.id);
-                                    setShowOtherPayments(false);
-                                  }}
-                                  className="flex flex-col items-center gap-1"
-                                >
-                                  <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
-                                    <IconComponent className="w-5 h-5 text-neutral-300" />
-                                  </div>
-                                  <span className="text-[10px] text-neutral-400 text-center leading-tight">{method.name}</span>
-                                </button>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </>
-                    )}
                   </div>
 
                   {/* Amount Display */}

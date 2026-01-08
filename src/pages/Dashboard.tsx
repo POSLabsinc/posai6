@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3 } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
@@ -500,6 +500,9 @@ interface OrderPanelContentProps {
   setSelectedPaymentMethod: (method: string) => void;
   paymentAmount: string;
   setPaymentAmount: (amount: string) => void;
+  showKeypad: boolean;
+  setShowKeypad: (show: boolean) => void;
+  handleKeypadPress: (key: string) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -530,7 +533,10 @@ const OrderPanelContent = ({
   selectedPaymentMethod,
   setSelectedPaymentMethod,
   paymentAmount,
-  setPaymentAmount
+  setPaymentAmount,
+  showKeypad,
+  setShowKeypad,
+  handleKeypadPress
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount 
@@ -877,61 +883,130 @@ const OrderPanelContent = ({
               <div className="px-6 py-4 border-b border-neutral-700">
                 <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
                   <span className="flex-1 text-green-500 text-2xl font-bold">${paymentAmount}</span>
-                  <button className="w-10 h-10 rounded-lg bg-neutral-700 border border-neutral-600 flex items-center justify-center hover:bg-neutral-600 transition-colors">
-                    <Grid3X3 className="w-5 h-5 text-neutral-300" />
+                  <button 
+                    onClick={() => setShowKeypad(!showKeypad)}
+                    className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
+                      showKeypad 
+                        ? 'bg-white border-white' 
+                        : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600'
+                    }`}
+                  >
+                    <Grid3X3 className={`w-5 h-5 ${showKeypad ? 'text-neutral-900' : 'text-neutral-300'}`} />
                   </button>
                 </div>
               </div>
 
-              {/* Quick Amount Buttons */}
+              {/* Quick Amount Buttons OR Keypad */}
               <div className="p-6 space-y-3 flex-1">
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setPaymentAmount(finalTotal.toFixed(2))}
-                    className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
-                      paymentAmount === finalTotal.toFixed(2)
-                        ? 'bg-white text-neutral-900'
-                        : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                    }`}
-                  >
-                    ${finalTotal.toFixed(2)}
-                  </button>
-                  {quickAmounts.slice(0, 4).map((amount, idx) => (
-                    <button
-                      key={`${amount}-${idx}`}
-                      onClick={() => setPaymentAmount(amount.toFixed(2))}
-                      className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
-                        paymentAmount === amount.toFixed(2)
-                          ? 'bg-white text-neutral-900'
-                          : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                      }`}
-                    >
-                      ${amount}
-                    </button>
-                  ))}
-                </div>
-                <div className="flex gap-3">
-                  {quickAmounts.slice(4).map((amount, idx) => (
-                    <button
-                      key={`${amount}-${idx + 4}`}
-                      onClick={() => setPaymentAmount(amount.toFixed(2))}
-                      className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
-                        paymentAmount === amount.toFixed(2)
-                          ? 'bg-white text-neutral-900'
-                          : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                      }`}
-                    >
-                      ${amount}
-                    </button>
-                  ))}
-                </div>
+                {showKeypad ? (
+                  /* Numeric Keypad */
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-3">
+                      {['7', '8', '9'].map((key) => (
+                        <button
+                          key={key}
+                          onClick={() => handleKeypadPress(key)}
+                          className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        >
+                          {key}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-3">
+                      {['4', '5', '6'].map((key) => (
+                        <button
+                          key={key}
+                          onClick={() => handleKeypadPress(key)}
+                          className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        >
+                          {key}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-3">
+                      {['1', '2', '3'].map((key) => (
+                        <button
+                          key={key}
+                          onClick={() => handleKeypadPress(key)}
+                          className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        >
+                          {key}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => handleKeypadPress('.')}
+                        className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                      >
+                        .
+                      </button>
+                      <button
+                        onClick={() => handleKeypadPress('0')}
+                        className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                      >
+                        0
+                      </button>
+                      <button
+                        onClick={() => handleKeypadPress('backspace')}
+                        className="flex-1 py-4 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
+                      >
+                        <Delete className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  /* Quick Amount Buttons */
+                  <>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => setPaymentAmount(finalTotal.toFixed(2))}
+                        className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
+                          paymentAmount === finalTotal.toFixed(2)
+                            ? 'bg-white text-neutral-900'
+                            : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                        }`}
+                      >
+                        ${finalTotal.toFixed(2)}
+                      </button>
+                      {quickAmounts.slice(0, 4).map((amount, idx) => (
+                        <button
+                          key={`${amount}-${idx}`}
+                          onClick={() => setPaymentAmount(amount.toFixed(2))}
+                          className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
+                            paymentAmount === amount.toFixed(2)
+                              ? 'bg-white text-neutral-900'
+                              : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                          }`}
+                        >
+                          ${amount}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="flex gap-3">
+                      {quickAmounts.slice(4).map((amount, idx) => (
+                        <button
+                          key={`${amount}-${idx + 4}`}
+                          onClick={() => setPaymentAmount(amount.toFixed(2))}
+                          className={`flex-1 py-3 rounded-lg text-sm font-medium transition-colors ${
+                            paymentAmount === amount.toFixed(2)
+                              ? 'bg-white text-neutral-900'
+                              : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                          }`}
+                        >
+                          ${amount}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
 
               {/* Charge Button */}
               <div className="p-6 pt-0">
                 <button
                   onClick={() => setShowPaymentDialog(false)}
-                  className="w-full py-4 bg-white hover:bg-neutral-100 text-neutral-900 font-bold rounded-xl transition-colors text-sm"
+                  className="w-full py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
                 >
                   CHARGE ${paymentAmount}
                 </button>
@@ -1053,6 +1128,23 @@ const Dashboard = () => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cash');
   const [paymentAmount, setPaymentAmount] = useState('');
+  const [showKeypad, setShowKeypad] = useState(false);
+
+  // Keypad handler functions
+  const handleKeypadPress = (key: string) => {
+    if (key === 'backspace') {
+      setPaymentAmount(prev => prev.slice(0, -1) || '0.00');
+    } else if (key === '.') {
+      if (!paymentAmount.includes('.')) {
+        setPaymentAmount(prev => prev + '.');
+      }
+    } else {
+      setPaymentAmount(prev => {
+        if (prev === '0.00' || prev === '') return key;
+        return prev + key;
+      });
+    }
+  };
   const isMobile = useIsMobile();
 
   // Toggle no tax for an item
@@ -1585,6 +1677,9 @@ const Dashboard = () => {
             setSelectedPaymentMethod={setSelectedPaymentMethod}
             paymentAmount={paymentAmount}
             setPaymentAmount={setPaymentAmount}
+            showKeypad={showKeypad}
+            setShowKeypad={setShowKeypad}
+            handleKeypadPress={handleKeypadPress}
           />
         </div>
       </div>
@@ -1630,6 +1725,9 @@ const Dashboard = () => {
             setSelectedPaymentMethod={setSelectedPaymentMethod}
             paymentAmount={paymentAmount}
             setPaymentAmount={setPaymentAmount}
+            showKeypad={showKeypad}
+            setShowKeypad={setShowKeypad}
+            handleKeypadPress={handleKeypadPress}
           />
           </div>
         </DrawerContent>

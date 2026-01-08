@@ -835,9 +835,9 @@ const OrderPanelContent = ({
       {/* Payment Dialog */}
       {showPaymentDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="flex gap-4 mx-4 animate-scale-in">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in">
             {/* Payment Options Panel */}
-            <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[400px] overflow-hidden">
+            <div className="w-[400px] flex flex-col">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-neutral-700">
                 <div className="flex-1" />
@@ -845,14 +845,7 @@ const OrderPanelContent = ({
                   <span className="text-white text-sm">Total Due</span>
                   <div className="text-red-500 text-xl font-bold">${finalTotal.toFixed(2)}</div>
                 </div>
-                <div className="flex-1 flex justify-end">
-                  <button 
-                    onClick={() => setShowPaymentDialog(false)}
-                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                  >
-                    <X className="w-5 h-5 text-neutral-400" />
-                  </button>
-                </div>
+                <div className="flex-1" />
               </div>
 
               {/* Payment Methods */}
@@ -949,7 +942,7 @@ const OrderPanelContent = ({
             </div>
 
             {/* Order Details Panel */}
-            <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[280px] overflow-hidden flex flex-col">
+            <div className="w-[280px] border-l border-neutral-700 flex flex-col">
               {/* Guest Info Header */}
               <div className="p-3 border-b border-neutral-700">
                 <div className="flex items-center justify-between">

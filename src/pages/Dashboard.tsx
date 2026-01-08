@@ -994,7 +994,7 @@ const OrderPanelContent = ({
                         />
                         
                         {/* Dropdown Panel */}
-                        <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-[101] bg-neutral-800 rounded-lg border border-neutral-600 p-4 shadow-xl min-w-[420px]">
+                        <div className="absolute top-full right-0 mt-2 z-[101] bg-neutral-800 rounded-lg border border-neutral-600 p-4 shadow-xl min-w-[420px]">
                           {/* Header */}
                           <div className="flex items-center justify-between mb-4">
                             <span className="text-white font-medium">Other Payment Methods</span>
@@ -1028,8 +1028,8 @@ const OrderPanelContent = ({
                             })}
                           </div>
                           
-                          {/* Second Row (remaining items) */}
-                          <div className="flex justify-start gap-3">
+                          {/* Second Row (remaining items) - Centered */}
+                          <div className="flex justify-center gap-3">
                             {otherPaymentMethods.slice(6).map((method) => {
                               const IconComponent = method.icon;
                               return (

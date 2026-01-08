@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, Mail, CheckCircle } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
@@ -507,6 +507,10 @@ interface OrderPanelContentProps {
   setAmountQuantities: React.Dispatch<React.SetStateAction<Record<number, number>>>;
   handleAddAmount: (amount: number) => void;
   handleRemoveAmount: (amount: number) => void;
+  paymentProcessed: boolean;
+  setPaymentProcessed: (processed: boolean) => void;
+  paidAmount: number;
+  setPaidAmount: (amount: number) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -544,7 +548,11 @@ const OrderPanelContent = ({
   amountQuantities,
   setAmountQuantities,
   handleAddAmount,
-  handleRemoveAmount
+  handleRemoveAmount,
+  paymentProcessed,
+  setPaymentProcessed,
+  paidAmount,
+  setPaidAmount
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount 
@@ -850,200 +858,257 @@ const OrderPanelContent = ({
       {showPaymentDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in">
-            {/* Payment Options Panel */}
-            {/* Payment Options Panel - Dark Mode */}
+            {/* Payment Options Panel OR Receipt View */}
             <div className="w-[480px] flex flex-col bg-neutral-900">
-              {/* Header */}
-              <div className="flex items-center justify-center py-6 border-b border-neutral-700">
-                <span className="text-white text-lg font-medium">Total Due</span>
-                <span className="text-red-500 text-lg font-bold ml-2">${finalTotal.toFixed(2)}</span>
-              </div>
+              {paymentProcessed ? (
+                /* Receipt View */
+                <>
+                  {/* Success Header */}
+                  <div className="flex flex-col items-center py-8 px-6">
+                    <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                      <CheckCircle className="w-10 h-10 text-green-500" />
+                    </div>
+                    <p className="text-neutral-300 text-sm">
+                      <span className="text-green-500 font-medium">${paidAmount.toFixed(2)}</span> has been successfully processed
+                    </p>
+                  </div>
 
-              {/* Payment Methods */}
-              <div className="p-6 border-b border-neutral-700">
-                <div className="flex justify-center gap-4">
-                  {paymentMethods.map((method) => {
-                    const IconComponent = method.icon;
-                    const isSelected = selectedPaymentMethod === method.id;
-                    return (
-                      <button
-                        key={method.id}
-                        onClick={() => setSelectedPaymentMethod(method.id)}
-                        className="flex flex-col items-center gap-1.5"
-                      >
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${
-                          isSelected 
-                            ? 'bg-white border-white' 
-                            : 'bg-neutral-800 border-neutral-600 hover:border-neutral-500'
-                        }`}>
-                          <IconComponent className={`w-5 h-5 ${isSelected ? 'text-neutral-900' : 'text-neutral-300'}`} />
-                        </div>
-                        <span className={`text-[11px] ${isSelected ? 'text-white font-medium' : 'text-neutral-400'}`}>
-                          {method.name}
-                        </span>
+                  {/* Change Due Box */}
+                  <div className="mx-6 mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
+                    <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
+                    <p className="text-green-500 text-3xl font-bold text-center">
+                      ${Math.max(0, paidAmount - finalTotal).toFixed(2)}
+                    </p>
+                  </div>
+
+                  {/* Receipt Section */}
+                  <div className="px-6 pb-6">
+                    <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
+                    <div className="flex gap-4 justify-center mb-4">
+                      <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
+                        <Printer className="w-6 h-6 text-neutral-400" />
+                        <span className="text-neutral-400 text-sm">Print</span>
                       </button>
-                    );
-                  })}
-                </div>
-              </div>
+                      <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
+                        <MessageSquare className="w-6 h-6 text-neutral-400" />
+                        <span className="text-neutral-400 text-sm">Text</span>
+                      </button>
+                      <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
+                        <Mail className="w-6 h-6 text-neutral-400" />
+                        <span className="text-neutral-400 text-sm">Email</span>
+                      </button>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setPaymentProcessed(false);
+                        setShowPaymentDialog(false);
+                      }}
+                      className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                    >
+                      NO RECEIPT
+                    </button>
+                  </div>
+                </>
+              ) : (
+                /* Payment Entry View */
+                <>
+                  {/* Header */}
+                  <div className="flex items-center justify-center py-6 border-b border-neutral-700">
+                    <span className="text-white text-lg font-medium">Total Due</span>
+                    <span className="text-red-500 text-lg font-bold ml-2">${finalTotal.toFixed(2)}</span>
+                  </div>
 
-              {/* Amount Display */}
-              <div className="px-6 py-4 border-b border-neutral-700">
-                <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
-                  <span className="flex-1 text-green-500 text-2xl font-bold">${paymentAmount}</span>
-                  <button 
-                    onClick={() => setShowKeypad(!showKeypad)}
-                    className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
-                      showKeypad 
-                        ? 'bg-white border-white' 
-                        : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600'
-                    }`}
-                  >
-                    <Grid3X3 className={`w-5 h-5 ${showKeypad ? 'text-neutral-900' : 'text-neutral-300'}`} />
-                  </button>
-                </div>
-              </div>
-
-              {/* Quick Amount Buttons OR Keypad */}
-              <div className="p-4 space-y-2 flex-1">
-                {showKeypad ? (
-                  /* Numeric Keypad - Compact */
-                  <div className="flex flex-col gap-2">
-                    {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
-                      <div key={rowIndex} className="flex gap-2">
-                        {row.map((key) => (
+                  {/* Payment Methods */}
+                  <div className="p-6 border-b border-neutral-700">
+                    <div className="flex justify-center gap-4">
+                      {paymentMethods.map((method) => {
+                        const IconComponent = method.icon;
+                        const isSelected = selectedPaymentMethod === method.id;
+                        return (
                           <button
-                            key={key}
-                            onClick={() => handleKeypadPress(key)}
-                            className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                            key={method.id}
+                            onClick={() => setSelectedPaymentMethod(method.id)}
+                            className="flex flex-col items-center gap-1.5"
                           >
-                            {key}
+                            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${
+                              isSelected 
+                                ? 'bg-white border-white' 
+                                : 'bg-neutral-800 border-neutral-600 hover:border-neutral-500'
+                            }`}>
+                              <IconComponent className={`w-5 h-5 ${isSelected ? 'text-neutral-900' : 'text-neutral-300'}`} />
+                            </div>
+                            <span className={`text-[11px] ${isSelected ? 'text-white font-medium' : 'text-neutral-400'}`}>
+                              {method.name}
+                            </span>
                           </button>
-                        ))}
-                      </div>
-                    ))}
-                    <div className="flex gap-2">
-                      <button
-                        onClick={() => handleKeypadPress('.')}
-                        className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Amount Display */}
+                  <div className="px-6 py-4 border-b border-neutral-700">
+                    <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
+                      <span className="flex-1 text-green-500 text-2xl font-bold">${paymentAmount}</span>
+                      <button 
+                        onClick={() => setShowKeypad(!showKeypad)}
+                        className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
+                          showKeypad 
+                            ? 'bg-white border-white' 
+                            : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600'
+                        }`}
                       >
-                        .
-                      </button>
-                      <button
-                        onClick={() => handleKeypadPress('0')}
-                        className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                      >
-                        0
-                      </button>
-                      <button
-                        onClick={() => handleKeypadPress('backspace')}
-                        className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
-                      >
-                        <Delete className="w-4 h-4" />
+                        <Grid3X3 className={`w-5 h-5 ${showKeypad ? 'text-neutral-900' : 'text-neutral-300'}`} />
                       </button>
                     </div>
                   </div>
-                ) : (
-                  /* Quick Amount Buttons with quantity tracking */
-                  <>
-                    <div className="flex gap-4 px-2">
-                      <div className="flex-1 relative py-1">
-                        <button
-                          onClick={() => {
-                            setAmountQuantities({});
-                            setPaymentAmount(finalTotal.toFixed(2));
-                          }}
-                          className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
-                            paymentAmount === finalTotal.toFixed(2) && Object.keys(amountQuantities).length === 0
-                              ? 'bg-neutral-900 text-white border border-neutral-600'
-                              : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                          }`}
-                        >
-                          ${finalTotal.toFixed(2)}
-                        </button>
-                      </div>
-                      {quickAmounts.slice(0, 3).map((amount) => {
-                        const qty = amountQuantities[amount] || 0;
-                        return (
-                          <div key={amount} className="flex-1 relative py-1">
-                            <button
-                              onClick={() => handleAddAmount(amount)}
-                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
-                                qty > 0
-                                  ? 'bg-neutral-900 text-white border border-neutral-600'
-                                  : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                              }`}
-                            >
-                              ${amount}
-                            </button>
-                            {qty > 0 && (
-                              <>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveAmount(amount);
-                                  }}
-                                  className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
-                                >
-                                  ×
-                                </button>
-                                <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
-                                  x{qty}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="flex gap-4 px-2">
-                      {quickAmounts.slice(3).map((amount) => {
-                        const qty = amountQuantities[amount] || 0;
-                        return (
-                          <div key={amount} className="flex-1 relative py-1">
-                            <button
-                              onClick={() => handleAddAmount(amount)}
-                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
-                                qty > 0
-                                  ? 'bg-neutral-900 text-white border border-neutral-600'
-                                  : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                              }`}
-                            >
-                              ${amount}
-                            </button>
-                            {qty > 0 && (
-                              <>
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveAmount(amount);
-                                  }}
-                                  className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
-                                >
-                                  ×
-                                </button>
-                                <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
-                                  x{qty}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
 
-              {/* Charge Button */}
-              <div className="p-6 pt-0">
-                <button
-                  onClick={() => setShowPaymentDialog(false)}
-                  className="w-full py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
-                >
-                  CHARGE ${paymentAmount}
-                </button>
-              </div>
+                  {/* Quick Amount Buttons OR Keypad */}
+                  <div className="p-4 space-y-2 flex-1">
+                    {showKeypad ? (
+                      /* Numeric Keypad - Compact */
+                      <div className="flex flex-col gap-2">
+                        {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
+                          <div key={rowIndex} className="flex gap-2">
+                            {row.map((key) => (
+                              <button
+                                key={key}
+                                onClick={() => handleKeypadPress(key)}
+                                className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                              >
+                                {key}
+                              </button>
+                            ))}
+                          </div>
+                        ))}
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => handleKeypadPress('.')}
+                            className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                          >
+                            .
+                          </button>
+                          <button
+                            onClick={() => handleKeypadPress('0')}
+                            className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                          >
+                            0
+                          </button>
+                          <button
+                            onClick={() => handleKeypadPress('backspace')}
+                            className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
+                          >
+                            <Delete className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Quick Amount Buttons with quantity tracking */
+                      <>
+                        <div className="flex gap-4 px-2">
+                          <div className="flex-1 relative py-1">
+                            <button
+                              onClick={() => {
+                                setAmountQuantities({});
+                                setPaymentAmount(finalTotal.toFixed(2));
+                              }}
+                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                paymentAmount === finalTotal.toFixed(2) && Object.keys(amountQuantities).length === 0
+                                  ? 'bg-neutral-900 text-white border border-neutral-600'
+                                  : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                              }`}
+                            >
+                              ${finalTotal.toFixed(2)}
+                            </button>
+                          </div>
+                          {quickAmounts.slice(0, 3).map((amount) => {
+                            const qty = amountQuantities[amount] || 0;
+                            return (
+                              <div key={amount} className="flex-1 relative py-1">
+                                <button
+                                  onClick={() => handleAddAmount(amount)}
+                                  className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                    qty > 0
+                                      ? 'bg-neutral-900 text-white border border-neutral-600'
+                                      : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                                  }`}
+                                >
+                                  ${amount}
+                                </button>
+                                {qty > 0 && (
+                                  <>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoveAmount(amount);
+                                      }}
+                                      className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
+                                    >
+                                      ×
+                                    </button>
+                                    <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
+                                      x{qty}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="flex gap-4 px-2">
+                          {quickAmounts.slice(3).map((amount) => {
+                            const qty = amountQuantities[amount] || 0;
+                            return (
+                              <div key={amount} className="flex-1 relative py-1">
+                                <button
+                                  onClick={() => handleAddAmount(amount)}
+                                  className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                    qty > 0
+                                      ? 'bg-neutral-900 text-white border border-neutral-600'
+                                      : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                                  }`}
+                                >
+                                  ${amount}
+                                </button>
+                                {qty > 0 && (
+                                  <>
+                                    <button
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoveAmount(amount);
+                                      }}
+                                      className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
+                                    >
+                                      ×
+                                    </button>
+                                    <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
+                                      x{qty}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Charge Button */}
+                  <div className="p-6 pt-0">
+                    <button
+                      onClick={() => {
+                        const paid = parseFloat(paymentAmount) || 0;
+                        setPaidAmount(paid);
+                        setPaymentProcessed(true);
+                      }}
+                      className="w-full py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
+                    >
+                      CHARGE ${paymentAmount}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
 
             {/* Order Details Panel */}
@@ -1053,7 +1118,10 @@ const OrderPanelContent = ({
                 <div className="flex items-center justify-between">
                   <h3 className="text-white font-semibold text-sm">{selectedOrder?.guest || "John Doe"}</h3>
                   <button 
-                    onClick={() => setShowPaymentDialog(false)}
+                    onClick={() => {
+                      setPaymentProcessed(false);
+                      setShowPaymentDialog(false);
+                    }}
                     className="w-6 h-6 rounded-full hover:bg-neutral-600 flex items-center justify-center transition-colors"
                   >
                     <X className="w-4 h-4 text-neutral-300" />
@@ -1062,28 +1130,27 @@ const OrderPanelContent = ({
                 <p className="text-neutral-300 text-xs mt-0.5">Order At {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
                 
                 {/* Order Info Row */}
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="flex items-center gap-1 bg-neutral-700/50 rounded px-1.5 py-0.5">
-                    <span className="text-neutral-400 text-[10px]">ORDER#</span>
-                    <span className="text-white text-[10px] font-medium">{selectedOrder?.orderNo || "Order No 8"}</span>
-                  </div>
-                  <div className="flex items-center gap-1 bg-neutral-700/50 rounded px-1.5 py-0.5">
-                    <span className="text-neutral-400 text-[10px]">TABLE#</span>
-                    <span className="text-white text-[10px] font-medium">{selectedOrder?.table || "T2"}</span>
-                  </div>
-                  <span className="text-red-400 text-[10px] font-medium bg-red-500/20 rounded px-1.5 py-0.5">{selectedOrder?.type?.toUpperCase() || "DINE IN"}</span>
+                <div className="flex items-center justify-between mt-2">
+                  <span className="text-neutral-400 text-[10px]">ORDER# {selectedOrder?.orderNo || "105"}</span>
+                  <span className="text-neutral-400 text-[10px]">TABLE# {selectedOrder?.table || "14"}</span>
+                  <span className="text-red-400 text-[10px] font-medium">{selectedOrder?.type?.toUpperCase() || "DINE IN"}</span>
                 </div>
               </div>
 
-              {/* Check Info */}
-              <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3">
+              {/* Check Info with PAID stamp when processed */}
+              <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3 relative overflow-hidden">
                 <div className="flex items-center justify-between">
-                  <span className="text-white font-medium text-sm">Check {selectedOrder?.check || "12"}</span>
+                  <span className="text-white font-medium text-sm">Check {selectedOrder?.check || "62"} a</span>
                   <span className="text-white font-bold">${finalTotal.toFixed(2)}</span>
                 </div>
+                {paymentProcessed && (
+                  <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
+                    PAID
+                  </span>
+                )}
                 <div className="flex items-center justify-between mt-1">
                   <span className="text-neutral-400 text-xs">Seat</span>
-                  <span className="text-white text-xs">All</span>
+                  <span className="text-white text-xs">1</span>
                 </div>
               </div>
 
@@ -1112,21 +1179,37 @@ const OrderPanelContent = ({
                 ))}
               </div>
 
-              {/* Order Summary */}
-              <div className="p-3 border-t border-neutral-700 space-y-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-neutral-400">Sub Total</span>
-                  <span className="text-white">${subtotal.toFixed(2)}</span>
+              {/* Payment History - Only show when processed */}
+              {paymentProcessed && (
+                <div className="p-3 border-t border-neutral-700">
+                  <h4 className="text-white text-sm font-medium mb-2">Payment History</h4>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-neutral-400 text-xs">$</span>
+                      <span className="text-neutral-300 text-xs">Cash</span>
+                    </div>
+                    <span className="text-green-500 text-xs font-medium">${paidAmount.toFixed(2)}</span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-neutral-400">Tax</span>
-                  <span className="text-white">${tax.toFixed(2)}</span>
+              )}
+
+              {/* Order Summary - Hide when processed */}
+              {!paymentProcessed && (
+                <div className="p-3 border-t border-neutral-700 space-y-1.5">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-neutral-400">Sub Total</span>
+                    <span className="text-white">${subtotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-neutral-400">Tax</span>
+                    <span className="text-white">${tax.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-sm font-medium pt-1">
+                    <span className="text-white">Total Due</span>
+                    <span className="text-red-500 font-bold">${finalTotal.toFixed(2)}</span>
+                  </div>
                 </div>
-                <div className="flex items-center justify-between text-sm font-medium pt-1">
-                  <span className="text-white">Total Due</span>
-                  <span className="text-red-500 font-bold">${finalTotal.toFixed(2)}</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
@@ -1163,6 +1246,8 @@ const Dashboard = () => {
   const [paymentAmount, setPaymentAmount] = useState('');
   const [showKeypad, setShowKeypad] = useState(false);
   const [amountQuantities, setAmountQuantities] = useState<Record<number, number>>({});
+  const [paymentProcessed, setPaymentProcessed] = useState(false);
+  const [paidAmount, setPaidAmount] = useState(0);
 
   // Calculate payment amount from quantities
   useEffect(() => {
@@ -1750,6 +1835,10 @@ const Dashboard = () => {
             setAmountQuantities={setAmountQuantities}
             handleAddAmount={handleAddAmount}
             handleRemoveAmount={handleRemoveAmount}
+            paymentProcessed={paymentProcessed}
+            setPaymentProcessed={setPaymentProcessed}
+            paidAmount={paidAmount}
+            setPaidAmount={setPaidAmount}
           />
         </div>
       </div>
@@ -1802,6 +1891,10 @@ const Dashboard = () => {
             setAmountQuantities={setAmountQuantities}
             handleAddAmount={handleAddAmount}
             handleRemoveAmount={handleRemoveAmount}
+            paymentProcessed={paymentProcessed}
+            setPaymentProcessed={setPaymentProcessed}
+            paidAmount={paidAmount}
+            setPaidAmount={setPaidAmount}
           />
           </div>
         </DrawerContent>

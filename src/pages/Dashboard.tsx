@@ -768,6 +768,10 @@ const OrderPanelContent = ({
           </button>
           <button 
             onClick={() => {
+              // Reset payment states for new order
+              setAmountQuantities({});
+              setPaymentProcessed(false);
+              setShowKeypad(false);
               setPaymentAmount(finalTotal.toFixed(2));
               setShowPaymentDialog(true);
             }}

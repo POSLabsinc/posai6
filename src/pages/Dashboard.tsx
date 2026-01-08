@@ -80,6 +80,18 @@ const dateFilters = ["Today", "Yesterday", "This Week", "Last Week", "This Month
 // Order filter labels
 const orderFilterLabels = ["All", "In Progress", "Unpaid", "Open", "Paid", "Closed"];
 
+// Order item interface
+interface OrderItemType {
+  id: number;
+  qty: number;
+  name: string;
+  price: number;
+  seats: number[];
+  noTax: boolean;
+  itemOrderType: string;
+  isFired: boolean;
+}
+
 // Mock orders with filter categories
 const mockOrders = [
   {
@@ -101,6 +113,16 @@ const mockOrders = [
     isPaid: false,
     server: "Mia Jones",
     total: 70.96,
+    phone: "(555) 123-4567",
+    table: "T2",
+    notes: "No onions please",
+    items: [
+      { id: 1, qty: 1, name: "Classic Crispy Burger", price: 12.00, seats: [1], noTax: false, itemOrderType: "Dine In", isFired: false },
+      { id: 2, qty: 1, name: "Meatballs", price: 16.00, seats: [2], noTax: false, itemOrderType: "Dine In", isFired: false },
+      { id: 3, qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [1, 2], noTax: false, itemOrderType: "Dine In", isFired: false },
+      { id: 4, qty: 1, name: "Caesar Salad", price: 9.50, seats: [3], noTax: false, itemOrderType: "Dine In", isFired: false },
+      { id: 5, qty: 1, name: "Grilled Salmon", price: 22.00, seats: [4], noTax: false, itemOrderType: "Dine In", isFired: false },
+    ],
   },
   {
     id: 11,
@@ -121,6 +143,15 @@ const mockOrders = [
     isPaid: false,
     server: "John Smith",
     total: 85.50,
+    phone: "(555) 234-5678",
+    table: "T3",
+    notes: "Allergic to shellfish",
+    items: [
+      { id: 1, qty: 1, name: "Caesar Salad", price: 9.50, seats: [1], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 2, qty: 1, name: "Grilled Salmon", price: 22.00, seats: [2], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 3, qty: 2, name: "Garlic Bread", price: 5.00, seats: [1, 2, 3, 4], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 4, qty: 1, name: "Tiramisu", price: 8.00, seats: [3], noTax: false, itemOrderType: "Dine In", isFired: false },
+    ],
   },
   {
     id: 12,
@@ -141,6 +172,14 @@ const mockOrders = [
     isPaid: false,
     server: "Sarah Lee",
     total: 42.00,
+    phone: "(555) 345-6789",
+    table: "T4",
+    notes: "Extra napkins please",
+    items: [
+      { id: 1, qty: 1, name: "Mac & Cheese", price: 14.00, seats: [1], noTax: false, itemOrderType: "Take Out", isFired: true },
+      { id: 2, qty: 1, name: "French Fries", price: 6.00, seats: [1], noTax: false, itemOrderType: "Take Out", isFired: true },
+      { id: 3, qty: 1, name: "Chicken Wings", price: 12.00, seats: [2], noTax: false, itemOrderType: "Take Out", isFired: true },
+    ],
   },
   {
     id: 13,
@@ -161,6 +200,15 @@ const mockOrders = [
     isPaid: true,
     server: "Mia Jones",
     total: 125.00,
+    phone: "(555) 456-7890",
+    table: "T5",
+    notes: "Birthday celebration - bring candle",
+    items: [
+      { id: 1, qty: 1, name: "Ribeye Steak", price: 38.00, seats: [1], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 2, qty: 1, name: "Lobster Tail", price: 45.00, seats: [2], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 3, qty: 1, name: "Chocolate Cake", price: 12.00, seats: [3], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 4, qty: 2, name: "Glass of Wine", price: 15.00, seats: [1, 2], noTax: false, itemOrderType: "Dine In", isFired: true },
+    ],
   },
   {
     id: 14,
@@ -181,6 +229,14 @@ const mockOrders = [
     isPaid: true,
     server: "John Smith",
     total: 55.00,
+    phone: "(555) 567-8901",
+    table: "T1",
+    notes: "Takeout ready by 2pm",
+    items: [
+      { id: 1, qty: 1, name: "Chicken Sandwich", price: 14.00, seats: [1], noTax: false, itemOrderType: "Take Out", isFired: true },
+      { id: 2, qty: 1, name: "Tomato Soup", price: 8.00, seats: [1], noTax: false, itemOrderType: "Take Out", isFired: true },
+      { id: 3, qty: 1, name: "Club Sandwich", price: 13.00, seats: [2], noTax: false, itemOrderType: "Take Out", isFired: true },
+    ],
   },
   {
     id: 15,
@@ -201,6 +257,14 @@ const mockOrders = [
     isPaid: false,
     server: "Sarah Lee",
     total: 98.75,
+    phone: "(555) 678-9012",
+    table: "T6",
+    notes: "VIP customer - priority service",
+    items: [
+      { id: 1, qty: 1, name: "Lobster Bisque", price: 16.00, seats: [1], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 2, qty: 1, name: "Filet Mignon", price: 42.00, seats: [2], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 3, qty: 1, name: "Champagne", price: 25.00, seats: [1, 2], noTax: false, itemOrderType: "Dine In", isFired: true },
+    ],
   },
   {
     id: 16,
@@ -221,6 +285,15 @@ const mockOrders = [
     isPaid: false,
     server: "Mia Jones",
     total: 115.50,
+    phone: "(555) 789-0123",
+    table: "T7",
+    notes: "Kids meal needed - no spicy",
+    items: [
+      { id: 1, qty: 1, name: "Spaghetti Bolognese", price: 16.00, seats: [1], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 2, qty: 1, name: "Kids Pizza", price: 9.00, seats: [2], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 3, qty: 1, name: "Chicken Parmesan", price: 22.00, seats: [3], noTax: false, itemOrderType: "Dine In", isFired: false },
+      { id: 4, qty: 2, name: "Soda", price: 4.00, seats: [1, 2, 3, 4], noTax: false, itemOrderType: "Dine In", isFired: true },
+    ],
   },
   {
     id: 17,
@@ -241,6 +314,14 @@ const mockOrders = [
     isPaid: true,
     server: "John Smith",
     total: 65.00,
+    phone: "(555) 890-1234",
+    table: "T8",
+    notes: "Gluten-free options only",
+    items: [
+      { id: 1, qty: 1, name: "GF Pasta Primavera", price: 18.00, seats: [1], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 2, qty: 1, name: "Garden Salad", price: 10.00, seats: [2], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 3, qty: 1, name: "GF Brownie", price: 7.00, seats: [1, 2], noTax: false, itemOrderType: "Dine In", isFired: true },
+    ],
   },
   {
     id: 18,
@@ -261,6 +342,15 @@ const mockOrders = [
     isPaid: true,
     server: "Sarah Lee",
     total: 180.00,
+    phone: "(555) 901-2345",
+    table: "T9",
+    notes: "Large party - split checks requested",
+    items: [
+      { id: 1, qty: 2, name: "Ribeye Steak", price: 38.00, seats: [1, 2], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 2, qty: 2, name: "Grilled Salmon", price: 22.00, seats: [3, 4], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 3, qty: 2, name: "Pasta Carbonara", price: 18.00, seats: [5, 6], noTax: false, itemOrderType: "Dine In", isFired: true },
+      { id: 4, qty: 6, name: "Garlic Bread", price: 5.00, seats: [1, 2, 3, 4, 5, 6], noTax: false, itemOrderType: "Dine In", isFired: true },
+    ],
   },
   {
     id: 19,
@@ -281,18 +371,18 @@ const mockOrders = [
     isPaid: false,
     server: "Mia Jones",
     total: 35.25,
+    phone: "(555) 012-3456",
+    table: "T10",
+    notes: "First time customer - welcome gift",
+    items: [
+      { id: 1, qty: 1, name: "Appetizer Sampler", price: 18.00, seats: [1, 2, 3], noTax: false, itemOrderType: "Take Out", isFired: false },
+      { id: 2, qty: 1, name: "House Salad", price: 8.00, seats: [1], noTax: false, itemOrderType: "Take Out", isFired: false },
+    ],
   },
 ];
 
-// Mock order items for right panel
-const initialOrderItems = [
-  { id: 1, qty: 1, name: "Classic Crispy Burger", price: 12.00, seats: [1], noTax: false, itemOrderType: "Dine In", isFired: false },
-  { id: 2, qty: 1, name: "Meatballs", price: 16.00, seats: [2], noTax: false, itemOrderType: "Dine In", isFired: false },
-  { id: 3, qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [1, 2], noTax: false, itemOrderType: "Dine In", isFired: false },
-  { id: 4, qty: 1, name: "Caesar Salad", price: 9.50, seats: [3], noTax: false, itemOrderType: "Dine In", isFired: false },
-  { id: 5, qty: 1, name: "Grilled Salmon", price: 22.00, seats: [4], noTax: false, itemOrderType: "Dine In", isFired: false },
-  { id: 6, qty: 1, name: "Garlic Bread", price: 5.00, seats: [1, 2, 3, 4], noTax: false, itemOrderType: "Dine In", isFired: false },
-];
+// Default order items (used as fallback)
+const defaultOrderItems: OrderItemType[] = mockOrders[0]?.items || [];
 
 // Table status configurations (matching /tableorder screen)
 const tableStatusConfig: Record<string, { textColor: string; bgColor: string }> = {
@@ -336,7 +426,7 @@ import clearIcon from "@/assets/icons/clear-c.png";
 // Order Panel Content Component
 interface OrderPanelContentProps {
   selectedOrder: typeof mockOrders[0] | null;
-  orderItems: typeof initialOrderItems;
+  orderItems: OrderItemType[];
   subtotal: number;
   total: number;
   phoneIcon: string;
@@ -389,7 +479,7 @@ const OrderPanelContent = ({
           <span className="text-white font-medium flex-1">{selectedOrder?.guest || "GUEST NAME"}</span>
           <div className="flex items-center gap-1 text-white/50 text-[10px] flex-1 justify-center whitespace-nowrap">
             <img src={phoneIcon} alt="phone" className="w-3 h-3 opacity-60" />
-            <span>(XXX) XXX-XXXX</span>
+            <span>{selectedOrder?.phone || "(XXX) XXX-XXXX"}</span>
           </div>
           <div className="flex items-center gap-1 text-white/50 text-[10px] flex-1 justify-end whitespace-nowrap">
             <span>⚡</span>
@@ -422,7 +512,7 @@ const OrderPanelContent = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <span className="px-2 py-0.5 bg-neutral-700 text-white text-xs rounded border border-white/20">
-                TABLE T{selectedOrder?.seats || 2}
+                TABLE {selectedOrder?.table || "T1"}
               </span>
               <div className="flex items-center gap-1">
                 <Users className="w-3 h-3 text-white/60" />
@@ -432,7 +522,7 @@ const OrderPanelContent = ({
             </div>
             <div className="flex items-center gap-1">
               <img src={runnerIcon} alt="Server" className="w-4 h-4" />
-              <span className="text-white/70 text-xs">DUSTIN H</span>
+              <span className="text-white/70 text-xs">{selectedOrder?.server?.toUpperCase() || "SERVER"}</span>
             </div>
           </div>
         </div>
@@ -604,7 +694,7 @@ const Dashboard = () => {
   const [isCustomCalendarOpen, setIsCustomCalendarOpen] = useState(false);
   const [compareCustomDateRange, setCompareCustomDateRange] = useState<DateRange | undefined>();
   const [isCompareCustomCalendarOpen, setIsCompareCustomCalendarOpen] = useState(false);
-  const [orderItems, setOrderItems] = useState(initialOrderItems);
+  const [orderItems, setOrderItems] = useState<OrderItemType[]>(mockOrders[0]?.items || []);
   const [selectedFloor, setSelectedFloor] = useState("first");
   const isMobile = useIsMobile();
 
@@ -714,6 +804,9 @@ const Dashboard = () => {
 
   const handleOrderClick = (order: typeof mockOrders[0]) => {
     setSelectedOrder(order);
+    setOrderItems(order.items || []);
+    setOrderNotes(order.notes || '');
+    setSeatFilter([]);
     if (isMobile) {
       setIsDrawerOpen(true);
     }

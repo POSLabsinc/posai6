@@ -17,6 +17,7 @@ interface SwipeableCartItemProps {
   onNoTax?: () => void;
   onOrderTypeChange?: (type: string) => void;
   itemOrderType?: string;
+  isNoTax?: boolean;
   isOpen?: boolean;
   onSwipeStart?: () => void;
 }
@@ -40,6 +41,7 @@ const SwipeableCartItem = ({
   onNoTax,
   onOrderTypeChange,
   itemOrderType = "Dine In",
+  isNoTax = false,
   isOpen,
   onSwipeStart
 }: SwipeableCartItemProps) => {
@@ -135,8 +137,14 @@ const SwipeableCartItem = ({
         {/* No Tax button */}
         <button
           onClick={() => onNoTax?.()}
-          className="px-2 h-6 flex items-center justify-center rounded-full transition-colors text-[10px] font-medium text-white"
-          style={{ backgroundColor: '#666666' }}
+          className={`px-2 h-6 flex items-center justify-center rounded-full transition-colors text-[10px] font-medium ${
+            isNoTax ? 'text-black' : 'text-white'
+          }`}
+          style={{ 
+            background: isNoTax 
+              ? 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' 
+              : '#666666' 
+          }}
         >
           No Tax
         </button>

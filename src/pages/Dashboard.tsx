@@ -265,13 +265,13 @@ const mockOrders = [
 ];
 
 // Mock order items for right panel
-const orderItems = [
-  { qty: 1, name: "Classic Crispy Burger", price: 12.00, seats: [1] },
-  { qty: 1, name: "Meatballs", price: 16.00, seats: [2] },
-  { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [1, 2] },
-  { qty: 1, name: "Caesar Salad", price: 9.50, seats: [3] },
-  { qty: 1, name: "Grilled Salmon", price: 22.00, seats: [4] },
-  { qty: 1, name: "Garlic Bread", price: 5.00, seats: [1, 2, 3, 4] },
+const initialOrderItems = [
+  { id: 1, qty: 1, name: "Classic Crispy Burger", price: 12.00, seats: [1], noTax: false, itemOrderType: "Dine In" },
+  { id: 2, qty: 1, name: "Meatballs", price: 16.00, seats: [2], noTax: false, itemOrderType: "Dine In" },
+  { id: 3, qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [1, 2], noTax: false, itemOrderType: "Dine In" },
+  { id: 4, qty: 1, name: "Caesar Salad", price: 9.50, seats: [3], noTax: false, itemOrderType: "Dine In" },
+  { id: 5, qty: 1, name: "Grilled Salmon", price: 22.00, seats: [4], noTax: false, itemOrderType: "Dine In" },
+  { id: 6, qty: 1, name: "Garlic Bread", price: 5.00, seats: [1, 2, 3, 4], noTax: false, itemOrderType: "Dine In" },
 ];
 
 // Table status configurations (matching /tableorder screen)
@@ -316,7 +316,7 @@ import clearIcon from "@/assets/icons/clear-c.png";
 // Order Panel Content Component
 interface OrderPanelContentProps {
   selectedOrder: typeof mockOrders[0] | null;
-  orderItems: typeof orderItems;
+  orderItems: typeof initialOrderItems;
   subtotal: number;
   total: number;
   phoneIcon: string;
@@ -329,6 +329,8 @@ interface OrderPanelContentProps {
   setOrderNotes: (notes: string) => void;
   activeSwipedItemId: string | null;
   setActiveSwipedItemId: (id: string | null) => void;
+  onToggleNoTax: (itemId: number) => void;
+  onOrderTypeChange: (itemId: number, orderType: string) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -345,7 +347,9 @@ const OrderPanelContent = ({
   orderNotes,
   setOrderNotes,
   activeSwipedItemId,
-  setActiveSwipedItemId
+  setActiveSwipedItemId,
+  onToggleNoTax,
+  onOrderTypeChange
 }: OrderPanelContentProps) => {
   const tax = subtotal * 0.02;
   const serviceCharge = subtotal * 0.1;
@@ -466,10 +470,13 @@ const OrderPanelContent = ({
               
               return (
                 <SwipeableCartItem
-                  key={index}
-                  onDelete={() => console.log('Delete item', index)}
-                  onFire={() => console.log('Fire item', index)}
-                  onNoTax={() => console.log('No tax', index)}
+                  key={item.id}
+                  onDelete={() => console.log('Delete item', item.id)}
+                  onFire={() => console.log('Fire item', item.id)}
+                  onNoTax={() => onToggleNoTax(item.id)}
+                  isNoTax={item.noTax}
+                  itemOrderType={item.itemOrderType}
+                  onOrderTypeChange={(type) => onOrderTypeChange(item.id, type)}
                   isOpen={activeSwipedItemId === itemId}
                   onSwipeStart={() => setActiveSwipedItemId(itemId)}
                 >
@@ -561,7 +568,22 @@ const Dashboard = () => {
   const [isCustomCalendarOpen, setIsCustomCalendarOpen] = useState(false);
   const [compareCustomDateRange, setCompareCustomDateRange] = useState<DateRange | undefined>();
   const [isCompareCustomCalendarOpen, setIsCompareCustomCalendarOpen] = useState(false);
+  const [orderItems, setOrderItems] = useState(initialOrderItems);
   const isMobile = useIsMobile();
+
+  // Toggle no tax for an item
+  const handleToggleNoTax = (itemId: number) => {
+    setOrderItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, noTax: !item.noTax } : item
+    ));
+  };
+
+  // Update order type for an item
+  const handleOrderTypeChange = (itemId: number, orderType: string) => {
+    setOrderItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, itemOrderType: orderType } : item
+    ));
+  };
 
   const handleDateFilterChange = (value: string) => {
     setDateFilter(value);
@@ -1042,6 +1064,8 @@ const Dashboard = () => {
             setOrderNotes={setOrderNotes}
             activeSwipedItemId={activeSwipedItemId}
             setActiveSwipedItemId={setActiveSwipedItemId}
+            onToggleNoTax={handleToggleNoTax}
+            onOrderTypeChange={handleOrderTypeChange}
           />
         </div>
       </div>
@@ -1073,6 +1097,8 @@ const Dashboard = () => {
               setOrderNotes={setOrderNotes}
               activeSwipedItemId={activeSwipedItemId}
               setActiveSwipedItemId={setActiveSwipedItemId}
+              onToggleNoTax={handleToggleNoTax}
+              onOrderTypeChange={handleOrderTypeChange}
             />
           </div>
         </DrawerContent>

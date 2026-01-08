@@ -835,114 +835,181 @@ const OrderPanelContent = ({
       {/* Payment Dialog */}
       {showPaymentDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-              <div className="flex-1" />
-              <div className="flex-1 text-center">
-                <span className="text-white text-sm">Total Due</span>
-                <div className="text-red-500 text-xl font-bold">${finalTotal.toFixed(2)}</div>
+          <div className="flex gap-4 mx-4 animate-scale-in">
+            {/* Payment Options Panel */}
+            <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[400px] overflow-hidden">
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                <div className="flex-1" />
+                <div className="flex-1 text-center">
+                  <span className="text-white text-sm">Total Due</span>
+                  <div className="text-red-500 text-xl font-bold">${finalTotal.toFixed(2)}</div>
+                </div>
+                <div className="flex-1 flex justify-end">
+                  <button 
+                    onClick={() => setShowPaymentDialog(false)}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <X className="w-5 h-5 text-neutral-400" />
+                  </button>
+                </div>
               </div>
-              <div className="flex-1 flex justify-end">
-                <button 
-                  onClick={() => setShowPaymentDialog(false)}
-                  className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-5 h-5 text-neutral-400" />
-                </button>
-              </div>
-            </div>
 
-            {/* Payment Methods */}
-            <div className="p-4 border-b border-neutral-700">
-              <div className="flex flex-wrap justify-center gap-3">
-                {paymentMethods.map((method) => {
-                  const IconComponent = method.icon;
-                  const isSelected = selectedPaymentMethod === method.id;
-                  return (
+              {/* Payment Methods */}
+              <div className="p-4 border-b border-neutral-700">
+                <div className="flex flex-wrap justify-center gap-3">
+                  {paymentMethods.map((method) => {
+                    const IconComponent = method.icon;
+                    const isSelected = selectedPaymentMethod === method.id;
+                    return (
+                      <button
+                        key={method.id}
+                        onClick={() => setSelectedPaymentMethod(method.id)}
+                        className="flex flex-col items-center gap-1"
+                      >
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
+                          isSelected 
+                            ? 'bg-neutral-700 ring-2 ring-white' 
+                            : 'bg-neutral-800 hover:bg-neutral-700'
+                        }`}>
+                          <IconComponent className="w-5 h-5 text-white" />
+                        </div>
+                        <span className={`text-[10px] ${isSelected ? 'text-white' : 'text-neutral-400'}`}>
+                          {method.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Amount Display */}
+              <div className="p-4 border-b border-neutral-700">
+                <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-4 py-3">
+                  <span className="flex-1 text-white text-lg font-medium">${paymentAmount}</span>
+                  <button className="w-8 h-8 rounded bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors">
+                    <Grid3X3 className="w-4 h-4 text-white" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Quick Amount Buttons */}
+              <div className="p-4 space-y-2">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setPaymentAmount(finalTotal.toFixed(2))}
+                    className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                      paymentAmount === finalTotal.toFixed(2)
+                        ? 'bg-white text-black border-white'
+                        : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
+                    }`}
+                  >
+                    ${finalTotal.toFixed(2)}
+                  </button>
+                  {quickAmounts.slice(0, 4).map((amount, idx) => (
                     <button
-                      key={method.id}
-                      onClick={() => setSelectedPaymentMethod(method.id)}
-                      className="flex flex-col items-center gap-1"
+                      key={`${amount}-${idx}`}
+                      onClick={() => setPaymentAmount(amount.toFixed(2))}
+                      className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                        paymentAmount === amount.toFixed(2)
+                          ? 'bg-white text-black border-white'
+                          : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
+                      }`}
                     >
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors ${
-                        isSelected 
-                          ? 'bg-neutral-700 ring-2 ring-white' 
-                          : 'bg-neutral-800 hover:bg-neutral-700'
-                      }`}>
-                        <IconComponent className="w-5 h-5 text-white" />
-                      </div>
-                      <span className={`text-[10px] ${isSelected ? 'text-white' : 'text-neutral-400'}`}>
-                        {method.name}
-                      </span>
+                      ${amount}
                     </button>
-                  );
-                })}
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  {quickAmounts.slice(4).map((amount, idx) => (
+                    <button
+                      key={`${amount}-${idx + 4}`}
+                      onClick={() => setPaymentAmount(amount.toFixed(2))}
+                      className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
+                        paymentAmount === amount.toFixed(2)
+                          ? 'bg-white text-black border-white'
+                          : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
+                      }`}
+                    >
+                      ${amount}
+                    </button>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            {/* Amount Display */}
-            <div className="p-4 border-b border-neutral-700">
-              <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-4 py-3">
-                <span className="flex-1 text-white text-lg font-medium">${paymentAmount}</span>
-                <button className="w-8 h-8 rounded bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors">
-                  <Grid3X3 className="w-4 h-4 text-white" />
-                </button>
-              </div>
-            </div>
-
-            {/* Quick Amount Buttons */}
-            <div className="p-4 space-y-2">
-              <div className="flex gap-2">
+              {/* Charge Button */}
+              <div className="p-4 border-t border-neutral-700">
                 <button
-                  onClick={() => setPaymentAmount(finalTotal.toFixed(2))}
-                  className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                    paymentAmount === finalTotal.toFixed(2)
-                      ? 'bg-white text-black border-white'
-                      : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
-                  }`}
+                  onClick={() => setShowPaymentDialog(false)}
+                  className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-lg transition-colors text-sm"
                 >
-                  ${finalTotal.toFixed(2)}
+                  CHARGE ${paymentAmount}
                 </button>
-                {quickAmounts.slice(0, 4).map((amount, idx) => (
-                  <button
-                    key={`${amount}-${idx}`}
-                    onClick={() => setPaymentAmount(amount.toFixed(2))}
-                    className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                      paymentAmount === amount.toFixed(2)
-                        ? 'bg-white text-black border-white'
-                        : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
-                    }`}
-                  >
-                    ${amount}
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-2">
-                {quickAmounts.slice(4).map((amount, idx) => (
-                  <button
-                    key={`${amount}-${idx + 4}`}
-                    onClick={() => setPaymentAmount(amount.toFixed(2))}
-                    className={`flex-1 py-2 rounded-lg border text-sm font-medium transition-colors ${
-                      paymentAmount === amount.toFixed(2)
-                        ? 'bg-white text-black border-white'
-                        : 'bg-transparent text-white border-neutral-600 hover:border-neutral-400'
-                    }`}
-                  >
-                    ${amount}
-                  </button>
-                ))}
               </div>
             </div>
 
-            {/* Charge Button */}
-            <div className="p-4 border-t border-neutral-700">
-              <button
-                onClick={() => setShowPaymentDialog(false)}
-                className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-lg transition-colors text-sm"
-              >
-                CHARGE ${paymentAmount}
-              </button>
+            {/* Order Details Panel */}
+            <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[280px] overflow-hidden flex flex-col">
+              {/* Guest Info Header */}
+              <div className="p-3 border-b border-neutral-700">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-white font-semibold text-sm">{selectedOrder?.guest || "GUEST NAME"}</h3>
+                    <p className="text-neutral-400 text-xs">Order At {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
+                  </div>
+                  <button 
+                    onClick={() => setShowPaymentDialog(false)}
+                    className="w-6 h-6 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <X className="w-4 h-4 text-neutral-400" />
+                  </button>
+                </div>
+                <div className="flex items-center gap-4 mt-2 text-xs">
+                  <span className="text-neutral-400">ORDER# {selectedOrder?.orderNo || "105"}</span>
+                  <span className="text-neutral-400">TABLE# {selectedOrder?.table || "14"}</span>
+                  <span className="text-red-400 font-medium">{selectedOrder?.type?.toUpperCase() || "DINE IN"}</span>
+                </div>
+              </div>
+
+              {/* Check Info */}
+              <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-white font-medium text-sm">Check {selectedOrder?.check || "62"}</span>
+                  <span className="text-white font-bold">${finalTotal.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between mt-1">
+                  <span className="text-neutral-400 text-xs">Seat</span>
+                  <span className="text-white text-xs">All</span>
+                </div>
+              </div>
+
+              {/* Order Items */}
+              <div className="flex-1 overflow-y-auto p-3 space-y-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {orderItems.map((item) => (
+                  <div key={item.id} className="flex items-start justify-between py-2 border-b border-neutral-700/50 last:border-0">
+                    <div className="flex-1">
+                      <span className="text-white text-xs font-medium">{item.qty} {item.name.toUpperCase()}</span>
+                    </div>
+                    <span className="text-white text-xs font-medium">${(item.price * item.qty).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+
+              {/* Order Summary */}
+              <div className="p-3 border-t border-neutral-700 space-y-1.5">
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-neutral-400">Sub Total</span>
+                  <span className="text-white">${subtotal.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-xs">
+                  <span className="text-neutral-400">Tax</span>
+                  <span className="text-white">${tax.toFixed(2)}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm font-medium pt-1">
+                  <span className="text-white">Total Due</span>
+                  <span className="text-red-500 font-bold">${finalTotal.toFixed(2)}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>

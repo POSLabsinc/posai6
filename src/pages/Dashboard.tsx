@@ -2726,6 +2726,9 @@ const Dashboard = () => {
   // Dynamic payment methods state
   const [visiblePaymentMethods, setVisiblePaymentMethods] = useState<PaymentMethodType[]>(initialPaymentMethods);
   const [dropdownPaymentMethods, setDropdownPaymentMethods] = useState<PaymentMethodType[]>(initialOtherPaymentMethods);
+  // Table card selection state (matching TableOrder page behavior)
+  const [selectedTableCard, setSelectedTableCard] = useState<string | null>(null);
+  const [guestDropdownTableCard, setGuestDropdownTableCard] = useState<string | null>(null);
 
   // Handle selecting a payment method from the dropdown - swap with last visible method
   const handleSelectFromDropdown = (selectedMethod: PaymentMethodType) => {
@@ -2834,6 +2837,22 @@ const Dashboard = () => {
     setOrderItems(prev => prev.map(item => 
       item.id === itemId ? { ...item, isFired: !item.isFired } : item
     ));
+  };
+
+  // Table card click handler (matching TableOrder page behavior)
+  const handleTableCardClick = (table: typeof mockTables[0]) => {
+    if (table.status === "Available") {
+      setGuestDropdownTableCard(guestDropdownTableCard === table.id ? null : table.id);
+    } else {
+      navigate(`/tableorder/${table.id}`);
+    }
+  };
+
+  // Guest selection handler for table cards
+  const handleGuestSelectCard = (tableId: string, seats: number, guestCount: number) => {
+    setGuestDropdownTableCard(null);
+    setSelectedTableCard(tableId);
+    navigate(`/orders?tableId=${tableId}&seats=${seats}&guests=${guestCount}`);
   };
 
   const handleDateFilterChange = (value: string) => {
@@ -3274,25 +3293,49 @@ const Dashboard = () => {
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
               {filteredTables.map((table, index) => {
                 const statusStyle = tableStatusConfig[table.status] || tableStatusConfig["Available"];
+                const isGuestDropdownOpen = guestDropdownTableCard === table.id && table.status === "Available";
+                
                 return (
                   <div
                     key={index}
-                    onClick={() => navigate(`/tableorder/${table.id}`)}
-                    className="flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5 cursor-pointer hover:bg-neutral-800 transition-all bg-neutral-900"
+                    onClick={() => handleTableCardClick(table)}
+                    className={`flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5 cursor-pointer hover:bg-neutral-800 transition-all bg-neutral-900 border-2 ${
+                      selectedTableCard === table.id 
+                        ? "border-orange-500" 
+                        : "border-transparent"
+                    }`}
                   >
                     <div className="flex items-center justify-between">
                       <span className="text-base font-bold">{table.id}</span>
                       <span className="text-[10px] text-white/50">{table.seats}S</span>
                     </div>
-                    <div
-                      className="text-[10px] font-medium py-1 rounded-md text-center w-full"
-                      style={{ 
-                        backgroundColor: statusStyle.bgColor,
-                        color: statusStyle.textColor
-                      }}
-                    >
-                      {table.status}
-                    </div>
+                    
+                    {isGuestDropdownOpen ? (
+                      <div className="flex flex-wrap gap-1 justify-center">
+                        {Array.from({ length: table.seats }).map((_, i) => (
+                          <button
+                            key={i}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleGuestSelectCard(table.id, table.seats, i + 1);
+                            }}
+                            className="w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                          >
+                            {i + 1}
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div
+                        className="text-[10px] font-medium py-1 rounded-md text-center w-full"
+                        style={{ 
+                          backgroundColor: statusStyle.bgColor,
+                          color: statusStyle.textColor
+                        }}
+                      >
+                        {table.status}
+                      </div>
+                    )}
                   </div>
                 );
               })}

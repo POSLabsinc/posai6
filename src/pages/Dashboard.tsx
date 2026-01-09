@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, RefreshCw } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, RefreshCw, Send } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -562,6 +562,13 @@ interface OrderPanelContentProps {
   setHoveredGuestIndex: (index: number | null) => void;
   sendLinkMethod: 'text' | 'email';
   setSendLinkMethod: (method: 'text' | 'email') => void;
+  // QR Code props
+  qrCodeStep: 'amount' | 'qr-display' | 'pending' | 'complete';
+  setQrCodeStep: (step: 'amount' | 'qr-display' | 'pending' | 'complete') => void;
+  qrPhoneNumber: string;
+  setQrPhoneNumber: (phone: string) => void;
+  showQrPhoneInput: boolean;
+  setShowQrPhoneInput: (show: boolean) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -621,7 +628,14 @@ const OrderPanelContent = ({
   hoveredGuestIndex,
   setHoveredGuestIndex,
   sendLinkMethod,
-  setSendLinkMethod
+  setSendLinkMethod,
+  // QR Code
+  qrCodeStep,
+  setQrCodeStep,
+  qrPhoneNumber,
+  setQrPhoneNumber,
+  showQrPhoneInput,
+  setShowQrPhoneInput
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount 
@@ -850,6 +864,10 @@ const OrderPanelContent = ({
               setPayByLinkStep('amount');
               setSelectedGuest(null);
               setGuestSearchQuery('');
+              // Reset QR code state for new payment
+              setQrCodeStep('amount');
+              setQrPhoneNumber('');
+              setShowQrPhoneInput(false);
               setShowPaymentDialog(true);
             }}
             className="flex-1 h-8 rounded-full text-black text-sm font-bold" 
@@ -1366,6 +1384,197 @@ const OrderPanelContent = ({
                     </div>
                   )}
                 </>
+              ) : selectedPaymentMethod === 'qr-code' && qrCodeStep !== 'amount' ? (
+                /* QR Code Payment Screens */
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => {
+                          if (qrCodeStep === 'qr-display') {
+                            setQrCodeStep('amount');
+                            setShowQrPhoneInput(false);
+                            setQrPhoneNumber('');
+                          } else if (qrCodeStep === 'pending') {
+                            setQrCodeStep('qr-display');
+                          } else if (qrCodeStep === 'complete') {
+                            setQrCodeStep('amount');
+                            setShowQrPhoneInput(false);
+                            setQrPhoneNumber('');
+                          }
+                        }}
+                        className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-lg font-medium">Pay by QR</span>
+                    </div>
+                    <span className="text-red-500 text-lg font-bold">${paymentAmount}</span>
+                  </div>
+
+                  {/* QR Display Screen */}
+                  {qrCodeStep === 'qr-display' && (
+                    <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+                      {/* Scan to Pay */}
+                      <div className="flex-1 flex flex-col items-center justify-center px-6 py-4">
+                        <p className="text-neutral-400 text-sm mb-2">Scan to Pay</p>
+                        <p className="text-white text-3xl font-bold mb-6">${paymentAmount}</p>
+                        
+                        {/* QR Code Placeholder */}
+                        <div className="w-48 h-48 bg-white rounded-xl p-3 mb-6 relative">
+                          {/* QR Pattern placeholder */}
+                          <div className="w-full h-full bg-white relative overflow-hidden">
+                            {/* Create a grid pattern to simulate QR code */}
+                            <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 gap-0.5">
+                              {Array.from({ length: 64 }).map((_, i) => (
+                                <div 
+                                  key={i} 
+                                  className={`${
+                                    // Corner patterns
+                                    (i < 3 || (i >= 8 && i < 11) || (i >= 16 && i < 19) ||
+                                     (i >= 5 && i < 8) || (i >= 13 && i < 16) || (i >= 21 && i < 24) ||
+                                     (i >= 40 && i < 43) || (i >= 48 && i < 51) || (i >= 56 && i < 59) ||
+                                     Math.random() > 0.6) ? 'bg-black' : 'bg-white'
+                                  }`}
+                                />
+                              ))}
+                            </div>
+                            {/* Center logo */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center border-2 border-neutral-200">
+                              <QrCode className="w-5 h-5 text-neutral-700" />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-3 w-full max-w-xs">
+                          <button 
+                            onClick={() => {
+                              // Simulate share QR
+                            }}
+                            className="flex-1 py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2"
+                          >
+                            <ExternalLink className="w-4 h-4" />
+                            SHARE QR
+                          </button>
+                          <button 
+                            onClick={() => setShowQrPhoneInput(!showQrPhoneInput)}
+                            className={`flex-1 py-3 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${
+                              showQrPhoneInput 
+                                ? 'bg-neutral-700 text-white border border-neutral-600' 
+                                : 'bg-neutral-800 text-white hover:bg-neutral-700'
+                            }`}
+                          >
+                            <MessageSquare className="w-4 h-4" />
+                            SHARE VIA TEXT
+                          </button>
+                        </div>
+
+                        {/* Phone Input */}
+                        {showQrPhoneInput && (
+                          <div className="flex gap-2 w-full max-w-xs mt-4">
+                            <div className="flex items-center gap-2 bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2">
+                              <span className="text-lg">🇺🇸</span>
+                              <ChevronDown className="w-4 h-4 text-neutral-400" />
+                            </div>
+                            <div className="flex-1 relative">
+                              <input
+                                type="tel"
+                                value={qrPhoneNumber}
+                                onChange={(e) => setQrPhoneNumber(e.target.value)}
+                                placeholder="Phone Number*"
+                                className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500"
+                              />
+                            </div>
+                            <button 
+                              onClick={() => {
+                                if (qrPhoneNumber.length >= 10) {
+                                  setQrCodeStep('pending');
+                                }
+                              }}
+                              disabled={qrPhoneNumber.length < 10}
+                              className={`px-4 py-2 font-medium rounded-lg transition-colors ${
+                                qrPhoneNumber.length >= 10
+                                  ? 'bg-orange-500 text-white hover:bg-orange-400'
+                                  : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                              }`}
+                            >
+                              <Send className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Payment Pending Screen */}
+                  {qrCodeStep === 'pending' && (
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                      <div className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center mb-6">
+                        <Clock className="w-10 h-10 text-orange-500" />
+                      </div>
+                      <h2 className="text-white text-2xl font-semibold mb-2">Payment Pending</h2>
+                      <p className="text-neutral-400 text-sm mb-8">Waiting for customer to complete payment</p>
+                      
+                      <div className="w-full space-y-3 mb-8">
+                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                          <span className="text-neutral-400 text-sm">Amount Requested</span>
+                          <span className="text-white font-medium">${paymentAmount}</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                          <span className="text-neutral-400 text-sm">Recipient</span>
+                          <span className="text-white font-medium">{qrPhoneNumber || 'QR Scan'}</span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => {
+                          // Simulate: complete the payment
+                          const paid = parseFloat(paymentAmount) || 0;
+                          setPaidAmount(paid);
+                          setQrCodeStep('complete');
+                        }}
+                        className="w-full py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        REFRESH STATUS
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Payment Complete Screen */}
+                  {qrCodeStep === 'complete' && (
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
+                        <CheckCircle className="w-10 h-10 text-green-500" />
+                      </div>
+                      <h2 className="text-white text-2xl font-semibold mb-2">Payment Complete</h2>
+                      <p className="text-neutral-400 text-sm mb-8">The guest has completed their payment</p>
+                      
+                      <div className="w-full space-y-3 mb-8">
+                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                          <span className="text-neutral-400 text-sm">Amount Requested</span>
+                          <span className="text-white font-medium">${paymentAmount}</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                          <span className="text-neutral-400 text-sm">Amount Paid</span>
+                          <span className="text-green-500 font-medium">${paidAmount.toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                          <span className="text-neutral-400 text-sm">Recipient</span>
+                          <span className="text-white font-medium">{qrPhoneNumber || 'QR Scan'}</span>
+                        </div>
+                      </div>
+
+                      <button 
+                        onClick={() => setPaymentProcessed(true)}
+                        className="w-full py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors"
+                      >
+                        CONTINUE
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 /* Payment Entry View */
                 <>
@@ -1745,6 +1954,10 @@ const OrderPanelContent = ({
                             setPayByLinkStep('select-guest');
                             return;
                           }
+                          if (selectedPaymentMethod === 'qr-code' && qrCodeStep === 'amount') {
+                            setQrCodeStep('qr-display');
+                            return;
+                          }
                           const paid = parseFloat(paymentAmount) || 0;
                           setPaidAmount(paid);
                           setPaymentProcessed(true);
@@ -1838,7 +2051,9 @@ const OrderPanelContent = ({
                   <h4 className="text-white text-sm font-medium mb-2">Payment History</h4>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      {selectedPaymentMethod === 'pay-link' ? (
+                      {selectedPaymentMethod === 'qr-code' ? (
+                        <QrCode className="w-4 h-4 text-neutral-400" />
+                      ) : selectedPaymentMethod === 'pay-link' ? (
                         <Link className="w-4 h-4 text-neutral-400" />
                       ) : selectedPaymentMethod === 'gift-card' ? (
                         <Gift className="w-4 h-4 text-neutral-400" />
@@ -1848,7 +2063,8 @@ const OrderPanelContent = ({
                         <span className="text-neutral-400 text-xs">$</span>
                       )}
                       <span className="text-neutral-300 text-xs">
-                        {selectedPaymentMethod === 'pay-link' ? 'Pay By Link' :
+                        {selectedPaymentMethod === 'qr-code' ? 'Pay by QR' :
+                         selectedPaymentMethod === 'pay-link' ? 'Pay By Link' :
                          selectedPaymentMethod === 'gift-card' ? 'Gift Card' : 
                          selectedPaymentMethod === 'card' ? 'Card' : 'Cash'}
                       </span>
@@ -1928,6 +2144,10 @@ const Dashboard = () => {
   const [guestSearchQuery, setGuestSearchQuery] = useState('');
   const [hoveredGuestIndex, setHoveredGuestIndex] = useState<number | null>(null);
   const [sendLinkMethod, setSendLinkMethod] = useState<'text' | 'email'>('text');
+  // QR Code state
+  const [qrCodeStep, setQrCodeStep] = useState<'amount' | 'qr-display' | 'pending' | 'complete'>('amount');
+  const [qrPhoneNumber, setQrPhoneNumber] = useState('');
+  const [showQrPhoneInput, setShowQrPhoneInput] = useState(false);
 
   // Calculate payment amount from quantities
   useEffect(() => {
@@ -2546,6 +2766,12 @@ const Dashboard = () => {
             setHoveredGuestIndex={setHoveredGuestIndex}
             sendLinkMethod={sendLinkMethod}
             setSendLinkMethod={setSendLinkMethod}
+            qrCodeStep={qrCodeStep}
+            setQrCodeStep={setQrCodeStep}
+            qrPhoneNumber={qrPhoneNumber}
+            setQrPhoneNumber={setQrPhoneNumber}
+            showQrPhoneInput={showQrPhoneInput}
+            setShowQrPhoneInput={setShowQrPhoneInput}
           />
         </div>
       </div>
@@ -2619,6 +2845,12 @@ const Dashboard = () => {
             setHoveredGuestIndex={setHoveredGuestIndex}
             sendLinkMethod={sendLinkMethod}
             setSendLinkMethod={setSendLinkMethod}
+            qrCodeStep={qrCodeStep}
+            setQrCodeStep={setQrCodeStep}
+            qrPhoneNumber={qrPhoneNumber}
+            setQrPhoneNumber={setQrPhoneNumber}
+            showQrPhoneInput={showQrPhoneInput}
+            setShowQrPhoneInput={setShowQrPhoneInput}
           />
           </div>
         </DrawerContent>

@@ -526,6 +526,11 @@ interface OrderPanelContentProps {
   setPaidAmount: (amount: number) => void;
   showOtherPayments: boolean;
   setShowOtherPayments: (show: boolean) => void;
+  giftCardStep: 'amount' | 'enter-card' | 'processing';
+  setGiftCardStep: (step: 'amount' | 'enter-card' | 'processing') => void;
+  giftCardNumber: string;
+  setGiftCardNumber: (number: string) => void;
+  handleGiftCardKeypadPress: (key: string) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -569,7 +574,12 @@ const OrderPanelContent = ({
   paidAmount,
   setPaidAmount,
   showOtherPayments,
-  setShowOtherPayments
+  setShowOtherPayments,
+  giftCardStep,
+  setGiftCardStep,
+  giftCardNumber,
+  setGiftCardNumber,
+  handleGiftCardKeypadPress
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount 
@@ -1055,9 +1065,14 @@ const OrderPanelContent = ({
                             onClick={() => {
                               setSelectedPaymentMethod(method.id);
                               setShowOtherPayments(false);
-                              // Auto-show keypad for Card payment
-                              if (method.id === 'card') {
+                              // Auto-show keypad for Card and Gift Card payment
+                              if (method.id === 'card' || method.id === 'gift-card') {
                                 setShowKeypad(true);
+                              }
+                              // Reset gift card step when selecting gift card
+                              if (method.id === 'gift-card') {
+                                setGiftCardStep('amount');
+                                setGiftCardNumber('');
                               }
                             }}
                             className="flex flex-col items-center gap-1.5"
@@ -1082,8 +1097,8 @@ const OrderPanelContent = ({
                   <div className="px-6 py-4 border-b border-neutral-700">
                     <div className="flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
                       <span className="flex-1 text-green-500 text-2xl font-bold text-center">${paymentAmount}</span>
-                      {/* Hide keypad toggle for Card payment - Card always shows keypad */}
-                      {selectedPaymentMethod !== 'card' && (
+                      {/* Hide keypad toggle for Card and Gift Card payment - they always show keypad */}
+                      {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && (
                         <button 
                           onClick={() => setShowKeypad(!showKeypad)}
                           className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
@@ -1100,7 +1115,7 @@ const OrderPanelContent = ({
 
                   {/* Quick Amount Buttons OR Keypad */}
                   <div className="p-4 space-y-2 flex-1">
-                    {(showKeypad || selectedPaymentMethod === 'card') ? (
+                    {(showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card') ? (
                       /* Numeric Keypad - Compact */
                       <div className="flex flex-col gap-2">
                         {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
@@ -1233,6 +1248,11 @@ const OrderPanelContent = ({
                   <div className="p-6 pt-0">
                     <button
                       onClick={() => {
+                        // For gift card, go to card entry screen instead of processing
+                        if (selectedPaymentMethod === 'gift-card' && giftCardStep === 'amount') {
+                          setGiftCardStep('enter-card');
+                          return;
+                        }
                         const paid = parseFloat(paymentAmount) || 0;
                         setPaidAmount(paid);
                         setPaymentProcessed(true);
@@ -1240,6 +1260,94 @@ const OrderPanelContent = ({
                       className="w-full py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
                     >
                       CHARGE ${paymentAmount}
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Gift Card Number Entry Screen */}
+              {selectedPaymentMethod === 'gift-card' && giftCardStep === 'enter-card' && !paymentProcessed && (
+                <>
+                  {/* Header with back button */}
+                  <div className="flex items-center px-6 py-4 border-b border-neutral-700">
+                    <button 
+                      onClick={() => setGiftCardStep('amount')}
+                      className="mr-3 w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                    >
+                      <svg className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                    </button>
+                    <span className="text-white text-lg font-medium">Pay by Gift Card</span>
+                  </div>
+
+                  {/* Gift Card Number Display */}
+                  <div className="flex-1 flex flex-col items-center justify-center px-6 py-8">
+                    <span className="text-neutral-400 text-sm mb-4">Gift Card Number</span>
+                    <div className="text-white text-2xl font-bold tracking-widest">
+                      {giftCardNumber.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim() || 'XXXX XXXX XXXX XXXX'}
+                    </div>
+                  </div>
+
+                  {/* Gift Card Keypad */}
+                  <div className="p-4 space-y-2">
+                    <div className="flex flex-col gap-2">
+                      {[['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']].map((row, rowIndex) => (
+                        <div key={rowIndex} className="flex gap-2">
+                          {row.map((key) => (
+                            <button
+                              key={key}
+                              onClick={() => handleGiftCardKeypadPress(key)}
+                              className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                            >
+                              {key}
+                            </button>
+                          ))}
+                        </div>
+                      ))}
+                      <div className="flex gap-2">
+                        <button
+                          onClick={() => handleGiftCardKeypadPress('0')}
+                          className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        >
+                          0
+                        </button>
+                        <button
+                          onClick={() => handleGiftCardKeypadPress('00')}
+                          className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        >
+                          00
+                        </button>
+                        <button
+                          onClick={() => handleGiftCardKeypadPress('C')}
+                          className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        >
+                          C
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Continue Button */}
+                  <div className="p-6 pt-0">
+                    <button
+                      onClick={() => {
+                        // Validate gift card number (16 digits)
+                        const digits = giftCardNumber.replace(/\s/g, '');
+                        if (digits.length === 16) {
+                          const paid = parseFloat(paymentAmount) || 0;
+                          setPaidAmount(paid);
+                          setPaymentProcessed(true);
+                        }
+                      }}
+                      disabled={giftCardNumber.replace(/\s/g, '').length !== 16}
+                      className={`w-full py-4 font-bold rounded-xl transition-colors text-sm ${
+                        giftCardNumber.replace(/\s/g, '').length === 16
+                          ? 'bg-neutral-800 hover:bg-neutral-700 text-white'
+                          : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                      }`}
+                    >
+                      Continue
                     </button>
                   </div>
                 </>
@@ -1325,8 +1433,17 @@ const OrderPanelContent = ({
                   <h4 className="text-white text-sm font-medium mb-2">Payment History</h4>
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-neutral-400 text-xs">$</span>
-                      <span className="text-neutral-300 text-xs">Cash</span>
+                      {selectedPaymentMethod === 'gift-card' ? (
+                        <Gift className="w-4 h-4 text-neutral-400" />
+                      ) : selectedPaymentMethod === 'card' ? (
+                        <CreditCard className="w-4 h-4 text-neutral-400" />
+                      ) : (
+                        <span className="text-neutral-400 text-xs">$</span>
+                      )}
+                      <span className="text-neutral-300 text-xs">
+                        {selectedPaymentMethod === 'gift-card' ? 'Gift Card' : 
+                         selectedPaymentMethod === 'card' ? 'Card' : 'Cash'}
+                      </span>
                     </div>
                     <span className="text-green-500 text-xs font-medium">${paidAmount.toFixed(2)}</span>
                   </div>
@@ -1395,6 +1512,8 @@ const Dashboard = () => {
   const [paymentProcessed, setPaymentProcessed] = useState(false);
   const [paidAmount, setPaidAmount] = useState(0);
   const [showOtherPayments, setShowOtherPayments] = useState(false);
+  const [giftCardStep, setGiftCardStep] = useState<'amount' | 'enter-card' | 'processing'>('amount');
+  const [giftCardNumber, setGiftCardNumber] = useState('');
 
   // Calculate payment amount from quantities
   useEffect(() => {
@@ -1443,6 +1562,16 @@ const Dashboard = () => {
       });
     }
   };
+
+  // Gift card keypad handler
+  const handleGiftCardKeypadPress = (key: string) => {
+    if (key === 'C') {
+      setGiftCardNumber('');
+    } else if (giftCardNumber.replace(/\s/g, '').length < 16) {
+      setGiftCardNumber(prev => prev.replace(/\s/g, '') + key);
+    }
+  };
+
   const isMobile = useIsMobile();
 
   // Toggle no tax for an item
@@ -1988,6 +2117,11 @@ const Dashboard = () => {
             setPaidAmount={setPaidAmount}
             showOtherPayments={showOtherPayments}
             setShowOtherPayments={setShowOtherPayments}
+            giftCardStep={giftCardStep}
+            setGiftCardStep={setGiftCardStep}
+            giftCardNumber={giftCardNumber}
+            setGiftCardNumber={setGiftCardNumber}
+            handleGiftCardKeypadPress={handleGiftCardKeypadPress}
           />
         </div>
       </div>
@@ -2046,6 +2180,11 @@ const Dashboard = () => {
             setPaidAmount={setPaidAmount}
             showOtherPayments={showOtherPayments}
             setShowOtherPayments={setShowOtherPayments}
+            giftCardStep={giftCardStep}
+            setGiftCardStep={setGiftCardStep}
+            giftCardNumber={giftCardNumber}
+            setGiftCardNumber={setGiftCardNumber}
+            handleGiftCardKeypadPress={handleGiftCardKeypadPress}
           />
           </div>
         </DrawerContent>

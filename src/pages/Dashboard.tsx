@@ -939,9 +939,9 @@ const OrderPanelContent = ({
       {/* Payment Dialog */}
       {showPaymentDialog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh]">
             {/* Payment Options Panel OR Receipt View */}
-            <div className="w-[480px] flex flex-col bg-neutral-900">
+            <div className="w-[480px] flex flex-col bg-neutral-900 max-h-[90vh] overflow-hidden">
               {paymentProcessed ? (
                 /* Receipt View */
                 <>
@@ -1031,7 +1031,7 @@ const OrderPanelContent = ({
 
                   {/* Guest Selection Screen */}
                   {payByLinkStep === 'select-guest' && (
-                    <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="flex-1 flex flex-col overflow-hidden min-h-0">
                       {/* Info Text */}
                       <div className="px-4 py-3 flex items-center justify-between">
                         <div className="flex items-center gap-2 text-neutral-400 text-sm">
@@ -1085,7 +1085,7 @@ const OrderPanelContent = ({
                       </div>
 
                       {/* Guest List Table */}
-                      <div className="flex-1 overflow-auto px-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      <div className="flex-1 overflow-auto px-4 min-h-0 pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                         {/* Table Header */}
                         <div className="grid grid-cols-3 gap-4 py-2 text-xs text-neutral-400 border-b border-neutral-700">
                           <span>Name</span>
@@ -1165,7 +1165,7 @@ const OrderPanelContent = ({
 
                   {/* Guest Confirmed Screen */}
                   {payByLinkStep === 'guest-confirmed' && selectedGuest && (
-                    <div className="flex-1 flex flex-col overflow-hidden">
+                    <div className="flex-1 flex flex-col overflow-hidden min-h-0">
                       {/* Selected Guest Card */}
                       <div className="p-4">
                         <div className="bg-neutral-800 rounded-xl p-4">
@@ -1240,7 +1240,7 @@ const OrderPanelContent = ({
                       </div>
 
                       {/* Remaining Guest List */}
-                      <div className="flex-1 overflow-auto px-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      <div className="flex-1 overflow-auto px-4 min-h-0 pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                         <div className="grid grid-cols-3 gap-4 py-2 text-xs text-neutral-400 border-b border-neutral-700">
                           <span>Name</span>
                           <span>Phone Number</span>
@@ -1268,7 +1268,7 @@ const OrderPanelContent = ({
 
                   {/* Payment Pending Screen */}
                   {payByLinkStep === 'pending' && selectedGuest && (
-                    <div className="flex-1 flex flex-col items-center justify-center px-6">
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       <div className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center mb-6">
                         <Clock className="w-10 h-10 text-orange-500" />
                       </div>
@@ -1306,7 +1306,7 @@ const OrderPanelContent = ({
 
                   {/* Payment Expired Screen */}
                   {payByLinkStep === 'expired' && selectedGuest && (
-                    <div className="flex-1 flex flex-col items-center justify-center px-6">
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       <div className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center mb-6">
                         <AlertTriangle className="w-10 h-10 text-orange-500" />
                       </div>
@@ -1335,7 +1335,7 @@ const OrderPanelContent = ({
 
                   {/* Payment Complete Screen */}
                   {payByLinkStep === 'complete' && selectedGuest && (
-                    <div className="flex-1 flex flex-col items-center justify-center px-6">
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
                         <CheckCircle className="w-10 h-10 text-green-500" />
                       </div>

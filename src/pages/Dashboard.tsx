@@ -1241,7 +1241,7 @@ const OrderPanelContent = ({
                                         e.stopPropagation();
                                         handleRemoveAmount(amount);
                                       }}
-                                      className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
+                                      className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center leading-none text-xs hover:bg-red-600 transition-colors z-10"
                                     >
                                       ×
                                     </button>

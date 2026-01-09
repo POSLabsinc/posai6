@@ -2009,10 +2009,10 @@ const OrderPanelContent = ({
                       </div>
                       <button 
                         onClick={() => setShowLoyaltyAddGuest(true)}
-                        className="flex items-center gap-2 px-3 py-1.5 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors"
+                        className="flex items-center gap-2 px-4 py-2 bg-emerald-500 rounded-lg hover:bg-emerald-600 transition-colors"
                       >
                         <UserPlus className="w-4 h-4 text-white" />
-                        <span className="text-white text-sm">Add Guest</span>
+                        <span className="text-white text-sm font-medium">Add Guest</span>
                       </button>
                     </div>
 

@@ -801,6 +801,9 @@ const OrderPanelContent = ({
               setShowKeypad(false);
               setShowOtherPayments(false);
               setPaymentAmount(finalTotal.toFixed(2));
+              // Reset gift card state for new payment
+              setGiftCardStep('amount');
+              setGiftCardNumber('');
               setShowPaymentDialog(true);
             }}
             className="flex-1 h-8 rounded-full text-black text-sm font-bold" 

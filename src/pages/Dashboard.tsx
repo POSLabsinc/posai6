@@ -1082,22 +1082,25 @@ const OrderPanelContent = ({
                   <div className="px-6 py-4 border-b border-neutral-700">
                     <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
                       <span className="flex-1 text-green-500 text-2xl font-bold">${paymentAmount}</span>
-                      <button 
-                        onClick={() => setShowKeypad(!showKeypad)}
-                        className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
-                          showKeypad 
-                            ? 'bg-white border-white' 
-                            : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600'
-                        }`}
-                      >
-                        <Grid3X3 className={`w-5 h-5 ${showKeypad ? 'text-neutral-900' : 'text-neutral-300'}`} />
-                      </button>
+                      {/* Hide keypad toggle for Card payment - Card always shows keypad */}
+                      {selectedPaymentMethod !== 'card' && (
+                        <button 
+                          onClick={() => setShowKeypad(!showKeypad)}
+                          className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
+                            showKeypad 
+                              ? 'bg-white border-white' 
+                              : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600'
+                          }`}
+                        >
+                          <Grid3X3 className={`w-5 h-5 ${showKeypad ? 'text-neutral-900' : 'text-neutral-300'}`} />
+                        </button>
+                      )}
                     </div>
                   </div>
 
                   {/* Quick Amount Buttons OR Keypad */}
                   <div className="p-4 space-y-2 flex-1">
-                    {showKeypad ? (
+                    {(showKeypad || selectedPaymentMethod === 'card') ? (
                       /* Numeric Keypad - Compact */
                       <div className="flex flex-col gap-2">
                         {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (

@@ -3277,13 +3277,7 @@ const Dashboard = () => {
                 return (
                   <div
                     key={index}
-                    onClick={() => {
-                      if (table.status === "Available") {
-                        navigate(`/tableorder/${table.id}`);
-                      } else {
-                        navigate(`/tableorder/${table.id}/details`);
-                      }
-                    }}
+                    onClick={() => navigate(`/tableorder/${table.id}`)}
                     className="flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5 cursor-pointer hover:bg-neutral-800 transition-all bg-neutral-900"
                   >
                     <div className="flex items-center justify-between">

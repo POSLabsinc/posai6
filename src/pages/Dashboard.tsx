@@ -1080,8 +1080,8 @@ const OrderPanelContent = ({
 
                   {/* Amount Display */}
                   <div className="px-6 py-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
-                      <span className="flex-1 text-green-500 text-2xl font-bold">${paymentAmount}</span>
+                    <div className="flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
+                      <span className="flex-1 text-green-500 text-2xl font-bold text-center">${paymentAmount}</span>
                       {/* Hide keypad toggle for Card payment - Card always shows keypad */}
                       {selectedPaymentMethod !== 'card' && (
                         <button 

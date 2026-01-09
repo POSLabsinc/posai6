@@ -3311,7 +3311,7 @@ const Dashboard = () => {
                     </div>
                     
                     {isGuestDropdownOpen ? (
-                      <div className="flex flex-wrap gap-1 justify-center">
+                      <div className="flex gap-1 overflow-x-auto scrollbar-hide">
                         {Array.from({ length: table.seats }).map((_, i) => (
                           <button
                             key={i}
@@ -3319,7 +3319,7 @@ const Dashboard = () => {
                               e.stopPropagation();
                               handleGuestSelectCard(table.id, table.seats, i + 1);
                             }}
-                            className="w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                            className="w-5 h-5 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
                           >
                             {i + 1}
                           </button>

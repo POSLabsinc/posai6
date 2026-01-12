@@ -1366,7 +1366,7 @@ const OrderPanelContent = ({
                               onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)}
                               className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"
                             >
-                              <span className="text-white text-sm font-medium">{key}</span>
+                              <span className="text-white text-lg font-medium">{key}</span>
                             </button>
                           ))}
                         </div>
@@ -1378,7 +1378,7 @@ const OrderPanelContent = ({
                               onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)}
                               className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"
                             >
-                              <span className="text-white text-sm font-medium">{key}</span>
+                              <span className="text-white text-lg font-medium">{key}</span>
                             </button>
                           ))}
                         </div>
@@ -1391,14 +1391,14 @@ const OrderPanelContent = ({
                               onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)}
                               className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"
                             >
-                              <span className="text-white text-sm font-medium">{key}</span>
+                              <span className="text-white text-lg font-medium">{key}</span>
                             </button>
                           ))}
                           <button
                             onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))}
                             className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"
                           >
-                            <Delete className="w-4 h-4 text-neutral-400" />
+                            <Delete className="w-5 h-5 text-neutral-400" />
                           </button>
                         </div>
                         {/* Row 4 - Special chars */}
@@ -1407,43 +1407,43 @@ const OrderPanelContent = ({
                             onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')}
                             className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
                           >
-                            <span className="text-white text-sm font-medium">@</span>
+                            <span className="text-white text-lg font-medium">@</span>
                           </button>
                           <button
                             onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')}
                             className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
                           >
-                            <span className="text-white text-sm font-medium">.</span>
+                            <span className="text-white text-lg font-medium">.</span>
                           </button>
                           <button
                             onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')}
                             className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
                           >
-                            <span className="text-white text-sm font-medium">_</span>
+                            <span className="text-white text-lg font-medium">_</span>
                           </button>
                           <button
                             onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')}
                             className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
                           >
-                            <span className="text-white text-sm font-medium">-</span>
+                            <span className="text-white text-lg font-medium">-</span>
                           </button>
                           <button
                             onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')}
                             className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
                           >
-                            <span className="text-white text-xs font-medium">.com</span>
+                            <span className="text-white text-sm font-medium">.com</span>
                           </button>
                           <button
                             onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')}
                             className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
                           >
-                            <span className="text-white text-xs font-medium">.net</span>
+                            <span className="text-white text-sm font-medium">.net</span>
                           </button>
                           <button
                             onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')}
                             className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
                           >
-                            <span className="text-white text-[10px] font-medium">@gmail</span>
+                            <span className="text-white text-xs font-medium">@gmail</span>
                           </button>
                         </div>
                       </div>

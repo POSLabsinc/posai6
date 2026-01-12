@@ -597,6 +597,13 @@ interface OrderPanelContentProps {
   visiblePaymentMethods: PaymentMethodType[];
   dropdownPaymentMethods: PaymentMethodType[];
   handleSelectFromDropdown: (method: PaymentMethodType) => void;
+  // Text receipt props
+  textReceiptStep: 'receipt' | 'phone-input';
+  setTextReceiptStep: (step: 'receipt' | 'phone-input') => void;
+  textReceiptPhone: string;
+  setTextReceiptPhone: (phone: string) => void;
+  textReceiptNoMarketing: boolean;
+  setTextReceiptNoMarketing: (value: boolean) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -686,7 +693,14 @@ const OrderPanelContent = ({
   // Dynamic payment methods
   visiblePaymentMethods,
   dropdownPaymentMethods,
-  handleSelectFromDropdown
+  handleSelectFromDropdown,
+  // Text receipt
+  textReceiptStep,
+  setTextReceiptStep,
+  textReceiptPhone,
+  setTextReceiptPhone,
+  textReceiptNoMarketing,
+  setTextReceiptNoMarketing
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount 
@@ -1051,32 +1065,214 @@ const OrderPanelContent = ({
                   )}
 
                   {/* Receipt Section */}
-                  <div className="px-6 pb-6">
-                    <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
-                    <div className="flex gap-4 justify-center mb-4">
-                      <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
-                        <Printer className="w-6 h-6 text-neutral-400" />
-                        <span className="text-neutral-400 text-sm">Print</span>
-                      </button>
-                      <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
-                        <MessageSquare className="w-6 h-6 text-neutral-400" />
-                        <span className="text-neutral-400 text-sm">Text</span>
-                      </button>
-                      <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
-                        <Mail className="w-6 h-6 text-neutral-400" />
-                        <span className="text-neutral-400 text-sm">Email</span>
+                  {textReceiptStep === 'receipt' ? (
+                    <div className="px-6 pb-6">
+                      <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
+                      <div className="flex gap-4 justify-center mb-4">
+                        <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
+                          <Printer className="w-6 h-6 text-neutral-400" />
+                          <span className="text-neutral-400 text-sm">Print</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setTextReceiptPhone('');
+                            setTextReceiptNoMarketing(false);
+                            setTextReceiptStep('phone-input');
+                          }}
+                          className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                        >
+                          <MessageSquare className="w-6 h-6 text-neutral-400" />
+                          <span className="text-neutral-400 text-sm">Text</span>
+                        </button>
+                        <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
+                          <Mail className="w-6 h-6 text-neutral-400" />
+                          <span className="text-neutral-400 text-sm">Email</span>
+                        </button>
+                      </div>
+                      <button 
+                        onClick={() => {
+                          setPaymentProcessed(false);
+                          setShowPaymentDialog(false);
+                        }}
+                        className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        NO RECEIPT
                       </button>
                     </div>
-                    <button 
-                      onClick={() => {
-                        setPaymentProcessed(false);
-                        setShowPaymentDialog(false);
-                      }}
-                      className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
-                    >
-                      NO RECEIPT
-                    </button>
-                  </div>
+                  ) : (
+                    /* Text Receipt Phone Input Screen */
+                    <div className="flex flex-col h-full">
+                      {/* Header with back button */}
+                      <div className="flex items-center p-4 border-b border-neutral-700">
+                        <button 
+                          onClick={() => setTextReceiptStep('receipt')}
+                          className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors"
+                        >
+                          <ArrowLeft className="w-5 h-5 text-white" />
+                        </button>
+                      </div>
+
+                      {/* Title */}
+                      <div className="px-6 pt-6 pb-4 text-center">
+                        <h2 className="text-white text-xl font-semibold">Where should we</h2>
+                        <h2 className="text-white text-xl font-semibold">text your receipt?</h2>
+                      </div>
+
+                      {/* Phone Input */}
+                      <div className="px-6 mb-4">
+                        <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                          <div className="flex items-center gap-1 px-3 py-3 border-r border-neutral-600">
+                            <span className="text-white text-sm font-medium">US</span>
+                            <span className="text-white text-sm font-medium">+1</span>
+                            <ChevronDown className="w-4 h-4 text-neutral-400" />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="(000) 000- 0000"
+                            value={textReceiptPhone}
+                            readOnly
+                            className="flex-1 bg-transparent text-white px-3 py-3 text-sm placeholder:text-neutral-500 outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Marketing Checkbox */}
+                      <div className="px-6 mb-4">
+                        <label className="flex items-center gap-3 cursor-pointer">
+                          <div 
+                            onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)}
+                            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                              textReceiptNoMarketing 
+                                ? 'bg-white border-white' 
+                                : 'border-neutral-500 bg-transparent'
+                            }`}
+                          >
+                            {textReceiptNoMarketing && <Check className="w-3 h-3 text-black" />}
+                          </div>
+                          <span className="text-neutral-300 text-sm">Do not use my phone number for marketing</span>
+                        </label>
+                      </div>
+
+                      {/* Divider */}
+                      <div className="px-6 mb-4">
+                        <div className="border-t border-neutral-700"></div>
+                      </div>
+
+                      {/* Privacy Text */}
+                      <div className="px-6 mb-6 text-center">
+                        <p className="text-neutral-400 text-xs leading-relaxed">
+                          Your phone number will be used only to send SMS receipts. Message and data rates may apply.
+                        </p>
+                        <p className="text-neutral-400 text-xs leading-relaxed">
+                          Message frequency may vary. <span className="text-purple-400 underline cursor-pointer">Terms of Service</span> and <span className="text-purple-400 underline cursor-pointer">Privacy Policy</span> apply.
+                        </p>
+                      </div>
+
+                      {/* Send Button */}
+                      <div className="px-6 mb-4">
+                        <button 
+                          onClick={() => {
+                            // Send receipt logic here
+                            setTextReceiptStep('receipt');
+                            setPaymentProcessed(false);
+                            setShowPaymentDialog(false);
+                          }}
+                          disabled={textReceiptPhone.replace(/\D/g, '').length < 10}
+                          className="w-full py-4 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          SEND
+                        </button>
+                      </div>
+
+                      {/* Numeric Keypad */}
+                      <div className="bg-neutral-100 flex-1">
+                        <div className="grid grid-cols-3">
+                          {[
+                            { num: '1', sub: '' },
+                            { num: '2', sub: 'ABC' },
+                            { num: '3', sub: 'DEF' },
+                            { num: '4', sub: 'JKL' },
+                            { num: '5', sub: 'MNO' },
+                            { num: '6', sub: 'PQRS' },
+                            { num: '7', sub: 'TUV' },
+                            { num: '8', sub: 'WXYZ' },
+                            { num: '9', sub: '' },
+                          ].map((key) => (
+                            <button
+                              key={key.num}
+                              onClick={() => {
+                                const digits = textReceiptPhone.replace(/\D/g, '');
+                                if (digits.length < 10) {
+                                  const newDigits = digits + key.num;
+                                  // Format as (XXX) XXX-XXXX
+                                  let formatted = '';
+                                  if (newDigits.length > 0) {
+                                    formatted = '(' + newDigits.slice(0, 3);
+                                    if (newDigits.length >= 3) {
+                                      formatted += ') ' + newDigits.slice(3, 6);
+                                      if (newDigits.length >= 6) {
+                                        formatted += '- ' + newDigits.slice(6, 10);
+                                      }
+                                    }
+                                  }
+                                  setTextReceiptPhone(formatted);
+                                }
+                              }}
+                              className="py-4 flex flex-col items-center justify-center hover:bg-neutral-200 transition-colors border-b border-r border-neutral-300"
+                            >
+                              <span className="text-black text-2xl font-light">{key.num}</span>
+                              {key.sub && <span className="text-neutral-500 text-[10px] tracking-widest">{key.sub}</span>}
+                            </button>
+                          ))}
+                          <div className="py-4 border-b border-r border-neutral-300"></div>
+                          <button
+                            onClick={() => {
+                              const digits = textReceiptPhone.replace(/\D/g, '');
+                              if (digits.length < 10) {
+                                const newDigits = digits + '0';
+                                let formatted = '';
+                                if (newDigits.length > 0) {
+                                  formatted = '(' + newDigits.slice(0, 3);
+                                  if (newDigits.length >= 3) {
+                                    formatted += ') ' + newDigits.slice(3, 6);
+                                    if (newDigits.length >= 6) {
+                                      formatted += '- ' + newDigits.slice(6, 10);
+                                    }
+                                  }
+                                }
+                                setTextReceiptPhone(formatted);
+                              }
+                            }}
+                            className="py-4 flex items-center justify-center hover:bg-neutral-200 transition-colors border-b border-r border-neutral-300"
+                          >
+                            <span className="text-black text-2xl font-light">0</span>
+                          </button>
+                          <button
+                            onClick={() => {
+                              const digits = textReceiptPhone.replace(/\D/g, '');
+                              if (digits.length > 0) {
+                                const newDigits = digits.slice(0, -1);
+                                let formatted = '';
+                                if (newDigits.length > 0) {
+                                  formatted = '(' + newDigits.slice(0, 3);
+                                  if (newDigits.length >= 3) {
+                                    formatted += ') ' + newDigits.slice(3, 6);
+                                    if (newDigits.length >= 6) {
+                                      formatted += '- ' + newDigits.slice(6, 10);
+                                    }
+                                  }
+                                }
+                                setTextReceiptPhone(formatted);
+                              }
+                            }}
+                            className="py-4 flex items-center justify-center hover:bg-neutral-200 transition-colors border-b border-neutral-300"
+                          >
+                            <Delete className="w-6 h-6 text-neutral-600" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </>
               ) : selectedPaymentMethod === 'pay-link' && payByLinkStep !== 'amount' ? (
                 /* Pay by Link Screens */
@@ -2826,6 +3022,10 @@ const Dashboard = () => {
   // Dynamic payment methods state
   const [visiblePaymentMethods, setVisiblePaymentMethods] = useState<PaymentMethodType[]>(initialPaymentMethods);
   const [dropdownPaymentMethods, setDropdownPaymentMethods] = useState<PaymentMethodType[]>(initialOtherPaymentMethods);
+  // Text receipt state
+  const [textReceiptStep, setTextReceiptStep] = useState<'receipt' | 'phone-input'>('receipt');
+  const [textReceiptPhone, setTextReceiptPhone] = useState('');
+  const [textReceiptNoMarketing, setTextReceiptNoMarketing] = useState(false);
   // Table card selection state (matching TableOrder page behavior)
   const [selectedTableCard, setSelectedTableCard] = useState<string | null>(null);
   const [guestDropdownTableCard, setGuestDropdownTableCard] = useState<string | null>(null);
@@ -3532,6 +3732,12 @@ const Dashboard = () => {
             visiblePaymentMethods={visiblePaymentMethods}
             dropdownPaymentMethods={dropdownPaymentMethods}
             handleSelectFromDropdown={handleSelectFromDropdown}
+            textReceiptStep={textReceiptStep}
+            setTextReceiptStep={setTextReceiptStep}
+            textReceiptPhone={textReceiptPhone}
+            setTextReceiptPhone={setTextReceiptPhone}
+            textReceiptNoMarketing={textReceiptNoMarketing}
+            setTextReceiptNoMarketing={setTextReceiptNoMarketing}
           />
         </div>
       </div>
@@ -3632,6 +3838,12 @@ const Dashboard = () => {
             visiblePaymentMethods={visiblePaymentMethods}
             dropdownPaymentMethods={dropdownPaymentMethods}
             handleSelectFromDropdown={handleSelectFromDropdown}
+            textReceiptStep={textReceiptStep}
+            setTextReceiptStep={setTextReceiptStep}
+            textReceiptPhone={textReceiptPhone}
+            setTextReceiptPhone={setTextReceiptPhone}
+            textReceiptNoMarketing={textReceiptNoMarketing}
+            setTextReceiptNoMarketing={setTextReceiptNoMarketing}
           />
           </div>
         </DrawerContent>

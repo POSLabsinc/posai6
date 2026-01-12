@@ -557,8 +557,10 @@ interface OrderPanelContentProps {
   setGiftCardNumber: (number: string) => void;
   handleGiftCardKeypadPress: (key: string) => void;
   // Pay by Link props
-  payByLinkStep: 'amount' | 'select-guest' | 'guest-confirmed' | 'pending' | 'expired' | 'complete';
-  setPayByLinkStep: (step: 'amount' | 'select-guest' | 'guest-confirmed' | 'pending' | 'expired' | 'complete') => void;
+  payByLinkStep: 'amount' | 'select-guest' | 'add-guest' | 'guest-confirmed' | 'pending' | 'expired' | 'complete';
+  setPayByLinkStep: (step: 'amount' | 'select-guest' | 'add-guest' | 'guest-confirmed' | 'pending' | 'expired' | 'complete') => void;
+  newGuestForLink: { name: string; phone: string; email: string };
+  setNewGuestForLink: (guest: { name: string; phone: string; email: string }) => void;
   selectedGuest: GuestType | null;
   setSelectedGuest: (guest: GuestType | null) => void;
   guestSearchQuery: string;
@@ -655,6 +657,8 @@ const OrderPanelContent = ({
   setHoveredGuestIndex,
   sendLinkMethod,
   setSendLinkMethod,
+  newGuestForLink,
+  setNewGuestForLink,
   // QR Code
   qrCodeStep,
   setQrCodeStep,
@@ -1114,7 +1118,13 @@ const OrderPanelContent = ({
                           </div>
                           <span className="truncate">Search guest to share link or add details.</span>
                         </div>
-                        <button className="flex items-center gap-1 px-2 py-1 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors flex-shrink-0 whitespace-nowrap">
+                        <button 
+                          onClick={() => {
+                            setNewGuestForLink({ name: '', phone: '', email: '' });
+                            setPayByLinkStep('add-guest');
+                          }}
+                          className="flex items-center gap-1 px-2 py-1 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors flex-shrink-0 whitespace-nowrap"
+                        >
                           <UserPlus className="w-3 h-3 text-white" />
                           <span className="text-white text-xs">Add</span>
                         </button>
@@ -1193,6 +1203,135 @@ const OrderPanelContent = ({
                             <span className="text-neutral-300 text-sm flex items-center">{guest.email}</span>
                           </div>
                         ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Add Guest Screen */}
+                  {payByLinkStep === 'add-guest' && (
+                    <div className="flex flex-col overflow-hidden h-[400px]">
+                      {/* Info Text */}
+                      <div className="px-4 py-2 flex items-center gap-2 text-neutral-400 text-xs">
+                        <div className="w-4 h-4 rounded-full border border-neutral-400 flex items-center justify-center flex-shrink-0">
+                          <span className="text-[10px]">i</span>
+                        </div>
+                        <span>Enter guest details to send payment link.</span>
+                      </div>
+
+                      {/* Send Link Toggle Buttons */}
+                      <div className="px-4 pb-3 flex gap-2">
+                        <button 
+                          onClick={() => setSendLinkMethod('text')}
+                          className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            sendLinkMethod === 'text' 
+                              ? 'bg-white text-black' 
+                              : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                          }`}
+                        >
+                          Send Link by Text
+                        </button>
+                        <button 
+                          onClick={() => setSendLinkMethod('email')}
+                          className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                            sendLinkMethod === 'email' 
+                              ? 'bg-white text-black' 
+                              : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                          }`}
+                        >
+                          Send Link by Email
+                        </button>
+                      </div>
+
+                      {/* Form Fields */}
+                      <div className="flex-1 overflow-auto px-4 space-y-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                        {/* Guest Name */}
+                        <div>
+                          <label className="text-neutral-400 text-xs mb-1.5 block">
+                            Guest Name <span className="text-red-500">*</span>
+                          </label>
+                          <Input
+                            type="text"
+                            placeholder="Enter full name"
+                            value={newGuestForLink.name}
+                            onChange={(e) => setNewGuestForLink({ ...newGuestForLink, name: e.target.value })}
+                            className="w-full py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg"
+                          />
+                        </div>
+
+                        {/* Phone Number */}
+                        <div>
+                          <label className="text-neutral-400 text-xs mb-1.5 block">
+                            Phone Number {sendLinkMethod === 'text' && <span className="text-red-500">*</span>}
+                          </label>
+                          <Input
+                            type="tel"
+                            placeholder="(555) 123-4567"
+                            value={newGuestForLink.phone}
+                            onChange={(e) => {
+                              // Format phone number
+                              const value = e.target.value.replace(/\D/g, '');
+                              let formatted = value;
+                              if (value.length >= 3 && value.length < 6) {
+                                formatted = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+                              } else if (value.length >= 6) {
+                                formatted = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+                              }
+                              setNewGuestForLink({ ...newGuestForLink, phone: formatted });
+                            }}
+                            className="w-full py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg"
+                          />
+                        </div>
+
+                        {/* Email */}
+                        <div>
+                          <label className="text-neutral-400 text-xs mb-1.5 block">
+                            Email Address {sendLinkMethod === 'email' && <span className="text-red-500">*</span>}
+                          </label>
+                          <Input
+                            type="email"
+                            placeholder="guest@email.com"
+                            value={newGuestForLink.email}
+                            onChange={(e) => setNewGuestForLink({ ...newGuestForLink, email: e.target.value })}
+                            className="w-full py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Action Buttons */}
+                      <div className="p-4 flex gap-3 border-t border-neutral-700">
+                        <button 
+                          onClick={() => setPayByLinkStep('select-guest')}
+                          className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-neutral-700 text-white hover:bg-neutral-600 transition-colors"
+                        >
+                          Cancel
+                        </button>
+                        <button 
+                          onClick={() => {
+                            // Validate required fields
+                            if (!newGuestForLink.name.trim()) return;
+                            if (sendLinkMethod === 'text' && !newGuestForLink.phone.trim()) return;
+                            if (sendLinkMethod === 'email' && !newGuestForLink.email.trim()) return;
+
+                            // Create guest object and proceed
+                            const newGuest: GuestType = {
+                              name: newGuestForLink.name,
+                              phone: newGuestForLink.phone,
+                              email: newGuestForLink.email,
+                              avatar: newGuestForLink.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
+                              loyaltyPoints: 0
+                            };
+                            setSelectedGuest(newGuest);
+                            setPayByLinkStep('pending');
+                          }}
+                          disabled={
+                            !newGuestForLink.name.trim() ||
+                            (sendLinkMethod === 'text' && !newGuestForLink.phone.trim()) ||
+                            (sendLinkMethod === 'email' && !newGuestForLink.email.trim())
+                          }
+                          className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Send Link
+                        </button>
                       </div>
                     </div>
                   )}
@@ -2665,11 +2804,12 @@ const Dashboard = () => {
   const [giftCardStep, setGiftCardStep] = useState<'amount' | 'enter-card' | 'processing'>('amount');
   const [giftCardNumber, setGiftCardNumber] = useState('');
   // Pay by Link state
-  const [payByLinkStep, setPayByLinkStep] = useState<'amount' | 'select-guest' | 'guest-confirmed' | 'pending' | 'expired' | 'complete'>('amount');
+  const [payByLinkStep, setPayByLinkStep] = useState<'amount' | 'select-guest' | 'add-guest' | 'guest-confirmed' | 'pending' | 'expired' | 'complete'>('amount');
   const [selectedGuest, setSelectedGuest] = useState<GuestType | null>(null);
   const [guestSearchQuery, setGuestSearchQuery] = useState('');
   const [hoveredGuestIndex, setHoveredGuestIndex] = useState<number | null>(null);
   const [sendLinkMethod, setSendLinkMethod] = useState<'text' | 'email'>('text');
+  const [newGuestForLink, setNewGuestForLink] = useState({ name: '', phone: '', email: '' });
   // QR Code state
   const [qrCodeStep, setQrCodeStep] = useState<'amount' | 'qr-display' | 'pending' | 'complete'>('amount');
   const [qrPhoneNumber, setQrPhoneNumber] = useState('');
@@ -3365,6 +3505,8 @@ const Dashboard = () => {
             setHoveredGuestIndex={setHoveredGuestIndex}
             sendLinkMethod={sendLinkMethod}
             setSendLinkMethod={setSendLinkMethod}
+            newGuestForLink={newGuestForLink}
+            setNewGuestForLink={setNewGuestForLink}
             qrCodeStep={qrCodeStep}
             setQrCodeStep={setQrCodeStep}
             qrPhoneNumber={qrPhoneNumber}
@@ -3463,6 +3605,8 @@ const Dashboard = () => {
             setHoveredGuestIndex={setHoveredGuestIndex}
             sendLinkMethod={sendLinkMethod}
             setSendLinkMethod={setSendLinkMethod}
+            newGuestForLink={newGuestForLink}
+            setNewGuestForLink={setNewGuestForLink}
             qrCodeStep={qrCodeStep}
             setQrCodeStep={setQrCodeStep}
             qrPhoneNumber={qrPhoneNumber}

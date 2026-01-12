@@ -593,6 +593,9 @@ interface OrderPanelContentProps {
   setLoyaltySearchQuery: (query: string) => void;
   showLoyaltyKeypad: boolean;
   setShowLoyaltyKeypad: (show: boolean) => void;
+  // Manual CC props
+  manualCCStep: 'amount' | 'tap-card' | 'processing' | 'complete';
+  setManualCCStep: (step: 'amount' | 'tap-card' | 'processing' | 'complete') => void;
   // Dynamic payment methods
   visiblePaymentMethods: PaymentMethodType[];
   dropdownPaymentMethods: PaymentMethodType[];
@@ -697,6 +700,9 @@ const OrderPanelContent = ({
   setLoyaltySearchQuery,
   showLoyaltyKeypad,
   setShowLoyaltyKeypad,
+  // Manual CC
+  manualCCStep,
+  setManualCCStep,
   // Dynamic payment methods
   visiblePaymentMethods,
   dropdownPaymentMethods,
@@ -2617,6 +2623,148 @@ const OrderPanelContent = ({
                     </div>
                   )}
                 </>
+              ) : selectedPaymentMethod === 'manual-cc' && manualCCStep !== 'amount' ? (
+                /* Manual CC Payment Screens */
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => {
+                          if (manualCCStep === 'tap-card') {
+                            setManualCCStep('amount');
+                          } else if (manualCCStep === 'processing') {
+                            setManualCCStep('tap-card');
+                          } else if (manualCCStep === 'complete') {
+                            setManualCCStep('amount');
+                          }
+                        }}
+                        className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-lg font-medium">Pay by Manual CC</span>
+                    </div>
+                  </div>
+
+                  {/* Card Tap Screen */}
+                  {manualCCStep === 'tap-card' && (
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                      {/* Contactless Icon */}
+                      <div className="w-24 h-24 rounded-full bg-neutral-800 border border-neutral-600 flex items-center justify-center mb-8">
+                        <svg className="w-12 h-12 text-neutral-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M6 18c0-6 6-6 6-12" />
+                          <path d="M10 18c0-4.5 4-4.5 4-9" />
+                          <path d="M14 18c0-3 2-3 2-6" />
+                        </svg>
+                      </div>
+                      
+                      <p className="text-neutral-400 text-sm mb-2">Please tap credit card on reader</p>
+                      <p className="text-white text-2xl font-bold mb-8">Total Amount  £{paymentAmount}</p>
+                      
+                      <button 
+                        onClick={() => {
+                          setManualCCStep('processing');
+                          // Simulate processing delay
+                          setTimeout(() => {
+                            const paid = parseFloat(paymentAmount) || 0;
+                            setPaidAmount(paid);
+                            setManualCCStep('complete');
+                          }, 2000);
+                        }}
+                        className="w-full max-w-xs py-3 bg-neutral-800 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors"
+                      >
+                        SIMULATE CARD TAP
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Processing Screen */}
+                  {manualCCStep === 'processing' && (
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                      {/* Contactless Icon */}
+                      <div className="w-24 h-24 rounded-full bg-neutral-800 border border-neutral-600 flex items-center justify-center mb-8">
+                        <svg className="w-12 h-12 text-neutral-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M6 18c0-6 6-6 6-12" />
+                          <path d="M10 18c0-4.5 4-4.5 4-9" />
+                          <path d="M14 18c0-3 2-3 2-6" />
+                        </svg>
+                      </div>
+                      
+                      <p className="text-neutral-400 text-sm mb-2">Please tap credit card on reader</p>
+                      <p className="text-white text-2xl font-bold mb-8">Total Amount  £{paymentAmount}</p>
+                      
+                      <button 
+                        disabled
+                        className="w-full max-w-xs py-3 bg-neutral-800 text-white font-medium rounded-lg cursor-not-allowed flex items-center justify-center"
+                      >
+                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+                        PROCESSING...
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Complete/Receipt Screen */}
+                  {manualCCStep === 'complete' && (
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                      {/* Success Icon */}
+                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                        <CheckCircle className="w-12 h-12 text-green-500" />
+                      </div>
+                      
+                      <p className="text-center mb-2">
+                        <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
+                        <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+                      </p>
+                      
+                      <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
+                      
+                      {/* Receipt Options */}
+                      <div className="flex gap-4 mb-6">
+                        <button 
+                          onClick={() => {
+                            // Print action
+                            setPaymentProcessed(true);
+                            setShowPaymentDialog(false);
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Printer className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Print</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setTextReceiptStep('phone-input');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <MessageSquare className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Text</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setEmailReceiptStep('email-input');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Mail className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Email</span>
+                        </button>
+                      </div>
+                      
+                      <button 
+                        onClick={() => {
+                          setPaymentProcessed(true);
+                          setShowPaymentDialog(false);
+                          setManualCCStep('amount');
+                        }}
+                        className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        NO RECEIPT
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 /* Payment Entry View */
                 <>
@@ -2993,6 +3141,10 @@ const OrderPanelContent = ({
                             setQrCodeStep('qr-display');
                             return;
                           }
+                          if (selectedPaymentMethod === 'manual-cc' && manualCCStep === 'amount') {
+                            setManualCCStep('tap-card');
+                            return;
+                          }
                           const paid = parseFloat(paymentAmount) || 0;
                           setPaidAmount(paid);
                           setPaymentProcessed(true);
@@ -3092,7 +3244,7 @@ const OrderPanelContent = ({
                         <Link className="w-4 h-4 text-neutral-400" />
                       ) : selectedPaymentMethod === 'gift-card' ? (
                         <Gift className="w-4 h-4 text-neutral-400" />
-                      ) : selectedPaymentMethod === 'card' ? (
+                      ) : selectedPaymentMethod === 'card' || selectedPaymentMethod === 'manual-cc' ? (
                         <CreditCard className="w-4 h-4 text-neutral-400" />
                       ) : (
                         <span className="text-neutral-400 text-xs">$</span>
@@ -3101,6 +3253,7 @@ const OrderPanelContent = ({
                         {selectedPaymentMethod === 'qr-code' ? 'Pay by QR' :
                          selectedPaymentMethod === 'pay-link' ? 'Pay By Link' :
                          selectedPaymentMethod === 'gift-card' ? 'Gift Card' : 
+                         selectedPaymentMethod === 'manual-cc' ? 'Pay By Manual CC' :
                          selectedPaymentMethod === 'card' ? 'Card' : 'Cash'}
                       </span>
                     </div>
@@ -3193,6 +3346,8 @@ const Dashboard = () => {
   const [loyaltyOtp, setLoyaltyOtp] = useState<string[]>(['', '', '', '']);
   const [loyaltySearchQuery, setLoyaltySearchQuery] = useState('');
   const [showLoyaltyKeypad, setShowLoyaltyKeypad] = useState(false);
+  // Manual CC state
+  const [manualCCStep, setManualCCStep] = useState<'amount' | 'tap-card' | 'processing' | 'complete'>('amount');
   // Dynamic payment methods state
   const [visiblePaymentMethods, setVisiblePaymentMethods] = useState<PaymentMethodType[]>(initialPaymentMethods);
   const [dropdownPaymentMethods, setDropdownPaymentMethods] = useState<PaymentMethodType[]>(initialOtherPaymentMethods);
@@ -3230,6 +3385,10 @@ const Dashboard = () => {
     setDropdownPaymentMethods(newDropdownMethods);
     setSelectedPaymentMethod(selectedMethod.id);
     setShowOtherPayments(false);
+    // Reset manual CC step when selecting it
+    if (selectedMethod.id === 'manual-cc') {
+      setManualCCStep('amount');
+    }
   };
 
   // Calculate payment amount from quantities
@@ -3907,6 +4066,8 @@ const Dashboard = () => {
             setLoyaltySearchQuery={setLoyaltySearchQuery}
             showLoyaltyKeypad={showLoyaltyKeypad}
             setShowLoyaltyKeypad={setShowLoyaltyKeypad}
+            manualCCStep={manualCCStep}
+            setManualCCStep={setManualCCStep}
             visiblePaymentMethods={visiblePaymentMethods}
             dropdownPaymentMethods={dropdownPaymentMethods}
             handleSelectFromDropdown={handleSelectFromDropdown}
@@ -4019,6 +4180,8 @@ const Dashboard = () => {
             setLoyaltySearchQuery={setLoyaltySearchQuery}
             showLoyaltyKeypad={showLoyaltyKeypad}
             setShowLoyaltyKeypad={setShowLoyaltyKeypad}
+            manualCCStep={manualCCStep}
+            setManualCCStep={setManualCCStep}
             visiblePaymentMethods={visiblePaymentMethods}
             dropdownPaymentMethods={dropdownPaymentMethods}
             handleSelectFromDropdown={handleSelectFromDropdown}

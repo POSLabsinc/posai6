@@ -3916,21 +3916,21 @@ const OrderPanelContent = ({
                       </div>
 
                       {/* Reference Number Label */}
-                      <div className="px-6 mb-2">
-                        <span className="text-neutral-400 text-sm">Reference number</span>
+                      <div className="px-4 mb-1">
+                        <span className="text-muted-foreground text-xs">Reference number</span>
                       </div>
 
                       {/* Reference Number Input */}
-                      <div className="px-6 mb-6">
-                        <div className="bg-white rounded-lg px-4 py-3 border border-neutral-300">
-                          <span className="text-black text-lg font-medium">
+                      <div className="px-4 mb-3">
+                        <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
+                          <span className="text-foreground text-base font-medium">
                             {doordashReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
                           </span>
                         </div>
                       </div>
 
                       {/* Keypad */}
-                      <div className="flex-1 px-6">
+                      <div className="flex-1 px-4">
                         <div className="grid grid-cols-3 gap-2">
                           {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map((key) => (
                             <button
@@ -3942,10 +3942,10 @@ const OrderPanelContent = ({
                                   setDoordashReference(doordashReference + key);
                                 }
                               }}
-                              className={`py-4 rounded-lg text-lg font-medium transition-colors ${
+                              className={`h-12 rounded-xl text-lg font-medium transition-colors ${
                                 key === 'C'
-                                  ? 'bg-neutral-200 text-red-500 hover:bg-neutral-300'
-                                  : 'bg-white text-black border border-neutral-300 hover:bg-neutral-100'
+                                  ? 'bg-neutral-800 border border-neutral-700 text-destructive hover:bg-neutral-700'
+                                  : 'bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600'
                               }`}
                             >
                               {key}
@@ -3955,7 +3955,7 @@ const OrderPanelContent = ({
                       </div>
 
                       {/* Continue Button */}
-                      <div className="p-6">
+                      <div className="p-4">
                         <button 
                           onClick={() => {
                             const paid = parseFloat(paymentAmount) || 0;
@@ -3965,7 +3965,7 @@ const OrderPanelContent = ({
                           disabled={!doordashReference}
                           className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${
                             doordashReference
-                              ? 'bg-neutral-800 hover:bg-neutral-700 text-white'
+                              ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
                               : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
                           }`}
                         >

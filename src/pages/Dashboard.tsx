@@ -2136,7 +2136,7 @@ const OrderPanelContent = ({
 
                   {/* Guest Selected with Points Screen */}
                   {loyaltyStep === 'guest-selected' && loyaltySelectedGuest && (
-                    <div className="flex flex-col overflow-hidden h-[400px]">
+                    <div className="flex flex-col overflow-hidden flex-1">
                       {/* Selected Guest Card with Points */}
                       <div className="p-3">
                         <div className="bg-neutral-800 rounded-xl p-3">
@@ -2235,7 +2235,7 @@ const OrderPanelContent = ({
 
                   {/* Points Input Screen */}
                   {loyaltyStep === 'points-input' && loyaltySelectedGuest && (
-                    <div className="flex flex-col overflow-hidden h-[400px]">
+                    <div className="flex flex-col overflow-hidden flex-1">
                       {/* Selected Guest Card */}
                       <div className="p-3 border-b border-neutral-700">
                         <div className="flex items-center gap-3">
@@ -2334,7 +2334,7 @@ const OrderPanelContent = ({
 
                   {/* OTP Verification Screen */}
                   {loyaltyStep === 'otp' && loyaltySelectedGuest && (
-                    <div className="flex flex-col overflow-hidden h-[400px] p-3">
+                    <div className="flex flex-col overflow-hidden flex-1 p-3">
                       {/* Points Summary */}
                       <div className="flex items-center justify-between py-2 border-b border-neutral-700 mb-3">
                         <div className="flex items-center gap-1.5">
@@ -2417,7 +2417,7 @@ const OrderPanelContent = ({
 
                   {/* Payment Complete Screen */}
                   {loyaltyStep === 'complete' && loyaltySelectedGuest && (
-                    <div className="flex flex-col items-center justify-center h-[400px] px-4 py-4">
+                    <div className="flex flex-col items-center justify-center flex-1 px-4 py-4">
                       <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
                         <CheckCircle className="w-7 h-7 text-green-500" />
                       </div>

@@ -2631,7 +2631,11 @@ const OrderPanelContent = ({
                     <div className="flex items-center gap-3">
                       <button 
                         onClick={() => {
-                          if (manualCCStep === 'tap-card') {
+                          if (textReceiptStep === 'phone-input') {
+                            setTextReceiptStep('receipt');
+                          } else if (emailReceiptStep === 'email-input') {
+                            setEmailReceiptStep('receipt');
+                          } else if (manualCCStep === 'tap-card') {
                             setManualCCStep('amount');
                           } else if (manualCCStep === 'processing') {
                             setManualCCStep('tap-card');
@@ -2773,18 +2777,8 @@ const OrderPanelContent = ({
                       ) : textReceiptStep === 'phone-input' ? (
                         /* Text Receipt Phone Input Screen for Manual CC */
                         <div className="flex flex-col h-[500px]">
-                          {/* Header with back button */}
-                          <div className="flex items-center p-3 border-b border-neutral-700">
-                            <button 
-                              onClick={() => setTextReceiptStep('receipt')}
-                              className="w-7 h-7 rounded-full bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors"
-                            >
-                              <ArrowLeft className="w-4 h-4 text-white" />
-                            </button>
-                          </div>
-
                           {/* Title */}
-                          <div className="px-4 pt-3 pb-2 text-center">
+                          <div className="px-4 pt-4 pb-2 text-center">
                             <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
                           </div>
 
@@ -2897,18 +2891,8 @@ const OrderPanelContent = ({
                       ) : emailReceiptStep === 'email-input' ? (
                         /* Email Receipt Input Screen for Manual CC */
                         <div className="flex flex-col h-[500px]">
-                          {/* Header with back button */}
-                          <div className="flex items-center p-3 border-b border-neutral-700">
-                            <button 
-                              onClick={() => setEmailReceiptStep('receipt')}
-                              className="w-7 h-7 rounded-full bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors"
-                            >
-                              <ArrowLeft className="w-4 h-4 text-white" />
-                            </button>
-                          </div>
-
                           {/* Title */}
-                          <div className="px-4 pt-3 pb-2 text-center">
+                          <div className="px-4 pt-4 pb-2 text-center">
                             <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
                           </div>
 

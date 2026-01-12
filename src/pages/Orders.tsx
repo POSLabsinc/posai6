@@ -7195,13 +7195,13 @@ const Orders = () => {
                           <div className="ml-2.5 mt-0.5 relative">
                             <div className="relative flex items-center text-[10px] py-[2px]">
                               {/* Vertical line segment to connect to horizontal */}
-                              <div className="absolute left-0 top-0 h-1/2 w-px bg-amber-400" />
+                              <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                               {/* Horizontal connector */}
-                              <div className="absolute left-0 top-1/2 w-2.5 h-px bg-amber-400" />
+                              <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
                               {/* Content */}
                               <div className="flex items-center gap-1.5 ml-4">
-                                <span className="text-amber-400">📝</span>
-                                <span className="text-amber-400 italic">{item.notes}</span>
+                                <span className="text-white">📝</span>
+                                <span className="text-white italic">{item.notes}</span>
                               </div>
                             </div>
                           </div>
@@ -7212,13 +7212,13 @@ const Orders = () => {
                           <div className="ml-2.5 mt-0.5 relative">
                             <div className="relative flex items-center text-[10px] py-[2px]">
                               {/* Vertical line segment to connect to horizontal */}
-                              <div className="absolute left-0 top-0 h-1/2 w-px bg-red-400" />
+                              <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                               {/* Horizontal connector */}
-                              <div className="absolute left-0 top-1/2 w-2.5 h-px bg-red-400" />
+                              <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
                               {/* Content */}
                               <div className="flex items-center gap-1.5 ml-4">
-                                <Tag className="w-3 h-3 text-red-400" />
-                                <span className="text-red-400">{item.discountName} (-${item.discountAmount.toFixed(2)})</span>
+                                <Tag className="w-3 h-3 text-white" />
+                                <span className="text-white">{item.discountName} (-${item.discountAmount.toFixed(2)})</span>
                               </div>
                             </div>
                           </div>
@@ -8265,13 +8265,13 @@ const Orders = () => {
                                   <div className="ml-3 mt-1 relative">
                                     <div className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
                                       {/* Vertical line segment to connect to horizontal */}
-                                      <div className="absolute left-0 top-0 h-1/2 w-px bg-amber-400" />
+                                      <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                       {/* Horizontal connector */}
-                                      <div className="absolute left-0 top-1/2 w-3 h-px bg-amber-400" />
+                                      <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
                                       {/* Content */}
                                       <div className="flex items-center gap-2 ml-5">
-                                        <span className="text-amber-400">📝</span>
-                                        <span className="text-amber-400 italic">{item.notes}</span>
+                                        <span className="text-white">📝</span>
+                                        <span className="text-white italic">{item.notes}</span>
                                       </div>
                                     </div>
                                   </div>
@@ -8282,13 +8282,13 @@ const Orders = () => {
                                   <div className="ml-3 mt-1 relative">
                                     <div className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
                                       {/* Vertical line segment to connect to horizontal */}
-                                      <div className="absolute left-0 top-0 h-1/2 w-px bg-red-400" />
+                                      <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                       {/* Horizontal connector */}
-                                      <div className="absolute left-0 top-1/2 w-3 h-px bg-red-400" />
+                                      <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
                                       {/* Content */}
                                       <div className="flex items-center gap-2 ml-5">
-                                        <Tag className="w-3 h-3 text-red-400" />
-                                        <span className="text-red-400">{item.discountName} (-${item.discountAmount.toFixed(2)})</span>
+                                        <Tag className="w-3 h-3 text-white" />
+                                        <span className="text-white">{item.discountName} (-${item.discountAmount.toFixed(2)})</span>
                                       </div>
                                     </div>
                                   </div>

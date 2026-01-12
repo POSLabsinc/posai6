@@ -40,18 +40,23 @@ const MPINDialog = ({ open, onOpenChange, onSuccess, correctPin = "1234" }: MPIN
     setError(false);
   };
 
+  const handleClear = () => {
+    setPin("");
+    setError(false);
+  };
+
   const renderPinDots = () => {
     return (
-      <div className="flex items-center justify-center gap-3 mb-6">
+      <div className="flex items-center justify-center gap-2.5 mb-4">
         {[0, 1, 2, 3].map((index) => (
           <div
             key={index}
-            className={`w-3 h-3 rounded-full transition-all duration-200 ${
+            className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
               index < pin.length
                 ? error
-                  ? "bg-red-500"
+                  ? "bg-destructive"
                   : "bg-primary"
-                : "bg-muted-foreground/30"
+                : "bg-neutral-600"
             }`}
           />
         ))}
@@ -59,80 +64,80 @@ const MPINDialog = ({ open, onOpenChange, onSuccess, correctPin = "1234" }: MPIN
     );
   };
 
-  const numpadButtons = [
-    ["1", "2", "3"],
-    ["4", "5", "6"],
-    ["7", "8", "9"],
-    ["0", "backspace"]
-  ];
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="w-full h-full max-w-none max-h-none rounded-none bg-[#1a1a1a] border-none p-6 gap-0 flex flex-col justify-center">
-        {/* Manager Profile */}
-        <div className="flex flex-col items-center mb-6">
-          <div className="w-16 h-16 rounded-full overflow-hidden mb-3 border-2 border-primary/30">
-            <img
-              src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
-              alt="Manager"
-              className="w-full h-full object-cover"
-            />
-          </div>
-          <h3 className="text-lg font-semibold text-foreground">Mia Jones</h3>
-          <p className="text-sm text-muted-foreground">Manager</p>
-        </div>
-
-        {/* PIN Dots */}
-        {renderPinDots()}
-
-        {/* Title */}
-        <p className="text-center text-muted-foreground text-sm mb-6">Enter your PIN</p>
-
-        {/* Numpad */}
-        <div className="flex flex-col gap-3">
-          {numpadButtons.map((row, rowIndex) => (
-            <div key={rowIndex} className="flex justify-center gap-3">
-              {row.map((btn) => (
-                btn === "backspace" ? (
-                  <button
-                    key={btn}
-                    onClick={handleBackspace}
-                    className="w-20 h-16 rounded-xl bg-neutral-800 border border-neutral-700 flex items-center justify-center hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-                  >
-                    <Delete className="w-6 h-6 text-foreground" />
-                  </button>
-                ) : (
-                  <button
-                    key={btn}
-                    onClick={() => handleNumberClick(btn)}
-                    className="w-20 h-16 rounded-xl bg-neutral-800 border border-neutral-700 text-2xl font-medium text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-                  >
-                    {btn}
-                  </button>
-                )
-              ))}
-              {/* Add empty placeholder for the last row to align 0 with 8 */}
-              {rowIndex === 3 && <div className="w-20 h-16" />}
+      <DialogContent className="w-full h-full max-w-none max-h-none rounded-none bg-neutral-900 border-none p-4 gap-0 flex flex-col justify-center items-center">
+        <div className="w-full max-w-[280px] flex flex-col items-center">
+          {/* Manager Profile - Compact */}
+          <div className="flex flex-col items-center mb-4">
+            <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
+              <img
+                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
+                alt="Manager"
+                className="w-full h-full object-cover"
+              />
             </div>
-          ))}
-        </div>
+            <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
+            <p className="text-xs text-muted-foreground">Manager</p>
+          </div>
 
-        {/* Biometric Options */}
-        <div className="flex justify-center gap-4 mt-6">
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-neutral-800/50 border border-neutral-700 text-muted-foreground hover:bg-neutral-700/50 transition-colors">
-            <Fingerprint className="w-5 h-5" />
-            <span className="text-sm">Touch ID</span>
-          </button>
-          <button className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-neutral-800/50 border border-neutral-700 text-muted-foreground hover:bg-neutral-700/50 transition-colors">
-            <ScanFace className="w-5 h-5" />
-            <span className="text-sm">Face ID</span>
-          </button>
-        </div>
+          {/* PIN Dots */}
+          {renderPinDots()}
 
-        {/* Forgot PIN */}
-        <p className="text-center text-muted-foreground text-xs mt-6">
-          Forgot PIN? Contact your manager
-        </p>
+          {/* Title */}
+          <p className="text-center text-muted-foreground text-xs mb-4">Enter your PIN</p>
+
+          {/* Numpad - Compact Grid */}
+          <div className="grid grid-cols-3 gap-2 w-full">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+              <button
+                key={num}
+                onClick={() => handleNumberClick(num.toString())}
+                className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              >
+                {num}
+              </button>
+            ))}
+            {/* Backspace button (left) */}
+            <button
+              onClick={handleBackspace}
+              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+            >
+              <Delete className="w-5 h-5" />
+            </button>
+            {/* Zero button (center) */}
+            <button
+              onClick={() => handleNumberClick("0")}
+              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+            >
+              0
+            </button>
+            {/* Clear button (right) - red C */}
+            <button
+              onClick={handleClear}
+              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+            >
+              C
+            </button>
+          </div>
+
+          {/* Biometric Options - Compact */}
+          <div className="flex justify-center gap-3 mt-4">
+            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+              <Fingerprint className="w-4 h-4" />
+              <span className="text-xs">Touch ID</span>
+            </button>
+            <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+              <ScanFace className="w-4 h-4" />
+              <span className="text-xs">Face ID</span>
+            </button>
+          </div>
+
+          {/* Forgot PIN */}
+          <p className="text-center text-muted-foreground text-[10px] mt-4">
+            Forgot PIN? Contact your manager
+          </p>
+        </div>
       </DialogContent>
     </Dialog>
   );

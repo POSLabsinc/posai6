@@ -7137,12 +7137,12 @@ const Orders = () => {
                                   <div key={idx} className="relative flex items-center text-[10px] py-[2px]">
                                     {/* Vertical line - only show if not last item */}
                                     {!isLastItem && (
-                                      <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white/60" style={{ height: '100%' }} />
+                                      <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
                                     )}
                                     {/* Vertical line segment to connect to horizontal */}
-                                    <div className="absolute left-0 top-0 h-1/2 w-px bg-white/60" />
+                                    <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                     {/* Horizontal connector */}
-                                    <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/60" />
+                                    <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
                                     {/* Content */}
                                     <div className="flex items-center gap-1.5 ml-4">
                                       <span className="text-white">
@@ -7158,9 +7158,9 @@ const Orders = () => {
                               {hasShowButton && (
                                 <div className="relative flex items-center py-[2px]">
                                   {/* Vertical line segment to connect to horizontal (this is the last item) */}
-                                  <div className="absolute left-0 top-0 h-1/2 w-px bg-white/60" />
+                                  <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                   {/* Horizontal connector */}
-                                  <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/60" />
+                                  <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
                                   <button 
                                     className="text-[10px] text-white/60 hover:text-white ml-4"
                                     onClick={(e) => {
@@ -8173,12 +8173,12 @@ const Orders = () => {
                                           <div key={idx} className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
                                             {/* Vertical line - only show if not last item */}
                                             {!isLastItem && (
-                                              <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white/60" style={{ height: '100%' }} />
+                                              <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
                                             )}
                                             {/* Vertical line segment to connect to horizontal */}
-                                            <div className="absolute left-0 top-0 h-1/2 w-px bg-white/60" />
+                                            <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                             {/* Horizontal connector */}
-                                            <div className="absolute left-0 top-1/2 w-3 h-px bg-white/60" />
+                                            <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
                                             {/* Content */}
                                             <div className="flex items-center gap-2 ml-5">
                                               <span className="text-white">
@@ -8194,9 +8194,9 @@ const Orders = () => {
                                       {hasShowButton && (
                                         <div className="relative flex items-center py-[3px]">
                                           {/* Vertical line segment to connect to horizontal (this is the last item) */}
-                                          <div className="absolute left-0 top-0 h-1/2 w-px bg-white/60" />
+                                          <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                           {/* Horizontal connector */}
-                                          <div className="absolute left-0 top-1/2 w-3 h-px bg-white/60" />
+                                          <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
                                           <button 
                                             className="text-xs text-white/60 hover:text-white ml-5"
                                             onClick={(e) => {

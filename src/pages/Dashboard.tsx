@@ -1105,7 +1105,7 @@ const OrderPanelContent = ({
 
                   {/* Guest Selection Screen */}
                   {payByLinkStep === 'select-guest' && (
-                    <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+                    <div className="flex flex-col overflow-hidden h-[400px]">
                       {/* Info Text */}
                       <div className="px-4 py-3 flex items-center justify-between">
                         <div className="flex items-center gap-2 text-neutral-400 text-sm">
@@ -1239,7 +1239,7 @@ const OrderPanelContent = ({
 
                   {/* Guest Confirmed Screen */}
                   {payByLinkStep === 'guest-confirmed' && selectedGuest && (
-                    <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+                    <div className="flex flex-col overflow-hidden h-[400px]">
                       {/* Selected Guest Card */}
                       <div className="p-4">
                         <div className="bg-neutral-800 rounded-xl p-4">

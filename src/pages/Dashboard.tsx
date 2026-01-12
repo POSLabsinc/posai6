@@ -1103,92 +1103,81 @@ const OrderPanelContent = ({
                     </>
                   ) : (
                     /* Text Receipt Phone Input Screen */
-                    <div className="flex flex-col h-full">
+                    <div className="flex flex-col h-[500px]">
                       {/* Header with back button */}
-                      <div className="flex items-center p-4 border-b border-neutral-700">
+                      <div className="flex items-center p-3 border-b border-neutral-700">
                         <button 
                           onClick={() => setTextReceiptStep('receipt')}
-                          className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors"
+                          className="w-7 h-7 rounded-full bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors"
                         >
-                          <ArrowLeft className="w-5 h-5 text-white" />
+                          <ArrowLeft className="w-4 h-4 text-white" />
                         </button>
                       </div>
 
                       {/* Title */}
-                      <div className="px-6 pt-6 pb-4 text-center">
-                        <h2 className="text-white text-xl font-semibold">Where should we</h2>
-                        <h2 className="text-white text-xl font-semibold">text your receipt?</h2>
+                      <div className="px-4 pt-3 pb-2 text-center">
+                        <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
                       </div>
 
                       {/* Phone Input */}
-                      <div className="px-6 mb-4">
+                      <div className="px-4 mb-2">
                         <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                          <div className="flex items-center gap-1 px-3 py-3 border-r border-neutral-600">
-                            <span className="text-white text-sm font-medium">US</span>
-                            <span className="text-white text-sm font-medium">+1</span>
-                            <ChevronDown className="w-4 h-4 text-neutral-400" />
+                          <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
+                            <span className="text-white text-xs font-medium">US +1</span>
+                            <ChevronDown className="w-3 h-3 text-neutral-400" />
                           </div>
                           <input
                             type="text"
-                            placeholder="(000) 000- 0000"
+                            placeholder="(000) 000-0000"
                             value={textReceiptPhone}
                             readOnly
-                            className="flex-1 bg-transparent text-white px-3 py-3 text-sm placeholder:text-neutral-500 outline-none"
+                            className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none"
                           />
                         </div>
                       </div>
 
                       {/* Marketing Checkbox */}
-                      <div className="px-6 mb-4">
-                        <label className="flex items-center gap-3 cursor-pointer">
+                      <div className="px-4 mb-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
                           <div 
                             onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)}
-                            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+                            className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
                               textReceiptNoMarketing 
                                 ? 'bg-white border-white' 
                                 : 'border-neutral-500 bg-transparent'
                             }`}
                           >
-                            {textReceiptNoMarketing && <Check className="w-3 h-3 text-black" />}
+                            {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
                           </div>
-                          <span className="text-neutral-300 text-sm">Do not use my phone number for marketing</span>
+                          <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
                         </label>
                       </div>
 
-                      {/* Divider */}
-                      <div className="px-6 mb-4">
-                        <div className="border-t border-neutral-700"></div>
-                      </div>
-
                       {/* Privacy Text */}
-                      <div className="px-6 mb-6 text-center">
-                        <p className="text-neutral-400 text-xs leading-relaxed">
-                          Your phone number will be used only to send SMS receipts. Message and data rates may apply.
-                        </p>
-                        <p className="text-neutral-400 text-xs leading-relaxed">
-                          Message frequency may vary. <span className="text-purple-400 underline cursor-pointer">Terms of Service</span> and <span className="text-purple-400 underline cursor-pointer">Privacy Policy</span> apply.
+                      <div className="px-4 mb-2 text-center">
+                        <p className="text-neutral-500 text-[10px] leading-relaxed">
+                          Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
                         </p>
                       </div>
 
                       {/* Send Button */}
-                      <div className="px-6 mb-4">
+                      <div className="px-4 mb-2">
                         <button 
                           onClick={() => {
-                            // Send receipt logic here
                             setTextReceiptStep('receipt');
                             setPaymentProcessed(false);
                             setShowPaymentDialog(false);
                           }}
                           disabled={textReceiptPhone.replace(/\D/g, '').length < 10}
-                          className="w-full py-4 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                         >
                           SEND
                         </button>
                       </div>
 
-                      {/* Numeric Keypad */}
-                      <div className="bg-neutral-100 flex-1">
-                        <div className="grid grid-cols-3">
+                      {/* Numeric Keypad - Dark Mode */}
+                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden">
+                        <div className="grid grid-cols-3 h-full">
                           {[
                             { num: '1', sub: '' },
                             { num: '2', sub: 'ABC' },
@@ -1206,27 +1195,26 @@ const OrderPanelContent = ({
                                 const digits = textReceiptPhone.replace(/\D/g, '');
                                 if (digits.length < 10) {
                                   const newDigits = digits + key.num;
-                                  // Format as (XXX) XXX-XXXX
                                   let formatted = '';
                                   if (newDigits.length > 0) {
                                     formatted = '(' + newDigits.slice(0, 3);
                                     if (newDigits.length >= 3) {
                                       formatted += ') ' + newDigits.slice(3, 6);
                                       if (newDigits.length >= 6) {
-                                        formatted += '- ' + newDigits.slice(6, 10);
+                                        formatted += '-' + newDigits.slice(6, 10);
                                       }
                                     }
                                   }
                                   setTextReceiptPhone(formatted);
                                 }
                               }}
-                              className="py-4 flex flex-col items-center justify-center hover:bg-neutral-200 transition-colors border-b border-r border-neutral-300"
+                              className="py-2 flex flex-col items-center justify-center hover:bg-neutral-700 transition-colors border-b border-r border-neutral-700 active:bg-neutral-600"
                             >
-                              <span className="text-black text-2xl font-light">{key.num}</span>
-                              {key.sub && <span className="text-neutral-500 text-[10px] tracking-widest">{key.sub}</span>}
+                              <span className="text-white text-xl font-light">{key.num}</span>
+                              {key.sub && <span className="text-neutral-500 text-[8px] tracking-wider">{key.sub}</span>}
                             </button>
                           ))}
-                          <div className="py-4 border-b border-r border-neutral-300"></div>
+                          <div className="py-2 border-b border-r border-neutral-700"></div>
                           <button
                             onClick={() => {
                               const digits = textReceiptPhone.replace(/\D/g, '');
@@ -1238,16 +1226,16 @@ const OrderPanelContent = ({
                                   if (newDigits.length >= 3) {
                                     formatted += ') ' + newDigits.slice(3, 6);
                                     if (newDigits.length >= 6) {
-                                      formatted += '- ' + newDigits.slice(6, 10);
+                                      formatted += '-' + newDigits.slice(6, 10);
                                     }
                                   }
                                 }
                                 setTextReceiptPhone(formatted);
                               }
                             }}
-                            className="py-4 flex items-center justify-center hover:bg-neutral-200 transition-colors border-b border-r border-neutral-300"
+                            className="py-2 flex items-center justify-center hover:bg-neutral-700 transition-colors border-b border-r border-neutral-700 active:bg-neutral-600"
                           >
-                            <span className="text-black text-2xl font-light">0</span>
+                            <span className="text-white text-xl font-light">0</span>
                           </button>
                           <button
                             onClick={() => {
@@ -1260,16 +1248,16 @@ const OrderPanelContent = ({
                                   if (newDigits.length >= 3) {
                                     formatted += ') ' + newDigits.slice(3, 6);
                                     if (newDigits.length >= 6) {
-                                      formatted += '- ' + newDigits.slice(6, 10);
+                                      formatted += '-' + newDigits.slice(6, 10);
                                     }
                                   }
                                 }
                                 setTextReceiptPhone(formatted);
                               }
                             }}
-                            className="py-4 flex items-center justify-center hover:bg-neutral-200 transition-colors border-b border-neutral-300"
+                            className="py-2 flex items-center justify-center hover:bg-neutral-700 transition-colors border-b border-neutral-700 active:bg-neutral-600"
                           >
-                            <Delete className="w-6 h-6 text-neutral-600" />
+                            <Delete className="w-5 h-5 text-neutral-400" />
                           </button>
                         </div>
                       </div>

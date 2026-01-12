@@ -7150,10 +7150,10 @@ const Orders = () => {
                                     )}
                                     {/* Content */}
                                     <div className="flex items-center gap-1.5 ml-4">
-                                      <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-red-400' : 'text-white'}`}>
+                                      <span className="text-white">
                                         {isAddOn ? '+' : isRemoval ? '-' : '•'}
                                       </span>
-                                      <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-red-400 line-through' : 'text-white'}`}>
+                                      <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
                                         {displayMod}
                                       </span>
                                     </div>
@@ -8191,10 +8191,10 @@ const Orders = () => {
                                             )}
                                             {/* Content */}
                                             <div className="flex items-center gap-2 ml-5">
-                                              <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-red-400' : 'text-white'}`}>
+                                              <span className="text-white">
                                                 {isAddOn ? '+' : isRemoval ? '-' : '•'}
                                               </span>
-                                              <span className={`${isAddOn ? 'text-green-400' : isRemoval ? 'text-red-400 line-through' : 'text-white'}`}>
+                                              <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
                                                 {displayMod}
                                               </span>
                                             </div>

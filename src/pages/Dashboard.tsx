@@ -2323,12 +2323,12 @@ const OrderPanelContent = ({
                   </div>
 
                   {/* Quick Amount Buttons OR Keypad */}
-                  <div className="p-4 space-y-2 flex-1">
+                  <div className="p-3 space-y-1.5 flex-1">
                     {(showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card' || selectedPaymentMethod === 'pay-link') ? (
                       /* Numeric Keypad - Compact */
-                      <div className="flex flex-col gap-2">
+                      <div className="flex flex-col gap-1.5">
                         {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
-                          <div key={rowIndex} className="flex gap-2">
+                          <div key={rowIndex} className="flex gap-1.5">
                             {row.map((key) => (
                               <button
                                 key={key}
@@ -2339,32 +2339,32 @@ const OrderPanelContent = ({
                                     handleKeypadPress(key);
                                   }
                                 }}
-                                className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                                className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
                               >
                                 {key}
                               </button>
                             ))}
                           </div>
                         ))}
-                        <div className="flex gap-2">
+                        <div className="flex gap-1.5">
                           {selectedPaymentMethod === 'gift-card' && giftCardStep === 'enter-card' ? (
                             /* Gift Card keypad last row: 0, 00, C */
                             <>
                               <button
                                 onClick={() => handleGiftCardKeypadPress('0')}
-                                className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                                className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
                               >
                                 0
                               </button>
                               <button
                                 onClick={() => handleGiftCardKeypadPress('00')}
-                                className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                                className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
                               >
                                 00
                               </button>
                               <button
                                 onClick={() => handleGiftCardKeypadPress('C')}
-                                className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                                className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
                               >
                                 C
                               </button>
@@ -2374,19 +2374,19 @@ const OrderPanelContent = ({
                             <>
                               <button
                                 onClick={() => handleKeypadPress('.')}
-                                className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                                className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
                               >
                                 .
                               </button>
                               <button
                                 onClick={() => handleKeypadPress('0')}
-                                className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                                className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
                               >
                                 0
                               </button>
                               <button
                                 onClick={() => handleKeypadPress('backspace')}
-                                className="flex-1 py-3 rounded-lg text-base font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
+                                className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
                               >
                                 <Delete className="w-4 h-4" />
                               </button>
@@ -2487,7 +2487,7 @@ const OrderPanelContent = ({
                   </div>
 
                   {/* Charge Button / Continue Button */}
-                  <div className="p-6 pt-0">
+                  <div className="p-3 pt-0">
                     {selectedPaymentMethod === 'gift-card' && giftCardStep === 'enter-card' ? (
                       /* Continue button for gift card entry */
                       <button
@@ -2500,7 +2500,7 @@ const OrderPanelContent = ({
                           }
                         }}
                         disabled={giftCardNumber.replace(/\s/g, '').length !== 16}
-                        className={`w-full py-4 font-bold rounded-xl transition-colors text-sm ${
+                        className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${
                           giftCardNumber.replace(/\s/g, '').length === 16
                             ? 'bg-neutral-800 hover:bg-neutral-700 text-white'
                             : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
@@ -2528,7 +2528,7 @@ const OrderPanelContent = ({
                           setPaidAmount(paid);
                           setPaymentProcessed(true);
                         }}
-                        className="w-full py-4 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
+                        className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
                       >
                         CHARGE ${paymentAmount}
                       </button>

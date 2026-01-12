@@ -1107,16 +1107,16 @@ const OrderPanelContent = ({
                   {payByLinkStep === 'select-guest' && (
                     <div className="flex flex-col overflow-hidden h-[400px]">
                       {/* Info Text */}
-                      <div className="px-4 py-3 flex items-center justify-between">
-                        <div className="flex items-center gap-2 text-neutral-400 text-sm">
-                          <div className="w-5 h-5 rounded-full border border-neutral-400 flex items-center justify-center">
-                            <span className="text-xs">i</span>
+                      <div className="px-4 py-2 flex items-center justify-between gap-2">
+                        <div className="flex items-center gap-2 text-neutral-400 text-xs flex-1 min-w-0">
+                          <div className="w-4 h-4 rounded-full border border-neutral-400 flex items-center justify-center flex-shrink-0">
+                            <span className="text-[10px]">i</span>
                           </div>
-                          <span>Search for the guest to share the link or add guest details.</span>
+                          <span className="truncate">Search guest to share link or add details.</span>
                         </div>
-                        <button className="flex items-center gap-2 px-3 py-1.5 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors">
-                          <UserPlus className="w-4 h-4 text-white" />
-                          <span className="text-white text-sm">Add Guest</span>
+                        <button className="flex items-center gap-1 px-2 py-1 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors flex-shrink-0 whitespace-nowrap">
+                          <UserPlus className="w-3 h-3 text-white" />
+                          <span className="text-white text-xs">Add</span>
                         </button>
                       </div>
 

@@ -7257,11 +7257,11 @@ const Orders = () => {
                 <span className="text-foreground">${subtotal.toFixed(2)}</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-red-500">Disc:</span>
+                <span className="text-red-500">{selectedDiscount ? selectedDiscount.name.split(' ')[0] : 'Disc'}:</span>
                 <span className="text-red-500">${discount.toFixed(2)}</span>
               </div>
               <div className="flex items-center gap-1">
-                <span className="text-muted-foreground">Svc:</span>
+                <span className="text-muted-foreground">{appliedServiceChargeName ? appliedServiceChargeName.split(' ')[0] : 'Svc'}:</span>
                 <span className="text-foreground">${serviceCharge.toFixed(2)}</span>
               </div>
             </div>}
@@ -8329,11 +8329,21 @@ const Orders = () => {
                 }}>
                   <div className="flex justify-between gap-3">
                     <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-                    <span className="text-red-500">Discount: <span className="font-medium">${discount.toFixed(2)}</span></span>
+                    <span className="text-red-500">
+                      {selectedDiscount ? selectedDiscount.name : 'Discount'}: <span className="font-medium">${discount.toFixed(2)}</span>
+                      {selectedDiscount && (
+                        <button 
+                          onClick={() => setSelectedDiscountId(null)}
+                          className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5"
+                        >
+                          ×
+                        </button>
+                      )}
+                    </span>
                   </div>
                   <div className="flex justify-between gap-3">
                     <span className="text-foreground flex items-center gap-1">
-                      Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                      {appliedServiceChargeName || 'Service Charge'}: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
                       {appliedServiceCharge > 0 && (
                         <button 
                           onClick={() => {

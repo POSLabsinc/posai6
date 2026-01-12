@@ -604,6 +604,13 @@ interface OrderPanelContentProps {
   setTextReceiptPhone: (phone: string) => void;
   textReceiptNoMarketing: boolean;
   setTextReceiptNoMarketing: (value: boolean) => void;
+  // Email receipt props
+  emailReceiptStep: 'receipt' | 'email-input';
+  setEmailReceiptStep: (step: 'receipt' | 'email-input') => void;
+  emailReceiptEmail: string;
+  setEmailReceiptEmail: (email: string) => void;
+  emailReceiptNoMarketing: boolean;
+  setEmailReceiptNoMarketing: (value: boolean) => void;
 }
 
 const OrderPanelContent = ({ 
@@ -700,7 +707,14 @@ const OrderPanelContent = ({
   textReceiptPhone,
   setTextReceiptPhone,
   textReceiptNoMarketing,
-  setTextReceiptNoMarketing
+  setTextReceiptNoMarketing,
+  // Email receipt
+  emailReceiptStep,
+  setEmailReceiptStep,
+  emailReceiptEmail,
+  setEmailReceiptEmail,
+  emailReceiptNoMarketing,
+  setEmailReceiptNoMarketing
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount 
@@ -1037,7 +1051,7 @@ const OrderPanelContent = ({
               {paymentProcessed ? (
                 /* Receipt View */
                 <>
-                  {textReceiptStep === 'receipt' ? (
+                  {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
                     <>
                       {/* Success Header */}
                       <div className="flex flex-col items-center py-8 px-6">
@@ -1085,7 +1099,14 @@ const OrderPanelContent = ({
                           <MessageSquare className="w-6 h-6 text-neutral-400" />
                           <span className="text-neutral-400 text-sm">Text</span>
                         </button>
-                        <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
+                        <button 
+                          onClick={() => {
+                            setEmailReceiptEmail('');
+                            setEmailReceiptNoMarketing(false);
+                            setEmailReceiptStep('email-input');
+                          }}
+                          className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                        >
                           <Mail className="w-6 h-6 text-neutral-400" />
                           <span className="text-neutral-400 text-sm">Email</span>
                         </button>
@@ -1101,7 +1122,7 @@ const OrderPanelContent = ({
                       </button>
                     </div>
                     </>
-                  ) : (
+                  ) : textReceiptStep === 'phone-input' ? (
                     /* Text Receipt Phone Input Screen */
                     <div className="flex flex-col h-[500px]">
                       {/* Header with back button */}
@@ -1258,6 +1279,171 @@ const OrderPanelContent = ({
                             className="py-2 flex items-center justify-center hover:bg-neutral-700 transition-colors border-b border-neutral-700 active:bg-neutral-600"
                           >
                             <Delete className="w-5 h-5 text-neutral-400" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Email Receipt Input Screen */
+                    <div className="flex flex-col h-[500px]">
+                      {/* Header with back button */}
+                      <div className="flex items-center p-3 border-b border-neutral-700">
+                        <button 
+                          onClick={() => setEmailReceiptStep('receipt')}
+                          className="w-7 h-7 rounded-full bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors"
+                        >
+                          <ArrowLeft className="w-4 h-4 text-white" />
+                        </button>
+                      </div>
+
+                      {/* Title */}
+                      <div className="px-4 pt-3 pb-2 text-center">
+                        <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
+                      </div>
+
+                      {/* Email Input */}
+                      <div className="px-4 mb-2">
+                        <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                          <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600">
+                            <Mail className="w-4 h-4 text-neutral-400" />
+                          </div>
+                          <input
+                            type="email"
+                            placeholder="email@example.com"
+                            value={emailReceiptEmail}
+                            onChange={(e) => setEmailReceiptEmail(e.target.value)}
+                            className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Marketing Checkbox */}
+                      <div className="px-4 mb-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <div 
+                            onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)}
+                            className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
+                              emailReceiptNoMarketing 
+                                ? 'bg-white border-white' 
+                                : 'border-neutral-500 bg-transparent'
+                            }`}
+                          >
+                            {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                          </div>
+                          <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
+                        </label>
+                      </div>
+
+                      {/* Privacy Text */}
+                      <div className="px-4 mb-2 text-center">
+                        <p className="text-neutral-500 text-[10px] leading-relaxed">
+                          Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
+                        </p>
+                      </div>
+
+                      {/* Send Button */}
+                      <div className="px-4 mb-4">
+                        <button 
+                          onClick={() => {
+                            setEmailReceiptStep('receipt');
+                            setPaymentProcessed(false);
+                            setShowPaymentDialog(false);
+                          }}
+                          disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')}
+                          className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                        >
+                          SEND
+                        </button>
+                      </div>
+
+                      {/* Email Keyboard */}
+                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                        {/* Row 1 */}
+                        <div className="flex flex-1">
+                          {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map((key) => (
+                            <button
+                              key={key}
+                              onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)}
+                              className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"
+                            >
+                              <span className="text-white text-sm font-medium">{key}</span>
+                            </button>
+                          ))}
+                        </div>
+                        {/* Row 2 */}
+                        <div className="flex flex-1 px-2">
+                          {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map((key) => (
+                            <button
+                              key={key}
+                              onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)}
+                              className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"
+                            >
+                              <span className="text-white text-sm font-medium">{key}</span>
+                            </button>
+                          ))}
+                        </div>
+                        {/* Row 3 */}
+                        <div className="flex flex-1">
+                          <div className="w-10"></div>
+                          {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map((key) => (
+                            <button
+                              key={key}
+                              onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)}
+                              className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"
+                            >
+                              <span className="text-white text-sm font-medium">{key}</span>
+                            </button>
+                          ))}
+                          <button
+                            onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))}
+                            className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"
+                          >
+                            <Delete className="w-4 h-4 text-neutral-400" />
+                          </button>
+                        </div>
+                        {/* Row 4 - Special chars */}
+                        <div className="flex flex-1 gap-1 px-1">
+                          <button
+                            onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')}
+                            className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
+                          >
+                            <span className="text-white text-sm font-medium">@</span>
+                          </button>
+                          <button
+                            onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')}
+                            className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
+                          >
+                            <span className="text-white text-sm font-medium">.</span>
+                          </button>
+                          <button
+                            onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')}
+                            className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
+                          >
+                            <span className="text-white text-sm font-medium">_</span>
+                          </button>
+                          <button
+                            onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')}
+                            className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
+                          >
+                            <span className="text-white text-sm font-medium">-</span>
+                          </button>
+                          <button
+                            onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')}
+                            className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
+                          >
+                            <span className="text-white text-xs font-medium">.com</span>
+                          </button>
+                          <button
+                            onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')}
+                            className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
+                          >
+                            <span className="text-white text-xs font-medium">.net</span>
+                          </button>
+                          <button
+                            onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')}
+                            className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"
+                          >
+                            <span className="text-white text-[10px] font-medium">@gmail</span>
                           </button>
                         </div>
                       </div>
@@ -3016,6 +3202,10 @@ const Dashboard = () => {
   const [textReceiptStep, setTextReceiptStep] = useState<'receipt' | 'phone-input'>('receipt');
   const [textReceiptPhone, setTextReceiptPhone] = useState('');
   const [textReceiptNoMarketing, setTextReceiptNoMarketing] = useState(false);
+  // Email receipt state
+  const [emailReceiptStep, setEmailReceiptStep] = useState<'receipt' | 'email-input'>('receipt');
+  const [emailReceiptEmail, setEmailReceiptEmail] = useState('');
+  const [emailReceiptNoMarketing, setEmailReceiptNoMarketing] = useState(false);
   // Table card selection state (matching TableOrder page behavior)
   const [selectedTableCard, setSelectedTableCard] = useState<string | null>(null);
   const [guestDropdownTableCard, setGuestDropdownTableCard] = useState<string | null>(null);
@@ -3728,6 +3918,12 @@ const Dashboard = () => {
             setTextReceiptPhone={setTextReceiptPhone}
             textReceiptNoMarketing={textReceiptNoMarketing}
             setTextReceiptNoMarketing={setTextReceiptNoMarketing}
+            emailReceiptStep={emailReceiptStep}
+            setEmailReceiptStep={setEmailReceiptStep}
+            emailReceiptEmail={emailReceiptEmail}
+            setEmailReceiptEmail={setEmailReceiptEmail}
+            emailReceiptNoMarketing={emailReceiptNoMarketing}
+            setEmailReceiptNoMarketing={setEmailReceiptNoMarketing}
           />
         </div>
       </div>
@@ -3834,6 +4030,12 @@ const Dashboard = () => {
             setTextReceiptPhone={setTextReceiptPhone}
             textReceiptNoMarketing={textReceiptNoMarketing}
             setTextReceiptNoMarketing={setTextReceiptNoMarketing}
+            emailReceiptStep={emailReceiptStep}
+            setEmailReceiptStep={setEmailReceiptStep}
+            emailReceiptEmail={emailReceiptEmail}
+            setEmailReceiptEmail={setEmailReceiptEmail}
+            emailReceiptNoMarketing={emailReceiptNoMarketing}
+            setEmailReceiptNoMarketing={setEmailReceiptNoMarketing}
           />
           </div>
         </DrawerContent>

@@ -4982,8 +4982,8 @@ const OrderPanelContent = ({
                       /* Regular Amount Display */
                       <div className="flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
                         <span className="flex-1 text-green-500 text-2xl font-bold text-center">${paymentAmount}</span>
-                        {/* Hide keypad toggle for Card, Gift Card, Pay by Link, Manual CC, External CC, Manual Card, DoorDash, Blizzful, UberEats, Grubhub - they always show keypad */}
-                        {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && selectedPaymentMethod !== 'pay-link' && selectedPaymentMethod !== 'manual-cc' && selectedPaymentMethod !== 'external-cc' && selectedPaymentMethod !== 'manual-card' && selectedPaymentMethod !== 'doordash' && selectedPaymentMethod !== 'blizzful' && selectedPaymentMethod !== 'ubereats' && selectedPaymentMethod !== 'grubhub' && (
+                        {/* Hide keypad toggle for Card, Gift Card, Pay by Link, Manual CC, External CC, Manual Card, DoorDash, Blizzful, UberEats, Grubhub, Loyalty - they always show keypad */}
+                        {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && selectedPaymentMethod !== 'pay-link' && selectedPaymentMethod !== 'manual-cc' && selectedPaymentMethod !== 'external-cc' && selectedPaymentMethod !== 'manual-card' && selectedPaymentMethod !== 'doordash' && selectedPaymentMethod !== 'blizzful' && selectedPaymentMethod !== 'ubereats' && selectedPaymentMethod !== 'grubhub' && selectedPaymentMethod !== 'loyalty' && (
                           <button 
                             onClick={() => setShowKeypad(!showKeypad)}
                             className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
@@ -5001,7 +5001,7 @@ const OrderPanelContent = ({
 
                   {/* Quick Amount Buttons OR Keypad */}
                   <div className="p-3 space-y-1.5 flex-1">
-                    {(showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card' || selectedPaymentMethod === 'pay-link' || selectedPaymentMethod === 'manual-cc' || selectedPaymentMethod === 'external-cc' || selectedPaymentMethod === 'manual-card' || selectedPaymentMethod === 'doordash' || selectedPaymentMethod === 'blizzful' || selectedPaymentMethod === 'ubereats' || selectedPaymentMethod === 'grubhub') ? (
+                    {(showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card' || selectedPaymentMethod === 'pay-link' || selectedPaymentMethod === 'manual-cc' || selectedPaymentMethod === 'external-cc' || selectedPaymentMethod === 'manual-card' || selectedPaymentMethod === 'doordash' || selectedPaymentMethod === 'blizzful' || selectedPaymentMethod === 'ubereats' || selectedPaymentMethod === 'grubhub' || selectedPaymentMethod === 'loyalty') ? (
                       /* Numeric Keypad - Compact */
                       <div className="flex flex-col gap-1.5">
                         {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (

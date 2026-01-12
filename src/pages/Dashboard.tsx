@@ -2350,8 +2350,8 @@ const OrderPanelContent = ({
                       </p>
 
                       {/* QR Code */}
-                      <div className="flex justify-center mb-3">
-                        <div className="w-28 h-28 bg-white rounded-lg p-1.5 relative">
+                      <div className="flex justify-center mb-4">
+                        <div className="w-40 h-40 bg-white rounded-xl p-2 relative">
                           <div className="w-full h-full bg-white relative overflow-hidden">
                             <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 gap-0.5">
                               {Array.from({ length: 64 }).map((_, i) => (
@@ -2366,18 +2366,18 @@ const OrderPanelContent = ({
                                 />
                               ))}
                             </div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-6 h-6 bg-white rounded-full flex items-center justify-center border border-neutral-200">
-                              <span className="text-black font-bold text-[10px]">e</span>
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-neutral-200">
+                              <span className="text-black font-bold text-sm">e</span>
                             </div>
                           </div>
                         </div>
                       </div>
 
                       {/* OTP Label */}
-                      <p className="text-white text-center text-sm font-medium mb-2">OTP</p>
+                      <p className="text-white text-center text-base font-medium mb-3">OTP</p>
 
                       {/* OTP Input Boxes */}
-                      <div className="flex justify-center gap-2 mb-4">
+                      <div className="flex justify-center gap-3 mb-4">
                         {[0, 1, 2, 3].map((index) => (
                           <input
                             key={index}
@@ -2394,7 +2394,7 @@ const OrderPanelContent = ({
                                 nextInput?.focus();
                               }
                             }}
-                            className="w-10 h-10 bg-neutral-800 border border-neutral-600 rounded-lg text-center text-white text-lg font-medium focus:outline-none focus:border-white"
+                            className="w-14 h-14 bg-neutral-800 border border-neutral-600 rounded-xl text-center text-white text-2xl font-medium focus:outline-none focus:border-white"
                           />
                         ))}
                       </div>

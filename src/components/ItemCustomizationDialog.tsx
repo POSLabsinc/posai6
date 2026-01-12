@@ -52,7 +52,7 @@ interface ItemCustomizationDialogProps {
   onOpenChange: (open: boolean) => void;
   item: MenuItem | null;
   itemImage?: string;
-  onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string, totalPrice: number, selectedSeats?: number[]) => void;
+  onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string, totalPrice: number, selectedSeats?: number[], discountInfo?: { name: string; amount: number }) => void;
   isManager?: boolean;
   isTableOrder?: boolean;
   guestCount?: number;
@@ -385,7 +385,8 @@ export const ItemCustomizationDialog = ({
     
     // Pass selectedSeats only for table orders
     // If no seats are selected, pass empty array to indicate "share on table" (all seats)
-    onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice, isTableOrder ? (selectedSeats.length > 0 ? selectedSeats : []) : undefined);
+    const discountInfo = selectedDiscount ? { name: selectedDiscount.name, amount: discountAmount } : undefined;
+    onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice, isTableOrder ? (selectedSeats.length > 0 ? selectedSeats : []) : undefined, discountInfo);
     // Reset state
     setQuantity(1);
     setSelectedModifiers([]);

@@ -49,7 +49,7 @@ interface MenuItem {
 interface InlineItemCustomizationProps {
   item: MenuItem;
   itemImage?: string;
-  onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string, totalPrice: number) => void;
+  onAddToCart: (item: MenuItem, quantity: number, modifiers: string[], notes: string, totalPrice: number, discountInfo?: { name: string; amount: number }) => void;
   onCancel: () => void;
   onViewChange?: (view: 'customization' | 'mpin' | 'priceOverride' | 'productInfo') => void;
   className?: string;
@@ -332,7 +332,9 @@ export const InlineItemCustomization = ({
   };
   const handleAddToCart = () => {
     const allModifiers = [...selectedModifiers, ...selectedAddOns];
-    onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice);
+    const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
+    const discountInfo = selectedDiscount ? { name: selectedDiscount.name, amount: discountAmount } : undefined;
+    onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice, discountInfo);
   };
   const activeCategory = itemModifiers.find(cat => cat.name === activeModifierCategory);
 

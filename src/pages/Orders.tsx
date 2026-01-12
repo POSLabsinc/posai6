@@ -5593,6 +5593,8 @@ interface OrderItem {
   priceOverrideReason?: string;
   priceOverrideNotes?: string;
   assignedSeats?: number[];
+  discountName?: string;
+  discountAmount?: number;
 }
 const initialOrderItems: OrderItem[] = [];
 const orderTypes = [
@@ -6380,7 +6382,7 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
-  }, quantity: number, modifiers: string[], notes: string, totalPrice: number, assignedSeats?: number[]) => {
+  }, quantity: number, modifiers: string[], notes: string, totalPrice: number, assignedSeats?: number[], discountInfo?: { name: string; amount: number }) => {
     // When assignedSeats is defined (from table order) but empty, treat as "share on table" (all seats)
     const allSeats = isTableOrder ? Array.from({ length: guestCount }, (_, i) => i + 1) : undefined;
     const seatsToAssign = assignedSeats !== undefined 
@@ -6395,7 +6397,9 @@ const Orders = () => {
         price: totalPrice / quantity, // Store the unit price including modifiers/add-ons
         modifiers: modifiers.length > 0 ? modifiers : undefined,
         notes: notes.trim() ? notes.trim() : undefined,
-        assignedSeats: seatsToAssign
+        assignedSeats: seatsToAssign,
+        discountName: discountInfo?.name,
+        discountAmount: discountInfo?.amount
       }];
     });
   };
@@ -6421,8 +6425,8 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
-  }, quantity: number, modifiers: string[], notes: string, totalPrice: number) => {
-    addToCartWithModifiers(item, quantity, modifiers, notes, totalPrice);
+  }, quantity: number, modifiers: string[], notes: string, totalPrice: number, discountInfo?: { name: string; amount: number }) => {
+    addToCartWithModifiers(item, quantity, modifiers, notes, totalPrice, undefined, discountInfo);
     setShowInlineCustomization(false);
     setSelectedItemForCustomization(null);
     setMenuPosition('center');
@@ -7198,6 +7202,23 @@ const Orders = () => {
                               <div className="flex items-center gap-1.5 ml-4">
                                 <span className="text-amber-400">📝</span>
                                 <span className="text-amber-400 italic">{item.notes}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        
+                        {/* Item Discount Display - Mobile */}
+                        {item.discountName && item.discountAmount && item.discountAmount > 0 && (
+                          <div className="ml-2.5 mt-0.5 relative">
+                            <div className="relative flex items-center text-[10px] py-[2px]">
+                              {/* Vertical line segment to connect to horizontal */}
+                              <div className="absolute left-0 top-0 h-1/2 w-px bg-red-400" />
+                              {/* Horizontal connector */}
+                              <div className="absolute left-0 top-1/2 w-2.5 h-px bg-red-400" />
+                              {/* Content */}
+                              <div className="flex items-center gap-1.5 ml-4">
+                                <Tag className="w-3 h-3 text-red-400" />
+                                <span className="text-red-400">{item.discountName} (-${item.discountAmount.toFixed(2)})</span>
                               </div>
                             </div>
                           </div>
@@ -8251,6 +8272,23 @@ const Orders = () => {
                                       <div className="flex items-center gap-2 ml-5">
                                         <span className="text-amber-400">📝</span>
                                         <span className="text-amber-400 italic">{item.notes}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                                
+                                {/* Item Discount Display - Desktop/Tablet */}
+                                {item.discountName && item.discountAmount && item.discountAmount > 0 && (
+                                  <div className="ml-3 mt-1 relative">
+                                    <div className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
+                                      {/* Vertical line segment to connect to horizontal */}
+                                      <div className="absolute left-0 top-0 h-1/2 w-px bg-red-400" />
+                                      {/* Horizontal connector */}
+                                      <div className="absolute left-0 top-1/2 w-3 h-px bg-red-400" />
+                                      {/* Content */}
+                                      <div className="flex items-center gap-2 ml-5">
+                                        <Tag className="w-3 h-3 text-red-400" />
+                                        <span className="text-red-400">{item.discountName} (-${item.discountAmount.toFixed(2)})</span>
                                       </div>
                                     </div>
                                   </div>

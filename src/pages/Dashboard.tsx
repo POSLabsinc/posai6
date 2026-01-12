@@ -1181,53 +1181,13 @@ const OrderPanelContent = ({
                               setSelectedGuest(guest);
                               setPayByLinkStep('guest-confirmed');
                             }}
-                            onMouseEnter={() => setHoveredGuestIndex(index)}
-                            onMouseLeave={() => setHoveredGuestIndex(null)}
                             className="grid grid-cols-3 gap-4 py-3 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors"
                           >
                             <div className="flex items-center gap-2">
                               <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs text-white font-medium">
                                 {guest.avatar}
                               </div>
-                              {hoveredGuestIndex === index ? (
-                                <div className="flex items-center gap-2">
-                                  <button 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedGuest(guest);
-                                      setSendLinkMethod('text');
-                                      setPayByLinkStep('pending');
-                                    }}
-                                    className="w-7 h-7 rounded-full bg-green-600 flex items-center justify-center hover:bg-green-500 transition-colors"
-                                  >
-                                    <MessageSquare className="w-3.5 h-3.5 text-white" />
-                                  </button>
-                                  <button 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedGuest(guest);
-                                      setSendLinkMethod('text');
-                                      setPayByLinkStep('pending');
-                                    }}
-                                    className="w-7 h-7 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-400 transition-colors"
-                                  >
-                                    <Phone className="w-3.5 h-3.5 text-white" />
-                                  </button>
-                                  <button 
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      setSelectedGuest(guest);
-                                      setSendLinkMethod('email');
-                                      setPayByLinkStep('pending');
-                                    }}
-                                    className="w-7 h-7 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-400 transition-colors"
-                                  >
-                                    <Mail className="w-3.5 h-3.5 text-white" />
-                                  </button>
-                                </div>
-                              ) : (
-                                <span className="text-white text-sm">{guest.name}</span>
-                              )}
+                              <span className="text-white text-sm">{guest.name}</span>
                             </div>
                             <span className="text-neutral-300 text-sm flex items-center">{guest.phone}</span>
                             <span className="text-neutral-300 text-sm flex items-center">{guest.email}</span>

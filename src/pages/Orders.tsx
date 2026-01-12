@@ -79,6 +79,7 @@ import PhoneInGuestForm, { PhoneInGuestData } from "@/components/PhoneInGuestFor
 import CustomOrderGuestForm, { CustomOrderGuestData } from "@/components/CustomOrderGuestForm";
 import MPINDialog from "@/components/MPINDialog";
 import PriceOverrideDialog from "@/components/PriceOverrideDialog";
+import PaymentDialog from "@/components/PaymentDialog";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6103,6 +6104,7 @@ const Orders = () => {
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [priceOverrideItem, setPriceOverrideItem] = useState<{ id: number; name: string; price: number; image?: string } | null>(null);
   const [orderNumber, setOrderNumber] = useState(1);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   
   // Table order seat selection state - initialize with all seats selected when coming from table orders
   const [selectedSeats, setSelectedSeats] = useState<number[]>(() => {
@@ -8381,7 +8383,9 @@ const Orders = () => {
                     <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                     <span className="text-white font-semibold text-sm">FIRE</span>
                   </button>
-                  <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
+                  <button 
+                    onClick={() => setShowPaymentDialog(true)}
+                    className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
                     background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
                   }}>
                     <span className="text-black font-semibold text-xs">
@@ -8606,6 +8610,14 @@ const Orders = () => {
         itemImage={priceOverrideItem?.image}
         originalPrice={priceOverrideItem?.price || 0}
         onApply={handlePriceOverrideApply}
+      />
+
+      {/* Payment Dialog */}
+      <PaymentDialog
+        open={showPaymentDialog}
+        onClose={() => setShowPaymentDialog(false)}
+        totalAmount={chargeAmount}
+        orderItems={orderItems.map(item => ({ name: item.name, price: item.price, qty: item.qty }))}
       />
     </div>;
 };

@@ -5588,6 +5588,7 @@ interface OrderItem {
   name: string;
   price: number;
   modifiers?: string[];
+  notes?: string;
   itemOrderType?: string;
   priceOverrideReason?: string;
   priceOverrideNotes?: string;
@@ -6393,6 +6394,7 @@ const Orders = () => {
         name: item.name,
         price: totalPrice / quantity, // Store the unit price including modifiers/add-ons
         modifiers: modifiers.length > 0 ? modifiers : undefined,
+        notes: notes.trim() ? notes.trim() : undefined,
         assignedSeats: seatsToAssign
       }];
     });
@@ -7183,6 +7185,23 @@ const Orders = () => {
                             </div>
                           );
                         })()}
+                        
+                        {/* Item Notes Display - Mobile */}
+                        {item.notes && (
+                          <div className="ml-2.5 mt-0.5 relative">
+                            <div className="relative flex items-center text-[10px] py-[2px]">
+                              {/* Vertical line segment to connect to horizontal */}
+                              <div className="absolute left-0 top-0 h-1/2 w-px bg-amber-400" />
+                              {/* Horizontal connector */}
+                              <div className="absolute left-0 top-1/2 w-2.5 h-px bg-amber-400" />
+                              {/* Content */}
+                              <div className="flex items-center gap-1.5 ml-4">
+                                <span className="text-amber-400">📝</span>
+                                <span className="text-amber-400 italic">{item.notes}</span>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                         
                         {/* Seat Assignment Display - Mobile */}
                         {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
@@ -8219,6 +8238,24 @@ const Orders = () => {
                                     </div>
                                   );
                                 })()}
+                                
+                                {/* Item Notes Display - Desktop/Tablet */}
+                                {item.notes && (
+                                  <div className="ml-3 mt-1 relative">
+                                    <div className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
+                                      {/* Vertical line segment to connect to horizontal */}
+                                      <div className="absolute left-0 top-0 h-1/2 w-px bg-amber-400" />
+                                      {/* Horizontal connector */}
+                                      <div className="absolute left-0 top-1/2 w-3 h-px bg-amber-400" />
+                                      {/* Content */}
+                                      <div className="flex items-center gap-2 ml-5">
+                                        <span className="text-amber-400">📝</span>
+                                        <span className="text-amber-400 italic">{item.notes}</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                                
                                 {/* Seat Assignment Display - Desktop/Tablet */}
                                 {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
                                   <div className="mt-1.5 md:mt-1 lg:mt-2 flex items-center gap-1.5 ml-8">

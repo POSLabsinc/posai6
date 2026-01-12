@@ -1037,37 +1037,38 @@ const OrderPanelContent = ({
               {paymentProcessed ? (
                 /* Receipt View */
                 <>
-                  {/* Success Header */}
-                  <div className="flex flex-col items-center py-8 px-6">
-                    <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                      <CheckCircle className="w-10 h-10 text-green-500" />
-                    </div>
-                    <p className="text-neutral-300 text-sm">
-                      <span className="text-green-500 font-medium">${paidAmount.toFixed(2)}</span> has been successfully processed
-                    </p>
-                  </div>
-
-                  {/* Change Due / Due Amount Box */}
-                  {paidAmount >= finalTotal ? (
-                    <div className="mx-6 mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
-                      <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
-                      <p className="text-green-500 text-3xl font-bold text-center">
-                        ${(paidAmount - finalTotal).toFixed(2)}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="mx-6 mb-6 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
-                      <p className="text-red-500 text-sm text-center mb-1">Due Amount</p>
-                      <p className="text-red-500 text-3xl font-bold text-center">
-                        ${(finalTotal - paidAmount).toFixed(2)}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Receipt Section */}
                   {textReceiptStep === 'receipt' ? (
-                    <div className="px-6 pb-6">
-                      <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
+                    <>
+                      {/* Success Header */}
+                      <div className="flex flex-col items-center py-8 px-6">
+                        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                          <CheckCircle className="w-10 h-10 text-green-500" />
+                        </div>
+                        <p className="text-neutral-300 text-sm">
+                          <span className="text-green-500 font-medium">${paidAmount.toFixed(2)}</span> has been successfully processed
+                        </p>
+                      </div>
+
+                      {/* Change Due / Due Amount Box */}
+                      {paidAmount >= finalTotal ? (
+                        <div className="mx-6 mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
+                          <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
+                          <p className="text-green-500 text-3xl font-bold text-center">
+                            ${(paidAmount - finalTotal).toFixed(2)}
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="mx-6 mb-6 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
+                          <p className="text-red-500 text-sm text-center mb-1">Due Amount</p>
+                          <p className="text-red-500 text-3xl font-bold text-center">
+                            ${(finalTotal - paidAmount).toFixed(2)}
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Receipt Section */}
+                      <div className="px-6 pb-6">
+                        <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
                       <div className="flex gap-4 justify-center mb-4">
                         <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
                           <Printer className="w-6 h-6 text-neutral-400" />
@@ -1099,6 +1100,7 @@ const OrderPanelContent = ({
                         NO RECEIPT
                       </button>
                     </div>
+                    </>
                   ) : (
                     /* Text Receipt Phone Input Screen */
                     <div className="flex flex-col h-full">

@@ -609,6 +609,21 @@ interface OrderPanelContentProps {
   setDoordashStep: (step: 'amount' | 'reference' | 'complete') => void;
   doordashReference: string;
   setDoordashReference: (ref: string) => void;
+  // Blizzful props
+  blizzfulStep: 'amount' | 'reference' | 'complete';
+  setBlizzfulStep: (step: 'amount' | 'reference' | 'complete') => void;
+  blizzfulReference: string;
+  setBlizzfulReference: (ref: string) => void;
+  // UberEats props
+  ubereatsStep: 'amount' | 'reference' | 'complete';
+  setUbereatsStep: (step: 'amount' | 'reference' | 'complete') => void;
+  ubereatsReference: string;
+  setUbereatsReference: (ref: string) => void;
+  // Grubhub props
+  grubhubStep: 'amount' | 'reference' | 'complete';
+  setGrubhubStep: (step: 'amount' | 'reference' | 'complete') => void;
+  grubhubReference: string;
+  setGrubhubReference: (ref: string) => void;
   // Dynamic payment methods
   visiblePaymentMethods: PaymentMethodType[];
   dropdownPaymentMethods: PaymentMethodType[];
@@ -729,6 +744,21 @@ const OrderPanelContent = ({
   setDoordashStep,
   doordashReference,
   setDoordashReference,
+  // Blizzful
+  blizzfulStep,
+  setBlizzfulStep,
+  blizzfulReference,
+  setBlizzfulReference,
+  // UberEats
+  ubereatsStep,
+  setUbereatsStep,
+  ubereatsReference,
+  setUbereatsReference,
+  // Grubhub
+  grubhubStep,
+  setGrubhubStep,
+  grubhubReference,
+  setGrubhubReference,
   // Dynamic payment methods
   visiblePaymentMethods,
   dropdownPaymentMethods,
@@ -4312,6 +4342,489 @@ const OrderPanelContent = ({
                     </>
                   )}
                 </>
+              ) : selectedPaymentMethod === 'blizzful' && blizzfulStep !== 'amount' ? (
+                /* Blizzful Payment Screens */
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => {
+                          if (textReceiptStep === 'phone-input') {
+                            setTextReceiptStep('receipt');
+                          } else if (emailReceiptStep === 'email-input') {
+                            setEmailReceiptStep('receipt');
+                          } else if (blizzfulStep === 'reference') {
+                            setBlizzfulStep('amount');
+                          } else if (blizzfulStep === 'complete') {
+                            setBlizzfulStep('amount');
+                          }
+                        }}
+                        className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-lg font-medium">Pay by Blizzful</span>
+                    </div>
+                  </div>
+
+                  {/* Reference Number Entry Screen */}
+                  {blizzfulStep === 'reference' && (
+                    <div className="flex-1 flex flex-col">
+                      {/* Blizzful Logo */}
+                      <div className="flex justify-center py-6">
+                        <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center">
+                          <Utensils className="w-8 h-8 text-white" />
+                        </div>
+                      </div>
+
+                      {/* Reference Number Label */}
+                      <div className="px-4 mb-1">
+                        <span className="text-muted-foreground text-xs">Reference number</span>
+                      </div>
+
+                      {/* Reference Number Input */}
+                      <div className="px-4 mb-3">
+                        <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
+                          <span className="text-foreground text-base font-medium">
+                            {blizzfulReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Keypad */}
+                      <div className="flex-1 px-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map((key) => (
+                            <button
+                              key={key}
+                              onClick={() => {
+                                if (key === 'C') {
+                                  setBlizzfulReference('');
+                                } else {
+                                  setBlizzfulReference(blizzfulReference + key);
+                                }
+                              }}
+                              className={`h-12 rounded-xl text-lg font-medium transition-colors ${
+                                key === 'C'
+                                  ? 'bg-neutral-800 border border-neutral-700 text-destructive hover:bg-neutral-700'
+                                  : 'bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600'
+                              }`}
+                            >
+                              {key}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Continue Button */}
+                      <div className="p-4">
+                        <button 
+                          onClick={() => {
+                            const paid = parseFloat(paymentAmount) || 0;
+                            setPaidAmount(paid);
+                            setBlizzfulStep('complete');
+                          }}
+                          disabled={!blizzfulReference}
+                          className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${
+                            blizzfulReference
+                              ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                              : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                          }`}
+                        >
+                          CONTINUE
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Complete/Receipt Screen */}
+                  {blizzfulStep === 'complete' && (
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                      {/* Success Icon */}
+                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                        <CheckCircle className="w-12 h-12 text-green-500" />
+                      </div>
+                      
+                      <p className="text-center mb-2">
+                        <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
+                        <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+                      </p>
+                      
+                      <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
+                      
+                      {/* Receipt Options */}
+                      <div className="flex gap-4 mb-6">
+                        <button 
+                          onClick={() => {
+                            setPaymentProcessed(true);
+                            setShowPaymentDialog(false);
+                            setBlizzfulStep('amount');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Printer className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Print</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setTextReceiptPhone('');
+                            setTextReceiptNoMarketing(false);
+                            setTextReceiptStep('phone-input');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <MessageSquare className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Text</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setEmailReceiptEmail('');
+                            setEmailReceiptNoMarketing(false);
+                            setEmailReceiptStep('email-input');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Mail className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Email</span>
+                        </button>
+                      </div>
+                      
+                      <button 
+                        onClick={() => {
+                          setPaymentProcessed(true);
+                          setShowPaymentDialog(false);
+                          setBlizzfulStep('amount');
+                        }}
+                        className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        NO RECEIPT
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : selectedPaymentMethod === 'ubereats' && ubereatsStep !== 'amount' ? (
+                /* UberEats Payment Screens */
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => {
+                          if (textReceiptStep === 'phone-input') {
+                            setTextReceiptStep('receipt');
+                          } else if (emailReceiptStep === 'email-input') {
+                            setEmailReceiptStep('receipt');
+                          } else if (ubereatsStep === 'reference') {
+                            setUbereatsStep('amount');
+                          } else if (ubereatsStep === 'complete') {
+                            setUbereatsStep('amount');
+                          }
+                        }}
+                        className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-lg font-medium">Pay by UberEats</span>
+                    </div>
+                  </div>
+
+                  {/* Reference Number Entry Screen */}
+                  {ubereatsStep === 'reference' && (
+                    <div className="flex-1 flex flex-col">
+                      {/* UberEats Logo */}
+                      <div className="flex justify-center py-6">
+                        <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center">
+                          <ShoppingBag className="w-8 h-8 text-white" />
+                        </div>
+                      </div>
+
+                      {/* Reference Number Label */}
+                      <div className="px-4 mb-1">
+                        <span className="text-muted-foreground text-xs">Reference number</span>
+                      </div>
+
+                      {/* Reference Number Input */}
+                      <div className="px-4 mb-3">
+                        <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
+                          <span className="text-foreground text-base font-medium">
+                            {ubereatsReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Keypad */}
+                      <div className="flex-1 px-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map((key) => (
+                            <button
+                              key={key}
+                              onClick={() => {
+                                if (key === 'C') {
+                                  setUbereatsReference('');
+                                } else {
+                                  setUbereatsReference(ubereatsReference + key);
+                                }
+                              }}
+                              className={`h-12 rounded-xl text-lg font-medium transition-colors ${
+                                key === 'C'
+                                  ? 'bg-neutral-800 border border-neutral-700 text-destructive hover:bg-neutral-700'
+                                  : 'bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600'
+                              }`}
+                            >
+                              {key}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Continue Button */}
+                      <div className="p-4">
+                        <button 
+                          onClick={() => {
+                            const paid = parseFloat(paymentAmount) || 0;
+                            setPaidAmount(paid);
+                            setUbereatsStep('complete');
+                          }}
+                          disabled={!ubereatsReference}
+                          className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${
+                            ubereatsReference
+                              ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                              : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                          }`}
+                        >
+                          CONTINUE
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Complete/Receipt Screen */}
+                  {ubereatsStep === 'complete' && (
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                      {/* Success Icon */}
+                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                        <CheckCircle className="w-12 h-12 text-green-500" />
+                      </div>
+                      
+                      <p className="text-center mb-2">
+                        <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
+                        <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+                      </p>
+                      
+                      <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
+                      
+                      {/* Receipt Options */}
+                      <div className="flex gap-4 mb-6">
+                        <button 
+                          onClick={() => {
+                            setPaymentProcessed(true);
+                            setShowPaymentDialog(false);
+                            setUbereatsStep('amount');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Printer className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Print</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setTextReceiptPhone('');
+                            setTextReceiptNoMarketing(false);
+                            setTextReceiptStep('phone-input');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <MessageSquare className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Text</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setEmailReceiptEmail('');
+                            setEmailReceiptNoMarketing(false);
+                            setEmailReceiptStep('email-input');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Mail className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Email</span>
+                        </button>
+                      </div>
+                      
+                      <button 
+                        onClick={() => {
+                          setPaymentProcessed(true);
+                          setShowPaymentDialog(false);
+                          setUbereatsStep('amount');
+                        }}
+                        className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        NO RECEIPT
+                      </button>
+                    </div>
+                  )}
+                </>
+              ) : selectedPaymentMethod === 'grubhub' && grubhubStep !== 'amount' ? (
+                /* Grubhub Payment Screens */
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => {
+                          if (textReceiptStep === 'phone-input') {
+                            setTextReceiptStep('receipt');
+                          } else if (emailReceiptStep === 'email-input') {
+                            setEmailReceiptStep('receipt');
+                          } else if (grubhubStep === 'reference') {
+                            setGrubhubStep('amount');
+                          } else if (grubhubStep === 'complete') {
+                            setGrubhubStep('amount');
+                          }
+                        }}
+                        className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-lg font-medium">Pay by Grubhub</span>
+                    </div>
+                  </div>
+
+                  {/* Reference Number Entry Screen */}
+                  {grubhubStep === 'reference' && (
+                    <div className="flex-1 flex flex-col">
+                      {/* Grubhub Logo */}
+                      <div className="flex justify-center py-6">
+                        <div className="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center">
+                          <UtensilsCrossed className="w-8 h-8 text-white" />
+                        </div>
+                      </div>
+
+                      {/* Reference Number Label */}
+                      <div className="px-4 mb-1">
+                        <span className="text-muted-foreground text-xs">Reference number</span>
+                      </div>
+
+                      {/* Reference Number Input */}
+                      <div className="px-4 mb-3">
+                        <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
+                          <span className="text-foreground text-base font-medium">
+                            {grubhubReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Keypad */}
+                      <div className="flex-1 px-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map((key) => (
+                            <button
+                              key={key}
+                              onClick={() => {
+                                if (key === 'C') {
+                                  setGrubhubReference('');
+                                } else {
+                                  setGrubhubReference(grubhubReference + key);
+                                }
+                              }}
+                              className={`h-12 rounded-xl text-lg font-medium transition-colors ${
+                                key === 'C'
+                                  ? 'bg-neutral-800 border border-neutral-700 text-destructive hover:bg-neutral-700'
+                                  : 'bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600'
+                              }`}
+                            >
+                              {key}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Continue Button */}
+                      <div className="p-4">
+                        <button 
+                          onClick={() => {
+                            const paid = parseFloat(paymentAmount) || 0;
+                            setPaidAmount(paid);
+                            setGrubhubStep('complete');
+                          }}
+                          disabled={!grubhubReference}
+                          className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${
+                            grubhubReference
+                              ? 'bg-primary hover:bg-primary/90 text-primary-foreground'
+                              : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                          }`}
+                        >
+                          CONTINUE
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Complete/Receipt Screen */}
+                  {grubhubStep === 'complete' && (
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                      {/* Success Icon */}
+                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                        <CheckCircle className="w-12 h-12 text-green-500" />
+                      </div>
+                      
+                      <p className="text-center mb-2">
+                        <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
+                        <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+                      </p>
+                      
+                      <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
+                      
+                      {/* Receipt Options */}
+                      <div className="flex gap-4 mb-6">
+                        <button 
+                          onClick={() => {
+                            setPaymentProcessed(true);
+                            setShowPaymentDialog(false);
+                            setGrubhubStep('amount');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Printer className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Print</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setTextReceiptPhone('');
+                            setTextReceiptNoMarketing(false);
+                            setTextReceiptStep('phone-input');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <MessageSquare className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Text</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setEmailReceiptEmail('');
+                            setEmailReceiptNoMarketing(false);
+                            setEmailReceiptStep('email-input');
+                          }}
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Mail className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Email</span>
+                        </button>
+                      </div>
+                      
+                      <button 
+                        onClick={() => {
+                          setPaymentProcessed(true);
+                          setShowPaymentDialog(false);
+                          setGrubhubStep('amount');
+                        }}
+                        className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        NO RECEIPT
+                      </button>
+                    </div>
+                  )}
+                </>
               ) : (
                 /* Payment Entry View */
                 <>
@@ -4469,8 +4982,8 @@ const OrderPanelContent = ({
                       /* Regular Amount Display */
                       <div className="flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
                         <span className="flex-1 text-green-500 text-2xl font-bold text-center">${paymentAmount}</span>
-                        {/* Hide keypad toggle for Card, Gift Card, Pay by Link, Manual CC, External CC, Manual Card, and DoorDash - they always show keypad */}
-                        {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && selectedPaymentMethod !== 'pay-link' && selectedPaymentMethod !== 'manual-cc' && selectedPaymentMethod !== 'external-cc' && selectedPaymentMethod !== 'manual-card' && selectedPaymentMethod !== 'doordash' && (
+                        {/* Hide keypad toggle for Card, Gift Card, Pay by Link, Manual CC, External CC, Manual Card, DoorDash, Blizzful, UberEats, Grubhub - they always show keypad */}
+                        {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && selectedPaymentMethod !== 'pay-link' && selectedPaymentMethod !== 'manual-cc' && selectedPaymentMethod !== 'external-cc' && selectedPaymentMethod !== 'manual-card' && selectedPaymentMethod !== 'doordash' && selectedPaymentMethod !== 'blizzful' && selectedPaymentMethod !== 'ubereats' && selectedPaymentMethod !== 'grubhub' && (
                           <button 
                             onClick={() => setShowKeypad(!showKeypad)}
                             className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${
@@ -4706,6 +5219,18 @@ const OrderPanelContent = ({
                             setDoordashStep('reference');
                             return;
                           }
+                          if (selectedPaymentMethod === 'blizzful' && blizzfulStep === 'amount') {
+                            setBlizzfulStep('reference');
+                            return;
+                          }
+                          if (selectedPaymentMethod === 'ubereats' && ubereatsStep === 'amount') {
+                            setUbereatsStep('reference');
+                            return;
+                          }
+                          if (selectedPaymentMethod === 'grubhub' && grubhubStep === 'amount') {
+                            setGrubhubStep('reference');
+                            return;
+                          }
                           const paid = parseFloat(paymentAmount) || 0;
                           setPaidAmount(paid);
                           setPaymentProcessed(true);
@@ -4809,6 +5334,12 @@ const OrderPanelContent = ({
                         <CreditCard className="w-4 h-4 text-neutral-400" />
                       ) : selectedPaymentMethod === 'doordash' ? (
                         <Truck className="w-4 h-4 text-red-500" />
+                      ) : selectedPaymentMethod === 'blizzful' ? (
+                        <Utensils className="w-4 h-4 text-blue-500" />
+                      ) : selectedPaymentMethod === 'ubereats' ? (
+                        <ShoppingBag className="w-4 h-4 text-green-500" />
+                      ) : selectedPaymentMethod === 'grubhub' ? (
+                        <UtensilsCrossed className="w-4 h-4 text-orange-500" />
                       ) : (
                         <span className="text-neutral-400 text-xs">$</span>
                       )}
@@ -4820,6 +5351,9 @@ const OrderPanelContent = ({
                          selectedPaymentMethod === 'external-cc' ? 'External CC' :
                          selectedPaymentMethod === 'manual-card' ? 'Manual Card' :
                          selectedPaymentMethod === 'doordash' ? 'Doordash' :
+                         selectedPaymentMethod === 'blizzful' ? 'Blizzful' :
+                         selectedPaymentMethod === 'ubereats' ? 'UberEats' :
+                         selectedPaymentMethod === 'grubhub' ? 'Grubhub' :
                          selectedPaymentMethod === 'card' ? 'Card' : 'Cash'}
                       </span>
                     </div>
@@ -4922,6 +5456,15 @@ const Dashboard = () => {
   // DoorDash state
   const [doordashStep, setDoordashStep] = useState<'amount' | 'reference' | 'complete'>('amount');
   const [doordashReference, setDoordashReference] = useState('');
+  // Blizzful state
+  const [blizzfulStep, setBlizzfulStep] = useState<'amount' | 'reference' | 'complete'>('amount');
+  const [blizzfulReference, setBlizzfulReference] = useState('');
+  // UberEats state
+  const [ubereatsStep, setUbereatsStep] = useState<'amount' | 'reference' | 'complete'>('amount');
+  const [ubereatsReference, setUbereatsReference] = useState('');
+  // Grubhub state
+  const [grubhubStep, setGrubhubStep] = useState<'amount' | 'reference' | 'complete'>('amount');
+  const [grubhubReference, setGrubhubReference] = useState('');
   // Dynamic payment methods state
   const [visiblePaymentMethods, setVisiblePaymentMethods] = useState<PaymentMethodType[]>(initialPaymentMethods);
   const [dropdownPaymentMethods, setDropdownPaymentMethods] = useState<PaymentMethodType[]>(initialOtherPaymentMethods);
@@ -5666,6 +6209,18 @@ const Dashboard = () => {
             setDoordashStep={setDoordashStep}
             doordashReference={doordashReference}
             setDoordashReference={setDoordashReference}
+            blizzfulStep={blizzfulStep}
+            setBlizzfulStep={setBlizzfulStep}
+            blizzfulReference={blizzfulReference}
+            setBlizzfulReference={setBlizzfulReference}
+            ubereatsStep={ubereatsStep}
+            setUbereatsStep={setUbereatsStep}
+            ubereatsReference={ubereatsReference}
+            setUbereatsReference={setUbereatsReference}
+            grubhubStep={grubhubStep}
+            setGrubhubStep={setGrubhubStep}
+            grubhubReference={grubhubReference}
+            setGrubhubReference={setGrubhubReference}
             visiblePaymentMethods={visiblePaymentMethods}
             dropdownPaymentMethods={dropdownPaymentMethods}
             handleSelectFromDropdown={handleSelectFromDropdown}
@@ -5790,6 +6345,18 @@ const Dashboard = () => {
             setDoordashStep={setDoordashStep}
             doordashReference={doordashReference}
             setDoordashReference={setDoordashReference}
+            blizzfulStep={blizzfulStep}
+            setBlizzfulStep={setBlizzfulStep}
+            blizzfulReference={blizzfulReference}
+            setBlizzfulReference={setBlizzfulReference}
+            ubereatsStep={ubereatsStep}
+            setUbereatsStep={setUbereatsStep}
+            ubereatsReference={ubereatsReference}
+            setUbereatsReference={setUbereatsReference}
+            grubhubStep={grubhubStep}
+            setGrubhubStep={setGrubhubStep}
+            grubhubReference={grubhubReference}
+            setGrubhubReference={setGrubhubReference}
             visiblePaymentMethods={visiblePaymentMethods}
             dropdownPaymentMethods={dropdownPaymentMethods}
             handleSelectFromDropdown={handleSelectFromDropdown}

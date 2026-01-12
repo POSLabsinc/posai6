@@ -117,15 +117,42 @@ const itemModifiers: ModifierCategory[] = [
   },
 ];
 
-const addOnItems: ModifierOption[] = [
-  { name: "Extra Cheese", price: 1.50 },
-  { name: "Bacon", price: 2.00 },
-  { name: "Avocado", price: 2.50 },
-  { name: "Fried Egg", price: 1.50 },
-  { name: "Mushrooms", price: 1.00 },
-  { name: "Onion Rings", price: 2.00 },
-  { name: "Jalapeños", price: 0.75 },
-  { name: "Extra Patty", price: 4.00 },
+// Add-on categories
+const addOnCategories = ['Beverages', 'Desserts', 'Side Options', 'Protein', 'Extras'];
+
+interface AddOnItem extends ModifierOption {
+  category: string;
+  isFavorite?: boolean;
+}
+
+const addOnItems: AddOnItem[] = [
+  // Beverages
+  { name: "Dew Mojito", price: 2.00, category: "Beverages", isFavorite: true },
+  { name: "Masala Pepsi", price: 3.00, category: "Beverages", isFavorite: true },
+  { name: "Virgin Mojito", price: 4.00, category: "Beverages", isFavorite: true },
+  { name: "Green Tea", price: 2.00, category: "Beverages" },
+  { name: "Lemonade", price: 3.00, category: "Beverages" },
+  { name: "Hot Chocolate", price: 4.00, category: "Beverages" },
+  { name: "Fresh Orange Juice", price: 4.50, category: "Beverages" },
+  { name: "Iced Coffee", price: 3.50, category: "Beverages" },
+  // Desserts
+  { name: "Brownie", price: 4.00, category: "Desserts", isFavorite: true },
+  { name: "Ice Cream", price: 3.50, category: "Desserts" },
+  { name: "Cheesecake", price: 5.00, category: "Desserts" },
+  // Side Options
+  { name: "Extra Cheese", price: 1.50, category: "Side Options", isFavorite: true },
+  { name: "Mushrooms", price: 1.00, category: "Side Options" },
+  { name: "Onion Rings", price: 2.00, category: "Side Options" },
+  { name: "Jalapeños", price: 0.75, category: "Side Options" },
+  // Protein
+  { name: "Bacon", price: 2.00, category: "Protein", isFavorite: true },
+  { name: "Fried Egg", price: 1.50, category: "Protein" },
+  { name: "Extra Patty", price: 4.00, category: "Protein" },
+  { name: "Grilled Chicken", price: 3.50, category: "Protein" },
+  // Extras
+  { name: "Avocado", price: 2.50, category: "Extras", isFavorite: true },
+  { name: "Guacamole", price: 2.00, category: "Extras" },
+  { name: "Sour Cream", price: 1.00, category: "Extras" },
 ];
 
 // Default modifiers data - only for first 4 items
@@ -177,6 +204,17 @@ export const ItemCustomizationDialog = ({
   // Discount state
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+  
+  // Add-on filter state
+  const [addOnFilterGroup, setAddOnFilterGroup] = useState<'favorites' | 'all'>('favorites');
+  const [activeAddOnCategory, setActiveAddOnCategory] = useState(addOnCategories[0]);
+
+  // Filter add-on items based on selected group and category
+  const filteredAddOnItems = addOnItems.filter(item => {
+    const matchesCategory = item.category === activeAddOnCategory;
+    const matchesGroup = addOnFilterGroup === 'all' || item.isFavorite;
+    return matchesCategory && matchesGroup;
+  });
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => 
       prev.includes(seat) 
@@ -1037,26 +1075,74 @@ export const ItemCustomizationDialog = ({
           )}
         </div>
       ) : (
-        <ScrollArea className="flex-1 min-h-0 max-h-[250px]">
-          <div className="px-4 py-2">
-            <div className="flex flex-wrap gap-2">
-              {addOnItems.map(addOn => (
+        <div className="flex-1 flex flex-col min-h-0">
+          {/* House Favorites / All Toggle */}
+          <div className="px-4 pb-2">
+            <div className="flex gap-2">
+              <button
+                onClick={() => setAddOnFilterGroup('favorites')}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  addOnFilterGroup === 'favorites'
+                    ? 'bg-neutral-700 text-white'
+                    : 'bg-transparent text-neutral-400 border border-neutral-600'
+                }`}
+              >
+                House Favorites
+              </button>
+              <button
+                onClick={() => setAddOnFilterGroup('all')}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                  addOnFilterGroup === 'all'
+                    ? 'bg-neutral-700 text-white'
+                    : 'bg-transparent text-neutral-400 border border-neutral-600'
+                }`}
+              >
+                All
+              </button>
+            </div>
+          </div>
+
+          {/* Add-On Categories */}
+          <div className="px-4 pb-2">
+            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
+              {addOnCategories.map(category => (
                 <button
-                  key={addOn.name}
-                  onClick={() => toggleAddOn(addOn.name)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                    selectedAddOns.includes(addOn.name)
-                      ? 'bg-white text-black'
-                      : 'bg-neutral-800 text-neutral-300'
+                  key={category}
+                  onClick={() => setActiveAddOnCategory(category)}
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
+                    activeAddOnCategory === category
+                      ? 'bg-white text-black border-white'
+                      : 'bg-transparent text-neutral-400 border-neutral-600'
                   }`}
                 >
-                  {addOn.name}
-                  {addOn.price && <span className="ml-1 text-neutral-500">${addOn.price.toFixed(2)}</span>}
+                  {category}
                 </button>
               ))}
             </div>
           </div>
-        </ScrollArea>
+
+          {/* Add-On Items */}
+          <ScrollArea className="flex-1 min-h-0 max-h-[180px]">
+            <div className="px-4 py-2">
+              <div className="flex flex-wrap gap-2">
+                {filteredAddOnItems.map(addOn => (
+                  <button
+                    key={addOn.name}
+                    onClick={() => toggleAddOn(addOn.name)}
+                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      selectedAddOns.includes(addOn.name)
+                        ? 'bg-white text-black'
+                        : 'bg-neutral-800 text-neutral-300'
+                    }`}
+                  >
+                    {addOn.name}
+                    {addOn.price && <span className="ml-1 text-neutral-500">${addOn.price.toFixed(2)}</span>}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </ScrollArea>
+        </div>
       )}
 
       {/* Action Buttons */}

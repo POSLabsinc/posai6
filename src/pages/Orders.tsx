@@ -7120,47 +7120,65 @@ const Orders = () => {
                           </span>
                         </div>
                         
-                        {/* Modifiers - Mobile */}
+                        {/* Modifiers with tree hierarchy - Mobile */}
                         {item.modifiers && item.modifiers.length > 0 && (() => {
                           const displayedModifiers = expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2);
                           const hasShowButton = item.modifiers.length > 2;
                           
                           return (
-                            <div className="ml-5 mt-0.5">
+                            <div className="ml-2.5 mt-0.5 relative">
                               {displayedModifiers.map((mod, idx) => {
                                 const isAddOn = mod.startsWith("Add:");
                                 const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
                                 const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
                                 
                                 return (
-                                  <div key={idx} className="flex items-center gap-1.5 text-[10px] py-[1px]">
-                                    <span className="text-white">
-                                      {isAddOn ? '+' : isRemoval ? '-' : '•'}
-                                    </span>
-                                    <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
-                                      {displayMod}
-                                    </span>
+                                  <div key={idx} className="relative flex items-center text-[10px] py-[2px]">
+                                    {/* Vertical line - only show if not last item */}
+                                    {!isLastItem && (
+                                      <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white/60" style={{ height: '100%' }} />
+                                    )}
+                                    {/* Vertical line segment to connect to horizontal */}
+                                    <div className="absolute left-0 top-0 h-1/2 w-px bg-white/60" />
+                                    {/* Horizontal connector */}
+                                    <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/60" />
+                                    {/* Content */}
+                                    <div className="flex items-center gap-1.5 ml-4">
+                                      <span className="text-white">
+                                        {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                      </span>
+                                      <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
+                                        {displayMod}
+                                      </span>
+                                    </div>
                                   </div>
                                 );
                               })}
                               {hasShowButton && (
-                                <button 
-                                  className="text-[10px] text-white/60 hover:text-white mt-0.5"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setExpandedCartItems(prev => {
-                                      const newSet = new Set(prev);
-                                      if (newSet.has(item.id)) {
-                                        newSet.delete(item.id);
-                                      } else {
-                                        newSet.add(item.id);
-                                      }
-                                      return newSet;
-                                    });
-                                  }}
-                                >
-                                  {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
-                                </button>
+                                <div className="relative flex items-center py-[2px]">
+                                  {/* Vertical line segment to connect to horizontal (this is the last item) */}
+                                  <div className="absolute left-0 top-0 h-1/2 w-px bg-white/60" />
+                                  {/* Horizontal connector */}
+                                  <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/60" />
+                                  <button 
+                                    className="text-[10px] text-white/60 hover:text-white ml-4"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedCartItems(prev => {
+                                        const newSet = new Set(prev);
+                                        if (newSet.has(item.id)) {
+                                          newSet.delete(item.id);
+                                        } else {
+                                          newSet.add(item.id);
+                                        }
+                                        return newSet;
+                                      });
+                                    }}
+                                  >
+                                    {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                  </button>
+                                </div>
                               )}
                             </div>
                           );
@@ -8138,47 +8156,65 @@ const Orders = () => {
                                   </div>
                                 </div>
                                 
-                                {/* Modifiers */}
+                                {/* Modifiers with tree hierarchy */}
                                 {item.modifiers && item.modifiers.length > 0 && (() => {
                                   const displayedModifiers = expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2);
                                   const hasShowButton = item.modifiers.length > 2;
                                   
                                   return (
-                                    <div className="ml-8 mt-1">
+                                    <div className="ml-3 mt-1 relative">
                                       {displayedModifiers.map((mod, idx) => {
                                         const isAddOn = mod.startsWith("Add:");
                                         const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
                                         const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                        const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
                                         
                                         return (
-                                          <div key={idx} className="flex items-center gap-2 text-xs md:text-[10px] lg:text-xs py-[2px]">
-                                            <span className="text-white">
-                                              {isAddOn ? '+' : isRemoval ? '-' : '•'}
-                                            </span>
-                                            <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
-                                              {displayMod}
-                                            </span>
+                                          <div key={idx} className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
+                                            {/* Vertical line - only show if not last item */}
+                                            {!isLastItem && (
+                                              <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white/60" style={{ height: '100%' }} />
+                                            )}
+                                            {/* Vertical line segment to connect to horizontal */}
+                                            <div className="absolute left-0 top-0 h-1/2 w-px bg-white/60" />
+                                            {/* Horizontal connector */}
+                                            <div className="absolute left-0 top-1/2 w-3 h-px bg-white/60" />
+                                            {/* Content */}
+                                            <div className="flex items-center gap-2 ml-5">
+                                              <span className="text-white">
+                                                {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                              </span>
+                                              <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
+                                                {displayMod}
+                                              </span>
+                                            </div>
                                           </div>
                                         );
                                       })}
                                       {hasShowButton && (
-                                        <button 
-                                          className="text-xs text-white/60 hover:text-white mt-0.5"
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            setExpandedCartItems(prev => {
-                                              const newSet = new Set(prev);
-                                              if (newSet.has(item.id)) {
-                                                newSet.delete(item.id);
-                                              } else {
-                                                newSet.add(item.id);
-                                              }
-                                              return newSet;
-                                            });
-                                          }}
-                                        >
-                                          {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
-                                        </button>
+                                        <div className="relative flex items-center py-[3px]">
+                                          {/* Vertical line segment to connect to horizontal (this is the last item) */}
+                                          <div className="absolute left-0 top-0 h-1/2 w-px bg-white/60" />
+                                          {/* Horizontal connector */}
+                                          <div className="absolute left-0 top-1/2 w-3 h-px bg-white/60" />
+                                          <button 
+                                            className="text-xs text-white/60 hover:text-white ml-5"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setExpandedCartItems(prev => {
+                                                const newSet = new Set(prev);
+                                                if (newSet.has(item.id)) {
+                                                  newSet.delete(item.id);
+                                                } else {
+                                                  newSet.add(item.id);
+                                                }
+                                                return newSet;
+                                              });
+                                            }}
+                                          >
+                                            {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                          </button>
+                                        </div>
                                       )}
                                     </div>
                                   );

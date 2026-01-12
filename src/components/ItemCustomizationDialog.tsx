@@ -117,42 +117,53 @@ const itemModifiers: ModifierCategory[] = [
   },
 ];
 
-// Add-on categories
-const addOnCategories = ['Beverages', 'Desserts', 'Side Options', 'Protein', 'Extras'];
-
 interface AddOnItem extends ModifierOption {
-  category: string;
   isFavorite?: boolean;
 }
 
-const addOnItems: AddOnItem[] = [
-  // Beverages
-  { name: "Dew Mojito", price: 2.00, category: "Beverages", isFavorite: true },
-  { name: "Masala Pepsi", price: 3.00, category: "Beverages", isFavorite: true },
-  { name: "Virgin Mojito", price: 4.00, category: "Beverages", isFavorite: true },
-  { name: "Green Tea", price: 2.00, category: "Beverages" },
-  { name: "Lemonade", price: 3.00, category: "Beverages" },
-  { name: "Hot Chocolate", price: 4.00, category: "Beverages" },
-  { name: "Fresh Orange Juice", price: 4.50, category: "Beverages" },
-  { name: "Iced Coffee", price: 3.50, category: "Beverages" },
-  // Desserts
-  { name: "Brownie", price: 4.00, category: "Desserts", isFavorite: true },
-  { name: "Ice Cream", price: 3.50, category: "Desserts" },
-  { name: "Cheesecake", price: 5.00, category: "Desserts" },
-  // Side Options
-  { name: "Extra Cheese", price: 1.50, category: "Side Options", isFavorite: true },
-  { name: "Mushrooms", price: 1.00, category: "Side Options" },
-  { name: "Onion Rings", price: 2.00, category: "Side Options" },
-  { name: "Jalapeños", price: 0.75, category: "Side Options" },
-  // Protein
-  { name: "Bacon", price: 2.00, category: "Protein", isFavorite: true },
-  { name: "Fried Egg", price: 1.50, category: "Protein" },
-  { name: "Extra Patty", price: 4.00, category: "Protein" },
-  { name: "Grilled Chicken", price: 3.50, category: "Protein" },
-  // Extras
-  { name: "Avocado", price: 2.50, category: "Extras", isFavorite: true },
-  { name: "Guacamole", price: 2.00, category: "Extras" },
-  { name: "Sour Cream", price: 1.00, category: "Extras" },
+// Add-ons per item ID
+const addOnsByItemId: Record<number, AddOnItem[]> = {
+  1: [
+    { name: "Dew Mojito", price: 2.00, isFavorite: true },
+    { name: "Masala Pepsi", price: 3.00, isFavorite: true },
+    { name: "Virgin Mojito", price: 4.00, isFavorite: true },
+    { name: "Green Tea", price: 2.00 },
+    { name: "Lemonade", price: 3.00 },
+    { name: "Hot Chocolate", price: 4.00 },
+    { name: "Fresh Orange Juice", price: 4.50 },
+    { name: "Iced Coffee", price: 3.50 },
+  ],
+  2: [
+    { name: "Extra Cheese", price: 1.50, isFavorite: true },
+    { name: "Bacon", price: 2.00, isFavorite: true },
+    { name: "Avocado", price: 2.50 },
+    { name: "Fried Egg", price: 1.50 },
+    { name: "Mushrooms", price: 1.00 },
+  ],
+  3: [
+    { name: "Brownie", price: 4.00, isFavorite: true },
+    { name: "Ice Cream", price: 3.50, isFavorite: true },
+    { name: "Cheesecake", price: 5.00 },
+    { name: "Whipped Cream", price: 1.00 },
+  ],
+  4: [
+    { name: "Grilled Chicken", price: 3.50, isFavorite: true },
+    { name: "Extra Patty", price: 4.00, isFavorite: true },
+    { name: "Guacamole", price: 2.00 },
+    { name: "Sour Cream", price: 1.00 },
+  ],
+};
+
+// Default add-ons for items without specific ones
+const defaultAddOns: AddOnItem[] = [
+  { name: "Extra Cheese", price: 1.50, isFavorite: true },
+  { name: "Bacon", price: 2.00, isFavorite: true },
+  { name: "Avocado", price: 2.50, isFavorite: true },
+  { name: "Fried Egg", price: 1.50 },
+  { name: "Mushrooms", price: 1.00 },
+  { name: "Onion Rings", price: 2.00 },
+  { name: "Jalapeños", price: 0.75 },
+  { name: "Extra Patty", price: 4.00 },
 ];
 
 // Default modifiers data - only for first 4 items
@@ -207,14 +218,12 @@ export const ItemCustomizationDialog = ({
   
   // Add-on filter state
   const [addOnFilterGroup, setAddOnFilterGroup] = useState<'favorites' | 'all'>('favorites');
-  const [activeAddOnCategory, setActiveAddOnCategory] = useState(addOnCategories[0]);
 
-  // Filter add-on items based on selected group and category
-  const filteredAddOnItems = addOnItems.filter(item => {
-    const matchesCategory = item.category === activeAddOnCategory;
-    const matchesGroup = addOnFilterGroup === 'all' || item.isFavorite;
-    return matchesCategory && matchesGroup;
-  });
+  // Get add-ons for current item and filter based on group
+  const currentItemAddOns = item ? (addOnsByItemId[item.id] || defaultAddOns) : defaultAddOns;
+  const filteredAddOnItems = currentItemAddOns.filter(addOn => 
+    addOnFilterGroup === 'all' || addOn.isFavorite
+  );
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => 
       prev.includes(seat) 
@@ -384,7 +393,7 @@ export const ItemCustomizationDialog = ({
       ...selectedModifiers, 
       ...deselectedDefaults.map(mod => `No ${mod}`),
       ...selectedAddOns.map(addOn => {
-        const addOnItem = addOnItems.find(a => a.name === addOn);
+        const addOnItem = currentItemAddOns.find(a => a.name === addOn);
         return addOnItem?.price ? `Add: ${addOn} +$${addOnItem.price.toFixed(2)}` : `Add: ${addOn}`;
       })
     ];
@@ -402,7 +411,7 @@ export const ItemCustomizationDialog = ({
     
     // Calculate add-on prices
     const addOnTotal = selectedAddOns.reduce((total, addOnName) => {
-      const addOn = addOnItems.find(a => a.name === addOnName);
+      const addOn = currentItemAddOns.find(a => a.name === addOnName);
       return total + (addOn?.price || 0);
     }, 0);
     
@@ -449,7 +458,7 @@ export const ItemCustomizationDialog = ({
     }, 0);
     
     const addOnTotal = selectedAddOns.reduce((total, addOnName) => {
-      const addOn = addOnItems.find(a => a.name === addOnName);
+      const addOn = currentItemAddOns.find(a => a.name === addOnName);
       return total + (addOn?.price || 0);
     }, 0);
     
@@ -1102,24 +1111,6 @@ export const ItemCustomizationDialog = ({
             </div>
           </div>
 
-          {/* Add-On Categories */}
-          <div className="px-4 pb-2">
-            <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-              {addOnCategories.map(category => (
-                <button
-                  key={category}
-                  onClick={() => setActiveAddOnCategory(category)}
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
-                    activeAddOnCategory === category
-                      ? 'bg-white text-black border-white'
-                      : 'bg-transparent text-neutral-400 border-neutral-600'
-                  }`}
-                >
-                  {category}
-                </button>
-              ))}
-            </div>
-          </div>
 
           {/* Add-On Items */}
           <ScrollArea className="flex-1 min-h-0 max-h-[180px]">

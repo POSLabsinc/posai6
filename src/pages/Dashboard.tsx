@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, RefreshCw, Send } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, RefreshCw, Send, Zap } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -5246,25 +5246,31 @@ const OrderPanelContent = ({
             <div className="w-[280px] border-l border-neutral-700 flex flex-col">
               {/* Guest Info Header - Matching Order Panel Style */}
               <div className="p-3 border-b border-neutral-700" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
+                {/* Row 1: Name, Phone, Time */}
                 <div className="flex items-center justify-between">
                   <h3 className="text-white font-semibold text-sm">{selectedOrder?.guest || "John Doe"}</h3>
-                  <button 
-                    onClick={() => {
-                      setPaymentProcessed(false);
-                      setShowPaymentDialog(false);
-                    }}
-                    className="w-6 h-6 rounded-full hover:bg-neutral-600 flex items-center justify-center transition-colors"
-                  >
-                    <X className="w-4 h-4 text-neutral-300" />
-                  </button>
+                  <div className="flex items-center gap-1.5 text-neutral-300">
+                    <Phone className="w-3 h-3" />
+                    <span className="text-xs">(555) 123-4567</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <Zap className="w-3 h-3 text-yellow-400" />
+                    <span className="text-neutral-300 text-xs">{new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</span>
+                  </div>
                 </div>
-                <p className="text-neutral-300 text-xs mt-0.5">Order At {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}</p>
                 
-                {/* Order Info Row */}
-                <div className="flex items-center justify-between mt-2">
-                  <span className="text-neutral-400 text-[10px]">ORDER# {selectedOrder?.orderNo || "105"}</span>
-                  <span className="text-neutral-400 text-[10px]">TABLE# {selectedOrder?.table || "14"}</span>
-                  <span className="text-red-400 text-[10px] font-medium">{selectedOrder?.type?.toUpperCase() || "DINE IN"}</span>
+                {/* Row 3: Table, Guests, Server */}
+                <div className="flex items-center justify-between mt-3">
+                  <span className="bg-cyan-600 text-white text-[10px] font-medium px-2 py-1 rounded">TABLE {selectedOrder?.table || "T2"}</span>
+                  <div className="flex items-center gap-2 text-neutral-300">
+                    <Users className="w-3 h-3" />
+                    <span className="text-xs">4</span>
+                    <span className="text-white font-medium text-xs ml-1">10</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 text-neutral-300">
+                    <User className="w-3 h-3" />
+                    <span className="text-xs">MIA JONES</span>
+                  </div>
                 </div>
               </div>
 

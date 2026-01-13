@@ -4809,7 +4809,7 @@ const OrderPanelContent = ({
                 
                 {/* Row 3: Table, Guests, Server */}
                 <div className="flex items-center justify-between mt-3">
-                  <span className="bg-cyan-600 text-white text-[10px] font-medium px-2 py-1 rounded">TABLE {selectedOrder?.table || "T2"}</span>
+                  <span className="text-white text-[10px] font-medium px-2 py-1 rounded" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>TABLE {selectedOrder?.table || "T2"}</span>
                   <div className="flex items-center gap-2 text-neutral-300">
                     <Users className="w-3 h-3" />
                     <span className="text-xs">4</span>

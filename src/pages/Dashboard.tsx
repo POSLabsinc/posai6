@@ -2031,6 +2031,12 @@ const OrderPanelContent = ({
 
                       {/* Email Keyboard */}
                       <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                        {/* Number Row */}
+                        <div className="flex flex-1">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
+                              <span className="text-white text-lg font-medium">{key}</span>
+                            </button>)}
+                        </div>
                         {/* Row 1 */}
                         <div className="flex flex-1">
                           {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
@@ -3219,6 +3225,12 @@ const OrderPanelContent = ({
 
                           {/* Email Keyboard */}
                           <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                            {/* Number Row */}
+                            <div className="flex flex-1">
+                              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
+                                  <span className="text-white text-lg font-medium">{key}</span>
+                                </button>)}
+                            </div>
                             {/* Row 1 */}
                             <div className="flex flex-1">
                               {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
@@ -3465,6 +3477,12 @@ const OrderPanelContent = ({
 
                       {/* Email Keyboard */}
                       <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                        {/* Number Row */}
+                        <div className="flex flex-1">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
+                              <span className="text-white text-lg font-medium">{key}</span>
+                            </button>)}
+                        </div>
                         {/* Row 1 */}
                         <div className="flex flex-1">
                           {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
@@ -3783,6 +3801,12 @@ const OrderPanelContent = ({
 
                           {/* Email Keyboard */}
                           <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                            {/* Number Row */}
+                            <div className="flex flex-1">
+                              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
+                                  <span className="text-white text-lg font-medium">{key}</span>
+                                </button>)}
+                            </div>
                             {/* Row 1 */}
                             <div className="flex flex-1">
                               {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
@@ -4083,6 +4107,12 @@ const OrderPanelContent = ({
 
                           {/* Email Keyboard */}
                           <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                            {/* Number Row */}
+                            <div className="flex flex-1">
+                              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
+                                  <span className="text-white text-lg font-medium">{key}</span>
+                                </button>)}
+                            </div>
                             {/* Row 1 */}
                             <div className="flex flex-1">
                               {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">

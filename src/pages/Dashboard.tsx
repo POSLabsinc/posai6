@@ -471,7 +471,6 @@ const initialPaymentMethods = [
 // Initial other payment methods (in dropdown)
 const initialOtherPaymentMethods = [
   { id: 'qr-code', name: 'QR Code', icon: QrCode },
-  { id: 'account2', name: 'Account', icon: User },
   { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
   { id: 'external-cc', name: 'External CC', icon: ExternalLink },
   { id: 'manual-card', name: 'Manual card', icon: Clipboard },

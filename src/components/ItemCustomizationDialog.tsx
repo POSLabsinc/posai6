@@ -166,28 +166,109 @@ const defaultAddOns: AddOnItem[] = [
   { name: "Extra Patty", price: 4.00 },
 ];
 
-// Default modifiers data for all items
+// Default modifiers based on item name keywords
+const getDefaultModifiersForItem = (itemId: number, itemName?: string): string[] => {
+  const name = (itemName || '').toLowerCase();
+  
+  // Bread items
+  if (name.includes('sourdough') || name.includes('wheat') || name.includes('french') || name.includes('rye') || name.includes('italian') || name.includes('bread') || name.includes('loaf') || name.includes('baguette')) {
+    return ['Sliced', 'Butter', 'Warm'];
+  }
+  // Croissants
+  if (name.includes('croissant')) {
+    return ['Butter', 'Warm', 'Extra Flaky'];
+  }
+  // Danish & Pastries
+  if (name.includes('danish') || name.includes('pastry') || name.includes('éclair') || name.includes('palmier')) {
+    return ['Extra Glaze', 'Warm', 'Whipped Cream'];
+  }
+  // Cakes
+  if (name.includes('cake')) {
+    return ['Extra Frosting', 'Candles', 'Gift Box'];
+  }
+  // Cookies
+  if (name.includes('cookie')) {
+    return ['Warm', 'Extra Crispy', 'Milk on Side'];
+  }
+  // Muffins
+  if (name.includes('muffin')) {
+    return ['Warm', 'Butter', 'Extra Large'];
+  }
+  // Donuts
+  if (name.includes('donut') || name.includes('doughnut')) {
+    return ['Extra Glaze', 'Sprinkles', 'Fresh'];
+  }
+  // Pies
+  if (name.includes('pie')) {
+    return ['À la Mode', 'Whipped Cream', 'Warm'];
+  }
+  // Pizza
+  if (name.includes('pizza')) {
+    return ['Extra Cheese', 'Crispy Crust', 'Basil'];
+  }
+  // Pasta
+  if (name.includes('pasta') || name.includes('spaghetti') || name.includes('fettuccine') || name.includes('carbonara') || name.includes('ravioli') || name.includes('gnocchi') || name.includes('rigatoni')) {
+    return ['Extra Parmesan', 'Garlic Bread', 'Al Dente'];
+  }
+  // Burgers
+  if (name.includes('burger')) {
+    return ['Lettuce', 'Tomato', 'Onions', 'Pickles'];
+  }
+  // Salads
+  if (name.includes('salad')) {
+    return ['Croutons', 'Extra Dressing', 'Grilled Chicken'];
+  }
+  // Salmon & Fish
+  if (name.includes('salmon') || name.includes('fish') || name.includes('tuna') || name.includes('shrimp') || name.includes('seafood')) {
+    return ['Lemon Wedge', 'Tartar Sauce', 'Grilled Vegetables'];
+  }
+  // Chicken
+  if (name.includes('chicken')) {
+    return ['Gravy', 'Mashed Potatoes', 'Coleslaw'];
+  }
+  // Steak & Ribs
+  if (name.includes('steak') || name.includes('ribs')) {
+    return ['A1 Sauce', 'Grilled Onions', 'Baked Potato'];
+  }
+  // Sandwich & Panini
+  if (name.includes('sandwich') || name.includes('panini')) {
+    return ['Mayo', 'Mustard', 'Lettuce', 'Tomato'];
+  }
+  // Soup
+  if (name.includes('soup')) {
+    return ['Crackers', 'Extra Bread', 'Sour Cream'];
+  }
+  // Drinks & Cocktails
+  if (name.includes('mojito') || name.includes('martini') || name.includes('cocktail') || name.includes('margarita')) {
+    return ['Extra Ice', 'Sugar Rim', 'Double Shot'];
+  }
+  // Coffee & Espresso
+  if (name.includes('coffee') || name.includes('espresso') || name.includes('latte') || name.includes('cappuccino')) {
+    return ['Extra Shot', 'Oat Milk', 'Whipped Cream'];
+  }
+  // Desserts
+  if (name.includes('tiramisu') || name.includes('dessert') || name.includes('chocolate') || name.includes('vanilla')) {
+    return ['Extra Cream', 'Chocolate Sauce', 'Fresh Berries'];
+  }
+  // Pancakes & Waffles
+  if (name.includes('pancake') || name.includes('waffle')) {
+    return ['Maple Syrup', 'Whipped Cream', 'Fresh Berries'];
+  }
+  // Turkey
+  if (name.includes('turkey')) {
+    return ['Gravy', 'Cranberry Sauce', 'Stuffing'];
+  }
+  
+  // Default fallback for any other items
+  return ['No Modifications', 'Extra Napkins', 'To-Go Box'];
+};
+
+// Keep specific overrides for items that need custom defaults
 const defaultModifiersByItemId: Record<number, string[]> = {
   1: ['Lettuce', 'Tomato', 'Onions', 'Pickles'],
   2: ['Mayo', 'Mustard', 'Lettuce', 'Tomato'],
   3: ['Cheese', 'Onions', 'Mushrooms'],
   4: ['Croutons', 'Parmesan', 'Caesar Dressing'],
-  5: ['Butter', 'Garlic', 'Herbs'],
-  6: ['Sour Cream', 'Chives', 'Bacon Bits'],
-  7: ['Marinara Sauce', 'Basil', 'Parmesan'],
-  8: ['Lemon Wedge', 'Tartar Sauce', 'Coleslaw'],
-  9: ['Whipped Cream', 'Syrup', 'Butter'],
-  10: ['Guacamole', 'Salsa', 'Sour Cream'],
-  11: ['Ranch Dressing', 'Celery', 'Blue Cheese'],
-  12: ['Gravy', 'Cranberry Sauce', 'Stuffing'],
-  13: ['Wasabi', 'Ginger', 'Soy Sauce'],
-  14: ['Honey Mustard', 'Pickles', 'Coleslaw'],
-  15: ['Alfredo Sauce', 'Garlic Bread', 'Parmesan'],
-  16: ['BBQ Sauce', 'Coleslaw', 'Pickles'],
-  17: ['Tzatziki', 'Feta', 'Olives'],
-  18: ['Hot Sauce', 'Ranch', 'Celery'],
-  19: ['Maple Syrup', 'Powdered Sugar', 'Fresh Berries'],
-  20: ['Chimichurri', 'Grilled Onions', 'Peppers'],
 };
 
 export const ItemCustomizationDialog = ({
@@ -1092,15 +1173,15 @@ export const ItemCustomizationDialog = ({
             </div>
           </ScrollArea>
 
-          {/* Default Modifiers Section - Only show if item has defaults */}
-          {item && defaultModifiersByItemId[item.id] && (
+          {/* Default Modifiers Section - Show for all items */}
+          {item && (
             <>
               <div className="px-4 py-2">
                 <span className="text-white text-sm font-medium">Default Modifiers</span>
               </div>
               <div className="px-4 pb-3">
                 <div className="flex flex-wrap gap-2">
-                  {defaultModifiersByItemId[item.id].map(modifier => (
+                  {(defaultModifiersByItemId[item.id] || getDefaultModifiersForItem(item.id, item.name)).map(modifier => (
                     <button
                       key={modifier}
                       onClick={() => toggleDefaultModifier(modifier)}

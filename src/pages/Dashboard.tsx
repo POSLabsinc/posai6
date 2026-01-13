@@ -1753,15 +1753,15 @@ const OrderPanelContent = ({
                           <img src={tickSuccessIcon} alt="Success" className="w-10 h-10" />
                         </div>
                         <p className="text-neutral-300 text-sm">
-                          <span className="text-green-500 font-medium">${paidAmount.toFixed(2)}</span> has been successfully processed
+                          <span className="text-green-500 font-medium">${paymentHistory.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</span> has been successfully processed
                         </p>
                       </div>
 
                       {/* Change Due / Due Amount Box */}
-                      {paidAmount >= finalTotal ? <div className="mx-6 mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
+                      {paymentHistory.reduce((sum, p) => sum + p.amount, 0) >= finalTotal ? <div className="mx-6 mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
                           <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
                           <p className="text-green-500 text-3xl font-bold text-center">
-                            ${(paidAmount - finalTotal).toFixed(2)}
+                            ${(paymentHistory.reduce((sum, p) => sum + p.amount, 0) - finalTotal).toFixed(2)}
                           </p>
                         </div> : <div className="mx-6 mb-4 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
                           <p className="text-red-500 text-sm text-center mb-1">Due Amount</p>

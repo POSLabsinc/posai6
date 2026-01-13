@@ -20,6 +20,7 @@ import dineInIcon from "@/assets/icons/dine-in.png";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import saveIcon from "@/assets/icons/save.png";
 import runnerIcon from "@/assets/icons/runner.png";
+import tickSuccessIcon from "@/assets/icons/tick-success.svg";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
@@ -1118,7 +1119,7 @@ const OrderPanelContent = ({
                       {/* Success Header */}
                       <div className="flex flex-col items-center py-8 px-6">
                         <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                          <CheckCircle className="w-10 h-10 text-green-500" />
+                          <img src={tickSuccessIcon} alt="Success" className="w-10 h-10" />
                         </div>
                         <p className="text-neutral-300 text-sm">
                           <span className="text-green-500 font-medium">${paidAmount.toFixed(2)}</span> has been successfully processed
@@ -1944,7 +1945,7 @@ const OrderPanelContent = ({
                   {payByLinkStep === 'complete' && selectedGuest && (
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
-                        <CheckCircle className="w-10 h-10 text-green-500" />
+                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
                       </div>
                       <h2 className="text-white text-2xl font-semibold mb-2">Payment Complete</h2>
                       <p className="text-neutral-400 text-sm mb-8">The guest has complete their payment</p>
@@ -2135,7 +2136,7 @@ const OrderPanelContent = ({
                   {qrCodeStep === 'complete' && (
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
-                        <CheckCircle className="w-10 h-10 text-green-500" />
+                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
                       </div>
                       <h2 className="text-white text-2xl font-semibold mb-2">Payment Complete</h2>
                       <p className="text-neutral-400 text-sm mb-8">The guest has completed their payment</p>
@@ -2481,7 +2482,7 @@ const OrderPanelContent = ({
                   {loyaltyStep === 'complete' && loyaltySelectedGuest && (
                     <div className="flex flex-col items-center justify-center flex-1 px-4 py-4">
                       <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <CheckCircle className="w-7 h-7 text-green-500" />
+                        <img src={tickSuccessIcon} alt="Success" className="w-8 h-8" />
                       </div>
                       <h2 className="text-white text-lg font-semibold mb-1">Payment Complete</h2>
                       <p className="text-neutral-400 text-xs mb-4">Your Payment has been Processed Successfully</p>
@@ -2771,7 +2772,7 @@ const OrderPanelContent = ({
                         <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                           {/* Success Icon */}
                           <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                            <CheckCircle className="w-12 h-12 text-green-500" />
+                            <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
                           </div>
                           
                           <p className="text-center mb-2">
@@ -3132,7 +3133,7 @@ const OrderPanelContent = ({
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       {/* Success Icon */}
                       <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <CheckCircle className="w-12 h-12 text-green-500" />
+                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
                       </div>
                       
                       <p className="text-center mb-2">
@@ -3579,7 +3580,7 @@ const OrderPanelContent = ({
                         <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                           {/* Success Icon */}
                           <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                            <CheckCircle className="w-12 h-12 text-green-500" />
+                            <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
                           </div>
                           
                           <p className="text-center mb-2">
@@ -4012,7 +4013,7 @@ const OrderPanelContent = ({
                         <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                           {/* Success Icon */}
                           <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                            <CheckCircle className="w-12 h-12 text-green-500" />
+                            <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
                           </div>
                           
                           <p className="text-center mb-2">
@@ -4443,7 +4444,7 @@ const OrderPanelContent = ({
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       {/* Success Icon */}
                       <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <CheckCircle className="w-12 h-12 text-green-500" />
+                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
                       </div>
                       
                       <p className="text-center mb-2">
@@ -4604,7 +4605,7 @@ const OrderPanelContent = ({
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       {/* Success Icon */}
                       <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <CheckCircle className="w-12 h-12 text-green-500" />
+                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
                       </div>
                       
                       <p className="text-center mb-2">
@@ -4765,7 +4766,7 @@ const OrderPanelContent = ({
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       {/* Success Icon */}
                       <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <CheckCircle className="w-12 h-12 text-green-500" />
+                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
                       </div>
                       
                       <p className="text-center mb-2">

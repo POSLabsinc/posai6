@@ -245,7 +245,6 @@ export const ItemCustomizationDialog = ({
     if (open && item) {
       setOverriddenPrice(null);
       setQuantity(1);
-      setSelectedModifiers([]);
       setSelectedAddOns([]);
       setItemNotes("");
       setActiveTab('item');
@@ -259,6 +258,15 @@ export const ItemCustomizationDialog = ({
       setDeselectedDefaults([]);
       setSelectedDiscountId(null);
       setShowDiscountDialog(false);
+      
+      // Pre-select first option from each required modifier group
+      const defaultModifiers: string[] = [];
+      itemModifiers.forEach(category => {
+        if (category.required && category.options.length > 0) {
+          defaultModifiers.push(category.options[0].name);
+        }
+      });
+      setSelectedModifiers(defaultModifiers);
     }
   }, [open, item?.id]);
 
@@ -363,12 +371,23 @@ export const ItemCustomizationDialog = ({
 
   if (!item) return null;
 
-  const toggleModifier = (modifier: string) => {
-    setSelectedModifiers(prev => 
-      prev.includes(modifier) 
-        ? prev.filter(m => m !== modifier)
-        : [...prev, modifier]
-    );
+  const toggleModifier = (modifier: string, categoryName: string) => {
+    const category = itemModifiers.find(c => c.name === categoryName);
+    
+    if (category?.required) {
+      // Radio behavior: replace any existing selection from this category
+      const otherCategoryModifiers = selectedModifiers.filter(m => 
+        !category.options.some(opt => opt.name === m)
+      );
+      setSelectedModifiers([...otherCategoryModifiers, modifier]);
+    } else {
+      // Toggle behavior for optional categories
+      setSelectedModifiers(prev => 
+        prev.includes(modifier) 
+          ? prev.filter(m => m !== modifier)
+          : [...prev, modifier]
+      );
+    }
   };
 
   const toggleAddOn = (addOn: string) => {
@@ -1042,7 +1061,7 @@ export const ItemCustomizationDialog = ({
                 {activeCategory?.options.map(option => (
                   <button
                     key={option.name}
-                    onClick={() => toggleModifier(option.name)}
+                    onClick={() => toggleModifier(option.name, activeCategory.name)}
                     className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
                       selectedModifiers.includes(option.name)
                         ? 'bg-white text-black'

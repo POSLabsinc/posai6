@@ -219,7 +219,6 @@ export const InlineItemCustomization = ({
   useEffect(() => {
     setOverriddenPrice(null);
     setQuantity(1);
-    setSelectedModifiers([]);
     setSelectedAddOns([]);
     setItemNotes("");
     setActiveTab('item');
@@ -231,6 +230,15 @@ export const InlineItemCustomization = ({
     setNewPrice("");
     setOverrideNotes("");
     setSelectedDiscountId(null);
+    
+    // Pre-select first option from each required modifier group
+    const defaultModifiers: string[] = [];
+    itemModifiers.forEach(category => {
+      if (category.required && category.options.length > 0) {
+        defaultModifiers.push(category.options[0].name);
+      }
+    });
+    setSelectedModifiers(defaultModifiers);
   }, [item.id]);
 
   // Handle PIN verification - any 4-digit PIN works
@@ -324,8 +332,23 @@ export const InlineItemCustomization = ({
     }
   };
 
-  const toggleModifier = (modifier: string) => {
-    setSelectedModifiers(prev => prev.includes(modifier) ? prev.filter(m => m !== modifier) : [...prev, modifier]);
+  const toggleModifier = (modifier: string, categoryName: string) => {
+    const category = itemModifiers.find(c => c.name === categoryName);
+    
+    if (category?.required) {
+      // Radio behavior: replace any existing selection from this category
+      const otherCategoryModifiers = selectedModifiers.filter(m => 
+        !category.options.some(opt => opt.name === m)
+      );
+      setSelectedModifiers([...otherCategoryModifiers, modifier]);
+    } else {
+      // Toggle behavior for optional categories
+      setSelectedModifiers(prev => 
+        prev.includes(modifier) 
+          ? prev.filter(m => m !== modifier)
+          : [...prev, modifier]
+      );
+    }
   };
   const toggleAddOn = (addOn: string) => {
     setSelectedAddOns(prev => prev.includes(addOn) ? prev.filter(a => a !== addOn) : [...prev, addOn]);
@@ -679,7 +702,7 @@ export const InlineItemCustomization = ({
             <div className="px-3 pb-2">
               <div className="bg-neutral-800 rounded-lg p-2">
                 <div className="flex flex-wrap gap-1.5">
-                  {activeCategory?.options.map(option => <button key={option.name} onClick={() => toggleModifier(option.name)} className={`px-3 py-1.5 rounded-full text-[10px] font-medium transition-colors border ${selectedModifiers.includes(option.name) ? 'bg-white text-black border-white' : 'bg-neutral-900 text-white border-neutral-600'}`}>
+                  {activeCategory?.options.map(option => <button key={option.name} onClick={() => toggleModifier(option.name, activeCategory.name)} className={`px-3 py-1.5 rounded-full text-[10px] font-medium transition-colors border ${selectedModifiers.includes(option.name) ? 'bg-white text-black border-white' : 'bg-neutral-900 text-white border-neutral-600'}`}>
                       {option.name}
                       {option.price && <span className="ml-1">${option.price.toFixed(2)}</span>}
                     </button>)}

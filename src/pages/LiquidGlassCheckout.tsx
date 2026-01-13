@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { CreditCard, Smartphone, Building, Check, ArrowRight, ShieldCheck } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import tickSuccessIcon from "@/assets/icons/tick-success.svg";
 
 const orderItems = [
   { name: "Margherita Pizza", qty: 1, price: 18.99, image: "🍕" },
@@ -204,7 +205,7 @@ export default function LiquidGlassCheckout() {
             <div className="relative z-10 text-center py-8">
               {/* Success Animation */}
               <div className="w-24 h-24 rounded-full bg-gradient-to-r from-emerald-500 to-teal-400 mx-auto mb-6 flex items-center justify-center animate-scale-in">
-                <Check className="w-12 h-12 text-white" />
+                <img src={tickSuccessIcon} alt="Success" className="w-14 h-14" />
               </div>
               
               <h2 className="text-3xl font-medium text-white mb-2">Payment Successful!</h2>

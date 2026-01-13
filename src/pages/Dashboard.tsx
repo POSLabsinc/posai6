@@ -1346,6 +1346,9 @@ interface OrderPanelContentProps {
   setEmailReceiptEmail: (email: string) => void;
   emailReceiptNoMarketing: boolean;
   setEmailReceiptNoMarketing: (value: boolean) => void;
+  // Multi-payment history props
+  paymentHistory: Array<{ method: string; amount: number; methodLabel: string }>;
+  setPaymentHistory: React.Dispatch<React.SetStateAction<Array<{ method: string; amount: number; methodLabel: string }>>>;
 }
 const OrderPanelContent = ({
   selectedOrder,
@@ -1479,7 +1482,10 @@ const OrderPanelContent = ({
   emailReceiptEmail,
   setEmailReceiptEmail,
   emailReceiptNoMarketing,
-  setEmailReceiptNoMarketing
+  setEmailReceiptNoMarketing,
+  // Multi-payment history
+  paymentHistory,
+  setPaymentHistory
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount ? selectedDiscount.fixedAmount || subtotal * ((selectedDiscount.percentage || 0) / 100) : 0;
@@ -1757,12 +1763,42 @@ const OrderPanelContent = ({
                           <p className="text-green-500 text-3xl font-bold text-center">
                             ${(paidAmount - finalTotal).toFixed(2)}
                           </p>
-                        </div> : <div className="mx-6 mb-6 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
+                        </div> : <div className="mx-6 mb-4 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
                           <p className="text-red-500 text-sm text-center mb-1">Due Amount</p>
                           <p className="text-red-500 text-3xl font-bold text-center">
-                            ${(finalTotal - paidAmount).toFixed(2)}
+                            ${(finalTotal - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toFixed(2)}
                           </p>
                         </div>}
+
+                      {/* Pay Remaining Button - Show when there's still due amount */}
+                      {paymentHistory.reduce((sum, p) => sum + p.amount, 0) < finalTotal && (
+                        <div className="mx-6 mb-6">
+                          <button
+                            onClick={() => {
+                              const totalPaid = paymentHistory.reduce((sum, p) => sum + p.amount, 0);
+                              const remaining = finalTotal - totalPaid;
+                              setPaymentAmount(remaining.toFixed(2));
+                              setPaymentProcessed(false);
+                              setSelectedPaymentMethod('cash');
+                              setAmountQuantities({});
+                              setGiftCardStep('amount');
+                              setGiftCardNumber('');
+                              setPayByLinkStep('amount');
+                              setQrCodeStep('amount');
+                              setManualCCStep('amount');
+                              setExternalCCStep('amount');
+                              setManualCardStep('amount');
+                              setDoordashStep('amount');
+                              setBlizzfulStep('amount');
+                              setUbereatsStep('amount');
+                              setGrubhubStep('amount');
+                            }}
+                            className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
+                          >
+                            PAY REMAINING ${(finalTotal - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toFixed(2)}
+                          </button>
+                        </div>
+                      )}
 
                       {/* Receipt Section */}
                       <div className="px-6 pb-6">
@@ -1792,6 +1828,7 @@ const OrderPanelContent = ({
                       <button onClick={() => {
                   setPaymentProcessed(false);
                   setShowPaymentDialog(false);
+                  setPaymentHistory([]);
                 }} className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
                         NO RECEIPT
                       </button>
@@ -4733,6 +4770,8 @@ const OrderPanelContent = ({
                   return;
                 }
                 const paid = parseFloat(paymentAmount) || 0;
+                const methodLabel = selectedPaymentMethod === 'qr-code' ? 'Pay by QR' : selectedPaymentMethod === 'pay-link' ? 'Pay By Link' : selectedPaymentMethod === 'gift-card' ? 'Gift Card' : selectedPaymentMethod === 'manual-cc' ? 'Pay By Manual CC' : selectedPaymentMethod === 'external-cc' ? 'External CC' : selectedPaymentMethod === 'manual-card' ? 'Manual Card' : selectedPaymentMethod === 'doordash' ? 'Doordash' : selectedPaymentMethod === 'blizzful' ? 'Blizzful' : selectedPaymentMethod === 'ubereats' ? 'UberEats' : selectedPaymentMethod === 'grubhub' ? 'Grubhub' : selectedPaymentMethod === 'card' ? 'Card' : 'Cash';
+                setPaymentHistory(prev => [...prev, { method: selectedPaymentMethod, amount: paid, methodLabel }]);
                 setPaidAmount(paid);
                 setPaymentProcessed(true);
               }} className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm">
@@ -4789,10 +4828,10 @@ const OrderPanelContent = ({
                   <span className="text-white font-medium text-sm">Check {selectedOrder?.check || "62"} a</span>
                   <span className="text-white font-bold">${finalTotal.toFixed(2)}</span>
                 </div>
-                {paymentProcessed && paidAmount >= finalTotal && <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
+                {paymentHistory.length > 0 && paymentHistory.reduce((sum, p) => sum + p.amount, 0) >= finalTotal && <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
                     PAID
                   </span>}
-                {paymentProcessed && paidAmount < finalTotal && <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-yellow-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
+                {paymentHistory.length > 0 && paymentHistory.reduce((sum, p) => sum + p.amount, 0) < finalTotal && <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-yellow-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
                     PARTIAL
                   </span>}
                 
@@ -4822,22 +4861,32 @@ const OrderPanelContent = ({
                   </div>)}
               </div>
 
-              {/* Payment History - Only show when processed */}
-              {paymentProcessed && <div className="p-3 border-t border-neutral-700">
+              {/* Payment History - Show all payments */}
+              {paymentHistory.length > 0 && <div className="p-3 border-t border-neutral-700">
                   <h4 className="text-white text-sm font-medium mb-2">Payment History</h4>
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {selectedPaymentMethod === 'qr-code' ? <QrCode className="w-4 h-4 text-neutral-400" /> : selectedPaymentMethod === 'pay-link' ? <Link className="w-4 h-4 text-neutral-400" /> : selectedPaymentMethod === 'gift-card' ? <Gift className="w-4 h-4 text-neutral-400" /> : selectedPaymentMethod === 'card' || selectedPaymentMethod === 'manual-cc' || selectedPaymentMethod === 'external-cc' || selectedPaymentMethod === 'manual-card' ? <CreditCard className="w-4 h-4 text-neutral-400" /> : selectedPaymentMethod === 'doordash' ? <Truck className="w-4 h-4 text-red-500" /> : selectedPaymentMethod === 'blizzful' ? <Utensils className="w-4 h-4 text-blue-500" /> : selectedPaymentMethod === 'ubereats' ? <ShoppingBag className="w-4 h-4 text-green-500" /> : selectedPaymentMethod === 'grubhub' ? <UtensilsCrossed className="w-4 h-4 text-orange-500" /> : <span className="text-neutral-400 text-xs">$</span>}
-                      <span className="text-neutral-300 text-xs">
-                        {selectedPaymentMethod === 'qr-code' ? 'Pay by QR' : selectedPaymentMethod === 'pay-link' ? 'Pay By Link' : selectedPaymentMethod === 'gift-card' ? 'Gift Card' : selectedPaymentMethod === 'manual-cc' ? 'Pay By Manual CC' : selectedPaymentMethod === 'external-cc' ? 'External CC' : selectedPaymentMethod === 'manual-card' ? 'Manual Card' : selectedPaymentMethod === 'doordash' ? 'Doordash' : selectedPaymentMethod === 'blizzful' ? 'Blizzful' : selectedPaymentMethod === 'ubereats' ? 'UberEats' : selectedPaymentMethod === 'grubhub' ? 'Grubhub' : selectedPaymentMethod === 'card' ? 'Card' : 'Cash'}
-                      </span>
-                    </div>
-                    <span className="text-green-500 text-xs font-medium">${paidAmount.toFixed(2)}</span>
+                  <div className="space-y-2">
+                    {paymentHistory.map((payment, index) => (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          {payment.method === 'qr-code' ? <QrCode className="w-4 h-4 text-neutral-400" /> : payment.method === 'pay-link' ? <Link className="w-4 h-4 text-neutral-400" /> : payment.method === 'gift-card' ? <Gift className="w-4 h-4 text-neutral-400" /> : payment.method === 'card' || payment.method === 'manual-cc' || payment.method === 'external-cc' || payment.method === 'manual-card' ? <CreditCard className="w-4 h-4 text-neutral-400" /> : payment.method === 'doordash' ? <Truck className="w-4 h-4 text-red-500" /> : payment.method === 'blizzful' ? <Utensils className="w-4 h-4 text-blue-500" /> : payment.method === 'ubereats' ? <ShoppingBag className="w-4 h-4 text-green-500" /> : payment.method === 'grubhub' ? <UtensilsCrossed className="w-4 h-4 text-orange-500" /> : <Banknote className="w-4 h-4 text-neutral-400" />}
+                          <span className="text-neutral-300 text-xs">{payment.methodLabel}</span>
+                        </div>
+                        <span className="text-green-500 text-xs font-medium">${payment.amount.toFixed(2)}</span>
+                      </div>
+                    ))}
                   </div>
-                  {paidAmount < finalTotal && <div className="flex items-center justify-between mt-2 pt-2 border-t border-neutral-600">
+                  {/* Total Paid */}
+                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-neutral-600">
+                    <span className="text-neutral-400 text-xs">Total Paid</span>
+                    <span className="text-green-500 text-xs font-medium">${paymentHistory.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</span>
+                  </div>
+                  {/* Remaining Due */}
+                  {paymentHistory.reduce((sum, p) => sum + p.amount, 0) < finalTotal && (
+                    <div className="flex items-center justify-between mt-1">
                       <span className="text-neutral-400 text-xs">Remaining Due</span>
-                      <span className="text-red-500 text-xs font-medium">${(finalTotal - paidAmount).toFixed(2)}</span>
-                    </div>}
+                      <span className="text-red-500 text-xs font-medium">${(finalTotal - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toFixed(2)}</span>
+                    </div>
+                  )}
                 </div>}
 
               {/* Order Summary - Hide when processed */}
@@ -4944,6 +4993,8 @@ const Dashboard = () => {
   // Grubhub state
   const [grubhubStep, setGrubhubStep] = useState<'amount' | 'reference' | 'complete'>('amount');
   const [grubhubReference, setGrubhubReference] = useState('');
+  // Multi-payment history state
+  const [paymentHistory, setPaymentHistory] = useState<Array<{ method: string; amount: number; methodLabel: string }>>([]);
   // Dynamic payment methods state
   const [visiblePaymentMethods, setVisiblePaymentMethods] = useState<PaymentMethodType[]>(initialPaymentMethods);
   const [dropdownPaymentMethods, setDropdownPaymentMethods] = useState<PaymentMethodType[]>(initialOtherPaymentMethods);
@@ -5503,7 +5554,7 @@ const Dashboard = () => {
         background: "#7575754D",
         boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
       }}>
-          <OrderPanelContent selectedOrder={selectedOrder} orderItems={orderItems} subtotal={subtotal} total={total} phoneIcon={phoneIcon} timeIcon={timeIcon} itemNotesIcon={itemNotesIcon} fireIcon={fireIcon} seatFilter={seatFilter} toggleSeatFilter={toggleSeatFilter} orderNotes={orderNotes} setOrderNotes={setOrderNotes} activeSwipedItemId={activeSwipedItemId} setActiveSwipedItemId={setActiveSwipedItemId} onToggleNoTax={handleToggleNoTax} onOrderTypeChange={handleOrderTypeChange} onDeleteItem={handleDeleteItem} onFireItem={handleFireItem} showDiscountDialog={showDiscountDialog} setShowDiscountDialog={setShowDiscountDialog} selectedDiscountId={selectedDiscountId} setSelectedDiscountId={setSelectedDiscountId} showPaymentDialog={showPaymentDialog} setShowPaymentDialog={setShowPaymentDialog} selectedPaymentMethod={selectedPaymentMethod} setSelectedPaymentMethod={setSelectedPaymentMethod} paymentAmount={paymentAmount} setPaymentAmount={setPaymentAmount} showKeypad={showKeypad} setShowKeypad={setShowKeypad} handleKeypadPress={handleKeypadPress} amountQuantities={amountQuantities} setAmountQuantities={setAmountQuantities} handleAddAmount={handleAddAmount} handleRemoveAmount={handleRemoveAmount} paymentProcessed={paymentProcessed} setPaymentProcessed={setPaymentProcessed} paidAmount={paidAmount} setPaidAmount={setPaidAmount} showOtherPayments={showOtherPayments} setShowOtherPayments={setShowOtherPayments} giftCardStep={giftCardStep} setGiftCardStep={setGiftCardStep} giftCardNumber={giftCardNumber} setGiftCardNumber={setGiftCardNumber} handleGiftCardKeypadPress={handleGiftCardKeypadPress} payByLinkStep={payByLinkStep} setPayByLinkStep={setPayByLinkStep} selectedGuest={selectedGuest} setSelectedGuest={setSelectedGuest} guestSearchQuery={guestSearchQuery} setGuestSearchQuery={setGuestSearchQuery} hoveredGuestIndex={hoveredGuestIndex} setHoveredGuestIndex={setHoveredGuestIndex} sendLinkMethod={sendLinkMethod} setSendLinkMethod={setSendLinkMethod} newGuestForLink={newGuestForLink} setNewGuestForLink={setNewGuestForLink} qrCodeStep={qrCodeStep} setQrCodeStep={setQrCodeStep} qrPhoneNumber={qrPhoneNumber} setQrPhoneNumber={setQrPhoneNumber} showQrPhoneInput={showQrPhoneInput} setShowQrPhoneInput={setShowQrPhoneInput} loyaltyStep={loyaltyStep} setLoyaltyStep={setLoyaltyStep} loyaltySelectedGuest={loyaltySelectedGuest} setLoyaltySelectedGuest={setLoyaltySelectedGuest} loyaltyPointsToRedeem={loyaltyPointsToRedeem} setLoyaltyPointsToRedeem={setLoyaltyPointsToRedeem} showLoyaltyAddGuest={showLoyaltyAddGuest} setShowLoyaltyAddGuest={setShowLoyaltyAddGuest} loyaltyNewGuest={loyaltyNewGuest} setLoyaltyNewGuest={setLoyaltyNewGuest} loyaltyOtp={loyaltyOtp} setLoyaltyOtp={setLoyaltyOtp} loyaltySearchQuery={loyaltySearchQuery} setLoyaltySearchQuery={setLoyaltySearchQuery} showLoyaltyKeypad={showLoyaltyKeypad} setShowLoyaltyKeypad={setShowLoyaltyKeypad} manualCCStep={manualCCStep} setManualCCStep={setManualCCStep} externalCCStep={externalCCStep} setExternalCCStep={setExternalCCStep} manualCardStep={manualCardStep} setManualCardStep={setManualCardStep} manualCardDetails={manualCardDetails} setManualCardDetails={setManualCardDetails} doordashStep={doordashStep} setDoordashStep={setDoordashStep} doordashReference={doordashReference} setDoordashReference={setDoordashReference} blizzfulStep={blizzfulStep} setBlizzfulStep={setBlizzfulStep} blizzfulReference={blizzfulReference} setBlizzfulReference={setBlizzfulReference} ubereatsStep={ubereatsStep} setUbereatsStep={setUbereatsStep} ubereatsReference={ubereatsReference} setUbereatsReference={setUbereatsReference} grubhubStep={grubhubStep} setGrubhubStep={setGrubhubStep} grubhubReference={grubhubReference} setGrubhubReference={setGrubhubReference} visiblePaymentMethods={visiblePaymentMethods} dropdownPaymentMethods={dropdownPaymentMethods} handleSelectFromDropdown={handleSelectFromDropdown} textReceiptStep={textReceiptStep} setTextReceiptStep={setTextReceiptStep} textReceiptPhone={textReceiptPhone} setTextReceiptPhone={setTextReceiptPhone} textReceiptNoMarketing={textReceiptNoMarketing} setTextReceiptNoMarketing={setTextReceiptNoMarketing} emailReceiptStep={emailReceiptStep} setEmailReceiptStep={setEmailReceiptStep} emailReceiptEmail={emailReceiptEmail} setEmailReceiptEmail={setEmailReceiptEmail} emailReceiptNoMarketing={emailReceiptNoMarketing} setEmailReceiptNoMarketing={setEmailReceiptNoMarketing} />
+          <OrderPanelContent selectedOrder={selectedOrder} orderItems={orderItems} subtotal={subtotal} total={total} phoneIcon={phoneIcon} timeIcon={timeIcon} itemNotesIcon={itemNotesIcon} fireIcon={fireIcon} seatFilter={seatFilter} toggleSeatFilter={toggleSeatFilter} orderNotes={orderNotes} setOrderNotes={setOrderNotes} activeSwipedItemId={activeSwipedItemId} setActiveSwipedItemId={setActiveSwipedItemId} onToggleNoTax={handleToggleNoTax} onOrderTypeChange={handleOrderTypeChange} onDeleteItem={handleDeleteItem} onFireItem={handleFireItem} showDiscountDialog={showDiscountDialog} setShowDiscountDialog={setShowDiscountDialog} selectedDiscountId={selectedDiscountId} setSelectedDiscountId={setSelectedDiscountId} showPaymentDialog={showPaymentDialog} setShowPaymentDialog={setShowPaymentDialog} selectedPaymentMethod={selectedPaymentMethod} setSelectedPaymentMethod={setSelectedPaymentMethod} paymentAmount={paymentAmount} setPaymentAmount={setPaymentAmount} showKeypad={showKeypad} setShowKeypad={setShowKeypad} handleKeypadPress={handleKeypadPress} amountQuantities={amountQuantities} setAmountQuantities={setAmountQuantities} handleAddAmount={handleAddAmount} handleRemoveAmount={handleRemoveAmount} paymentProcessed={paymentProcessed} setPaymentProcessed={setPaymentProcessed} paidAmount={paidAmount} setPaidAmount={setPaidAmount} showOtherPayments={showOtherPayments} setShowOtherPayments={setShowOtherPayments} giftCardStep={giftCardStep} setGiftCardStep={setGiftCardStep} giftCardNumber={giftCardNumber} setGiftCardNumber={setGiftCardNumber} handleGiftCardKeypadPress={handleGiftCardKeypadPress} payByLinkStep={payByLinkStep} setPayByLinkStep={setPayByLinkStep} selectedGuest={selectedGuest} setSelectedGuest={setSelectedGuest} guestSearchQuery={guestSearchQuery} setGuestSearchQuery={setGuestSearchQuery} hoveredGuestIndex={hoveredGuestIndex} setHoveredGuestIndex={setHoveredGuestIndex} sendLinkMethod={sendLinkMethod} setSendLinkMethod={setSendLinkMethod} newGuestForLink={newGuestForLink} setNewGuestForLink={setNewGuestForLink} qrCodeStep={qrCodeStep} setQrCodeStep={setQrCodeStep} qrPhoneNumber={qrPhoneNumber} setQrPhoneNumber={setQrPhoneNumber} showQrPhoneInput={showQrPhoneInput} setShowQrPhoneInput={setShowQrPhoneInput} loyaltyStep={loyaltyStep} setLoyaltyStep={setLoyaltyStep} loyaltySelectedGuest={loyaltySelectedGuest} setLoyaltySelectedGuest={setLoyaltySelectedGuest} loyaltyPointsToRedeem={loyaltyPointsToRedeem} setLoyaltyPointsToRedeem={setLoyaltyPointsToRedeem} showLoyaltyAddGuest={showLoyaltyAddGuest} setShowLoyaltyAddGuest={setShowLoyaltyAddGuest} loyaltyNewGuest={loyaltyNewGuest} setLoyaltyNewGuest={setLoyaltyNewGuest} loyaltyOtp={loyaltyOtp} setLoyaltyOtp={setLoyaltyOtp} loyaltySearchQuery={loyaltySearchQuery} setLoyaltySearchQuery={setLoyaltySearchQuery} showLoyaltyKeypad={showLoyaltyKeypad} setShowLoyaltyKeypad={setShowLoyaltyKeypad} manualCCStep={manualCCStep} setManualCCStep={setManualCCStep} externalCCStep={externalCCStep} setExternalCCStep={setExternalCCStep} manualCardStep={manualCardStep} setManualCardStep={setManualCardStep} manualCardDetails={manualCardDetails} setManualCardDetails={setManualCardDetails} doordashStep={doordashStep} setDoordashStep={setDoordashStep} doordashReference={doordashReference} setDoordashReference={setDoordashReference} blizzfulStep={blizzfulStep} setBlizzfulStep={setBlizzfulStep} blizzfulReference={blizzfulReference} setBlizzfulReference={setBlizzfulReference} ubereatsStep={ubereatsStep} setUbereatsStep={setUbereatsStep} ubereatsReference={ubereatsReference} setUbereatsReference={setUbereatsReference} grubhubStep={grubhubStep} setGrubhubStep={setGrubhubStep} grubhubReference={grubhubReference} setGrubhubReference={setGrubhubReference} visiblePaymentMethods={visiblePaymentMethods} dropdownPaymentMethods={dropdownPaymentMethods} handleSelectFromDropdown={handleSelectFromDropdown} textReceiptStep={textReceiptStep} setTextReceiptStep={setTextReceiptStep} textReceiptPhone={textReceiptPhone} setTextReceiptPhone={setTextReceiptPhone} textReceiptNoMarketing={textReceiptNoMarketing} setTextReceiptNoMarketing={setTextReceiptNoMarketing} emailReceiptStep={emailReceiptStep} setEmailReceiptStep={setEmailReceiptStep} emailReceiptEmail={emailReceiptEmail} setEmailReceiptEmail={setEmailReceiptEmail} emailReceiptNoMarketing={emailReceiptNoMarketing} setEmailReceiptNoMarketing={setEmailReceiptNoMarketing} paymentHistory={paymentHistory} setPaymentHistory={setPaymentHistory} />
         </div>
       </div>
 
@@ -5516,7 +5567,7 @@ const Dashboard = () => {
             </DrawerClose>
           </div>
           <div className="flex flex-col h-full overflow-hidden">
-            <OrderPanelContent selectedOrder={selectedOrder} orderItems={orderItems} subtotal={subtotal} total={total} phoneIcon={phoneIcon} timeIcon={timeIcon} itemNotesIcon={itemNotesIcon} fireIcon={fireIcon} seatFilter={seatFilter} toggleSeatFilter={toggleSeatFilter} orderNotes={orderNotes} setOrderNotes={setOrderNotes} activeSwipedItemId={activeSwipedItemId} setActiveSwipedItemId={setActiveSwipedItemId} onToggleNoTax={handleToggleNoTax} onOrderTypeChange={handleOrderTypeChange} onDeleteItem={handleDeleteItem} onFireItem={handleFireItem} showDiscountDialog={showDiscountDialog} setShowDiscountDialog={setShowDiscountDialog} selectedDiscountId={selectedDiscountId} setSelectedDiscountId={setSelectedDiscountId} showPaymentDialog={showPaymentDialog} setShowPaymentDialog={setShowPaymentDialog} selectedPaymentMethod={selectedPaymentMethod} setSelectedPaymentMethod={setSelectedPaymentMethod} paymentAmount={paymentAmount} setPaymentAmount={setPaymentAmount} showKeypad={showKeypad} setShowKeypad={setShowKeypad} handleKeypadPress={handleKeypadPress} amountQuantities={amountQuantities} setAmountQuantities={setAmountQuantities} handleAddAmount={handleAddAmount} handleRemoveAmount={handleRemoveAmount} paymentProcessed={paymentProcessed} setPaymentProcessed={setPaymentProcessed} paidAmount={paidAmount} setPaidAmount={setPaidAmount} showOtherPayments={showOtherPayments} setShowOtherPayments={setShowOtherPayments} giftCardStep={giftCardStep} setGiftCardStep={setGiftCardStep} giftCardNumber={giftCardNumber} setGiftCardNumber={setGiftCardNumber} handleGiftCardKeypadPress={handleGiftCardKeypadPress} payByLinkStep={payByLinkStep} setPayByLinkStep={setPayByLinkStep} selectedGuest={selectedGuest} setSelectedGuest={setSelectedGuest} guestSearchQuery={guestSearchQuery} setGuestSearchQuery={setGuestSearchQuery} hoveredGuestIndex={hoveredGuestIndex} setHoveredGuestIndex={setHoveredGuestIndex} sendLinkMethod={sendLinkMethod} setSendLinkMethod={setSendLinkMethod} newGuestForLink={newGuestForLink} setNewGuestForLink={setNewGuestForLink} qrCodeStep={qrCodeStep} setQrCodeStep={setQrCodeStep} qrPhoneNumber={qrPhoneNumber} setQrPhoneNumber={setQrPhoneNumber} showQrPhoneInput={showQrPhoneInput} setShowQrPhoneInput={setShowQrPhoneInput} loyaltyStep={loyaltyStep} setLoyaltyStep={setLoyaltyStep} loyaltySelectedGuest={loyaltySelectedGuest} setLoyaltySelectedGuest={setLoyaltySelectedGuest} loyaltyPointsToRedeem={loyaltyPointsToRedeem} setLoyaltyPointsToRedeem={setLoyaltyPointsToRedeem} showLoyaltyAddGuest={showLoyaltyAddGuest} setShowLoyaltyAddGuest={setShowLoyaltyAddGuest} loyaltyNewGuest={loyaltyNewGuest} setLoyaltyNewGuest={setLoyaltyNewGuest} loyaltyOtp={loyaltyOtp} setLoyaltyOtp={setLoyaltyOtp} loyaltySearchQuery={loyaltySearchQuery} setLoyaltySearchQuery={setLoyaltySearchQuery} showLoyaltyKeypad={showLoyaltyKeypad} setShowLoyaltyKeypad={setShowLoyaltyKeypad} manualCCStep={manualCCStep} setManualCCStep={setManualCCStep} externalCCStep={externalCCStep} setExternalCCStep={setExternalCCStep} manualCardStep={manualCardStep} setManualCardStep={setManualCardStep} manualCardDetails={manualCardDetails} setManualCardDetails={setManualCardDetails} doordashStep={doordashStep} setDoordashStep={setDoordashStep} doordashReference={doordashReference} setDoordashReference={setDoordashReference} blizzfulStep={blizzfulStep} setBlizzfulStep={setBlizzfulStep} blizzfulReference={blizzfulReference} setBlizzfulReference={setBlizzfulReference} ubereatsStep={ubereatsStep} setUbereatsStep={setUbereatsStep} ubereatsReference={ubereatsReference} setUbereatsReference={setUbereatsReference} grubhubStep={grubhubStep} setGrubhubStep={setGrubhubStep} grubhubReference={grubhubReference} setGrubhubReference={setGrubhubReference} visiblePaymentMethods={visiblePaymentMethods} dropdownPaymentMethods={dropdownPaymentMethods} handleSelectFromDropdown={handleSelectFromDropdown} textReceiptStep={textReceiptStep} setTextReceiptStep={setTextReceiptStep} textReceiptPhone={textReceiptPhone} setTextReceiptPhone={setTextReceiptPhone} textReceiptNoMarketing={textReceiptNoMarketing} setTextReceiptNoMarketing={setTextReceiptNoMarketing} emailReceiptStep={emailReceiptStep} setEmailReceiptStep={setEmailReceiptStep} emailReceiptEmail={emailReceiptEmail} setEmailReceiptEmail={setEmailReceiptEmail} emailReceiptNoMarketing={emailReceiptNoMarketing} setEmailReceiptNoMarketing={setEmailReceiptNoMarketing} />
+            <OrderPanelContent selectedOrder={selectedOrder} orderItems={orderItems} subtotal={subtotal} total={total} phoneIcon={phoneIcon} timeIcon={timeIcon} itemNotesIcon={itemNotesIcon} fireIcon={fireIcon} seatFilter={seatFilter} toggleSeatFilter={toggleSeatFilter} orderNotes={orderNotes} setOrderNotes={setOrderNotes} activeSwipedItemId={activeSwipedItemId} setActiveSwipedItemId={setActiveSwipedItemId} onToggleNoTax={handleToggleNoTax} onOrderTypeChange={handleOrderTypeChange} onDeleteItem={handleDeleteItem} onFireItem={handleFireItem} showDiscountDialog={showDiscountDialog} setShowDiscountDialog={setShowDiscountDialog} selectedDiscountId={selectedDiscountId} setSelectedDiscountId={setSelectedDiscountId} showPaymentDialog={showPaymentDialog} setShowPaymentDialog={setShowPaymentDialog} selectedPaymentMethod={selectedPaymentMethod} setSelectedPaymentMethod={setSelectedPaymentMethod} paymentAmount={paymentAmount} setPaymentAmount={setPaymentAmount} showKeypad={showKeypad} setShowKeypad={setShowKeypad} handleKeypadPress={handleKeypadPress} amountQuantities={amountQuantities} setAmountQuantities={setAmountQuantities} handleAddAmount={handleAddAmount} handleRemoveAmount={handleRemoveAmount} paymentProcessed={paymentProcessed} setPaymentProcessed={setPaymentProcessed} paidAmount={paidAmount} setPaidAmount={setPaidAmount} showOtherPayments={showOtherPayments} setShowOtherPayments={setShowOtherPayments} giftCardStep={giftCardStep} setGiftCardStep={setGiftCardStep} giftCardNumber={giftCardNumber} setGiftCardNumber={setGiftCardNumber} handleGiftCardKeypadPress={handleGiftCardKeypadPress} payByLinkStep={payByLinkStep} setPayByLinkStep={setPayByLinkStep} selectedGuest={selectedGuest} setSelectedGuest={setSelectedGuest} guestSearchQuery={guestSearchQuery} setGuestSearchQuery={setGuestSearchQuery} hoveredGuestIndex={hoveredGuestIndex} setHoveredGuestIndex={setHoveredGuestIndex} sendLinkMethod={sendLinkMethod} setSendLinkMethod={setSendLinkMethod} newGuestForLink={newGuestForLink} setNewGuestForLink={setNewGuestForLink} qrCodeStep={qrCodeStep} setQrCodeStep={setQrCodeStep} qrPhoneNumber={qrPhoneNumber} setQrPhoneNumber={setQrPhoneNumber} showQrPhoneInput={showQrPhoneInput} setShowQrPhoneInput={setShowQrPhoneInput} loyaltyStep={loyaltyStep} setLoyaltyStep={setLoyaltyStep} loyaltySelectedGuest={loyaltySelectedGuest} setLoyaltySelectedGuest={setLoyaltySelectedGuest} loyaltyPointsToRedeem={loyaltyPointsToRedeem} setLoyaltyPointsToRedeem={setLoyaltyPointsToRedeem} showLoyaltyAddGuest={showLoyaltyAddGuest} setShowLoyaltyAddGuest={setShowLoyaltyAddGuest} loyaltyNewGuest={loyaltyNewGuest} setLoyaltyNewGuest={setLoyaltyNewGuest} loyaltyOtp={loyaltyOtp} setLoyaltyOtp={setLoyaltyOtp} loyaltySearchQuery={loyaltySearchQuery} setLoyaltySearchQuery={setLoyaltySearchQuery} showLoyaltyKeypad={showLoyaltyKeypad} setShowLoyaltyKeypad={setShowLoyaltyKeypad} manualCCStep={manualCCStep} setManualCCStep={setManualCCStep} externalCCStep={externalCCStep} setExternalCCStep={setExternalCCStep} manualCardStep={manualCardStep} setManualCardStep={setManualCardStep} manualCardDetails={manualCardDetails} setManualCardDetails={setManualCardDetails} doordashStep={doordashStep} setDoordashStep={setDoordashStep} doordashReference={doordashReference} setDoordashReference={setDoordashReference} blizzfulStep={blizzfulStep} setBlizzfulStep={setBlizzfulStep} blizzfulReference={blizzfulReference} setBlizzfulReference={setBlizzfulReference} ubereatsStep={ubereatsStep} setUbereatsStep={setUbereatsStep} ubereatsReference={ubereatsReference} setUbereatsReference={setUbereatsReference} grubhubStep={grubhubStep} setGrubhubStep={setGrubhubStep} grubhubReference={grubhubReference} setGrubhubReference={setGrubhubReference} visiblePaymentMethods={visiblePaymentMethods} dropdownPaymentMethods={dropdownPaymentMethods} handleSelectFromDropdown={handleSelectFromDropdown} textReceiptStep={textReceiptStep} setTextReceiptStep={setTextReceiptStep} textReceiptPhone={textReceiptPhone} setTextReceiptPhone={setTextReceiptPhone} textReceiptNoMarketing={textReceiptNoMarketing} setTextReceiptNoMarketing={setTextReceiptNoMarketing} emailReceiptStep={emailReceiptStep} setEmailReceiptStep={setEmailReceiptStep} emailReceiptEmail={emailReceiptEmail} setEmailReceiptEmail={setEmailReceiptEmail} emailReceiptNoMarketing={emailReceiptNoMarketing} setEmailReceiptNoMarketing={setEmailReceiptNoMarketing} paymentHistory={paymentHistory} setPaymentHistory={setPaymentHistory} />
           </div>
         </DrawerContent>
       </Drawer>

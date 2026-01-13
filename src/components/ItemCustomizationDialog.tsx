@@ -166,12 +166,28 @@ const defaultAddOns: AddOnItem[] = [
   { name: "Extra Patty", price: 4.00 },
 ];
 
-// Default modifiers data - only for first 4 items
+// Default modifiers data for all items
 const defaultModifiersByItemId: Record<number, string[]> = {
   1: ['Lettuce', 'Tomato', 'Onions', 'Pickles'],
   2: ['Mayo', 'Mustard', 'Lettuce', 'Tomato'],
   3: ['Cheese', 'Onions', 'Mushrooms'],
   4: ['Croutons', 'Parmesan', 'Caesar Dressing'],
+  5: ['Butter', 'Garlic', 'Herbs'],
+  6: ['Sour Cream', 'Chives', 'Bacon Bits'],
+  7: ['Marinara Sauce', 'Basil', 'Parmesan'],
+  8: ['Lemon Wedge', 'Tartar Sauce', 'Coleslaw'],
+  9: ['Whipped Cream', 'Syrup', 'Butter'],
+  10: ['Guacamole', 'Salsa', 'Sour Cream'],
+  11: ['Ranch Dressing', 'Celery', 'Blue Cheese'],
+  12: ['Gravy', 'Cranberry Sauce', 'Stuffing'],
+  13: ['Wasabi', 'Ginger', 'Soy Sauce'],
+  14: ['Honey Mustard', 'Pickles', 'Coleslaw'],
+  15: ['Alfredo Sauce', 'Garlic Bread', 'Parmesan'],
+  16: ['BBQ Sauce', 'Coleslaw', 'Pickles'],
+  17: ['Tzatziki', 'Feta', 'Olives'],
+  18: ['Hot Sauce', 'Ranch', 'Celery'],
+  19: ['Maple Syrup', 'Powdered Sugar', 'Fresh Berries'],
+  20: ['Chimichurri', 'Grilled Onions', 'Peppers'],
 };
 
 export const ItemCustomizationDialog = ({

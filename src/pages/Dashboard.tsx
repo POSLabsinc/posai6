@@ -808,17 +808,14 @@ const OrderPanelContent = ({
           <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
             Add Item
           </button>
-          <button 
-            className={`px-3 py-1.5 text-xs rounded-full transition-colors ${
-              isOrderDisabled
-                ? 'bg-neutral-800 text-white/40 cursor-not-allowed'
-                : 'bg-neutral-700 text-white hover:bg-neutral-600'
-            }`}
-            disabled={!!isOrderDisabled}
-            onClick={() => !isOrderDisabled && setShowDiscountDialog(true)}
-          >
-            Discount
-          </button>
+          {!isOrderDisabled && (
+            <button 
+              className="px-3 py-1.5 text-xs rounded-full transition-colors bg-neutral-700 text-white hover:bg-neutral-600"
+              onClick={() => setShowDiscountDialog(true)}
+            >
+              Discount
+            </button>
+          )}
           <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
             Receipt
           </button>

@@ -1679,9 +1679,7 @@ const OrderPanelContent = ({
           setLoyaltySearchQuery('');
           setShowLoyaltyKeypad(false);
           setShowPaymentDialog(true);
-        }} className="flex-1 h-8 rounded-full text-black text-sm font-bold" style={{
-          background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-        }}>
+        }} className="flex-1 h-8 rounded-xl bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-white text-sm font-bold shadow-lg shadow-orange-500/30 transition-all">
             CHARGE ${finalTotal.toFixed(2)}
           </button>
         </div>

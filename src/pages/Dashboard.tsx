@@ -5243,7 +5243,7 @@ const OrderPanelContent = ({
             </div>
 
             {/* Order Details Panel */}
-            <div className="w-[280px] border-l border-neutral-700 flex flex-col">
+            <div className="w-[280px] border-l border-neutral-700 flex flex-col rounded-xl" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
               {/* Guest Info Header - Matching Order Panel Style */}
               <div className="p-3 border-b border-neutral-700" style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}>
                 {/* Row 1: Name, Phone, Time */}

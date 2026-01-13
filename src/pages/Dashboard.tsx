@@ -1740,8 +1740,8 @@ const OrderPanelContent = ({
         </div>}
 
       {/* Payment Dialog */}
-      {showPaymentDialog && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh]">
+      {showPaymentDialog && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setShowPaymentDialog(false); setPaymentHistory([]); }}>
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
             {/* Payment Options Panel OR Receipt View */}
             <div className="w-[480px] flex flex-col bg-neutral-900 max-h-[90vh] overflow-hidden">
               {paymentProcessed ? (/* Receipt View */

@@ -504,13 +504,15 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
       </div>
 
       {/* Save Button */}
-      <Button
-        onClick={handleSave}
-        disabled={!formData.guestName || !formData.phoneNumber || !formData.address?.address1 || !formData.address?.city || !formData.address?.state || !formData.address?.zip}
-        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-9 mt-3 flex-shrink-0"
-      >
-        Save
-      </Button>
+      <div className="pt-4 pb-2 flex-shrink-0">
+        <Button
+          onClick={handleSave}
+          disabled={!formData.guestName || !formData.phoneNumber || !formData.address?.address1 || !formData.address?.city || !formData.address?.state || !formData.address?.zip}
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10"
+        >
+          Save
+        </Button>
+      </div>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { X, Search, ChevronDown } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -29,8 +29,17 @@ interface PhoneInGuestFormProps {
   initialData?: PhoneInGuestData | null;
 }
 
+// Mock guest data for search
+const mockGuests = [
+  { name: "John Smith", phone: "(555) 123-4567", email: "john@example.com" },
+  { name: "Jane Doe", phone: "(555) 987-6543", email: "jane@example.com" },
+  { name: "Mike Johnson", phone: "(555) 456-7890", email: "mike@example.com" },
+  { name: "Sarah Williams", phone: "(555) 321-0987", email: "sarah@example.com" },
+];
+
 const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProps) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const [guestName, setGuestName] = useState(initialData?.guestName || "");
   const [phoneNumber, setPhoneNumber] = useState(initialData?.phoneNumber || "");
   const [callbackNumber, setCallbackNumber] = useState(initialData?.callbackNumber || "");
@@ -71,6 +80,24 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
     if (words <= 70) {
       setNotes(value);
     }
+  };
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const query = searchQuery.toLowerCase();
+    return mockGuests.filter(
+      (guest) =>
+        guest.name.toLowerCase().includes(query) ||
+        guest.phone.replace(/\D/g, "").includes(query.replace(/\D/g, ""))
+    );
+  }, [searchQuery]);
+
+  const handleSelectGuest = (guest: typeof mockGuests[0]) => {
+    setGuestName(guest.name);
+    setPhoneNumber(guest.phone);
+    setEmail(guest.email);
+    setSearchQuery("");
+    setShowSearchResults(false);
   };
 
   const formatTimeDisplay = (time: string) => {
@@ -137,9 +164,27 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
           <Input
             placeholder="Search by Guest Name or Phone Number"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              setShowSearchResults(true);
+            }}
+            onFocus={() => setShowSearchResults(true)}
             className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40"
           />
+          {showSearchResults && searchResults.length > 0 && (
+            <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+              {searchResults.map((guest, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleSelectGuest(guest)}
+                  className="w-full px-3 py-2 text-left hover:bg-neutral-700 text-sm text-white flex flex-col"
+                >
+                  <span className="font-medium">{guest.name}</span>
+                  <span className="text-xs text-muted-foreground">{guest.phone}</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Guest Name */}

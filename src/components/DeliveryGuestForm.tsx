@@ -270,9 +270,35 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
 
   const wordCount = formData.notes.split(/\s+/).filter(Boolean).length;
 
+  // Initialize address fields if not set
+  const initializeAddressFields = () => {
+    if (!formData.address) {
+      setFormData((prev) => ({
+        ...prev,
+        address: {
+          label: "",
+          address1: "",
+          address2: "",
+          city: "",
+          state: "",
+          zip: "",
+          fullAddress: "",
+        },
+      }));
+    }
+  };
+
+  // Call on mount to ensure address fields are available
+  useState(() => {
+    if (!formData.address) {
+      initializeAddressFields();
+    }
+  });
+
   return (
-    <div className="p-4 border-b border-sidebar-border" style={{
+    <div className="p-4 border-b border-sidebar-border flex flex-col" style={{
       background: 'rgba(117, 117, 117, 0.3)',
+      maxHeight: '100%',
     }}>
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-foreground">Guest Information</h3>
@@ -286,238 +312,202 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
         )}
       </div>
       
-      {/* Search Field */}
-      <div className="relative mb-3">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input
-          placeholder="Search by Guest Name or Number"
-          value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            setShowSearchResults(true);
-          }}
-          onFocus={() => setShowSearchResults(true)}
-          className="pl-9 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
-        />
-        {showSearchResults && searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
-            {searchResults.map((guest, index) => (
-              <button
-                key={index}
-                onClick={() => handleSelectGuest(guest)}
-                className="w-full px-3 py-2 text-left hover:bg-neutral-700 text-sm text-white flex flex-col"
-              >
-                <span className="font-medium">{guest.name}</span>
-                <span className="text-xs text-muted-foreground">{guest.phone}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Guest Name and Phone Number */}
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <div>
-          <Input
-            placeholder="Guest Name*"
-            value={formData.guestName}
-            onChange={(e) => handleInputChange("guestName", e.target.value)}
-            className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
-          />
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1 px-2 py-1.5 bg-white/10 border border-white/20 rounded-md h-9">
-            <span className="text-lg">🇺🇸</span>
-            <span className="text-xs text-muted-foreground">+1</span>
-          </div>
-          <Input
-            placeholder="Phone*"
-            value={formData.phoneNumber}
-            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-            className="flex-1 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
-          />
-        </div>
-      </div>
-
-      {/* Email */}
-      <div className="mb-3">
-        <Input
-          type="email"
-          placeholder="name@example.com"
-          value={formData.email}
-          onChange={(e) => handleInputChange("email", e.target.value)}
-          className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
-        />
-      </div>
-
-      {/* Address Search Field - Always visible */}
-      <div className="mb-3 relative">
-        <Input
-          placeholder="Search for an address..."
-          value={addressSearchQuery}
-          onChange={(e) => {
-            setAddressSearchQuery(e.target.value);
-            setShowAddressSuggestions(true);
-          }}
-          onFocus={() => setShowAddressSuggestions(true)}
-          className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground pr-10"
-        />
-        <button
-          onClick={handleGetCurrentLocation}
-          disabled={isLocating}
-          className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 flex items-center justify-center border border-white/30 rounded hover:bg-white/10 transition-colors disabled:opacity-50"
-          type="button"
-          title="Get current location"
-        >
-          {isLocating ? (
-            <Loader2 className="w-3.5 h-3.5 text-muted-foreground animate-spin" />
-          ) : (
-            <MapPin className="w-3.5 h-3.5 text-muted-foreground" />
-          )}
-        </button>
-        
-        {/* Address Suggestions Dropdown */}
-        {showAddressSuggestions && addressSuggestions.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-white border border-neutral-200 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
-            {addressSuggestions.map((addr, index) => (
-              <button
-                key={index}
-                onClick={() => handleSelectAddress(addr)}
-                className="w-full px-3 py-2 text-left hover:bg-neutral-100 text-sm text-neutral-800 border-b border-neutral-100 last:border-0"
-              >
-                <span>{addr.address1}, {addr.city} {addr.state}, {addr.zip} {addr.country}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Selected Address Display */}
-      {formData.address && (
-        <div className="mb-3">
-          {/* Collapsed Address Display */}
-          <div 
-            className="bg-white/10 border border-white/20 rounded-md overflow-hidden"
-          >
-            <button
-              onClick={() => setIsAddressExpanded(!isAddressExpanded)}
-              className="w-full flex items-center justify-between px-3 py-2.5 hover:bg-white/5 transition-colors"
-            >
-              <div className="flex items-center gap-2">
-                <Home className="w-4 h-4 text-muted-foreground" />
-                <span className="text-sm font-medium text-foreground">{formData.address.label}</span>
-                <span className="text-sm text-muted-foreground truncate max-w-[180px]">
-                  {formData.address.address1}, {formData.address.city} {formData.address.state}...
-                </span>
-              </div>
-              {isAddressExpanded ? (
-                <ChevronDown className="w-4 h-4 text-muted-foreground" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-muted-foreground" />
-              )}
-            </button>
-            
-            {/* Expanded Address Details */}
-            {isAddressExpanded && (
-              <div className="px-3 pb-3 pt-1 border-t border-white/10">
-                {/* Label */}
-                <div className="flex items-center gap-2 mb-2">
-                  <Home className="w-4 h-4 text-muted-foreground" />
-                  <span className="text-sm font-medium text-foreground">{formData.address.label}</span>
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto pr-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+        <style>{`.delivery-scroll::-webkit-scrollbar { display: none; }`}</style>
+        <div className="delivery-scroll">
+          {/* Search Field */}
+          <div className="relative mb-3">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by Guest Name or Number"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                setShowSearchResults(true);
+              }}
+              onFocus={() => setShowSearchResults(true)}
+              className="pl-9 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+            />
+            {showSearchResults && searchResults.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+                {searchResults.map((guest, index) => (
                   <button
-                    onClick={() => setIsAddressExpanded(false)}
-                    className="ml-auto"
+                    key={index}
+                    onClick={() => handleSelectGuest(guest)}
+                    className="w-full px-3 py-2 text-left hover:bg-neutral-700 text-sm text-white flex flex-col"
                   >
-                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                    <span className="font-medium">{guest.name}</span>
+                    <span className="text-xs text-muted-foreground">{guest.phone}</span>
                   </button>
-                </div>
-                
-                {/* Address 1 */}
-                <div className="flex items-center justify-between py-2 border-b border-white/10">
-                  <div className="flex flex-col flex-1 mr-2">
-                    <span className="text-xs text-muted-foreground">Address 1</span>
-                    <Input
-                      value={formData.address.address1}
-                      onChange={(e) => handleAddressFieldChange('address1', e.target.value)}
-                      className="bg-transparent border-none p-0 h-6 text-sm text-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-                    />
-                  </div>
-                  <button
-                    onClick={() => clearAddressField('address1')}
-                    className="p-1 hover:bg-white/10 rounded transition-colors"
-                  >
-                    <X className="w-3 h-3 text-muted-foreground" />
-                  </button>
-                </div>
-                
-                {/* Address 2 */}
-                <div className="flex items-center justify-between py-2 border-b border-white/10">
-                  <div className="flex flex-col flex-1 mr-2">
-                    <span className="text-xs text-muted-foreground">Address 1</span>
-                    <Input
-                      value={formData.address.address2}
-                      onChange={(e) => handleAddressFieldChange('address2', e.target.value)}
-                      placeholder="Optional"
-                      className="bg-transparent border-none p-0 h-6 text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-                    />
-                  </div>
-                  <button
-                    onClick={() => clearAddressField('address2')}
-                    className="p-1 hover:bg-white/10 rounded transition-colors"
-                  >
-                    <X className="w-3 h-3 text-muted-foreground" />
-                  </button>
-                </div>
-                
-                {/* City */}
-                <div className="flex items-center justify-between py-2">
-                  <div className="flex flex-col flex-1 mr-2">
-                    <span className="text-xs text-muted-foreground">City</span>
-                    <Input
-                      value={formData.address.city}
-                      onChange={(e) => handleAddressFieldChange('city', e.target.value)}
-                      className="bg-transparent border-none p-0 h-6 text-sm text-foreground focus-visible:ring-0 focus-visible:ring-offset-0"
-                    />
-                  </div>
-                  <button
-                    onClick={() => clearAddressField('city')}
-                    className="p-1 hover:bg-white/10 rounded transition-colors"
-                  >
-                    <X className="w-3 h-3 text-muted-foreground" />
-                  </button>
-                </div>
-
-                {/* Remove Address Button */}
-                <button
-                  onClick={removeAddress}
-                  className="w-full mt-2 text-xs text-red-400 hover:text-red-300 transition-colors"
-                >
-                  Remove Address
-                </button>
+                ))}
               </div>
             )}
           </div>
-        </div>
-      )}
 
-      {/* Notes */}
-      <div className="mb-3 relative">
-        <textarea
-          placeholder="Notes"
-          value={formData.notes}
-          onChange={(e) => handleInputChange("notes", e.target.value)}
-          className="w-full bg-white/10 border border-white/20 rounded-md text-sm p-2 text-foreground placeholder:text-muted-foreground resize-none h-16 outline-none focus:border-primary"
-        />
-        <span className="absolute bottom-2 right-2 text-[10px] text-muted-foreground">
-          {wordCount}/{maxNotes} Words
-        </span>
+          {/* Guest Name */}
+          <div className="mb-3">
+            <Input
+              placeholder="Guest Name*"
+              value={formData.guestName}
+              onChange={(e) => handleInputChange("guestName", e.target.value)}
+              className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+            />
+          </div>
+
+          {/* Phone Number */}
+          <div className="flex items-center gap-1 mb-3">
+            <div className="flex items-center gap-1 px-2 py-1.5 bg-white/10 border border-white/20 rounded-md h-9 flex-shrink-0">
+              <span className="text-lg">🇺🇸</span>
+              <span className="text-xs text-muted-foreground">+1</span>
+            </div>
+            <Input
+              placeholder="Phone Number*"
+              value={formData.phoneNumber}
+              onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+              className="flex-1 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+            />
+          </div>
+
+          {/* Email */}
+          <div className="mb-3">
+            <Input
+              type="email"
+              placeholder="name@example.com"
+              value={formData.email}
+              onChange={(e) => handleInputChange("email", e.target.value)}
+              className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+            />
+          </div>
+
+          {/* Address Search Field */}
+          <div className="mb-3 relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Search for an address..."
+              value={addressSearchQuery}
+              onChange={(e) => {
+                setAddressSearchQuery(e.target.value);
+                setShowAddressSuggestions(true);
+              }}
+              onFocus={() => setShowAddressSuggestions(true)}
+              className="pl-9 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+            />
+            
+            {/* Address Suggestions Dropdown */}
+            {showAddressSuggestions && addressSuggestions.length > 0 && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
+                {addressSuggestions.map((addr, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleSelectAddress(addr)}
+                    className="w-full px-3 py-2 text-left hover:bg-neutral-700 text-sm text-white border-b border-neutral-700 last:border-0"
+                  >
+                    <span>{addr.address1}, {addr.city} {addr.state}, {addr.zip}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Address Fields - US Format (Always Visible) */}
+          <div className="mb-3 bg-white/10 border border-white/20 rounded-md p-3 space-y-3">
+            <div className="flex items-center gap-2 mb-2">
+              <Home className="w-4 h-4 text-muted-foreground" />
+              <span className="text-sm font-medium text-foreground">Delivery Address</span>
+            </div>
+            
+            {/* Street Address */}
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Street Address*</label>
+              <Input
+                placeholder="123 Main Street"
+                value={formData.address?.address1 || ""}
+                onChange={(e) => {
+                  if (!formData.address) initializeAddressFields();
+                  handleAddressFieldChange('address1', e.target.value);
+                }}
+                className="bg-white/5 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+            
+            {/* Apt/Suite/Unit */}
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">Apt, Suite, Unit (Optional)</label>
+              <Input
+                placeholder="Apt 4B"
+                value={formData.address?.address2 || ""}
+                onChange={(e) => {
+                  if (!formData.address) initializeAddressFields();
+                  handleAddressFieldChange('address2', e.target.value);
+                }}
+                className="bg-white/5 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+            
+            {/* City */}
+            <div>
+              <label className="text-xs text-muted-foreground mb-1 block">City*</label>
+              <Input
+                placeholder="New York"
+                value={formData.address?.city || ""}
+                onChange={(e) => {
+                  if (!formData.address) initializeAddressFields();
+                  handleAddressFieldChange('city', e.target.value);
+                }}
+                className="bg-white/5 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+              />
+            </div>
+            
+            {/* State and ZIP in one row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">State*</label>
+                <Input
+                  placeholder="NY"
+                  value={formData.address?.state || ""}
+                  onChange={(e) => {
+                    if (!formData.address) initializeAddressFields();
+                    handleAddressFieldChange('state', e.target.value);
+                  }}
+                  className="bg-white/5 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
+              <div>
+                <label className="text-xs text-muted-foreground mb-1 block">ZIP Code*</label>
+                <Input
+                  placeholder="10001"
+                  value={formData.address?.zip || ""}
+                  onChange={(e) => {
+                    if (!formData.address) initializeAddressFields();
+                    handleAddressFieldChange('zip', e.target.value);
+                  }}
+                  className="bg-white/5 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div className="mb-3 relative">
+            <textarea
+              placeholder="Delivery Notes (e.g., ring doorbell, leave at door)"
+              value={formData.notes}
+              onChange={(e) => handleInputChange("notes", e.target.value)}
+              className="w-full bg-white/10 border border-white/20 rounded-md text-sm p-2 text-foreground placeholder:text-muted-foreground resize-none h-16 outline-none focus:border-primary"
+            />
+            <span className="absolute bottom-2 right-2 text-[10px] text-muted-foreground">
+              {wordCount}/{maxNotes} Words
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Save Button */}
       <Button
         onClick={handleSave}
-        disabled={!formData.guestName || !formData.phoneNumber || !formData.address}
-        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-9"
+        disabled={!formData.guestName || !formData.phoneNumber || !formData.address?.address1 || !formData.address?.city || !formData.address?.state || !formData.address?.zip}
+        className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-9 mt-3 flex-shrink-0"
       >
         Save
       </Button>

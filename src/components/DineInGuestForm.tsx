@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { formatPhoneNumber } from "@/lib/utils";
 
 
 interface DineInGuestFormProps {
@@ -28,14 +29,6 @@ const mockGuests = [
   { name: "Mike Johnson", phone: "(555) 456-7890", email: "mike@example.com" },
   { name: "Sarah Williams", phone: "(555) 321-0987", email: "sarah@example.com" },
 ];
-
-const formatPhoneNumber = (value: string): string => {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
-  if (digits.length === 0) return "";
-  if (digits.length <= 3) return `(${digits}`;
-  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-};
 
 const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuestFormProps) => {
   const [formData, setFormData] = useState<DineInGuestData>({

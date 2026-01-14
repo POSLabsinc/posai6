@@ -3,6 +3,7 @@ import { Search, X, ChevronRight, ChevronDown, Home, MapPin, Loader2 } from "luc
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { formatPhoneNumber } from "@/lib/utils";
 
 interface DeliveryGuestFormProps {
   onSave: (data: DeliveryGuestData) => void;
@@ -45,14 +46,6 @@ const mockAddressSuggestions = [
   { label: "Work", address1: "456 Main Avenue", city: "Los Angeles", state: "California", zip: "90002", country: "USA" },
   { label: "Other", address1: "789 Main Boulevard", city: "Los Angeles", state: "California", zip: "90003", country: "USA" },
 ];
-
-const formatPhoneNumber = (value: string): string => {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
-  if (digits.length === 0) return "";
-  if (digits.length <= 3) return `(${digits}`;
-  if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
-  return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6)}`;
-};
 
 const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryGuestFormProps) => {
   const { toast } = useToast();

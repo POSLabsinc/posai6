@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { formatPhoneNumber } from "@/lib/utils";
 import addGuestIcon from "@/assets/icons/add-guest.svg";
 
 interface AddGuestFormProps {
@@ -93,6 +94,10 @@ const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
   };
 
   const handleInputChange = (field: keyof GuestFormData, value: string) => {
+    if (field === "phoneNumber") {
+      setFormData((prev) => ({ ...prev, [field]: formatPhoneNumber(value) }));
+      return;
+    }
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 

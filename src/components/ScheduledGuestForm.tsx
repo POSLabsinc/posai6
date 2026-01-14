@@ -7,6 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
 import { format, addDays } from "date-fns";
+import { formatPhoneNumber } from "@/lib/utils";
 
 export interface ScheduledGuestData {
   guestName: string;
@@ -39,13 +40,6 @@ const mockGuests = [
   { name: "Bob Wilson", phone: "(555) 345-6789", email: "bob@email.com" },
   { name: "Alice Brown", phone: "(555) 456-7890", email: "alice@email.com" },
 ];
-
-const formatPhoneNumber = (value: string): string => {
-  const numbers = value.replace(/\D/g, "");
-  if (numbers.length <= 3) return numbers.length > 0 ? `(${numbers}` : "";
-  if (numbers.length <= 6) return `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`;
-  return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
-};
 
 const getCurrentTimeRounded = (): string => {
   const now = new Date();

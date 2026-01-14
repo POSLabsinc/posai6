@@ -6073,6 +6073,8 @@ const Orders = () => {
   const [isTaxExempt, setIsTaxExempt] = useState(false);
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+  const [showDiscountMPINDialog, setShowDiscountMPINDialog] = useState(false);
+  const [isManager, setIsManager] = useState(false); // TODO: Connect to actual user role system
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
     id: number;
     name: string;
@@ -6647,7 +6649,7 @@ const Orders = () => {
                 variant="secondary" 
                 size="sm" 
                 className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap"
-                onClick={() => setShowDiscountDialog(true)}
+                onClick={() => isManager ? setShowDiscountDialog(true) : setShowDiscountMPINDialog(true)}
               >
                 Discount
               </Button>
@@ -6877,7 +6879,7 @@ const Orders = () => {
                       Custom Item
                     </DropdownMenuItem>
                     <DropdownMenuItem 
-                      onClick={() => setShowDiscountDialog(true)}
+                      onClick={() => isManager ? setShowDiscountDialog(true) : setShowDiscountMPINDialog(true)}
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
                     >
                       <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
@@ -7765,7 +7767,7 @@ const Orders = () => {
                   variant="secondary" 
                   size="sm" 
                   className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
-                  onClick={() => setShowDiscountDialog(true)}
+                  onClick={() => isManager ? setShowDiscountDialog(true) : setShowDiscountMPINDialog(true)}
                 >
                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />
                   Discount
@@ -8622,6 +8624,17 @@ const Orders = () => {
         open={showMPINDialog}
         onOpenChange={setShowMPINDialog}
         onSuccess={handleMPINSuccess}
+        correctPin="1234"
+      />
+
+      {/* MPIN Dialog for Discount Authorization */}
+      <MPINDialog
+        open={showDiscountMPINDialog}
+        onOpenChange={setShowDiscountMPINDialog}
+        onSuccess={() => {
+          setShowDiscountMPINDialog(false);
+          setShowDiscountDialog(true);
+        }}
         correctPin="1234"
       />
 

@@ -53,6 +53,7 @@ interface InlineItemCustomizationProps {
   onCancel: () => void;
   onViewChange?: (view: 'customization' | 'mpin' | 'priceOverride' | 'productInfo') => void;
   className?: string;
+  isManager?: boolean;
 }
 
 // Mock modifier data
@@ -184,7 +185,8 @@ export const InlineItemCustomization = ({
   onAddToCart,
   onCancel,
   onViewChange,
-  className
+  className,
+  isManager = false
 }: InlineItemCustomizationProps) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedModifiers, setSelectedModifiers] = useState<string[]>([]);
@@ -214,6 +216,7 @@ export const InlineItemCustomization = ({
   // Discount state
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+  const [showDiscountMPIN, setShowDiscountMPIN] = useState(false);
 
   // Reset overriddenPrice when item changes
   useEffect(() => {
@@ -799,7 +802,7 @@ export const InlineItemCustomization = ({
           CANCEL
         </Button>
         <button 
-          onClick={() => setShowDiscountDialog(true)}
+          onClick={() => isManager ? setShowDiscountDialog(true) : setShowDiscountMPIN(true)}
           className={`w-7 h-7 rounded-full overflow-hidden flex-shrink-0 transition-all ${
             selectedDiscountId ? 'ring-2 ring-orange-500 ring-offset-1 ring-offset-neutral-900' : ''
           }`}
@@ -1053,6 +1056,126 @@ export const InlineItemCustomization = ({
                 className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
               >
                 Apply
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* MPIN Dialog for Discount Authorization */}
+      {showDiscountMPIN && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-[300px] mx-4 overflow-hidden animate-scale-in">
+            <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
+              {/* Manager Profile */}
+              <div className="flex flex-col items-center mb-4">
+                <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
+                  <img
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
+                    alt="Manager"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
+                <p className="text-xs text-muted-foreground">Manager</p>
+              </div>
+
+              {/* PIN Dots */}
+              <div className="flex items-center justify-center gap-2.5 mb-4">
+                {[0, 1, 2, 3].map((index) => (
+                  <div
+                    key={index}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+                      index < pin.length ? "bg-primary" : "bg-neutral-600"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Title */}
+              <p className="text-center text-muted-foreground text-xs mb-4">Enter Manager PIN</p>
+
+              {/* Numpad */}
+              <div className="grid grid-cols-3 gap-2 w-full">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => {
+                      if (pin.length < 4) {
+                        const newPin = pin + num.toString();
+                        setPin(newPin);
+                        if (newPin.length === 4) {
+                          setTimeout(() => {
+                            setShowDiscountMPIN(false);
+                            setShowDiscountDialog(true);
+                            setPin("");
+                          }, 200);
+                        }
+                      }
+                    }}
+                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  >
+                    {num}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={handlePinBackspace}
+                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+                >
+                  <Delete className="w-5 h-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (pin.length < 4) {
+                      const newPin = pin + "0";
+                      setPin(newPin);
+                      if (newPin.length === 4) {
+                        setTimeout(() => {
+                          setShowDiscountMPIN(false);
+                          setShowDiscountDialog(true);
+                          setPin("");
+                        }, 200);
+                      }
+                    }
+                  }}
+                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                >
+                  0
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePinClear}
+                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                >
+                  C
+                </button>
+              </div>
+
+              {/* Biometric Options */}
+              <div className="flex justify-center gap-3 mt-4">
+                <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+                  <Fingerprint className="w-4 h-4" />
+                  <span className="text-xs">Touch ID</span>
+                </button>
+                <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+                  <ScanFace className="w-4 h-4" />
+                  <span className="text-xs">Face ID</span>
+                </button>
+              </div>
+
+              {/* Close button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDiscountMPIN(false);
+                  setPin("");
+                }}
+                className="mt-4 text-xs text-neutral-400 hover:text-white transition-colors"
+              >
+                Cancel
               </button>
             </div>
           </div>

@@ -1,5 +1,5 @@
 import { useState, useMemo } from "react";
-import { Search, X, MapPin, Calendar, Clock, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, X, Calendar, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,7 +7,6 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
 import { format } from "date-fns";
-import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface BanquetGuestFormProps {
@@ -24,6 +23,13 @@ export interface BanquetGuestData {
   eventTime: string;
   numberOfGuests: string;
   venue: string;
+  address: {
+    street: string;
+    apt: string;
+    city: string;
+    state: string;
+    zipCode: string;
+  };
   phoneNumber: string;
   email: string;
   notes: string;
@@ -50,12 +56,12 @@ const mockGuests = [
   { name: "Sarah Williams", phone: "(555) 321-0987", email: "sarah@example.com" },
 ];
 
-// Mock venue suggestions
-const mockVenueSuggestions = [
-  { id: 1, name: "Grand Ballroom", capacity: "200 guests" },
-  { id: 2, name: "Garden Terrace", capacity: "100 guests" },
-  { id: 3, name: "Private Dining Room", capacity: "50 guests" },
-  { id: 4, name: "Rooftop Lounge", capacity: "75 guests" },
+const US_STATES = [
+  "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
+  "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
+  "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ",
+  "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC",
+  "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"
 ];
 
 const formatPhoneNumber = (value: string): string => {
@@ -74,15 +80,19 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
     eventTime: initialData?.eventTime || "",
     numberOfGuests: initialData?.numberOfGuests || "",
     venue: initialData?.venue || "",
+    address: initialData?.address || {
+      street: "",
+      apt: "",
+      city: "",
+      state: "",
+      zipCode: "",
+    },
     phoneNumber: initialData?.phoneNumber ? formatPhoneNumber(initialData.phoneNumber) : "",
     email: initialData?.email || "",
     notes: initialData?.notes || "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [showSearchResults, setShowSearchResults] = useState(false);
-  const [venueSearchQuery, setVenueSearchQuery] = useState("");
-  const [showVenueResults, setShowVenueResults] = useState(false);
-  const [isLocating, setIsLocating] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [timePickerOpen, setTimePickerOpen] = useState(false);
 
@@ -98,14 +108,6 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
     );
   }, [searchQuery]);
 
-  const venueResults = useMemo(() => {
-    if (!venueSearchQuery.trim()) return [];
-    const query = venueSearchQuery.toLowerCase();
-    return mockVenueSuggestions.filter(
-      (venue) => venue.name.toLowerCase().includes(query)
-    );
-  }, [venueSearchQuery]);
-
   const handleSelectGuest = (guest: typeof mockGuests[0]) => {
     setFormData((prev) => ({
       ...prev,
@@ -117,83 +119,17 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
     setShowSearchResults(false);
   };
 
-  const handleSelectVenue = (venue: typeof mockVenueSuggestions[0]) => {
+  const handleAddressChange = (field: keyof BanquetGuestData["address"], value: string) => {
     setFormData((prev) => ({
       ...prev,
-      venue: venue.name,
+      address: {
+        ...prev.address,
+        [field]: value,
+      },
     }));
-    setVenueSearchQuery(venue.name);
-    setShowVenueResults(false);
   };
 
-  const handleLocateVenue = async () => {
-    if (!navigator.geolocation) {
-      toast.error("Geolocation is not supported by your browser");
-      return;
-    }
-
-    setIsLocating(true);
-    toast.info("Getting your location...");
-
-    navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
-        
-        try {
-          const response = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1`
-          );
-          const data = await response.json();
-          
-          if (data && data.display_name) {
-            const venueName = data.address?.amenity || data.address?.building || "Current Location";
-            setFormData((prev) => ({
-              ...prev,
-              venue: venueName,
-            }));
-            setVenueSearchQuery(venueName);
-            toast.success("Location found!");
-          } else {
-            setFormData((prev) => ({
-              ...prev,
-              venue: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
-            }));
-            setVenueSearchQuery(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-          }
-        } catch (error) {
-          setFormData((prev) => ({
-            ...prev,
-            venue: `${latitude.toFixed(4)}, ${longitude.toFixed(4)}`,
-          }));
-          setVenueSearchQuery(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
-        }
-        setIsLocating(false);
-      },
-      (error) => {
-        setIsLocating(false);
-        switch (error.code) {
-          case error.PERMISSION_DENIED:
-            toast.error("Location permission denied");
-            break;
-          case error.POSITION_UNAVAILABLE:
-            toast.error("Location information unavailable");
-            break;
-          case error.TIMEOUT:
-            toast.error("Location request timed out");
-            break;
-          default:
-            toast.error("Unable to get location");
-        }
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0,
-      }
-    );
-  };
-
-  const handleInputChange = (field: keyof BanquetGuestData, value: string) => {
+  const handleInputChange = (field: keyof Omit<BanquetGuestData, 'address'>, value: string) => {
     if (field === "notes" && value.length > maxNotes) return;
     if (field === "phoneNumber") {
       setFormData((prev) => ({ ...prev, [field]: formatPhoneNumber(value) }));
@@ -375,44 +311,68 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
         </div>
       </div>
 
-      {/* Venue Search */}
-      <div className="relative mb-3">
+      {/* Venue Name */}
+      <div className="mb-3">
         <Input
-          placeholder="Search for a location or venue"
-          value={venueSearchQuery}
-          onChange={(e) => {
-            setVenueSearchQuery(e.target.value);
-            handleInputChange("venue", e.target.value);
-            setShowVenueResults(true);
-          }}
-          onFocus={() => setShowVenueResults(true)}
-          className="pr-10 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+          placeholder="Venue Name"
+          value={formData.venue}
+          onChange={(e) => handleInputChange("venue", e.target.value)}
+          className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
         />
-        <button
-          onClick={handleLocateVenue}
-          disabled={isLocating}
-          className="absolute right-2 top-1/2 -translate-y-1/2 p-1 hover:bg-white/10 rounded transition-colors disabled:opacity-50"
-        >
-          {isLocating ? (
-            <Loader2 className="w-5 h-5 text-muted-foreground animate-spin" />
-          ) : (
-            <MapPin className="w-5 h-5 text-muted-foreground" />
-          )}
-        </button>
-        {showVenueResults && venueResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
-            {venueResults.map((venue) => (
-              <button
-                key={venue.id}
-                onClick={() => handleSelectVenue(venue)}
-                className="w-full px-3 py-2 text-left hover:bg-neutral-700 text-sm text-white flex flex-col"
-              >
-                <span className="font-medium">{venue.name}</span>
-                <span className="text-xs text-muted-foreground">{venue.capacity}</span>
-              </button>
-            ))}
-          </div>
-        )}
+      </div>
+
+      {/* Address Section - USA Format */}
+      <div className="mb-3 p-3 bg-white/5 rounded-lg border border-white/10 space-y-3">
+        <h4 className="text-xs font-medium text-muted-foreground">Venue Address</h4>
+        
+        {/* Address Line 1 */}
+        <Input
+          placeholder="Address Line 1*"
+          value={formData.address.street}
+          onChange={(e) => handleAddressChange("street", e.target.value)}
+          className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+        />
+        
+        {/* Address Line 2 */}
+        <Input
+          placeholder="Address Line 2 (Apt, Suite, etc.)"
+          value={formData.address.apt}
+          onChange={(e) => handleAddressChange("apt", e.target.value)}
+          className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+        />
+        
+        {/* City and State */}
+        <div className="grid grid-cols-2 gap-3">
+          <Input
+            placeholder="City*"
+            value={formData.address.city}
+            onChange={(e) => handleAddressChange("city", e.target.value)}
+            className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+          />
+          <Select
+            value={formData.address.state}
+            onValueChange={(value) => handleAddressChange("state", value)}
+          >
+            <SelectTrigger className="bg-white/10 border-white/20 text-sm h-9 text-foreground">
+              <SelectValue placeholder="State*" />
+            </SelectTrigger>
+            <SelectContent className="bg-neutral-800 border-neutral-700 max-h-60">
+              {US_STATES.map((state) => (
+                <SelectItem key={state} value={state} className="text-white hover:bg-neutral-700">
+                  {state}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {/* ZIP Code */}
+        <Input
+          placeholder="ZIP Code*"
+          value={formData.address.zipCode}
+          onChange={(e) => handleAddressChange("zipCode", e.target.value)}
+          className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground w-1/2"
+        />
       </div>
 
       {/* Guest Name and Phone Number */}

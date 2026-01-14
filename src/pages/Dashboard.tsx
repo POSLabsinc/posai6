@@ -5399,7 +5399,7 @@ const Dashboard = () => {
                   {/* Order Number - Mobile compact style */}
                   <div className="flex-shrink-0 px-2 py-2 flex items-center">
                     <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                      <span className="text-sm font-bold text-white">{order.id}</span>
+                      <span className="text-xs font-bold text-white">{order.id}</span>
                       <span className="text-sm text-gray-500">000</span>
                     </div>
                   </div>
@@ -5454,7 +5454,7 @@ const Dashboard = () => {
                       <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{
                     background: '#1A1A1A'
                   }}>
-                        <span className="text-lg font-bold text-white">{order.id}</span>
+                        <span className="text-xs lg:text-sm font-bold text-white">{order.id}</span>
                         <span className="text-xs text-white/40">{String(order.check).padStart(3, '0')}</span>
                       </div>
 

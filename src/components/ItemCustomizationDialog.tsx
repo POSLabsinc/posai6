@@ -312,7 +312,7 @@ export const ItemCustomizationDialog = ({
   // Discount state
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
-  const [showDiscountMPIN, setShowDiscountMPIN] = useState(false);
+  const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
   
   // Add-on filter state
   const [addOnFilterGroup, setAddOnFilterGroup] = useState<'favorites' | 'all'>('favorites');
@@ -356,7 +356,7 @@ export const ItemCustomizationDialog = ({
       setDeselectedDefaults([]);
       setSelectedDiscountId(null);
       setShowDiscountDialog(false);
-      setShowDiscountMPIN(false);
+      setDiscountDialogView('mpin');
       
       // Pre-select first option from each required modifier group
       const defaultModifiers: string[] = [];
@@ -1268,10 +1268,11 @@ export const ItemCustomizationDialog = ({
           onClick={(e) => {
             e.stopPropagation();
             if (isManager) {
-              setShowDiscountDialog(true);
+              setDiscountDialogView('discounts');
             } else {
-              setShowDiscountMPIN(true);
+              setDiscountDialogView('mpin');
             }
+            setShowDiscountDialog(true);
           }}
           className={`w-10 h-10 rounded-full overflow-hidden flex-shrink-0 transition-all ${
             selectedDiscountId ? 'ring-2 ring-orange-500 ring-offset-1 ring-offset-neutral-900' : ''
@@ -1315,127 +1316,79 @@ export const ItemCustomizationDialog = ({
         </DialogContent>
       </Dialog>
 
-      {/* Discount Dialog - Using AlertDialog for proper portal layering */}
+      {/* Discount Dialog with integrated MPIN - Using AlertDialog for proper portal layering */}
       <AlertDialog open={showDiscountDialog} onOpenChange={setShowDiscountDialog}>
         <AlertDialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[90vw] overflow-hidden rounded-xl">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-            <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
-            <button 
-              type="button"
-              onClick={() => setShowDiscountDialog(false)}
-              className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-            >
-              <X className="w-5 h-5 text-neutral-400" />
-            </button>
-          </div>
+          {discountDialogView === 'mpin' ? (
+            /* MPIN View */
+            <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
+              {/* Manager Profile */}
+              <div className="flex flex-col items-center mb-4">
+                <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
+                  <img
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
+                    alt="Manager"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
+                <p className="text-xs text-muted-foreground">Manager</p>
+              </div>
 
-          {/* Discount Options */}
-          <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-hide space-y-1">
-            {discountTypes.map((discountType) => {
-              const discountValue = discountType.fixedAmount || (getDisplayPrice().priceBeforeDiscount * ((discountType.percentage || 0) / 100));
-              const isSelected = selectedDiscountId === discountType.id;
-              
-              const IconComponent = {
-                briefcase: Briefcase,
-                heart: Heart,
-                graduation: GraduationCap,
-                shield: Shield,
-                star: Star,
-                clock: Clock,
-                cake: Cake,
-                mappin: MapPin,
-                dollar: BadgeDollarSign,
-                tag: Tag
-              }[discountType.icon];
-              
-              return (
+              {/* PIN Dots */}
+              <div className="flex items-center justify-center gap-2.5 mb-4">
+                {[0, 1, 2, 3].map((index) => (
+                  <div
+                    key={index}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+                      index < pin.length ? "bg-primary" : "bg-neutral-600"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Title */}
+              <p className="text-center text-muted-foreground text-xs mb-4">Enter Manager PIN</p>
+
+              {/* Numpad */}
+              <div className="grid grid-cols-3 gap-2 w-full">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => {
+                      if (pin.length < 4) {
+                        const newPin = pin + num.toString();
+                        setPin(newPin);
+                        if (newPin.length === 4) {
+                          setTimeout(() => {
+                            setDiscountDialogView('discounts');
+                            setPin("");
+                          }, 200);
+                        }
+                      }
+                    }}
+                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  >
+                    {num}
+                  </button>
+                ))}
                 <button
                   type="button"
-                  key={discountType.id}
-                  onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                    isSelected 
-                      ? 'bg-orange-500/20 border border-orange-500' 
-                      : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
-                  }`}
+                  onClick={handlePinBackspace}
+                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
                 >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
-                  }`}>
-                    {IconComponent && <IconComponent className="w-4 h-4 text-neutral-400" />}
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="text-white text-sm font-medium">{discountType.name}</div>
-                    <div className="text-neutral-400 text-xs">{discountType.description}</div>
-                  </div>
-                  <div className="text-red-400 text-sm font-medium">
-                    -${discountValue.toFixed(2)}
-                  </div>
+                  <Delete className="w-5 h-5" />
                 </button>
-              );
-            })}
-          </div>
-
-          {/* Apply Button */}
-          <div className="p-3 border-t border-neutral-700">
-            <button
-              type="button"
-              onClick={() => setShowDiscountDialog(false)}
-              className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
-            >
-              Apply
-            </button>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* MPIN Dialog for Discount Authorization */}
-      <AlertDialog open={showDiscountMPIN} onOpenChange={setShowDiscountMPIN}>
-        <AlertDialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-[300px] w-[90vw] overflow-hidden rounded-xl">
-          <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
-            {/* Manager Profile */}
-            <div className="flex flex-col items-center mb-4">
-              <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
-                <img
-                  src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
-                  alt="Manager"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
-              <p className="text-xs text-muted-foreground">Manager</p>
-            </div>
-
-            {/* PIN Dots */}
-            <div className="flex items-center justify-center gap-2.5 mb-4">
-              {[0, 1, 2, 3].map((index) => (
-                <div
-                  key={index}
-                  className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
-                    index < pin.length ? "bg-primary" : "bg-neutral-600"
-                  }`}
-                />
-              ))}
-            </div>
-
-            {/* Title */}
-            <p className="text-center text-muted-foreground text-xs mb-4">Enter Manager PIN</p>
-
-            {/* Numpad */}
-            <div className="grid grid-cols-3 gap-2 w-full">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
                 <button
-                  key={num}
                   type="button"
                   onClick={() => {
                     if (pin.length < 4) {
-                      const newPin = pin + num.toString();
+                      const newPin = pin + "0";
                       setPin(newPin);
                       if (newPin.length === 4) {
                         setTimeout(() => {
-                          setShowDiscountMPIN(false);
-                          setShowDiscountDialog(true);
+                          setDiscountDialogView('discounts');
                           setPin("");
                         }, 200);
                       }
@@ -1443,56 +1396,115 @@ export const ItemCustomizationDialog = ({
                   }}
                   className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
                 >
-                  {num}
+                  0
                 </button>
-              ))}
-              <button
-                type="button"
-                onClick={handlePinBackspace}
-                className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
-              >
-                <Delete className="w-5 h-5" />
-              </button>
+                <button
+                  type="button"
+                  onClick={handlePinClear}
+                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                >
+                  C
+                </button>
+              </div>
+
+              {/* Biometric Options */}
+              <div className="flex justify-center gap-3 mt-4">
+                <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+                  <Fingerprint className="w-4 h-4" />
+                  <span className="text-xs">Touch ID</span>
+                </button>
+                <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+                  <ScanFace className="w-4 h-4" />
+                  <span className="text-xs">Face ID</span>
+                </button>
+              </div>
+
+              {/* Cancel button */}
               <button
                 type="button"
                 onClick={() => {
-                  if (pin.length < 4) {
-                    const newPin = pin + "0";
-                    setPin(newPin);
-                    if (newPin.length === 4) {
-                      setTimeout(() => {
-                        setShowDiscountMPIN(false);
-                        setShowDiscountDialog(true);
-                        setPin("");
-                      }, 200);
-                    }
-                  }
+                  setShowDiscountDialog(false);
+                  setPin("");
                 }}
-                className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                className="mt-4 text-xs text-neutral-400 hover:text-white transition-colors"
               >
-                0
-              </button>
-              <button
-                type="button"
-                onClick={handlePinClear}
-                className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-              >
-                C
+                Cancel
               </button>
             </div>
+          ) : (
+            /* Discount Selection View */
+            <>
+              {/* Header */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
+                <button 
+                  type="button"
+                  onClick={() => setShowDiscountDialog(false)}
+                  className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5 text-neutral-400" />
+                </button>
+              </div>
 
-            {/* Biometric Options */}
-            <div className="flex justify-center gap-3 mt-4">
-              <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-                <Fingerprint className="w-4 h-4" />
-                <span className="text-xs">Touch ID</span>
-              </button>
-              <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-                <ScanFace className="w-4 h-4" />
-                <span className="text-xs">Face ID</span>
-              </button>
-            </div>
-          </div>
+              {/* Discount Options */}
+              <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-hide space-y-1">
+                {discountTypes.map((discountType) => {
+                  const discountValue = discountType.fixedAmount || (getDisplayPrice().priceBeforeDiscount * ((discountType.percentage || 0) / 100));
+                  const isSelected = selectedDiscountId === discountType.id;
+                  
+                  const IconComponent = {
+                    briefcase: Briefcase,
+                    heart: Heart,
+                    graduation: GraduationCap,
+                    shield: Shield,
+                    star: Star,
+                    clock: Clock,
+                    cake: Cake,
+                    mappin: MapPin,
+                    dollar: BadgeDollarSign,
+                    tag: Tag
+                  }[discountType.icon];
+                  
+                  return (
+                    <button
+                      type="button"
+                      key={discountType.id}
+                      onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                        isSelected 
+                          ? 'bg-orange-500/20 border border-orange-500' 
+                          : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
+                      }`}
+                    >
+                      <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                        isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
+                      }`}>
+                        {IconComponent && <IconComponent className="w-4 h-4 text-neutral-400" />}
+                      </div>
+                      <div className="flex-1 text-left">
+                        <div className="text-white text-sm font-medium">{discountType.name}</div>
+                        <div className="text-neutral-400 text-xs">{discountType.description}</div>
+                      </div>
+                      <div className="text-red-400 text-sm font-medium">
+                        -${discountValue.toFixed(2)}
+                      </div>
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Apply Button */}
+              <div className="p-3 border-t border-neutral-700">
+                <button
+                  type="button"
+                  onClick={() => setShowDiscountDialog(false)}
+                  className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
+                >
+                  Apply
+                </button>
+              </div>
+            </>
+          )}
         </AlertDialogContent>
       </AlertDialog>
     </>

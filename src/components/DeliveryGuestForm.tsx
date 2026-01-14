@@ -313,7 +313,7 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
       </div>
       
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto pr-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+      <div className="overflow-y-auto pr-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none', maxHeight: 'calc(100vh - 280px)' }}>
         <style>{`.delivery-scroll::-webkit-scrollbar { display: none; }`}</style>
         <div className="delivery-scroll">
           {/* Search Field */}

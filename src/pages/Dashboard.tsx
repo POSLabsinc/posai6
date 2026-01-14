@@ -38,13 +38,13 @@ const statsData: Record<string, Array<{
     value: "$ 1,400.00",
     change: "2.2%",
     isUp: true,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Tip",
     value: "$ 285.00",
     change: "2.2%",
     isUp: true,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Hours",
     value: "6h 28min",
@@ -75,13 +75,13 @@ const statsData: Record<string, Array<{
     value: "$ 1,250.00",
     change: "1.8%",
     isUp: false,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Tip",
     value: "$ 210.00",
     change: "1.5%",
     isUp: false,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Hours",
     value: "5h 45min",
@@ -112,13 +112,13 @@ const statsData: Record<string, Array<{
     value: "$ 8,750.00",
     change: "5.5%",
     isUp: true,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Tip",
     value: "$ 1,420.00",
     change: "4.2%",
     isUp: true,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Hours",
     value: "42h 15min",
@@ -149,13 +149,13 @@ const statsData: Record<string, Array<{
     value: "$ 7,920.00",
     change: "3.2%",
     isUp: false,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Tip",
     value: "$ 1,180.00",
     change: "2.8%",
     isUp: false,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Hours",
     value: "38h 30min",
@@ -186,13 +186,13 @@ const statsData: Record<string, Array<{
     value: "$ 32,500.00",
     change: "8.5%",
     isUp: true,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Tip",
     value: "$ 5,200.00",
     change: "6.2%",
     isUp: true,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Hours",
     value: "168h 45min",
@@ -223,13 +223,13 @@ const statsData: Record<string, Array<{
     value: "$ 28,400.00",
     change: "4.2%",
     isUp: false,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Tip",
     value: "$ 4,580.00",
     change: "3.5%",
     isUp: false,
-    icon: "💵"
+    icon: "$"
   }, {
     label: "Total Hours",
     value: "155h 20min",

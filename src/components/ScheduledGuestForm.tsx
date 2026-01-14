@@ -230,14 +230,16 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+                  className="w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white overflow-hidden"
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4 text-white/60" />
-                  {formData.scheduledDate ? (
-                    format(formData.scheduledDate, "EEE, MMM d, yyyy")
-                  ) : (
-                    <span className="text-white/40">Pick a date</span>
-                  )}
+                  <CalendarIcon className="mr-2 h-4 w-4 text-white/60 flex-shrink-0" />
+                  <span className="truncate">
+                    {formData.scheduledDate ? (
+                      format(formData.scheduledDate, "MMM d, yyyy")
+                    ) : (
+                      <span className="text-white/40">Pick a date</span>
+                    )}
+                  </span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20 pointer-events-auto" align="start">

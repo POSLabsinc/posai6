@@ -133,28 +133,28 @@ const TakeOutGuestForm = ({ onSave, onCancel, onClose, initialData }: TakeOutGue
         )}
       </div>
 
-      {/* Guest Name and Phone Number */}
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <div>
-          <Input
-            placeholder="Guest Name*"
-            value={formData.guestName}
-            onChange={(e) => handleInputChange("guestName", e.target.value)}
-            className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
-          />
+      {/* Guest Name */}
+      <div className="mb-3">
+        <Input
+          placeholder="Guest Name*"
+          value={formData.guestName}
+          onChange={(e) => handleInputChange("guestName", e.target.value)}
+          className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+        />
+      </div>
+
+      {/* Phone Number */}
+      <div className="flex items-center gap-1 mb-3">
+        <div className="flex items-center gap-1 px-2 py-1.5 bg-white/10 border border-white/20 rounded-md h-9 flex-shrink-0">
+          <span className="text-lg">🇺🇸</span>
+          <span className="text-xs text-muted-foreground">+1</span>
         </div>
-        <div className="flex items-center gap-1">
-          <div className="flex items-center gap-1 px-2 py-1.5 bg-white/10 border border-white/20 rounded-md h-9 flex-shrink-0">
-            <span className="text-lg">🇺🇸</span>
-            <span className="text-xs text-muted-foreground">+1</span>
-          </div>
-          <Input
-            placeholder="Phone Number*"
-            value={formData.phoneNumber}
-            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-            className="flex-1 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
-          />
-        </div>
+        <Input
+          placeholder="Phone Number*"
+          value={formData.phoneNumber}
+          onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+          className="flex-1 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+        />
       </div>
 
       {/* Email */}

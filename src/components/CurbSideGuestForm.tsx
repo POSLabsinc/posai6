@@ -1,5 +1,5 @@
 import { useState, useMemo, useRef } from "react";
-import { Search, X, Car, Pencil, Trash2, MapPin } from "lucide-react";
+import { Search, X, Car, Pencil, Trash2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -199,7 +199,7 @@ const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideG
   const wordCount = formData.notes.split(/\s+/).filter(Boolean).length;
 
   return (
-    <div className="p-4 border-b border-sidebar-border" style={{
+    <div className="p-4 border-b border-sidebar-border max-h-[70vh] overflow-y-auto scrollbar-hide" style={{
       background: 'rgba(117, 117, 117, 0.3)',
     }}>
       {/* Guest Information Header */}
@@ -245,9 +245,8 @@ const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideG
       </div>
 
       {/* Parking Spot Selection */}
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-foreground">Parking Spot</h3>
-        <MapPin className="w-4 h-4 text-muted-foreground" />
+      <div className="mb-3">
+        <h3 className="text-sm font-semibold text-foreground mb-2">Parking Spot</h3>
       </div>
       <div className="mb-3">
         <Select
@@ -411,28 +410,28 @@ const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideG
         </div>
       )}
 
-      {/* Guest Name and Phone Number */}
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <div>
-          <Input
-            placeholder="Guest Name*"
-            value={formData.guestName}
-            onChange={(e) => handleInputChange("guestName", e.target.value)}
-            className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
-          />
+      {/* Guest Name */}
+      <div className="mb-3">
+        <Input
+          placeholder="Guest Name*"
+          value={formData.guestName}
+          onChange={(e) => handleInputChange("guestName", e.target.value)}
+          className="bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+        />
+      </div>
+
+      {/* Phone Number */}
+      <div className="flex items-center gap-1 mb-3">
+        <div className="flex items-center gap-1 px-2 py-1.5 bg-white/10 border border-white/20 rounded-md h-9 shrink-0">
+          <span className="text-base">🇺🇸</span>
+          <span className="text-xs text-muted-foreground">+1</span>
         </div>
-        <div className="flex items-center gap-1">
-          <div className="flex items-center gap-1 px-2 py-1.5 bg-white/10 border border-white/20 rounded-md h-9 shrink-0">
-            <span className="text-base">🇺🇸</span>
-            <span className="text-xs text-muted-foreground">+1</span>
-          </div>
-          <Input
-            placeholder="Phone Number*"
-            value={formData.phoneNumber}
-            onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-            className="flex-1 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
-          />
-        </div>
+        <Input
+          placeholder="Phone Number*"
+          value={formData.phoneNumber}
+          onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
+          className="flex-1 bg-white/10 border-white/20 text-sm h-9 text-foreground placeholder:text-muted-foreground"
+        />
       </div>
 
       {/* Email */}

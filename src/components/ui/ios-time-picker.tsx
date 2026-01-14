@@ -45,13 +45,11 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
       selected,
       onSelect,
       formatItem,
-      label,
     }: {
       items: (number | string)[];
       selected: number | string;
       onSelect: (val: any) => void;
       formatItem?: (item: number | string) => string;
-      label: string;
     }) => {
       const scrollRef = React.useRef<HTMLDivElement>(null);
       const isDragging = React.useRef(false);
@@ -59,7 +57,10 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
       const startScrollTop = React.useRef(0);
       const scrollTimeout = React.useRef<NodeJS.Timeout | null>(null);
       const lastIndex = React.useRef(-1);
-      const itemHeight = 36;
+      const itemHeight = 32;
+      const visibleItems = 3;
+      const containerHeight = itemHeight * visibleItems;
+      const paddingHeight = itemHeight; // One item padding top/bottom
 
       // Scroll to selected value on mount
       React.useEffect(() => {
@@ -67,6 +68,7 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
           const index = items.indexOf(selected);
           if (index !== -1) {
             scrollRef.current.scrollTop = index * itemHeight;
+            lastIndex.current = index;
           }
         }
       }, []);
@@ -94,21 +96,20 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
           clearTimeout(scrollTimeout.current);
         }
         
-        // Debounce snap to prevent jank during active scrolling
         scrollTimeout.current = setTimeout(() => {
-          snapToNearest();
-        }, 100);
+          if (!isDragging.current) {
+            snapToNearest();
+          }
+        }, 80);
       }, [snapToNearest]);
 
-      // Mouse/pointer drag handlers
+      // Pointer/touch handlers
       const handlePointerDown = (e: React.PointerEvent) => {
-        if (e.pointerType === "mouse") {
-          e.preventDefault();
-          isDragging.current = true;
-          startY.current = e.clientY;
-          startScrollTop.current = scrollRef.current?.scrollTop || 0;
-          (e.target as HTMLElement).setPointerCapture(e.pointerId);
-        }
+        e.preventDefault();
+        isDragging.current = true;
+        startY.current = e.clientY;
+        startScrollTop.current = scrollRef.current?.scrollTop || 0;
+        (e.target as HTMLElement).setPointerCapture(e.pointerId);
       };
 
       const handlePointerMove = (e: React.PointerEvent) => {
@@ -147,23 +148,24 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
 
       return (
         <div className="relative flex-1 flex flex-col">
-          {/* Column label */}
-          <div className="text-center text-xs font-medium text-white/50 pb-1 uppercase tracking-wide">
-            {label}
-          </div>
-          
-          <div className="relative h-[144px]">
+          <div className="relative" style={{ height: containerHeight }}>
             {/* Fade overlays */}
-            <div className="absolute top-0 left-0 right-0 h-12 bg-gradient-to-b from-zinc-900 via-zinc-900/80 to-transparent z-10 pointer-events-none" />
-            <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-zinc-900 via-zinc-900/80 to-transparent z-10 pointer-events-none" />
+            <div className="absolute top-0 left-0 right-0 h-8 bg-gradient-to-b from-zinc-900 via-zinc-900/70 to-transparent z-10 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-zinc-900 via-zinc-900/70 to-transparent z-10 pointer-events-none" />
             
             {/* Selection highlight */}
-            <div className="absolute top-1/2 left-0 right-0 h-9 -translate-y-1/2 bg-white/20 rounded-lg z-0" />
+            <div 
+              className="absolute left-1 right-1 bg-white/15 rounded-md z-0 pointer-events-none" 
+              style={{ 
+                top: paddingHeight,
+                height: itemHeight,
+              }}
+            />
             
             {/* Scrollable items */}
             <div
               ref={scrollRef}
-              className="h-full overflow-y-auto relative z-[1] cursor-grab active:cursor-grabbing touch-pan-y overscroll-contain scrollbar-none"
+              className="h-full overflow-y-auto relative z-[1] cursor-grab active:cursor-grabbing touch-pan-y overscroll-contain"
               onScroll={handleScroll}
               onPointerDown={handlePointerDown}
               onPointerMove={handlePointerMove}
@@ -176,21 +178,30 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
                 msOverflowStyle: "none",
               }}
             >
-              {/* Padding for centering - 54px = (144px - 36px) / 2 */}
-              <div className="h-[54px]" />
+              <style>{`
+                div::-webkit-scrollbar {
+                  display: none;
+                }
+              `}</style>
+              {/* Top padding */}
+              <div style={{ height: paddingHeight }} />
               {items.map((item, idx) => (
                 <div
                   key={idx}
                   className={cn(
-                    "h-9 flex items-center justify-center text-lg font-semibold cursor-pointer transition-colors select-none",
-                    selected === item ? "text-white" : "text-white/30"
+                    "flex items-center justify-center font-medium cursor-pointer transition-all select-none",
+                    selected === item 
+                      ? "text-white text-lg" 
+                      : "text-white/40 text-base"
                   )}
+                  style={{ height: itemHeight }}
                   onClick={() => handleItemClick(item, idx)}
                 >
                   {formatItem ? formatItem(item) : item}
                 </div>
               ))}
-              <div className="h-[54px]" />
+              {/* Bottom padding */}
+              <div style={{ height: paddingHeight }} />
             </div>
           </div>
         </div>
@@ -198,25 +209,27 @@ const IOSTimePicker = React.forwardRef<HTMLDivElement, IOSTimePickerProps>(
     };
 
     return (
-      <div ref={ref} className={cn("flex bg-zinc-900 rounded-xl gap-0 pointer-events-auto", className)}>
+      <div 
+        ref={ref} 
+        className={cn("flex bg-zinc-900 rounded-xl gap-0 pointer-events-auto", className)}
+        onClick={(e) => e.stopPropagation()}
+      >
         <PickerColumn
           items={hours}
           selected={selectedHour}
           onSelect={setSelectedHour}
-          label="Hour"
         />
+        <div className="flex items-center justify-center text-white/60 text-lg font-medium">:</div>
         <PickerColumn
           items={minutes}
           selected={selectedMinute}
           onSelect={setSelectedMinute}
           formatItem={(m) => String(m).padStart(2, "0")}
-          label="Min"
         />
         <PickerColumn
           items={periods}
           selected={selectedPeriod}
           onSelect={setSelectedPeriod}
-          label=""
         />
       </div>
     );

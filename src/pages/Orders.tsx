@@ -7828,14 +7828,16 @@ const Orders = () => {
             }}>
               {/* Add Guest Form Overlay */}
               {showAddGuestForm && (
-                <AddGuestForm
-                  onClose={() => setShowAddGuestForm(false)}
-                  onSave={(guestData) => {
-                    setGuestName(`${guestData.firstName} ${guestData.lastName}`);
-                    setGuestPhone(guestData.phoneNumber);
-                    setShowAddGuestForm(false);
-                  }}
-                />
+                <div className="absolute inset-0 z-10 bg-background">
+                  <AddGuestForm
+                    onClose={() => setShowAddGuestForm(false)}
+                    onSave={(guestData) => {
+                      setGuestName(`${guestData.firstName} ${guestData.lastName}`);
+                      setGuestPhone(guestData.phoneNumber);
+                      setShowAddGuestForm(false);
+                    }}
+                  />
+                </div>
               )}
               {/* Order Type & Guest Info */}
               {isTableOrder ? (

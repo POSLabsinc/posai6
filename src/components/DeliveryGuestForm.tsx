@@ -504,11 +504,11 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
       </div>
 
       {/* Save Button */}
-      <div className="pt-4 pb-2 flex-shrink-0">
+      <div className="pt-4 pb-6 flex-shrink-0 bg-card">
         <Button
           onClick={handleSave}
           disabled={!formData.guestName || !formData.phoneNumber || !formData.address?.address1 || !formData.address?.city || !formData.address?.state || !formData.address?.zip}
-          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-10"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11 rounded-lg font-medium"
         >
           Save
         </Button>

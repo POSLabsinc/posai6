@@ -151,7 +151,7 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
   const wordCount = formData.notes.split(/\s+/).filter(Boolean).length;
 
   return (
-    <div className="p-4 border-b border-sidebar-border" style={{
+    <div className="p-4 border-b border-sidebar-border max-h-[calc(100vh-200px)] overflow-y-auto scrollbar-hide" style={{
       background: 'rgba(117, 117, 117, 0.3)',
     }}>
       <div className="flex items-center justify-between mb-3">

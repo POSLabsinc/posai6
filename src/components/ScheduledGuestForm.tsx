@@ -71,6 +71,7 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
   initialData,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [showSearchResults, setShowSearchResults] = useState(false);
   const [formData, setFormData] = useState<ScheduledGuestData>(
     initialData || {
       guestName: "",
@@ -111,6 +112,7 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
       email: guest.email,
     }));
     setSearchQuery("");
+    setShowSearchResults(false);
   };
 
   const handleInputChange = (
@@ -178,11 +180,15 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
         <Input
           placeholder="Search by guest name or phone number"
           value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            setShowSearchResults(true);
+          }}
+          onFocus={() => setShowSearchResults(true)}
           className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40"
         />
-        {searchResults.length > 0 && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-800 border border-white/20 rounded-lg overflow-hidden z-10">
+        {showSearchResults && searchResults.length > 0 && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-800 border border-white/20 rounded-lg overflow-hidden z-10 max-h-40 overflow-y-auto">
             {searchResults.map((guest, index) => (
               <button
                 key={index}

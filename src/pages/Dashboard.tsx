@@ -64,11 +64,11 @@ const statsData: Record<string, Array<{
     isUp: false,
     hasCheckbox: true
   }, {
-    label: "Ready to Served",
+    label: "Completed",
     value: "8",
     change: "1%",
     isUp: false,
-    hasCheckbox: true
+    icon: "check"
   }],
   "Yesterday": [{
     label: "Total Sale",
@@ -101,11 +101,11 @@ const statsData: Record<string, Array<{
     isUp: true,
     hasCheckbox: true
   }, {
-    label: "Ready to Served",
+    label: "Completed",
     value: "6",
     change: "0.5%",
     isUp: true,
-    hasCheckbox: true
+    icon: "check"
   }],
   "This Week": [{
     label: "Total Sale",
@@ -138,11 +138,11 @@ const statsData: Record<string, Array<{
     isUp: true,
     hasCheckbox: true
   }, {
-    label: "Ready to Served",
+    label: "Completed",
     value: "45",
     change: "2.2%",
     isUp: true,
-    hasCheckbox: true
+    icon: "check"
   }],
   "Last Week": [{
     label: "Total Sale",
@@ -175,11 +175,11 @@ const statsData: Record<string, Array<{
     isUp: false,
     hasCheckbox: true
   }, {
-    label: "Ready to Served",
+    label: "Completed",
     value: "38",
     change: "1.2%",
     isUp: false,
-    hasCheckbox: true
+    icon: "check"
   }],
   "This Month": [{
     label: "Total Sale",
@@ -212,11 +212,11 @@ const statsData: Record<string, Array<{
     isUp: true,
     hasCheckbox: true
   }, {
-    label: "Ready to Served",
+    label: "Completed",
     value: "185",
     change: "4.1%",
     isUp: true,
-    hasCheckbox: true
+    icon: "check"
   }],
   "Last Month": [{
     label: "Total Sale",
@@ -249,11 +249,11 @@ const statsData: Record<string, Array<{
     isUp: false,
     hasCheckbox: true
   }, {
-    label: "Ready to Served",
+    label: "Completed",
     value: "162",
     change: "2.5%",
     isUp: false,
-    hasCheckbox: true
+    icon: "check"
   }]
 };
 

@@ -134,7 +134,10 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
   return (
     <div 
       className="flex flex-col h-full rounded-lg overflow-hidden"
-      style={{ background: 'rgba(117, 117, 117, 0.3)' }}
+      style={{ 
+        background: '#7575754D',
+        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
+      }}
     >
       {/* Fixed Header */}
       <div className="flex items-center justify-between p-4 border-b border-white/10">

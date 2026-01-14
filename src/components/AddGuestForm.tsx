@@ -111,7 +111,13 @@ const AddGuestForm = ({ onClose, onSave }: AddGuestFormProps) => {
   const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phoneNumber;
 
   return (
-    <div className="absolute inset-0 z-50 flex flex-col rounded-lg overflow-hidden" style={{ background: '#2A2A2A' }}>
+    <div 
+      className="absolute inset-0 z-50 flex flex-col rounded-lg overflow-hidden" 
+      style={{ 
+        background: '#7575754D',
+        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
+      }}
+    >
       {/* Header */}
       <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 flex-shrink-0">
         <div className="flex items-center gap-2">

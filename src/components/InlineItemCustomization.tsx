@@ -358,7 +358,19 @@ export const InlineItemCustomization = ({
     setSelectedAddOns(prev => prev.includes(addOn) ? prev.filter(a => a !== addOn) : [...prev, addOn]);
   };
   const handleAddToCart = () => {
-    const allModifiers = [...selectedModifiers, ...selectedAddOns];
+    // Get default modifiers (first option of each required category)
+    const defaultModifiers: string[] = [];
+    itemModifiers.forEach(category => {
+      if (category.required && category.options.length > 0) {
+        defaultModifiers.push(category.options[0].name);
+      }
+    });
+    
+    // Filter out modifiers that are still at default values (only show changed ones)
+    const changedModifiers = selectedModifiers.filter(mod => !defaultModifiers.includes(mod));
+    
+    // Only include changed modifiers and add-ons
+    const allModifiers = [...changedModifiers, ...selectedAddOns];
     const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
     const discountInfo = selectedDiscount ? { name: selectedDiscount.name, amount: discountAmount } : undefined;
     onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice, discountInfo);

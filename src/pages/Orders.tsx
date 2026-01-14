@@ -7655,11 +7655,11 @@ const Orders = () => {
                         <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
                       </button>
                     </div>
-                    <div className="p-0.5 md:p-1 bg-neutral-900 flex flex-col gap-0.5" onClick={() => openCustomizationDialog(item, index)}>
-                      <span className="text-[11px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-2">
+                    <div className="p-0.5 md:p-1 bg-neutral-900 flex items-center justify-between gap-1" onClick={() => openCustomizationDialog(item, index)}>
+                      <span className="text-[11px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-1 flex-1">
                         {item.name}
                       </span>
-                      <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold">
+                      <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold shrink-0">
                         ${item.price.toFixed(2)}
                       </span>
                     </div>

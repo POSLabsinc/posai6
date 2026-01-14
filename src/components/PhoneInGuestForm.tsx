@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
+import { formatPhoneNumber } from "@/lib/utils";
 
 export interface PhoneInGuestData {
   guestName: string;
@@ -58,13 +59,6 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
   const [city, setCity] = useState(initialData?.address?.city || "");
   const [state, setState] = useState(initialData?.address?.state || "");
   const [zipCode, setZipCode] = useState(initialData?.address?.zipCode || "");
-
-  const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/\D/g, "");
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 6) return `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`;
-    return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
-  };
 
   const handlePhoneChange = (value: string, setter: (val: string) => void) => {
     const formatted = formatPhoneNumber(value);

@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
+import { formatPhoneNumber } from "@/lib/utils";
 
 export interface CustomOrderGuestData {
   guestName: string;
@@ -45,13 +46,6 @@ const CustomOrderGuestForm = ({ onSave, onClose, initialData }: CustomOrderGuest
   const [estimatedCompletionTime, setEstimatedCompletionTime] = useState(initialData?.estimatedCompletionTime || "");
   const [showPriorityDropdown, setShowPriorityDropdown] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
-
-  const formatPhoneNumber = (value: string) => {
-    const numbers = value.replace(/\D/g, "");
-    if (numbers.length <= 3) return numbers;
-    if (numbers.length <= 6) return `(${numbers.slice(0, 3)}) ${numbers.slice(3)}`;
-    return `(${numbers.slice(0, 3)}) ${numbers.slice(3, 6)}-${numbers.slice(6, 10)}`;
-  };
 
   const handlePhoneChange = (value: string) => {
     const formatted = formatPhoneNumber(value);

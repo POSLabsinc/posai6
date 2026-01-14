@@ -6773,6 +6773,18 @@ const Orders = () => {
                           setDeliveryGuestData(null);
                           setShowDineInForm(false);
                           setShowTakeOutForm(false);
+                          setShowBanquetForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "BANQUET") {
+                          setShowBanquetForm(true);
+                          setBanquetGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
                           setShowDriveThruForm(false);
                           setShowCurbSideForm(false);
                           setShowScheduledForm(false);
@@ -6784,6 +6796,7 @@ const Orders = () => {
                           setShowDineInForm(false);
                           setShowTakeOutForm(false);
                           setShowDeliveryForm(false);
+                          setShowBanquetForm(false);
                           setShowCurbSideForm(false);
                           setShowScheduledForm(false);
                           setShowPhoneInForm(false);
@@ -7880,14 +7893,27 @@ const Orders = () => {
                               setDeliveryGuestData(null);
                               setShowDineInForm(false);
                               setShowTakeOutForm(false);
+                              setShowBanquetForm(false);
                               setShowDriveThruForm(false);
                               setShowCurbSideForm(false);
+                            } else if (type.label === "BANQUET") {
+                              setShowBanquetForm(true);
+                              setBanquetGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                              setShowScheduledForm(false);
+                              setShowPhoneInForm(false);
+                              setShowCustomOrderForm(false);
                             } else if (type.label === "DRIVE THRU") {
                               setShowDriveThruForm(true);
                               setDriveThruGuestData(null);
                               setShowDineInForm(false);
                               setShowTakeOutForm(false);
                               setShowDeliveryForm(false);
+                              setShowBanquetForm(false);
                               setShowCurbSideForm(false);
                             } else if (type.label === "CURB SIDE") {
                               setShowCurbSideForm(true);
@@ -7895,6 +7921,7 @@ const Orders = () => {
                               setShowDineInForm(false);
                               setShowTakeOutForm(false);
                               setShowDeliveryForm(false);
+                              setShowBanquetForm(false);
                               setShowDriveThruForm(false);
                               setShowScheduledForm(false);
                             } else if (type.label === "SCHEDULED") {

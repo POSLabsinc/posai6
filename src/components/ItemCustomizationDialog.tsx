@@ -71,48 +71,43 @@ const overrideReasons = [
 // Mock modifier data
 const itemModifiers: ModifierCategory[] = [
   {
-    name: "Bread",
+    name: "Size",
     required: true,
     options: [
-      { name: "Brioche Bun" },
-      { name: "Sesame Seed Bun", price: 0.50 },
-      { name: "Gluten-Free Bun", price: 1.50 },
-      { name: "Lettuce Wrap" },
+      { name: "Regular" },
+      { name: "Large", price: 2.00 },
+      { name: "Extra Large", price: 3.50 },
     ]
   },
   {
-    name: "Temperature",
+    name: "Preparation",
     required: true,
     options: [
-      { name: "Rare" },
-      { name: "Medium Rare" },
-      { name: "Medium" },
-      { name: "Medium Well" },
+      { name: "Standard" },
+      { name: "Extra Crispy" },
+      { name: "Lightly Done" },
       { name: "Well Done" },
     ]
   },
   {
-    name: "Cheese",
+    name: "Spice Level",
     required: true,
     options: [
-      { name: "Cheddar" },
-      { name: "Swiss" },
-      { name: "Havarti" },
-      { name: "American" },
-      { name: "Pepper Jack" },
-      { name: "No Cheese" },
+      { name: "Mild" },
+      { name: "Medium" },
+      { name: "Spicy" },
+      { name: "Extra Spicy", price: 0.50 },
     ]
   },
   {
-    name: "Sauces",
+    name: "Extras",
     required: false,
     options: [
-      { name: "Mayonnaise" },
-      { name: "Ketchup" },
-      { name: "Mustard" },
-      { name: "BBQ Sauce", price: 0.50 },
-      { name: "Ranch", price: 0.50 },
-      { name: "Hot Sauce" },
+      { name: "Extra Sauce", price: 0.50 },
+      { name: "Side Dressing", price: 0.75 },
+      { name: "Lemon Wedge" },
+      { name: "Extra Napkins" },
+      { name: "To-Go Container", price: 0.25 },
     ]
   },
 ];

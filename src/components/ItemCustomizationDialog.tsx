@@ -369,15 +369,8 @@ export const ItemCustomizationDialog = ({
     }
   }, [open, item?.id]);
 
-  // Handle PIN verification - any 4-digit PIN works
-  useEffect(() => {
-    if (pin.length === 4) {
-      setTimeout(() => {
-        setCurrentView('priceOverride');
-        setPin("");
-      }, 200);
-    }
-  }, [pin]);
+  // PIN verification is now handled directly in the MPIN view numpad handlers
+  // to distinguish between price override and discount flows
 
   const handlePriceClick = () => {
     if (isManager) {
@@ -398,7 +391,15 @@ export const ItemCustomizationDialog = ({
 
   const handlePinNumberClick = (num: string) => {
     if (pin.length < 4) {
-      setPin(prev => prev + num);
+      const newPin = pin + num;
+      setPin(newPin);
+      // When 4 digits entered, navigate to price override (for MPIN view only)
+      if (newPin.length === 4) {
+        setTimeout(() => {
+          setCurrentView('priceOverride');
+          setPin("");
+        }, 200);
+      }
     }
   };
 

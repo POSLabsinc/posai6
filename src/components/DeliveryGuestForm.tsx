@@ -290,7 +290,8 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
 
   return (
     <div className="p-4 border-b border-sidebar-border flex flex-col" style={{
-      background: 'rgba(117, 117, 117, 0.3)',
+      background: '#7575754D',
+      boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
       maxHeight: '100%',
     }}>
       <div className="flex items-center justify-between mb-3">

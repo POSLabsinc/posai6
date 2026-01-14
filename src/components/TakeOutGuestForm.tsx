@@ -83,7 +83,8 @@ const TakeOutGuestForm = ({ onSave, onCancel, onClose, initialData }: TakeOutGue
 
   return (
     <div className="p-4 border-b border-sidebar-border" style={{
-      background: 'rgba(117, 117, 117, 0.3)',
+      background: '#7575754D',
+      boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
     }}>
       <div className="flex items-center justify-between mb-3">
         <h3 className="text-sm font-semibold text-foreground">Guest Information</h3>

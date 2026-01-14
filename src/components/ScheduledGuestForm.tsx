@@ -155,7 +155,13 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
   const isFormValid = formData.guestName && formData.scheduledDate && formData.scheduledTime;
 
   return (
-    <div className="flex flex-col bg-white/5 rounded-xl border border-white/10 max-h-[calc(100vh-200px)]">
+    <div 
+      className="flex flex-col rounded-xl border border-white/10 max-h-[calc(100vh-200px)]"
+      style={{
+        background: '#7575754D',
+        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
+      }}
+    >
       {/* Fixed Header */}
       <div className="flex items-center justify-between p-4 border-b border-white/10 shrink-0">
         <h3 className="text-white font-medium text-lg">Scheduled Order</h3>

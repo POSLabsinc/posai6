@@ -196,7 +196,7 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
   const wordCount = formData.notes.split(/\s+/).filter(Boolean).length;
 
   return (
-    <div className="p-4 border-b border-sidebar-border" style={{
+    <div className="p-4 border-b border-sidebar-border max-h-[70vh] overflow-y-auto scrollbar-hide" style={{
       background: 'rgba(117, 117, 117, 0.3)',
     }}>
       {/* Guest Information Header */}

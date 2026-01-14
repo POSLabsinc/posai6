@@ -231,7 +231,7 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20" align="start">
+            <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20 pointer-events-auto" align="start">
               <Calendar
                 mode="single"
                 selected={formData.scheduledDate || undefined}
@@ -241,7 +241,7 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
                 }}
                 disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                 initialFocus
-                className="bg-zinc-900 text-white"
+                className="bg-zinc-900 text-white pointer-events-auto"
               />
             </PopoverContent>
           </Popover>
@@ -315,37 +315,54 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
       {formData.orderFulfillmentType === "Delivery" && (
         <div className="space-y-3 p-3 bg-white/5 rounded-lg border border-white/10">
           <h4 className="text-white/80 text-sm font-medium">Delivery Address</h4>
+          
+          {/* Address Line 1 */}
           <Input
-            placeholder="Street Address"
+            placeholder="Address Line 1*"
             value={formData.address?.street || ""}
             onChange={(e) => handleAddressChange("street", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-9 text-sm"
           />
-          <div className="grid grid-cols-3 gap-2">
+          
+          {/* Address Line 2 */}
+          <Input
+            placeholder="Address Line 2 (Apt, Suite, etc.)"
+            value={formData.address?.apt || ""}
+            onChange={(e) => handleAddressChange("apt", e.target.value)}
+            className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-9 text-sm"
+          />
+          
+          {/* City and State */}
+          <div className="grid grid-cols-2 gap-3">
             <Input
-              placeholder="Apt/Suite"
-              value={formData.address?.apt || ""}
-              onChange={(e) => handleAddressChange("apt", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-            />
-            <Input
-              placeholder="City"
+              placeholder="City*"
               value={formData.address?.city || ""}
               onChange={(e) => handleAddressChange("city", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-9 text-sm"
             />
-            <Input
-              placeholder="State"
+            <Select
               value={formData.address?.state || ""}
-              onChange={(e) => handleAddressChange("state", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-            />
+              onValueChange={(value) => handleAddressChange("state", value)}
+            >
+              <SelectTrigger className="bg-white/10 border-white/20 text-white h-9 text-sm">
+                <SelectValue placeholder="State*" />
+              </SelectTrigger>
+              <SelectContent className="bg-zinc-800 border-white/20 max-h-60">
+                {["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"].map((state) => (
+                  <SelectItem key={state} value={state} className="text-white hover:bg-white/10">
+                    {state}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
+          
+          {/* ZIP Code */}
           <Input
-            placeholder="ZIP Code"
+            placeholder="ZIP Code*"
             value={formData.address?.zipCode || ""}
             onChange={(e) => handleAddressChange("zipCode", e.target.value)}
-            className="w-1/3 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-white/10 border-white/20 text-white placeholder:text-white/40 h-9 text-sm w-1/2"
           />
         </div>
       )}
@@ -388,13 +405,13 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
       </div>
 
       {/* Fixed Footer */}
-      <div className="p-4 border-t border-white/10 shrink-0">
+      <div className="pt-4 pb-6 px-4 flex-shrink-0">
         <Button
           onClick={handleSave}
           disabled={!isFormValid}
-          className="w-full bg-amber-500 hover:bg-amber-600 text-black font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-primary hover:bg-primary/90 text-primary-foreground h-11 rounded-lg font-medium"
         >
-          Save Scheduled Order
+          Save
         </Button>
       </div>
     </div>

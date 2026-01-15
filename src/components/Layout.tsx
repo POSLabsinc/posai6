@@ -77,7 +77,7 @@ function LayoutContent({ children }: LayoutProps) {
           </div>
         )}
 
-        <main className="flex-1 pt-3 overflow-y-auto bg-black px-0">
+        <main className="flex-1 overflow-y-auto bg-black px-0">
           {children}
         </main>
 

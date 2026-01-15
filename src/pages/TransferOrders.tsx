@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronDown, ArrowUpDown, SlidersHorizontal, Search, Phone, Info, Check } from "lucide-react";
+import { ChevronLeft, ChevronDown, ArrowUpDown, ArrowDown, SlidersHorizontal, Search, Phone, Info, Check } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -1279,14 +1279,11 @@ const TransferOrders = () => {
             {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
           </div>
 
-          {/* Swap Button */}
+          {/* Transfer Direction Indicator */}
           <div className="flex justify-center py-2">
-            <button 
-              onClick={handleSwapDirection}
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20"
-            >
-              <ArrowUpDown className="w-4 h-4 text-white" />
-            </button>
+            <div className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20">
+              <ArrowDown className="w-4 h-4 text-white" />
+            </div>
           </div>
 
           {/* To Order */}

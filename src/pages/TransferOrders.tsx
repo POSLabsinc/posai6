@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronDown, ArrowUpDown, ArrowDown, SlidersHorizontal, Search, Phone, Info, Check } from "lucide-react";
+import { ChevronLeft, ChevronDown, ArrowUpDown, ArrowDown, SlidersHorizontal, Search, Phone, Info, Check, Users, Share2 } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -17,6 +17,8 @@ import {
   getOrderAmount,
   toOrderTemplateData 
 } from "@/data/orders";
+import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
+import SwipeableCartItem from "@/components/SwipeableCartItem";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -26,6 +28,9 @@ import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
+import runnerIcon from "@/assets/icons/runner.png";
+import chairWhiteIcon from "@/assets/icons/chair-white.png";
+import saveIcon from "@/assets/icons/save.png";
 
 const transferFilters = ["All", "Ordering", "Ordered", "Preparing"];
 
@@ -53,6 +58,8 @@ const TransferOrders = () => {
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [displayedOrder, setDisplayedOrder] = useState<Order | null>(null);
   const [desktopStep, setDesktopStep] = useState<"select-items" | "select-target">("select-items");
+  const [orderNotes, setOrderNotes] = useState("");
+  const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
 
   // Get the current order being transferred from
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
@@ -662,10 +669,10 @@ const TransferOrders = () => {
   const OrderDetailsPanel = () => (
     <div className="w-[345px] flex flex-col mb-2 mr-2">
       {/* Guest Header - Outside the box */}
-      <div className="px-2 py-2">
-        <div className="flex items-center justify-between mb-1.5">
-          <span className="text-white text-sm font-medium">{panelOrder.name}</span>
-          <div className="flex items-center gap-2 text-white/50 text-xs">
+      <div className="px-2 py-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-white font-medium">{panelOrder.name}</span>
+          <div className="flex items-center gap-3 text-white/50 text-sm">
             <div className="flex items-center gap-1">
               <Phone className="w-3 h-3" />
               <span>{panelOrder.phone || "(415) 123-4567"}</span>
@@ -676,17 +683,17 @@ const TransferOrders = () => {
             </div>
           </div>
         </div>
-        <div className="flex gap-1.5 flex-wrap">
-          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
+        <div className="flex gap-2">
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
             Add Item
           </button>
-          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
             Discount
           </button>
-          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
             Receipt
           </button>
-          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
             Cash Register
           </button>
         </div>
@@ -700,90 +707,151 @@ const TransferOrders = () => {
           boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
         }}
       >
-        {/* Table Order Info */}
-        <div className="px-3 py-2 border-b border-white/10">
-          <div className="flex items-center justify-between mb-1.5">
-            <div className="flex items-center gap-2">
-              <span className="px-1.5 py-0.5 bg-white/10 text-white text-[10px] rounded">TABLE {panelOrder.table}</span>
-              <span className="text-white text-sm font-bold">{panelOrder.id}</span>
-            </div>
-            <div className="flex items-center gap-1.5">
-              <img src={shareSeatsIcon} alt="Seats" className="w-3 h-3 opacity-60" />
-              <span className="text-white/50 text-xs">{panelOrder.server}</span>
-            </div>
+        {/* Table Order Header - Row 1 */}
+        <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+          <div className="flex items-center gap-2">
+            <span className="bg-neutral-700 border border-neutral-600 px-2 py-1 rounded text-xs font-medium text-white">
+              TABLE {panelOrder.table}
+            </span>
+            <Users className="w-4 h-4 text-neutral-400" />
+            <span className="text-neutral-400 text-xs">{panelOrder.items.length}</span>
+            <span className="font-bold text-white text-sm">{panelOrder.id}</span>
           </div>
-          
-          {/* Seat Buttons */}
-          <div className="flex items-center gap-1.5">
-            <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
-              <img src={seatIcon} alt="Seat" className="w-3 h-3" />
-            </button>
-            <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
-              <img src={splitIcon} alt="Split" className="w-3 h-3" />
-            </button>
-            {[1, 2, 3, 4].map(seat => (
-              <button
-                key={seat}
-                onClick={() => setSelectedSeats(prev => 
-                  prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]
-                )}
-                className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
-                  selectedSeats.includes(seat) 
-                    ? "bg-white text-black" 
-                    : "bg-white/10 text-white hover:bg-white/20"
-                }`}
-              >
-                {seat}
-              </button>
-            ))}
+          <div className="flex items-center gap-2 text-xs">
+            <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
+            <span className="text-neutral-400">{panelOrder.server}</span>
           </div>
         </div>
+        
+        {/* Table Order Header - Row 2: Seat buttons */}
+        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-sidebar-border">
+          <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+            <img src={chairWhiteIcon} alt="Chair" className="w-3.5 h-3.5" />
+          </button>
+          <button 
+            onClick={() => setSelectedSeats([1, 2, 3, 4])}
+            className={`p-1 rounded transition-colors ${
+              selectedSeats.length === 4 
+                ? 'bg-white' 
+                : 'bg-neutral-700 hover:bg-neutral-600'
+            }`}
+          >
+            <Share2 className={`w-3.5 h-3.5 ${selectedSeats.length === 4 ? 'text-black' : 'text-white'}`} />
+          </button>
+          {[1, 2, 3, 4].map((seat) => (
+            <button
+              key={seat}
+              onClick={() => setSelectedSeats(prev => 
+                prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]
+              )}
+              className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold transition-colors ${
+                selectedSeats.includes(seat) 
+                  ? 'bg-white text-black' 
+                  : 'bg-neutral-600 text-white hover:bg-neutral-500'
+              }`}
+            >
+              {seat}
+            </button>
+          ))}
+        </div>
 
-        {/* Notes */}
-        {panelOrder.notes && (
-          <div className="px-3 py-2 border-b border-white/10">
-            <div className="flex items-center gap-2 text-white/50 text-xs bg-white/10 px-2 py-1.5 rounded">
-              <span>⚠️</span>
-              <span>{panelOrder.notes}</span>
-            </div>
-          </div>
-        )}
+        {/* Order Notes */}
+        <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
+          <OrderNotesAutocomplete
+            value={orderNotes}
+            onChange={setOrderNotes}
+            placeholder="Order notes and Allergies"
+          />
+        </div>
 
         {/* Order Items */}
-        <ScrollArea className="flex-1 px-3">
-          <div className="py-2 space-y-1.5">
+        <ScrollArea className="flex-1 min-h-0 px-2">
+          <div className="py-1 space-y-1">
             {panelOrder.items.map((item, index) => (
-              <div key={index} className="p-2 bg-white/5 rounded-lg border border-white/10">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-2">
-                    <span className="w-5 h-5 bg-white rounded flex items-center justify-center text-black text-xs font-bold">
-                      {item.qty}
-                    </span>
-                    <div>
-                      <span className="text-white text-sm">{item.name}</span>
-                      {item.modifiers.length > 0 && (
-                        <div className="mt-0.5 text-white/50 text-xs space-y-0">
-                          {item.modifiers.map((mod, i) => (
-                            <div key={i}>{mod}</div>
-                          ))}
+              <SwipeableCartItem 
+                key={`${panelOrder.id}-${index}`}
+                onDelete={() => {}}
+                itemOrderType="Dine In"
+                onOrderTypeChange={() => {}}
+                isOpen={activeSwipedItemId === `${panelOrder.id}-${index}`}
+                onSwipeStart={() => setActiveSwipedItemId(`${panelOrder.id}-${index}`)}
+              >
+                <div 
+                  className="p-2 border border-sidebar-border rounded-md cursor-pointer" 
+                  style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                >
+                  <div className="flex flex-col">
+                    {/* Item header row */}
+                    <div className="flex items-start gap-2">
+                      <span className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                        {item.qty}
+                      </span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-medium text-foreground">{item.name}</span>
+                          <span className="text-sm font-medium text-foreground">
+                            {formatPrice(item.price * item.qty)}
+                          </span>
                         </div>
-                      )}
+                        
+                        {/* Modifiers with tree hierarchy */}
+                        {item.modifiers.length > 0 && (
+                          <div className="mt-1 relative">
+                            {item.modifiers.map((mod, idx) => {
+                              const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
+                              const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                              const isLastItem = idx === item.modifiers.length - 1;
+                              
+                              return (
+                                <div key={idx} className="relative flex items-center text-xs py-[3px]">
+                                  {/* Vertical line - only show if not last item */}
+                                  {!isLastItem && (
+                                    <div className="absolute left-0 top-1/2 w-px bg-white" style={{ height: 'calc(100% + 3px)' }} />
+                                  )}
+                                  {/* Vertical line segment to connect to horizontal */}
+                                  <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                  {/* Horizontal connector */}
+                                  <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
+                                  {/* Content */}
+                                  <div className="flex items-center gap-2 ml-5">
+                                    <span className="text-white">
+                                      {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                    </span>
+                                    <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
+                                      {mod}
+                                    </span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
+                        
+                        {/* Seat Assignment Display */}
+                        {item.seats.length > 0 && (
+                          <div className="mt-1.5 flex items-center gap-1.5">
+                            <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
+                            {item.seats.length === 4 ? (
+                              <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                                <Share2 className="w-3 h-3" />
+                              </span>
+                            ) : (
+                              item.seats.map(seat => (
+                                <span 
+                                  key={seat}
+                                  className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                                >
+                                  {seat}
+                                </span>
+                              ))
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                  <span className="text-white text-sm">${(item.price * item.qty).toFixed(2)}</span>
                 </div>
-                {item.seats.length > 0 && (
-                  <div className="flex items-center gap-1 mt-1">
-                    <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
-                    {item.seats.map(seat => (
-                      <span key={seat} className="w-4 h-4 bg-white/10 rounded text-white text-[10px] flex items-center justify-center">
-                        {seat}
-                      </span>
-                    ))}
-                    
-                  </div>
-                )}
-              </div>
+              </SwipeableCartItem>
             ))}
           </div>
           <ScrollBar orientation="vertical" />
@@ -793,34 +861,45 @@ const TransferOrders = () => {
         {(() => {
           const totals = getOrderTotals(panelOrder);
           return (
-            <div className="px-3 py-2 border-t border-white/10">
-              <OrderSummary totals={totals} variant="compact" />
-            </div>
-          );
-        })()}
+            <div className="p-2 border-t border-sidebar-border flex-shrink-0">
+              <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
+                background: '#7575754D',
+                boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+              }}>
+                <div className="flex justify-between gap-3">
+                  <span className="text-foreground">Sub Total: <span className="font-medium">{formatPrice(totals.subtotal)}</span></span>
+                  <span className="text-red-500">Discount: <span className="font-medium">{formatPrice(totals.discount)}</span></span>
+                </div>
+                <div className="flex justify-between gap-3">
+                  <span className="text-foreground">Service Charge: <span className="font-medium text-primary">+{formatPrice(totals.serviceCharge)}</span></span>
+                  <span className="text-foreground">Tax: <span className="font-medium">{formatPrice(totals.tax)}</span></span>
+                </div>
+              </div>
 
-        {/* Bottom Actions */}
-        {(() => {
-          const totals = getOrderTotals(panelOrder);
-          return (
-            <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
-              <button className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
-                <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
-              </button>
-              <button 
-                disabled 
-                className="px-3 py-1.5 rounded-full flex items-center gap-1 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed" 
-                style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
-              >
-                <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
-                <span>FIRE</span>
-              </button>
-              <button 
-                className="flex-1 py-1.5 rounded-full text-black text-xs font-bold"
-                style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-              >
-                CHARGE ${totals.total.toFixed(2)}
-              </button>
+              {/* Action Buttons */}
+              <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
+                <button className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+                  <img src={clearIcon} alt="Clear" className="w-3 h-3" />
+                </button>
+                <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                  backgroundColor: '#C9C9C9'
+                }}>
+                  <img src={saveIcon} alt="Save" className="w-4 h-4" />
+                </button>
+                <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
+                  background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                }}>
+                  <img src={fireIcon} alt="Fire" className="w-4 h-4" />
+                  <span className="text-white font-semibold text-sm">FIRE</span>
+                </button>
+                <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
+                  background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                }}>
+                  <span className="text-black font-semibold text-xs">
+                    CHARGE {formatPrice(totals.total)}
+                  </span>
+                </button>
+              </div>
             </div>
           );
         })()}

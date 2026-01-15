@@ -7,7 +7,16 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import OrderSummary from "@/components/OrderSummary";
-import { calculateOrderTotals, getOrderStatusColor, formatPrice } from "@/lib/orderUtils";
+import { getOrderStatusColor, formatPrice } from "@/lib/orderUtils";
+import { 
+  Order, 
+  allOrders, 
+  getOrderById, 
+  getAvailableOrdersForTransfer,
+  calculateOrderTotals,
+  getOrderAmount,
+  toOrderTemplateData 
+} from "@/data/orders";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -17,115 +26,6 @@ import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
-
-// Order item interface
-interface OrderItem {
-  qty: number;
-  name: string;
-  price: number;
-  seats: number[];
-  modifiers: string[];
-  isShared?: boolean;
-}
-
-// Order interface
-interface Order {
-  id: string;
-  name: string;
-  table: string;
-  amount: string;
-  partySize: number;
-  time: string;
-  status: string;
-  timer: string;
-  server: string;
-  check: string;
-  paymentType: string;
-  revenueCenter: string;
-  phone: string;
-  notes: string;
-  items: OrderItem[];
-  paidAmount?: string;
-  paymentStatus?: string;
-}
-
-// Mock all orders data from different tables
-const allOrders: Order[] = [
-  // T2 orders
-  { 
-    id: "1", name: "Sarah Kim", table: "T2", amount: "$72.00", partySize: 3, time: "7:30 PM", 
-    status: "ORDERING", timer: "00:20", server: "Dustin H", check: "--", paymentType: "--", 
-    revenueCenter: "FF Balcony", phone: "(415) 555-1234", notes: "No nuts",
-    items: [
-      { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: [] },
-      { qty: 1, name: "Caesar Salad", price: 14.00, seats: [], modifiers: [] },
-      { qty: 2, name: "Tiramisu", price: 9.00, seats: [3], modifiers: [] },
-    ]
-  },
-  { 
-    id: "2", name: "Guest", table: "T2", amount: "$45.00", partySize: 2, time: "7:45 PM", 
-    status: "ORDERING", timer: "00:15", server: "Dustin H", check: "--", paymentType: "--", 
-    revenueCenter: "FF Balcony", phone: "(415) 999-8888", notes: "",
-    items: [
-      { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [1], modifiers: ["No Lemon"] },
-      { qty: 1, name: "House Salad", price: 8.00, seats: [], modifiers: [] },
-    ]
-  },
-  { 
-    id: "3", name: "Martin Alex", table: "T2", amount: "$24.00", partySize: 4, time: "10:00 PM", 
-    status: "ORDERING", timer: "0:00", server: "Dustin H", check: "--", paymentType: "--", 
-    revenueCenter: "FF Balcony", phone: "(415) 123-4567", notes: "Allergic to almonds, Don't add onion", paidAmount: "$0.00", paymentStatus: "Un Paid",
-    items: [
-      { qty: 2, name: "Meaty Cheese Burger", price: 3.00, seats: [1, 2], modifiers: [] },
-      { qty: 4, name: "Classic Cheese Burger - Medium", price: 2.25, seats: [], modifiers: ["- American Cheese", "- Bacon", "- No Onions", "- No Pickles", "+ Add Avocado $1.00", "· Side: Fries", "· Side: Chipotle Mayo"], isShared: true },
-      { qty: 2, name: "Pepperoni Pizza (12\")", price: 4.00, seats: [3, 4], modifiers: [] },
-    ]
-  },
-  { 
-    id: "9", name: "Davis", table: "T2", amount: "$32.50", partySize: 3, time: "8:15 PM", 
-    status: "ORDERED", timer: "00:30", server: "Dustin H", check: "1240", paymentType: "--", 
-    revenueCenter: "FF Balcony", phone: "", notes: "",
-    items: [
-      { qty: 1, name: "Steak Frites", price: 22.00, seats: [1], modifiers: ["Medium Rare"] },
-      { qty: 1, name: "Garlic Bread", price: 6.00, seats: [], modifiers: [] },
-    ]
-  },
-  // T3 orders
-  { 
-    id: "8", name: "Guest", table: "T3", amount: "$16.00", partySize: 2, time: "10:00 PM", 
-    status: "ORDERING", timer: "0:00", server: "Dustin H", check: "--", paymentType: "--", 
-    revenueCenter: "FF Balcony", phone: "", notes: "", paidAmount: "$0.00", paymentStatus: "Un Paid",
-    items: [
-      { qty: 2, name: "Meaty Cheese Burger", price: 8.00, seats: [1, 2], modifiers: [] },
-    ]
-  },
-  { 
-    id: "10", name: "Taylor", table: "T3", amount: "$28.00", partySize: 2, time: "9:30 PM", 
-    status: "PREPARING", timer: "00:45", server: "Mia J", check: "1241", paymentType: "--", 
-    revenueCenter: "Main", phone: "", notes: "",
-    items: [
-      { qty: 1, name: "Fish & Chips", price: 18.00, seats: [1], modifiers: [] },
-      { qty: 1, name: "Onion Rings", price: 10.00, seats: [], modifiers: [] },
-    ]
-  },
-  // Other tables
-  { 
-    id: "7", name: "Smith", table: "T4", amount: "$85.00", partySize: 3, time: "8:30 PM", 
-    status: "ORDERING", timer: "1:30 Hrs", server: "Dustin H", check: "1234", paymentType: "--", 
-    revenueCenter: "FF Balcony", phone: "", notes: "",
-    items: [
-      { qty: 2, name: "Lobster Tail", price: 42.00, seats: [1, 2], modifiers: [] },
-    ]
-  },
-  { 
-    id: "6", name: "Johnson", table: "T1", amount: "$20.00", partySize: 1, time: "7:35 PM", 
-    status: "PREPARING", timer: "2:00 Hrs", server: "Alex M", check: "1235", paymentType: "Cash", 
-    revenueCenter: "Bar", phone: "", notes: "",
-    items: [
-      { qty: 1, name: "Burger Deluxe", price: 20.00, seats: [1], modifiers: [] },
-    ]
-  },
-];
 
 const transferFilters = ["All", "Ordering", "Ordered", "Preparing"];
 
@@ -234,25 +134,8 @@ const TransferOrders = () => {
 
   // Calculate order totals using centralized function
   const getOrderTotals = (order: Order) => {
-    return calculateOrderTotals(order.items);
+    return calculateOrderTotals(order.items, order.tipAmount || 0);
   };
-
-  // Helper to convert order to OrderLayoutTemplate format
-  const toOrderTemplateData = (order: Order) => ({
-    id: Number(order.id),
-    name: order.name,
-    table: order.table,
-    amount: order.amount,
-    partySize: order.partySize,
-    time: order.time,
-    status: order.status,
-    timer: order.timer || "00:00",
-    server: order.server,
-    check: order.check || "--",
-    revenueCenter: order.revenueCenter,
-    paymentType: order.paymentType || "--",
-    phone: order.phone,
-  });
 
   // Mobile order card for source order display
   const MobileSourceOrderCard = ({ order }: { order: Order }) => (
@@ -289,7 +172,7 @@ const TransferOrders = () => {
                 <span className="text-gray-500">|</span>
                 <span>{order.timer}</span>
               </div>
-              <span className="text-white font-semibold text-sm">{order.amount}</span>
+              <span className="text-white font-semibold text-sm">{getOrderAmount(order)}</span>
             </div>
             
             {/* Row 3: Revenue center, Payment status */}
@@ -337,7 +220,7 @@ const TransferOrders = () => {
                 <span>{order.timer}</span>
               </div>
               <div className="flex-1"></div>
-              <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+              <span className="text-white font-semibold flex-shrink-0">{getOrderAmount(order)}</span>
             </div>
             
             {/* Row 3: Revenue Center | Payment Status | Tip */}
@@ -390,7 +273,7 @@ const TransferOrders = () => {
                 <span className="text-gray-500">|</span>
                 <span>{order.timer}</span>
               </div>
-              <span className="text-white font-semibold text-sm">{order.amount}</span>
+              <span className="text-white font-semibold text-sm">{getOrderAmount(order)}</span>
             </div>
             
             {/* Row 3: Revenue center, Payment status */}
@@ -438,7 +321,7 @@ const TransferOrders = () => {
                 <span>{order.timer}</span>
               </div>
               <div className="flex-1"></div>
-              <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+              <span className="text-white font-semibold flex-shrink-0">{getOrderAmount(order)}</span>
             </div>
             
             {/* Row 3: Revenue Center | Payment Status | Tip */}
@@ -703,7 +586,7 @@ const TransferOrders = () => {
           {/* Column 2: Server, empty, Payment Status */}
           <div className="flex flex-col gap-0.5">
             <span className="text-white/80 text-sm">{order.server}</span>
-            <span className="text-white font-semibold text-xs">{order.amount}</span>
+            <span className="text-white font-semibold text-xs">{getOrderAmount(order)}</span>
             <span className="text-gray-400 text-xs">{order.paymentStatus || "Un Paid"}</span>
           </div>
           
@@ -982,7 +865,7 @@ const TransferOrders = () => {
                 <span>{order.timer}</span>
               </div>
               <div className="flex-1"></div>
-              <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+              <span className="text-white font-semibold flex-shrink-0">{getOrderAmount(order)}</span>
             </div>
             
             {/* Row 3: Revenue Center | Payment Status (center) | Tip */}
@@ -1047,7 +930,7 @@ const TransferOrders = () => {
                 <span>{order.timer}</span>
               </div>
               <div className="flex-1"></div>
-              <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+              <span className="text-white font-semibold flex-shrink-0">{getOrderAmount(order)}</span>
             </div>
             
             {/* Row 3: Revenue Center | Payment Status (center) | Tip */}

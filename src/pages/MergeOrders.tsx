@@ -6,7 +6,15 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import OrderSummary from "@/components/OrderSummary";
-import { calculateOrderTotals, getOrderStatusColor } from "@/lib/orderUtils";
+import { getOrderStatusColor } from "@/lib/orderUtils";
+import { 
+  Order, 
+  allOrders, 
+  getOrderById, 
+  calculateOrderTotals,
+  getOrderAmount,
+  toOrderTemplateData 
+} from "@/data/orders";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -17,53 +25,9 @@ import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
 
-// Mock all orders data from different tables with extended info
-const allOrders = [
-  // T2 orders
-  { id: "1", name: "Sarah Kim", table: "T2", amount: "$72.00", partySize: 3, time: "7:30 PM", status: "ORDERING", timer: "00:20", server: "Dustin H", check: "--", paymentType: "--", revenueCenter: "FF Balcony", phone: "(415) 555-1234" },
-  { id: "2", name: "Guest", table: "T2", amount: "$45.00", partySize: 2, time: "7:45 PM", status: "ORDERING", timer: "00:15", server: "Dustin H", check: "--", paymentType: "--", revenueCenter: "FF Balcony", phone: "(415) 999-8888" },
-  { id: "3", name: "Martin Alex", table: "T2", amount: "$59.00", partySize: 4, time: "8:00 PM", status: "ORDERING", timer: "00:00", server: "Dustin H", check: "--", paymentType: "--", revenueCenter: "FF Balcony", phone: "(415) 123-4567" },
-  { id: "9", name: "Davis", table: "T2", amount: "$32.50", partySize: 3, time: "8:15 PM", status: "ORDERED", timer: "00:30", server: "Dustin H", check: "1240", paymentType: "--", revenueCenter: "FF Balcony", phone: "" },
-  // T3 orders
-  { id: "8", name: "Guest", table: "T3", amount: "$16.00", partySize: 2, time: "10:00 PM", status: "ORDERING", timer: "00:00", server: "Mia J", check: "--", paymentType: "--", revenueCenter: "Main", phone: "" },
-  { id: "10", name: "Taylor", table: "T3", amount: "$28.00", partySize: 2, time: "9:30 PM", status: "PREPARING", timer: "00:45", server: "Mia J", check: "1241", paymentType: "--", revenueCenter: "Main", phone: "" },
-  // Other tables
-  { id: "7", name: "Smith", table: "T4", amount: "$85.00", partySize: 3, time: "8:30 PM", status: "ORDERING", timer: "1:30 Hrs", server: "Dustin H", check: "1234", paymentType: "--", revenueCenter: "FF Balcony", phone: "" },
-  { id: "6", name: "Johnson", table: "T1", amount: "$20.00", partySize: 1, time: "7:35 PM", status: "PREPARING", timer: "2:00 Hrs", server: "Alex M", check: "1235", paymentType: "Cash", revenueCenter: "Bar", phone: "" },
-  { id: "5", name: "Williams", table: "T5", amount: "$120.75", partySize: 4, time: "7:30 PM", status: "ORDERED", timer: "2:10 Hrs", server: "Dustin H", check: "1236", paymentType: "--", revenueCenter: "Patio", phone: "" },
-  { id: "4", name: "Brown", table: "T6", amount: "$65.50", partySize: 2, time: "7:15 PM", status: "PREPARING", timer: "2:30 Hrs", server: "Mia J", check: "1237", paymentType: "Card", revenueCenter: "Main", phone: "" },
-];
-
-// Mock order items mapped by order ID
-const orderItemsMap: Record<string, { qty: number; name: string; price: number; seats: number[]; modifiers: string[] }[]> = {
-  "1": [
-    { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: [] },
-    { qty: 1, name: "Caesar Salad", price: 14.00, seats: [], modifiers: [] },
-    { qty: 2, name: "Tiramisu", price: 9.00, seats: [3], modifiers: [] },
-  ],
-  "2": [
-    { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [1], modifiers: ["No Lemon"] },
-    { qty: 1, name: "House Salad", price: 8.00, seats: [], modifiers: [] },
-  ],
-  "3": [
-    { qty: 2, name: "Classic Crispy Burger", price: 12.00, seats: [1, 2], modifiers: [] },
-    { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: [] },
-    { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
-    { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Medium Rare", "+ W/ Potato Wedges"] },
-  ],
-  "9": [
-    { qty: 1, name: "Steak Frites", price: 22.00, seats: [1], modifiers: ["Medium Rare"] },
-    { qty: 1, name: "Garlic Bread", price: 6.00, seats: [], modifiers: [] },
-  ],
-};
-
-// Helper to get order items for a specific order
-const getOrderItems = (orderId: string) => orderItemsMap[orderId] || [];
-
-// Helper to calculate order totals using centralized function
-const getOrderTotals = (orderId: string) => {
-  const items = getOrderItems(orderId);
-  return calculateOrderTotals(items);
+// Helper to calculate order totals for an order
+const getOrderTotals = (order: Order) => {
+  return calculateOrderTotals(order.items, order.tipAmount || 0);
 };
 
 const mergeFilters = ["All", "Ordering", "Ordered", "Preparing", "Unpaid"];
@@ -227,7 +191,7 @@ const MergeOrders = () => {
                 <span className="text-gray-500">|</span>
                 <span>{order.timer}</span>
               </div>
-              <span className="text-white font-semibold text-sm">{order.amount}</span>
+              <span className="text-white font-semibold text-sm">{getOrderAmount(order)}</span>
             </div>
             
             {/* Row 3: Revenue center, Payment status */}
@@ -267,7 +231,7 @@ const MergeOrders = () => {
               <span>{order.timer}</span>
             </div>
             <div className="flex-1"></div>
-            <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+            <span className="text-white font-semibold flex-shrink-0">{getOrderAmount(order)}</span>
           </div>
           
           {/* Row 3: Revenue Center | Payment Status | Tip */}
@@ -315,7 +279,7 @@ const MergeOrders = () => {
           
           {/* Order Summary Totals */}
           {(() => {
-            const totals = getOrderTotals(order.id);
+            const totals = getOrderTotals(order);
             return <OrderSummary totals={totals} variant="compact" />;
           })()}
         </div>
@@ -364,7 +328,7 @@ const MergeOrders = () => {
                 <span>{order.timer}</span>
               </div>
               <div className="flex-1"></div>
-              <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+              <span className="text-white font-semibold flex-shrink-0">{getOrderAmount(order)}</span>
             </div>
             
             {/* Row 3: Revenue Center | Payment Status (center) | Tip */}
@@ -429,7 +393,7 @@ const MergeOrders = () => {
                 <span>{order.timer}</span>
               </div>
               <div className="flex-1"></div>
-              <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+              <span className="text-white font-semibold flex-shrink-0">{getOrderAmount(order)}</span>
             </div>
             
             {/* Row 3: Revenue Center | Payment Status (center) | Tip */}
@@ -538,7 +502,7 @@ const MergeOrders = () => {
         {/* Order Items */}
         <ScrollArea className="flex-1 px-3">
           <div className="py-2 space-y-1.5">
-            {getOrderItems(panelOrder.id).map((item, index) => (
+            {panelOrder.items.map((item, index) => (
               <div key={index} className="p-2 bg-white/5 rounded-lg border border-white/10">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
@@ -577,7 +541,7 @@ const MergeOrders = () => {
 
         {/* Order Summary */}
         {(() => {
-          const totals = getOrderTotals(panelOrder.id);
+          const totals = getOrderTotals(panelOrder);
           return (
             <div className="px-3 py-2 border-t border-white/10">
               <OrderSummary totals={totals} variant="detailed" />
@@ -587,7 +551,7 @@ const MergeOrders = () => {
 
         {/* Bottom Actions */}
         {(() => {
-          const totals = getOrderTotals(panelOrder.id);
+          const totals = getOrderTotals(panelOrder);
           return (
             <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
               <button className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
@@ -814,22 +778,7 @@ const MergeOrders = () => {
     </div>
   );
 
-  // Helper to convert order to OrderLayoutTemplate format
-  const toOrderTemplateData = (order: typeof allOrders[0]) => ({
-    id: Number(order.id),
-    name: order.name,
-    table: order.table,
-    amount: order.amount,
-    partySize: order.partySize,
-    time: order.time,
-    status: order.status,
-    timer: order.timer || "00:00",
-    server: order.server,
-    check: order.check || "--",
-    revenueCenter: order.revenueCenter,
-    paymentType: order.paymentType || "--",
-    phone: order.phone,
-  });
+  // Use imported toOrderTemplateData from data/orders
 
   // Mobile Step 2: Confirm direction (From/To) - matches screenshot design
   const ConfirmDirectionView = () => (

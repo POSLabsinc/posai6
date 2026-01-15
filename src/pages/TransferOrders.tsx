@@ -1287,37 +1287,30 @@ const TransferOrders = () => {
                 </div>
               )}
               {/* Items Being Transferred - Inside the order card */}
-              <div className="p-3 bg-neutral-800/30">
-                <p className="text-orange-400 text-xs font-medium mb-2 uppercase tracking-wide">Items Being Transferred</p>
-                <ScrollArea className="max-h-[120px]">
-                  <div className="space-y-1.5">
-                    {selectedItems.map(index => {
-                      const item = currentOrder.items[index];
-                      const qty = itemQuantities[index] || item.qty;
-                      return (
-                        <div key={index} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <span className="w-5 h-5 bg-orange-500 rounded flex items-center justify-center text-white text-[10px] font-bold">
-                              {qty}
-                            </span>
-                            <span className="text-white text-sm">{item.name}</span>
-                          </div>
-                          <span className="text-white/60 text-sm">${(item.price * qty).toFixed(2)}</span>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <ScrollBar orientation="vertical" />
-                </ScrollArea>
-                <div className="mt-2 pt-2 border-t border-white/10 flex justify-between">
-                  <span className="text-white/60 text-xs">{selectedItems.length} item(s)</span>
-                  <span className="text-orange-400 font-medium text-sm">
-                    ${selectedItems.reduce((sum, index) => {
+              <div className="px-2 py-1.5 bg-neutral-800/30">
+                <div className="flex items-center justify-between mb-1">
+                  <p className="text-orange-400 text-[10px] font-medium uppercase tracking-wide">Items Transferring</p>
+                  <span className="text-orange-400 font-medium text-xs">
+                    {selectedItems.length} items · ${selectedItems.reduce((sum, index) => {
                       const item = currentOrder.items[index];
                       const qty = itemQuantities[index] || item.qty;
                       return sum + (item.price * qty);
                     }, 0).toFixed(2)}
                   </span>
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {selectedItems.map(index => {
+                    const item = currentOrder.items[index];
+                    const qty = itemQuantities[index] || item.qty;
+                    return (
+                      <div key={index} className="flex items-center gap-1 bg-neutral-700/50 rounded px-1.5 py-0.5">
+                        <span className="w-4 h-4 bg-orange-500 rounded text-white text-[9px] font-bold flex items-center justify-center">
+                          {qty}
+                        </span>
+                        <span className="text-white text-[11px]">{item.name}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             </div>

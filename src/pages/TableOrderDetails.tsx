@@ -746,7 +746,7 @@ const TableOrderDetails = () => {
       {/* Add Order Button */}
       <div className="px-3 py-2">
         <button 
-          onClick={() => navigate('/orders')}
+          onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
           className="w-full py-2 text-black text-sm font-medium rounded-full hover:opacity-90 transition-opacity" 
           style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
         >
@@ -972,7 +972,7 @@ const TableOrderDetails = () => {
         {/* Add Order Button */}
         <div className="p-3 border-t border-neutral-700/50">
           <button 
-            onClick={() => navigate('/orders')}
+            onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
             className="w-full py-2 text-sm text-black font-medium rounded-full hover:opacity-90 transition-opacity" 
             style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
           >
@@ -1423,7 +1423,7 @@ const TableOrderDetails = () => {
         {/* Add Order Button */}
         <div className="p-3 border-t border-neutral-700/50">
           <button 
-            onClick={() => navigate('/orders')}
+            onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
             className="w-full py-3 text-black font-medium rounded-full hover:opacity-90 transition-opacity" 
             style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
           >

@@ -1277,45 +1277,48 @@ const TransferOrders = () => {
             <div className="w-10 h-1 bg-white/30 rounded-full" />
           </div>
 
-          {/* From Order */}
+          {/* From Order with Items Being Transferred */}
           <div className="px-6 pb-4">
             <p className="text-white/60 text-sm mb-2">Transfer Check From</p>
-            {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
-          </div>
-
-          {/* Items Being Transferred */}
-          <div className="px-6 pb-4">
-            <p className="text-white/60 text-sm mb-2">Items Being Transferred</p>
-            <div className="bg-neutral-800/50 rounded-xl border border-white/10 p-3">
-              <ScrollArea className="max-h-[150px]">
-                <div className="space-y-2">
-                  {selectedItems.map(index => {
-                    const item = currentOrder.items[index];
-                    const qty = itemQuantities[index] || item.qty;
-                    return (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          <span className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center text-white text-xs font-bold">
-                            {qty}
-                          </span>
-                          <span className="text-white text-sm">{item.name}</span>
-                        </div>
-                        <span className="text-white/60 text-sm">${(item.price * qty).toFixed(2)}</span>
-                      </div>
-                    );
-                  })}
+            <div className="rounded-xl border border-white overflow-hidden" style={{ backgroundColor: '#1B1C20' }}>
+              {fromOrder && (
+                <div className="border-b border-white/10">
+                  <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} showBorder={false} />
                 </div>
-                <ScrollBar orientation="vertical" />
-              </ScrollArea>
-              <div className="mt-3 pt-3 border-t border-white/10 flex justify-between">
-                <span className="text-white/60 text-sm">{selectedItems.length} item(s)</span>
-                <span className="text-white font-medium text-sm">
-                  ${selectedItems.reduce((sum, index) => {
-                    const item = currentOrder.items[index];
-                    const qty = itemQuantities[index] || item.qty;
-                    return sum + (item.price * qty);
-                  }, 0).toFixed(2)}
-                </span>
+              )}
+              {/* Items Being Transferred - Inside the order card */}
+              <div className="p-3 bg-neutral-800/30">
+                <p className="text-orange-400 text-xs font-medium mb-2 uppercase tracking-wide">Items Being Transferred</p>
+                <ScrollArea className="max-h-[120px]">
+                  <div className="space-y-1.5">
+                    {selectedItems.map(index => {
+                      const item = currentOrder.items[index];
+                      const qty = itemQuantities[index] || item.qty;
+                      return (
+                        <div key={index} className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span className="w-5 h-5 bg-orange-500 rounded flex items-center justify-center text-white text-[10px] font-bold">
+                              {qty}
+                            </span>
+                            <span className="text-white text-sm">{item.name}</span>
+                          </div>
+                          <span className="text-white/60 text-sm">${(item.price * qty).toFixed(2)}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <ScrollBar orientation="vertical" />
+                </ScrollArea>
+                <div className="mt-2 pt-2 border-t border-white/10 flex justify-between">
+                  <span className="text-white/60 text-xs">{selectedItems.length} item(s)</span>
+                  <span className="text-orange-400 font-medium text-sm">
+                    ${selectedItems.reduce((sum, index) => {
+                      const item = currentOrder.items[index];
+                      const qty = itemQuantities[index] || item.qty;
+                      return sum + (item.price * qty);
+                    }, 0).toFixed(2)}
+                  </span>
+                </div>
               </div>
             </div>
           </div>

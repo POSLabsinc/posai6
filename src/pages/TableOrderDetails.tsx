@@ -903,7 +903,10 @@ const TableOrderDetails = () => {
       {/* Right Panel - Order Details */}
       {(() => {
         const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
-        return mergedPanelData ? (
+        // Only show merged panel if the currently selected guest is the merge destination
+        const showMergedPanel = mergedPanelData && currentSelectedGuest?.id === destOrderId;
+        
+        return showMergedPanel ? (
           <MergedOrderPanel 
             guestName={mergedPanelData.guestName} 
             phone={mergedPanelData.phone} 
@@ -1275,7 +1278,10 @@ const TableOrderDetails = () => {
       {/* Right Panel - Order Details (same as desktop) */}
       {(() => {
         const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
-        return mergedPanelData ? (
+        // Only show merged panel if the currently selected guest is the merge destination
+        const showMergedPanel = mergedPanelData && currentSelectedGuest?.id === destOrderId;
+        
+        return showMergedPanel ? (
           <MergedOrderPanel 
             guestName={mergedPanelData.guestName} 
             phone={mergedPanelData.phone} 

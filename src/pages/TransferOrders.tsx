@@ -19,7 +19,6 @@ import {
 } from "@/data/orders";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
-import { PaymentDialog } from "@/components/PaymentDialog";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -61,7 +60,6 @@ const TransferOrders = () => {
   const [desktopStep, setDesktopStep] = useState<"select-items" | "select-target">("select-items");
   const [orderNotes, setOrderNotes] = useState("");
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
-  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
   // Get the current order being transferred from
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
@@ -894,13 +892,9 @@ const TransferOrders = () => {
                   <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                   <span className="text-white font-semibold text-sm">FIRE</span>
                 </button>
-                <button 
-                  onClick={() => setShowPaymentDialog(true)}
-                  className="flex-1 h-8 rounded-full flex items-center justify-center" 
-                  style={{
-                    background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-                  }}
-                >
+                <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
+                  background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                }}>
                   <span className="text-black font-semibold text-xs">
                     CHARGE {formatPrice(totals.total)}
                   </span>
@@ -1484,22 +1478,6 @@ const TransferOrders = () => {
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Payment Dialog */}
-      <PaymentDialog
-        isOpen={showPaymentDialog}
-        onClose={() => setShowPaymentDialog(false)}
-        totalAmount={getOrderTotals(panelOrder).total}
-        orderItems={(panelOrder.items || []).map((item: any, index: number) => ({
-          id: index,
-          qty: item.qty || 1,
-          name: item.name || '',
-          price: typeof item.price === 'string' ? parseFloat(String(item.price).replace('$', '')) : (item.price || 0),
-          seats: item.seats || []
-        }))}
-        guestName={panelOrder.name}
-        tableName={panelOrder.table}
-      />
     </div>
   );
 };

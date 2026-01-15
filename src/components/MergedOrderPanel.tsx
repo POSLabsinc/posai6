@@ -218,45 +218,74 @@ const MergedOrderPanel = ({
                     className="p-2 border border-sidebar-border rounded-md cursor-pointer" 
                     style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                    <div className="flex flex-col">
+                      {/* Item header row */}
+                      <div className="flex items-start gap-2">
+                        <span className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
                           {item.qty}
                         </span>
-                        <span className="text-sm font-medium text-foreground">{item.name}</span>
-                      </div>
-                      <span className="text-sm font-medium text-foreground">{item.price}</span>
-                    </div>
-                    {item.modifiers.length > 0 && (
-                      <div className="mt-1.5 ml-7 space-y-0.5">
-                        {item.modifiers.map((mod, idx) => (
-                          <div key={idx} className="flex items-center gap-1 text-xs text-primary">
-                            <span>{mod.startsWith("W/") || mod.startsWith("Add") ? "+" : "-"}</span>
-                            <span>{mod}</span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium text-foreground">{item.name}</span>
+                            <span className="text-sm font-medium text-foreground">{item.price}</span>
                           </div>
-                        ))}
+                          
+                          {/* Modifiers with tree hierarchy */}
+                          {item.modifiers.length > 0 && (
+                            <div className="mt-1 relative">
+                              {item.modifiers.map((mod, idx) => {
+                                const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
+                                const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                const isLastItem = idx === item.modifiers.length - 1;
+                                
+                                return (
+                                  <div key={idx} className="relative flex items-center text-xs py-[3px]">
+                                    {/* Vertical line - only show if not last item */}
+                                    {!isLastItem && (
+                                      <div className="absolute left-0 top-1/2 w-px bg-white" style={{ height: 'calc(100% + 3px)' }} />
+                                    )}
+                                    {/* Vertical line segment to connect to horizontal */}
+                                    <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                    {/* Horizontal connector */}
+                                    <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
+                                    {/* Content */}
+                                    <div className="flex items-center gap-2 ml-5">
+                                      <span className="text-white">
+                                        {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                      </span>
+                                      <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
+                                        {mod}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          )}
+                          
+                          {/* Seat Assignment Display */}
+                          {item.seats.length > 0 && (
+                            <div className="mt-1.5 flex items-center gap-1.5">
+                              <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
+                              {item.seats.length === maxSeats ? (
+                                <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                                  <Share2 className="w-3 h-3" />
+                                </span>
+                              ) : (
+                                item.seats.map(seat => (
+                                  <span 
+                                    key={seat}
+                                    className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                                  >
+                                    {seat}
+                                  </span>
+                                ))
+                              )}
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    )}
-                    {/* Seat Assignment Display */}
-                    {item.seats.length > 0 && (
-                      <div className="mt-1.5 ml-7 flex items-center gap-1.5">
-                        <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
-                        {item.seats.length === maxSeats ? (
-                          <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
-                            <Share2 className="w-3 h-3" />
-                          </span>
-                        ) : (
-                          item.seats.map(seat => (
-                            <span 
-                              key={seat}
-                              className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
-                            >
-                              {seat}
-                            </span>
-                          ))
-                        )}
-                      </div>
-                    )}
+                    </div>
                   </div>
                 ))}
               </div>

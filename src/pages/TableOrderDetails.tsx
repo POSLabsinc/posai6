@@ -69,98 +69,51 @@ const filterItemsBySeats = (items: OrderItem[], selectedSeats: number[], allSeat
   });
 };
 
-// Mock merged orders data for display
-const mergedOrdersData = {
-  "1": {
-    guestName: "Martin Alex",
-    phone: "(415) 123-4567",
-    time: "8:00 PM",
-    server: "Dustin H",
-    orders: [{
-      id: "1",
-      table: "T2",
-      partySize: 4,
-      time: "10:00 PM",
-      notes: "Allergic to almonds, Don't add onion",
-      items: [{
-        qty: 2,
-        name: "Meaty Cheese Burger",
-        price: "$6.00",
-        seats: [1, 2],
-        modifiers: []
-      }, {
-        qty: 4,
-        name: "Classic Cheese Burger - Medium",
-        price: "$10.00",
-        seats: [],
-        modifiers: ["American Cheese", "Bacon", "No Onions", "No Pickles", "Add Avocado", "Side: Fries", "Side: Chipotle Mayo"]
-      }, {
-        qty: 2,
-        name: "Pepperoni Pizza (12\")",
-        price: "$8.00",
-        seats: [3, 4],
-        modifiers: []
-      }]
-    }, {
-      id: "6",
-      table: "T3",
-      partySize: 2,
-      time: "10:00 PM",
-      notes: "Allergic to almonds, Don't add onion",
-      items: [{
-        qty: 2,
-        name: "Meaty Cheese Burger",
-        price: "$16.00",
-        seats: [1, 2],
-        modifiers: []
-      }]
-    }]
-  },
-  "3": {
-    guestName: "Sarah Johnson",
-    phone: "(415) 555-0789",
-    time: "7:15 PM",
-    server: "Dustin H",
-    orders: [{
-      id: "3",
-      table: "T2",
-      partySize: 2,
-      time: "7:15 PM",
-      notes: "No nuts",
-      items: [{
-        qty: 2,
-        name: "Classic Crispy Burger",
-        price: "$12.00",
-        seats: [1, 2],
-        modifiers: []
-      }, {
-        qty: 1,
-        name: "Caesar Salad",
-        price: "$8.00",
-        seats: [],
-        modifiers: []
-      }]
-    }, {
-      id: "5",
-      table: "T2",
-      partySize: 1,
-      time: "8:30 PM",
-      notes: "",
-      items: [{
-        qty: 4,
-        name: "Meatballs",
-        price: "$16.00",
-        seats: [],
-        modifiers: []
-      }, {
-        qty: 2,
-        name: "Rigatoni Pasta",
-        price: "$8.00",
-        seats: [3, 4],
-        modifiers: []
-      }]
-    }]
-  }
+// Dynamic function to build merged order data from actual orders
+const getMergedPanelData = (destOrderId: string | null, mergedOrderId: string | null, mergedFromTable: string | null) => {
+  if (!destOrderId || !mergedOrderId) return null;
+  
+  const destOrder = allOrders.find(o => o.id === destOrderId);
+  const mergedOrder = allOrders.find(o => o.id === mergedOrderId);
+  
+  if (!destOrder || !mergedOrder) return null;
+  
+  return {
+    guestName: destOrder.name,
+    phone: destOrder.phone,
+    time: destOrder.time,
+    server: destOrder.server,
+    orders: [
+      {
+        id: destOrder.id,
+        table: destOrder.table,
+        partySize: destOrder.partySize,
+        time: destOrder.time,
+        notes: destOrder.notes || "",
+        items: destOrder.items.map(item => ({
+          qty: item.qty,
+          name: item.name,
+          price: `$${(item.price * item.qty).toFixed(2)}`,
+          seats: item.seats,
+          modifiers: item.modifiers
+        }))
+      },
+      {
+        id: mergedOrder.id,
+        table: mergedFromTable || mergedOrder.table,
+        partySize: mergedOrder.partySize,
+        time: mergedOrder.time,
+        notes: mergedOrder.notes || "",
+        items: mergedOrder.items.map(item => ({
+          qty: item.qty,
+          name: item.name,
+          price: `$${(item.price * item.qty).toFixed(2)}`,
+          seats: item.seats,
+          modifiers: item.modifiers
+        }))
+      }
+    ]
+  };
 };
 
 const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
@@ -948,7 +901,20 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Right Panel - Order Details */}
-      {destOrderId && mergedOrderId && mergedOrdersData[destOrderId as keyof typeof mergedOrdersData] ? <MergedOrderPanel guestName={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].guestName} phone={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].phone} time={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].time} server={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].server} tableId={tableId || ""} mergedOrderIds={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].orders.map(o => o.id)} orders={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].orders} /> : <div className="w-[345px] flex flex-col m-2 ml-0">
+      {(() => {
+        const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
+        return mergedPanelData ? (
+          <MergedOrderPanel 
+            guestName={mergedPanelData.guestName} 
+            phone={mergedPanelData.phone} 
+            time={mergedPanelData.time} 
+            server={mergedPanelData.server} 
+            tableId={tableId || ""} 
+            mergedOrderIds={mergedPanelData.orders.map(o => o.id)} 
+            orders={mergedPanelData.orders} 
+          />
+        ) : (
+          <div className="w-[345px] flex flex-col m-2 ml-0">
         {/* Guest Header - Outside the box */}
         <div className="px-2 py-3">
           <div className="flex items-center justify-between mb-2">
@@ -1155,7 +1121,9 @@ const TableOrderDetails = () => {
           </div>
         </div>
         </div>
-      </div>}
+        </div>
+        );
+      })()}
     </div>;
 
   // Tablet Layout - Similar to mobile order cards on left, order details on right
@@ -1305,7 +1273,21 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Right Panel - Order Details (same as desktop) */}
-      {destOrderId && mergedOrderId && mergedOrdersData[destOrderId as keyof typeof mergedOrdersData] ? <MergedOrderPanel guestName={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].guestName} phone={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].phone} time={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].time} server={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].server} tableId={tableId || ""} mergedOrderIds={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].orders.map(o => o.id)} orders={mergedOrdersData[destOrderId as keyof typeof mergedOrdersData].orders} width="w-[280px]" /> : <div className="w-[280px] flex flex-col m-2 ml-0">
+      {(() => {
+        const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
+        return mergedPanelData ? (
+          <MergedOrderPanel 
+            guestName={mergedPanelData.guestName} 
+            phone={mergedPanelData.phone} 
+            time={mergedPanelData.time} 
+            server={mergedPanelData.server} 
+            tableId={tableId || ""} 
+            mergedOrderIds={mergedPanelData.orders.map(o => o.id)} 
+            orders={mergedPanelData.orders} 
+            width="w-[280px]" 
+          />
+        ) : (
+          <div className="w-[280px] flex flex-col m-2 ml-0">
         {/* Guest Header - Outside the box */}
         <div className="px-2 py-3">
           <div className="flex items-center justify-between mb-2">
@@ -1522,7 +1504,9 @@ const TableOrderDetails = () => {
           </button>
         </div>
         </div>
-      </div>}
+        </div>
+        );
+      })()}
     </div>;
   return <>
       {/* Mobile Layout */}

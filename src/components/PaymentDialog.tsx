@@ -4,7 +4,7 @@ import {
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
   Mail, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, 
   UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, 
-  RefreshCw, Send, Zap
+  RefreshCw, Send, Zap, Users
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -339,62 +339,94 @@ export function PaymentDialog({
         <div className="flex-1 flex flex-col border-r border-neutral-700">
           {paymentProcessed ? (
             // Receipt Screen
-            <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-              <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
+            <div className="flex-1 flex flex-col items-center py-8 px-6">
+              {/* Success Icon */}
+              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
+                <img src={tickSuccessIcon} alt="Success" className="w-10 h-10" />
               </div>
               
-              <p className="text-center mb-2">
-                <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
-                <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+              <p className="text-neutral-300 text-sm mb-6">
+                <span className="text-green-500 font-medium">${totalPaid.toFixed(2)}</span> has been successfully processed
               </p>
-              
-              <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
-              
-              {/* Receipt Options */}
-              <div className="flex gap-4 mb-6">
+
+              {/* Change Due / Due Amount Box */}
+              {isFullyPaid ? (
+                <div className="w-full max-w-xs mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
+                  <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
+                  <p className="text-green-500 text-3xl font-bold text-center">
+                    ${Math.abs(remainingDue).toFixed(2)}
+                  </p>
+                </div>
+              ) : (
+                <div className="w-full max-w-xs mb-4 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
+                  <p className="text-red-500 text-sm text-center mb-1">Due Amount</p>
+                  <p className="text-red-500 text-3xl font-bold text-center">
+                    ${remainingDue.toFixed(2)}
+                  </p>
+                </div>
+              )}
+
+              {/* Pay Remaining Button - Show when there's still due amount */}
+              {!isFullyPaid && (
+                <div className="w-full max-w-xs mb-6">
+                  <button
+                    onClick={() => {
+                      setPaymentAmount(remainingDue.toFixed(2));
+                      setPaymentProcessed(false);
+                      setSelectedPaymentMethod('cash');
+                      setAmountQuantities({});
+                      setGiftCardStep('amount');
+                      setGiftCardNumber('');
+                      setPayByLinkStep('amount');
+                      setQrCodeStep('amount');
+                      setManualCCStep('amount');
+                      setExternalCCStep('amount');
+                      setManualCardStep('amount');
+                      setDoordashStep('amount');
+                      setBlizzfulStep('amount');
+                      setUbereatsStep('amount');
+                      setGrubhubStep('amount');
+                    }}
+                    className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
+                  >
+                    PAY REMAINING ${remainingDue.toFixed(2)}
+                  </button>
+                </div>
+              )}
+
+              {/* Receipt Section */}
+              <div className="w-full max-w-xs">
+                <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
+                <div className="flex gap-4 justify-center mb-4">
+                  <button 
+                    onClick={handleComplete}
+                    className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                  >
+                    <Printer className="w-6 h-6 text-neutral-400" />
+                    <span className="text-neutral-400 text-sm">Print</span>
+                  </button>
+                  <button 
+                    onClick={() => setTextReceiptStep('phone-input')}
+                    className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                  >
+                    <MessageSquare className="w-6 h-6 text-neutral-400" />
+                    <span className="text-neutral-400 text-sm">Text</span>
+                  </button>
+                  <button 
+                    onClick={() => setEmailReceiptStep('email-input')}
+                    className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                  >
+                    <Mail className="w-6 h-6 text-neutral-400" />
+                    <span className="text-neutral-400 text-sm">Email</span>
+                  </button>
+                </div>
                 <button 
                   onClick={handleComplete}
-                  className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                  className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                 >
-                  <Printer className="w-6 h-6 text-neutral-300" />
-                  <span className="text-neutral-300 text-xs">Print</span>
-                </button>
-                <button 
-                  onClick={() => setTextReceiptStep('phone-input')}
-                  className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
-                >
-                  <MessageSquare className="w-6 h-6 text-neutral-300" />
-                  <span className="text-neutral-300 text-xs">Text</span>
-                </button>
-                <button 
-                  onClick={() => setEmailReceiptStep('email-input')}
-                  className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
-                >
-                  <Mail className="w-6 h-6 text-neutral-300" />
-                  <span className="text-neutral-300 text-xs">Email</span>
+                  NO RECEIPT
                 </button>
               </div>
-              
-              <button 
-                onClick={handleComplete}
-                className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
-              >
-                NO RECEIPT
-              </button>
-
-              {/* Pay Remaining Button */}
-              {!isFullyPaid && (
-                <button 
-                  onClick={() => {
-                    setPaymentProcessed(false);
-                    setPaymentAmount(remainingDue.toFixed(2));
-                  }}
-                  className="w-full max-w-xs py-3 mt-4 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors"
-                >
-                  PAY REMAINING ${remainingDue.toFixed(2)}
-                </button>
-              )}
             </div>
           ) : (
             // Payment Entry View
@@ -550,22 +582,22 @@ export function PaymentDialog({
                     ))}
                     <div className="flex gap-1.5">
                       <button 
+                        onClick={() => handleKeypadPress('.')}
+                        className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                      >
+                        .
+                      </button>
+                      <button 
                         onClick={() => handleKeypadPress('0')}
                         className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
                       >
                         0
                       </button>
                       <button 
-                        onClick={() => handleKeypadPress('00')}
-                        className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        onClick={() => handleKeypadPress('backspace')}
+                        className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
                       >
-                        00
-                      </button>
-                      <button 
-                        onClick={() => setPaymentAmount('0.00')}
-                        className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-red-400 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                      >
-                        C
+                        <Delete className="w-4 h-4" />
                       </button>
                     </div>
                   </div>
@@ -617,55 +649,105 @@ export function PaymentDialog({
           )}
         </div>
 
-        {/* Right Panel - Order Summary */}
-        <div className="w-80 flex flex-col bg-neutral-900/50">
-          {/* Guest Header */}
-          <div className="p-4 border-b border-neutral-700">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-white font-medium">{orderDetails.guest || "GUEST"}</span>
+        {/* Order Details Panel */}
+        <div 
+          className="w-[280px] border-l border-neutral-700 flex flex-col rounded-xl" 
+          style={{
+            background: "#7575754D",
+            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+          }}
+        >
+          {/* Guest Info Header - Matching Order Panel Style */}
+          <div 
+            className="p-3 border-b border-neutral-600 rounded-t-xl" 
+            style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+          >
+            {/* Row 1: Name, Phone, Time */}
+            <div className="flex items-center justify-between">
+              <h3 className="text-white font-semibold text-sm">{orderDetails.guest || "Guest"}</h3>
               {orderDetails.phone && (
-                <span className="text-white/50 text-xs">{orderDetails.phone}</span>
+                <div className="flex items-center gap-1.5 text-neutral-300">
+                  <Phone className="w-3 h-3" />
+                  <span className="text-xs">{orderDetails.phone}</span>
+                </div>
               )}
+              <div className="flex items-center gap-1.5">
+                <Zap className="w-3 h-3 text-yellow-400" />
+                <span className="text-neutral-300 text-xs">
+                  {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                </span>
+              </div>
             </div>
-            <div className="flex items-center gap-2 text-white/50 text-xs">
+            
+            {/* Row 2: Table, Guests, Server */}
+            <div className="flex items-center justify-between mt-3">
               {orderDetails.table && (
-                <span className="px-2 py-0.5 bg-neutral-700 rounded">TABLE {orderDetails.table}</span>
+                <span 
+                  className="text-white text-[10px] font-medium px-2 py-1 rounded" 
+                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                >
+                  TABLE {orderDetails.table}
+                </span>
               )}
-              {orderDetails.check && (
-                <span>Check #{orderDetails.check}</span>
-              )}
+              <div className="flex items-center gap-2 text-neutral-300">
+                <Users className="w-3 h-3" />
+                <span className="text-xs">4</span>
+                <span className="text-white font-medium text-xs ml-1">10</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-neutral-300">
+                <User className="w-3 h-3" />
+                <span className="text-xs">SERVER</span>
+              </div>
             </div>
           </div>
 
-          {/* Paid Stamp */}
-          {isFullyPaid && (
-            <div className="p-4 flex items-center justify-center">
-              <div className="px-6 py-2 border-2 border-green-500 rounded-lg transform -rotate-12">
-                <span className="text-green-500 font-bold text-xl">PAID</span>
-              </div>
+          {/* Check Info with PAID/PARTIAL stamp when processed */}
+          <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3 relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <span className="text-white font-medium text-sm">Check {orderDetails.check || "1"}</span>
+              <span className="text-white font-bold">${total.toFixed(2)}</span>
             </div>
-          )}
+            {isFullyPaid && (
+              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
+                PAID
+              </span>
+            )}
+            {paymentHistory.length > 0 && !isFullyPaid && (
+              <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-yellow-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
+                PARTIAL
+              </span>
+            )}
+          </div>
 
           {/* Order Items */}
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-2">
-              {orderDetails.items.map(item => (
-                <div key={item.id} className="flex items-start justify-between py-2 border-b border-neutral-700/50">
-                  <div className="flex items-start gap-2">
-                    <span className="w-5 h-5 rounded bg-neutral-700 text-white text-xs flex items-center justify-center flex-shrink-0">
-                      {item.qty}
-                    </span>
-                    <span className="text-white text-sm">{item.name}</span>
+          <div 
+            className="flex-1 overflow-y-auto p-3 space-y-2" 
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {orderDetails.items.map(item => (
+              <div 
+                key={item.id} 
+                className="p-2 border border-sidebar-border rounded-lg" 
+                style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+              >
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded bg-neutral-700 border border-neutral-600 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
+                    {item.qty}
+                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center justify-between">
+                      <span className="text-white text-xs font-medium truncate">{item.name}</span>
+                      <span className="text-white text-xs font-medium ml-2">${(item.price * item.qty).toFixed(2)}</span>
+                    </div>
                   </div>
-                  <span className="text-white text-sm">${(item.price * item.qty).toFixed(2)}</span>
                 </div>
-              ))}
-            </div>
-          </ScrollArea>
+              </div>
+            ))}
+          </div>
 
           {/* Payment History */}
           {paymentHistory.length > 0 && (
-            <div className="p-4 border-t border-neutral-700">
+            <div className="px-3 pb-2">
               <span className="text-white/60 text-xs mb-2 block">Payments</span>
               {paymentHistory.map((payment, index) => (
                 <div key={index} className="flex items-center justify-between py-1">
@@ -677,7 +759,7 @@ export function PaymentDialog({
           )}
 
           {/* Totals */}
-          <div className="p-4 border-t border-neutral-700 space-y-1">
+          <div className="p-3 border-t border-neutral-700 space-y-1">
             <div className="flex items-center justify-between">
               <span className="text-white/60 text-sm">Subtotal</span>
               <span className="text-white text-sm">${subtotal.toFixed(2)}</span>

@@ -1368,7 +1368,15 @@ const TransferOrders = () => {
             <button
               onClick={() => {
                 setIsSuccessDialogOpen(false);
-                navigate(`/tableorder/${toOrder?.table}`);
+                // Build transfer params for destination table
+                const itemNames = selectedItems.map(index => currentOrder.items[index].name).join(',');
+                const transferParams = new URLSearchParams({
+                  transferred: currentOrder.id,
+                  transferFrom: currentOrder.table,
+                  transferDest: toOrder?.id || '',
+                  items: itemNames
+                });
+                navigate(`/tableorder/${toOrder?.table}?${transferParams.toString()}`);
               }}
               className="flex-1 py-2.5 rounded-full text-white font-medium text-sm bg-neutral-800 hover:bg-neutral-700 transition-colors"
             >

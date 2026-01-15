@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check } from "lucide-react";
+import PaymentDialog from "@/components/PaymentDialog";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
@@ -6137,16 +6138,8 @@ const Orders = () => {
   const [priceOverrideItem, setPriceOverrideItem] = useState<{ id: number; name: string; price: number; image?: string } | null>(null);
   const [orderNumber, setOrderNumber] = useState(1);
   
-  // Payment Dialog States
+  // Payment Dialog State (component manages its own internal states)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cash');
-  const [paymentAmount, setPaymentAmount] = useState('0.00');
-  const [showKeypad, setShowKeypad] = useState(false);
-  const [amountQuantities, setAmountQuantities] = useState<Record<number, number>>({});
-  const [paymentProcessed, setPaymentProcessed] = useState(false);
-  const [paidAmount, setPaidAmount] = useState(0);
-  const [showOtherPayments, setShowOtherPayments] = useState(false);
-  const [paymentHistory, setPaymentHistory] = useState<Array<{ method: string; amount: number; methodLabel: string }>>([]);
   
   // Table order seat selection state - initialize with all seats selected when coming from table orders
   const [selectedSeats, setSelectedSeats] = useState<number[]>(() => {
@@ -7355,15 +7348,7 @@ const Orders = () => {
                 <span className="text-white font-semibold text-sm">FIRE</span>
               </button>
               <button 
-                onClick={() => {
-                  setPaymentAmount(chargeAmount.toFixed(2));
-                  setPaymentProcessed(false);
-                  setShowKeypad(false);
-                  setShowOtherPayments(false);
-                  setAmountQuantities({});
-                  setPaymentHistory([]);
-                  setShowPaymentDialog(true);
-                }}
+                onClick={() => setShowPaymentDialog(true)}
                 className="flex-1 h-8 rounded-full flex items-center justify-center" 
                 style={{
                   background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
@@ -8491,15 +8476,7 @@ const Orders = () => {
                     <span className="text-white font-semibold text-sm">FIRE</span>
                   </button>
                   <button 
-                    onClick={() => {
-                      setPaymentAmount(chargeAmount.toFixed(2));
-                      setPaymentProcessed(false);
-                      setShowKeypad(false);
-                      setShowOtherPayments(false);
-                      setAmountQuantities({});
-                      setPaymentHistory([]);
-                      setShowPaymentDialog(true);
-                    }}
+                    onClick={() => setShowPaymentDialog(true)}
                     className="flex-1 h-8 rounded-full flex items-center justify-center" 
                     style={{
                       background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
@@ -8848,354 +8825,28 @@ const Orders = () => {
       />
 
       {/* Payment Dialog */}
-      {showPaymentDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setShowPaymentDialog(false); setPaymentHistory([]); }}>
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-            {/* Payment Options Panel */}
-            <div className="w-[480px] flex flex-col bg-neutral-900 max-h-[90vh] overflow-hidden">
-              {paymentProcessed ? (
-                /* Receipt View */
-                <div className="flex flex-col h-full">
-                  {/* Success Header */}
-                  <div className="flex flex-col items-center py-8 px-6">
-                    <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                      <img src={tickSuccessIcon} alt="Success" className="w-10 h-10" />
-                    </div>
-                    <p className="text-neutral-300 text-sm">
-                      <span className="text-green-500 font-medium">${paymentHistory.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</span> has been successfully processed
-                    </p>
-                  </div>
-
-                  {/* Change Due / Due Amount Box */}
-                  {paymentHistory.reduce((sum, p) => sum + p.amount, 0) >= chargeAmount ? (
-                    <div className="mx-6 mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
-                      <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
-                      <p className="text-green-500 text-3xl font-bold text-center">
-                        ${(paymentHistory.reduce((sum, p) => sum + p.amount, 0) - chargeAmount).toFixed(2)}
-                      </p>
-                    </div>
-                  ) : (
-                    <div className="mx-6 mb-4 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
-                      <p className="text-red-500 text-sm text-center mb-1">Due Amount</p>
-                      <p className="text-red-500 text-3xl font-bold text-center">
-                        ${(chargeAmount - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toFixed(2)}
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Pay Remaining Button - Show when there's still due amount */}
-                  {paymentHistory.reduce((sum, p) => sum + p.amount, 0) < chargeAmount && (
-                    <div className="mx-6 mb-6">
-                      <button
-                        onClick={() => {
-                          const totalPaid = paymentHistory.reduce((sum, p) => sum + p.amount, 0);
-                          const remaining = chargeAmount - totalPaid;
-                          setPaymentAmount(remaining.toFixed(2));
-                          setPaymentProcessed(false);
-                          setSelectedPaymentMethod('cash');
-                          setAmountQuantities({});
-                        }}
-                        className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
-                      >
-                        PAY REMAINING ${(chargeAmount - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toFixed(2)}
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Receipt Section */}
-                  <div className="px-6 pb-6">
-                    <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
-                    <div className="flex gap-4 justify-center mb-4">
-                      <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
-                        <Printer className="w-6 h-6 text-neutral-400" />
-                        <span className="text-neutral-400 text-sm">Print</span>
-                      </button>
-                      <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
-                        <MessageSquare className="w-6 h-6 text-neutral-400" />
-                        <span className="text-neutral-400 text-sm">Text</span>
-                      </button>
-                      <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
-                        <Mail className="w-6 h-6 text-neutral-400" />
-                        <span className="text-neutral-400 text-sm">Email</span>
-                      </button>
-                    </div>
-                    <button 
-                      onClick={() => {
-                        setPaymentProcessed(false);
-                        setShowPaymentDialog(false);
-                        setPaymentHistory([]);
-                      }} 
-                      className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
-                    >
-                      NO RECEIPT
-                    </button>
-                  </div>
-                </div>
-              ) : (
-                /* Payment Input View */
-                <>
-                  {/* Header with Amount Due */}
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-3">
-                      <button 
-                        onClick={() => { setShowPaymentDialog(false); setPaymentHistory([]); }}
-                        className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                      >
-                        <X className="w-5 h-5 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-lg font-medium">Total Due</span>
-                    </div>
-                    <span className="text-red-500 text-xl font-bold">${chargeAmount.toFixed(2)}</span>
-                  </div>
-
-                  {/* Payment Methods */}
-                  <div className="p-4 border-b border-neutral-700">
-                    <div className="flex gap-2 overflow-x-auto scrollbar-hide">
-                      {initialPaymentMethods.map(method => {
-                        const IconComponent = method.icon;
-                        return (
-                          <button
-                            key={method.id}
-                            onClick={() => setSelectedPaymentMethod(method.id)}
-                            className={`flex flex-col items-center gap-1.5 px-4 py-3 rounded-xl min-w-[70px] transition-colors ${
-                              selectedPaymentMethod === method.id 
-                                ? 'bg-white text-black' 
-                                : 'bg-neutral-800 text-white hover:bg-neutral-700'
-                            }`}
-                          >
-                            <IconComponent className="w-5 h-5" />
-                            <span className="text-xs font-medium whitespace-nowrap">{method.name}</span>
-                          </button>
-                        );
-                      })}
-                      <button
-                        onClick={() => setShowOtherPayments(!showOtherPayments)}
-                        className="flex flex-col items-center gap-1.5 px-4 py-3 rounded-xl min-w-[70px] bg-neutral-800 text-white hover:bg-neutral-700 transition-colors"
-                      >
-                        <MoreVertical className="w-5 h-5" />
-                        <span className="text-xs font-medium">Other</span>
-                      </button>
-                    </div>
-                    
-                    {/* Other Payment Methods Dropdown */}
-                    {showOtherPayments && (
-                      <div className="mt-3 p-3 bg-neutral-800 rounded-xl">
-                        <div className="grid grid-cols-4 gap-2">
-                          {initialOtherPaymentMethods.map(method => {
-                            const IconComponent = method.icon;
-                            return (
-                              <button
-                                key={method.id}
-                                onClick={() => {
-                                  setSelectedPaymentMethod(method.id);
-                                  setShowOtherPayments(false);
-                                }}
-                                className="flex flex-col items-center gap-1.5 p-3 rounded-lg hover:bg-neutral-700 transition-colors"
-                              >
-                                <IconComponent className="w-5 h-5 text-neutral-300" />
-                                <span className="text-xs text-neutral-300 whitespace-nowrap">{method.name}</span>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Payment Amount Display */}
-                  <div className="p-4 text-center">
-                    <p className="text-neutral-400 text-sm mb-1">Amount</p>
-                    <p className="text-white text-4xl font-bold">${paymentAmount}</p>
-                  </div>
-
-                  {/* Quick Amount Buttons */}
-                  <div className="px-4 pb-4">
-                    <div className="flex gap-2 justify-center flex-wrap">
-                      {quickAmounts.map(amount => (
-                        <button
-                          key={amount}
-                          onClick={() => {
-                            const current = parseFloat(paymentAmount) || 0;
-                            setPaymentAmount((current + amount).toFixed(2));
-                          }}
-                          className="px-4 py-2 bg-neutral-800 text-white rounded-lg hover:bg-neutral-700 transition-colors text-sm font-medium"
-                        >
-                          +${amount}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Keypad */}
-                  <div className="flex-1 px-4 pb-4">
-                    <div className="grid grid-cols-3 gap-2">
-                      {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'C'].map(key => (
-                        <button
-                          key={key}
-                          onClick={() => {
-                            if (key === 'C') {
-                              setPaymentAmount('0.00');
-                            } else if (key === '.') {
-                              if (!paymentAmount.includes('.')) {
-                                setPaymentAmount(paymentAmount + '.');
-                              }
-                            } else {
-                              setPaymentAmount(prev => {
-                                if (prev === '0.00') return key;
-                                return prev + key;
-                              });
-                            }
-                          }}
-                          className={`h-14 rounded-xl text-xl font-medium transition-colors ${
-                            key === 'C' 
-                              ? 'bg-red-500/20 text-red-500 hover:bg-red-500/30' 
-                              : 'bg-neutral-800 text-white hover:bg-neutral-700'
-                          }`}
-                        >
-                          {key}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Charge Button */}
-                  <div className="p-4 border-t border-neutral-700">
-                    <button
-                      onClick={() => {
-                        const paid = parseFloat(paymentAmount) || 0;
-                        if (paid <= 0) return;
-                        const methodLabel = selectedPaymentMethod === 'card' ? 'Card' : selectedPaymentMethod === 'cash' ? 'Cash' : selectedPaymentMethod.charAt(0).toUpperCase() + selectedPaymentMethod.slice(1).replace(/-/g, ' ');
-                        setPaymentHistory(prev => [...prev, { method: selectedPaymentMethod, amount: paid, methodLabel }]);
-                        setPaidAmount(paid);
-                        setPaymentProcessed(true);
-                      }}
-                      className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
-                    >
-                      CHARGE ${paymentAmount}
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
-
-            {/* Order Details Panel */}
-            <div className="w-[280px] border-l border-neutral-700 flex flex-col rounded-xl" style={{
-              background: "#7575754D",
-              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-            }}>
-              {/* Guest Info Header */}
-              <div className="p-3 border-b border-neutral-600" style={{
-                background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
-              }}>
-                <div className="flex items-center justify-between">
-                  <h3 className="text-white font-semibold text-sm">{guestName || "Guest"}</h3>
-                  <div className="flex items-center gap-1.5 text-neutral-300">
-                    <Phone className="w-3 h-3" />
-                    <span className="text-xs">{guestPhone ? formatPhoneNumber(guestPhone) : "(XXX) XXX-XXXX"}</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-white text-[10px] font-medium px-2 py-1 rounded" style={{ background: "#7575754D" }}>
-                    {orderType}
-                  </span>
-                  <div className="flex items-center gap-2 text-neutral-300">
-                    <Users className="w-3 h-3" />
-                    <span className="text-xs">{orderItems.length} items</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Check Info */}
-              <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3 relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-white font-medium text-sm">Check #{orderNumber}</span>
-                  <span className="text-white font-bold">${chargeAmount.toFixed(2)}</span>
-                </div>
-                {paymentHistory.length > 0 && paymentHistory.reduce((sum, p) => sum + p.amount, 0) >= chargeAmount && (
-                  <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
-                    PAID
-                  </span>
-                )}
-                {paymentHistory.length > 0 && paymentHistory.reduce((sum, p) => sum + p.amount, 0) < chargeAmount && (
-                  <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-yellow-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
-                    PARTIAL
-                  </span>
-                )}
-              </div>
-
-              {/* Order Items */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-2 scrollbar-hide">
-                {orderItems.map(item => (
-                  <div key={item.id} className="p-2 border border-sidebar-border rounded-lg" style={{
-                    background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
-                  }}>
-                    <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded bg-neutral-700 border border-neutral-600 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
-                        {item.qty}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-foreground truncate">{item.name}</span>
-                          <span className="text-xs font-medium text-foreground ml-2">
-                            ${item.price.toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Payment History */}
-              {paymentHistory.length > 0 && (
-                <div className="p-3 border-t border-neutral-700">
-                  <h4 className="text-white text-sm font-medium mb-2">Payment History</h4>
-                  <div className="space-y-2">
-                    {paymentHistory.map((payment, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {payment.method === 'card' ? <CreditCard className="w-4 h-4 text-neutral-400" /> : <Banknote className="w-4 h-4 text-neutral-400" />}
-                          <span className="text-neutral-300 text-xs">{payment.methodLabel}</span>
-                        </div>
-                        <span className="text-green-500 text-xs font-medium">${payment.amount.toFixed(2)}</span>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-neutral-600">
-                    <span className="text-neutral-400 text-xs">Total Paid</span>
-                    <span className="text-green-500 text-xs font-medium">${paymentHistory.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</span>
-                  </div>
-                  {paymentHistory.reduce((sum, p) => sum + p.amount, 0) < chargeAmount && (
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-neutral-400 text-xs">Remaining Due</span>
-                      <span className="text-red-500 text-xs font-medium">${(chargeAmount - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toFixed(2)}</span>
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Order Summary */}
-              {!paymentProcessed && (
-                <div className="p-3 border-t border-neutral-700 space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-neutral-400">Sub Total</span>
-                    <span className="text-white">${subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-neutral-400">Tax</span>
-                    <span className="text-white">${tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm font-medium pt-1">
-                    <span className="text-white">Total Due</span>
-                    <span className="text-red-500 font-bold">${chargeAmount.toFixed(2)}</span>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
+      <PaymentDialog
+        open={showPaymentDialog}
+        onOpenChange={setShowPaymentDialog}
+        orderDetails={{
+          guest: guestName || "Guest",
+          phone: guestPhone ? formatPhoneNumber(guestPhone) : undefined,
+          table: isTableOrder ? `T${orderNumber}` : undefined,
+          check: orderNumber,
+          items: orderItems.map(item => ({
+            id: item.id,
+            qty: item.qty,
+            name: item.name,
+            price: item.price
+          }))
+        }}
+        subtotal={subtotal}
+        tax={tax}
+        total={chargeAmount}
+        onPaymentComplete={(history) => {
+          console.log("Payment completed:", history);
+        }}
+      />
     </div>;
 };
 export default Orders;

@@ -129,6 +129,15 @@ const TableOrderDetails = () => {
   const mergedFromTable = searchParams.get("from");
   const destOrderId = searchParams.get("dest");
   
+  // Transfer params
+  const transferredOrderId = searchParams.get("transferred");
+  const transferredFromTable = searchParams.get("transferFrom");
+  const transferDestOrderId = searchParams.get("transferDest");
+  const transferredItemsParam = searchParams.get("items"); // comma-separated item names
+  
+  // Parse transferred items from URL
+  const transferredItemNames = transferredItemsParam ? transferredItemsParam.split(',') : [];
+  
   // Get orders for this table with calculated totals
   const guestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
     const orderWithTotals = getOrderWithTotals(order) as GuestOrder;
@@ -144,6 +153,30 @@ const TableOrderDetails = () => {
           items: mergedSource.items
         }];
         // Recalculate totals with merged items
+        const combinedTotals = calculateCombinedTotals(orderWithTotals);
+        orderWithTotals.subtotal = combinedTotals.subtotal;
+        orderWithTotals.discount = combinedTotals.discount;
+        orderWithTotals.serviceCharge = combinedTotals.serviceCharge;
+        orderWithTotals.tax = combinedTotals.tax;
+        orderWithTotals.total = combinedTotals.total;
+      }
+    }
+    
+    // If this order is the destination of a transfer, add transferred order data
+    if (transferDestOrderId === order.id && transferredOrderId && transferredItemNames.length > 0) {
+      const transferSource = allOrders.find(o => o.id === transferredOrderId);
+      if (transferSource) {
+        // Get the transferred items from the source order
+        const transferredItems = transferSource.items.filter(item => 
+          transferredItemNames.includes(item.name)
+        );
+        orderWithTotals.transferredFrom = [{
+          orderId: transferSource.id,
+          orderName: transferSource.name,
+          table: transferredFromTable || transferSource.table,
+          items: transferredItems
+        }];
+        // Recalculate totals with transferred items
         const combinedTotals = calculateCombinedTotals(orderWithTotals);
         orderWithTotals.subtotal = combinedTotals.subtotal;
         orderWithTotals.discount = combinedTotals.discount;
@@ -776,7 +809,13 @@ const TableOrderDetails = () => {
                       <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">Table T{mergedFromTable}</span>
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                {/* Transferred Items Indicator */}
+                {transferDestOrderId === guest.id && transferredFromTable && transferredOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
+                    <span className="text-sm font-medium">
+                      <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · Table {transferredFromTable}</span>
+                    </span>
+                  </div>}
+                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="hidden md:flex items-stretch">
@@ -1122,6 +1161,45 @@ const TableOrderDetails = () => {
                 </SwipeableCartItem>
               ));
             })()}
+            
+            {/* Transferred Items Section */}
+            {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && (
+              <div className="mt-3 pt-2 border-t border-white/10">
+                {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
+                  <div key={sourceIdx}>
+                    <div className="flex items-center gap-2 mb-2 px-1">
+                      <img src={transferIcon} alt="Transferred" className="w-4 h-4 opacity-70" />
+                      <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+                        Transferred from Order {source.orderId} · Table {source.table}
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      {source.items.map((item, index) => (
+                        <div 
+                          key={`transferred-${sourceIdx}-${index}`}
+                          className="p-2 border border-[#3B6A9E] rounded-md" 
+                          style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' }}
+                        >
+                          <div className="flex items-start gap-2">
+                            <span className="w-5 h-5 rounded bg-[#3B6A9E] text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                              {item.qty}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-white">{item.name}</span>
+                                <span className="text-sm font-medium text-white/80">
+                                  {formatPrice(item.price * item.qty)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>

@@ -55,6 +55,11 @@ const MergedOrderPanel = ({
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>(['all']);
   const [orderNotes, setOrderNotes] = useState("");
+  const [orderFilter, setOrderFilter] = useState<string | 'all'>('all');
+
+  const toggleOrderFilter = (orderId: string | 'all') => {
+    setOrderFilter(orderId);
+  };
 
   const toggleSeatFilter = (seat: number | 'all') => {
     if (seat === 'all') {
@@ -71,8 +76,13 @@ const MergedOrderPanel = ({
     }
   };
 
-  // Calculate totals
-  const subtotal = orders.reduce((acc, order) => {
+  // Filter orders based on orderFilter
+  const filteredOrders = orderFilter === 'all' 
+    ? orders 
+    : orders.filter(order => order.id === orderFilter);
+
+  // Calculate totals based on filtered orders
+  const subtotal = filteredOrders.reduce((acc, order) => {
     return acc + order.items.reduce((itemAcc, item) => {
       const price = parseFloat(item.price.replace("$", ""));
       return itemAcc + price;
@@ -145,16 +155,32 @@ const MergedOrderPanel = ({
         {/* Table Order Header - Row 2: Merged Orders Display */}
         <div className="flex items-center justify-between px-2 py-1.5 border-b border-sidebar-border">
           <div className="flex items-center gap-1.5">
-            <div className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 flex items-center justify-center">
-              <img src={linkMergeIcon} alt="Merged" className="w-4 h-4" />
-            </div>
+            <button 
+              onClick={() => toggleOrderFilter('all')}
+              className={`w-6 h-6 rounded flex items-center justify-center transition-colors cursor-pointer ${
+                orderFilter === 'all' 
+                  ? 'bg-white border border-white' 
+                  : 'bg-neutral-700 border border-neutral-600 hover:bg-neutral-600'
+              }`}
+            >
+              <img 
+                src={linkMergeIcon} 
+                alt="Merged" 
+                className={`w-4 h-4 ${orderFilter === 'all' ? 'invert' : ''}`} 
+              />
+            </button>
             {mergedOrderIds.map((orderId) => (
-              <span
+              <button
                 key={orderId}
-                className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs font-medium flex items-center justify-center"
+                onClick={() => toggleOrderFilter(orderId)}
+                className={`w-6 h-6 rounded text-xs font-medium flex items-center justify-center transition-colors cursor-pointer ${
+                  orderFilter === orderId 
+                    ? 'bg-white border border-white text-black' 
+                    : 'bg-neutral-700 border border-neutral-600 text-white hover:bg-neutral-600'
+                }`}
               >
                 {orderId}
-              </span>
+              </button>
             ))}
           </div>
           <div className="flex items-center gap-2 text-xs text-neutral-400">
@@ -210,7 +236,7 @@ const MergedOrderPanel = ({
         {/* Order Items - Grouped by Order */}
         <ScrollArea className="flex-1 min-h-0 px-2">
           <div className="py-1 space-y-2">
-            {orders.map((order, orderIndex) => (
+            {filteredOrders.map((order, orderIndex) => (
               <div key={order.id} className="space-y-1">
                 {/* Order Section Header */}
                 <div className="flex items-center justify-between text-xs text-white/60 pt-2">

@@ -1283,6 +1283,43 @@ const TransferOrders = () => {
             {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
           </div>
 
+          {/* Items Being Transferred */}
+          <div className="px-6 pb-4">
+            <p className="text-white/60 text-sm mb-2">Items Being Transferred</p>
+            <div className="bg-neutral-800/50 rounded-xl border border-white/10 p-3">
+              <ScrollArea className="max-h-[150px]">
+                <div className="space-y-2">
+                  {selectedItems.map(index => {
+                    const item = currentOrder.items[index];
+                    const qty = itemQuantities[index] || item.qty;
+                    return (
+                      <div key={index} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className="w-6 h-6 bg-orange-500 rounded flex items-center justify-center text-white text-xs font-bold">
+                            {qty}
+                          </span>
+                          <span className="text-white text-sm">{item.name}</span>
+                        </div>
+                        <span className="text-white/60 text-sm">${(item.price * qty).toFixed(2)}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <ScrollBar orientation="vertical" />
+              </ScrollArea>
+              <div className="mt-3 pt-3 border-t border-white/10 flex justify-between">
+                <span className="text-white/60 text-sm">{selectedItems.length} item(s)</span>
+                <span className="text-white font-medium text-sm">
+                  ${selectedItems.reduce((sum, index) => {
+                    const item = currentOrder.items[index];
+                    const qty = itemQuantities[index] || item.qty;
+                    return sum + (item.price * qty);
+                  }, 0).toFixed(2)}
+                </span>
+              </div>
+            </div>
+          </div>
+
           {/* Transfer Direction Indicator */}
           <div className="flex justify-center py-2">
             <div className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20">

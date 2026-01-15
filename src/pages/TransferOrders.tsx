@@ -1359,7 +1359,21 @@ const TransferOrders = () => {
             <button
               onClick={() => {
                 setIsSuccessDialogOpen(false);
-                navigate(`/tableorder/${tableId}`);
+                // Calculate transfer type (partial vs full)
+                const totalItems = currentOrder.items.length;
+                const transferredCount = selectedItems.length;
+                const transferType = transferredCount >= totalItems ? 'full' : 'partial';
+                
+                // Build transfer params for source table
+                const itemNames = selectedItems.map(index => currentOrder.items[index].name).join(',');
+                const transferParams = new URLSearchParams({
+                  transferSource: currentOrder.id,
+                  transferType: transferType,
+                  transferredTo: toOrder?.id || '',
+                  transferToTable: toOrder?.table || '',
+                  items: itemNames
+                });
+                navigate(`/tableorder/${tableId}?${transferParams.toString()}`);
               }}
               className="flex-1 py-2.5 rounded-full text-neutral-700 font-medium text-sm bg-neutral-200 hover:bg-neutral-300 transition-colors"
             >

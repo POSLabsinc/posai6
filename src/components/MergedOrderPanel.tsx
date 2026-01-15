@@ -12,6 +12,7 @@ import fireIcon from "@/assets/icons/fire.png";
 import runnerIcon from "@/assets/icons/runner.png";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import saveIcon from "@/assets/icons/save.png";
+import mergeIcon from "@/assets/icons/merge-icon.png";
 
 interface OrderItem {
   qty: number;
@@ -133,13 +134,37 @@ const MergedOrderPanel = ({
             <span className="bg-neutral-700 border border-neutral-600 px-2 py-1 rounded text-xs font-medium text-white">
               TABLE {tableId.replace("T", "")}
             </span>
-            <Users className="w-4 h-4 text-neutral-400" />
-            <span className="text-neutral-400 text-xs">{totalItems}</span>
             <span className="font-bold text-white text-sm">Order {mergedOrderIds.join(", ")}</span>
           </div>
           <div className="flex items-center gap-2 text-xs">
             <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
             <span className="text-neutral-400">{server}</span>
+          </div>
+        </div>
+
+        {/* Table Order Header - Row 2: Merged Orders Display */}
+        <div className="flex items-center justify-between px-2 py-1.5 border-b border-sidebar-border">
+          <div className="flex items-center gap-1.5">
+            <div className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 flex items-center justify-center">
+              <img src={mergeIcon} alt="Merged" className="w-3.5 h-3.5 opacity-80" />
+            </div>
+            {mergedOrderIds.map((orderId) => (
+              <span
+                key={orderId}
+                className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs font-medium flex items-center justify-center"
+              >
+                {orderId}
+              </span>
+            ))}
+          </div>
+          <div className="flex items-center gap-2 text-xs text-neutral-400">
+            <span>Table {tableId.replace("T", "")}</span>
+            <span>•</span>
+            <span>Order {mergedOrderIds[0]}, Party of {orders[0]?.partySize || 4}</span>
+            <div className="flex items-center gap-1">
+              <Users className="w-3 h-3" />
+              <span>{orders[0]?.time || time}</span>
+            </div>
           </div>
         </div>
         

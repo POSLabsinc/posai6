@@ -58,8 +58,12 @@ const TransferOrders = () => {
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
   const panelOrder = displayedOrder || currentOrder;
 
-  // Filter orders from OTHER tables (not the same table)
-  const availableOrders = allOrders.filter(o => o.table !== currentOrder.table);
+  // Get all active orders from all tables (excluding current order and completed/paid orders)
+  const availableOrders = allOrders.filter(o => 
+    o.id !== currentOrder.id && 
+    o.status !== "PAID" && 
+    o.status !== "Completed"
+  );
 
   const filteredOrders = activeFilter === "All" 
     ? availableOrders 

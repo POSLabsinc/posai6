@@ -112,18 +112,18 @@ const MergedOrderPanel = ({
           </div>
           
           {/* Seat Buttons */}
-          <div className="flex items-center gap-2">
-            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-              <Pencil className="w-4 h-4 text-white/60" />
+          <div className="flex items-center gap-1.5">
+            <button className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center hover:bg-neutral-500 transition-colors">
+              <Pencil className="w-3.5 h-3.5 text-white" />
             </button>
             {Array.from({ length: maxSeats }, (_, i) => i + 1).map(seat => (
               <button
                 key={seat}
                 onClick={() => toggleSeat(seat)}
-                className={`w-7 h-7 rounded text-sm font-medium transition-colors ${
+                className={`w-6 h-6 rounded flex items-center justify-center text-xs font-medium transition-colors ${
                   selectedSeats.includes(seat)
                     ? "bg-white text-black"
-                    : "bg-white/10 text-white hover:bg-white/20"
+                    : "bg-neutral-600 text-white hover:bg-neutral-500"
                 }`}
               >
                 {seat}

@@ -2,6 +2,8 @@ import { useState } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Phone, Users, Share2 } from "lucide-react";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
+import OrderSummary from "@/components/OrderSummary";
+import { calculateTotalsFromPriceStrings, formatPrice } from "@/lib/orderUtils";
 
 // Import icons
 import seatIcon from "@/assets/icons/seat-icon.png";
@@ -81,26 +83,15 @@ const MergedOrderPanel = ({
     ? orders 
     : orders.filter(order => order.id === orderFilter);
 
-  // Calculate totals based on filtered orders
-  const subtotal = filteredOrders.reduce((acc, order) => {
-    return acc + order.items.reduce((itemAcc, item) => {
-      const price = parseFloat(item.price.replace("$", ""));
-      return itemAcc + price;
-    }, 0);
-  }, 0);
-
-  const serviceCharge = 2.00;
-  const discount = 4.00;
-  const tax = 2.00;
-  const total = subtotal + serviceCharge - discount + tax;
+  // Calculate totals based on filtered orders using centralized logic
+  const allItems = filteredOrders.flatMap(order => order.items);
+  const totals = calculateTotalsFromPriceStrings(allItems);
 
   // Get max seats across all orders
   const maxSeats = Math.max(...orders.map(o => o.partySize), 4);
   
   // Get total item count
   const totalItems = orders.reduce((acc, order) => acc + order.items.length, 0);
-
-  const formatPrice = (value: number) => `$${value.toFixed(2)}`;
 
   return (
     <div className={`${width} flex flex-col m-2 ml-0`}>
@@ -347,19 +338,7 @@ const MergedOrderPanel = ({
 
         {/* Order Summary */}
         <div className="p-2 border-t border-sidebar-border flex-shrink-0">
-          <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-          }}>
-            <div className="flex justify-between gap-3">
-              <span className="text-foreground">Sub Total: <span className="font-medium">{formatPrice(subtotal)}</span></span>
-              <span className="text-red-500">Discount: <span className="font-medium">{formatPrice(discount)}</span></span>
-            </div>
-            <div className="flex justify-between gap-3">
-              <span className="text-foreground">Service Charge: <span className="font-medium text-primary">+{formatPrice(serviceCharge)}</span></span>
-              <span className="text-foreground">Tax: <span className="font-medium">{formatPrice(tax)}</span></span>
-            </div>
-          </div>
+          <OrderSummary totals={totals} variant="detailed" />
 
           {/* Action Buttons */}
           <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
@@ -381,7 +360,7 @@ const MergedOrderPanel = ({
               background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
             }}>
               <span className="text-black font-semibold text-xs">
-                CHARGE {formatPrice(total)}
+                CHARGE {formatPrice(totals.total)}
               </span>
             </button>
           </div>

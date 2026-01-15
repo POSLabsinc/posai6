@@ -5,6 +5,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
+import OrderSummary from "@/components/OrderSummary";
+import { calculateOrderTotals, getOrderStatusColor } from "@/lib/orderUtils";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -58,15 +60,10 @@ const orderItemsMap: Record<string, { qty: number; name: string; price: number; 
 // Helper to get order items for a specific order
 const getOrderItems = (orderId: string) => orderItemsMap[orderId] || [];
 
-// Helper to calculate order totals
-const calculateOrderTotals = (orderId: string) => {
+// Helper to calculate order totals using centralized function
+const getOrderTotals = (orderId: string) => {
   const items = getOrderItems(orderId);
-  const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const discount = subtotal > 50 ? 5.00 : 0;
-  const serviceCharge = subtotal * 0.05;
-  const tax = (subtotal - discount) * 0.08;
-  const total = subtotal - discount + serviceCharge + tax;
-  return { subtotal, discount, serviceCharge, tax, total };
+  return calculateOrderTotals(items);
 };
 
 const mergeFilters = ["All", "Ordering", "Ordered", "Preparing", "Unpaid"];
@@ -318,33 +315,8 @@ const MergeOrders = () => {
           
           {/* Order Summary Totals */}
           {(() => {
-            const totals = calculateOrderTotals(order.id);
-            return (
-              <div className="pt-2 border-t border-white/10 space-y-1 text-xs">
-                <div className="flex justify-between">
-                  <span className="text-white/60">Sub Total</span>
-                  <span className="text-white">${totals.subtotal.toFixed(2)}</span>
-                </div>
-                {totals.discount > 0 && (
-                  <div className="flex justify-between">
-                    <span className="text-red-500">Discount</span>
-                    <span className="text-red-500">-${totals.discount.toFixed(2)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between">
-                  <span className="text-white/60">Service Charge</span>
-                  <span className="text-white">${totals.serviceCharge.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-white/60">Tax</span>
-                  <span className="text-white">${totals.tax.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between pt-1 border-t border-white/10">
-                  <span className="text-white font-medium">Total</span>
-                  <span className="text-white font-bold">${totals.total.toFixed(2)}</span>
-                </div>
-              </div>
-            );
+            const totals = getOrderTotals(order.id);
+            return <OrderSummary totals={totals} variant="compact" />;
           })()}
         </div>
       )}
@@ -605,29 +577,17 @@ const MergeOrders = () => {
 
         {/* Order Summary */}
         {(() => {
-          const totals = calculateOrderTotals(panelOrder.id);
+          const totals = getOrderTotals(panelOrder.id);
           return (
             <div className="px-3 py-2 border-t border-white/10">
-              <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
-                background: '#7575754D',
-                boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-              }}>
-                <div className="flex justify-between gap-3">
-                  <span className="text-white">Sub Total: <span className="font-medium">${totals.subtotal.toFixed(2)}</span></span>
-                  <span className="text-red-500">Discount: <span className="font-medium">${totals.discount.toFixed(2)}</span></span>
-                </div>
-                <div className="flex justify-between gap-3">
-                  <span className="text-white">Service Charge: <span className="font-medium">${totals.serviceCharge.toFixed(2)}</span></span>
-                  <span className="text-white">Tax: <span className="font-medium">${totals.tax.toFixed(2)}</span></span>
-                </div>
-              </div>
+              <OrderSummary totals={totals} variant="detailed" />
             </div>
           );
         })()}
 
         {/* Bottom Actions */}
         {(() => {
-          const totals = calculateOrderTotals(panelOrder.id);
+          const totals = getOrderTotals(panelOrder.id);
           return (
             <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
               <button className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Phone, MoreVertical, Pencil } from "lucide-react";
+import { Phone, Users, Share2 } from "lucide-react";
+import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 
 // Import icons
 import seatIcon from "@/assets/icons/seat-icon.png";
@@ -8,6 +9,9 @@ import splitIcon from "@/assets/icons/split-icon.png";
 import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import clearIcon from "@/assets/icons/clear-c.png";
 import fireIcon from "@/assets/icons/fire.png";
+import runnerIcon from "@/assets/icons/runner.png";
+import chairWhiteIcon from "@/assets/icons/chair-white.png";
+import saveIcon from "@/assets/icons/save.png";
 
 interface OrderItem {
   qty: number;
@@ -47,14 +51,23 @@ const MergedOrderPanel = ({
   orders,
   width = "w-[345px]"
 }: MergedOrderPanelProps) => {
-  const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3]);
+  const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
+  const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>(['all']);
+  const [orderNotes, setOrderNotes] = useState("");
 
-  const toggleSeat = (seat: number) => {
-    setSelectedSeats(prev =>
-      prev.includes(seat)
-        ? prev.filter(s => s !== seat)
-        : [...prev, seat]
-    );
+  const toggleSeatFilter = (seat: number | 'all') => {
+    if (seat === 'all') {
+      setSeatFilter(['all']);
+    } else {
+      setSeatFilter(prev => {
+        const withoutAll = prev.filter(s => s !== 'all');
+        if (withoutAll.includes(seat)) {
+          const newFilter = withoutAll.filter(s => s !== seat);
+          return newFilter.length === 0 ? ['all'] : newFilter;
+        }
+        return [...withoutAll, seat];
+      });
+    }
   };
 
   // Calculate totals
@@ -71,7 +84,12 @@ const MergedOrderPanel = ({
   const total = subtotal + serviceCharge - discount + tax;
 
   // Get max seats across all orders
-  const maxSeats = Math.max(...orders.map(o => o.partySize), 3);
+  const maxSeats = Math.max(...orders.map(o => o.partySize), 4);
+  
+  // Get total item count
+  const totalItems = orders.reduce((acc, order) => acc + order.items.length, 0);
+
+  const formatPrice = (value: number) => `$${value.toFixed(2)}`;
 
   return (
     <div className={`${width} flex flex-col m-2 ml-0`}>
@@ -90,59 +108,94 @@ const MergedOrderPanel = ({
             </div>
           </div>
         </div>
+        <div className="flex gap-2">
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Add Item
+          </button>
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Discount
+          </button>
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Receipt
+          </button>
+          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            Cash Register
+          </button>
+        </div>
       </div>
 
       {/* Main Panel Box */}
       <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
         
-        {/* Table Order Info - Merged Orders Header */}
-        <div className="px-4 py-3 border-b border-white/10">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE {tableId.replace("T", "")}</span>
-              <span className="text-white font-bold">Order {mergedOrderIds.join(", ")}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
-              <span className="text-white/50 text-sm">{server}</span>
-              <button className="p-1 hover:bg-white/10 rounded transition-colors">
-                <MoreVertical className="w-4 h-4 text-white/60" />
-              </button>
-            </div>
+        {/* Table Order Header - Row 1 */}
+        <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+          <div className="flex items-center gap-2">
+            <span className="bg-neutral-700 border border-neutral-600 px-2 py-1 rounded text-xs font-medium text-white">
+              TABLE {tableId.replace("T", "")}
+            </span>
+            <Users className="w-4 h-4 text-neutral-400" />
+            <span className="text-neutral-400 text-xs">{totalItems}</span>
+            <span className="font-bold text-white text-sm">Order {mergedOrderIds.join(", ")}</span>
           </div>
-          
-          {/* Seat Buttons */}
-          <div className="flex items-center gap-1.5">
-            <button className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center hover:bg-neutral-500 transition-colors">
-              <Pencil className="w-3.5 h-3.5 text-white" />
+          <div className="flex items-center gap-2 text-xs">
+            <img src={runnerIcon} alt="Server" className="w-4 h-4 opacity-80" />
+            <span className="text-neutral-400">{server}</span>
+          </div>
+        </div>
+        
+        {/* Table Order Header - Row 2: Seat buttons */}
+        <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-sidebar-border">
+          <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+            <img src={chairWhiteIcon} alt="Chair" className="w-3.5 h-3.5" />
+          </button>
+          <button 
+            onClick={() => toggleSeatFilter('all')}
+            className={`p-1 rounded transition-colors ${
+              seatFilter.includes('all') 
+                ? 'bg-white' 
+                : 'bg-neutral-700 hover:bg-neutral-600'
+            }`}
+          >
+            <Share2 className={`w-3.5 h-3.5 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
+          </button>
+          {Array.from({ length: maxSeats }, (_, i) => i + 1).map((seat) => (
+            <button
+              key={seat}
+              onClick={() => toggleSeatFilter(seat)}
+              className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold transition-colors ${
+                seatFilter.includes(seat) 
+                  ? 'bg-white text-black' 
+                  : 'bg-neutral-600 text-white hover:bg-neutral-500'
+              }`}
+            >
+              {seat}
             </button>
-            {Array.from({ length: maxSeats }, (_, i) => i + 1).map(seat => (
-              <button
-                key={seat}
-                onClick={() => toggleSeat(seat)}
-                className={`w-6 h-6 rounded flex items-center justify-center text-xs font-medium transition-colors ${
-                  selectedSeats.includes(seat)
-                    ? "bg-white text-black"
-                    : "bg-neutral-600 text-white hover:bg-neutral-500"
-                }`}
-              >
-                {seat}
-              </button>
-            ))}
-          </div>
+          ))}
+        </div>
+
+        {/* Order Notes */}
+        <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
+          <OrderNotesAutocomplete
+            value={orderNotes}
+            onChange={setOrderNotes}
+            placeholder="Order notes and Allergies"
+          />
         </div>
 
         {/* Order Items - Grouped by Order */}
-        <ScrollArea className="flex-1">
-          <div className="px-4 py-2 space-y-3">
+        <ScrollArea className="flex-1 min-h-0 px-2">
+          <div className="py-1 space-y-2">
             {orders.map((order, orderIndex) => (
-              <div key={order.id} className="space-y-2">
+              <div key={order.id} className="space-y-1">
                 {/* Order Section Header */}
                 <div className="flex items-center justify-between text-xs text-white/60 pt-2">
                   <div className="flex items-center gap-2">
-                    <span>Table {order.table.replace("T", "")}</span>
-                    <span>·</span>
-                    <span>Order {order.id}, Party of {order.partySize}</span>
+                    <span className="bg-neutral-700 border border-neutral-600 px-1.5 py-0.5 rounded text-[10px] font-medium text-white">
+                      T{order.table.replace("T", "")}
+                    </span>
+                    <span>Order {order.id}</span>
+                    <span className="text-white/40">·</span>
+                    <span>Party of {order.partySize}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <span>⚡</span>
@@ -160,54 +213,50 @@ const MergedOrderPanel = ({
 
                 {/* Order Items */}
                 {order.items.map((item, itemIndex) => (
-                  <div key={itemIndex} className="p-3 bg-white/5 rounded-xl border border-white/10">
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-2 flex-1">
-                        <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold flex-shrink-0">
+                  <div 
+                    key={itemIndex} 
+                    className="p-2 border border-sidebar-border rounded-md cursor-pointer" 
+                    style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <span className="w-5 h-5 rounded-full bg-orange-500 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
                           {item.qty}
                         </span>
-                        <div className="flex-1">
-                          <span className="text-white font-medium">{item.name}</span>
-                          {item.modifiers.length > 0 && (
-                            <div className="mt-1 text-white/50 text-sm space-y-0.5">
-                              {item.modifiers.map((mod, i) => (
-                                <div key={i} className="flex items-center gap-1">
-                                  <span className="text-white/30">—</span>
-                                  <span>{mod}</span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
-                        </div>
+                        <span className="text-sm font-medium text-foreground">{item.name}</span>
                       </div>
-                      <span className="text-white font-medium">{item.price}</span>
+                      <span className="text-sm font-medium text-foreground">{item.price}</span>
                     </div>
-                    
-                    {/* Seat assignments and share icons */}
-                    <div className="flex items-center justify-between mt-2">
-                      {item.seats.length > 0 && (
-                        <div className="flex items-center gap-1">
-                          <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                          {item.seats.map(seat => (
-                            <span
+                    {item.modifiers.length > 0 && (
+                      <div className="mt-1.5 ml-7 space-y-0.5">
+                        {item.modifiers.map((mod, idx) => (
+                          <div key={idx} className="flex items-center gap-1 text-xs text-primary">
+                            <span>{mod.startsWith("W/") || mod.startsWith("Add") ? "+" : "-"}</span>
+                            <span>{mod}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    {/* Seat Assignment Display */}
+                    {item.seats.length > 0 && (
+                      <div className="mt-1.5 ml-7 flex items-center gap-1.5">
+                        <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
+                        {item.seats.length === maxSeats ? (
+                          <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                            <Share2 className="w-3 h-3" />
+                          </span>
+                        ) : (
+                          item.seats.map(seat => (
+                            <span 
                               key={seat}
-                              className="w-5 h-5 bg-white/10 border border-white/20 rounded text-white text-xs flex items-center justify-center"
+                              className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
                             >
                               {seat}
                             </span>
-                          ))}
-                        </div>
-                      )}
-                      {item.seats.length === 0 && <div />}
-                      <div className="flex items-center gap-1">
-                        <button className="p-1 hover:bg-white/10 rounded transition-colors">
-                          <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
-                        </button>
-                        <button className="p-1 hover:bg-white/10 rounded transition-colors">
-                          <img src={splitIcon} alt="Share" className="w-3 h-3 opacity-50" />
-                        </button>
+                          ))
+                        )}
                       </div>
-                    </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -216,24 +265,46 @@ const MergedOrderPanel = ({
           <ScrollBar orientation="vertical" />
         </ScrollArea>
 
-        {/* Order Summary - Compact */}
-        <div className="px-4 py-3 border-t border-white/10">
-          <div className="flex items-center justify-between text-xs text-white/60">
-            <span>Sub Total <span className="text-white">${subtotal.toFixed(2)}</span></span>
-            <span>Svc <span className="text-white">${serviceCharge.toFixed(2)}</span></span>
-            <span className="text-red-500">Disc <span>${discount.toFixed(2)}</span></span>
-            <span>Tax <span className="text-white">${tax.toFixed(2)}</span></span>
+        {/* Order Summary */}
+        <div className="p-2 border-t border-sidebar-border flex-shrink-0">
+          <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
+            background: '#7575754D',
+            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+          }}>
+            <div className="flex justify-between gap-3">
+              <span className="text-foreground">Sub Total: <span className="font-medium">{formatPrice(subtotal)}</span></span>
+              <span className="text-red-500">Discount: <span className="font-medium">{formatPrice(discount)}</span></span>
+            </div>
+            <div className="flex justify-between gap-3">
+              <span className="text-foreground">Service Charge: <span className="font-medium text-primary">+{formatPrice(serviceCharge)}</span></span>
+              <span className="text-foreground">Tax: <span className="font-medium">{formatPrice(tax)}</span></span>
+            </div>
           </div>
-        </div>
 
-        {/* Bottom Actions */}
-        <div className="px-4 py-3 border-t border-white/10">
-          <button 
-            className="w-full py-3 rounded-full text-black text-sm font-bold"
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
-            CHARGE ${total.toFixed(2)}
-          </button>
+          {/* Action Buttons */}
+          <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
+            <button className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+              <img src={clearIcon} alt="Clear" className="w-3 h-3" />
+            </button>
+            <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
+              backgroundColor: '#C9C9C9'
+            }}>
+              <img src={saveIcon} alt="Save" className="w-4 h-4" />
+            </button>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
+              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+            }}>
+              <img src={fireIcon} alt="Fire" className="w-4 h-4" />
+              <span className="text-white font-semibold text-sm">FIRE</span>
+            </button>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
+              background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+            }}>
+              <span className="text-black font-semibold text-xs">
+                CHARGE {formatPrice(total)}
+              </span>
+            </button>
+          </div>
         </div>
       </div>
     </div>

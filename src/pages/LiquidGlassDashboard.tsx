@@ -27,7 +27,7 @@ export default function LiquidGlassDashboard() {
   return (
     <div className="min-h-screen bg-neutral-950 gradient-mesh">
       <ScrollArea className="h-screen">
-        <div className="p-8 space-y-8">
+        <div className="p-8 pt-10 space-y-8">
           {/* Header */}
           <div className="flex items-center justify-between">
             <div>

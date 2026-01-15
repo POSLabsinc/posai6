@@ -6591,7 +6591,7 @@ const Orders = () => {
   const chargeLabel = addItemMode 
     ? (isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER') 
     : '';
-  return <div className="relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden">
+  return <div className="relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden pt-2">
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />
       {/* Right Panel - Order (Shows first on mobile) */}

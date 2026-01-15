@@ -129,14 +129,22 @@ const TableOrderDetails = () => {
   const mergedFromTable = searchParams.get("from");
   const destOrderId = searchParams.get("dest");
   
-  // Transfer params
+  // Transfer params (destination - receiving items)
   const transferredOrderId = searchParams.get("transferred");
   const transferredFromTable = searchParams.get("transferFrom");
   const transferDestOrderId = searchParams.get("transferDest");
   const transferredItemsParam = searchParams.get("items"); // comma-separated item names
   
+  // Transfer source params (source - sending items out)
+  const transferSourceOrderId = searchParams.get("transferSource");
+  const transferType = searchParams.get("transferType"); // 'partial' or 'full'
+  const transferredToOrderId = searchParams.get("transferredTo");
+  const transferToTable = searchParams.get("transferToTable");
+  const transferredItemsFromSource = searchParams.get("items");
+  
   // Parse transferred items from URL
   const transferredItemNames = transferredItemsParam ? transferredItemsParam.split(',') : [];
+  const transferredOutItemNames = transferredItemsFromSource ? transferredItemsFromSource.split(',') : [];
   
   // Get orders for this table with calculated totals
   const guestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
@@ -809,13 +817,22 @@ const TableOrderDetails = () => {
                       <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">Table T{mergedFromTable}</span>
                     </span>
                   </div>}
-                {/* Transferred Items Indicator */}
+                {/* Transferred Items Indicator (Destination - receiving items) */}
                 {transferDestOrderId === guest.id && transferredFromTable && transferredOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
                       <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · Table {transferredFromTable}</span>
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                {/* Transferred OUT Indicator (Source - sending items out) */}
+                {transferSourceOrderId === guest.id && transferType && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
+                    <span className="text-sm font-medium">
+                      <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
+                      <span className="text-white"> to Order {transferredToOrderId}</span>
+                      <span style={{ color: '#8AC4FF' }}> · Table </span>
+                      <span className="text-white">{transferToTable}</span>
+                    </span>
+                  </div>}
+                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="hidden md:flex items-stretch">
@@ -869,8 +886,8 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
-                  {/* Right Action Buttons - Edge to edge (hidden for completed/paid/merged orders) */}
-                  {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId ? (
+                  {/* Right Action Buttons - Edge to edge (hidden for completed/paid/merged/transfer-source orders) */}
+                  {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId && guest.id !== transferSourceOrderId ? (
                     <div className="flex-shrink-0 flex flex-col w-10">
                       <button 
                         className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
@@ -899,6 +916,16 @@ const TableOrderDetails = () => {
                         <img src={linkMergeIcon} alt="Merged" className="w-4 h-4 mb-1" />
                         <span className="text-[10px] text-[#FFC48A]">Merged with</span>
                         <span className="text-xs text-white font-medium">Order #{destOrderId}</span>
+                      </div>
+                    </div>
+                  ) : guest.id === transferSourceOrderId ? (
+                    <div className="flex-shrink-0 flex items-center justify-center w-24 px-2 rounded-r-xl" style={{ background: 'linear-gradient(180deg, #2B4A6F 0%, #1E3A5F 100%)' }}>
+                      <div className="flex flex-col items-center text-center">
+                        <img src={shareOrderIcon} alt="Transferred" className="w-4 h-4 mb-1 opacity-80" />
+                        <span className="text-[10px] text-[#8AC4FF]">
+                          {transferType === 'full' ? 'Transferred to' : 'Items sent to'}
+                        </span>
+                        <span className="text-xs text-white font-medium">Order #{transferredToOrderId}</span>
                       </div>
                     </div>
                   ) : null}

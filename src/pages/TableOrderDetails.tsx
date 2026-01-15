@@ -835,7 +835,7 @@ const TableOrderDetails = () => {
                         <div className="flex items-center gap-1 lg:gap-2 w-[180px] lg:w-[220px] flex-shrink-0">
                           <span className="text-white font-medium truncate">{guest.name}</span>
                           <span className="text-white/60">·</span>
-                          <span className="text-white font-medium">T{guest.partySize}</span>
+                          <span className="text-white font-medium">{tableId}</span>
                         </div>
                         <div className="flex-1">
                           <span className="text-white/60 truncate">{guest.server}</span>

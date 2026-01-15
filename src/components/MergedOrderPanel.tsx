@@ -12,7 +12,7 @@ import fireIcon from "@/assets/icons/fire.png";
 import runnerIcon from "@/assets/icons/runner.png";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import saveIcon from "@/assets/icons/save.png";
-import mergeIcon from "@/assets/icons/merge-icon.png";
+import linkMergeIcon from "@/assets/icons/link-merge.png";
 
 interface OrderItem {
   qty: number;
@@ -146,7 +146,7 @@ const MergedOrderPanel = ({
         <div className="flex items-center justify-between px-2 py-1.5 border-b border-sidebar-border">
           <div className="flex items-center gap-1.5">
             <div className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 flex items-center justify-center">
-              <img src={mergeIcon} alt="Merged" className="w-3.5 h-3.5 opacity-80" />
+              <img src={linkMergeIcon} alt="Merged" className="w-4 h-4" />
             </div>
             {mergedOrderIds.map((orderId) => (
               <span

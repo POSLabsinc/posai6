@@ -35,6 +35,7 @@ import searchIcon from "@/assets/icons/search.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import saveIcon from "@/assets/icons/save.png";
+import linkMergeIcon from "@/assets/icons/link-merge.png";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
@@ -662,8 +663,8 @@ const TableOrderDetails = () => {
                       </div>
                     </div>
 
-                    {/* Action Buttons - hidden for Paid/Completed orders */}
-                    {guest.status !== 'Paid' && guest.status !== 'Completed' && (
+                    {/* Action Buttons - hidden for Paid/Completed/Merged orders */}
+                    {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId ? (
                     <div className="flex gap-2 mt-2">
                       <button className="flex-1 py-1.5 flex items-center justify-center gap-2 text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity" style={{
                     background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
@@ -686,7 +687,13 @@ const TableOrderDetails = () => {
                         TRANSFER
                       </button>
                     </div>
-                    )}
+                    ) : guest.id === mergedOrderId ? (
+                    <div className="flex items-center justify-center gap-2 mt-2 py-2 px-3 rounded-lg" style={{ background: 'linear-gradient(180deg, #5C3D1E 0%, #392514 100%)' }}>
+                      <img src={linkMergeIcon} alt="Merged" className="w-4 h-4" />
+                      <span className="text-[#FFC48A] text-sm">Merged with</span>
+                      <span className="text-white text-sm font-medium">Order #{destOrderId}</span>
+                    </div>
+                    ) : null}
                   </div>}
               </div>
             </div>
@@ -823,8 +830,8 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
-                  {/* Right Action Buttons - Edge to edge (hidden for completed/paid orders) */}
-                  {guest.status !== 'Paid' && guest.status !== 'Completed' && (
+                  {/* Right Action Buttons - Edge to edge (hidden for completed/paid/merged orders) */}
+                  {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId ? (
                     <div className="flex-shrink-0 flex flex-col w-10">
                       <button 
                         className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
@@ -847,7 +854,15 @@ const TableOrderDetails = () => {
                         <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
                       </button>
                     </div>
-                  )}
+                  ) : guest.id === mergedOrderId ? (
+                    <div className="flex-shrink-0 flex items-center justify-center w-24 px-2 rounded-r-xl" style={{ background: 'linear-gradient(180deg, #5C3D1E 0%, #392514 100%)' }}>
+                      <div className="flex flex-col items-center text-center">
+                        <img src={linkMergeIcon} alt="Merged" className="w-4 h-4 mb-1" />
+                        <span className="text-[10px] text-[#FFC48A]">Merged with</span>
+                        <span className="text-xs text-white font-medium">Order #{destOrderId}</span>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
 
                 {/* Mobile Layout - Keep existing */}
@@ -1260,8 +1275,8 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
-                  {/* Right Action Buttons - Edge to edge (hidden for completed/paid orders) */}
-                  {guest.status !== 'Paid' && guest.status !== 'Completed' && (
+                  {/* Right Action Buttons - Edge to edge (hidden for completed/paid/merged orders) */}
+                  {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId ? (
                     <div className="flex-shrink-0 flex flex-col w-9">
                       <button 
                         className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
@@ -1284,7 +1299,15 @@ const TableOrderDetails = () => {
                         <img src={shareOrderIcon} alt="Transfer" className="w-3.5 h-3.5 object-contain brightness-0" />
                       </button>
                     </div>
-                  )}
+                  ) : guest.id === mergedOrderId ? (
+                    <div className="flex-shrink-0 flex items-center justify-center w-20 px-2 rounded-r-xl" style={{ background: 'linear-gradient(180deg, #5C3D1E 0%, #392514 100%)' }}>
+                      <div className="flex flex-col items-center text-center">
+                        <img src={linkMergeIcon} alt="Merged" className="w-3.5 h-3.5 mb-1" />
+                        <span className="text-[9px] text-[#FFC48A]">Merged with</span>
+                        <span className="text-[10px] text-white font-medium">Order #{destOrderId}</span>
+                      </div>
+                    </div>
+                  ) : null}
                 </div>
               </div>
             </div>)}

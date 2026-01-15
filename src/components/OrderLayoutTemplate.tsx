@@ -1,12 +1,6 @@
 import tableTargetIcon from "@/assets/icons/table-target.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
 
-export interface OrderItemData {
-  qty: number;
-  name: string;
-  price: number;
-}
-
 export interface OrderData {
   id: number;
   name: string;
@@ -21,7 +15,6 @@ export interface OrderData {
   revenueCenter: string;
   paymentType: string;
   phone?: string;
-  items?: OrderItemData[];
 }
 
 export const getOrderStatusColor = (status: string) => {
@@ -114,80 +107,54 @@ const OrderLayoutTemplate = ({
       </div>
 
       {/* Tablet/Desktop Layout - matching TransferOrders 3-row format */}
-      <div className="hidden md:flex flex-col w-full">
-        <div className="flex items-stretch w-full">
-          {/* Left Content with padding */}
-          <div className="flex-1 flex items-stretch gap-3 p-3">
-            {/* Order Number Box */}
-            <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
-              <span className="text-lg font-bold text-white">{order.id}</span>
-              <span className="text-xs text-white/40">000</span>
-            </div>
+      <div className="hidden md:flex items-stretch w-full">
+        {/* Left Content with padding */}
+        <div className="flex-1 flex items-stretch gap-3 p-3">
+          {/* Order Number Box */}
+          <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
+            <span className="text-lg font-bold text-white">{order.id}</span>
+            <span className="text-xs text-white/40">000</span>
+          </div>
 
-            {/* Main Content - 3 rows */}
-            <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-              {/* Row 1: Name + Table | Server | Status */}
-              <div className="flex items-center text-sm">
-                <div className="flex items-center gap-2 w-[220px] flex-shrink-0">
-                  <span className="text-white font-medium truncate">{order.name}</span>
-                  <span className="text-white/60">·</span>
-                  <span className="text-white font-medium">{order.table}</span>
-                </div>
-                <div className="flex-1">
-                  <span className="text-white/60 truncate">{order.server}</span>
-                </div>
-                <span className={`font-semibold uppercase flex-shrink-0 ${getOrderStatusColor(order.status)}`}>
-                  {order.status}
-                </span>
+          {/* Main Content - 3 rows */}
+          <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+            {/* Row 1: Name + Table | Server | Status */}
+            <div className="flex items-center text-sm">
+              <div className="flex items-center gap-2 w-[220px] flex-shrink-0">
+                <span className="text-white font-medium truncate">{order.name}</span>
+                <span className="text-white/60">·</span>
+                <span className="text-white font-medium">{order.table}</span>
               </div>
-              
-              {/* Row 2: Party info | Timer | Total */}
-              <div className="flex items-center text-sm">
-              <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
-                <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
-                <span className="truncate">Party of {order.partySize}, {order.time}</span>
-                  <span className="text-white/40">|</span>
-                  <span>{order.timer}</span>
-                </div>
-                <div className="flex-1"></div>
-                <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+              <div className="flex-1">
+                <span className="text-white/60 truncate">{order.server}</span>
               </div>
-              
-              {/* Row 3: Revenue Center | Payment Status | Tip */}
-              <div className="flex items-center text-sm">
-                <span className="text-white font-medium w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
-                <div className="flex-1">
-                  <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
-                </div>
-                <span className="text-white flex-shrink-0">$0.00</span>
+              <span className={`font-semibold uppercase flex-shrink-0 ${getOrderStatusColor(order.status)}`}>
+                {order.status}
+              </span>
+            </div>
+            
+            {/* Row 2: Party info | Timer | Total */}
+            <div className="flex items-center text-sm">
+            <div className="flex items-center gap-1 text-white/60 w-[220px] flex-shrink-0">
+              <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
+              <span className="truncate">Party of {order.partySize}, {order.time}</span>
+                <span className="text-white/40">|</span>
+                <span>{order.timer}</span>
               </div>
+              <div className="flex-1"></div>
+              <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+            </div>
+            
+            {/* Row 3: Revenue Center | Payment Status | Tip */}
+            <div className="flex items-center text-sm">
+              <span className="text-white font-medium w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
+              <div className="flex-1">
+                <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+              </div>
+              <span className="text-white flex-shrink-0">$0.00</span>
             </div>
           </div>
         </div>
-
-        {/* Items Section */}
-        {order.items && order.items.length > 0 && (
-          <div className="px-3 pb-3">
-            <div className="bg-neutral-800/50 rounded-lg p-2 space-y-1">
-              {order.items.slice(0, 3).map((item, index) => (
-                <div key={index} className="flex items-center justify-between text-xs">
-                  <div className="flex items-center gap-2">
-                    <span className="w-5 h-5 bg-white/10 rounded flex items-center justify-center text-white font-medium">
-                      {item.qty}
-                    </span>
-                    <span className="text-white/80">{item.name}</span>
-                  </div>
-                  <span className="text-white/50">${(item.price * item.qty).toFixed(2)}</span>
-                </div>
-              ))}
-              {order.items.length > 3 && (
-                <div className="text-white/40 text-xs text-center pt-1">
-                  +{order.items.length - 3} more item(s)
-                </div>
-              )}
-            </div>
-          </div>
-        )}
       </div>
     </div>
   );

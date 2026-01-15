@@ -490,9 +490,4 @@ export const toOrderTemplateData = (order: Order) => ({
   revenueCenter: order.revenueCenter,
   paymentType: order.paymentType || "--",
   phone: order.phone,
-  items: order.items.map(item => ({
-    qty: item.qty,
-    name: item.name,
-    price: item.price,
-  })),
 });

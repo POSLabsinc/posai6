@@ -6,6 +6,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
+import OrderSummary from "@/components/OrderSummary";
+import { calculateOrderTotals, getOrderStatusColor, formatPrice } from "@/lib/orderUtils";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -163,15 +165,7 @@ const TransferOrders = () => {
     ? availableOrders 
     : availableOrders.filter(o => o.status === activeFilter.toUpperCase());
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "ORDERING": return "text-red-500";
-      case "ORDERED": return "text-orange-500";
-      case "PREPARING": return "text-yellow-500";
-      case "COMPLETED": return "text-green-500";
-      default: return "text-white/60";
-    }
-  };
+  const getStatusColor = getOrderStatusColor;
 
   const getFilterCount = (filter: string) => {
     if (filter === "All") return availableOrders.length;
@@ -238,14 +232,9 @@ const TransferOrders = () => {
     }
   };
 
-  // Calculate order totals
-  const calculateOrderTotals = (order: Order) => {
-    const subtotal = order.items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-    const discount = subtotal > 50 ? 5.00 : 0;
-    const serviceCharge = subtotal * 0.05;
-    const tax = (subtotal - discount) * 0.08;
-    const total = subtotal - discount + serviceCharge + tax;
-    return { subtotal, discount, serviceCharge, tax, total };
+  // Calculate order totals using centralized function
+  const getOrderTotals = (order: Order) => {
+    return calculateOrderTotals(order.items);
   };
 
   // Helper to convert order to OrderLayoutTemplate format
@@ -915,34 +904,17 @@ const TransferOrders = () => {
 
         {/* Order Summary */}
         {(() => {
-          const totals = calculateOrderTotals(panelOrder);
+          const totals = getOrderTotals(panelOrder);
           return (
-            <div className="px-3 py-2 border-t border-white/10 space-y-0.5 text-xs">
-              <div className="flex justify-between">
-                <span className="text-white/60">Sub Total</span>
-                <span className="text-white">${totals.subtotal.toFixed(2)}</span>
-              </div>
-              {totals.discount > 0 && (
-                <div className="flex justify-between">
-                  <span className="text-red-500">Discount</span>
-                  <span className="text-red-500">-${totals.discount.toFixed(2)}</span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-white/60">Service Charge</span>
-                <span className="text-white">${totals.serviceCharge.toFixed(2)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-white/60">Tax</span>
-                <span className="text-white">${totals.tax.toFixed(2)}</span>
-              </div>
+            <div className="px-3 py-2 border-t border-white/10">
+              <OrderSummary totals={totals} variant="compact" />
             </div>
           );
         })()}
 
         {/* Bottom Actions */}
         {(() => {
-          const totals = calculateOrderTotals(panelOrder);
+          const totals = getOrderTotals(panelOrder);
           return (
             <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
               <button className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">

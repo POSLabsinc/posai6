@@ -3,6 +3,25 @@
 // Import icons for order types
 import dineInIcon from "@/assets/icons/dine-in.png";
 
+// Re-export utilities from orderUtils for backward compatibility
+export { 
+  TAX_RATE, 
+  SERVICE_CHARGE_RATE, 
+  DISCOUNT_THRESHOLD, 
+  DISCOUNT_AMOUNT,
+  formatPrice,
+  formatPriceWithSign,
+  getOrderStatusColor,
+  calculateOrderTotals as calculateItemsTotals
+} from "@/lib/orderUtils";
+
+import { 
+  TAX_RATE, 
+  SERVICE_CHARGE_RATE, 
+  DISCOUNT_THRESHOLD, 
+  DISCOUNT_AMOUNT 
+} from "@/lib/orderUtils";
+
 // Order item interface
 export interface OrderItem {
   qty: number;
@@ -318,11 +337,12 @@ export const allOrders: Order[] = [
 ];
 
 // Calculate totals for an order based on its items
+// Uses centralized constants from orderUtils
 export const calculateOrderTotals = (items: OrderItem[], tipAmount: number = 0) => {
   const subtotal = items.reduce((sum, item) => sum + (item.price * item.qty), 0);
-  const discount = subtotal > 50 ? 5.00 : 0;
-  const serviceCharge = subtotal * 0.05;
-  const tax = (subtotal - discount) * 0.0735;
+  const discount = subtotal > DISCOUNT_THRESHOLD ? DISCOUNT_AMOUNT : 0;
+  const serviceCharge = subtotal * SERVICE_CHARGE_RATE;
+  const tax = (subtotal - discount) * TAX_RATE;
   const total = subtotal - discount + serviceCharge + tax + tipAmount;
   return { 
     subtotal, 
@@ -384,21 +404,9 @@ export const getAvailableOrdersForTransfer = (currentOrderId: string, currentTab
   );
 };
 
-// Format price helper
-export const formatPrice = (price: number) => `$${price.toFixed(2)}`;
-
-// Get status color class
-export const getStatusColor = (status: string) => {
-  switch (status.toUpperCase()) {
-    case "ORDERING": return "text-red-500";
-    case "ORDERED": return "text-orange-500";
-    case "PREPARING": return "text-yellow-500";
-    case "COMPLETED": return "text-green-500";
-    case "PAID": return "text-green-500";
-    case "UNPAID": return "text-red-400";
-    default: return "text-white/60";
-  }
-};
+// Get status color class (uses centralized utility)
+import { getOrderStatusColor } from "@/lib/orderUtils";
+export const getStatusColor = getOrderStatusColor;
 
 // Get merged order data structure for display
 export const getMergedOrderDisplay = (order: Order) => {

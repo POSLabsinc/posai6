@@ -660,7 +660,7 @@ const TransferOrders = () => {
 
   // Right panel - Order details (Desktop)
   const OrderDetailsPanel = () => (
-    <div className="w-[345px] flex flex-col my-2 mr-2">
+    <div className="w-[345px] flex flex-col mb-2 mr-2">
       {/* Guest Header - Outside the box */}
       <div className="px-2 py-2">
         <div className="flex items-center justify-between mb-1.5">
@@ -955,7 +955,7 @@ const TransferOrders = () => {
   const DesktopLayout = () => (
     <div className="h-full w-full flex bg-black">
       {/* Left Panel */}
-      <div className="flex-1 flex flex-col m-2 rounded-[20px] overflow-hidden">
+      <div className="flex-1 flex flex-col mx-2 mb-2 rounded-[20px] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
           <div className="flex items-center gap-3">

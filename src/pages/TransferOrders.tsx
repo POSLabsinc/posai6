@@ -19,7 +19,7 @@ import {
 } from "@/data/orders";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
-import PaymentDialog from "@/components/PaymentDialog";
+import { PaymentDialog } from "@/components/PaymentDialog";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";

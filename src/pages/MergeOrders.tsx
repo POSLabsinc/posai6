@@ -100,8 +100,12 @@ const MergeOrders = () => {
   // Order to show in right panel - defaults to current order, updates when user clicks an order
   const panelOrder = displayedOrder || currentOrder;
 
-  // Filter all orders, excluding the current order - show orders from all tables for merging
-  const availableOrders = allOrders.filter(o => o.id !== orderId);
+  // Filter all orders, excluding the current order and paid/completed orders - show orders from all tables for merging
+  const availableOrders = allOrders.filter(o => 
+    o.id !== orderId && 
+    o.status !== "PAID" && 
+    o.status.toUpperCase() !== "COMPLETED"
+  );
 
   const filteredOrders = activeFilter === "All" 
     ? availableOrders 

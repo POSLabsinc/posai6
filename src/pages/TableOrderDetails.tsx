@@ -879,7 +879,11 @@ const TableOrderDetails = () => {
                       <div className="flex items-center text-xs lg:text-sm">
                         <span className="text-white font-medium w-[180px] lg:w-[220px] flex-shrink-0 truncate">{guest.revenueCenter}</span>
                         <div className="flex-1">
-                          <span className="text-white/60 truncate">{guest.status === 'Paid' || guest.status === 'Completed' ? 'Paid' : 'Payment Method'}</span>
+                          <span className="text-white/60 truncate">
+                            {guest.status === 'Paid' || guest.status === 'Completed' 
+                              ? (guest.paymentType && guest.paymentType !== '--' ? guest.paymentType : 'Paid')
+                              : 'Pending Payment'}
+                          </span>
                         </div>
                         <span className="text-white flex-shrink-0">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
                       </div>

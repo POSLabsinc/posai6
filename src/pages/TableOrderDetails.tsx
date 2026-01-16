@@ -547,10 +547,10 @@ const TableOrderDetails = () => {
                     <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">T{mergedFromTable}</span>
                   </span>
                 </div>}
-              {/* Merged Order Indicator - Source */}
-              {guest.id === mergedOrderId && destOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
+              {/* Merged Order Indicator - Source (disabled look) */}
+              {guest.id === mergedOrderId && destOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-neutral-700/80">
                   <span className="text-xs font-medium">
-                    <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">to order {destOrderId}</span> <span style={{ color: '#FFC48A' }}>on</span> <span className="text-white">T{tableId?.replace("T", "")}</span>
+                    <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">T{tableId?.replace("T", "")}</span>
                   </span>
                 </div>}
               
@@ -737,11 +737,7 @@ const TableOrderDetails = () => {
                       </button>
                     </div>
                     ) : guest.id === mergedOrderId ? (
-                    <div className="flex items-center justify-center gap-2 mt-2 py-2 px-3 rounded-lg" style={{ background: 'linear-gradient(180deg, #5C3D1E 0%, #392514 100%)' }}>
-                      <img src={linkMergeIcon} alt="Merged" className="w-4 h-4" />
-                      <span className="text-[#FFC48A] text-sm">Merged with</span>
-                      <span className="text-white text-sm font-medium">Order #{destOrderId}</span>
-                    </div>
+                    null
                     ) : null}
                   </div>}
               </div>
@@ -825,10 +821,10 @@ const TableOrderDetails = () => {
                       <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">Table T{mergedFromTable}</span>
                     </span>
                   </div>}
-                {/* Merged Order Indicator - Source */}
-                {guest.id === mergedOrderId && destOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
+                {/* Merged Order Indicator - Source (disabled look) */}
+                {guest.id === mergedOrderId && destOrderId && <div className="px-3 py-1 rounded-t-xl bg-neutral-700/80">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">to Order {destOrderId}</span> <span style={{ color: '#FFC48A' }}>on</span> <span className="text-white">Table {tableId}</span>
+                      <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to Order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">Table {tableId}</span>
                     </span>
                   </div>}
                 {/* Transferred Items Indicator (Destination - receiving items) */}
@@ -927,13 +923,7 @@ const TableOrderDetails = () => {
                       </button>
                     </div>
                   ) : guest.id === mergedOrderId ? (
-                    <div className="flex-shrink-0 flex items-center justify-center w-24 px-2 rounded-r-xl" style={{ background: 'linear-gradient(180deg, #5C3D1E 0%, #392514 100%)' }}>
-                      <div className="flex flex-col items-center text-center">
-                        <img src={linkMergeIcon} alt="Merged" className="w-4 h-4 mb-1" />
-                        <span className="text-[10px] text-[#FFC48A]">Merged with</span>
-                        <span className="text-xs text-white font-medium">Order #{destOrderId}</span>
-                      </div>
-                    </div>
+                    null
                   ) : guest.id === transferSourceOrderId ? (
                     <div className="flex-shrink-0 flex items-center justify-center w-24 px-2 rounded-r-xl" style={{ background: 'linear-gradient(180deg, #2B4A6F 0%, #1E3A5F 100%)' }}>
                       <div className="flex flex-col items-center text-center">

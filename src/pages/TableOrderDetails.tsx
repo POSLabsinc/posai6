@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
+import { PaymentDialog } from "@/components/PaymentDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2 } from "lucide-react";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
@@ -205,6 +206,7 @@ const TableOrderDetails = () => {
   const [orderNotes, setOrderNotes] = useState("");
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>(['all']);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   
   // Set initial selected guest when guestOrders changes
   const currentSelectedGuest = selectedGuest || guestOrders[0];
@@ -1265,9 +1267,11 @@ const TableOrderDetails = () => {
               <img src={fireIcon} alt="Fire" className="w-4 h-4" />
               <span className="text-white font-semibold text-sm">FIRE</span>
             </button>
-            <button className="flex-1 h-8 rounded-full flex items-center justify-center" style={{
-              background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-            }}>
+            <button 
+              onClick={() => setShowPaymentDialog(true)}
+              className="flex-1 h-8 rounded-full flex items-center justify-center" 
+              style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+            >
               <span className="text-black font-semibold text-xs">
                 CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
               </span>
@@ -1660,9 +1664,11 @@ const TableOrderDetails = () => {
             <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
             <span>FIRE</span>
           </button>
-          <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{
-            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-          }}>
+          <button 
+            onClick={() => setShowPaymentDialog(true)}
+            className="flex-1 py-2 rounded-full text-black text-sm font-bold" 
+            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+          >
             CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
           </button>
         </div>
@@ -1686,6 +1692,29 @@ const TableOrderDetails = () => {
       <div className="hidden lg:block h-full">
         <DesktopLayout />
       </div>
+      {/* Payment Dialog */}
+      <PaymentDialog
+        open={showPaymentDialog}
+        onOpenChange={setShowPaymentDialog}
+        orderDetails={{
+          guest: currentSelectedGuest?.name || "Guest",
+          phone: currentSelectedGuest?.phone,
+          table: tableId,
+          check: currentSelectedGuest?.id,
+          items: currentSelectedGuest?.items.map((item, index) => ({
+            id: index + 1,
+            qty: item.qty,
+            name: item.name,
+            price: item.price * item.qty
+          })) || []
+        }}
+        subtotal={currentSelectedGuest?.subtotal || 0}
+        tax={currentSelectedGuest?.tax || 0}
+        total={currentSelectedGuest?.total || 0}
+        onPaymentComplete={(history) => {
+          console.log("Payment completed:", history);
+        }}
+      />
     </>;
 };
 export default TableOrderDetails;

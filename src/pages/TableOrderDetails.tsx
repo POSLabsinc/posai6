@@ -834,7 +834,15 @@ const TableOrderDetails = () => {
                       <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · Table {transferredFromTable}</span>
                     </span>
                   </div>}
-                {/* Transferred OUT Indicator removed - now shown as strikethrough in cart */}
+                {/* Transferred OUT Indicator (Source - sending items out) */}
+                {transferSourceOrderId === guest.id && transferType && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
+                    <span className="text-sm font-medium">
+                      <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
+                      <span className="text-white"> to Order {transferredToOrderId}</span>
+                      <span style={{ color: '#8AC4FF' }}> · Table </span>
+                      <span className="text-white">{transferToTable}</span>
+                    </span>
+                  </div>}
                 <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
@@ -1122,11 +1130,11 @@ const TableOrderDetails = () => {
                                   </span>
                                   {isTransferredOut && (
                                     <TooltipProvider>
-                                      <Tooltip>
+                                      <Tooltip delayDuration={0}>
                                         <TooltipTrigger asChild>
                                           <Info className="w-3.5 h-3.5 text-[#8AC4FF] cursor-help" />
                                         </TooltipTrigger>
-                                        <TooltipContent side="top" className="bg-neutral-800 border-neutral-700 text-white text-xs">
+                                        <TooltipContent side="top" className="bg-neutral-800 border-neutral-700 text-white text-xs z-[9999]">
                                           <p>Transferred to Order {transferredToOrderId} on Table {transferToTable}</p>
                                         </TooltipContent>
                                       </Tooltip>

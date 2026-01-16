@@ -541,14 +541,20 @@ const TableOrderDetails = () => {
       <ScrollArea className="flex-1 px-3">
         <div className="space-y-2 pb-3">
           {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-0">
-              {/* Merged Order Indicator */}
+              {/* Merged Order Indicator - Destination */}
               {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
                   <span className="text-xs font-medium">
                     <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">T{mergedFromTable}</span>
                   </span>
                 </div>}
+              {/* Merged Order Indicator - Source */}
+              {guest.id === mergedOrderId && destOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
+                  <span className="text-xs font-medium">
+                    <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">to order {destOrderId}</span> <span style={{ color: '#FFC48A' }}>on</span> <span className="text-white">T{tableId?.replace("T", "")}</span>
+                  </span>
+                </div>}
               
-              <div className={`relative ${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
+              <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
               {/* Swipe Action Buttons (revealed on swipe left) - hidden for Paid/Completed orders */}
               {guest.status !== 'Paid' && guest.status !== 'Completed' && (
               <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 z-10 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
@@ -655,7 +661,7 @@ const TableOrderDetails = () => {
                             <span>Party Of {guest.partySize},</span>
                            <span>⚡ {guest.time}</span>
                          </div>
-                         <span className={getStatusColor(guest.status)}>{guest.status}</span>
+                         <span className={guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}>{guest.id === mergedOrderId && destOrderId ? 'MERGED' : guest.status}</span>
                        </div>
                      </div>
                    </div>
@@ -813,10 +819,16 @@ const TableOrderDetails = () => {
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
             {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-0">
-                {/* Merged Order Indicator */}
+                {/* Merged Order Indicator - Destination */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
                     <span className="text-sm font-medium">
                       <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">Table T{mergedFromTable}</span>
+                    </span>
+                  </div>}
+                {/* Merged Order Indicator - Source */}
+                {guest.id === mergedOrderId && destOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
+                    <span className="text-sm font-medium">
+                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">to Order {destOrderId}</span> <span style={{ color: '#FFC48A' }}>on</span> <span className="text-white">Table {tableId}</span>
                     </span>
                   </div>}
                 {/* Transferred Items Indicator (Destination - receiving items) */}
@@ -834,7 +846,7 @@ const TableOrderDetails = () => {
                       <span className="text-white">{transferToTable}</span>
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="hidden md:flex items-stretch">
@@ -857,9 +869,9 @@ const TableOrderDetails = () => {
                           <span className="text-white/60 truncate">{guest.server}</span>
                         </div>
                         <span 
-                          className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(guest.status)}`}
+                          className={`font-semibold uppercase flex-shrink-0 ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}
                         >
-                          {guest.status}
+                          {guest.id === mergedOrderId && destOrderId ? 'MERGED' : guest.status}
                         </span>
                       </div>
                       

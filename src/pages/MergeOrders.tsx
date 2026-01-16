@@ -7,14 +7,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import OrderSummary from "@/components/OrderSummary";
 import { getOrderStatusColor } from "@/lib/orderUtils";
-import { 
-  Order, 
-  allOrders, 
-  getOrderById, 
-  calculateOrderTotals,
-  getOrderAmount,
-  toOrderTemplateData 
-} from "@/data/orders";
+import { Order, allOrders, getOrderById, calculateOrderTotals, getOrderAmount, toOrderTemplateData } from "@/data/orders";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -29,17 +22,15 @@ import dineInIcon from "@/assets/icons/dine-in.png";
 const getOrderTotals = (order: Order) => {
   return calculateOrderTotals(order.items, order.tipAmount || 0);
 };
-
 const mergeFilters = ["All", "Ordering", "Ordered", "Preparing", "Unpaid"];
-
 type MergeStep = "select" | "confirm-direction";
-
 const MergeOrders = () => {
   const navigate = useNavigate();
-  const { tableId } = useParams();
+  const {
+    tableId
+  } = useParams();
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get("orderId");
-  
   const [step, setStep] = useState<MergeStep>("select");
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedOrders, setSelectedOrders] = useState<string[]>([]);
@@ -50,49 +41,42 @@ const MergeOrders = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
   const [displayedOrder, setDisplayedOrder] = useState<typeof allOrders[0] | null>(null);
-
   const toggleOrderExpand = (orderId: string) => {
     setExpandedOrderId(prev => prev === orderId ? null : orderId);
   };
 
   // Get the current order being merged (from the table we came from)
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
-  
+
   // Order to show in right panel - defaults to current order, updates when user clicks an order
   const panelOrder = displayedOrder || currentOrder;
 
   // Filter all orders, excluding the current order and paid/completed orders - show orders from all tables for merging
-  const availableOrders = allOrders.filter(o => 
-    o.id !== orderId && 
-    o.status !== "PAID" && 
-    o.status.toUpperCase() !== "COMPLETED"
-  );
-
-  const filteredOrders = activeFilter === "All" 
-    ? availableOrders 
-    : availableOrders.filter(o => o.status === activeFilter.toUpperCase());
-
+  const availableOrders = allOrders.filter(o => o.id !== orderId && o.status !== "PAID" && o.status.toUpperCase() !== "COMPLETED");
+  const filteredOrders = activeFilter === "All" ? availableOrders : availableOrders.filter(o => o.status === activeFilter.toUpperCase());
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "ORDERING": return "text-red-500";
-      case "ORDERED": return "text-orange-500";
-      case "PREPARING": return "text-yellow-500";
-      case "COMPLETED": return "text-green-500";
-      default: return "text-white/60";
+      case "ORDERING":
+        return "text-red-500";
+      case "ORDERED":
+        return "text-orange-500";
+      case "PREPARING":
+        return "text-yellow-500";
+      case "COMPLETED":
+        return "text-green-500";
+      default:
+        return "text-white/60";
     }
   };
-
   const handleOrderSelect = (order: typeof allOrders[0]) => {
     // Update displayed order in right panel
     setDisplayedOrder(order);
-    
     if (selectedOrders.includes(order.id)) {
       setSelectedOrders(selectedOrders.filter(id => id !== order.id));
     } else {
       setSelectedOrders([...selectedOrders, order.id]);
     }
   };
-
   const handleProceedToDirection = () => {
     if (selectedOrders.length > 0) {
       const selectedOrder = allOrders.find(o => o.id === selectedOrders[0]);
@@ -103,19 +87,16 @@ const MergeOrders = () => {
       }
     }
   };
-
   const handleSwapDirection = () => {
     const temp = fromOrder;
     setFromOrder(toOrder);
     setToOrder(temp);
   };
-
   const handleFinalConfirm = () => {
     // Navigate with merged order ID, source table, and destination order ID
     const fromTable = fromOrder?.table?.replace("T", "") || "";
     navigate(`/tableorder/${tableId}?merged=${fromOrder?.id}&from=${fromTable}&dest=${toOrder?.id}`);
   };
-
   const handleBack = () => {
     if (step === "confirm-direction") {
       setStep("select");
@@ -123,37 +104,32 @@ const MergeOrders = () => {
       navigate(`/tableorder/${tableId}`);
     }
   };
-
   const getFilterCount = (filter: string) => {
     if (filter === "All") return availableOrders.length;
     return availableOrders.filter(o => o.status === filter.toUpperCase()).length;
   };
 
   // Render order card for mobile - matching TableOrderDetails styling
-  const OrderCard = ({ order, isSelected, onClick, showCheckbox = true, showExpand = true }: { 
-    order: typeof allOrders[0]; 
-    isSelected: boolean; 
+  const OrderCard = ({
+    order,
+    isSelected,
+    onClick,
+    showCheckbox = true,
+    showExpand = true
+  }: {
+    order: typeof allOrders[0];
+    isSelected: boolean;
     onClick?: () => void;
     showCheckbox?: boolean;
     showExpand?: boolean;
-  }) => (
-    <div className="rounded-xl overflow-hidden">
-      <div 
-        className={`flex items-stretch w-full gap-2 border rounded-t-xl ${showExpand && expandedOrderId === order.id ? '' : 'rounded-b-xl'} bg-neutral-900 cursor-pointer transition-colors ${
-          isSelected ? "border-white" : "border-white/10"
-        }`}
-        onClick={onClick}
-      >
+  }) => <div className="rounded-xl overflow-hidden">
+      <div className={`flex items-stretch w-full gap-2 border rounded-t-xl ${showExpand && expandedOrderId === order.id ? '' : 'rounded-b-xl'} bg-neutral-900 cursor-pointer transition-colors ${isSelected ? "border-white" : "border-white/10"}`} onClick={onClick}>
         {/* Checkbox Column */}
-        {showCheckbox && (
-          <div className="flex-shrink-0 px-2 flex items-center">
-            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
-              isSelected ? "border-orange-500 bg-orange-500" : "border-white/40"
-            }`}>
+        {showCheckbox && <div className="flex-shrink-0 px-2 flex items-center">
+            <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${isSelected ? "border-orange-500 bg-orange-500" : "border-white/40"}`}>
               {isSelected && <div className="w-2 h-2 bg-white rounded-full" />}
             </div>
-          </div>
-        )}
+          </div>}
 
         {/* Order Number Column - Mobile compact style */}
         <div className={`flex-shrink-0 ${showCheckbox ? '' : 'px-2'} py-2 flex items-center md:hidden`}>
@@ -178,14 +154,18 @@ const MergeOrders = () => {
             <div className="flex items-center justify-between">
               <span className="text-white font-medium text-sm">{order.name} - {order.table}</span>
               <div className="flex items-center gap-2">
-                <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server || 'Server'}</span>
+                <span className="text-sm" style={{
+                color: '#B5B6BB'
+              }}>{order.server || 'Server'}</span>
                 <span className={`text-sm font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
               </div>
             </div>
             
             {/* Row 2: Party info, Timer, Total */}
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+              <div className="flex items-center gap-1 text-xs" style={{
+              color: '#B5B6BB'
+            }}>
                 <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
                 <span>Party of {order.partySize}, {order.time}</span>
                 <span className="text-gray-500">|</span>
@@ -198,7 +178,9 @@ const MergeOrders = () => {
             <div className="flex items-center justify-between">
               <span className="text-white font-medium text-sm">{order.revenueCenter || 'FF Balcony'}</span>
               <div className="flex items-center gap-2 text-sm">
-                <span style={{ color: '#B5B6BB' }}>Un Paid</span>
+                <span style={{
+                color: '#B5B6BB'
+              }}>Un Paid</span>
                 <span className="text-white">$0.00</span>
               </div>
             </div>
@@ -247,8 +229,9 @@ const MergeOrders = () => {
 
 
       {/* Expanded Details */}
-      {showExpand && expandedOrderId === order.id && (
-        <div className="mx-2 px-3 pb-3 rounded-b-lg" style={{ background: "#7575754D" }}>
+      {showExpand && expandedOrderId === order.id && <div className="mx-2 px-3 pb-3 rounded-b-lg" style={{
+      background: "#7575754D"
+    }}>
           {/* Order Details Grid */}
           <div className="grid grid-cols-3 gap-3 py-3">
             <div>
@@ -279,25 +262,27 @@ const MergeOrders = () => {
           
           {/* Order Summary Totals */}
           {(() => {
-            const totals = getOrderTotals(order);
-            return <OrderSummary totals={totals} variant="compact" />;
-          })()}
-        </div>
-      )}
-    </div>
-  );
+        const totals = getOrderTotals(order);
+        return <OrderSummary totals={totals} variant="compact" />;
+      })()}
+        </div>}
+    </div>;
 
   // Desktop current order card with extended info - matching TableOrderDetails layout
-  const DesktopCurrentOrderCard = ({ order }: { order: typeof allOrders[0] }) => (
-    <div 
-      className="rounded-xl border border-white overflow-hidden"
-      style={{ backgroundColor: '#1B1C20' }}
-    >
+  const DesktopCurrentOrderCard = ({
+    order
+  }: {
+    order: typeof allOrders[0];
+  }) => <div className="rounded-xl border border-white overflow-hidden" style={{
+    backgroundColor: '#1B1C20'
+  }}>
       <div className="flex items-stretch w-full">
         {/* Left Content with padding */}
         <div className="flex-1 flex items-stretch gap-2 md:gap-3 p-2 md:p-3">
           {/* Order Number Box */}
-          <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 md:w-14 rounded-lg border border-white/20 py-1.5 md:py-2 gap-0.5 md:gap-1" style={{ background: '#1A1A1A' }}>
+          <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 md:w-14 rounded-lg border border-white/20 py-1.5 md:py-2 gap-0.5 md:gap-1" style={{
+          background: '#1A1A1A'
+        }}>
             <span className="text-base md:text-lg font-bold text-white">{order.id}</span>
             <span className="text-[10px] md:text-xs text-white/40">000</span>
           </div>
@@ -342,27 +327,27 @@ const MergeOrders = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 
   // Desktop order list card - matching TableOrderDetails layout
-  const DesktopOrderListCard = ({ order, isSelected, onClick }: { 
-    order: typeof allOrders[0]; 
-    isSelected: boolean; 
+  const DesktopOrderListCard = ({
+    order,
+    isSelected,
+    onClick
+  }: {
+    order: typeof allOrders[0];
+    isSelected: boolean;
     onClick?: () => void;
-  }) => (
-    <div 
-      className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${
-        isSelected ? "border-orange-500" : "border-neutral-700 hover:border-neutral-600"
-      }`}
-      style={{ backgroundColor: '#1B1C20' }}
-      onClick={onClick}
-    >
+  }) => <div className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${isSelected ? "border-orange-500" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+    backgroundColor: '#1B1C20'
+  }} onClick={onClick}>
       <div className="flex items-stretch w-full">
         {/* Left Content with padding */}
         <div className="flex-1 flex items-stretch gap-2 md:gap-3 p-2 md:p-3">
           {/* Order Number Box */}
-          <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 md:w-14 rounded-lg border border-white/20 py-1.5 md:py-2 gap-0.5 md:gap-1" style={{ background: '#1A1A1A' }}>
+          <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 md:w-14 rounded-lg border border-white/20 py-1.5 md:py-2 gap-0.5 md:gap-1" style={{
+          background: '#1A1A1A'
+        }}>
             <span className="text-base md:text-lg font-bold text-white">{order.id}</span>
             <span className="text-[10px] md:text-xs text-white/40">000</span>
           </div>
@@ -407,12 +392,10 @@ const MergeOrders = () => {
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 
   // Right panel - Order details
-  const OrderDetailsPanel = () => (
-    <div className="w-[345px] flex flex-col my-2 mr-2">
+  const OrderDetailsPanel = () => <div className="w-[345px] flex flex-col my-2 mr-2">
       {/* Guest Header - Outside the box */}
       <div className="px-2 py-2">
         <div className="flex items-center justify-between mb-1.5">
@@ -445,13 +428,10 @@ const MergeOrders = () => {
       </div>
 
       {/* Main Panel Box */}
-      <div 
-        className="flex-1 flex flex-col rounded-[10px] overflow-hidden"
-        style={{ 
-          background: "#7575754D",
-          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-        }}
-      >
+      <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{
+      background: "#7575754D",
+      boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+    }}>
         {/* Table Order Info */}
         <div className="px-3 py-2 border-b border-white/10">
           <div className="flex items-center justify-between mb-1.5">
@@ -473,21 +453,9 @@ const MergeOrders = () => {
             <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
               <img src={splitIcon} alt="Split" className="w-3 h-3" />
             </button>
-            {[1, 2, 3, 4].map(seat => (
-              <button
-                key={seat}
-                onClick={() => setSelectedSeats(prev => 
-                  prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]
-                )}
-                className={`w-6 h-6 rounded text-xs font-medium transition-colors ${
-                  selectedSeats.includes(seat) 
-                    ? "bg-white text-black" 
-                    : "bg-white/10 text-white hover:bg-white/20"
-                }`}
-              >
+            {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat])} className={`w-6 h-6 rounded text-xs font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}>
                 {seat}
-              </button>
-            ))}
+              </button>)}
           </div>
         </div>
 
@@ -502,8 +470,7 @@ const MergeOrders = () => {
         {/* Order Items */}
         <ScrollArea className="flex-1 px-3">
           <div className="py-2 space-y-1.5">
-            {panelOrder.items.map((item, index) => (
-              <div key={index} className="p-2 bg-white/5 rounded-lg border border-white/10">
+            {panelOrder.items.map((item, index) => <div key={index} className="p-2 bg-white/5 rounded-lg border border-white/10">
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
                     <span className="w-5 h-5 bg-white rounded flex items-center justify-center text-black text-xs font-bold">
@@ -511,86 +478,64 @@ const MergeOrders = () => {
                     </span>
                     <div>
                       <span className="text-white text-sm">{item.name}</span>
-                      {item.modifiers.length > 0 && (
-                        <div className="mt-0.5 text-white/50 text-xs space-y-0">
-                          {item.modifiers.map((mod, i) => (
-                            <div key={i}>{mod}</div>
-                          ))}
-                        </div>
-                      )}
+                      {item.modifiers.length > 0 && <div className="mt-0.5 text-white/50 text-xs space-y-0">
+                          {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                        </div>}
                     </div>
                   </div>
                   <span className="text-white text-sm">${(item.price * item.qty).toFixed(2)}</span>
                 </div>
-                {item.seats.length > 0 && (
-                  <div className="flex items-center gap-1 mt-1">
+                {item.seats.length > 0 && <div className="flex items-center gap-1 mt-1">
                     <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
-                    {item.seats.map(seat => (
-                      <span key={seat} className="w-4 h-4 bg-white/10 rounded text-white text-[10px] flex items-center justify-center">
+                    {item.seats.map(seat => <span key={seat} className="w-4 h-4 bg-white/10 rounded text-white text-[10px] flex items-center justify-center">
                         {seat}
-                      </span>
-                    ))}
+                      </span>)}
                     
-                  </div>
-                )}
-              </div>
-            ))}
+                  </div>}
+              </div>)}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
 
         {/* Order Summary */}
         {(() => {
-          const totals = getOrderTotals(panelOrder);
-          return (
-            <div className="px-3 py-2 border-t border-white/10">
+        const totals = getOrderTotals(panelOrder);
+        return <div className="px-3 py-2 border-t border-white/10">
               <OrderSummary totals={totals} variant="detailed" />
-            </div>
-          );
-        })()}
+            </div>;
+      })()}
 
         {/* Bottom Actions */}
         {(() => {
-          const totals = getOrderTotals(panelOrder);
-          return (
-            <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
+        const totals = getOrderTotals(panelOrder);
+        return <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
               <button className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
                 <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
               </button>
-              <button 
-                disabled 
-                className="px-3 py-1.5 rounded-full flex items-center gap-1 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed" 
-                style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
-              >
+              <button disabled className="px-3 py-1.5 rounded-full flex items-center gap-1 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{
+            background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+          }}>
                 <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
                 <span>FIRE</span>
               </button>
-              <button 
-                className="flex-1 py-1.5 rounded-full text-black text-xs font-bold"
-                style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-              >
+              <button className="flex-1 py-1.5 rounded-full text-black text-xs font-bold" style={{
+            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+          }}>
                 CHARGE ${totals.total.toFixed(2)}
               </button>
-            </div>
-          );
-        })()}
+            </div>;
+      })()}
       </div>
-    </div>
-  );
+    </div>;
 
   // Mobile Step 1: Select orders to merge
-  const MobileSelectOrdersView = () => (
-    <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
+  const MobileSelectOrdersView = () => <div className="flex flex-col flex-1 min-h-0 overflow-hidden">
       {/* Header */}
       <div className="relative flex items-center justify-between p-4">
-        <button 
-          onClick={handleBack}
-          className="w-10 h-10 rounded-full flex items-center justify-center z-10"
-          style={{ 
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}
-        >
+        <button onClick={handleBack} className="w-10 h-10 rounded-full flex items-center justify-center z-10" style={{
+        background: "#7575754D",
+        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+      }}>
           <ChevronLeft className="w-5 h-5 text-white" />
         </button>
         
@@ -599,54 +544,35 @@ const MergeOrders = () => {
         <div className="flex items-center gap-2 z-10">
           <Popover open={isFilterOpen} onOpenChange={setIsFilterOpen}>
             <PopoverTrigger asChild>
-              <button 
-                className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                style={{
-                  background: "#7575754D",
-                  boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-                }}
-              >
+              <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+              background: "#7575754D",
+              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+            }}>
                 <SlidersHorizontal className="w-5 h-5 text-white" />
               </button>
             </PopoverTrigger>
-            <PopoverContent 
-              className="w-48 p-2 bg-neutral-900 border border-white/10 rounded-xl"
-              align="end"
-            >
+            <PopoverContent className="w-48 p-2 bg-neutral-900 border border-white/10 rounded-xl" align="end">
               <div className="flex flex-col gap-1">
                 {mergeFilters.map(filter => {
-                  const count = getFilterCount(filter);
-                  const isActive = activeFilter === filter;
-                  return (
-                    <button
-                      key={filter}
-                      onClick={() => {
-                        setActiveFilter(filter);
-                        setIsFilterOpen(false);
-                      }}
-                      className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${
-                        isActive ? "bg-white text-black" : "text-white hover:bg-neutral-800"
-                      }`}
-                    >
+                const count = getFilterCount(filter);
+                const isActive = activeFilter === filter;
+                return <button key={filter} onClick={() => {
+                  setActiveFilter(filter);
+                  setIsFilterOpen(false);
+                }} className={`flex items-center justify-between px-3 py-2 rounded-lg text-sm transition-colors ${isActive ? "bg-white text-black" : "text-white hover:bg-neutral-800"}`}>
                       <span>{filter}</span>
-                      <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${
-                        isActive ? "bg-black text-white" : "bg-neutral-700"
-                      }`}>
+                      <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${isActive ? "bg-black text-white" : "bg-neutral-700"}`}>
                         {count}
                       </span>
-                    </button>
-                  );
-                })}
+                    </button>;
+              })}
               </div>
             </PopoverContent>
           </Popover>
-          <button 
-            className="p-2 rounded-full hover:opacity-80 transition-opacity"
-            style={{
-              background: "#7575754D",
-              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-            }}
-          >
+          <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+          background: "#7575754D",
+          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+        }}>
             <Search className="w-5 h-5 text-white" />
           </button>
         </div>
@@ -665,36 +591,22 @@ const MergeOrders = () => {
       {/* Orders List */}
       <div className="flex-1 min-h-0 overflow-y-auto scrollbar-hide px-4 overscroll-contain touch-pan-y">
         <div className="flex flex-col gap-2 pb-24">
-          {filteredOrders.map(order => (
-            <OrderCard 
-              key={order.id}
-              order={order} 
-              isSelected={selectedOrders.includes(order.id)}
-              onClick={() => handleOrderSelect(order)}
-              showCheckbox={false}
-            />
-          ))}
+          {filteredOrders.map(order => <OrderCard key={order.id} order={order} isSelected={selectedOrders.includes(order.id)} onClick={() => handleOrderSelect(order)} showCheckbox={false} />)}
         </div>
       </div>
-    </div>
-  );
+    </div>;
 
   // Desktop layout
-  const DesktopLayout = () => (
-    <div className="h-full w-full flex bg-black">
+  const DesktopLayout = () => <div className="h-full w-full flex bg-black">
       {/* Left Panel - Order Selection */}
       <div className="flex-1 flex flex-col m-2 rounded-[20px] overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
           <div className="flex items-center gap-3">
-            <button 
-              onClick={handleBack}
-              className="p-2 rounded-full hover:opacity-80 transition-opacity"
-              style={{ 
-                background: "#7575754D",
-                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-              }}
-            >
+            <button onClick={handleBack} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+            background: "#7575754D",
+            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+          }}>
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <h1 className="text-white text-lg font-semibold">Merge</h1>
@@ -714,75 +626,53 @@ const MergeOrders = () => {
         {/* Filter Tabs */}
         <div className="flex items-center gap-2 px-3 pb-3 overflow-x-auto">
             {mergeFilters.map(filter => {
-              const count = getFilterCount(filter);
-              const isActive = activeFilter === filter;
-              return (
-                <button
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${
-                    isActive ? "text-black" : "text-white"
-                  }`}
-                  style={isActive ? {
-                    background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-                  } : {
-                    background: "#7575754D",
-                    boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-                  }}
-                >
+          const count = getFilterCount(filter);
+          const isActive = activeFilter === filter;
+          return <button key={filter} onClick={() => setActiveFilter(filter)} className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${isActive ? "text-black" : "text-white"}`} style={isActive ? {
+            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+          } : {
+            background: "#7575754D",
+            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+          }}>
                   {filter}
                   <span className={`font-bold ${isActive ? "text-black" : "text-white"}`}>{count}</span>
-                </button>
-              );
-            })}
+                </button>;
+        })}
         </div>
 
         {/* Orders List */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
-            {filteredOrders.map(order => (
-              <DesktopOrderListCard 
-                key={order.id}
-                order={order} 
-                isSelected={selectedOrders.includes(order.id)}
-                onClick={() => handleOrderSelect(order)}
-              />
-            ))}
+            {filteredOrders.map(order => <DesktopOrderListCard key={order.id} order={order} isSelected={selectedOrders.includes(order.id)} onClick={() => handleOrderSelect(order)} />)}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
 
         {/* Merge Button */}
-        {selectedOrders.length > 0 && (
-          <div className="pt-4">
-            <button
-              onClick={() => {
-                const selectedOrder = allOrders.find(o => o.id === selectedOrders[0]);
-                if (selectedOrder) {
-                  setFromOrder(selectedOrder);
-                  setToOrder(currentOrder);
-                  setIsConfirmDialogOpen(true);
-                }
-              }}
-              className="w-full py-2 rounded-full text-black font-medium text-sm"
-              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-            >
+        {selectedOrders.length > 0 && <div className="pt-4">
+            <button onClick={() => {
+          const selectedOrder = allOrders.find(o => o.id === selectedOrders[0]);
+          if (selectedOrder) {
+            setFromOrder(selectedOrder);
+            setToOrder(currentOrder);
+            setIsConfirmDialogOpen(true);
+          }
+        }} className="w-full py-2 rounded-full text-black font-medium text-sm" style={{
+          background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+        }}>
               MERGE ORDER {orderId}, {selectedOrders.join(", ")}
             </button>
-          </div>
-        )}
+          </div>}
       </div>
 
       {/* Right Panel - Order Details */}
       <OrderDetailsPanel />
-    </div>
-  );
+    </div>;
 
   // Use imported toOrderTemplateData from data/orders
 
   // Mobile Step 2: Confirm direction (From/To) - matches screenshot design
-  const ConfirmDirectionView = () => (
-    <div className="flex flex-col h-full">
+  const ConfirmDirectionView = () => <div className="flex flex-col h-full">
       {/* Grabber */}
       <div className="flex justify-center pt-2 pb-2">
         <div className="w-10 h-1 bg-white/30 rounded-full" />
@@ -799,10 +689,7 @@ const MergeOrders = () => {
 
       {/* Swap Button */}
       <div className="flex justify-center py-2">
-        <button 
-          onClick={handleSwapDirection}
-          className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20"
-        >
+        <button onClick={handleSwapDirection} className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20">
           <ArrowUpDown className="w-4 h-4 text-white" />
         </button>
       </div>
@@ -815,11 +702,8 @@ const MergeOrders = () => {
 
       {/* Spacer */}
       <div className="flex-1" />
-    </div>
-  );
-
-  return (
-    <div className="h-full flex flex-col bg-black">
+    </div>;
+  return <div className="h-full flex flex-col bg-black">
       {/* Desktop Layout */}
       <div className="hidden lg:flex h-full w-full">
         <DesktopLayout />
@@ -832,36 +716,25 @@ const MergeOrders = () => {
       </div>
 
       {/* Merge Button - Fixed above bottom nav */}
-      {step === "select" && selectedOrders.length > 0 && (
-        <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden">
-          <button
-            onClick={handleProceedToDirection}
-            className="w-full py-2 rounded-full text-black font-medium text-sm"
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
+      {step === "select" && selectedOrders.length > 0 && <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden">
+          <button onClick={handleProceedToDirection} className="w-full py-2 rounded-full text-black font-medium text-sm" style={{
+        background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+      }}>
             MERGE ORDER {orderId}, {selectedOrders.join(", ")}
           </button>
-        </div>
-      )}
+        </div>}
 
       {/* Confirm Button - Fixed above bottom nav */}
-      {step === "confirm-direction" && (
-        <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
-          <button
-            onClick={() => setStep("select")}
-            className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800"
-          >
+      {step === "confirm-direction" && <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
+          <button onClick={() => setStep("select")} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
             CANCEL
           </button>
-          <button
-            onClick={handleFinalConfirm}
-            className="flex-1 py-2 rounded-full text-black font-medium text-sm"
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
+          <button onClick={handleFinalConfirm} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
+        background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+      }}>
             CONFIRM MERGE
           </button>
-        </div>
-      )}
+        </div>}
 
       {/* Desktop Confirmation Dialog */}
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
@@ -876,16 +749,13 @@ const MergeOrders = () => {
 
           {/* From Order */}
           <div className="px-6 pb-4">
-            <p className="text-amber-400 text-lg font-medium mb-2">Merge</p>
+            <p className="text-amber-400 text-lg font-medium mb-2">From</p>
             {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
           </div>
 
           {/* Swap Button */}
           <div className="flex justify-center py-2">
-            <button 
-              onClick={handleSwapDirection}
-              className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20"
-            >
+            <button onClick={handleSwapDirection} className="w-10 h-10 rounded-full flex items-center justify-center bg-neutral-800 border border-white/20">
               <ArrowUpDown className="w-4 h-4 text-white" />
             </button>
           </div>
@@ -898,27 +768,20 @@ const MergeOrders = () => {
 
           {/* Bottom Buttons */}
           <div className="px-6 pb-6 flex gap-3">
-            <button
-              onClick={() => setIsConfirmDialogOpen(false)}
-              className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800"
-            >
+            <button onClick={() => setIsConfirmDialogOpen(false)} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
               CANCEL
             </button>
-            <button
-              onClick={() => {
-                setIsConfirmDialogOpen(false);
-                handleFinalConfirm();
-              }}
-              className="flex-1 py-2 rounded-full text-black font-medium text-sm"
-              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-            >
+            <button onClick={() => {
+            setIsConfirmDialogOpen(false);
+            handleFinalConfirm();
+          }} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
+            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+          }}>
               CONFIRM MERGE
             </button>
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>;
 };
-
 export default MergeOrders;

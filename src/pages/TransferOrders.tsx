@@ -1226,11 +1226,18 @@ const TransferOrders = () => {
         if (!open) {
           // When closing, navigate to destination table order details
           const itemNames = selectedItems.map(index => currentOrder.items[index].name).join(',');
+          const isFullTransfer = selectedItems.length === currentOrder.items.length;
           const transferParams = new URLSearchParams({
+            // Destination params (receiving items)
             transferred: currentOrder.id,
             transferFrom: currentOrder.table,
             transferDest: toOrder?.id || '',
-            items: itemNames
+            items: itemNames,
+            // Source params (sending items out)
+            transferSource: currentOrder.id,
+            transferType: isFullTransfer ? 'full' : 'partial',
+            transferredTo: toOrder?.id || '',
+            transferToTable: toOrder?.table?.replace('T', '') || ''
           });
           navigate(`/tableorder/${toOrder?.table}?${transferParams.toString()}`);
         }
@@ -1243,11 +1250,18 @@ const TransferOrders = () => {
             <button 
               onClick={() => {
                 const itemNames = selectedItems.map(index => currentOrder.items[index].name).join(',');
+                const isFullTransfer = selectedItems.length === currentOrder.items.length;
                 const transferParams = new URLSearchParams({
+                  // Destination params (receiving items)
                   transferred: currentOrder.id,
                   transferFrom: currentOrder.table,
                   transferDest: toOrder?.id || '',
-                  items: itemNames
+                  items: itemNames,
+                  // Source params (sending items out)
+                  transferSource: currentOrder.id,
+                  transferType: isFullTransfer ? 'full' : 'partial',
+                  transferredTo: toOrder?.id || '',
+                  transferToTable: toOrder?.table?.replace('T', '') || ''
                 });
                 navigate(`/tableorder/${toOrder?.table}?${transferParams.toString()}`);
                 setIsSuccessDialogOpen(false);

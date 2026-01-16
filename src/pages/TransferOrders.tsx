@@ -1161,7 +1161,7 @@ const TransferOrders = () => {
 
           {/* From Order with Items Being Transferred */}
           <div className="px-6 pb-4">
-            <p className="text-white/60 text-sm mb-2">Transfer Items From</p>
+            <p className="text-white text-lg font-medium mb-2">Transfer Items From</p>
             <div className="rounded-xl border border-white overflow-hidden" style={{
             backgroundColor: '#1B1C20'
           }}>
@@ -1205,7 +1205,7 @@ const TransferOrders = () => {
 
           {/* To Order */}
           <div className="px-6 pb-6">
-            <p className="text-white/60 text-sm mb-2">Transfer Items To</p>
+            <p className="text-white text-lg font-medium mb-2">Transfer Items To</p>
             {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} />}
           </div>
 

@@ -745,7 +745,7 @@ const MergeOrders = () => {
           </div>
 
           {/* Title */}
-          <h2 className="text-white text-xl font-semibold text-center pb-4">Merge</h2>
+          <h2 className="text-white text-xl font-semibold text-center pb-4">Merge Order </h2>
 
           {/* From Order */}
           <div className="px-6 pb-4">

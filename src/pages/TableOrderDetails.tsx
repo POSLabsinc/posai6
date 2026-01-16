@@ -311,15 +311,15 @@ const TableOrderDetails = () => {
     }
   };
   const getStatusColor = (status: string) => {
-    switch (status) {
+    const upperStatus = status?.toUpperCase();
+    switch (upperStatus) {
       case "ORDERING":
         return "text-[#F87171]";
       case "PAID":
+      case "COMPLETED":
         return "text-green-500";
       case "UNPAID":
         return "text-red-400";
-      case "COMPLETED":
-        return "text-green-500";
       default:
         return "text-white";
     }

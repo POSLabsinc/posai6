@@ -1106,7 +1106,7 @@ const TransferOrders = () => {
           }} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
             background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
           }}>
-                  TRANSFER TO {targetOrder.table}
+                  TRANSFER ORDER #{currentOrder.id} TO {targetOrder.table}
                 </button>
               </div>}
           </>}

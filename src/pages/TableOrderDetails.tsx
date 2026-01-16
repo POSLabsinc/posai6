@@ -850,8 +850,6 @@ const TableOrderDetails = () => {
                       <div className="flex items-center text-xs lg:text-sm">
                         <div className="flex items-center gap-1 lg:gap-2 w-[180px] lg:w-[220px] flex-shrink-0">
                           <span className="text-white font-medium truncate">{guest.name}</span>
-                          <span className="text-white/60">·</span>
-                          <span className="text-white font-medium">{tableId}</span>
                         </div>
                         <div className="flex-1">
                           <span className="text-white/60 truncate">{guest.server}</span>
@@ -1355,8 +1353,6 @@ const TableOrderDetails = () => {
                       <div className="flex items-center text-xs">
                         <div className="flex items-center gap-1 flex-shrink-0">
                           <span className="text-white font-medium truncate">{guest.name}</span>
-                          <span className="text-white/60">·</span>
-                          <span className="text-white font-medium">T{guest.partySize}</span>
                         </div>
                         <span className="text-white/60 flex-1 text-left truncate px-1">{guest.server}</span>
                         <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(guest.status)}`}>

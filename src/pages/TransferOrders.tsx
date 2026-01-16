@@ -1154,14 +1154,12 @@ const TransferOrders = () => {
       {/* Desktop Confirmation Dialog */}
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-2xl overflow-hidden">
-          {/* Grabber */}
-          <div className="flex justify-center pt-3 pb-4">
-            <div className="w-10 h-1 bg-white/30 rounded-full" />
-          </div>
+          {/* Title */}
+          <h2 className="text-white text-xl font-semibold text-center pt-4 pb-4">Transfer Items</h2>
 
           {/* From Order with Items Being Transferred */}
           <div className="px-6 pb-4">
-            <p className="text-white text-lg font-medium mb-2">Transfer Items From</p>
+            <p className="text-amber-400 text-lg font-medium mb-2">From</p>
             <div className="rounded-xl border border-white overflow-hidden" style={{
             backgroundColor: '#1B1C20'
           }}>
@@ -1205,7 +1203,7 @@ const TransferOrders = () => {
 
           {/* To Order */}
           <div className="px-6 pb-6">
-            <p className="text-white text-lg font-medium mb-2">Transfer Items To</p>
+            <p className="text-emerald-400 text-lg font-medium mb-2">To</p>
             {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} />}
           </div>
 

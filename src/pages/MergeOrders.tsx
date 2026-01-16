@@ -784,13 +784,16 @@ const MergeOrders = () => {
   const ConfirmDirectionView = () => (
     <div className="flex flex-col h-full">
       {/* Grabber */}
-      <div className="flex justify-center pt-2 pb-4">
+      <div className="flex justify-center pt-2 pb-2">
         <div className="w-10 h-1 bg-white/30 rounded-full" />
       </div>
 
+      {/* Title */}
+      <h2 className="text-white text-xl font-semibold text-center pb-4">Merge</h2>
+
       {/* From Order */}
       <div className="px-4 pb-4">
-        <p className="text-white/60 text-sm mb-2">Merge From</p>
+        <p className="text-amber-400 text-sm font-medium mb-2">Merge</p>
         {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
       </div>
 
@@ -806,7 +809,7 @@ const MergeOrders = () => {
 
       {/* To Order */}
       <div className="px-4 pb-4">
-        <p className="text-white/60 text-sm mb-2">Merge To</p>
+        <p className="text-emerald-400 text-sm font-medium mb-2">To</p>
         {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} />}
       </div>
 
@@ -864,13 +867,16 @@ const MergeOrders = () => {
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-2xl overflow-hidden">
           {/* Grabber */}
-          <div className="flex justify-center pt-3 pb-4">
+          <div className="flex justify-center pt-3 pb-2">
             <div className="w-10 h-1 bg-white/30 rounded-full" />
           </div>
 
+          {/* Title */}
+          <h2 className="text-white text-xl font-semibold text-center pb-4">Merge</h2>
+
           {/* From Order */}
           <div className="px-6 pb-4">
-            <p className="text-white text-lg font-medium mb-2">Merge From</p>
+            <p className="text-amber-400 text-lg font-medium mb-2">Merge</p>
             {fromOrder && <OrderLayoutTemplate order={toOrderTemplateData(fromOrder)} />}
           </div>
 
@@ -886,7 +892,7 @@ const MergeOrders = () => {
 
           {/* To Order */}
           <div className="px-6 pb-6">
-            <p className="text-white text-lg font-medium mb-2">Merge To</p>
+            <p className="text-emerald-400 text-lg font-medium mb-2">To</p>
             {toOrder && <OrderLayoutTemplate order={toOrderTemplateData(toOrder)} />}
           </div>
 

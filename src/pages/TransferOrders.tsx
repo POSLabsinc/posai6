@@ -1051,7 +1051,7 @@ const TransferOrders = () => {
                 <button onClick={() => setDesktopStep("select-target")} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
             background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
           }}>
-                  SELECT CHECK
+                  SELECT TARGET CHECK
                 </button>
               </div>}
           </>}

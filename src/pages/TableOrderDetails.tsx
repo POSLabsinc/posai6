@@ -880,7 +880,7 @@ const TableOrderDetails = () => {
                         <span className="text-white font-medium w-[180px] lg:w-[220px] flex-shrink-0 truncate">{guest.revenueCenter}</span>
                         <div className="flex-1">
                           <span className="text-white/60 truncate">
-                            {guest.status === 'Paid' || guest.status === 'Completed' 
+                            {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' 
                               ? (guest.paymentType && guest.paymentType !== '--' ? guest.paymentType : 'Paid')
                               : 'Pending Payment'}
                           </span>

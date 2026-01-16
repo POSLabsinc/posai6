@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronDown, ArrowUpDown, ArrowDown, SlidersHorizontal, Search, Phone, Info, Check, Users, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronDown, ArrowUpDown, ArrowDown, SlidersHorizontal, Search, Phone, Info, Check, Users, Share2, X } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -1222,47 +1222,68 @@ const TransferOrders = () => {
       </Dialog>
 
       {/* Success Dialog */}
-      <Dialog open={isSuccessDialogOpen} onOpenChange={setIsSuccessDialogOpen}>
-        <DialogContent className="bg-white border-none p-6 max-w-xs rounded-2xl text-center shadow-xl">
-          <h2 className="text-neutral-900 text-lg font-semibold mb-2">Check Transferred</h2>
-          <p className="text-neutral-500 text-sm mb-6">
-            Check {currentOrder.id} was moved to Table {toOrder?.table?.replace('T', '')}.
-          </p>
-          <div className="flex gap-3">
-            <button onClick={() => {
-            setIsSuccessDialogOpen(false);
-            // Calculate transfer type (partial vs full)
-            const totalItems = currentOrder.items.length;
-            const transferredCount = selectedItems.length;
-            const transferType = transferredCount >= totalItems ? 'full' : 'partial';
-
-            // Build transfer params for source table
-            const itemNames = selectedItems.map(index => currentOrder.items[index].name).join(',');
-            const transferParams = new URLSearchParams({
-              transferSource: currentOrder.id,
-              transferType: transferType,
-              transferredTo: toOrder?.id || '',
-              transferToTable: toOrder?.table || '',
-              items: itemNames
-            });
-            navigate(`/tableorder/${tableId}?${transferParams.toString()}`);
-          }} className="flex-1 py-2.5 rounded-full text-neutral-700 font-medium text-sm bg-neutral-200 hover:bg-neutral-300 transition-colors">
-              Close
+      <Dialog open={isSuccessDialogOpen} onOpenChange={(open) => {
+        if (!open) {
+          // When closing, navigate to destination table order details
+          const itemNames = selectedItems.map(index => currentOrder.items[index].name).join(',');
+          const transferParams = new URLSearchParams({
+            transferred: currentOrder.id,
+            transferFrom: currentOrder.table,
+            transferDest: toOrder?.id || '',
+            items: itemNames
+          });
+          navigate(`/tableorder/${toOrder?.table}?${transferParams.toString()}`);
+        }
+        setIsSuccessDialogOpen(open);
+      }}>
+        <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-sm rounded-2xl overflow-hidden">
+          {/* Header with close button */}
+          <div className="flex items-center justify-between px-4 pt-4 pb-2">
+            <h2 className="text-white text-lg font-semibold">Items Transferred</h2>
+            <button 
+              onClick={() => {
+                const itemNames = selectedItems.map(index => currentOrder.items[index].name).join(',');
+                const transferParams = new URLSearchParams({
+                  transferred: currentOrder.id,
+                  transferFrom: currentOrder.table,
+                  transferDest: toOrder?.id || '',
+                  items: itemNames
+                });
+                navigate(`/tableorder/${toOrder?.table}?${transferParams.toString()}`);
+                setIsSuccessDialogOpen(false);
+              }}
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              <X className="w-4 h-4 text-white" />
             </button>
-            <button onClick={() => {
-            setIsSuccessDialogOpen(false);
-            // Build transfer params for destination table
-            const itemNames = selectedItems.map(index => currentOrder.items[index].name).join(',');
-            const transferParams = new URLSearchParams({
-              transferred: currentOrder.id,
-              transferFrom: currentOrder.table,
-              transferDest: toOrder?.id || '',
-              items: itemNames
-            });
-            navigate(`/tableorder/${toOrder?.table}?${transferParams.toString()}`);
-          }} className="flex-1 py-2.5 rounded-full text-white font-medium text-sm bg-neutral-800 hover:bg-neutral-700 transition-colors">
-              Go to Table{toOrder?.table?.replace('T', '')}
-            </button>
+          </div>
+          
+          {/* Transfer Summary */}
+          <div className="px-4 pb-4">
+            <p className="text-white/60 text-sm mb-3">
+              From <span className="text-amber-400">Order #{currentOrder.id}</span> to <span className="text-emerald-400">Order #{toOrder?.id} on Table {toOrder?.table?.replace('T', '')}</span>
+            </p>
+            
+            {/* Transferred Items List */}
+            <div className="bg-white/5 rounded-xl p-3 space-y-2">
+              {selectedItems.map((itemIndex) => {
+                const item = currentOrder.items[itemIndex];
+                return (
+                  <div key={itemIndex} className="flex justify-between items-center">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/40 text-sm">{item.qty}x</span>
+                      <span className="text-white text-sm">{item.name}</span>
+                    </div>
+                    <span className="text-white/60 text-sm">{item.price}</span>
+                  </div>
+                );
+              })}
+            </div>
+            
+            {/* Total Items Count */}
+            <p className="text-white/40 text-xs mt-3 text-center">
+              {selectedItems.length} item{selectedItems.length > 1 ? 's' : ''} transferred successfully
+            </p>
           </div>
         </DialogContent>
       </Dialog>

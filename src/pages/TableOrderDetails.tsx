@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, Receipt } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 
@@ -38,6 +38,7 @@ import dineInIcon from "@/assets/icons/dine-in.png";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import saveIcon from "@/assets/icons/save.png";
 import linkMergeIcon from "@/assets/icons/link-merge.png";
+import cashRegisterIcon from "@/assets/icons/cash-register.png";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
@@ -617,7 +618,7 @@ const TableOrderDetails = () => {
                           <span className="text-white font-medium text-sm">{guest.name} - {tableId}</span>
                           <div className="flex items-center gap-2">
                             <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.server}</span>
-                            <span className={`text-sm font-medium ${getStatusColor(guest.status)}`}>{guest.status}</span>
+                            <span className={`text-sm font-medium ${getStatusColor(guest.status)}`}>{guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}</span>
                           </div>
                         </div>
                        
@@ -662,7 +663,7 @@ const TableOrderDetails = () => {
                             <span>Party Of {guest.partySize},</span>
                            <span>⚡ {guest.time}</span>
                          </div>
-                         <span className={guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}>{guest.id === mergedOrderId && destOrderId ? 'MERGED' : guest.status}</span>
+                         <span className={guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}>{guest.id === mergedOrderId && destOrderId ? 'MERGED' : (guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status)}</span>
                        </div>
                      </div>
                    </div>
@@ -868,7 +869,7 @@ const TableOrderDetails = () => {
                         <span 
                           className={`font-semibold uppercase flex-shrink-0 ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}
                         >
-                          {guest.id === mergedOrderId && destOrderId ? 'MERGED' : guest.status}
+                          {guest.id === mergedOrderId && destOrderId ? 'MERGED' : (guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status)}
                         </span>
                       </div>
                       
@@ -899,8 +900,31 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
-                  {/* Right Action Buttons - Edge to edge (hidden for completed/paid/merged/fully-transferred orders) */}
-                  {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full') ? (
+                  {/* Right Action Buttons - Edge to edge */}
+                  {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' ? (
+                    /* Receipt and Register buttons for paid orders */
+                    <div className="flex-shrink-0 flex flex-col w-10">
+                      <button 
+                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Handle receipt action
+                        }}
+                      >
+                        <Receipt className="w-4 h-4 text-white" />
+                      </button>
+                      <button 
+                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          // Handle register action
+                        }}
+                      >
+                        <img src={cashRegisterIcon} alt="Register" className="w-4 h-4 object-contain" />
+                      </button>
+                    </div>
+                  ) : guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full') ? (
+                    /* Merge and Transfer buttons for unpaid orders */
                     <div className="flex-shrink-0 flex flex-col w-10">
                       <button 
                         className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
@@ -923,8 +947,6 @@ const TableOrderDetails = () => {
                         <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
                       </button>
                     </div>
-                  ) : guest.id === mergedOrderId ? (
-                    null
                   ) : null}
                 </div>
 
@@ -1376,7 +1398,7 @@ const TableOrderDetails = () => {
                         </div>
                         <span className="text-white/60 flex-1 text-left truncate px-1">{guest.server}</span>
                         <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(guest.status)}`}>
-                          {guest.status}
+                          {guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}
                         </span>
                       </div>
                       

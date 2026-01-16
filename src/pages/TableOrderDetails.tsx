@@ -2,7 +2,8 @@ import { useState, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2 } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 
 // Import shared order data
@@ -833,15 +834,7 @@ const TableOrderDetails = () => {
                       <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · Table {transferredFromTable}</span>
                     </span>
                   </div>}
-                {/* Transferred OUT Indicator (Source - sending items out) */}
-                {transferSourceOrderId === guest.id && transferType && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
-                    <span className="text-sm font-medium">
-                      <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
-                      <span className="text-white"> to Order {transferredToOrderId}</span>
-                      <span style={{ color: '#8AC4FF' }}> · Table </span>
-                      <span className="text-white">{transferToTable}</span>
-                    </span>
-                  </div>}
+                {/* Transferred OUT Indicator removed - now shown as strikethrough in cart */}
                 <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
@@ -924,16 +917,6 @@ const TableOrderDetails = () => {
                     </div>
                   ) : guest.id === mergedOrderId ? (
                     null
-                  ) : guest.id === transferSourceOrderId ? (
-                    <div className="flex-shrink-0 flex items-center justify-center w-24 px-2 rounded-r-xl" style={{ background: 'linear-gradient(180deg, #2B4A6F 0%, #1E3A5F 100%)' }}>
-                      <div className="flex flex-col items-center text-center">
-                        <img src={shareOrderIcon} alt="Transferred" className="w-4 h-4 mb-1 opacity-80" />
-                        <span className="text-[10px] text-[#8AC4FF]">
-                          {transferType === 'full' ? 'Transferred to' : 'Items sent to'}
-                        </span>
-                        <span className="text-xs text-white font-medium">Order #{transferredToOrderId}</span>
-                      </div>
-                    </div>
                   ) : null}
                 </div>
 
@@ -1127,12 +1110,35 @@ const TableOrderDetails = () => {
                           {item.qty}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium text-foreground">{item.name}</span>
-                            <span className="text-sm font-medium text-foreground">
-                              {formatPrice(item.price * item.qty)}
-                            </span>
-                          </div>
+                          {(() => {
+                            // Check if this item was transferred out
+                            const isTransferredOut = transferSourceOrderId === currentSelectedGuest.id && 
+                              transferredOutItemNames.includes(item.name);
+                            return (
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-1">
+                                  <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
+                                    {item.name}
+                                  </span>
+                                  {isTransferredOut && (
+                                    <TooltipProvider>
+                                      <Tooltip>
+                                        <TooltipTrigger asChild>
+                                          <Info className="w-3.5 h-3.5 text-[#8AC4FF] cursor-help" />
+                                        </TooltipTrigger>
+                                        <TooltipContent side="top" className="bg-neutral-800 border-neutral-700 text-white text-xs">
+                                          <p>Transferred to Order {transferredToOrderId} on Table {transferToTable}</p>
+                                        </TooltipContent>
+                                      </Tooltip>
+                                    </TooltipProvider>
+                                  )}
+                                </div>
+                                <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
+                                  {formatPrice(item.price * item.qty)}
+                                </span>
+                              </div>
+                            );
+                          })()}
                           
                           {/* Modifiers with tree hierarchy */}
                           {item.modifiers.length > 0 && (

@@ -899,8 +899,8 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
 
-                  {/* Right Action Buttons - Edge to edge (hidden for completed/paid/merged/transfer-source orders) */}
-                  {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId && guest.id !== transferSourceOrderId ? (
+                  {/* Right Action Buttons - Edge to edge (hidden for completed/paid/merged/fully-transferred orders) */}
+                  {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full') ? (
                     <div className="flex-shrink-0 flex flex-col w-10">
                       <button 
                         className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"

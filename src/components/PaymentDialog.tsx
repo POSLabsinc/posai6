@@ -4,7 +4,7 @@ import {
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
   Mail, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, 
   UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, 
-  RefreshCw, Send, Zap, Users
+  RefreshCw, Send, Zap, Users, Clock
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -300,6 +300,18 @@ export function PaymentDialog({
 
   // Handle charge/process payment
   const handleChargePayment = () => {
+    // Gift Card: transition to card entry screen
+    if (selectedPaymentMethod === 'gift-card' && giftCardStep === 'amount') {
+      setGiftCardStep('enter-card');
+      return;
+    }
+    
+    // Pay by Link: transition to guest selection screen
+    if (selectedPaymentMethod === 'pay-link' && payByLinkStep === 'amount') {
+      setPayByLinkStep('select-guest');
+      return;
+    }
+    
     // For DoorDash, go to reference step first
     if (selectedPaymentMethod === 'doordash' && doordashStep === 'amount') {
       setDoordashStep('reference');
@@ -994,6 +1006,553 @@ export function PaymentDialog({
                     </button>
                   </div>
                 </>
+              )}
+            </>
+          ) : selectedPaymentMethod === 'gift-card' && giftCardStep === 'enter-card' ? (
+            /* ============= GIFT CARD FLOW - REPLACES ENTIRE PANEL ============= */
+            <>
+              {/* Header with Back Button */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => {
+                      setGiftCardStep('amount');
+                      setGiftCardNumber('');
+                    }}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                  </button>
+                  <span className="text-white text-lg font-medium">Pay by Gift Card</span>
+                </div>
+                <span className="text-red-500 text-lg font-bold">${paymentAmount}</span>
+              </div>
+
+              {/* Gift Card Number Display */}
+              <div className="px-6 py-6">
+                <div className="flex flex-col items-center">
+                  <span className="text-neutral-400 text-xs mb-2">Gift Card Number</span>
+                  <div className="flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 py-4 w-full">
+                    <span className="text-white text-2xl font-bold tracking-widest text-center">
+                      {giftCardNumber.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim() || 'XXXX XXXX XXXX XXXX'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Keypad for Gift Card Number */}
+              <div className="flex-1 px-6">
+                <div className="flex flex-col gap-1.5">
+                  {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
+                    <div key={rowIndex} className="flex gap-1.5">
+                      {row.map(key => (
+                        <button 
+                          key={key}
+                          onClick={() => handleGiftCardKeypadPress(key)}
+                          className="flex-1 py-3 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                        >
+                          {key}
+                        </button>
+                      ))}
+                    </div>
+                  ))}
+                  <div className="flex gap-1.5">
+                    <button 
+                      onClick={() => handleGiftCardKeypadPress('0')}
+                      className="flex-1 py-3 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                    >
+                      0
+                    </button>
+                    <button 
+                      onClick={() => handleGiftCardKeypadPress('00')}
+                      className="flex-1 py-3 rounded-lg text-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                    >
+                      00
+                    </button>
+                    <button 
+                      onClick={() => handleGiftCardKeypadPress('C')}
+                      className="flex-1 py-3 rounded-lg text-lg font-medium bg-neutral-800 text-red-500 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                    >
+                      C
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Continue Button */}
+              <div className="p-4">
+                <button 
+                  onClick={() => {
+                    const digits = giftCardNumber.replace(/\s/g, '');
+                    if (digits.length === 16) {
+                      const paid = parseFloat(paymentAmount) || 0;
+                      setPaidAmount(prev => prev + paid);
+                      setPaymentHistory(prev => [...prev, { method: 'gift-card', amount: paid, methodLabel: 'Gift Card' }]);
+                      setPaymentProcessed(true);
+                    }
+                  }}
+                  disabled={giftCardNumber.replace(/\s/g, '').length !== 16}
+                  className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${
+                    giftCardNumber.replace(/\s/g, '').length === 16 
+                      ? 'bg-white hover:bg-neutral-200 text-neutral-900' 
+                      : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                  }`}
+                >
+                  Continue
+                </button>
+              </div>
+            </>
+          ) : selectedPaymentMethod === 'pay-link' && payByLinkStep !== 'amount' ? (
+            /* ============= PAY BY LINK FLOW - REPLACES ENTIRE PANEL ============= */
+            <>
+              {/* Header with Back Button */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => {
+                      if (payByLinkStep === 'select-guest') {
+                        setPayByLinkStep('amount');
+                      } else if (payByLinkStep === 'add-guest') {
+                        setPayByLinkStep('select-guest');
+                      } else if (payByLinkStep === 'guest-confirmed') {
+                        setPayByLinkStep('select-guest');
+                        setSelectedGuest(null);
+                      } else if (payByLinkStep === 'pending' || payByLinkStep === 'expired') {
+                        setPayByLinkStep('guest-confirmed');
+                      } else if (payByLinkStep === 'complete') {
+                        setPayByLinkStep('amount');
+                        setSelectedGuest(null);
+                      }
+                    }}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                  </button>
+                  <span className="text-white text-lg font-medium">Pay by Link</span>
+                </div>
+                <span className="text-red-500 text-lg font-bold">${paymentAmount}</span>
+              </div>
+
+              {/* Guest Selection Screen */}
+              {payByLinkStep === 'select-guest' && (
+                <div className="flex flex-col overflow-hidden flex-1">
+                  {/* Info Text */}
+                  <div className="px-4 py-2 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-2 text-neutral-400 text-xs flex-1 min-w-0">
+                      <div className="w-4 h-4 rounded-full border border-neutral-400 flex items-center justify-center flex-shrink-0">
+                        <span className="text-[10px]">i</span>
+                      </div>
+                      <span className="truncate">Search guest to share link or add details.</span>
+                    </div>
+                    <button 
+                      onClick={() => {
+                        setNewGuestForLink({ name: '', phone: '', email: '' });
+                        setPayByLinkStep('add-guest');
+                      }}
+                      className="flex items-center gap-1 px-2 py-1 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors flex-shrink-0 whitespace-nowrap"
+                    >
+                      <UserPlus className="w-3 h-3 text-white" />
+                      <span className="text-white text-xs">Add</span>
+                    </button>
+                  </div>
+
+                  {/* Send Link Toggle Buttons */}
+                  <div className="px-4 pb-3 flex gap-2">
+                    <button 
+                      onClick={() => setSendLinkMethod('text')}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        sendLinkMethod === 'text' ? 'bg-white text-black' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                      }`}
+                    >
+                      Send Link by Text
+                    </button>
+                    <button 
+                      onClick={() => setSendLinkMethod('email')}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        sendLinkMethod === 'email' ? 'bg-white text-black' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                      }`}
+                    >
+                      Send Link by Email
+                    </button>
+                  </div>
+
+                  {/* Search Input */}
+                  <div className="px-4 pb-3">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+                      <Input 
+                        type="text" 
+                        placeholder="Search Guest" 
+                        value={guestSearchQuery} 
+                        onChange={e => setGuestSearchQuery(e.target.value)} 
+                        className="w-full pl-10 py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Guest List Table */}
+                  <div className="flex-1 overflow-auto px-4 min-h-0 pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    {/* Table Header */}
+                    <div className="grid grid-cols-3 gap-4 py-2 text-xs text-neutral-400 border-b border-neutral-700">
+                      <span>Name</span>
+                      <span>Phone Number</span>
+                      <span>Email</span>
+                    </div>
+                    {/* Guest Rows */}
+                    {mockGuests
+                      .filter(guest => 
+                        guestSearchQuery === '' || 
+                        guest.name.toLowerCase().includes(guestSearchQuery.toLowerCase()) || 
+                        guest.phone.includes(guestSearchQuery) || 
+                        guest.email.toLowerCase().includes(guestSearchQuery.toLowerCase())
+                      )
+                      .map((guest, index) => (
+                        <div 
+                          key={index}
+                          onClick={() => {
+                            setSelectedGuest(guest);
+                            setPayByLinkStep('guest-confirmed');
+                          }}
+                          className="grid grid-cols-3 gap-4 py-3 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs text-white font-medium">
+                              {guest.avatar}
+                            </div>
+                            <span className="text-white text-sm">{guest.name}</span>
+                          </div>
+                          <span className="text-neutral-300 text-sm flex items-center">{guest.phone}</span>
+                          <span className="text-neutral-300 text-sm flex items-center truncate">{guest.email}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Add Guest Screen */}
+              {payByLinkStep === 'add-guest' && (
+                <div className="flex flex-col overflow-hidden flex-1">
+                  {/* Info Text */}
+                  <div className="px-4 py-2 flex items-center gap-2 text-neutral-400 text-xs">
+                    <div className="w-4 h-4 rounded-full border border-neutral-400 flex items-center justify-center flex-shrink-0">
+                      <span className="text-[10px]">i</span>
+                    </div>
+                    <span>Enter guest details to send payment link.</span>
+                  </div>
+
+                  {/* Send Link Toggle Buttons */}
+                  <div className="px-4 pb-3 flex gap-2">
+                    <button 
+                      onClick={() => setSendLinkMethod('text')}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        sendLinkMethod === 'text' ? 'bg-white text-black' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                      }`}
+                    >
+                      Send Link by Text
+                    </button>
+                    <button 
+                      onClick={() => setSendLinkMethod('email')}
+                      className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        sendLinkMethod === 'email' ? 'bg-white text-black' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'
+                      }`}
+                    >
+                      Send Link by Email
+                    </button>
+                  </div>
+
+                  {/* Form Fields */}
+                  <div className="flex-1 overflow-auto px-4 space-y-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    {/* Guest Name */}
+                    <div>
+                      <label className="text-neutral-400 text-xs mb-1.5 block">
+                        Guest Name <span className="text-red-500">*</span>
+                      </label>
+                      <Input 
+                        type="text" 
+                        placeholder="Enter full name" 
+                        value={newGuestForLink.name} 
+                        onChange={e => setNewGuestForLink({ ...newGuestForLink, name: e.target.value })} 
+                        className="w-full py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" 
+                      />
+                    </div>
+
+                    {/* Phone Number */}
+                    <div>
+                      <label className="text-neutral-400 text-xs mb-1.5 block">
+                        Phone Number {sendLinkMethod === 'text' && <span className="text-red-500">*</span>}
+                      </label>
+                      <Input 
+                        type="tel" 
+                        placeholder="(555) 123-4567" 
+                        value={newGuestForLink.phone} 
+                        onChange={e => {
+                          const value = e.target.value.replace(/\D/g, '');
+                          let formatted = value;
+                          if (value.length >= 3 && value.length < 6) {
+                            formatted = `(${value.slice(0, 3)}) ${value.slice(3)}`;
+                          } else if (value.length >= 6) {
+                            formatted = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
+                          }
+                          setNewGuestForLink({ ...newGuestForLink, phone: formatted });
+                        }} 
+                        className="w-full py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" 
+                      />
+                    </div>
+
+                    {/* Email */}
+                    <div>
+                      <label className="text-neutral-400 text-xs mb-1.5 block">
+                        Email Address {sendLinkMethod === 'email' && <span className="text-red-500">*</span>}
+                      </label>
+                      <Input 
+                        type="email" 
+                        placeholder="guest@email.com" 
+                        value={newGuestForLink.email} 
+                        onChange={e => setNewGuestForLink({ ...newGuestForLink, email: e.target.value })} 
+                        className="w-full py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="p-4 flex gap-3 border-t border-neutral-700">
+                    <button 
+                      onClick={() => setPayByLinkStep('select-guest')}
+                      className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-neutral-700 text-white hover:bg-neutral-600 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (!newGuestForLink.name.trim()) return;
+                        if (sendLinkMethod === 'text' && !newGuestForLink.phone.trim()) return;
+                        if (sendLinkMethod === 'email' && !newGuestForLink.email.trim()) return;
+
+                        const newGuest: GuestType = {
+                          name: newGuestForLink.name,
+                          phone: newGuestForLink.phone,
+                          email: newGuestForLink.email,
+                          avatar: newGuestForLink.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
+                          loyaltyPoints: 0
+                        };
+                        setSelectedGuest(newGuest);
+                        setPayByLinkStep('pending');
+                      }}
+                      disabled={!newGuestForLink.name.trim() || (sendLinkMethod === 'text' && !newGuestForLink.phone.trim()) || (sendLinkMethod === 'email' && !newGuestForLink.email.trim())}
+                      className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Send Link
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Guest Confirmed Screen */}
+              {payByLinkStep === 'guest-confirmed' && selectedGuest && (
+                <div className="flex flex-col overflow-hidden flex-1">
+                  {/* Selected Guest Card */}
+                  <div className="p-4">
+                    <div className="bg-neutral-800 rounded-xl p-4">
+                      <div className="flex items-start gap-4">
+                        <div className="w-14 h-14 rounded-full bg-neutral-600 flex items-center justify-center text-lg text-white font-medium">
+                          {selectedGuest.avatar}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-white font-semibold text-lg">{selectedGuest.name}</h3>
+                          <div className="flex items-center gap-2 mt-1 text-neutral-400 text-sm">
+                            <Phone className="w-4 h-4" />
+                            <span>{selectedGuest.phone}</span>
+                          </div>
+                          <div className="flex items-center gap-2 mt-1 text-neutral-400 text-sm">
+                            <Mail className="w-4 h-4" />
+                            <span>{selectedGuest.email}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button 
+                            onClick={() => {
+                              setSendLinkMethod('text');
+                              setPayByLinkStep('pending');
+                            }}
+                            className="w-9 h-9 rounded-full bg-green-600 flex items-center justify-center hover:bg-green-500 transition-colors"
+                          >
+                            <MessageSquare className="w-4 h-4 text-white" />
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setSendLinkMethod('text');
+                              setPayByLinkStep('pending');
+                            }}
+                            className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-400 transition-colors"
+                          >
+                            <Phone className="w-4 h-4 text-white" />
+                          </button>
+                          <button 
+                            onClick={() => {
+                              setSendLinkMethod('email');
+                              setPayByLinkStep('pending');
+                            }}
+                            className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-400 transition-colors"
+                          >
+                            <Mail className="w-4 h-4 text-white" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Send Link Buttons */}
+                  <div className="px-4 pb-4 flex gap-3">
+                    <button 
+                      onClick={() => {
+                        setSendLinkMethod('text');
+                        setPayByLinkStep('pending');
+                      }}
+                      className="flex-1 py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors"
+                    >
+                      Send Link by Text
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setSendLinkMethod('email');
+                        setPayByLinkStep('pending');
+                      }}
+                      className="flex-1 py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors"
+                    >
+                      Send Link by Email
+                    </button>
+                  </div>
+
+                  {/* Remaining Guest List */}
+                  <div className="flex-1 overflow-auto px-4 min-h-0 pb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    <div className="grid grid-cols-3 gap-4 py-2 text-xs text-neutral-400 border-b border-neutral-700">
+                      <span>Name</span>
+                      <span>Phone Number</span>
+                      <span>Email</span>
+                    </div>
+                    {mockGuests
+                      .filter(g => g.name !== selectedGuest.name)
+                      .map((guest, index) => (
+                        <div 
+                          key={index}
+                          onClick={() => setSelectedGuest(guest)}
+                          className="grid grid-cols-3 gap-4 py-3 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors"
+                        >
+                          <div className="flex items-center gap-2">
+                            <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs text-white font-medium">
+                              {guest.avatar}
+                            </div>
+                            <span className="text-white text-sm">{guest.name}</span>
+                          </div>
+                          <span className="text-neutral-300 text-sm flex items-center">{guest.phone}</span>
+                          <span className="text-neutral-300 text-sm flex items-center truncate">{guest.email}</span>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Payment Pending Screen */}
+              {payByLinkStep === 'pending' && selectedGuest && (
+                <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                  <div className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center mb-6">
+                    <Clock className="w-10 h-10 text-orange-500" />
+                  </div>
+                  <h2 className="text-white text-2xl font-semibold mb-2">Payment Pending</h2>
+                  <p className="text-neutral-400 text-sm mb-8">Waiting for customer to complete payment</p>
+                  
+                  <div className="w-full space-y-3 mb-8">
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Amount Requested</span>
+                      <span className="text-white font-medium">${paymentAmount}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Recipient</span>
+                      <span className="text-white font-medium">{sendLinkMethod === 'text' ? selectedGuest.phone : selectedGuest.email}</span>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      const random = Math.random();
+                      if (random < 0.5) {
+                        setPayByLinkStep('expired');
+                      } else {
+                        const paid = parseFloat(paymentAmount) || 0;
+                        setPaidAmount(prev => prev + paid);
+                        setPayByLinkStep('complete');
+                      }
+                    }}
+                    className="w-full py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                  >
+                    REFRESH STATUS
+                  </button>
+                </div>
+              )}
+
+              {/* Payment Expired Screen */}
+              {payByLinkStep === 'expired' && selectedGuest && (
+                <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                  <div className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center mb-6">
+                    <AlertTriangle className="w-10 h-10 text-orange-500" />
+                  </div>
+                  <h2 className="text-white text-2xl font-semibold mb-2">Payment Link Expired</h2>
+                  <p className="text-neutral-400 text-sm mb-8">The payment link has expired</p>
+                  
+                  <div className="w-full space-y-3 mb-8">
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Amount Requested</span>
+                      <span className="text-white font-medium">${paymentAmount}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Recipient</span>
+                      <span className="text-white font-medium">{sendLinkMethod === 'text' ? selectedGuest.phone : selectedGuest.email}</span>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => setPayByLinkStep('pending')}
+                    className="w-full py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-400 transition-colors"
+                  >
+                    RESEND LINK
+                  </button>
+                </div>
+              )}
+
+              {/* Payment Complete Screen */}
+              {payByLinkStep === 'complete' && selectedGuest && (
+                <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                  <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
+                    <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
+                  </div>
+                  <h2 className="text-white text-2xl font-semibold mb-2">Payment Complete</h2>
+                  <p className="text-neutral-400 text-sm mb-8">The guest has completed their payment</p>
+                  
+                  <div className="w-full space-y-3 mb-8">
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Amount Requested</span>
+                      <span className="text-white font-medium">${paymentAmount}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Amount Paid</span>
+                      <span className="text-green-500 font-medium">${paidAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Recipient</span>
+                      <span className="text-white font-medium">{sendLinkMethod === 'text' ? selectedGuest.phone : selectedGuest.email}</span>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      setPaymentHistory(prev => [...prev, { method: 'pay-link', amount: parseFloat(paymentAmount) || 0, methodLabel: 'Pay by Link' }]);
+                      setPaymentProcessed(true);
+                    }}
+                    className="w-full py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors"
+                  >
+                    CONTINUE
+                  </button>
+                </div>
               )}
             </>
           ) : (

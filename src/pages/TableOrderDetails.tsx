@@ -149,6 +149,14 @@ const TableOrderDetails = () => {
   const transferredItemNames = transferredItemsParam ? transferredItemsParam.split(',') : [];
   const transferredOutItemNames = transferredItemsFromSource ? transferredItemsFromSource.split(',') : [];
   
+  // Get the revenueCenter (area) of the merged source order
+  const getMergedSourceArea = (orderId: string | null): string => {
+    if (!orderId) return "";
+    const sourceOrder = allOrders.find(o => o.id === orderId);
+    return sourceOrder?.revenueCenter || "";
+  };
+  const mergedSourceArea = getMergedSourceArea(mergedOrderId);
+  
   // Get orders for this table with calculated totals
   const guestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
     const orderWithTotals = getOrderWithTotals(order) as GuestOrder;
@@ -546,7 +554,7 @@ const TableOrderDetails = () => {
               {/* Merged Order Indicator - Destination */}
               {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
                   <span className="text-xs font-medium">
-                    <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">T{mergedFromTable}</span>
+                    <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">T{mergedFromTable}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
                   </span>
                 </div>}
               {/* Merged Order Indicator - Source (disabled look) */}
@@ -820,7 +828,7 @@ const TableOrderDetails = () => {
                 {/* Merged Order Indicator - Destination */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">Table T{mergedFromTable}</span>
+                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">Table T{mergedFromTable}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
                     </span>
                   </div>}
                 {/* Merged Order Indicator - Source (disabled look) */}
@@ -1377,7 +1385,7 @@ const TableOrderDetails = () => {
             {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-0">
                 {/* Merged Order Indicator */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 bg-neutral-900 rounded-t-lg border-l-2 border-orange-500 flex items-center gap-1">
-                    <span className="text-orange-500 text-xs font-medium">Merged #{mergedOrderId} from T{mergedFromTable}</span>
+                    <span className="text-orange-500 text-xs font-medium">Merged #{mergedOrderId} from T{mergedFromTable}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
                   </div>}
                 <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
                 <div className="flex items-stretch w-full bg-neutral-900">

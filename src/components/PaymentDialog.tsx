@@ -3470,7 +3470,7 @@ export function PaymentDialog({
                 </div>
               </div>
               {/* Quick Amounts OR Keypad */}
-                  <div className="p-3 space-y-1.5 flex-1">
+              <div className="p-3 space-y-1.5 flex-1">
                     {showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card' || selectedPaymentMethod === 'pay-link' ? (
                       // Numeric Keypad
                       <div className="flex flex-col gap-1.5">
@@ -3609,8 +3609,6 @@ export function PaymentDialog({
                       CHARGE ${paymentAmount}
                     </button>
                   </div>
-                </>
-              )}
             </>
           )}
         </div>

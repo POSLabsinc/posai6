@@ -300,6 +300,12 @@ export function PaymentDialog({
 
   // Handle charge/process payment
   const handleChargePayment = () => {
+    // For DoorDash, go to reference step first
+    if (selectedPaymentMethod === 'doordash' && doordashStep === 'amount') {
+      setDoordashStep('reference');
+      return;
+    }
+    
     const amount = parseFloat(paymentAmount) || 0;
     const methodLabel = getMethodLabel(selectedPaymentMethod);
     
@@ -557,148 +563,343 @@ export function PaymentDialog({
                 </div>
               </div>
 
-              {/* Quick Amounts OR Keypad */}
-              <div className="p-3 space-y-1.5 flex-1">
-                {showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card' || selectedPaymentMethod === 'pay-link' || selectedPaymentMethod === 'loyalty' ? (
-                  // Numeric Keypad
-                  <div className="flex flex-col gap-1.5">
-                    {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
-                      <div key={rowIndex} className="flex gap-1.5">
-                        {row.map(key => (
-                          <button 
-                            key={key}
-                            onClick={() => handleKeypadPress(key)}
-                            className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                          >
-                            {key}
-                          </button>
-                        ))}
-                      </div>
-                    ))}
-                    <div className="flex gap-1.5">
-                      <button 
-                        onClick={() => handleKeypadPress('.')}
-                        className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                      >
-                        .
-                      </button>
-                      <button 
-                        onClick={() => handleKeypadPress('0')}
-                        className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                      >
-                        0
-                      </button>
-                      <button 
-                        onClick={() => handleKeypadPress('backspace')}
-                        className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
-                      >
-                        <Delete className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                ) : (
-                  // Quick Amount Buttons with quantity tracking - 2 row layout
-                  <>
-                    <div className="flex gap-4 px-2">
-                      <div className="flex-1 relative py-1">
+              {/* DoorDash Flow */}
+              {selectedPaymentMethod === 'doordash' && doordashStep !== 'amount' ? (
+                <div className="flex-1 flex flex-col">
+                  {doordashStep === 'reference' && (
+                    <div className="flex-1 flex flex-col">
+                      {/* Back Button */}
+                      <div className="px-4 pt-2">
                         <button 
-                          onClick={() => {
-                            setAmountQuantities({});
-                            setPaymentAmount(total.toFixed(2));
-                          }} 
-                          className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
-                            paymentAmount === total.toFixed(2) && Object.keys(amountQuantities).length === 0 
-                              ? 'bg-neutral-900 text-white border border-neutral-600' 
-                              : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                          }`}
+                          onClick={() => setDoordashStep('amount')}
+                          className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
                         >
-                          ${total.toFixed(2)}
+                          <ArrowLeft className="w-5 h-5 text-neutral-300" />
                         </button>
                       </div>
-                      {quickAmounts.slice(0, 3).map(amount => {
-                        const qty = amountQuantities[amount] || 0;
-                        return (
-                          <div key={amount} className="flex-1 relative py-1">
-                            <button 
-                              onClick={() => handleAddAmount(amount)} 
-                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
-                                qty > 0 
-                                  ? 'bg-neutral-900 text-white border border-neutral-600' 
-                                  : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                              }`}
-                            >
-                              ${amount}
-                            </button>
-                            {qty > 0 && (
-                              <>
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveAmount(amount);
-                                  }} 
-                                  className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center leading-none text-xs hover:bg-red-600 transition-colors z-10"
-                                >
-                                  ×
-                                </button>
-                                <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
-                                  x{qty}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                    <div className="flex gap-4 px-2">
-                      {quickAmounts.slice(3).map(amount => {
-                        const qty = amountQuantities[amount] || 0;
-                        return (
-                          <div key={amount} className="flex-1 relative py-1">
-                            <button 
-                              onClick={() => handleAddAmount(amount)} 
-                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
-                                qty > 0 
-                                  ? 'bg-neutral-900 text-white border border-neutral-600' 
-                                  : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                              }`}
-                            >
-                              ${amount}
-                            </button>
-                            {qty > 0 && (
-                              <>
-                                <button 
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleRemoveAmount(amount);
-                                  }} 
-                                  className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
-                                >
-                                  ×
-                                </button>
-                                <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
-                                  x{qty}
-                                </span>
-                              </>
-                            )}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </>
-                )}
-              </div>
 
-              {/* Charge Button */}
-              <div className="p-3 pt-0">
-                <button 
-                  onClick={handleChargePayment}
-                  className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
-                >
-                  CHARGE ${paymentAmount}
-                </button>
-              </div>
-            </>
-          )}
+                      {/* DoorDash Logo */}
+                      <div className="flex justify-center py-6">
+                        <div className="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center">
+                          <Truck className="w-8 h-8 text-white" />
+                        </div>
+                      </div>
+
+                      {/* Reference Number Label */}
+                      <div className="px-4 mb-1">
+                        <span className="text-neutral-400 text-xs">Reference number</span>
+                      </div>
+
+                      {/* Reference Number Input */}
+                      <div className="px-4 mb-3">
+                        <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
+                          <span className="text-white text-base font-medium">
+                            {doordashReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Keypad */}
+                      <div className="flex-1 px-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map(key => (
+                            <button 
+                              key={key}
+                              onClick={() => {
+                                if (key === 'C') {
+                                  setDoordashReference('');
+                                } else {
+                                  setDoordashReference(doordashReference + key);
+                                }
+                              }}
+                              className={`h-12 rounded-xl text-lg font-medium transition-colors ${
+                                key === 'C' 
+                                  ? 'bg-neutral-800 border border-neutral-700 text-red-500 hover:bg-neutral-700' 
+                                  : 'bg-neutral-800 border border-neutral-700 text-white hover:bg-neutral-700 active:bg-neutral-600'
+                              }`}
+                            >
+                              {key}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Continue Button */}
+                      <div className="p-4">
+                        <button 
+                          onClick={() => {
+                            const paid = parseFloat(paymentAmount) || 0;
+                            setPaidAmount(prev => prev + paid);
+                            setPaymentHistory(prev => [...prev, { method: 'doordash', amount: paid, methodLabel: 'DoorDash' }]);
+                            setDoordashStep('complete');
+                          }}
+                          disabled={!doordashReference}
+                          className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${
+                            doordashReference 
+                              ? 'bg-white hover:bg-neutral-200 text-neutral-900' 
+                              : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                          }`}
+                        >
+                          CONTINUE
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {doordashStep === 'complete' && (
+                    <>
+                      {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
+                        <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                          {/* Back Button */}
+                          <div className="absolute top-4 left-4">
+                            <button 
+                              onClick={() => setDoordashStep('amount')}
+                              className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                            >
+                              <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                            </button>
+                          </div>
+
+                          {/* Success Icon */}
+                          <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                            <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
+                          </div>
+                          
+                          <p className="text-center mb-2">
+                            <span className="text-green-500 font-bold text-lg">${(parseFloat(paymentAmount) || 0).toFixed(2)}</span>
+                            <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+                          </p>
+                          
+                          <p className="text-neutral-400 text-sm text-center mb-6">
+                            DoorDash Ref: {doordashReference.replace(/(.{4})/g, '$1 ').trim()}
+                          </p>
+
+                          {/* Receipt Options */}
+                          <div className="w-full max-w-xs">
+                            <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
+                            <div className="flex gap-4 justify-center mb-4">
+                              <button 
+                                onClick={handleComplete}
+                                className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                              >
+                                <Printer className="w-6 h-6 text-neutral-400" />
+                                <span className="text-neutral-400 text-sm">Print</span>
+                              </button>
+                              <button 
+                                onClick={() => setTextReceiptStep('phone-input')}
+                                className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                              >
+                                <MessageSquare className="w-6 h-6 text-neutral-400" />
+                                <span className="text-neutral-400 text-sm">Text</span>
+                              </button>
+                              <button 
+                                onClick={() => setEmailReceiptStep('email-input')}
+                                className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                              >
+                                <Mail className="w-6 h-6 text-neutral-400" />
+                                <span className="text-neutral-400 text-sm">Email</span>
+                              </button>
+                            </div>
+                            <button 
+                              onClick={handleComplete}
+                              className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                            >
+                              NO RECEIPT
+                            </button>
+                          </div>
+                        </div>
+                      ) : textReceiptStep === 'phone-input' ? (
+                        <div className="flex-1 flex flex-col px-6 py-6">
+                          <button 
+                            onClick={() => setTextReceiptStep('receipt')}
+                            className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors mb-4"
+                          >
+                            <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                          </button>
+                          <h3 className="text-white font-semibold text-center mb-4">Enter Phone Number</h3>
+                          <Input
+                            value={textReceiptPhone}
+                            onChange={(e) => setTextReceiptPhone(e.target.value)}
+                            placeholder="(555) 555-5555"
+                            className="mb-4 bg-neutral-800 border-neutral-700 text-white"
+                          />
+                          <button 
+                            onClick={handleComplete}
+                            className="w-full py-3 bg-white hover:bg-neutral-200 text-neutral-900 font-bold rounded-xl transition-colors"
+                          >
+                            SEND RECEIPT
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex-1 flex flex-col px-6 py-6">
+                          <button 
+                            onClick={() => setEmailReceiptStep('receipt')}
+                            className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors mb-4"
+                          >
+                            <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                          </button>
+                          <h3 className="text-white font-semibold text-center mb-4">Enter Email Address</h3>
+                          <Input
+                            value={emailReceiptEmail}
+                            onChange={(e) => setEmailReceiptEmail(e.target.value)}
+                            placeholder="email@example.com"
+                            className="mb-4 bg-neutral-800 border-neutral-700 text-white"
+                          />
+                          <button 
+                            onClick={handleComplete}
+                            className="w-full py-3 bg-white hover:bg-neutral-200 text-neutral-900 font-bold rounded-xl transition-colors"
+                          >
+                            SEND RECEIPT
+                          </button>
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ) : (
+                <>
+                  {/* Quick Amounts OR Keypad */}
+                  <div className="p-3 space-y-1.5 flex-1">
+                    {showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card' || selectedPaymentMethod === 'pay-link' || selectedPaymentMethod === 'loyalty' ? (
+                      // Numeric Keypad
+                      <div className="flex flex-col gap-1.5">
+                        {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
+                          <div key={rowIndex} className="flex gap-1.5">
+                            {row.map(key => (
+                              <button 
+                                key={key}
+                                onClick={() => handleKeypadPress(key)}
+                                className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                              >
+                                {key}
+                              </button>
+                            ))}
+                          </div>
+                        ))}
+                        <div className="flex gap-1.5">
+                          <button 
+                            onClick={() => handleKeypadPress('.')}
+                            className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                          >
+                            .
+                          </button>
+                          <button 
+                            onClick={() => handleKeypadPress('0')}
+                            className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                          >
+                            0
+                          </button>
+                          <button 
+                            onClick={() => handleKeypadPress('backspace')}
+                            className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
+                          >
+                            <Delete className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      // Quick Amount Buttons with quantity tracking - 2 row layout
+                      <>
+                        <div className="flex gap-4 px-2">
+                          <div className="flex-1 relative py-1">
+                            <button 
+                              onClick={() => {
+                                setAmountQuantities({});
+                                setPaymentAmount(total.toFixed(2));
+                              }} 
+                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                paymentAmount === total.toFixed(2) && Object.keys(amountQuantities).length === 0 
+                                  ? 'bg-neutral-900 text-white border border-neutral-600' 
+                                  : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                              }`}
+                            >
+                              ${total.toFixed(2)}
+                            </button>
+                          </div>
+                          {quickAmounts.slice(0, 3).map(amount => {
+                            const qty = amountQuantities[amount] || 0;
+                            return (
+                              <div key={amount} className="flex-1 relative py-1">
+                                <button 
+                                  onClick={() => handleAddAmount(amount)} 
+                                  className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                    qty > 0 
+                                      ? 'bg-neutral-900 text-white border border-neutral-600' 
+                                      : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                                  }`}
+                                >
+                                  ${amount}
+                                </button>
+                                {qty > 0 && (
+                                  <>
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoveAmount(amount);
+                                      }} 
+                                      className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center leading-none text-xs hover:bg-red-600 transition-colors z-10"
+                                    >
+                                      ×
+                                    </button>
+                                    <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
+                                      x{qty}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                        <div className="flex gap-4 px-2">
+                          {quickAmounts.slice(3).map(amount => {
+                            const qty = amountQuantities[amount] || 0;
+                            return (
+                              <div key={amount} className="flex-1 relative py-1">
+                                <button 
+                                  onClick={() => handleAddAmount(amount)} 
+                                  className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                    qty > 0 
+                                      ? 'bg-neutral-900 text-white border border-neutral-600' 
+                                      : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                                  }`}
+                                >
+                                  ${amount}
+                                </button>
+                                {qty > 0 && (
+                                  <>
+                                    <button 
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleRemoveAmount(amount);
+                                      }} 
+                                      className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
+                                    >
+                                      ×
+                                    </button>
+                                    <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
+                                      x{qty}
+                                    </span>
+                                  </>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  {/* Charge Button */}
+                  <div className="p-3 pt-0">
+                    <button 
+                      onClick={handleChargePayment}
+                      className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
+                    >
+                      CHARGE ${paymentAmount}
+                    </button>
+                  </div>
+                </>
+              )}
         </div>
 
         {/* Order Details Panel */}

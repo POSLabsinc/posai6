@@ -312,6 +312,32 @@ export function PaymentDialog({
       return;
     }
     
+    // QR Code: transition to QR display screen
+    if (selectedPaymentMethod === 'qr-code' && qrCodeStep === 'amount') {
+      setQrCodeStep('qr-display');
+      return;
+    }
+    
+    // Manual CC: transition to tap-card screen
+    if (selectedPaymentMethod === 'manual-cc' && manualCCStep === 'amount') {
+      setManualCCStep('tap-card');
+      return;
+    }
+    
+    // External CC: transition directly to complete/receipt screen
+    if (selectedPaymentMethod === 'external-cc' && externalCCStep === 'amount') {
+      const paid = parseFloat(paymentAmount) || 0;
+      setPaidAmount(prev => prev + paid);
+      setExternalCCStep('complete');
+      return;
+    }
+    
+    // Manual Card: transition to card details screen
+    if (selectedPaymentMethod === 'manual-card' && manualCardStep === 'amount') {
+      setManualCardStep('card-details');
+      return;
+    }
+    
     // For DoorDash, go to reference step first
     if (selectedPaymentMethod === 'doordash' && doordashStep === 'amount') {
       setDoordashStep('reference');
@@ -1553,6 +1579,817 @@ export function PaymentDialog({
                     CONTINUE
                   </button>
                 </div>
+              )}
+            </>
+          ) : selectedPaymentMethod === 'qr-code' && qrCodeStep !== 'amount' ? (
+            /* ============= QR CODE FLOW - REPLACES ENTIRE PANEL ============= */
+            <>
+              {/* Header with Back Button */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => {
+                      if (qrCodeStep === 'qr-display') {
+                        setQrCodeStep('amount');
+                        setQrPhoneNumber('');
+                        setShowQrPhoneInput(false);
+                      } else if (qrCodeStep === 'pending' || qrCodeStep === 'complete') {
+                        setQrCodeStep('qr-display');
+                      }
+                    }}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                  </button>
+                  <span className="text-white text-lg font-medium">Pay by QR</span>
+                </div>
+                <span className="text-red-500 text-lg font-bold">${paymentAmount}</span>
+              </div>
+
+              {/* QR Display Screen */}
+              {qrCodeStep === 'qr-display' && (
+                <div className="flex-1 flex flex-col items-center px-6 py-6">
+                  <span className="text-neutral-400 text-sm mb-2">Scan to Pay</span>
+                  <span className="text-green-500 text-3xl font-bold mb-6">${paymentAmount}</span>
+                  
+                  {/* QR Code Placeholder */}
+                  <div className="w-48 h-48 bg-white rounded-xl flex items-center justify-center mb-6 relative">
+                    <div className="grid grid-cols-8 gap-0.5 p-4">
+                      {Array.from({ length: 64 }).map((_, i) => (
+                        <div 
+                          key={i} 
+                          className={`w-4 h-4 ${Math.random() > 0.5 ? 'bg-black' : 'bg-white'}`}
+                        />
+                      ))}
+                    </div>
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
+                        <QrCode className="w-8 h-8 text-black" />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 w-full mb-4">
+                    <button className="flex-1 py-3 bg-neutral-800 border border-neutral-700 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors">
+                      SHARE QR
+                    </button>
+                    <button 
+                      onClick={() => setShowQrPhoneInput(!showQrPhoneInput)}
+                      className={`flex-1 py-3 font-medium rounded-lg transition-colors ${
+                        showQrPhoneInput ? 'bg-white text-black' : 'bg-neutral-800 border border-neutral-700 text-white hover:bg-neutral-700'
+                      }`}
+                    >
+                      SHARE VIA TEXT
+                    </button>
+                  </div>
+                  
+                  {/* Phone Input */}
+                  {showQrPhoneInput && (
+                    <div className="w-full">
+                      <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden mb-3">
+                        <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600">
+                          <span className="text-white text-sm font-medium">US +1</span>
+                          <ChevronDown className="w-3 h-3 text-neutral-400" />
+                        </div>
+                        <input 
+                          type="text" 
+                          placeholder="(000) 000-0000" 
+                          value={qrPhoneNumber} 
+                          readOnly 
+                          className="flex-1 bg-transparent text-white px-3 py-2 text-sm placeholder:text-neutral-500 outline-none" 
+                        />
+                        <button 
+                          onClick={() => {
+                            if (qrPhoneNumber.replace(/\D/g, '').length >= 10) {
+                              setQrCodeStep('pending');
+                            }
+                          }}
+                          disabled={qrPhoneNumber.replace(/\D/g, '').length < 10}
+                          className="px-4 py-2 bg-green-600 text-white font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          <Send className="w-4 h-4" />
+                        </button>
+                      </div>
+                      
+                      {/* Numeric Keypad */}
+                      <div className="grid grid-cols-3 gap-2">
+                        {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => (
+                          <button 
+                            key={key} 
+                            onClick={() => {
+                              if (key === 'delete') {
+                                const digits = qrPhoneNumber.replace(/\D/g, '');
+                                const newDigits = digits.slice(0, -1);
+                                if (newDigits.length === 0) {
+                                  setQrPhoneNumber('');
+                                } else if (newDigits.length <= 3) {
+                                  setQrPhoneNumber(`(${newDigits}`);
+                                } else if (newDigits.length <= 6) {
+                                  setQrPhoneNumber(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
+                                } else {
+                                  setQrPhoneNumber(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
+                                }
+                              } else if (key !== '') {
+                                const digits = qrPhoneNumber.replace(/\D/g, '');
+                                if (digits.length < 10) {
+                                  const newDigits = digits + key;
+                                  if (newDigits.length <= 3) {
+                                    setQrPhoneNumber(`(${newDigits}`);
+                                  } else if (newDigits.length <= 6) {
+                                    setQrPhoneNumber(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
+                                  } else {
+                                    setQrPhoneNumber(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
+                                  }
+                                }
+                              }
+                            }} 
+                            className={`h-12 rounded-lg text-lg font-medium transition-colors ${
+                              key === '' ? 'invisible' : key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'
+                            }`}
+                          >
+                            {key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Payment Pending Screen */}
+              {qrCodeStep === 'pending' && (
+                <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                  <div className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center mb-6">
+                    <Clock className="w-10 h-10 text-orange-500" />
+                  </div>
+                  <h2 className="text-white text-2xl font-semibold mb-2">Payment Pending</h2>
+                  <p className="text-neutral-400 text-sm mb-8">Waiting for customer to complete payment</p>
+                  
+                  <div className="w-full space-y-3 mb-8">
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Amount Requested</span>
+                      <span className="text-white font-medium">${paymentAmount}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Recipient</span>
+                      <span className="text-white font-medium">{qrPhoneNumber || 'QR Scan'}</span>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      const paid = parseFloat(paymentAmount) || 0;
+                      setPaidAmount(prev => prev + paid);
+                      setQrCodeStep('complete');
+                    }}
+                    className="w-full py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                  >
+                    REFRESH STATUS
+                  </button>
+                </div>
+              )}
+
+              {/* Payment Complete Screen */}
+              {qrCodeStep === 'complete' && (
+                <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                  <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
+                    <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
+                  </div>
+                  <h2 className="text-white text-2xl font-semibold mb-2">Payment Complete</h2>
+                  <p className="text-neutral-400 text-sm mb-8">The guest has completed their payment</p>
+                  
+                  <div className="w-full space-y-3 mb-8">
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Amount Requested</span>
+                      <span className="text-white font-medium">${paymentAmount}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Amount Paid</span>
+                      <span className="text-green-500 font-medium">${paidAmount.toFixed(2)}</span>
+                    </div>
+                    <div className="flex items-center justify-between py-2 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Recipient</span>
+                      <span className="text-white font-medium">{qrPhoneNumber || 'QR Scan'}</span>
+                    </div>
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      setPaymentHistory(prev => [...prev, { method: 'qr-code', amount: parseFloat(paymentAmount) || 0, methodLabel: 'QR Code' }]);
+                      setPaymentProcessed(true);
+                    }}
+                    className="w-full py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors"
+                  >
+                    CONTINUE
+                  </button>
+                </div>
+              )}
+            </>
+          ) : selectedPaymentMethod === 'manual-cc' && manualCCStep !== 'amount' ? (
+            /* ============= MANUAL CC FLOW - REPLACES ENTIRE PANEL ============= */
+            <>
+              {/* Header with Back Button */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => {
+                      if (textReceiptStep === 'phone-input') {
+                        setTextReceiptStep('receipt');
+                      } else if (emailReceiptStep === 'email-input') {
+                        setEmailReceiptStep('receipt');
+                      } else {
+                        setManualCCStep('amount');
+                      }
+                    }}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                  </button>
+                  <span className="text-white text-lg font-medium">Pay by Manual CC</span>
+                </div>
+              </div>
+
+              {/* Tap Card Screen */}
+              {manualCCStep === 'tap-card' && (
+                <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                  {/* Contactless Icon */}
+                  <div className="w-24 h-24 rounded-full bg-neutral-800 flex items-center justify-center mb-6">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white">
+                      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" strokeOpacity="0.3"/>
+                      <path d="M8.5 12.5a4 4 0 0 1 7 0" />
+                      <path d="M6 10a7 7 0 0 1 12 0" />
+                      <path d="M3.5 7.5a11 11 0 0 1 17 0" />
+                      <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <p className="text-white text-lg font-medium mb-2">Please tap credit card on reader</p>
+                  <p className="text-neutral-400 text-sm mb-8">Waiting for card...</p>
+                  
+                  <div className="w-full max-w-xs bg-neutral-800 rounded-xl p-4 mb-6 text-center">
+                    <span className="text-neutral-400 text-sm">Total Amount</span>
+                    <p className="text-green-500 text-2xl font-bold">${paymentAmount}</p>
+                  </div>
+
+                  <button 
+                    onClick={() => {
+                      setManualCCStep('processing');
+                      setTimeout(() => {
+                        const paid = parseFloat(paymentAmount) || 0;
+                        setPaidAmount(prev => prev + paid);
+                        setManualCCStep('complete');
+                      }, 2000);
+                    }}
+                    className="w-full max-w-xs py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors"
+                  >
+                    SIMULATE CARD TAP
+                  </button>
+                </div>
+              )}
+
+              {/* Processing Screen */}
+              {manualCCStep === 'processing' && (
+                <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                  {/* Contactless Icon */}
+                  <div className="w-24 h-24 rounded-full bg-neutral-800 flex items-center justify-center mb-6">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white">
+                      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10 10-4.5 10-10S17.5 2 12 2z" strokeOpacity="0.3"/>
+                      <path d="M8.5 12.5a4 4 0 0 1 7 0" />
+                      <path d="M6 10a7 7 0 0 1 12 0" />
+                      <path d="M3.5 7.5a11 11 0 0 1 17 0" />
+                      <circle cx="12" cy="16" r="1" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <p className="text-white text-lg font-medium mb-2">Please tap credit card on reader</p>
+                  <p className="text-neutral-400 text-sm mb-8">Processing...</p>
+                  
+                  <div className="w-full max-w-xs bg-neutral-800 rounded-xl p-4 mb-6 text-center">
+                    <span className="text-neutral-400 text-sm">Total Amount</span>
+                    <p className="text-green-500 text-2xl font-bold">${paymentAmount}</p>
+                  </div>
+
+                  <button 
+                    disabled
+                    className="w-full max-w-xs py-3 bg-neutral-700 text-neutral-400 font-medium rounded-lg cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    PROCESSING...
+                  </button>
+                </div>
+              )}
+
+              {/* Complete/Receipt Screen */}
+              {manualCCStep === 'complete' && (
+                <>
+                  {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
+                      </div>
+                      
+                      <p className="text-center mb-6">
+                        <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
+                        <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+                      </p>
+                      
+                      <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
+                      
+                      <div className="flex gap-4 mb-6">
+                        <button 
+                          onClick={() => {
+                            setPaymentHistory(prev => [...prev, { method: 'manual-cc', amount: parseFloat(paymentAmount), methodLabel: 'Manual CC' }]);
+                            setPaymentProcessed(true);
+                          }} 
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Printer className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Print</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setTextReceiptPhone('');
+                            setTextReceiptNoMarketing(false);
+                            setTextReceiptStep('phone-input');
+                          }} 
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <MessageSquare className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Text</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setEmailReceiptEmail('');
+                            setEmailReceiptNoMarketing(false);
+                            setEmailReceiptStep('email-input');
+                          }} 
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Mail className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Email</span>
+                        </button>
+                      </div>
+                      
+                      <button 
+                        onClick={() => {
+                          setPaymentHistory(prev => [...prev, { method: 'manual-cc', amount: parseFloat(paymentAmount), methodLabel: 'Manual CC' }]);
+                          setPaymentProcessed(true);
+                        }} 
+                        className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        NO RECEIPT
+                      </button>
+                    </div>
+                  ) : textReceiptStep === 'phone-input' ? (
+                    <div className="flex flex-col flex-1">
+                      <div className="px-4 pt-4 pb-2 text-center">
+                        <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
+                      </div>
+                      <div className="px-4 mb-2">
+                        <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                          <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
+                            <span className="text-white text-xs font-medium">US +1</span>
+                            <ChevronDown className="w-3 h-3 text-neutral-400" />
+                          </div>
+                          <input type="text" placeholder="(000) 000-0000" value={textReceiptPhone} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                        </div>
+                      </div>
+                      <div className="px-4 mb-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <div onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${textReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
+                            {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                          </div>
+                          <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
+                        </label>
+                      </div>
+                      <div className="px-4 mb-2 text-center">
+                        <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
+                      </div>
+                      <div className="px-4 mb-2">
+                        <button onClick={() => { setTextReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-cc', amount: parseFloat(paymentAmount), methodLabel: 'Manual CC' }]); setPaymentProcessed(true); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      </div>
+                      <div className="flex-1 flex flex-col justify-end px-4 pb-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => (
+                            <button key={key} onClick={() => { if (key === 'delete') { const digits = textReceiptPhone.replace(/\D/g, ''); const newDigits = digits.slice(0, -1); if (newDigits.length === 0) { setTextReceiptPhone(''); } else if (newDigits.length <= 3) { setTextReceiptPhone(`(${newDigits}`); } else if (newDigits.length <= 6) { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`); } else { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`); } } else if (key !== '') { const digits = textReceiptPhone.replace(/\D/g, ''); if (digits.length < 10) { const newDigits = digits + key; if (newDigits.length <= 3) { setTextReceiptPhone(`(${newDigits}`); } else if (newDigits.length <= 6) { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`); } else { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`); } } } }} className={`h-12 rounded-lg text-lg font-medium transition-colors ${key === '' ? 'invisible' : key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}>{key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}</button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col flex-1">
+                      <div className="px-4 pt-4 pb-2 text-center">
+                        <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
+                      </div>
+                      <div className="px-4 mb-2">
+                        <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                          <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
+                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                        </div>
+                      </div>
+                      <div className="px-4 mb-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <div onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${emailReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
+                            {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                          </div>
+                          <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
+                        </label>
+                      </div>
+                      <div className="px-4 mb-2 text-center">
+                        <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
+                      </div>
+                      <div className="px-4 mb-4">
+                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-cc', amount: parseFloat(paymentAmount), methodLabel: 'Manual CC' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </>
+          ) : selectedPaymentMethod === 'external-cc' && externalCCStep === 'complete' ? (
+            /* ============= EXTERNAL CC FLOW - REPLACES ENTIRE PANEL ============= */
+            <>
+              {/* Header with Back Button */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => {
+                      if (textReceiptStep === 'phone-input') {
+                        setTextReceiptStep('receipt');
+                      } else if (emailReceiptStep === 'email-input') {
+                        setEmailReceiptStep('receipt');
+                      } else {
+                        setExternalCCStep('amount');
+                      }
+                    }}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                  </button>
+                  <span className="text-white text-lg font-medium">External CC</span>
+                </div>
+              </div>
+
+              {/* Complete/Receipt Screen */}
+              {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
+                <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                  <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                    <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
+                  </div>
+                  
+                  <p className="text-center mb-6">
+                    <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
+                    <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+                  </p>
+                  
+                  <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
+                  
+                  <div className="flex gap-4 mb-6">
+                    <button 
+                      onClick={() => {
+                        setPaymentHistory(prev => [...prev, { method: 'external-cc', amount: parseFloat(paymentAmount), methodLabel: 'External CC' }]);
+                        setPaymentProcessed(true);
+                      }} 
+                      className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                    >
+                      <Printer className="w-6 h-6 text-neutral-300" />
+                      <span className="text-neutral-300 text-xs">Print</span>
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setTextReceiptPhone('');
+                        setTextReceiptNoMarketing(false);
+                        setTextReceiptStep('phone-input');
+                      }} 
+                      className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                    >
+                      <MessageSquare className="w-6 h-6 text-neutral-300" />
+                      <span className="text-neutral-300 text-xs">Text</span>
+                    </button>
+                    <button 
+                      onClick={() => {
+                        setEmailReceiptEmail('');
+                        setEmailReceiptNoMarketing(false);
+                        setEmailReceiptStep('email-input');
+                      }} 
+                      className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                    >
+                      <Mail className="w-6 h-6 text-neutral-300" />
+                      <span className="text-neutral-300 text-xs">Email</span>
+                    </button>
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                      setPaymentHistory(prev => [...prev, { method: 'external-cc', amount: parseFloat(paymentAmount), methodLabel: 'External CC' }]);
+                      setPaymentProcessed(true);
+                    }} 
+                    className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                  >
+                    NO RECEIPT
+                  </button>
+                </div>
+              ) : textReceiptStep === 'phone-input' ? (
+                <div className="flex flex-col flex-1">
+                  <div className="px-4 pt-4 pb-2 text-center">
+                    <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
+                  </div>
+                  <div className="px-4 mb-2">
+                    <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                      <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
+                        <span className="text-white text-xs font-medium">US +1</span>
+                        <ChevronDown className="w-3 h-3 text-neutral-400" />
+                      </div>
+                      <input type="text" placeholder="(000) 000-0000" value={textReceiptPhone} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                    </div>
+                  </div>
+                  <div className="px-4 mb-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <div onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${textReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
+                        {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                      </div>
+                      <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
+                    </label>
+                  </div>
+                  <div className="px-4 mb-2 text-center">
+                    <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
+                  </div>
+                  <div className="px-4 mb-2">
+                    <button onClick={() => { setTextReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'external-cc', amount: parseFloat(paymentAmount), methodLabel: 'External CC' }]); setPaymentProcessed(true); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                  </div>
+                  <div className="flex-1 flex flex-col justify-end px-4 pb-4">
+                    <div className="grid grid-cols-3 gap-2">
+                      {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => (
+                        <button key={key} onClick={() => { if (key === 'delete') { const digits = textReceiptPhone.replace(/\D/g, ''); const newDigits = digits.slice(0, -1); if (newDigits.length === 0) { setTextReceiptPhone(''); } else if (newDigits.length <= 3) { setTextReceiptPhone(`(${newDigits}`); } else if (newDigits.length <= 6) { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`); } else { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`); } } else if (key !== '') { const digits = textReceiptPhone.replace(/\D/g, ''); if (digits.length < 10) { const newDigits = digits + key; if (newDigits.length <= 3) { setTextReceiptPhone(`(${newDigits}`); } else if (newDigits.length <= 6) { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`); } else { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`); } } } }} className={`h-12 rounded-lg text-lg font-medium transition-colors ${key === '' ? 'invisible' : key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}>{key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}</button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col flex-1">
+                  <div className="px-4 pt-4 pb-2 text-center">
+                    <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
+                  </div>
+                  <div className="px-4 mb-2">
+                    <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                      <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
+                      <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                    </div>
+                  </div>
+                  <div className="px-4 mb-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <div onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${emailReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
+                        {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                      </div>
+                      <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
+                    </label>
+                  </div>
+                  <div className="px-4 mb-2 text-center">
+                    <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
+                  </div>
+                  <div className="px-4 mb-4">
+                    <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'external-cc', amount: parseFloat(paymentAmount), methodLabel: 'External CC' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                  </div>
+                </div>
+              )}
+            </>
+          ) : selectedPaymentMethod === 'manual-card' && manualCardStep !== 'amount' ? (
+            /* ============= MANUAL CARD FLOW - REPLACES ENTIRE PANEL ============= */
+            <>
+              {/* Header with Back Button */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => {
+                      if (textReceiptStep === 'phone-input') {
+                        setTextReceiptStep('receipt');
+                      } else if (emailReceiptStep === 'email-input') {
+                        setEmailReceiptStep('receipt');
+                      } else if (manualCardStep === 'complete') {
+                        setManualCardStep('card-details');
+                      } else {
+                        setManualCardStep('amount');
+                        setManualCardDetails({ cardNumber: '', cardHolder: '', expiry: '', cvv: '' });
+                      }
+                    }}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                  </button>
+                  <span className="text-white text-lg font-medium">Pay by Manual Card</span>
+                </div>
+              </div>
+
+              {/* Card Details Screen */}
+              {manualCardStep === 'card-details' && (
+                <div className="flex-1 flex flex-col px-6 py-6">
+                  {/* Amount Display */}
+                  <div className="bg-neutral-800 rounded-xl p-4 mb-6 text-center">
+                    <span className="text-green-500 text-3xl font-bold">${paymentAmount}</span>
+                  </div>
+
+                  {/* Form Fields */}
+                  <div className="space-y-4 flex-1">
+                    <div>
+                      <label className="text-neutral-400 text-xs mb-1.5 block">Card Number</label>
+                      <input 
+                        type="text" 
+                        placeholder="1234 5678 9012 3456" 
+                        value={manualCardDetails.cardNumber}
+                        onChange={(e) => {
+                          const value = e.target.value.replace(/\D/g, '');
+                          const formatted = value.replace(/(.{4})/g, '$1 ').trim();
+                          setManualCardDetails({ ...manualCardDetails, cardNumber: formatted.slice(0, 19) });
+                        }}
+                        className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" 
+                      />
+                    </div>
+                    <div>
+                      <label className="text-neutral-400 text-xs mb-1.5 block">Card Holder Name</label>
+                      <input 
+                        type="text" 
+                        placeholder="John Doe" 
+                        value={manualCardDetails.cardHolder}
+                        onChange={(e) => setManualCardDetails({ ...manualCardDetails, cardHolder: e.target.value })}
+                        className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" 
+                      />
+                    </div>
+                    <div className="flex gap-4">
+                      <div className="flex-1">
+                        <label className="text-neutral-400 text-xs mb-1.5 block">Expiry Date</label>
+                        <input 
+                          type="text" 
+                          placeholder="MM/YY" 
+                          value={manualCardDetails.expiry}
+                          onChange={(e) => {
+                            let value = e.target.value.replace(/\D/g, '');
+                            if (value.length >= 2) {
+                              value = value.slice(0, 2) + '/' + value.slice(2, 4);
+                            }
+                            setManualCardDetails({ ...manualCardDetails, expiry: value });
+                          }}
+                          className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" 
+                        />
+                      </div>
+                      <div className="flex-1">
+                        <label className="text-neutral-400 text-xs mb-1.5 block">CVV</label>
+                        <input 
+                          type="text" 
+                          placeholder="123" 
+                          value={manualCardDetails.cvv}
+                          onChange={(e) => {
+                            const value = e.target.value.replace(/\D/g, '').slice(0, 4);
+                            setManualCardDetails({ ...manualCardDetails, cvv: value });
+                          }}
+                          className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" 
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Charge Button */}
+                  <button 
+                    onClick={() => {
+                      const paid = parseFloat(paymentAmount) || 0;
+                      setPaidAmount(prev => prev + paid);
+                      setManualCardStep('complete');
+                    }}
+                    disabled={!manualCardDetails.cardNumber || !manualCardDetails.cardHolder || !manualCardDetails.expiry || !manualCardDetails.cvv}
+                    className={`w-full py-3 font-bold rounded-xl transition-colors text-sm mt-4 ${
+                      manualCardDetails.cardNumber && manualCardDetails.cardHolder && manualCardDetails.expiry && manualCardDetails.cvv 
+                        ? 'bg-white hover:bg-neutral-200 text-neutral-900' 
+                        : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                    }`}
+                  >
+                    CHARGE ${paymentAmount}
+                  </button>
+                </div>
+              )}
+
+              {/* Complete/Receipt Screen */}
+              {manualCardStep === 'complete' && (
+                <>
+                  {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
+                    <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
+                      </div>
+                      
+                      <p className="text-center mb-6">
+                        <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
+                        <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+                      </p>
+                      
+                      <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
+                      
+                      <div className="flex gap-4 mb-6">
+                        <button 
+                          onClick={() => {
+                            setPaymentHistory(prev => [...prev, { method: 'manual-card', amount: parseFloat(paymentAmount), methodLabel: 'Manual Card' }]);
+                            setPaymentProcessed(true);
+                          }} 
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Printer className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Print</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setTextReceiptPhone('');
+                            setTextReceiptNoMarketing(false);
+                            setTextReceiptStep('phone-input');
+                          }} 
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <MessageSquare className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Text</span>
+                        </button>
+                        <button 
+                          onClick={() => {
+                            setEmailReceiptEmail('');
+                            setEmailReceiptNoMarketing(false);
+                            setEmailReceiptStep('email-input');
+                          }} 
+                          className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                        >
+                          <Mail className="w-6 h-6 text-neutral-300" />
+                          <span className="text-neutral-300 text-xs">Email</span>
+                        </button>
+                      </div>
+                      
+                      <button 
+                        onClick={() => {
+                          setPaymentHistory(prev => [...prev, { method: 'manual-card', amount: parseFloat(paymentAmount), methodLabel: 'Manual Card' }]);
+                          setPaymentProcessed(true);
+                        }} 
+                        className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        NO RECEIPT
+                      </button>
+                    </div>
+                  ) : textReceiptStep === 'phone-input' ? (
+                    <div className="flex flex-col flex-1">
+                      <div className="px-4 pt-4 pb-2 text-center">
+                        <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
+                      </div>
+                      <div className="px-4 mb-2">
+                        <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                          <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
+                            <span className="text-white text-xs font-medium">US +1</span>
+                            <ChevronDown className="w-3 h-3 text-neutral-400" />
+                          </div>
+                          <input type="text" placeholder="(000) 000-0000" value={textReceiptPhone} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                        </div>
+                      </div>
+                      <div className="px-4 mb-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <div onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${textReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
+                            {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                          </div>
+                          <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
+                        </label>
+                      </div>
+                      <div className="px-4 mb-2 text-center">
+                        <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
+                      </div>
+                      <div className="px-4 mb-2">
+                        <button onClick={() => { setTextReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-card', amount: parseFloat(paymentAmount), methodLabel: 'Manual Card' }]); setPaymentProcessed(true); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      </div>
+                      <div className="flex-1 flex flex-col justify-end px-4 pb-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => (
+                            <button key={key} onClick={() => { if (key === 'delete') { const digits = textReceiptPhone.replace(/\D/g, ''); const newDigits = digits.slice(0, -1); if (newDigits.length === 0) { setTextReceiptPhone(''); } else if (newDigits.length <= 3) { setTextReceiptPhone(`(${newDigits}`); } else if (newDigits.length <= 6) { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`); } else { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`); } } else if (key !== '') { const digits = textReceiptPhone.replace(/\D/g, ''); if (digits.length < 10) { const newDigits = digits + key; if (newDigits.length <= 3) { setTextReceiptPhone(`(${newDigits}`); } else if (newDigits.length <= 6) { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`); } else { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`); } } } }} className={`h-12 rounded-lg text-lg font-medium transition-colors ${key === '' ? 'invisible' : key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}>{key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}</button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col flex-1">
+                      <div className="px-4 pt-4 pb-2 text-center">
+                        <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
+                      </div>
+                      <div className="px-4 mb-2">
+                        <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                          <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
+                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                        </div>
+                      </div>
+                      <div className="px-4 mb-2">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <div onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${emailReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
+                            {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                          </div>
+                          <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
+                        </label>
+                      </div>
+                      <div className="px-4 mb-2 text-center">
+                        <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
+                      </div>
+                      <div className="px-4 mb-4">
+                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-card', amount: parseFloat(paymentAmount), methodLabel: 'Manual Card' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </>
           ) : (

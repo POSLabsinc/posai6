@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown, LayoutList, Circle, Clock } from "lucide-react";
+import { Users, Grid, List, ChevronDown, Circle, Clock } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -472,7 +472,7 @@ const StatusLegend = () => {
 const TableOrder = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "compact" | "visual">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "visual">("grid");
   const [selectedArea, setSelectedArea] = useState("Main Dining Room");
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
@@ -521,8 +521,7 @@ const TableOrder = () => {
             <button
               onClick={() => setViewMode(
                 viewMode === "grid" ? "list" : 
-                viewMode === "list" ? "compact" : 
-                viewMode === "compact" ? "visual" : "grid"
+                viewMode === "list" ? "visual" : "grid"
               )}
               className="flex items-center justify-center rounded-full p-1.5 hover:opacity-90 transition-opacity"
               style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
@@ -531,8 +530,6 @@ const TableOrder = () => {
                 <Grid className="w-4 h-4 text-black" />
               ) : viewMode === "list" ? (
                 <List className="w-4 h-4 text-black" />
-              ) : viewMode === "compact" ? (
-                <LayoutList className="w-4 h-4 text-black" />
               ) : (
                 <Circle className="w-4 h-4 text-black" />
               )}
@@ -614,83 +611,9 @@ const TableOrder = () => {
         </ScrollArea>
       </div>
 
-      {/* Tables Grid/List/Compact View */}
+      {/* Tables Grid/List View */}
       <ScrollArea className="flex-1">
-        {viewMode === "compact" ? (
-          /* Compact List View */
-          <div className="flex flex-col gap-1">
-            {filteredTables.map((table, index) => {
-              const config = statusConfig[table.status] || statusConfig["Available"];
-              const dotColor = getSeatDotColor(table.status);
-              
-              const handleTableClick = () => {
-                if (table.status === "Available") {
-                  setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
-                } else {
-                  navigate(`/tableorder/${table.id}`);
-                }
-              };
-
-              const handleGuestSelect = (guestCount: number) => {
-                console.log(`Selected ${guestCount} guests for table ${table.id}`);
-                setGuestDropdownTable(null);
-                setSelectedTable(table.id);
-              };
-
-              return (
-                <div
-                  key={`${table.id}-${index}`}
-                  onClick={handleTableClick}
-                  className={`bg-neutral-900 rounded-lg px-3 py-2 flex items-center gap-3 cursor-pointer hover:bg-neutral-800 transition-all border ${
-                    selectedTable === table.id 
-                      ? "border-orange-500" 
-                      : "border-neutral-800"
-                  }`}
-                >
-                  {/* Table Number */}
-                  <span className="text-lg font-bold text-white w-10">{table.id}</span>
-                  
-                  {/* Seat Dots */}
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: table.seats }).map((_, i) => (
-                      <div key={i} className={`w-1.5 h-1.5 rounded-full ${dotColor}`} />
-                    ))}
-                  </div>
-                  
-                  {/* Seats Count */}
-                  <span className="text-gray-400 text-xs">{table.seats}S</span>
-                  
-                  {/* Time */}
-                  <span className="text-gray-500 text-xs flex-1">{table.time || "-"}</span>
-                  
-                  {/* Status or Guest Selection */}
-                  {guestDropdownTable === table.id && table.status === "Available" ? (
-                    <div className="flex gap-1 px-2">
-                      {Array.from({ length: table.seats }).map((_, i) => (
-                        <button
-                          key={i}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleGuestSelect(i + 1);
-                          }}
-                          className="w-5 h-5 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
-                        >
-                          {i + 1}
-                        </button>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className={`px-2 py-0.5 rounded border border-neutral-600 ${config.bgColor}`}>
-                      <span className={`text-xs font-medium ${config.color}`}>
-                        {table.status}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        ) : viewMode === "list" ? (
+        {viewMode === "list" ? (
           /* List View - 2 columns */
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             {filteredTables.map((table, index) => {

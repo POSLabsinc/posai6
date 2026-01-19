@@ -2001,7 +2001,7 @@ export function PaymentDialog({
                       <div className="px-4 mb-2">
                         <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
                           <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
-                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
                         </div>
                       </div>
                       <div className="px-4 mb-2">
@@ -2015,8 +2015,34 @@ export function PaymentDialog({
                       <div className="px-4 mb-2 text-center">
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
-                      <div className="px-4 mb-4">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-cc', amount: parseFloat(paymentAmount), methodLabel: 'Manual CC' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      <div className="px-4 mb-2">
+                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-cc', amount: parseFloat(paymentAmount), methodLabel: 'Manual CC' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      </div>
+                      {/* Email Keyboard */}
+                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                        <div className="flex flex-1">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1 px-2">
+                          {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          <div className="w-10"></div>
+                          {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><Delete className="w-5 h-5 text-neutral-400" /></button>
+                        </div>
+                        <div className="flex flex-1 gap-1 px-1">
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">@</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">.</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">_</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">-</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.com</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.net</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-xs font-medium">@gmail</span></button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -2150,7 +2176,7 @@ export function PaymentDialog({
                   <div className="px-4 mb-2">
                     <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
                       <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
-                      <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                      <input type="email" placeholder="email@example.com" value={emailReceiptEmail} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
                     </div>
                   </div>
                   <div className="px-4 mb-2">
@@ -2164,8 +2190,34 @@ export function PaymentDialog({
                   <div className="px-4 mb-2 text-center">
                     <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                   </div>
-                  <div className="px-4 mb-4">
-                    <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'external-cc', amount: parseFloat(paymentAmount), methodLabel: 'External CC' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                  <div className="px-4 mb-2">
+                    <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'external-cc', amount: parseFloat(paymentAmount), methodLabel: 'External CC' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                  </div>
+                  {/* Email Keyboard */}
+                  <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                    <div className="flex flex-1">
+                      {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                    </div>
+                    <div className="flex flex-1">
+                      {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                    </div>
+                    <div className="flex flex-1 px-2">
+                      {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                    </div>
+                    <div className="flex flex-1">
+                      <div className="w-10"></div>
+                      {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                      <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><Delete className="w-5 h-5 text-neutral-400" /></button>
+                    </div>
+                    <div className="flex flex-1 gap-1 px-1">
+                      <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">@</span></button>
+                      <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">.</span></button>
+                      <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">_</span></button>
+                      <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">-</span></button>
+                      <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.com</span></button>
+                      <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.net</span></button>
+                      <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-xs font-medium">@gmail</span></button>
+                    </div>
                   </div>
                 </div>
               )}
@@ -2388,7 +2440,7 @@ export function PaymentDialog({
                       <div className="px-4 mb-2">
                         <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
                           <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
-                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
                         </div>
                       </div>
                       <div className="px-4 mb-2">
@@ -2402,8 +2454,34 @@ export function PaymentDialog({
                       <div className="px-4 mb-2 text-center">
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
-                      <div className="px-4 mb-4">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-card', amount: parseFloat(paymentAmount), methodLabel: 'Manual Card' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      <div className="px-4 mb-2">
+                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-card', amount: parseFloat(paymentAmount), methodLabel: 'Manual Card' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      </div>
+                      {/* Email Keyboard */}
+                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                        <div className="flex flex-1">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1 px-2">
+                          {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          <div className="w-10"></div>
+                          {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><Delete className="w-5 h-5 text-neutral-400" /></button>
+                        </div>
+                        <div className="flex flex-1 gap-1 px-1">
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">@</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">.</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">_</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">-</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.com</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.net</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-xs font-medium">@gmail</span></button>
+                        </div>
                       </div>
                     </div>
                   )}
@@ -2618,7 +2696,7 @@ export function PaymentDialog({
                       <div className="px-4 mb-2">
                         <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
                           <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
-                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
                         </div>
                       </div>
                       <div className="px-4 mb-2">
@@ -2632,8 +2710,34 @@ export function PaymentDialog({
                       <div className="px-4 mb-2 text-center">
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
-                      <div className="px-4 mb-4">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'doordash', amount: parseFloat(paymentAmount), methodLabel: 'DoorDash' }]); setDoordashStep('amount'); setDoordashReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      <div className="px-4 mb-2">
+                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'doordash', amount: parseFloat(paymentAmount), methodLabel: 'DoorDash' }]); setDoordashStep('amount'); setDoordashReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      </div>
+                      {/* Email Keyboard */}
+                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                        <div className="flex flex-1">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1 px-2">
+                          {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          <div className="w-10"></div>
+                          {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><Delete className="w-5 h-5 text-neutral-400" /></button>
+                        </div>
+                        <div className="flex flex-1 gap-1 px-1">
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">@</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">.</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">_</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">-</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.com</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.net</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-xs font-medium">@gmail</span></button>
+                        </div>
                       </div>
                     </div>
                   ) : null}
@@ -2848,7 +2952,7 @@ export function PaymentDialog({
                       <div className="px-4 mb-2">
                         <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
                           <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
-                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
                         </div>
                       </div>
                       <div className="px-4 mb-2">
@@ -2862,8 +2966,34 @@ export function PaymentDialog({
                       <div className="px-4 mb-2 text-center">
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
-                      <div className="px-4 mb-4">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'blizzful', amount: parseFloat(paymentAmount), methodLabel: 'Blizzful' }]); setBlizzfulStep('amount'); setBlizzfulReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      <div className="px-4 mb-2">
+                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'blizzful', amount: parseFloat(paymentAmount), methodLabel: 'Blizzful' }]); setBlizzfulStep('amount'); setBlizzfulReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      </div>
+                      {/* Email Keyboard */}
+                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                        <div className="flex flex-1">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1 px-2">
+                          {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          <div className="w-10"></div>
+                          {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><Delete className="w-5 h-5 text-neutral-400" /></button>
+                        </div>
+                        <div className="flex flex-1 gap-1 px-1">
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">@</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">.</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">_</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">-</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.com</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.net</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-xs font-medium">@gmail</span></button>
+                        </div>
                       </div>
                     </div>
                   ) : null}
@@ -3078,7 +3208,7 @@ export function PaymentDialog({
                       <div className="px-4 mb-2">
                         <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
                           <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
-                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
                         </div>
                       </div>
                       <div className="px-4 mb-2">
@@ -3092,8 +3222,34 @@ export function PaymentDialog({
                       <div className="px-4 mb-2 text-center">
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
-                      <div className="px-4 mb-4">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'ubereats', amount: parseFloat(paymentAmount), methodLabel: 'UberEats' }]); setUbereatsStep('amount'); setUbereatsReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      <div className="px-4 mb-2">
+                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'ubereats', amount: parseFloat(paymentAmount), methodLabel: 'UberEats' }]); setUbereatsStep('amount'); setUbereatsReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      </div>
+                      {/* Email Keyboard */}
+                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                        <div className="flex flex-1">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1 px-2">
+                          {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          <div className="w-10"></div>
+                          {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><Delete className="w-5 h-5 text-neutral-400" /></button>
+                        </div>
+                        <div className="flex flex-1 gap-1 px-1">
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">@</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">.</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">_</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">-</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.com</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.net</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-xs font-medium">@gmail</span></button>
+                        </div>
                       </div>
                     </div>
                   ) : null}
@@ -3308,7 +3464,7 @@ export function PaymentDialog({
                       <div className="px-4 mb-2">
                         <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
                           <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
-                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
                         </div>
                       </div>
                       <div className="px-4 mb-2">
@@ -3322,8 +3478,34 @@ export function PaymentDialog({
                       <div className="px-4 mb-2 text-center">
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
-                      <div className="px-4 mb-4">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'grubhub', amount: parseFloat(paymentAmount), methodLabel: 'Grubhub' }]); setGrubhubStep('amount'); setGrubhubReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      <div className="px-4 mb-2">
+                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'grubhub', amount: parseFloat(paymentAmount), methodLabel: 'Grubhub' }]); setGrubhubStep('amount'); setGrubhubReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                      </div>
+                      {/* Email Keyboard */}
+                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                        <div className="flex flex-1">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1 px-2">
+                          {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                        </div>
+                        <div className="flex flex-1">
+                          <div className="w-10"></div>
+                          {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><Delete className="w-5 h-5 text-neutral-400" /></button>
+                        </div>
+                        <div className="flex flex-1 gap-1 px-1">
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">@</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">.</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">_</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">-</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.com</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.net</span></button>
+                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-xs font-medium">@gmail</span></button>
+                        </div>
                       </div>
                     </div>
                   ) : null}

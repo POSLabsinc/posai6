@@ -157,6 +157,8 @@ const TableOrderDetails = () => {
   };
   const mergedSourceArea = getOrderArea(mergedOrderId);
   const destOrderArea = getOrderArea(destOrderId);
+  const transferSourceArea = getOrderArea(transferredOrderId);
+  const transferDestArea = getOrderArea(transferredToOrderId);
   
   // Get orders for this table with calculated totals
   const guestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
@@ -841,7 +843,7 @@ const TableOrderDetails = () => {
                 {/* Transferred Items Indicator (Destination - receiving items) */}
                 {transferDestOrderId === guest.id && transferredFromTable && transferredOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · Table {transferredFromTable}</span>
+                      <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · Table {transferredFromTable}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
                     </span>
                   </div>}
                 {/* Transferred OUT Indicator (Source - sending items out) */}
@@ -850,7 +852,7 @@ const TableOrderDetails = () => {
                       <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
                       <span className="text-white"> to Order {transferredToOrderId}</span>
                       <span style={{ color: '#8AC4FF' }}> · Table </span>
-                      <span className="text-white">{transferToTable}</span>
+                      <span className="text-white">{transferToTable}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
                     </span>
                   </div>}
                 <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{

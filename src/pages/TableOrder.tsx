@@ -543,6 +543,31 @@ const TableOrder = () => {
               <Users className="w-4 h-4 text-white" />
             </button>
 
+            {/* Dining Area Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button 
+                  className="flex items-center gap-2 rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity"
+                  style={{ background: "linear-gradient(180deg, #B8B8B8 0%, #616161 100%)" }}
+                >
+                  <span className="text-white text-xs font-medium">{selectedArea}</span>
+                  <ChevronDown className="w-3 h-3 text-white" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
+                {diningAreas.map((area) => (
+                  <DropdownMenuItem
+                    key={area}
+                    onClick={() => setSelectedArea(area)}
+                    className={`text-white hover:bg-neutral-700 cursor-pointer ${
+                      selectedArea === area ? "bg-neutral-700" : ""
+                    }`}
+                  >
+                    {area}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         ) : (
           <Button 

@@ -3516,21 +3516,24 @@ export function PaymentDialog({
             <>
               {/* ============= STANDARD PAYMENT ENTRY VIEW ============= */}
               {/* Header Section */}
-              <div className="flex items-center justify-between px-6 pt-6 pb-4">
-                <div>
-                  <p className="text-neutral-400 text-sm">Total Due</p>
-                  <p className="text-green-500 text-3xl font-bold">${total.toFixed(2)}</p>
+              <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-700">
+                <div className="flex-1" />
+                <div className="flex items-center">
+                  <span className="text-white text-lg font-medium">Total Due</span>
+                  <span className="text-red-500 text-lg font-bold ml-2">${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
                 </div>
-                <button 
-                  onClick={() => onOpenChange(false)}
-                  className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-5 h-5 text-neutral-400" />
-                </button>
+                <div className="flex-1 flex justify-end">
+                  <button 
+                    onClick={() => onOpenChange(false)}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <X className="w-5 h-5 text-neutral-400" />
+                  </button>
+                </div>
               </div>
 
               {/* Payment Methods - Row of 6 icons */}
-              <div className="px-6 pb-4">
+              <div className="px-6 py-4 border-b border-neutral-700">
                 <div className="relative">
                   <div className="grid grid-cols-7 gap-2">
                     {visiblePaymentMethods.map((method) => {

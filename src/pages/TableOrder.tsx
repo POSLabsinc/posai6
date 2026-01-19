@@ -614,8 +614,8 @@ const TableOrder = () => {
       {/* Tables Grid/List View */}
       <ScrollArea className="flex-1">
         {viewMode === "list" ? (
-          /* List View - 2 columns */
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          /* List View - 3 columns */
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             {filteredTables.map((table, index) => {
               const config = statusConfig[table.status] || statusConfig["Available"];
               const dotColor = getSeatDotColor(table.status);

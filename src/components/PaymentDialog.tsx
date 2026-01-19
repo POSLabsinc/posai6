@@ -322,21 +322,16 @@ export function PaymentDialog({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div 
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={() => onOpenChange(false)}
+    >
       <div 
-        className="relative w-full max-w-4xl h-[90vh] max-h-[700px] rounded-2xl overflow-hidden flex"
-        style={{ background: 'linear-gradient(180deg, #2A2A2A 0%, #1A1A1A 100%)' }}
+        className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh]"
+        onClick={(e) => e.stopPropagation()}
       >
-        {/* Close button */}
-        <button 
-          onClick={() => onOpenChange(false)}
-          className="absolute top-4 right-4 z-10 w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors"
-        >
-          <X className="w-4 h-4 text-white" />
-        </button>
-
         {/* Left Panel - Payment Methods & Keypad */}
-        <div className="flex-1 flex flex-col border-r border-neutral-700">
+        <div className="w-[480px] flex flex-col bg-neutral-900 max-h-[90vh] overflow-hidden">
           {paymentProcessed ? (
             // Receipt Screen
             <div className="flex-1 flex flex-col items-center py-8 px-6">

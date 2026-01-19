@@ -602,45 +602,102 @@ export function PaymentDialog({
                     </div>
                   </div>
                 ) : (
-                  // Quick Amount Buttons
-                  <div className="grid grid-cols-7 gap-1.5">
-                    {quickAmounts.map(amount => (
-                      <div key={amount} className="flex flex-col items-center">
+                  // Quick Amount Buttons with quantity tracking - 2 row layout
+                  <>
+                    <div className="flex gap-4 px-2">
+                      <div className="flex-1 relative py-1">
                         <button 
-                          onClick={() => handleAddAmount(amount)}
-                          className="w-full py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                          onClick={() => {
+                            setAmountQuantities({});
+                            setPaymentAmount(total.toFixed(2));
+                          }} 
+                          className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                            paymentAmount === total.toFixed(2) && Object.keys(amountQuantities).length === 0 
+                              ? 'bg-neutral-900 text-white border border-neutral-600' 
+                              : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                          }`}
                         >
-                          ${amount}
+                          ${total.toFixed(2)}
                         </button>
-                        {amountQuantities[amount] > 0 && (
-                          <div className="flex items-center gap-1 mt-1">
-                            <button 
-                              onClick={() => handleRemoveAmount(amount)}
-                              className="w-5 h-5 rounded bg-red-500/20 text-red-400 text-xs hover:bg-red-500/30"
-                            >
-                              -
-                            </button>
-                            <span className="text-white text-xs">{amountQuantities[amount]}</span>
-                            <button 
-                              onClick={() => handleAddAmount(amount)}
-                              className="w-5 h-5 rounded bg-green-500/20 text-green-400 text-xs hover:bg-green-500/30"
-                            >
-                              +
-                            </button>
-                          </div>
-                        )}
                       </div>
-                    ))}
-                  </div>
+                      {quickAmounts.slice(0, 3).map(amount => {
+                        const qty = amountQuantities[amount] || 0;
+                        return (
+                          <div key={amount} className="flex-1 relative py-1">
+                            <button 
+                              onClick={() => handleAddAmount(amount)} 
+                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                qty > 0 
+                                  ? 'bg-neutral-900 text-white border border-neutral-600' 
+                                  : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                              }`}
+                            >
+                              ${amount}
+                            </button>
+                            {qty > 0 && (
+                              <>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveAmount(amount);
+                                  }} 
+                                  className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center leading-none text-xs hover:bg-red-600 transition-colors z-10"
+                                >
+                                  ×
+                                </button>
+                                <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
+                                  x{qty}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="flex gap-4 px-2">
+                      {quickAmounts.slice(3).map(amount => {
+                        const qty = amountQuantities[amount] || 0;
+                        return (
+                          <div key={amount} className="flex-1 relative py-1">
+                            <button 
+                              onClick={() => handleAddAmount(amount)} 
+                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                qty > 0 
+                                  ? 'bg-neutral-900 text-white border border-neutral-600' 
+                                  : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                              }`}
+                            >
+                              ${amount}
+                            </button>
+                            {qty > 0 && (
+                              <>
+                                <button 
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveAmount(amount);
+                                  }} 
+                                  className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
+                                >
+                                  ×
+                                </button>
+                                <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
+                                  x{qty}
+                                </span>
+                              </>
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </>
                 )}
               </div>
 
               {/* Charge Button */}
-              <div className="p-3 border-t border-neutral-700">
+              <div className="p-3 pt-0">
                 <button 
                   onClick={handleChargePayment}
-                  className="w-full py-3 rounded-xl font-bold text-black transition-colors"
-                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                  className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
                 >
                   CHARGE ${paymentAmount}
                 </button>

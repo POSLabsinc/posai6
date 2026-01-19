@@ -122,7 +122,7 @@ const getSeatDotColor = (status: string): string => {
 
 // Default table data with x, y positions for map view
 const defaultTables: TableType[] = [
-  { id: "T1", seats: 12, status: "Available", time: "", shape: "circle", occupiedSeats: [], guests: 0, x: 80, y: 60 },
+  { id: "T1", seats: 8, status: "Available", time: "", shape: "circle", occupiedSeats: [], guests: 0, x: 80, y: 60 },
   { id: "T2", seats: 5, status: "Ordering", time: "25M", shape: "square", occupiedSeats: [1, 2], guests: 2, x: 280, y: 80 },
   { id: "T3", seats: 4, status: "Ordered", time: "2H 25M", shape: "circle", occupiedSeats: [1, 2, 3], guests: 3, x: 480, y: 50 },
   { id: "T4", seats: 3, status: "Reserved", time: "2H 25M", shape: "square", occupiedSeats: [], guests: 0, x: 680, y: 90 },

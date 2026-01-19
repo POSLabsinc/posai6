@@ -756,6 +756,343 @@ export function PaymentDialog({
                     </>
                   )}
                 </div>
+              ) : selectedPaymentMethod === 'doordash' && doordashStep !== 'amount' ? (
+                // DoorDash Step-by-Step Flow (separate screens)
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                    <div className="flex items-center gap-3">
+                      <button 
+                        onClick={() => {
+                          if (textReceiptStep === 'phone-input') {
+                            setTextReceiptStep('receipt');
+                          } else if (emailReceiptStep === 'email-input') {
+                            setEmailReceiptStep('receipt');
+                          } else if (doordashStep === 'reference') {
+                            setDoordashStep('amount');
+                          } else if (doordashStep === 'complete') {
+                            setDoordashStep('amount');
+                          }
+                        }} 
+                        className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-lg font-medium">Pay by DoorDash</span>
+                    </div>
+                  </div>
+
+                  {/* Reference Number Entry Screen */}
+                  {doordashStep === 'reference' && (
+                    <div className="flex-1 flex flex-col">
+                      {/* DoorDash Logo */}
+                      <div className="flex justify-center py-6">
+                        <div className="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center">
+                          <Truck className="w-8 h-8 text-white" />
+                        </div>
+                      </div>
+
+                      {/* Reference Number Label */}
+                      <div className="px-4 mb-1">
+                        <span className="text-neutral-400 text-xs">Reference number</span>
+                      </div>
+
+                      {/* Reference Number Input */}
+                      <div className="px-4 mb-3">
+                        <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
+                          <span className="text-white text-base font-medium">
+                            {doordashReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Keypad */}
+                      <div className="flex-1 px-4">
+                        <div className="grid grid-cols-3 gap-2">
+                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map(key => (
+                            <button 
+                              key={key} 
+                              onClick={() => {
+                                if (key === 'C') {
+                                  setDoordashReference('');
+                                } else {
+                                  setDoordashReference(doordashReference + key);
+                                }
+                              }} 
+                              className={`h-12 rounded-xl text-lg font-medium transition-colors ${
+                                key === 'C' 
+                                  ? 'bg-neutral-800 border border-neutral-700 text-red-500 hover:bg-neutral-700' 
+                                  : 'bg-neutral-800 border border-neutral-700 text-white hover:bg-neutral-700 active:bg-neutral-600'
+                              }`}
+                            >
+                              {key}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Continue Button */}
+                      <div className="p-4">
+                        <button 
+                          onClick={() => {
+                            const paid = parseFloat(paymentAmount) || 0;
+                            setPaidAmount(prev => prev + paid);
+                            setDoordashStep('complete');
+                          }} 
+                          disabled={!doordashReference} 
+                          className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${
+                            doordashReference 
+                              ? 'bg-orange-500 hover:bg-orange-600 text-white' 
+                              : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                          }`}
+                        >
+                          CONTINUE
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Complete Screen with Receipt Options */}
+                  {doordashStep === 'complete' && (
+                    <>
+                      {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
+                        <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+                          {/* Success Icon */}
+                          <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
+                            <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
+                          </div>
+                          
+                          <p className="text-center mb-2">
+                            <span className="text-green-500 font-bold text-lg">${parseFloat(paymentAmount).toFixed(2)}</span>
+                            <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+                          </p>
+                          
+                          <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
+                          
+                          {/* Receipt Options */}
+                          <div className="flex gap-4 mb-6">
+                            <button 
+                              onClick={() => {
+                                setPaymentHistory(prev => [...prev, { method: 'doordash', amount: parseFloat(paymentAmount), methodLabel: 'DoorDash' }]);
+                                setDoordashStep('amount');
+                                setDoordashReference('');
+                                setPaymentProcessed(true);
+                              }} 
+                              className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                            >
+                              <Printer className="w-6 h-6 text-neutral-300" />
+                              <span className="text-neutral-300 text-xs">Print</span>
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setTextReceiptPhone('');
+                                setTextReceiptNoMarketing(false);
+                                setTextReceiptStep('phone-input');
+                              }} 
+                              className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                            >
+                              <MessageSquare className="w-6 h-6 text-neutral-300" />
+                              <span className="text-neutral-300 text-xs">Text</span>
+                            </button>
+                            <button 
+                              onClick={() => {
+                                setEmailReceiptEmail('');
+                                setEmailReceiptNoMarketing(false);
+                                setEmailReceiptStep('email-input');
+                              }} 
+                              className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+                            >
+                              <Mail className="w-6 h-6 text-neutral-300" />
+                              <span className="text-neutral-300 text-xs">Email</span>
+                            </button>
+                          </div>
+                          
+                          <button 
+                            onClick={() => {
+                              setPaymentHistory(prev => [...prev, { method: 'doordash', amount: parseFloat(paymentAmount), methodLabel: 'DoorDash' }]);
+                              setDoordashStep('amount');
+                              setDoordashReference('');
+                              setPaymentProcessed(true);
+                            }} 
+                            className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+                          >
+                            NO RECEIPT
+                          </button>
+                        </div>
+                      ) : textReceiptStep === 'phone-input' ? (
+                        /* Text Receipt Phone Input Screen for DoorDash */
+                        <div className="flex flex-col flex-1">
+                          {/* Title */}
+                          <div className="px-4 pt-4 pb-2 text-center">
+                            <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
+                          </div>
+
+                          {/* Phone Input */}
+                          <div className="px-4 mb-2">
+                            <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                              <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
+                                <span className="text-white text-xs font-medium">US +1</span>
+                                <ChevronDown className="w-3 h-3 text-neutral-400" />
+                              </div>
+                              <input 
+                                type="text" 
+                                placeholder="(000) 000-0000" 
+                                value={textReceiptPhone} 
+                                readOnly 
+                                className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" 
+                              />
+                            </div>
+                          </div>
+
+                          {/* Marketing Checkbox */}
+                          <div className="px-4 mb-2">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <div 
+                                onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)} 
+                                className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
+                                  textReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'
+                                }`}
+                              >
+                                {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                              </div>
+                              <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
+                            </label>
+                          </div>
+
+                          {/* Privacy Text */}
+                          <div className="px-4 mb-2 text-center">
+                            <p className="text-neutral-500 text-[10px] leading-relaxed">
+                              Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
+                            </p>
+                          </div>
+
+                          {/* Send Button */}
+                          <div className="px-4 mb-2">
+                            <button 
+                              onClick={() => {
+                                setTextReceiptStep('receipt');
+                                setPaymentHistory(prev => [...prev, { method: 'doordash', amount: parseFloat(paymentAmount), methodLabel: 'DoorDash' }]);
+                                setDoordashStep('amount');
+                                setDoordashReference('');
+                                setPaymentProcessed(true);
+                              }} 
+                              disabled={textReceiptPhone.replace(/\D/g, '').length < 10} 
+                              className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                            >
+                              SEND
+                            </button>
+                          </div>
+
+                          {/* Number Keypad */}
+                          <div className="flex-1 flex flex-col justify-end px-4 pb-4">
+                            <div className="grid grid-cols-3 gap-2">
+                              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => (
+                                <button 
+                                  key={key} 
+                                  onClick={() => {
+                                    if (key === 'delete') {
+                                      const digits = textReceiptPhone.replace(/\D/g, '');
+                                      const newDigits = digits.slice(0, -1);
+                                      if (newDigits.length === 0) {
+                                        setTextReceiptPhone('');
+                                      } else if (newDigits.length <= 3) {
+                                        setTextReceiptPhone(`(${newDigits}`);
+                                      } else if (newDigits.length <= 6) {
+                                        setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
+                                      } else {
+                                        setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
+                                      }
+                                    } else if (key !== '') {
+                                      const digits = textReceiptPhone.replace(/\D/g, '');
+                                      if (digits.length < 10) {
+                                        const newDigits = digits + key;
+                                        if (newDigits.length <= 3) {
+                                          setTextReceiptPhone(`(${newDigits}`);
+                                        } else if (newDigits.length <= 6) {
+                                          setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
+                                        } else {
+                                          setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
+                                        }
+                                      }
+                                    }
+                                  }} 
+                                  className={`h-12 rounded-lg text-lg font-medium transition-colors ${
+                                    key === '' ? 'invisible' : key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'
+                                  }`}
+                                >
+                                  {key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        </div>
+                      ) : emailReceiptStep === 'email-input' ? (
+                        /* Email Receipt Input Screen for DoorDash */
+                        <div className="flex flex-col flex-1">
+                          {/* Title */}
+                          <div className="px-4 pt-4 pb-2 text-center">
+                            <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
+                          </div>
+
+                          {/* Email Input */}
+                          <div className="px-4 mb-2">
+                            <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                              <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600">
+                                <Mail className="w-4 h-4 text-neutral-400" />
+                              </div>
+                              <input 
+                                type="email" 
+                                placeholder="email@example.com" 
+                                value={emailReceiptEmail} 
+                                onChange={e => setEmailReceiptEmail(e.target.value)} 
+                                className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" 
+                              />
+                            </div>
+                          </div>
+
+                          {/* Marketing Checkbox */}
+                          <div className="px-4 mb-2">
+                            <label className="flex items-center gap-2 cursor-pointer">
+                              <div 
+                                onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)} 
+                                className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
+                                  emailReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'
+                                }`}
+                              >
+                                {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                              </div>
+                              <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
+                            </label>
+                          </div>
+
+                          {/* Privacy Text */}
+                          <div className="px-4 mb-2 text-center">
+                            <p className="text-neutral-500 text-[10px] leading-relaxed">
+                              Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
+                            </p>
+                          </div>
+
+                          {/* Send Button */}
+                          <div className="px-4 mb-4">
+                            <button 
+                              onClick={() => {
+                                setEmailReceiptStep('receipt');
+                                setPaymentHistory(prev => [...prev, { method: 'doordash', amount: parseFloat(paymentAmount), methodLabel: 'DoorDash' }]);
+                                setDoordashStep('amount');
+                                setDoordashReference('');
+                                setPaymentProcessed(true);
+                              }} 
+                              disabled={!emailReceiptEmail.includes('@')} 
+                              className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                            >
+                              SEND
+                            </button>
+                          </div>
+                        </div>
+                      ) : null}
+                    </>
+                  )}
+                </>
               ) : (
                 <>
                   {/* Quick Amounts OR Keypad */}

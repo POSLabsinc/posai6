@@ -387,6 +387,7 @@ export function PaymentDialog({
                       setBlizzfulStep('amount');
                       setUbereatsStep('amount');
                       setGrubhubStep('amount');
+                      setLoyaltyStep('guest-list');
                     }}
                     className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
                   >
@@ -429,83 +430,675 @@ export function PaymentDialog({
                 </button>
               </div>
             </div>
-          ) : (
-            // Payment Entry View
+          ) : selectedPaymentMethod === 'loyalty' ? (
+            /* ============= FULL LOYALTY FLOW - REPLACES ENTIRE PANEL ============= */
             <>
-              {/* Header */}
-              <div className="flex items-center justify-center py-6 border-b border-neutral-700">
-                <span className="text-white text-lg font-medium">Total Due</span>
-                <span className="text-red-500 text-lg font-bold ml-2">${total.toFixed(2)}</span>
+              {/* Guest List Screen */}
+              {loyaltyStep === 'guest-list' && (
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-3 border-b border-neutral-700">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => setSelectedPaymentMethod('cash')} 
+                        className="w-7 h-7 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-4 h-4 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-sm font-medium">Pay by Loyalty</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col overflow-hidden flex-1">
+                    {/* Info Row with Add Guest Button */}
+                    <div className="flex items-center justify-between px-3 py-2">
+                      <p className="text-neutral-400 text-xs">Select a guest to redeem loyalty points</p>
+                      <button 
+                        onClick={() => setShowLoyaltyAddGuest(true)} 
+                        className="flex items-center gap-1 px-2 py-1 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded transition-colors"
+                      >
+                        <UserPlus className="w-3 h-3" />
+                        Add Guest
+                      </button>
+                    </div>
+
+                    {/* Search Input */}
+                    <div className="px-3 mb-2">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
+                        <Input 
+                          type="text" 
+                          placeholder="Search Guest" 
+                          value={loyaltySearchQuery} 
+                          onChange={e => setLoyaltySearchQuery(e.target.value)} 
+                          className="w-full pl-9 py-1.5 text-sm bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" 
+                        />
+                      </div>
+                    </div>
+
+                    {/* Guest Table */}
+                    <div className="flex-1 overflow-auto px-3 min-h-0 pb-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      {/* Table Header */}
+                      <div className="grid grid-cols-3 gap-3 py-1.5 text-[10px] text-neutral-400 border-b border-neutral-700">
+                        <span>Name</span>
+                        <span>Phone Number</span>
+                        <span>Email</span>
+                      </div>
+                      {/* Guest Rows */}
+                      {mockGuests
+                        .filter(guest => 
+                          loyaltySearchQuery === '' || 
+                          guest.name.toLowerCase().includes(loyaltySearchQuery.toLowerCase()) || 
+                          guest.phone.includes(loyaltySearchQuery) || 
+                          guest.email.toLowerCase().includes(loyaltySearchQuery.toLowerCase())
+                        )
+                        .map((guest, index) => (
+                          <div 
+                            key={index} 
+                            onClick={() => {
+                              setLoyaltySelectedGuest(guest);
+                              setLoyaltyStep('guest-selected');
+                            }} 
+                            className="grid grid-cols-3 gap-3 py-2 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-neutral-700 flex items-center justify-center text-[10px] text-white font-medium">
+                                {guest.avatar}
+                              </div>
+                              <span className="text-white text-xs">{guest.name}</span>
+                            </div>
+                            <span className="text-neutral-300 text-xs flex items-center">{guest.phone}</span>
+                            <span className="text-neutral-300 text-xs flex items-center truncate">{guest.email}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+
+                  {/* Add Guest Modal */}
+                  {showLoyaltyAddGuest && (
+                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50">
+                      <div className="bg-white rounded-xl w-[400px] overflow-hidden">
+                        {/* Modal Header */}
+                        <div className="relative p-4 pb-2">
+                          <button 
+                            onClick={() => setShowLoyaltyAddGuest(false)} 
+                            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-neutral-700 transition-colors"
+                          >
+                            <X className="w-4 h-4 text-white" />
+                          </button>
+                          <h3 className="text-black text-xl font-semibold text-center">Add Guest</h3>
+                          <p className="text-neutral-500 text-sm text-center mt-1">Search for existing or add new guest information to continue with the order</p>
+                        </div>
+
+                        {/* Form Fields */}
+                        <div className="p-4 space-y-3">
+                          <input 
+                            type="text" 
+                            placeholder="Guest Name*" 
+                            value={loyaltyNewGuest.name} 
+                            onChange={e => setLoyaltyNewGuest({ ...loyaltyNewGuest, name: e.target.value })} 
+                            className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" 
+                          />
+                          <div className="flex gap-2">
+                            <div className="flex items-center gap-2 bg-white border border-neutral-300 rounded-lg px-3 py-2">
+                              <span className="text-lg">🇺🇸</span>
+                              <span className="text-black text-sm">+1</span>
+                              <ChevronDown className="w-4 h-4 text-neutral-400" />
+                            </div>
+                            <input 
+                              type="tel" 
+                              placeholder="Phone Number*" 
+                              value={loyaltyNewGuest.phone} 
+                              onChange={e => setLoyaltyNewGuest({ ...loyaltyNewGuest, phone: e.target.value })} 
+                              className="flex-1 px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" 
+                            />
+                          </div>
+                          <input 
+                            type="email" 
+                            placeholder="name@example.com" 
+                            value={loyaltyNewGuest.email} 
+                            onChange={e => setLoyaltyNewGuest({ ...loyaltyNewGuest, email: e.target.value })} 
+                            className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" 
+                          />
+                        </div>
+
+                        {/* ADD Button */}
+                        <div className="p-4 pt-2">
+                          <button 
+                            onClick={() => {
+                              if (loyaltyNewGuest.name && loyaltyNewGuest.phone) {
+                                const newGuest: GuestType = {
+                                  name: loyaltyNewGuest.name,
+                                  phone: loyaltyNewGuest.phone,
+                                  email: loyaltyNewGuest.email || 'guest@example.com',
+                                  avatar: loyaltyNewGuest.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
+                                  loyaltyPoints: 1250
+                                };
+                                setLoyaltySelectedGuest(newGuest);
+                                setShowLoyaltyAddGuest(false);
+                                setLoyaltyStep('guest-selected');
+                                setLoyaltyNewGuest({ name: '', phone: '', email: '' });
+                              }
+                            }} 
+                            disabled={!loyaltyNewGuest.name || !loyaltyNewGuest.phone} 
+                            className={`w-full py-3 font-medium rounded-lg transition-colors ${
+                              loyaltyNewGuest.name && loyaltyNewGuest.phone 
+                                ? 'bg-neutral-900 text-white hover:bg-neutral-800' 
+                                : 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
+                            }`}
+                          >
+                            ADD
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Guest Selected Screen */}
+              {loyaltyStep === 'guest-selected' && loyaltySelectedGuest && (
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-3 border-b border-neutral-700">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => {
+                          setLoyaltyStep('guest-list');
+                          setLoyaltySelectedGuest(null);
+                        }} 
+                        className="w-7 h-7 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-4 h-4 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-sm font-medium">Pay by Loyalty</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col overflow-hidden flex-1">
+                    {/* Selected Guest Card with Points */}
+                    <div className="p-3">
+                      <div className="bg-neutral-800 rounded-xl p-3">
+                        <div className="flex items-start gap-3">
+                          <div className="w-10 h-10 rounded-full bg-neutral-600 flex items-center justify-center text-sm text-white font-medium overflow-hidden">
+                            {loyaltySelectedGuest.avatar}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-white font-semibold text-sm">{loyaltySelectedGuest.name}</h3>
+                            <div className="flex items-center gap-3 mt-0.5">
+                              <div className="flex items-center gap-1 text-neutral-400 text-xs">
+                                <Phone className="w-3 h-3" />
+                                <span>{loyaltySelectedGuest.phone}</span>
+                              </div>
+                              <div className="flex items-center gap-1 text-neutral-400 text-xs">
+                                <Mail className="w-3 h-3" />
+                                <span>{loyaltySelectedGuest.email}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center justify-between mt-1.5">
+                              <div className="flex items-center gap-1">
+                                <Tag className="w-3 h-3 text-neutral-400" />
+                                <span className="text-white text-xs font-medium">{(loyaltySelectedGuest.loyaltyPoints || 1250).toLocaleString()} Points</span>
+                              </div>
+                              <span className="text-green-500 text-xs">Value ${(loyaltySelectedGuest.loyaltyPoints || 1250).toFixed(2)}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* REDEEM Button */}
+                    <div className="px-3 pb-3">
+                      <button 
+                        onClick={() => {
+                          const suggestedPoints = Math.ceil(parseFloat(paymentAmount));
+                          setLoyaltyPointsToRedeem(suggestedPoints.toString());
+                          setLoyaltyStep('points-input');
+                        }} 
+                        className="w-full py-2.5 bg-neutral-800 text-white text-sm font-medium rounded-lg hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2"
+                      >
+                        <Tag className="w-3.5 h-3.5" />
+                        REDEEM
+                      </button>
+                    </div>
+
+                    {/* Remaining Guest List */}
+                    <div className="flex-1 overflow-auto px-3 min-h-0 pb-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                      {/* Search Input */}
+                      <div className="mb-2">
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
+                          <Input 
+                            type="text" 
+                            placeholder="Search Guest" 
+                            value={loyaltySearchQuery} 
+                            onChange={e => setLoyaltySearchQuery(e.target.value)} 
+                            className="w-full pl-9 py-1.5 text-sm bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" 
+                          />
+                        </div>
+                      </div>
+                      {/* Table Header */}
+                      <div className="grid grid-cols-3 gap-3 py-1.5 text-[10px] text-neutral-400 border-b border-neutral-700">
+                        <span>Name</span>
+                        <span>Phone Number</span>
+                        <span>Email</span>
+                      </div>
+                      {/* Guest Rows */}
+                      {mockGuests
+                        .filter(g => g.name !== loyaltySelectedGuest.name)
+                        .filter(guest => 
+                          loyaltySearchQuery === '' || 
+                          guest.name.toLowerCase().includes(loyaltySearchQuery.toLowerCase()) || 
+                          guest.phone.includes(loyaltySearchQuery) || 
+                          guest.email.toLowerCase().includes(loyaltySearchQuery.toLowerCase())
+                        )
+                        .map((guest, index) => (
+                          <div 
+                            key={index} 
+                            onClick={() => setLoyaltySelectedGuest(guest)} 
+                            className="grid grid-cols-3 gap-3 py-2 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-neutral-700 flex items-center justify-center text-[10px] text-white font-medium">
+                                {guest.avatar}
+                              </div>
+                              <span className="text-white text-xs">{guest.name}</span>
+                            </div>
+                            <span className="text-neutral-300 text-xs flex items-center">{guest.phone}</span>
+                            <span className="text-neutral-300 text-xs flex items-center truncate">{guest.email}</span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* Points Input Screen */}
+              {loyaltyStep === 'points-input' && loyaltySelectedGuest && (
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-3 border-b border-neutral-700">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => {
+                          setLoyaltyStep('guest-selected');
+                          setLoyaltyPointsToRedeem('');
+                        }} 
+                        className="w-7 h-7 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-4 h-4 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-sm font-medium">Pay by Loyalty</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col overflow-hidden flex-1">
+                    {/* Selected Guest Card */}
+                    <div className="p-3 border-b border-neutral-700">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center text-xs text-white font-medium overflow-hidden">
+                          {loyaltySelectedGuest.avatar}
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3">
+                            <h3 className="text-white font-semibold text-sm">{loyaltySelectedGuest.name}</h3>
+                            <div className="flex items-center gap-1 text-neutral-400 text-[10px]">
+                              <Phone className="w-2.5 h-2.5" />
+                              <span>{loyaltySelectedGuest.phone}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between mt-0.5">
+                            <div className="flex items-center gap-1">
+                              <Tag className="w-2.5 h-2.5 text-neutral-400" />
+                              <span className="text-white text-xs">{(loyaltySelectedGuest.loyaltyPoints || 1250).toLocaleString()} Points</span>
+                            </div>
+                            <span className="text-green-500 text-[10px]">Value ${(loyaltySelectedGuest.loyaltyPoints || 1250).toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Points to Redeem */}
+                    <div className="p-3 flex-1 flex flex-col">
+                      <div className="mb-1.5">
+                        <h4 className="text-white font-semibold text-sm">Points to Redeem</h4>
+                        <p className="text-neutral-400 text-xs">Due: ${paymentAmount} (Suggested: {Math.ceil(parseFloat(paymentAmount))} pts)</p>
+                      </div>
+
+                      {/* Points Input Box */}
+                      <div 
+                        onClick={() => setShowLoyaltyKeypad(!showLoyaltyKeypad)} 
+                        className="w-full py-2.5 px-3 bg-neutral-800 border border-neutral-600 rounded-lg text-center text-xl text-white font-medium cursor-pointer mb-1"
+                      >
+                        {loyaltyPointsToRedeem || '0'}
+                      </div>
+                      <p className="text-neutral-400 text-[10px] mb-2">Maximum: {(loyaltySelectedGuest.loyaltyPoints || 1250).toLocaleString()} points</p>
+
+                      {/* Keypad */}
+                      {showLoyaltyKeypad && (
+                        <div className="grid grid-cols-3 gap-1.5 mb-2">
+                          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                            <button 
+                              key={num} 
+                              onClick={() => setLoyaltyPointsToRedeem((loyaltyPointsToRedeem + num.toString()).slice(0, 6))} 
+                              className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-white border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                            >
+                              {num}
+                            </button>
+                          ))}
+                          <button 
+                            onClick={() => setLoyaltyPointsToRedeem(loyaltyPointsToRedeem + '.')} 
+                            className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-white border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                          >
+                            .
+                          </button>
+                          <button 
+                            onClick={() => setLoyaltyPointsToRedeem((loyaltyPointsToRedeem + '0').slice(0, 6))} 
+                            className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-white border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                          >
+                            0
+                          </button>
+                          <button 
+                            onClick={() => setLoyaltyPointsToRedeem('')} 
+                            className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-red-500 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                          >
+                            C
+                          </button>
+                        </div>
+                      )}
+
+                      {/* REDEEM Button */}
+                      <button 
+                        onClick={() => {
+                          const points = parseFloat(loyaltyPointsToRedeem) || 0;
+                          const maxPoints = loyaltySelectedGuest.loyaltyPoints || 1250;
+                          if (points > 0 && points <= maxPoints) {
+                            setLoyaltyStep('otp');
+                          }
+                        }} 
+                        disabled={!loyaltyPointsToRedeem || parseFloat(loyaltyPointsToRedeem) <= 0}
+                        className={`mt-auto w-full py-2.5 font-semibold rounded-lg transition-colors text-sm ${
+                          loyaltyPointsToRedeem && parseFloat(loyaltyPointsToRedeem) > 0 
+                            ? 'bg-white hover:bg-neutral-200 text-neutral-900' 
+                            : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                        }`}
+                      >
+                        REDEEM
+                      </button>
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {/* OTP Verification Screen */}
+              {loyaltyStep === 'otp' && loyaltySelectedGuest && (
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-3 border-b border-neutral-700">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => {
+                          setLoyaltyStep('points-input');
+                          setLoyaltyOtp(['', '', '', '']);
+                        }} 
+                        className="w-7 h-7 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-4 h-4 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-sm font-medium">Pay by Loyalty</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col overflow-hidden flex-1 p-3">
+                    {/* Points Summary */}
+                    <div className="flex items-center justify-between mb-3 p-2 bg-neutral-800 rounded-lg">
+                      <div className="text-center">
+                        <p className="text-neutral-400 text-[10px]">Remaining</p>
+                        <p className="text-white text-sm font-medium">{((loyaltySelectedGuest.loyaltyPoints || 1250) - parseFloat(loyaltyPointsToRedeem || '0')).toLocaleString()} pts</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-neutral-400 text-[10px]">Deducting</p>
+                        <p className="text-green-500 text-sm font-medium">-{loyaltyPointsToRedeem} pts</p>
+                      </div>
+                    </div>
+
+                    {/* Instructions */}
+                    <p className="text-neutral-400 text-xs text-center mb-3">
+                      Enter OTP sent to {loyaltySelectedGuest.phone}
+                    </p>
+
+                    {/* QR Code Placeholder */}
+                    <div className="flex justify-center mb-3">
+                      <div className="w-24 h-24 bg-white rounded-lg flex items-center justify-center">
+                        <QrCode className="w-16 h-16 text-neutral-900" />
+                      </div>
+                    </div>
+
+                    {/* OTP Label */}
+                    <p className="text-neutral-400 text-xs text-center mb-2">OTP</p>
+
+                    {/* OTP Input Boxes */}
+                    <div className="flex justify-center gap-2 mb-4">
+                      {loyaltyOtp.map((digit, index) => (
+                        <input
+                          key={index}
+                          type="text"
+                          maxLength={1}
+                          value={digit}
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            const newOtp = [...loyaltyOtp];
+                            newOtp[index] = val;
+                            setLoyaltyOtp(newOtp);
+                            // Auto-focus next input
+                            if (val && index < 3) {
+                              const nextInput = document.querySelector(`input[data-otp-index="${index + 1}"]`) as HTMLInputElement;
+                              nextInput?.focus();
+                            }
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Backspace' && !digit && index > 0) {
+                              const prevInput = document.querySelector(`input[data-otp-index="${index - 1}"]`) as HTMLInputElement;
+                              prevInput?.focus();
+                            }
+                          }}
+                          data-otp-index={index}
+                          className="w-10 h-12 text-center text-xl font-bold bg-neutral-800 border border-neutral-600 rounded-lg text-white focus:border-white focus:outline-none"
+                        />
+                      ))}
+                    </div>
+
+                    {/* REDEEM Button */}
+                    <button 
+                      onClick={() => {
+                        const otp = loyaltyOtp.join('');
+                        if (otp.length === 4) {
+                          // Process payment
+                          const pointsValue = parseFloat(loyaltyPointsToRedeem) || 0;
+                          setPaidAmount(prev => prev + pointsValue);
+                          setPaymentHistory(prev => [...prev, { 
+                            method: 'loyalty', 
+                            amount: pointsValue, 
+                            methodLabel: `Loyalty (${loyaltySelectedGuest.name})` 
+                          }]);
+                          setLoyaltyStep('complete');
+                        }
+                      }} 
+                      disabled={loyaltyOtp.join('').length !== 4}
+                      className={`mt-auto w-full py-2.5 font-semibold rounded-lg transition-colors text-sm ${
+                        loyaltyOtp.join('').length === 4 
+                          ? 'bg-white hover:bg-neutral-200 text-neutral-900' 
+                          : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                      }`}
+                    >
+                      REDEEM
+                    </button>
+                  </div>
+                </>
+              )}
+
+              {/* Payment Complete Screen */}
+              {loyaltyStep === 'complete' && loyaltySelectedGuest && (
+                <>
+                  {/* Header with Back Button */}
+                  <div className="flex items-center justify-between p-3 border-b border-neutral-700">
+                    <div className="flex items-center gap-2">
+                      <button 
+                        onClick={() => {
+                          setLoyaltyStep('guest-list');
+                          setLoyaltySelectedGuest(null);
+                          setLoyaltyPointsToRedeem('');
+                          setLoyaltyOtp(['', '', '', '']);
+                        }} 
+                        className="w-7 h-7 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                      >
+                        <ArrowLeft className="w-4 h-4 text-neutral-300" />
+                      </button>
+                      <span className="text-white text-sm font-medium">Pay by Loyalty</span>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col items-center justify-center flex-1 px-4 py-4">
+                    {/* Success Icon */}
+                    <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-3">
+                      <img src={tickSuccessIcon} alt="Success" className="w-10 h-10" />
+                    </div>
+
+                    <h3 className="text-white text-lg font-semibold mb-1">Payment Complete</h3>
+                    <p className="text-neutral-400 text-xs mb-4">{loyaltySelectedGuest.name}</p>
+
+                    {/* Points Summary Table */}
+                    <div className="w-full max-w-xs bg-neutral-800 rounded-lg p-3 mb-4">
+                      <div className="flex justify-between py-1.5 border-b border-neutral-700">
+                        <span className="text-neutral-400 text-xs">Points Used</span>
+                        <span className="text-white text-xs font-medium">{loyaltyPointsToRedeem} pts</span>
+                      </div>
+                      <div className="flex justify-between py-1.5 border-b border-neutral-700">
+                        <span className="text-neutral-400 text-xs">Available Balance</span>
+                        <span className="text-white text-xs font-medium">{((loyaltySelectedGuest.loyaltyPoints || 1250) - parseFloat(loyaltyPointsToRedeem || '0')).toLocaleString()} pts</span>
+                      </div>
+                      <div className="flex justify-between py-1.5">
+                        <span className="text-neutral-400 text-xs">Equivalent Value</span>
+                        <span className="text-green-500 text-xs font-medium">${parseFloat(loyaltyPointsToRedeem || '0').toFixed(2)}</span>
+                      </div>
+                    </div>
+
+                    {/* CONTINUE Button */}
+                    <button 
+                      onClick={() => {
+                        setPaymentProcessed(true);
+                      }} 
+                      className="w-full max-w-xs py-2.5 bg-white hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors text-sm"
+                    >
+                      CONTINUE
+                    </button>
+                  </div>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              {/* ============= STANDARD PAYMENT ENTRY VIEW ============= */}
+              {/* Header Section */}
+              <div className="flex items-center justify-between px-6 pt-6 pb-4">
+                <div>
+                  <p className="text-neutral-400 text-sm">Total Due</p>
+                  <p className="text-green-500 text-3xl font-bold">${total.toFixed(2)}</p>
+                </div>
+                <button 
+                  onClick={() => onOpenChange(false)}
+                  className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5 text-neutral-400" />
+                </button>
               </div>
 
-              {/* Payment Methods */}
-              <div className="p-6 border-b border-neutral-700">
-                <div className="flex justify-center gap-4">
-                  {visiblePaymentMethods.map(method => {
-                    const IconComponent = method.icon;
-                    const isSelected = selectedPaymentMethod === method.id;
-                    return (
-                      <button 
-                        key={method.id}
-                        onClick={() => {
-                          setSelectedPaymentMethod(method.id);
-                          setShowOtherPayments(false);
-                          if (method.id === 'card' || method.id === 'gift-card' || method.id === 'pay-link') {
-                            setShowKeypad(true);
-                          }
-                          if (method.id === 'gift-card') {
-                            setGiftCardStep('amount');
-                            setGiftCardNumber('');
-                          }
-                          if (method.id === 'pay-link') {
-                            setPayByLinkStep('amount');
-                            setSelectedGuest(null);
-                            setGuestSearchQuery('');
-                          }
-                          if (method.id === 'loyalty') {
-                            setLoyaltyStep('guest-list');
-                          }
-                        }}
-                        className="flex flex-col items-center gap-1.5"
-                      >
-                        <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${isSelected ? 'bg-white border-white' : 'bg-neutral-800 border-neutral-600 hover:border-neutral-500'}`}>
-                          <IconComponent className={`w-5 h-5 ${isSelected ? 'text-neutral-900' : 'text-neutral-300'}`} />
-                        </div>
-                        <span className={`text-[11px] ${isSelected ? 'text-white font-medium' : 'text-neutral-400'}`}>
-                          {method.name}
-                        </span>
-                      </button>
-                    );
-                  })}
-                  
-                  {/* "Other" button */}
-                  <div className="relative">
+              {/* Payment Methods - Row of 6 icons */}
+              <div className="px-6 pb-4">
+                <div className="relative">
+                  <div className="grid grid-cols-7 gap-2">
+                    {visiblePaymentMethods.map((method) => {
+                      const IconComponent = method.icon;
+                      return (
+                        <button 
+                          key={method.id}
+                          onClick={() => {
+                            setSelectedPaymentMethod(method.id);
+                            // Reset loyalty step when switching to loyalty
+                            if (method.id === 'loyalty') {
+                              setLoyaltyStep('guest-list');
+                              setLoyaltySelectedGuest(null);
+                              setLoyaltyPointsToRedeem('');
+                              setLoyaltyOtp(['', '', '', '']);
+                            }
+                          }}
+                          className="flex flex-col items-center gap-1"
+                        >
+                          <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
+                            selectedPaymentMethod === method.id 
+                              ? 'bg-white border-white' 
+                              : 'bg-neutral-700 border-neutral-600 hover:border-neutral-500'
+                          }`}>
+                            <IconComponent className={`w-5 h-5 ${
+                              selectedPaymentMethod === method.id ? 'text-neutral-900' : 'text-neutral-300'
+                            }`} />
+                          </div>
+                          <span className={`text-[10px] ${selectedPaymentMethod === method.id ? 'text-white' : 'text-neutral-400'}`}>
+                            {method.name}
+                          </span>
+                        </button>
+                      );
+                    })}
+
+                    {/* Other dropdown button */}
                     <button 
                       onClick={() => setShowOtherPayments(!showOtherPayments)}
-                      className="flex flex-col items-center gap-1.5"
+                      className="flex flex-col items-center gap-1"
                     >
-                      <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${showOtherPayments ? 'bg-white border-white' : 'bg-neutral-800 border-neutral-600 hover:border-neutral-500'}`}>
-                        <ArrowRightCircle className={`w-5 h-5 ${showOtherPayments ? 'text-neutral-900' : 'text-neutral-300'}`} />
+                      <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
+                        showOtherPayments 
+                          ? 'bg-white border-white' 
+                          : 'bg-neutral-700 border-neutral-600 hover:border-neutral-500'
+                      }`}>
+                        <ChevronDown className={`w-5 h-5 ${showOtherPayments ? 'text-neutral-900' : 'text-neutral-300'}`} />
                       </div>
-                      <span className={`text-[11px] ${showOtherPayments ? 'text-white font-medium' : 'text-neutral-400'}`}>
-                        Other
-                      </span>
+                      <span className={`text-[10px] ${showOtherPayments ? 'text-white' : 'text-neutral-400'}`}>Other</span>
                     </button>
-                    
-                    {/* Dropdown */}
-                    {showOtherPayments && (
-                      <>
-                        <div className="fixed inset-0 z-[100]" onClick={() => setShowOtherPayments(false)} />
-                        <div className="absolute top-full right-0 mt-2 z-[101] bg-neutral-800 rounded-lg border border-neutral-600 p-4 shadow-xl min-w-[420px]">
-                          <div className="flex items-center justify-between mb-4">
-                            <span className="text-white font-medium">Other Payment Methods</span>
-                            <button onClick={() => setShowOtherPayments(false)} className="w-6 h-6 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                              <X className="w-4 h-4 text-neutral-400" />
-                            </button>
-                          </div>
-                          
-                          <div className="grid grid-cols-6 gap-3 mb-3">
-                            {dropdownPaymentMethods.slice(0, 6).map(otherMethod => {
+                  </div>
+
+                  {/* Dropdown for Other Payment Methods */}
+                  {showOtherPayments && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setShowOtherPayments(false)} />
+                      <div className="absolute left-0 right-0 top-full mt-3 z-20 bg-neutral-800 rounded-xl p-4 border border-neutral-700">
+                        <div className="flex items-center justify-between mb-4">
+                          <span className="text-white font-medium">Other Payment Methods</span>
+                          <button onClick={() => setShowOtherPayments(false)} className="w-6 h-6 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
+                            <X className="w-4 h-4 text-neutral-400" />
+                          </button>
+                        </div>
+                        
+                        <div className="grid grid-cols-6 gap-3 mb-3">
+                          {dropdownPaymentMethods.slice(0, 6).map(otherMethod => {
+                            const OtherIcon = otherMethod.icon;
+                            return (
+                              <button 
+                                key={otherMethod.id}
+                                onClick={() => handleSelectFromDropdown(otherMethod)}
+                                className="flex flex-col items-center gap-1"
+                              >
+                                <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
+                                  <OtherIcon className="w-5 h-5 text-neutral-300" />
+                                </div>
+                                <span className="text-[10px] text-neutral-400 text-center leading-tight">{otherMethod.name}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        
+                        {dropdownPaymentMethods.length > 6 && (
+                          <div className="flex justify-center gap-3">
+                            {dropdownPaymentMethods.slice(6).map(otherMethod => {
                               const OtherIcon = otherMethod.icon;
                               return (
                                 <button 
@@ -521,30 +1114,10 @@ export function PaymentDialog({
                               );
                             })}
                           </div>
-                          
-                          {dropdownPaymentMethods.length > 6 && (
-                            <div className="flex justify-center gap-3">
-                              {dropdownPaymentMethods.slice(6).map(otherMethod => {
-                                const OtherIcon = otherMethod.icon;
-                                return (
-                                  <button 
-                                    key={otherMethod.id}
-                                    onClick={() => handleSelectFromDropdown(otherMethod)}
-                                    className="flex flex-col items-center gap-1"
-                                  >
-                                    <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
-                                      <OtherIcon className="w-5 h-5 text-neutral-300" />
-                                    </div>
-                                    <span className="text-[10px] text-neutral-400 text-center leading-tight">{otherMethod.name}</span>
-                                  </button>
-                                );
-                              })}
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
+                        )}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
 
@@ -552,7 +1125,7 @@ export function PaymentDialog({
               <div className="px-6 py-4 border-b border-neutral-700">
                 <div className="flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
                   <span className="flex-1 text-green-500 text-2xl font-bold text-center">${paymentAmount}</span>
-                  {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && selectedPaymentMethod !== 'pay-link' && selectedPaymentMethod !== 'loyalty' && (
+                  {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && selectedPaymentMethod !== 'pay-link' && (
                     <button 
                       onClick={() => setShowKeypad(!showKeypad)}
                       className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${showKeypad ? 'bg-white border-white' : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600'}`}
@@ -1091,521 +1664,6 @@ export function PaymentDialog({
                         </div>
                       ) : null}
                     </>
-                  )}
-                </>
-              ) : selectedPaymentMethod === 'loyalty' && loyaltyStep !== 'guest-list' ? (
-                /* Loyalty Multi-Step Flow */
-                <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-3 border-b border-neutral-700">
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => {
-                          if (loyaltyStep === 'guest-selected') {
-                            setLoyaltyStep('guest-list');
-                            setLoyaltySelectedGuest(null);
-                          } else if (loyaltyStep === 'points-input') {
-                            setLoyaltyStep('guest-selected');
-                            setLoyaltyPointsToRedeem('');
-                          } else if (loyaltyStep === 'otp') {
-                            setLoyaltyStep('points-input');
-                            setLoyaltyOtp(['', '', '', '']);
-                          } else if (loyaltyStep === 'complete') {
-                            setLoyaltyStep('guest-list');
-                            setLoyaltySelectedGuest(null);
-                            setLoyaltyPointsToRedeem('');
-                          }
-                        }} 
-                        className="w-7 h-7 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                      >
-                        <ArrowLeft className="w-4 h-4 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-sm font-medium">Pay by Loyalty</span>
-                    </div>
-                  </div>
-
-                  {/* Guest Selected with Points Screen */}
-                  {loyaltyStep === 'guest-selected' && loyaltySelectedGuest && (
-                    <div className="flex flex-col overflow-hidden flex-1">
-                      {/* Selected Guest Card with Points */}
-                      <div className="p-3">
-                        <div className="bg-neutral-800 rounded-xl p-3">
-                          <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full bg-neutral-600 flex items-center justify-center text-sm text-white font-medium overflow-hidden">
-                              {loyaltySelectedGuest.avatar}
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="text-white font-semibold text-sm">{loyaltySelectedGuest.name}</h3>
-                              <div className="flex items-center gap-3 mt-0.5">
-                                <div className="flex items-center gap-1 text-neutral-400 text-xs">
-                                  <Phone className="w-3 h-3" />
-                                  <span>{loyaltySelectedGuest.phone}</span>
-                                </div>
-                                <div className="flex items-center gap-1 text-neutral-400 text-xs">
-                                  <Mail className="w-3 h-3" />
-                                  <span>{loyaltySelectedGuest.email}</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-between mt-1.5">
-                                <div className="flex items-center gap-1">
-                                  <Tag className="w-3 h-3 text-neutral-400" />
-                                  <span className="text-white text-xs font-medium">{(loyaltySelectedGuest.loyaltyPoints || 1250).toLocaleString()} Points</span>
-                                </div>
-                                <span className="text-green-500 text-xs">Value ${(loyaltySelectedGuest.loyaltyPoints || 1250).toFixed(2)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* REDEEM Button */}
-                      <div className="px-3 pb-3">
-                        <button 
-                          onClick={() => {
-                            const suggestedPoints = Math.ceil(parseFloat(paymentAmount));
-                            setLoyaltyPointsToRedeem(suggestedPoints.toString());
-                            setLoyaltyStep('points-input');
-                          }} 
-                          className="w-full py-2.5 bg-neutral-800 text-white text-sm font-medium rounded-lg hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2"
-                        >
-                          <Tag className="w-3.5 h-3.5" />
-                          REDEEM
-                        </button>
-                      </div>
-
-                      {/* Remaining Guest List */}
-                      <div className="flex-1 overflow-auto px-3 min-h-0 pb-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                        {/* Search Input */}
-                        <div className="mb-2">
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
-                            <Input 
-                              type="text" 
-                              placeholder="Search Guest" 
-                              value={loyaltySearchQuery} 
-                              onChange={e => setLoyaltySearchQuery(e.target.value)} 
-                              className="w-full pl-9 py-1.5 text-sm bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" 
-                            />
-                          </div>
-                        </div>
-                        {/* Table Header */}
-                        <div className="grid grid-cols-3 gap-3 py-1.5 text-[10px] text-neutral-400 border-b border-neutral-700">
-                          <span>Name</span>
-                          <span>Phone Number</span>
-                          <span>Email</span>
-                        </div>
-                        {/* Guest Rows */}
-                        {mockGuests
-                          .filter(g => g.name !== loyaltySelectedGuest.name)
-                          .filter(guest => 
-                            loyaltySearchQuery === '' || 
-                            guest.name.toLowerCase().includes(loyaltySearchQuery.toLowerCase()) || 
-                            guest.phone.includes(loyaltySearchQuery) || 
-                            guest.email.toLowerCase().includes(loyaltySearchQuery.toLowerCase())
-                          )
-                          .map((guest, index) => (
-                            <div 
-                              key={index} 
-                              onClick={() => setLoyaltySelectedGuest(guest)} 
-                              className="grid grid-cols-3 gap-3 py-2 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors"
-                            >
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full bg-neutral-700 flex items-center justify-center text-[10px] text-white font-medium">
-                                  {guest.avatar}
-                                </div>
-                                <span className="text-white text-xs">{guest.name}</span>
-                              </div>
-                              <span className="text-neutral-300 text-xs flex items-center">{guest.phone}</span>
-                              <span className="text-neutral-300 text-xs flex items-center truncate">{guest.email}</span>
-                            </div>
-                          ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Points Input Screen */}
-                  {loyaltyStep === 'points-input' && loyaltySelectedGuest && (
-                    <div className="flex flex-col overflow-hidden flex-1">
-                      {/* Selected Guest Card */}
-                      <div className="p-3 border-b border-neutral-700">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center text-xs text-white font-medium overflow-hidden">
-                            {loyaltySelectedGuest.avatar}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3">
-                              <h3 className="text-white font-semibold text-sm">{loyaltySelectedGuest.name}</h3>
-                              <div className="flex items-center gap-1 text-neutral-400 text-[10px]">
-                                <Phone className="w-2.5 h-2.5" />
-                                <span>{loyaltySelectedGuest.phone}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between mt-0.5">
-                              <div className="flex items-center gap-1">
-                                <Tag className="w-2.5 h-2.5 text-neutral-400" />
-                                <span className="text-white text-xs">{(loyaltySelectedGuest.loyaltyPoints || 1250).toLocaleString()} Points</span>
-                              </div>
-                              <span className="text-green-500 text-[10px]">Value ${(loyaltySelectedGuest.loyaltyPoints || 1250).toFixed(2)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Points to Redeem */}
-                      <div className="p-3 flex-1 flex flex-col">
-                        <div className="mb-1.5">
-                          <h4 className="text-white font-semibold text-sm">Points to Redeem</h4>
-                          <p className="text-neutral-400 text-xs">Due: ${paymentAmount} (Suggested: {Math.ceil(parseFloat(paymentAmount))} pts)</p>
-                        </div>
-
-                        {/* Points Input Box */}
-                        <div 
-                          onClick={() => setShowLoyaltyKeypad(!showLoyaltyKeypad)} 
-                          className="w-full py-2.5 px-3 bg-neutral-800 border border-neutral-600 rounded-lg text-center text-xl text-white font-medium cursor-pointer mb-1"
-                        >
-                          {loyaltyPointsToRedeem || '0'}
-                        </div>
-                        <p className="text-neutral-400 text-[10px] mb-2">Maximum: {(loyaltySelectedGuest.loyaltyPoints || 1250).toLocaleString()} points</p>
-
-                        {/* Keypad */}
-                        {showLoyaltyKeypad && (
-                          <div className="grid grid-cols-3 gap-1.5 mb-2">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                              <button 
-                                key={num} 
-                                onClick={() => setLoyaltyPointsToRedeem((loyaltyPointsToRedeem + num.toString()).slice(0, 6))} 
-                                className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-white border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                              >
-                                {num}
-                              </button>
-                            ))}
-                            <button 
-                              onClick={() => setLoyaltyPointsToRedeem(loyaltyPointsToRedeem + '.')} 
-                              className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-white border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                            >
-                              .
-                            </button>
-                            <button 
-                              onClick={() => setLoyaltyPointsToRedeem((loyaltyPointsToRedeem + '0').slice(0, 6))} 
-                              className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-white border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                            >
-                              0
-                            </button>
-                            <button 
-                              onClick={() => setLoyaltyPointsToRedeem('')} 
-                              className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-red-400 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                            >
-                              C
-                            </button>
-                          </div>
-                        )}
-
-                        {/* REDEEM Button */}
-                        <button 
-                          onClick={() => {
-                            const points = parseInt(loyaltyPointsToRedeem) || 0;
-                            if (points > 0 && points <= (loyaltySelectedGuest.loyaltyPoints || 1250)) {
-                              setLoyaltyStep('otp');
-                            }
-                          }} 
-                          disabled={!loyaltyPointsToRedeem || parseInt(loyaltyPointsToRedeem) <= 0 || parseInt(loyaltyPointsToRedeem) > (loyaltySelectedGuest.loyaltyPoints || 1250)} 
-                          className={`w-full py-2.5 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 mt-auto ${
-                            loyaltyPointsToRedeem && parseInt(loyaltyPointsToRedeem) > 0 && parseInt(loyaltyPointsToRedeem) <= (loyaltySelectedGuest.loyaltyPoints || 1250) 
-                              ? 'bg-neutral-800 text-white hover:bg-neutral-700' 
-                              : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
-                          }`}
-                        >
-                          <Tag className="w-3.5 h-3.5" />
-                          REDEEM
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* OTP Verification Screen */}
-                  {loyaltyStep === 'otp' && loyaltySelectedGuest && (
-                    <div className="flex flex-col overflow-hidden flex-1 p-3">
-                      {/* Points Summary */}
-                      <div className="flex items-center justify-between py-2 border-b border-neutral-700 mb-3">
-                        <div className="flex items-center gap-1.5">
-                          <Tag className="w-3 h-3 text-neutral-400" />
-                          <span className="text-white text-xs">{((loyaltySelectedGuest.loyaltyPoints || 1250) - parseInt(loyaltyPointsToRedeem || '0')).toLocaleString()} Points Available</span>
-                        </div>
-                        <span className="text-white text-xs">Deduct <span className="font-bold">{loyaltyPointsToRedeem}</span></span>
-                      </div>
-
-                      {/* Instructions */}
-                      <p className="text-neutral-400 text-xs text-center mb-3">
-                        Scan QR or enter OTP from {loyaltySelectedGuest.phone}
-                      </p>
-
-                      {/* QR Code */}
-                      <div className="flex justify-center mb-4">
-                        <div className="w-40 h-40 bg-white rounded-xl p-2 relative">
-                          <div className="w-full h-full bg-white relative overflow-hidden">
-                            <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 gap-0.5">
-                              {Array.from({ length: 64 }).map((_, i) => (
-                                <div 
-                                  key={i} 
-                                  className={`${
-                                    i < 3 || (i >= 8 && i < 11) || (i >= 16 && i < 19) || 
-                                    (i >= 5 && i < 8) || (i >= 13 && i < 16) || (i >= 21 && i < 24) || 
-                                    (i >= 40 && i < 43) || (i >= 48 && i < 51) || (i >= 56 && i < 59) || 
-                                    Math.random() > 0.6 ? 'bg-black' : 'bg-white'
-                                  }`} 
-                                />
-                              ))}
-                            </div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-neutral-200">
-                              <span className="text-black font-bold text-sm">e</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* OTP Label */}
-                      <p className="text-white text-center text-base font-medium mb-3">OTP</p>
-
-                      {/* OTP Input Boxes */}
-                      <div className="flex justify-center gap-3 mb-4">
-                        {[0, 1, 2, 3].map(index => (
-                          <input 
-                            key={index} 
-                            type="text" 
-                            maxLength={1} 
-                            value={loyaltyOtp[index]} 
-                            onChange={e => {
-                              const newOtp = [...loyaltyOtp];
-                              newOtp[index] = e.target.value;
-                              setLoyaltyOtp(newOtp);
-                              // Auto-focus next input
-                              if (e.target.value && index < 3) {
-                                const nextInput = e.target.parentElement?.children[index + 1] as HTMLInputElement;
-                                nextInput?.focus();
-                              }
-                            }} 
-                            className="w-14 h-14 bg-neutral-800 border border-neutral-600 rounded-xl text-center text-white text-2xl font-medium focus:outline-none focus:border-white" 
-                          />
-                        ))}
-                      </div>
-
-                      {/* REDEEM Button */}
-                      <button 
-                        onClick={() => {
-                          // Simulate OTP verification and complete payment
-                          const points = parseInt(loyaltyPointsToRedeem) || 0;
-                          setPaidAmount(points);
-                          setPaymentHistory(prev => [...prev, { method: 'loyalty', amount: points, methodLabel: 'Loyalty' }]);
-                          setLoyaltyStep('complete');
-                        }} 
-                        className="w-full py-2.5 bg-neutral-800 text-white text-sm font-medium rounded-lg hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2 mt-auto"
-                      >
-                        <Tag className="w-3.5 h-3.5" />
-                        REDEEM
-                      </button>
-                    </div>
-                  )}
-
-                  {/* Payment Complete Screen */}
-                  {loyaltyStep === 'complete' && loyaltySelectedGuest && (
-                    <div className="flex flex-col items-center justify-center flex-1 px-4 py-4">
-                      <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-8 h-8" />
-                      </div>
-                      <h2 className="text-white text-lg font-semibold mb-1">Payment Complete</h2>
-                      <p className="text-neutral-400 text-xs mb-4">Your Payment has been Processed Successfully</p>
-                      
-                      <div className="w-full space-y-2 mb-4">
-                        <div className="flex items-center justify-between py-1.5 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-xs">Points Used</span>
-                          <span className="text-red-500 text-sm font-medium">-{loyaltyPointsToRedeem} points</span>
-                        </div>
-                        <div className="flex items-center justify-between py-1.5 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-xs">Available point balance</span>
-                          <span className="text-green-500 text-sm font-medium">{((loyaltySelectedGuest.loyaltyPoints || 1250) - parseInt(loyaltyPointsToRedeem || '0')).toLocaleString()} points</span>
-                        </div>
-                        <div className="flex items-center justify-between py-1.5 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-xs">Equivalent Value</span>
-                          <span className="text-white text-sm font-medium">${((loyaltySelectedGuest.loyaltyPoints || 1250) - parseInt(loyaltyPointsToRedeem || '0')).toFixed(2)}</span>
-                        </div>
-                      </div>
-
-                      <button 
-                        onClick={() => setPaymentProcessed(true)} 
-                        className="w-full py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-neutral-200 transition-colors"
-                      >
-                        CONTINUE
-                      </button>
-                    </div>
-                  )}
-                </>
-              ) : selectedPaymentMethod === 'loyalty' && loyaltyStep === 'guest-list' ? (
-                /* Loyalty Guest List Screen */
-                <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-3 border-b border-neutral-700">
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={() => {
-                          setSelectedPaymentMethod('cash');
-                          setLoyaltyStep('guest-list');
-                        }} 
-                        className="w-7 h-7 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                      >
-                        <ArrowLeft className="w-4 h-4 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-sm font-medium">Pay by Loyalty</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col overflow-hidden flex-1">
-                    {/* Info Text */}
-                    <div className="px-3 py-2 flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-neutral-400 text-xs">
-                        <div className="w-4 h-4 rounded-full border border-neutral-400 flex items-center justify-center">
-                          <span className="text-[10px]">i</span>
-                        </div>
-                        <span>Search guest to redeem points or add details</span>
-                      </div>
-                      <button 
-                        onClick={() => setShowLoyaltyAddGuest(true)} 
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 rounded-lg hover:bg-emerald-600 transition-colors"
-                      >
-                        <UserPlus className="w-3.5 h-3.5 text-white" />
-                        <span className="text-white text-xs font-medium">Add Guest</span>
-                      </button>
-                    </div>
-
-                    {/* Search Input */}
-                    <div className="px-3 pb-2">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
-                        <Input 
-                          type="text" 
-                          placeholder="Search Guest" 
-                          value={loyaltySearchQuery} 
-                          onChange={e => setLoyaltySearchQuery(e.target.value)} 
-                          className="w-full pl-9 py-1.5 text-sm bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" 
-                        />
-                      </div>
-                    </div>
-
-                    {/* Guest List Table */}
-                    <div className="flex-1 overflow-auto px-3 min-h-0 pb-3" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                      {/* Table Header */}
-                      <div className="grid grid-cols-3 gap-3 py-1.5 text-[10px] text-neutral-400 border-b border-neutral-700">
-                        <span>Name</span>
-                        <span>Phone Number</span>
-                        <span>Email</span>
-                      </div>
-                      {/* Guest Rows */}
-                      {mockGuests
-                        .filter(guest => 
-                          loyaltySearchQuery === '' || 
-                          guest.name.toLowerCase().includes(loyaltySearchQuery.toLowerCase()) || 
-                          guest.phone.includes(loyaltySearchQuery) || 
-                          guest.email.toLowerCase().includes(loyaltySearchQuery.toLowerCase())
-                        )
-                        .map((guest, index) => (
-                          <div 
-                            key={index} 
-                            onClick={() => {
-                              setLoyaltySelectedGuest(guest);
-                              setLoyaltyStep('guest-selected');
-                            }} 
-                            className="grid grid-cols-3 gap-3 py-2 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors"
-                          >
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-neutral-700 flex items-center justify-center text-[10px] text-white font-medium">
-                                {guest.avatar}
-                              </div>
-                              <span className="text-white text-xs">{guest.name}</span>
-                            </div>
-                            <span className="text-neutral-300 text-xs flex items-center">{guest.phone}</span>
-                            <span className="text-neutral-300 text-xs flex items-center truncate">{guest.email}</span>
-                          </div>
-                        ))}
-                    </div>
-                  </div>
-
-                  {/* Add Guest Modal */}
-                  {showLoyaltyAddGuest && (
-                    <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50">
-                      <div className="bg-white rounded-xl w-[400px] overflow-hidden">
-                        {/* Modal Header */}
-                        <div className="relative p-4 pb-2">
-                          <button 
-                            onClick={() => setShowLoyaltyAddGuest(false)} 
-                            className="absolute top-3 right-3 w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-neutral-700 transition-colors"
-                          >
-                            <X className="w-4 h-4 text-white" />
-                          </button>
-                          <h3 className="text-black text-xl font-semibold text-center">Add Guest</h3>
-                          <p className="text-neutral-500 text-sm text-center mt-1">Search for existing or add new guest information to continue with the order</p>
-                        </div>
-
-                        {/* Form Fields */}
-                        <div className="p-4 space-y-3">
-                          <input 
-                            type="text" 
-                            placeholder="Guest Name*" 
-                            value={loyaltyNewGuest.name} 
-                            onChange={e => setLoyaltyNewGuest({ ...loyaltyNewGuest, name: e.target.value })} 
-                            className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" 
-                          />
-                          <div className="flex gap-2">
-                            <div className="flex items-center gap-2 bg-white border border-neutral-300 rounded-lg px-3 py-2">
-                              <span className="text-lg">🇺🇸</span>
-                              <span className="text-black text-sm">+1</span>
-                              <ChevronDown className="w-4 h-4 text-neutral-400" />
-                            </div>
-                            <input 
-                              type="tel" 
-                              placeholder="Phone Number*" 
-                              value={loyaltyNewGuest.phone} 
-                              onChange={e => setLoyaltyNewGuest({ ...loyaltyNewGuest, phone: e.target.value })} 
-                              className="flex-1 px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" 
-                            />
-                          </div>
-                          <input 
-                            type="email" 
-                            placeholder="name@example.com" 
-                            value={loyaltyNewGuest.email} 
-                            onChange={e => setLoyaltyNewGuest({ ...loyaltyNewGuest, email: e.target.value })} 
-                            className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" 
-                          />
-                        </div>
-
-                        {/* ADD Button */}
-                        <div className="p-4 pt-2">
-                          <button 
-                            onClick={() => {
-                              if (loyaltyNewGuest.name && loyaltyNewGuest.phone) {
-                                const newGuest: GuestType = {
-                                  name: loyaltyNewGuest.name,
-                                  phone: loyaltyNewGuest.phone,
-                                  email: loyaltyNewGuest.email || 'guest@example.com',
-                                  avatar: loyaltyNewGuest.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
-                                  loyaltyPoints: 1250
-                                };
-                                setLoyaltySelectedGuest(newGuest);
-                                setShowLoyaltyAddGuest(false);
-                                setLoyaltyStep('guest-selected');
-                                setLoyaltyNewGuest({ name: '', phone: '', email: '' });
-                              }
-                            }} 
-                            disabled={!loyaltyNewGuest.name || !loyaltyNewGuest.phone} 
-                            className={`w-full py-3 font-medium rounded-lg transition-colors ${
-                              loyaltyNewGuest.name && loyaltyNewGuest.phone 
-                                ? 'bg-neutral-900 text-white hover:bg-neutral-800' 
-                                : 'bg-neutral-300 text-neutral-500 cursor-not-allowed'
-                            }`}
-                          >
-                            ADD
-                          </button>
-                        </div>
-                      </div>
-                    </div>
                   )}
                 </>
               ) : (

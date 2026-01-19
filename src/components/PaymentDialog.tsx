@@ -3641,7 +3641,7 @@ export function PaymentDialog({
               <div className="px-6 py-4 border-b border-neutral-700">
                 <div className="flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
                   <span className="flex-1 text-green-500 text-2xl font-bold text-center">${paymentAmount}</span>
-                  {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && selectedPaymentMethod !== 'pay-link' && (
+                  {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && selectedPaymentMethod !== 'pay-link' && selectedPaymentMethod !== 'qr-code' && selectedPaymentMethod !== 'manual-cc' && selectedPaymentMethod !== 'external-cc' && selectedPaymentMethod !== 'manual-card' && selectedPaymentMethod !== 'doordash' && selectedPaymentMethod !== 'blizzful' && selectedPaymentMethod !== 'ubereats' && selectedPaymentMethod !== 'grubhub' && (
                     <button 
                       onClick={() => setShowKeypad(!showKeypad)}
                       className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${showKeypad ? 'bg-white border-white' : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600'}`}
@@ -3653,7 +3653,7 @@ export function PaymentDialog({
               </div>
               {/* Quick Amounts OR Keypad */}
               <div className="p-3 space-y-1.5 flex-1">
-                    {showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card' || selectedPaymentMethod === 'pay-link' ? (
+                    {showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card' || selectedPaymentMethod === 'pay-link' || selectedPaymentMethod === 'qr-code' || selectedPaymentMethod === 'manual-cc' || selectedPaymentMethod === 'external-cc' || selectedPaymentMethod === 'manual-card' || selectedPaymentMethod === 'doordash' || selectedPaymentMethod === 'blizzful' || selectedPaymentMethod === 'ubereats' || selectedPaymentMethod === 'grubhub' ? (
                       // Numeric Keypad
                       <div className="flex flex-col gap-1.5">
                         {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (

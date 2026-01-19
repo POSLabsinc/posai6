@@ -134,18 +134,6 @@ const defaultTables: TableType[] = [
   { id: "T10", seats: 4, status: "Dessert", time: "16M", shape: "square", occupiedSeats: [1, 2], guests: 2, x: 280, y: 360 },
   { id: "T11", seats: 5, status: "Partially Seated", time: "18M", shape: "circle", occupiedSeats: [1, 3, 5], guests: 3, x: 480, y: 400 },
   { id: "T12", seats: 5, status: "Served", time: "36M", shape: "square", occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 680, y: 380 },
-  { id: "T13", seats: 6, status: "Available", time: "", shape: "circle", occupiedSeats: [], guests: 0, x: 120, y: 540 },
-  { id: "T14", seats: 5, status: "Ordering", time: "25M", shape: "square", occupiedSeats: [1, 2, 3], guests: 3, x: 320, y: 520 },
-  { id: "T15", seats: 4, status: "Ordered", time: "2H 25M", shape: "circle", occupiedSeats: [1, 2, 3, 4], guests: 4, x: 520, y: 560 },
-  { id: "T16", seats: 3, status: "Reserved", time: "2H 25M", shape: "square", occupiedSeats: [], guests: 0, x: 720, y: 540 },
-  { id: "T17", seats: 4, status: "Seated", time: "25M", shape: "circle", occupiedSeats: [1, 2], guests: 2, x: 880, y: 60 },
-  { id: "T18", seats: 2, status: "Running Late", time: "45M", shape: "square", occupiedSeats: [], guests: 0, x: 880, y: 220 },
-  { id: "T19", seats: 5, status: "1st Course", time: "12M", shape: "circle", occupiedSeats: [1, 2, 3], guests: 3, x: 880, y: 380 },
-  { id: "T20", seats: 4, status: "2nd Course", time: "13M", shape: "square", occupiedSeats: [1, 2, 3, 4], guests: 4, x: 880, y: 540 },
-  { id: "T21", seats: 3, status: "3rd Course", time: "14M", shape: "circle", occupiedSeats: [1, 2], guests: 2, x: 1040, y: 140 },
-  { id: "T22", seats: 4, status: "Dessert", time: "16M", shape: "square", occupiedSeats: [1, 2, 3], guests: 3, x: 1040, y: 300 },
-  { id: "T23", seats: 5, status: "Paid", time: "18M", shape: "circle", occupiedSeats: [1, 2, 3, 4], guests: 4, x: 1040, y: 460 },
-  { id: "T24", seats: 5, status: "Served", time: "36M", shape: "square", occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 1040, y: 620 },
 ];
 
 // Merge validation - check if two tables can be merged based on their status

@@ -149,13 +149,14 @@ const TableOrderDetails = () => {
   const transferredItemNames = transferredItemsParam ? transferredItemsParam.split(',') : [];
   const transferredOutItemNames = transferredItemsFromSource ? transferredItemsFromSource.split(',') : [];
   
-  // Get the revenueCenter (area) of the merged source order
-  const getMergedSourceArea = (orderId: string | null): string => {
+  // Get the revenueCenter (area) of an order by ID
+  const getOrderArea = (orderId: string | null): string => {
     if (!orderId) return "";
-    const sourceOrder = allOrders.find(o => o.id === orderId);
-    return sourceOrder?.revenueCenter || "";
+    const order = allOrders.find(o => o.id === orderId);
+    return order?.revenueCenter || "";
   };
-  const mergedSourceArea = getMergedSourceArea(mergedOrderId);
+  const mergedSourceArea = getOrderArea(mergedOrderId);
+  const destOrderArea = getOrderArea(destOrderId);
   
   // Get orders for this table with calculated totals
   const guestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
@@ -560,7 +561,7 @@ const TableOrderDetails = () => {
               {/* Merged Order Indicator - Source (disabled look) */}
               {guest.id === mergedOrderId && destOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-neutral-700/80">
                   <span className="text-xs font-medium">
-                    <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">T{tableId?.replace("T", "")}</span>
+                    <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">T{tableId?.replace("T", "")}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
                   </span>
                 </div>}
               
@@ -834,7 +835,7 @@ const TableOrderDetails = () => {
                 {/* Merged Order Indicator - Source (disabled look) */}
                 {guest.id === mergedOrderId && destOrderId && <div className="px-3 py-1 rounded-t-xl bg-neutral-700/80">
                     <span className="text-sm font-medium">
-                      <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to Order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">Table {tableId}</span>
+                      <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to Order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">Table {tableId}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
                     </span>
                   </div>}
                 {/* Transferred Items Indicator (Destination - receiving items) */}

@@ -665,7 +665,7 @@ const TableOrder = () => {
                   
                   {/* Status or Guest Selection */}
                   {guestDropdownTable === table.id && table.status === "Available" ? (
-                    <div className="flex gap-1 px-2">
+                    <div className="flex flex-wrap gap-1 justify-end max-w-[120px] shrink-0">
                       {Array.from({ length: table.seats }).map((_, i) => (
                         <button
                           key={i}
@@ -680,7 +680,7 @@ const TableOrder = () => {
                       ))}
                     </div>
                   ) : (
-                    <div className={`px-3 py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
+                    <div className={`px-3 py-1 rounded-md border border-neutral-600 ${config.bgColor} shrink-0`}>
                       <span className={`text-xs font-medium ${config.color}`}>
                         {table.status}
                       </span>

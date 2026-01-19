@@ -665,7 +665,7 @@ const TableOrder = () => {
                   
                   {/* Status or Guest Selection */}
                   {guestDropdownTable === table.id && table.status === "Available" ? (
-                    <div className="flex flex-wrap gap-1 justify-end max-w-[120px] shrink-0">
+                    <div className="flex gap-1 overflow-x-auto max-w-[140px] shrink-0 scrollbar-hide">
                       {Array.from({ length: table.seats }).map((_, i) => (
                         <button
                           key={i}
@@ -673,7 +673,7 @@ const TableOrder = () => {
                             e.stopPropagation();
                             handleGuestSelect(i + 1);
                           }}
-                          className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                          className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors shrink-0"
                         >
                           {i + 1}
                         </button>

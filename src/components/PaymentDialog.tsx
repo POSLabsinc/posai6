@@ -900,6 +900,8 @@ export function PaymentDialog({
                   </div>
                 </>
               )}
+            </>
+          )}
         </div>
 
         {/* Order Details Panel */}

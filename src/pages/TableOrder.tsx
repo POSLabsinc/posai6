@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown, Circle, Clock } from "lucide-react";
+import { Users, Grid, List, ChevronDown, Circle, Clock, MapPin } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,32 +52,32 @@ const getSeatDotColor = (status: string): string => {
   }
 };
 
-// Mock table data - extended with shape, occupiedSeats, and guests for visual view
+// Mock table data - extended with shape, occupiedSeats, guests, and x/y positions for floor plan view
 const tables = [
-  { id: "T1", seats: 12, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [] as number[], guests: 0 },
-  { id: "T2", seats: 5, status: "Ordering", time: "25M", shape: "square" as const, occupiedSeats: [1, 2], guests: 2 },
-  { id: "T3", seats: 4, status: "Ordered", time: "2H 25M", shape: "circle" as const, occupiedSeats: [1, 2, 3], guests: 3 },
-  { id: "T4", seats: 3, status: "Reserved", time: "2H 25M", shape: "square" as const, occupiedSeats: [], guests: 0 },
-  { id: "T5", seats: 4, status: "Seated", time: "25M", shape: "circle" as const, occupiedSeats: [1, 3], guests: 2 },
-  { id: "T6", seats: 2, status: "Running Late", time: "45M", shape: "square" as const, occupiedSeats: [], guests: 0 },
-  { id: "T7", seats: 5, status: "1st Course", time: "12M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4, 5], guests: 5 },
-  { id: "T8", seats: 4, status: "2nd Course", time: "13M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4], guests: 4 },
-  { id: "T9", seats: 3, status: "3rd Course", time: "14M", shape: "circle" as const, occupiedSeats: [1, 2, 3], guests: 3 },
-  { id: "T10", seats: 4, status: "Dessert", time: "16M", shape: "square" as const, occupiedSeats: [1, 2], guests: 2 },
-  { id: "T11", seats: 5, status: "Partially Seated", time: "18M", shape: "circle" as const, occupiedSeats: [1, 3, 5], guests: 3 },
-  { id: "T12", seats: 5, status: "Served", time: "36M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4, 5], guests: 5 },
-  { id: "T13", seats: 6, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [], guests: 0 },
-  { id: "T14", seats: 5, status: "Ordering", time: "25M", shape: "square" as const, occupiedSeats: [1, 2, 3], guests: 3 },
-  { id: "T15", seats: 4, status: "Ordered", time: "2H 25M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4], guests: 4 },
-  { id: "T16", seats: 3, status: "Reserved", time: "2H 25M", shape: "square" as const, occupiedSeats: [], guests: 0 },
-  { id: "T17", seats: 4, status: "Seated", time: "25M", shape: "circle" as const, occupiedSeats: [1, 2], guests: 2 },
-  { id: "T18", seats: 2, status: "Running Late", time: "45M", shape: "square" as const, occupiedSeats: [], guests: 0 },
-  { id: "T19", seats: 5, status: "1st Course", time: "12M", shape: "circle" as const, occupiedSeats: [1, 2, 3], guests: 3 },
-  { id: "T20", seats: 4, status: "2nd Course", time: "13M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4], guests: 4 },
-  { id: "T21", seats: 3, status: "3rd Course", time: "14M", shape: "circle" as const, occupiedSeats: [1, 2], guests: 2 },
-  { id: "T22", seats: 4, status: "Dessert", time: "16M", shape: "square" as const, occupiedSeats: [1, 2, 3], guests: 3 },
-  { id: "T23", seats: 5, status: "Paid", time: "18M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4], guests: 4 },
-  { id: "T24", seats: 5, status: "Served", time: "36M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4, 5], guests: 5 },
+  { id: "T1", seats: 12, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [] as number[], guests: 0, x: 80, y: 60 },
+  { id: "T2", seats: 5, status: "Ordering", time: "25M", shape: "square" as const, occupiedSeats: [1, 2], guests: 2, x: 280, y: 80 },
+  { id: "T3", seats: 4, status: "Ordered", time: "2H 25M", shape: "circle" as const, occupiedSeats: [1, 2, 3], guests: 3, x: 480, y: 50 },
+  { id: "T4", seats: 3, status: "Reserved", time: "2H 25M", shape: "square" as const, occupiedSeats: [], guests: 0, x: 680, y: 90 },
+  { id: "T5", seats: 4, status: "Seated", time: "25M", shape: "circle" as const, occupiedSeats: [1, 3], guests: 2, x: 120, y: 220 },
+  { id: "T6", seats: 2, status: "Running Late", time: "45M", shape: "square" as const, occupiedSeats: [], guests: 0, x: 320, y: 200 },
+  { id: "T7", seats: 5, status: "1st Course", time: "12M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 520, y: 240 },
+  { id: "T8", seats: 4, status: "2nd Course", time: "13M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4], guests: 4, x: 720, y: 220 },
+  { id: "T9", seats: 3, status: "3rd Course", time: "14M", shape: "circle" as const, occupiedSeats: [1, 2, 3], guests: 3, x: 80, y: 380 },
+  { id: "T10", seats: 4, status: "Dessert", time: "16M", shape: "square" as const, occupiedSeats: [1, 2], guests: 2, x: 280, y: 360 },
+  { id: "T11", seats: 5, status: "Partially Seated", time: "18M", shape: "circle" as const, occupiedSeats: [1, 3, 5], guests: 3, x: 480, y: 400 },
+  { id: "T12", seats: 5, status: "Served", time: "36M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 680, y: 380 },
+  { id: "T13", seats: 6, status: "Available", time: "", shape: "circle" as const, occupiedSeats: [], guests: 0, x: 120, y: 540 },
+  { id: "T14", seats: 5, status: "Ordering", time: "25M", shape: "square" as const, occupiedSeats: [1, 2, 3], guests: 3, x: 320, y: 520 },
+  { id: "T15", seats: 4, status: "Ordered", time: "2H 25M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4], guests: 4, x: 520, y: 560 },
+  { id: "T16", seats: 3, status: "Reserved", time: "2H 25M", shape: "square" as const, occupiedSeats: [], guests: 0, x: 720, y: 540 },
+  { id: "T17", seats: 4, status: "Seated", time: "25M", shape: "circle" as const, occupiedSeats: [1, 2], guests: 2, x: 880, y: 60 },
+  { id: "T18", seats: 2, status: "Running Late", time: "45M", shape: "square" as const, occupiedSeats: [], guests: 0, x: 880, y: 220 },
+  { id: "T19", seats: 5, status: "1st Course", time: "12M", shape: "circle" as const, occupiedSeats: [1, 2, 3], guests: 3, x: 880, y: 380 },
+  { id: "T20", seats: 4, status: "2nd Course", time: "13M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4], guests: 4, x: 880, y: 540 },
+  { id: "T21", seats: 3, status: "3rd Course", time: "14M", shape: "circle" as const, occupiedSeats: [1, 2], guests: 2, x: 1040, y: 140 },
+  { id: "T22", seats: 4, status: "Dessert", time: "16M", shape: "square" as const, occupiedSeats: [1, 2, 3], guests: 3, x: 1040, y: 300 },
+  { id: "T23", seats: 5, status: "Paid", time: "18M", shape: "circle" as const, occupiedSeats: [1, 2, 3, 4], guests: 4, x: 1040, y: 460 },
+  { id: "T24", seats: 5, status: "Served", time: "36M", shape: "square" as const, occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 1040, y: 620 },
 ];
 
 // Filter categories with counts
@@ -472,7 +472,7 @@ const StatusLegend = () => {
 const TableOrder = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
-  const [viewMode, setViewMode] = useState<"grid" | "list" | "visual">("grid");
+  const [viewMode, setViewMode] = useState<"grid" | "list" | "visual" | "floorplan">("grid");
   const [selectedArea, setSelectedArea] = useState("Main Dining Room");
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
@@ -521,7 +521,8 @@ const TableOrder = () => {
             <button
               onClick={() => setViewMode(
                 viewMode === "grid" ? "list" : 
-                viewMode === "list" ? "visual" : "grid"
+                viewMode === "list" ? "visual" : 
+                viewMode === "visual" ? "floorplan" : "grid"
               )}
               className="flex items-center justify-center rounded-full p-1.5 hover:opacity-90 transition-opacity"
               style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
@@ -530,8 +531,10 @@ const TableOrder = () => {
                 <Grid className="w-4 h-4 text-black" />
               ) : viewMode === "list" ? (
                 <List className="w-4 h-4 text-black" />
-              ) : (
+              ) : viewMode === "visual" ? (
                 <Circle className="w-4 h-4 text-black" />
+              ) : (
+                <MapPin className="w-4 h-4 text-black" />
               )}
             </button>
 
@@ -729,6 +732,154 @@ const TableOrder = () => {
               })}
             </div>
             <StatusLegend />
+          </div>
+        ) : viewMode === "floorplan" ? (
+          /* Floor Plan View - Interactive Map */
+          <div className="flex-1 relative rounded-xl border-2 bg-neutral-950 border-neutral-800 min-h-[600px] overflow-auto">
+            {/* Grid background pattern */}
+            <div 
+              className="absolute inset-0 opacity-30 pointer-events-none"
+              style={{
+                backgroundImage: 'radial-gradient(circle, rgba(75, 75, 75, 0.4) 1px, transparent 1px)',
+                backgroundSize: '32px 32px'
+              }} 
+            />
+
+            {/* Floor Plan Area Labels */}
+            <div className="absolute top-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/80 border border-neutral-800 z-20">
+              <div className="w-2 h-2 rounded-full animate-pulse bg-amber-500" />
+              <span className="text-xs font-medium text-amber-500">Kitchen</span>
+            </div>
+            <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/80 border border-neutral-800 z-20">
+              <div className="w-2 h-2 rounded-full animate-pulse bg-purple-500" />
+              <span className="text-xs font-medium text-purple-500">Bar</span>
+            </div>
+            <div className="absolute bottom-4 left-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/80 border border-neutral-800 z-20">
+              <div className="w-2 h-2 rounded-full animate-pulse bg-green-500" />
+              <span className="text-xs font-medium text-green-500">Patio</span>
+            </div>
+            <div className="absolute bottom-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/80 border border-neutral-800 z-20">
+              <div className="w-2 h-2 rounded-full animate-pulse bg-blue-500" />
+              <span className="text-xs font-medium text-blue-500">Entry</span>
+            </div>
+
+            {/* Divider Lines */}
+            <div 
+              className="absolute left-0 right-0 h-px bg-gradient-to-r from-transparent via-neutral-700/50 to-transparent"
+              style={{ top: '45%' }}
+            />
+            <div 
+              className="absolute top-0 bottom-0 w-px bg-gradient-to-b from-transparent via-neutral-700/50 to-transparent"
+              style={{ left: '50%' }}
+            />
+
+            {/* Tables positioned on map */}
+            <div className="relative w-[1200px] h-[700px]">
+              {filteredTables.map((table) => {
+                const config = statusConfig[table.status] || statusConfig["Available"];
+                const tableRadius = table.seats >= 8 ? 40 : table.seats >= 6 ? 34 : 28;
+                
+                const handleTableClick = () => {
+                  if (table.status === "Available") {
+                    setGuestDropdownTable(guestDropdownTable === table.id ? null : table.id);
+                  } else {
+                    navigate(`/tableorder/${table.id}`);
+                  }
+                };
+
+                const handleGuestSelect = (guestCount: number) => {
+                  console.log(`Selected ${guestCount} guests for table ${table.id}`);
+                  setGuestDropdownTable(null);
+                  setSelectedTable(table.id);
+                  navigate(`/orders?tableId=${table.id}&seats=${table.seats}&guests=${guestCount}`);
+                };
+
+                return (
+                  <div
+                    key={table.id}
+                    className="absolute cursor-pointer group"
+                    style={{
+                      left: table.x,
+                      top: table.y,
+                      transform: 'translate(-50%, -50%)'
+                    }}
+                    onClick={handleTableClick}
+                  >
+                    {/* Table surface */}
+                    <div 
+                      className={`${table.shape === 'circle' ? 'rounded-full' : 'rounded-xl'} flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-110 ${
+                        selectedTable === table.id ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
+                      }`}
+                      style={{ 
+                        width: tableRadius * 2, 
+                        height: tableRadius * 2,
+                        backgroundColor: config.hexBgColor,
+                        border: `2px solid ${config.hexColor}`,
+                        boxShadow: `0 4px 20px ${config.hexColor}40`
+                      }}
+                    >
+                      <span className="text-white font-bold text-sm leading-none">{table.id}</span>
+                      <span 
+                        className="text-[9px] font-medium mt-0.5"
+                        style={{ color: config.hexColor }}
+                      >
+                        {statusConfig[table.status]?.label || table.status}
+                      </span>
+                      <div className="flex items-center gap-0.5 mt-1">
+                        {Array.from({ length: Math.min(table.seats, 6) }).map((_, i) => (
+                          <div 
+                            key={i}
+                            className={`w-1.5 h-1.5 rounded-full transition-colors ${
+                              i < table.guests ? "bg-blue-400" : "bg-neutral-600"
+                            }`}
+                          />
+                        ))}
+                        {table.seats > 6 && (
+                          <span className="text-[8px] text-gray-400 ml-0.5">+{table.seats - 6}</span>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Time badge */}
+                    {table.time && (
+                      <div 
+                        className="absolute -bottom-5 left-1/2 transform -translate-x-1/2 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
+                        style={{ 
+                          backgroundColor: 'rgba(38, 38, 38, 0.9)',
+                          border: `1px solid ${config.hexColor}40`
+                        }}
+                      >
+                        <Clock className="w-2.5 h-2.5" style={{ color: config.hexColor }} />
+                        <span className="text-gray-300">{table.time}</span>
+                      </div>
+                    )}
+
+                    {/* Guest selection overlay */}
+                    {guestDropdownTable === table.id && table.status === "Available" && (
+                      <div 
+                        className={`absolute inset-0 flex items-center justify-center z-10 ${table.shape === 'circle' ? 'rounded-full' : 'rounded-xl'}`}
+                        style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
+                      >
+                        <div className="flex flex-wrap gap-1 justify-center max-w-[60px]">
+                          {Array.from({ length: table.seats }).map((_, i) => (
+                            <button
+                              key={i}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGuestSelect(i + 1);
+                              }}
+                              className="w-5 h-5 flex items-center justify-center text-[10px] font-bold text-white bg-neutral-700 rounded-full hover:bg-green-500 transition-all hover:scale-110"
+                            >
+                              {i + 1}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
           </div>
         ) : (
           /* Grid View */

@@ -11,6 +11,7 @@ import MergedOrderPanel from "@/components/MergedOrderPanel";
 import { 
   Order, 
   OrderItem,
+  PaymentMethod,
   allOrders, 
   getOrdersByTable, 
   getOrderWithTotals,
@@ -21,6 +22,7 @@ import {
   hasMergedOrTransferredItems,
   MergedOrderSource
 } from "@/data/orders";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -55,7 +57,62 @@ interface GuestOrder extends Order {
   total: number;
   mergedFrom?: MergedOrderSource[];
   transferredFrom?: MergedOrderSource[];
+  paymentMethods?: PaymentMethod[];
 }
+
+// Helper component for multi-payment display
+const MultiPaymentDisplay = ({ paymentMethods, paymentType }: { paymentMethods?: PaymentMethod[], paymentType: string }) => {
+  if (!paymentMethods || paymentMethods.length <= 1) {
+    return <span className="text-white/60 truncate">{paymentType && paymentType !== '--' ? paymentType : 'Paid'}</span>;
+  }
+
+  const primaryMethod = paymentMethods[0];
+  const additionalCount = paymentMethods.length - 1;
+
+  const getCardIcon = (type: string) => {
+    switch (type) {
+      case 'Visa': return '💳';
+      case 'Amex': return '💳';
+      case 'Mastercard': return '💳';
+      case 'Discover': return '💳';
+      case 'Cash': return '💵';
+      case 'Gift Card': return '🎁';
+      default: return '💳';
+    }
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button className="flex items-center gap-1 text-white/60 hover:text-white transition-colors cursor-pointer">
+          <span>{getCardIcon(primaryMethod.type)}</span>
+          <span>{primaryMethod.type}</span>
+          {primaryMethod.lastFour && <span>•••• {primaryMethod.lastFour}</span>}
+          <span className="text-[#8AC4FF]">+{additionalCount} more</span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent 
+        className="w-56 p-3 bg-neutral-800 border-neutral-700 z-[9999]" 
+        side="bottom" 
+        align="start"
+      >
+        <div className="space-y-1">
+          <h4 className="text-white/80 text-xs font-medium mb-2">Payment Methods</h4>
+          {paymentMethods.map((method, index) => (
+            <div key={index} className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <span>{getCardIcon(method.type)}</span>
+                <span className="text-white">{method.type}</span>
+                {method.lastFour && <span className="text-white/60">•••• {method.lastFour}</span>}
+              </div>
+              <span className="text-white font-medium">{formatPrice(method.amount)}</span>
+            </div>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 // Helper function to get order items for display (backwards compatibility)
 const getOrderItems = (order: GuestOrder) => order.items.map(item => ({
@@ -905,11 +962,9 @@ const TableOrderDetails = () => {
                       <div className="flex items-center text-xs lg:text-sm">
                         <span className="text-white font-medium w-[180px] lg:w-[220px] flex-shrink-0 truncate">{guest.revenueCenter}</span>
                         <div className="flex-1">
-                          <span className="text-white/60 truncate">
-                            {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' 
-                              ? (guest.paymentType && guest.paymentType !== '--' ? guest.paymentType : 'Paid')
-                              : 'Pending Payment'}
-                          </span>
+                          {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' 
+                            ? <MultiPaymentDisplay paymentMethods={guest.paymentMethods} paymentType={guest.paymentType} />
+                            : <span className="text-white/60 truncate">Pending Payment</span>}
                         </div>
                         <span className="text-white flex-shrink-0">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
                       </div>

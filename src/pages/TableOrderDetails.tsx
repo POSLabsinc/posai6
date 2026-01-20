@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
+import ReceiptDialog from "@/components/ReceiptDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, Receipt } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -220,6 +221,8 @@ const TableOrderDetails = () => {
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>(['all']);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showReceiptDialog, setShowReceiptDialog] = useState(false);
+  const [receiptGuest, setReceiptGuest] = useState<GuestOrder | null>(null);
   
   // Set initial selected guest when guestOrders changes
   const currentSelectedGuest = selectedGuest || guestOrders[0];
@@ -919,7 +922,8 @@ const TableOrderDetails = () => {
                         className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600"
                         onClick={(e) => {
                           e.stopPropagation();
-                          // Handle receipt action
+                          setReceiptGuest(guest);
+                          setShowReceiptDialog(true);
                         }}
                       >
                         <Receipt className="w-4 h-4 text-white" />
@@ -1768,6 +1772,14 @@ const TableOrderDetails = () => {
         onPaymentComplete={(history) => {
           console.log("Payment completed:", history);
         }}
+      />
+
+      {/* Receipt Dialog */}
+      <ReceiptDialog
+        open={showReceiptDialog}
+        onOpenChange={setShowReceiptDialog}
+        orderTotal={receiptGuest?.total || 0}
+        orderId={receiptGuest?.id}
       />
     </>;
 };

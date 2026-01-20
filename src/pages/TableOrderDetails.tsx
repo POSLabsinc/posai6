@@ -1355,7 +1355,7 @@ const TableOrderDetails = () => {
           }}>
             <div className="flex justify-between gap-3">
               <span className="text-foreground">Sub Total: <span className="font-medium">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span></span>
-              <span className="text-red-500">Discount: <span className="font-medium">{formatPrice(currentSelectedGuest?.discount || 0)}</span></span>
+              <span className="text-white">Discount: <span className="font-medium">{formatPrice(currentSelectedGuest?.discount || 0)}</span></span>
             </div>
             <div className="flex justify-between gap-3">
               <span className="text-foreground">Service Charge: <span className="font-medium text-primary">+{formatPrice(currentSelectedGuest?.serviceCharge || 0)}</span></span>
@@ -1752,8 +1752,8 @@ const TableOrderDetails = () => {
             <span className="text-white">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span>
           </div>
           <div className="flex justify-between">
-            <span className="text-red-500">Discount</span>
-            <span className="text-red-500">{formatPrice(currentSelectedGuest?.discount || 0)}</span>
+            <span className="text-white">Discount</span>
+            <span className="text-white">{formatPrice(currentSelectedGuest?.discount || 0)}</span>
           </div>
           <div className="flex justify-between">
             <span className="text-white/60">Service Charge</span>

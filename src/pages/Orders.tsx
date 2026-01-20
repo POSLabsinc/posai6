@@ -8423,12 +8423,12 @@ const Orders = () => {
                 }}>
                   <div className="flex justify-between gap-3">
                     <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-                    <span className="text-red-500">
+                    <span className="text-white">
                       {selectedDiscount ? selectedDiscount.name : 'Discount'}: <span className="font-medium">${discount.toFixed(2)}</span>
                       {selectedDiscount && (
                         <button 
                           onClick={() => setSelectedDiscountId(null)}
-                          className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5"
+                          className="text-white hover:text-white/80 text-xs font-bold ml-0.5"
                         >
                           ×
                         </button>
@@ -8734,7 +8734,7 @@ const Orders = () => {
                           <div className="text-white text-sm font-medium">{discountType.name}</div>
                           <div className="text-neutral-400 text-xs">{discountType.description}</div>
                         </div>
-                        <div className="text-red-400 text-sm font-medium">
+                        <div className="text-white text-sm font-medium">
                           -${discountAmount.toFixed(2)}
                         </div>
                       </button>

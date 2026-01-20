@@ -40,6 +40,13 @@ export interface MergedOrderSource {
   items: OrderItem[];
 }
 
+// Payment method interface for multi-payment orders
+export interface PaymentMethod {
+  type: 'Visa' | 'Amex' | 'Mastercard' | 'Discover' | 'Cash' | 'Gift Card' | 'Other';
+  lastFour?: string;
+  amount: number;
+}
+
 // Order interface with all fields
 export interface Order {
   id: string;
@@ -64,6 +71,8 @@ export interface Order {
   mergedFrom?: MergedOrderSource[];
   // Track transferred orders for separate display
   transferredFrom?: MergedOrderSource[];
+  // Multiple payment methods
+  paymentMethods?: PaymentMethod[];
 }
 
 // 10 Complete orders with realistic food data
@@ -148,7 +157,7 @@ export const allOrders: Order[] = [
     ]
   },
   
-  // Order 4 - David Chen (T2) - COMPLETED - Dine-In
+  // Order 4 - David Chen (T2) - COMPLETED - Dine-In - Multi-payment
   {
     id: "4",
     name: "David Chen",
@@ -167,6 +176,11 @@ export const allOrders: Order[] = [
     paidAmount: "$521.19",
     paymentStatus: "Paid",
     tipAmount: 104.24,
+    paymentMethods: [
+      { type: 'Visa', lastFour: '1234', amount: 300.00 },
+      { type: 'Amex', lastFour: '9876', amount: 150.00 },
+      { type: 'Cash', amount: 71.19 }
+    ],
     items: [
       { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter"] },
       { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium", "Peppercorn Sauce"] },

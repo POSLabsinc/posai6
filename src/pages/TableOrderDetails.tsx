@@ -41,6 +41,7 @@ import saveIcon from "@/assets/icons/save.png";
 import linkMergeIcon from "@/assets/icons/link-merge.png";
 import cashRegisterIcon from "@/assets/icons/cash-register.png";
 import receiptIcon from "@/assets/icons/receipt-icon.svg";
+import registerIcon from "@/assets/icons/register-icon.svg";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
@@ -936,7 +937,7 @@ const TableOrderDetails = () => {
                           // Handle register action
                         }}
                       >
-                        <img src={cashRegisterIcon} alt="Register" className="w-4 h-4 object-contain" />
+                        <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
                       </button>
                     </div>
                   ) : guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full') ? (

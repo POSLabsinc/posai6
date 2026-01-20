@@ -745,7 +745,11 @@ const Tickets = () => {
                     <div className="flex-1 min-w-0 py-2">
                       <div className="flex flex-col">
                         <div className="flex items-start justify-between">
-                          <span className="text-white font-medium text-sm">{guest.name}</span>
+                          <div className="flex items-center gap-1">
+                            <span className="text-white font-medium text-sm">{guest.name}</span>
+                            <span className="text-white/60">·</span>
+                            <span className="text-white/60 text-sm truncate">{guest.revenueCenter}</span>
+                          </div>
                           <div className="flex flex-col items-end">
                             <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
                             {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}
@@ -777,7 +781,7 @@ const Tickets = () => {
                       </div>
                     </div>
 
-                    {/* Column 4: Check & Revenue Center - 12% */}
+                    {/* Column 4: Check - 12% */}
                     <div className="w-[12%] flex-shrink-0 py-2">
                       <div className="flex flex-col text-xs gap-1">
                         <div className="text-left">
@@ -785,8 +789,8 @@ const Tickets = () => {
                           <div className="text-gray-500">Check</div>
                         </div>
                         <div className="text-left">
-                          <div className="text-white">{guest.revenueCenter}</div>
-                          <div className="text-gray-500">Revenue Center</div>
+                          <div className="text-white">{guest.paymentType === '--' ? 'Un Paid' : 'Paid'}</div>
+                          <div className="text-gray-500">Payment</div>
                         </div>
                       </div>
                     </div>

@@ -5407,9 +5407,9 @@ const Dashboard = () => {
                   {/* Guest Info - Mobile compact layout */}
                   <div className="flex-1 min-w-0 py-2 pr-2">
                     <div className="flex flex-col gap-1">
-                      {/* Row 1: Name + Table, Server, Status */}
+                      {/* Row 1: Name + Table + Revenue Center, Server, Status */}
                       <div className="flex items-center justify-between">
-                        <span className="text-white font-medium text-sm">{order.guest} - {order.table}</span>
+                        <span className="text-white font-medium text-sm">{order.guest} - {order.table} · {order.revenueCenter}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-sm" style={{
                           color: '#B5B6BB'
@@ -5432,15 +5432,12 @@ const Dashboard = () => {
                         <span className="text-white font-semibold text-sm">${calculateOrderTotal(order.items).toFixed(2)}</span>
                       </div>
                       
-                      {/* Row 3: Revenue center, Payment status */}
+                      {/* Row 3: Payment status */}
                       <div className="flex items-center justify-between">
-                        <span className="text-white font-medium text-sm">{order.revenueCenter}</span>
-                        <div className="flex items-center gap-2 text-sm">
-                          <span style={{
+                        <span className="text-sm" style={{
                           color: '#B5B6BB'
                         }}>{order.isPaid ? "Paid" : "Un Paid"}</span>
-                          <span className="text-white">{order.tip}</span>
-                        </div>
+                        <span className="text-white text-sm">{order.tip}</span>
                       </div>
                     </div>
                   </div>
@@ -5460,12 +5457,14 @@ const Dashboard = () => {
 
                       {/* Main Content */}
                       <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                        {/* Row 1: Name + Table | Server | Status */}
+                        {/* Row 1: Name + Table + Revenue Center | Server | Status */}
                         <div className="flex items-center text-xs lg:text-sm">
-                          <div className="flex items-center gap-1 lg:gap-2 w-[180px] lg:w-[220px] flex-shrink-0">
+                          <div className="flex items-center gap-1 lg:gap-2 w-[220px] lg:w-[280px] flex-shrink-0">
                             <span className="text-white font-medium truncate">{order.guest}</span>
                             <span className="text-white/60">·</span>
                             <span className="text-white font-medium">{order.table}</span>
+                            <span className="text-white/60">·</span>
+                            <span className="text-white/60 truncate">{order.revenueCenter}</span>
                           </div>
                           <span className="text-white/60 flex-1 truncate px-1 lg:px-2">{order.server}</span>
                           <span className="font-semibold uppercase flex-shrink-0" style={{
@@ -5477,7 +5476,7 @@ const Dashboard = () => {
                         
                         {/* Row 2: Party info | Timer | Total */}
                         <div className="flex items-center text-xs lg:text-sm">
-                          <div className="flex items-center gap-1 text-white/60 w-[180px] lg:w-[220px] flex-shrink-0">
+                          <div className="flex items-center gap-1 text-white/60 w-[220px] lg:w-[280px] flex-shrink-0">
                             <img src={dineInIcon} alt="Dine In" className="w-3 h-3 lg:w-4 lg:h-4 object-contain" />
                             <span className="truncate">Party of {order.seats}, {order.arrivedAt}</span>
                             <span className="text-white/40">|</span>
@@ -5487,10 +5486,10 @@ const Dashboard = () => {
                           <span className="text-white font-semibold flex-shrink-0">${calculateOrderTotal(order.items).toFixed(2)}</span>
                         </div>
                         
-                        {/* Row 3: Revenue Center | Payment Status | Amount */}
+                        {/* Row 3: Payment Status | Amount */}
                         <div className="flex items-center text-xs lg:text-sm">
-                          <span className="text-white font-medium w-[180px] lg:w-[220px] flex-shrink-0 truncate">{order.revenueCenter}</span>
-                          <span className="text-white/60 flex-1 truncate px-1 lg:px-2">{order.isPaid ? "Paid" : "Un Paid"}</span>
+                          <span className="text-white/60 w-[220px] lg:w-[280px] flex-shrink-0 truncate">{order.isPaid ? "Paid" : "Un Paid"}</span>
+                          <div className="flex-1"></div>
                           <span className="text-white flex-shrink-0">{order.tip}</span>
                         </div>
                       </div>

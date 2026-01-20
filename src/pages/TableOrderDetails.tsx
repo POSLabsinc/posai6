@@ -685,38 +685,35 @@ const TableOrderDetails = () => {
 
                    {/* Column 2: Guest Info - Mobile compact layout */}
                    <div className="flex-1 min-w-0 py-2 pr-2 md:hidden">
-                     <div className="flex flex-col gap-1">
-                        {/* Row 1: Name + Table, Server, Status */}
-                        <div className="flex items-center justify-between">
-                          <span className="text-white font-medium text-sm">{guest.name} - {tableId}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.server}</span>
-                            <span className={`text-sm font-medium ${getStatusColor(guest.status)}`}>{guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}</span>
-                          </div>
+                      <div className="flex flex-col gap-1">
+                         {/* Row 1: Name + Table + Revenue Center, Server, Status */}
+                         <div className="flex items-center justify-between">
+                           <span className="text-white font-medium text-sm">{guest.name} - {tableId} · {guest.revenueCenter}</span>
+                           <div className="flex items-center gap-2">
+                             <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.server}</span>
+                             <span className={`text-sm font-medium ${getStatusColor(guest.status)}`}>{guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}</span>
+                           </div>
+                         </div>
+                        
+                         {/* Row 2: Party info, Timer, Total */}
+                         <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                             <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
+                             <span>Party of {guest.partySize}, {guest.time}</span>
+                             <span className="text-gray-500">|</span>
+                             <span>{guest.timer}</span>
+                           </div>
+                           <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
+                         </div>
+                        
+                         {/* Row 3: Payment status */}
+                         <div className="flex items-center justify-between">
+                           <span className="text-sm" style={{ color: guest.paymentType === '--' ? '#B5B6BB' : '#4ade80' }}>
+                             {guest.paymentType === '--' ? 'Un Paid' : 'Paid'}
+                           </span>
+                           <span className="text-white text-sm">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
                         </div>
-                       
-                        {/* Row 2: Party info, Location/Table, Payment */}
-                        <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
-                            <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
-                            <span>Party of {guest.partySize}, {guest.time}</span>
-                            <span className="text-gray-500">|</span>
-                            <span>{guest.timer}</span>
-                          </div>
-                          <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
-                        </div>
-                       
-                        {/* Row 3: Revenue center, Payment status */}
-                        <div className="flex items-center justify-between">
-                          <span className="text-white font-medium text-sm">{guest.revenueCenter}</span>
-                          <div className="flex items-center gap-2 text-sm">
-                            <span style={{ color: guest.paymentType === '--' ? '#B5B6BB' : '#4ade80' }}>
-                              {guest.paymentType === '--' ? 'Un Paid' : 'Paid'}
-                            </span>
-                            <span className="text-white">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
-                          </div>
-                       </div>
-                     </div>
+                      </div>
                    </div>
                    
                    {/* Column 2: Guest Info - Tablet/Desktop layout */}

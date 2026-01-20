@@ -1168,7 +1168,12 @@ const TableOrderDetails = () => {
                                           <Info className="w-3.5 h-3.5 text-[#8AC4FF] cursor-help" />
                                         </TooltipTrigger>
                                         <TooltipContent side="top" className="bg-neutral-800 border-neutral-700 text-white text-xs z-[9999]">
-                                          <p>Transferred to Order {transferredToOrderId} on Table {transferToTable}</p>
+                                          <p>
+                                            <span className="text-[#8AC4FF]">Transferred to</span>{' '}
+                                            <span className="text-white">Order #{transferredToOrderId}</span>{' '}
+                                            <span className="text-[#8AC4FF]">·</span>{' '}
+                                            <span className="text-white">Table {transferToTable}</span>
+                                          </p>
                                         </TooltipContent>
                                       </Tooltip>
                                     </TooltipProvider>

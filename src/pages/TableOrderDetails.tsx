@@ -3,7 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import ReceiptDialog from "@/components/ReceiptDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, Receipt } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 
@@ -40,6 +40,7 @@ import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import saveIcon from "@/assets/icons/save.png";
 import linkMergeIcon from "@/assets/icons/link-merge.png";
 import cashRegisterIcon from "@/assets/icons/cash-register.png";
+import receiptIcon from "@/assets/icons/receipt-icon.svg";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
@@ -926,7 +927,7 @@ const TableOrderDetails = () => {
                           setShowReceiptDialog(true);
                         }}
                       >
-                        <Receipt className="w-4 h-4 text-white" />
+                        <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
                       </button>
                       <button 
                         className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500"

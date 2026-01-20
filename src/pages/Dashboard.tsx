@@ -1622,12 +1622,20 @@ const OrderPanelContent = ({
           </div>
         </ScrollArea>
 
-        {/* Order Summary - Compact Single Row */}
-        <div className="px-3 py-2 border-t border-white/10 flex-shrink-0">
-          <div className="text-xs flex items-center justify-between gap-2">
-            <span className="text-white">Sub: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-            <span className="text-red-500">Disc: <span className="font-medium">${discount.toFixed(2)}</span></span>
-            <span className="text-white">Svc: <span className="font-medium">${serviceCharge.toFixed(2)}</span></span>
+        {/* Order Summary - Glass Effect */}
+        <div className="p-2 border-t border-white/10 flex-shrink-0">
+          <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
+            background: '#7575754D',
+            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+          }}>
+            <div className="flex justify-between gap-3">
+              <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+              <span className="text-white">Discount: <span className="font-medium">${discount.toFixed(2)}</span></span>
+            </div>
+            <div className="flex justify-between gap-3">
+              <span className="text-foreground">Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span></span>
+              <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+            </div>
           </div>
         </div>
 

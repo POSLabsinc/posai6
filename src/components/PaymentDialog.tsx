@@ -398,9 +398,7 @@ export function PaymentDialog({
             // Receipt Screen
             <div className="flex-1 flex flex-col items-center py-8 px-6">
               {/* Success Icon */}
-              <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                <img src={tickSuccessIcon} alt="Success" className="w-10 h-10" />
-              </div>
+              <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-4" />
               
               <p className="text-neutral-300 text-sm mb-6">
                 <span className="text-green-500 font-medium">${totalPaid.toFixed(2)}</span> has been successfully processed
@@ -1016,9 +1014,7 @@ export function PaymentDialog({
 
                   <div className="flex flex-col items-center justify-center flex-1 px-4 py-4">
                     {/* Success Icon */}
-                    <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mb-3">
-                      <img src={tickSuccessIcon} alt="Success" className="w-10 h-10" />
-                    </div>
+                    <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-3" />
 
                     <h3 className="text-white text-lg font-semibold mb-1">Payment Complete</h3>
                     <p className="text-neutral-400 text-xs mb-4">{loyaltySelectedGuest.name}</p>
@@ -1566,9 +1562,7 @@ export function PaymentDialog({
               {/* Payment Complete Screen */}
               {payByLinkStep === 'complete' && selectedGuest && (
                 <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                  <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
-                    <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                  </div>
+                  <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-6" />
                   <h2 className="text-white text-2xl font-semibold mb-2">Payment Complete</h2>
                   <p className="text-neutral-400 text-sm mb-8">The guest has completed their payment</p>
                   
@@ -1771,9 +1765,7 @@ export function PaymentDialog({
               {/* Payment Complete Screen */}
               {qrCodeStep === 'complete' && (
                 <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                  <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
-                    <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                  </div>
+                  <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-6" />
                   <h2 className="text-white text-2xl font-semibold mb-2">Payment Complete</h2>
                   <p className="text-neutral-400 text-sm mb-8">The guest has completed their payment</p>
                   
@@ -1901,9 +1893,7 @@ export function PaymentDialog({
                 <>
                   {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
+                      <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-4" />
                       
                       <p className="text-center mb-6">
                         <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
@@ -2076,9 +2066,7 @@ export function PaymentDialog({
               {/* Complete/Receipt Screen */}
               {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
                 <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                  <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                    <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                  </div>
+                  <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-4" />
                   
                   <p className="text-center mb-6">
                     <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
@@ -2340,9 +2328,7 @@ export function PaymentDialog({
                 <>
                   {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
+                      <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-4" />
                       
                       <p className="text-center mb-6">
                         <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
@@ -2590,9 +2576,7 @@ export function PaymentDialog({
                   {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       {/* Success Icon */}
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
+                      <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-4" />
                       
                       <p className="text-center mb-6">
                         <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
@@ -2846,9 +2830,7 @@ export function PaymentDialog({
                   {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       {/* Success Icon */}
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
+                      <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-4" />
                       
                       <p className="text-center mb-6">
                         <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
@@ -3102,9 +3084,7 @@ export function PaymentDialog({
                   {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       {/* Success Icon */}
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
+                      <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-4" />
                       
                       <p className="text-center mb-6">
                         <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
@@ -3358,9 +3338,7 @@ export function PaymentDialog({
                   {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
                     <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
                       {/* Success Icon */}
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
+                      <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-4" />
                       
                       <p className="text-center mb-6">
                         <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>

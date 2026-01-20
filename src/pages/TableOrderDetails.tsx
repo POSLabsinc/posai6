@@ -720,11 +720,7 @@ const TableOrderDetails = () => {
                    <div className="hidden md:flex flex-1 min-w-0 py-2 pr-0">
                      <div className="flex flex-col w-full">
                        <div className="flex items-start justify-between">
-                         <div className="flex items-center gap-1">
-                           <span className="text-white font-medium text-sm">{guest.name}</span>
-                           <span className="text-white/60">·</span>
-                           <span className="text-white/60 text-sm truncate">{guest.revenueCenter}</span>
-                         </div>
+                         <span className="text-white font-medium text-sm">{guest.name}</span>
                          <div className="flex flex-col items-end">
                            <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
                            {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}

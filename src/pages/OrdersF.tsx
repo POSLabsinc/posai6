@@ -6906,7 +6906,7 @@ const OrdersF = () => {
               <span className="text-muted-foreground">Tax <span className="text-foreground font-medium">${tax.toFixed(2)}</span></span>
             </div>
             <div className="flex items-center gap-3 md:gap-4">
-              {discount > 0 && <span className="text-red-400">-${discount.toFixed(2)}</span>}
+              {discount > 0 && <span className="text-white">-${discount.toFixed(2)}</span>}
               {serviceCharge > 0 && <span className="text-muted-foreground">+${serviceCharge.toFixed(2)}</span>}
             </div>
           </div>

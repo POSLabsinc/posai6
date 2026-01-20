@@ -951,7 +951,7 @@ const Tickets = () => {
             <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
               <div className="flex justify-between gap-3">
                 <span className="text-white">Sub Total: <span className="font-medium">{formatPrice(selectedGuest.subtotal)}</span></span>
-                <span className="text-red-500">Discount: <span className="font-medium">{formatPrice(selectedGuest.discount)}</span></span>
+                <span className="text-white">Discount: <span className="font-medium">{formatPrice(selectedGuest.discount)}</span></span>
               </div>
               <div className="flex justify-between gap-3">
                 <span className="text-white">Service Charge: <span className="font-medium">{formatPrice(selectedGuest.serviceCharge)}</span></span>
@@ -1165,7 +1165,7 @@ const Tickets = () => {
             <div className="text-xs rounded px-2 py-1 space-y-0.5" style={{ background: '#7575754D' }}>
               <div className="flex justify-between">
                 <span className="text-white">Sub Total: {formatPrice(selectedGuest.subtotal)}</span>
-                <span className="text-red-500">Discount: {formatPrice(selectedGuest.discount)}</span>
+                <span className="text-white">Discount: {formatPrice(selectedGuest.discount)}</span>
               </div>
             </div>
           </div>

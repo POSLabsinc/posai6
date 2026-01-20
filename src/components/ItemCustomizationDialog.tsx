@@ -1492,7 +1492,7 @@ export const ItemCustomizationDialog = ({
                         <div className="text-white text-sm font-medium">{discountType.name}</div>
                         <div className="text-neutral-400 text-xs">{discountType.description}</div>
                       </div>
-                      <div className="text-red-400 text-sm font-medium">
+                      <div className="text-white text-sm font-medium">
                         -${discountValue.toFixed(2)}
                       </div>
                     </button>

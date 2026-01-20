@@ -41,8 +41,8 @@ const OrderSummary = ({
         </div>
         {discount > 0 && (
           <div className="flex justify-between">
-            <span className="text-red-500">{discountLabel}</span>
-            <span className="text-red-500">-{formatPrice(discount)}</span>
+            <span className="text-white">{discountLabel}</span>
+            <span className="text-white">-{formatPrice(discount)}</span>
           </div>
         )}
         <div className="flex justify-between">
@@ -81,7 +81,7 @@ const OrderSummary = ({
           Sub Total: <span className="font-medium">{formatPrice(subtotal)}</span>
         </span>
         {discount > 0 ? (
-          <span className="text-red-500">
+          <span className="text-white">
             {discountLabel}: <span className="font-medium">-{formatPrice(discount)}</span>
           </span>
         ) : (

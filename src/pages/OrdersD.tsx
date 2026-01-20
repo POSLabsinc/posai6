@@ -535,7 +535,7 @@ const OrdersD = () => {
               }}>
                 <div className="flex justify-between gap-3">
                   <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-                  <span className="text-red-500">Discount: <span className="font-medium">$0.00</span></span>
+                  <span className="text-white">Discount: <span className="font-medium">$0.00</span></span>
                 </div>
                 <div className="flex justify-between gap-3">
                   <span className="text-foreground">Service Charge: <span className="font-medium">$0.00</span></span>

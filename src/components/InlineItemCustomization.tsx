@@ -1035,7 +1035,7 @@ export const InlineItemCustomization = ({
                       <button key={discountType.id} onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isSelected ? 'bg-orange-500/20 border border-orange-500' : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'}`}>
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'}`}><IconComponent className="w-4 h-4 text-neutral-400" /></div>
                         <div className="flex-1 text-left"><div className="text-white text-sm font-medium">{discountType.name}</div><div className="text-neutral-400 text-xs">{discountType.description}</div></div>
-                        <div className="text-red-400 text-sm font-medium">-${discountValue.toFixed(2)}</div>
+                        <div className="text-white text-sm font-medium">-${discountValue.toFixed(2)}</div>
                       </button>
                     );
                   })}

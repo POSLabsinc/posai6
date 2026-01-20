@@ -71,13 +71,13 @@ const MultiPaymentDisplay = ({ paymentMethods, paymentType }: { paymentMethods?:
 
   const getCardIcon = (type: string) => {
     switch (type) {
-      case 'Visa': return '💳';
-      case 'Amex': return '💳';
-      case 'Mastercard': return '💳';
-      case 'Discover': return '💳';
-      case 'Cash': return '💵';
-      case 'Gift Card': return '🎁';
-      default: return '💳';
+      case 'Visa': return <span className="w-5 h-3 rounded-sm bg-white flex items-center justify-center"><span className="text-[8px] font-bold text-blue-600">VISA</span></span>;
+      case 'Amex': return <span className="w-5 h-3 rounded-sm bg-blue-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">AMEX</span></span>;
+      case 'Mastercard': return <span className="w-5 h-3 rounded-sm bg-gradient-to-r from-red-500 to-yellow-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">MC</span></span>;
+      case 'Discover': return <span className="w-5 h-3 rounded-sm bg-orange-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">DISC</span></span>;
+      case 'Cash': return <span className="w-5 h-3 rounded-sm bg-green-600 flex items-center justify-center"><span className="text-[6px] font-bold text-white">$</span></span>;
+      case 'Gift Card': return <span className="w-5 h-3 rounded-sm bg-purple-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">GC</span></span>;
+      default: return <span className="w-5 h-3 rounded-sm bg-gray-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">CC</span></span>;
     }
   };
 

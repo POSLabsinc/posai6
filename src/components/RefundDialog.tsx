@@ -5,6 +5,12 @@ import { formatPrice } from '@/lib/orderUtils';
 import tickSuccessIcon from '@/assets/icons/tick-success.svg';
 import { toast } from 'sonner';
 
+interface OrderItemForRefund {
+  name: string;
+  price: number;
+  qty: number;
+}
+
 interface RefundDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -12,6 +18,7 @@ interface RefundDialogProps {
   tipAmount?: number;
   orderId?: string;
   guestName?: string;
+  orderItems?: OrderItemForRefund[];
   onRefundComplete?: (refundAmount: number, reason: string) => void;
 }
 
@@ -40,29 +47,78 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
   tipAmount = 0,
   orderId = '123423',
   guestName = 'Mike Wheelers',
+  orderItems,
   onRefundComplete
 }) => {
   const [step, setStep] = useState<RefundStep>('select-type');
   const [selectedReason, setSelectedReason] = useState<string>('');
-  const [includeTip, setIncludeTip] = useState(true);
+  const [includeTip, setIncludeTip] = useState(false);
   const [refundAmount, setRefundAmount] = useState(0);
   const [customAmount, setCustomAmount] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [emailAddress, setEmailAddress] = useState('');
   const [noMarketing, setNoMarketing] = useState(false);
+  const [refundType, setRefundType] = useState<'full' | 'partial' | 'tip' | 'custom'>('full');
+  const [selectedItems, setSelectedItems] = useState<Record<number, number>>({});
+  const [reasonDropdownOpen, setReasonDropdownOpen] = useState(false);
 
   const totalWithTip = orderTotal + tipAmount;
   const maxRefund = totalWithTip;
 
+  // Default order items for demo
+  const defaultOrderItems: OrderItemForRefund[] = [
+    { name: "New York Strip Steak", price: 28.00, qty: 1 },
+    { name: "Grilled Salmon", price: 24.00, qty: 1 },
+    { name: "Caesar Salad", price: 12.00, qty: 1 }
+  ];
+
+  const orderItemsToUse = orderItems && orderItems.length > 0 ? orderItems : defaultOrderItems;
+
+  // Calculate partial refund totals
+  const calculatePartialRefundTotal = () => {
+    let itemsTotal = 0;
+    Object.entries(selectedItems).forEach(([index, qty]) => {
+      const item = orderItemsToUse[Number(index)];
+      if (item && qty > 0) {
+        itemsTotal += item.price * qty;
+      }
+    });
+    return itemsTotal;
+  };
+
+  const partialItemsTotal = calculatePartialRefundTotal();
+  const partialTipTotal = includeTip ? tipAmount : 0;
+  const partialRefundTotal = partialItemsTotal + partialTipTotal;
+  const totalSelections = Object.values(selectedItems).filter(qty => qty > 0).length;
+
+  const toggleItemSelection = (index: number) => {
+    const item = orderItemsToUse[index];
+    if (!item) return;
+    
+    setSelectedItems(prev => {
+      const currentQty = prev[index] || 0;
+      if (currentQty > 0) {
+        const newItems = { ...prev };
+        delete newItems[index];
+        return newItems;
+      } else {
+        return { ...prev, [index]: item.qty };
+      }
+    });
+  };
+
   const resetAndClose = () => {
     setStep('select-type');
     setSelectedReason('');
-    setIncludeTip(true);
+    setIncludeTip(false);
     setRefundAmount(0);
     setCustomAmount('');
     setPhoneNumber('');
     setEmailAddress('');
     setNoMarketing(false);
+    setRefundType('full');
+    setSelectedItems({});
+    setReasonDropdownOpen(false);
     onOpenChange(false);
   };
 
@@ -117,9 +173,14 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
   };
 
   const handleSelectRefundType = (type: 'full' | 'partial' | 'tip' | 'custom') => {
+    setRefundType(type);
+    setSelectedReason('');
+    setIncludeTip(false);
+    setSelectedItems({});
+    
     switch (type) {
       case 'full':
-        setRefundAmount(includeTip ? totalWithTip : orderTotal);
+        setRefundAmount(orderTotal);
         setStep('full-refund');
         break;
       case 'partial':
@@ -133,6 +194,19 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
         setStep('custom-refund');
         break;
     }
+  };
+
+  const handleProceedPartialRefund = () => {
+    if (!selectedReason) {
+      toast.error('Please select a reason for refund');
+      return;
+    }
+    if (partialRefundTotal <= 0) {
+      toast.error('Please select at least one item to refund');
+      return;
+    }
+    setRefundAmount(partialRefundTotal);
+    setStep('confirm');
   };
 
   const handleProceedRefund = () => {
@@ -153,25 +227,46 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
     boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
   };
 
-  const renderHeader = (title: string, showBack: boolean = true) => (
-    <div className="relative flex items-center justify-center py-3 border-b border-neutral-700">
-      {showBack && (
+  const renderHeader = (title: string, showBack: boolean = true) => {
+    const handleBack = () => {
+      if (step === 'confirm') {
+        // Go back to the previous refund type screen
+        if (refundType === 'partial') {
+          setStep('partial-refund');
+        } else if (refundType === 'full') {
+          setStep('full-refund');
+        } else if (refundType === 'tip') {
+          setStep('tip-refund');
+        } else if (refundType === 'custom') {
+          setStep('custom-refund');
+        } else {
+          setStep('select-type');
+        }
+      } else {
+        setStep('select-type');
+      }
+    };
+
+    return (
+      <div className="relative flex items-center justify-center py-3 border-b border-neutral-700">
+        {showBack && (
+          <button
+            onClick={handleBack}
+            className="absolute left-4 p-1.5 rounded-full hover:bg-white/10 transition-colors"
+          >
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+        )}
+        <span className="text-white font-semibold text-base">{title}</span>
         <button
-          onClick={() => setStep(step === 'confirm' ? 'full-refund' : 'select-type')}
-          className="absolute left-4 p-1.5 rounded-full hover:bg-white/10 transition-colors"
+          onClick={resetAndClose}
+          className="absolute right-4 p-1.5 rounded-full hover:bg-white/10 transition-colors"
         >
-          <ChevronLeft className="w-5 h-5 text-white" />
+          <X className="w-5 h-5 text-white" />
         </button>
-      )}
-      <span className="text-white font-semibold text-base">{title}</span>
-      <button
-        onClick={resetAndClose}
-        className="absolute right-4 p-1.5 rounded-full hover:bg-white/10 transition-colors"
-      >
-        <X className="w-5 h-5 text-white" />
-      </button>
-    </div>
-  );
+      </div>
+    );
+  };
 
   // Select Refund Type Screen
   const renderSelectType = () => (
@@ -326,6 +421,136 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
       </div>
     );
   };
+
+  // Partial Refund Screen
+  const renderPartialRefund = () => (
+    <div className="flex flex-col h-full">
+      {renderHeader('Partial Refund')}
+      
+      <div className="flex-1 p-3 space-y-3 overflow-hidden">
+        {/* Select Items Label */}
+        <span className="text-white/60 text-xs block">Select items to refund</span>
+        
+        {/* Items List */}
+        <div className="space-y-2 max-h-[200px] overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+          {orderItemsToUse.map((item, index) => {
+            const isSelected = (selectedItems[index] || 0) > 0;
+            const selectedQty = selectedItems[index] || 0;
+            
+            return (
+              <div 
+                key={index}
+                className="flex items-center gap-3 p-3 rounded-xl border border-white/10"
+                style={glassStyle}
+              >
+                <div 
+                  onClick={() => toggleItemSelection(index)}
+                  className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
+                    isSelected ? 'bg-amber-500 border-amber-500' : 'border-white/40'
+                  }`}
+                >
+                  {isSelected && <Check className="w-3 h-3 text-white" />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-white text-sm block truncate">{item.name}</span>
+                  <span className="text-white/50 text-xs">${item.price.toFixed(2)} each • Remaining: {item.qty} of {item.qty}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-white text-sm">${(item.price * item.qty).toFixed(2)}</span>
+                  <ChevronDown className="w-4 h-4 text-white/40" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Include Tip Toggle */}
+        <div className="flex items-center justify-between py-2 border-t border-neutral-700">
+          <div>
+            <span className="text-white font-semibold block text-sm">Include Tip in Refund</span>
+            <span className="text-white/50 text-xs">Remaining tip: {formatPrice(tipAmount)}</span>
+          </div>
+          <button
+            onClick={() => setIncludeTip(!includeTip)}
+            className={`w-10 h-5 rounded-full transition-colors relative ${includeTip ? 'bg-orange-500' : 'bg-neutral-600'}`}
+          >
+            <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${includeTip ? 'right-0.5' : 'left-0.5'}`} />
+          </button>
+        </div>
+
+        {/* Summary Section */}
+        <div className="space-y-1 py-2 border-t border-neutral-700">
+          <div className="flex justify-between text-sm">
+            <span className="text-white/60">Selections</span>
+            <span className="text-white">{totalSelections}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-white/60">Items & Modifiers</span>
+            <span className="text-white">{formatPrice(partialItemsTotal)}</span>
+          </div>
+          <div className="flex justify-between text-sm">
+            <span className="text-white/60">+ Tip</span>
+            <span className="text-white">{formatPrice(partialTipTotal)}</span>
+          </div>
+          <div className="flex justify-between text-sm pt-1">
+            <span className="text-white/60">Refund total</span>
+            <span className="text-amber-400 font-semibold">{formatPrice(partialRefundTotal)}</span>
+          </div>
+        </div>
+
+        {/* Reason Dropdown */}
+        <div className="relative">
+          <button
+            onClick={() => setReasonDropdownOpen(!reasonDropdownOpen)}
+            className="w-full flex items-center justify-between p-3 rounded-xl border border-white/10"
+            style={glassStyle}
+          >
+            <span className="text-white/60 text-sm">Reason for Refund</span>
+            <div className="flex items-center gap-2">
+              <span className="text-white text-sm">{selectedReason || 'Select reason'}</span>
+              <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${reasonDropdownOpen ? 'rotate-180' : ''}`} />
+            </div>
+          </button>
+          
+          {reasonDropdownOpen && (
+            <div 
+              className="absolute bottom-full left-0 right-0 mb-1 rounded-xl border border-white/10 overflow-hidden z-50"
+              style={{ background: '#2a2a2a' }}
+            >
+              {refundReasons.map((reason) => (
+                <button
+                  key={reason}
+                  onClick={() => {
+                    setSelectedReason(reason);
+                    setReasonDropdownOpen(false);
+                  }}
+                  className={`w-full text-left p-3 text-sm transition-colors ${
+                    selectedReason === reason 
+                      ? 'bg-amber-500/20 text-amber-400' 
+                      : 'text-white hover:bg-white/10'
+                  }`}
+                >
+                  {reason}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Proceed Button */}
+      <div className="p-3">
+        <button
+          onClick={handleProceedPartialRefund}
+          disabled={partialRefundTotal <= 0}
+          className="w-full h-10 rounded-full font-semibold text-white text-sm disabled:opacity-50"
+          style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
+        >
+          PROCEED REFUND
+        </button>
+      </div>
+    </div>
+  );
 
   // Confirm Refund Screen
   const renderConfirm = () => {
@@ -621,6 +846,8 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
         return renderSelectType();
       case 'full-refund':
         return renderFullRefund();
+      case 'partial-refund':
+        return renderPartialRefund();
       case 'confirm':
         return renderConfirm();
       case 'success':

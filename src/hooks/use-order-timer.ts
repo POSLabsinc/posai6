@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 // Parse time string like "8:00 PM" to Date object for today
 const parseTimeToDate = (timeStr: string): Date => {
@@ -78,28 +78,50 @@ export const useOrderTimer = ({ orderTime, status, staticTimer }: UseOrderTimerP
   return formatElapsedTime(elapsed);
 };
 
-// Hook for multiple orders at once (more efficient)
-export const useOrderTimers = (orders: Array<{ id: string; time: string; status: string; timer: string }>): Record<string, string> => {
+interface OrderTimerData {
+  id: string;
+  time: string;
+  status: string;
+  timer: string;
+}
+
+// Hook for multiple orders at once (more efficient, doesn't cause scroll issues)
+export const useOrderTimers = (orders: OrderTimerData[]): Record<string, string> => {
   const [timers, setTimers] = useState<Record<string, string>>({});
+  const ordersRef = useRef<OrderTimerData[]>(orders);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Update ref when orders change
+  ordersRef.current = orders;
 
   useEffect(() => {
     const updateTimers = () => {
-      const newTimers: Record<string, string> = {};
+      const currentOrders = ordersRef.current;
       const now = new Date();
       
-      orders.forEach(order => {
-        const isPaidOrCompleted = ['PAID', 'COMPLETED', 'Paid', 'Completed'].includes(order.status);
+      setTimers(prevTimers => {
+        const newTimers: Record<string, string> = {};
+        let hasChanges = false;
         
-        if (isPaidOrCompleted) {
-          newTimers[order.id] = order.timer;
-        } else {
-          const startTime = parseTimeToDate(order.time);
-          const totalSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000);
-          newTimers[order.id] = formatElapsedTime(totalSeconds);
-        }
+        currentOrders.forEach(order => {
+          const isPaidOrCompleted = ['PAID', 'COMPLETED', 'Paid', 'Completed'].includes(order.status);
+          
+          if (isPaidOrCompleted) {
+            newTimers[order.id] = order.timer;
+          } else {
+            const startTime = parseTimeToDate(order.time);
+            const totalSeconds = Math.floor((now.getTime() - startTime.getTime()) / 1000);
+            newTimers[order.id] = formatElapsedTime(totalSeconds);
+          }
+          
+          if (prevTimers[order.id] !== newTimers[order.id]) {
+            hasChanges = true;
+          }
+        });
+        
+        // Only return new object if something actually changed
+        return hasChanges ? newTimers : prevTimers;
       });
-      
-      setTimers(newTimers);
     };
 
     // Initial update
@@ -111,10 +133,15 @@ export const useOrderTimers = (orders: Array<{ id: string; time: string; status:
     );
 
     if (hasOngoingOrders) {
-      const interval = setInterval(updateTimers, 1000);
-      return () => clearInterval(interval);
+      intervalRef.current = setInterval(updateTimers, 1000);
     }
-  }, [orders]);
+
+    return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+      }
+    };
+  }, []); // Empty dependency - uses ref for orders
 
   return timers;
 };

@@ -79,6 +79,8 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
   const [reasonDropdownOpen, setReasonDropdownOpen] = useState(false);
   const [tipRefundAmount, setTipRefundAmount] = useState('');
   const [tipReasonDropdownOpen, setTipReasonDropdownOpen] = useState(false);
+  const [customRefundAmount, setCustomRefundAmount] = useState('');
+  const [customReasonDropdownOpen, setCustomReasonDropdownOpen] = useState(false);
 
   const totalWithTip = orderTotal + tipAmount;
   const maxRefund = totalWithTip;
@@ -200,6 +202,8 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
     setReasonDropdownOpen(false);
     setTipRefundAmount('');
     setTipReasonDropdownOpen(false);
+    setCustomRefundAmount('');
+    setCustomReasonDropdownOpen(false);
     onOpenChange(false);
   };
 
@@ -228,6 +232,44 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
 
   const handleClearTip = () => {
     setTipRefundAmount('');
+  };
+
+  // Custom refund keypad handlers
+  const handleCustomKeyPress = (key: string) => {
+    if (key === 'delete') {
+      setCustomRefundAmount(prev => prev.slice(0, -1));
+    } else if (key === '.') {
+      if (!customRefundAmount.includes('.')) {
+        setCustomRefundAmount(prev => prev + '.');
+      }
+    } else {
+      // Limit to 2 decimal places
+      const parts = customRefundAmount.split('.');
+      if (parts[1] && parts[1].length >= 2) return;
+      // Don't exceed max refund
+      const newValue = customRefundAmount + key;
+      if (parseFloat(newValue) <= maxRefund) {
+        setCustomRefundAmount(newValue);
+      }
+    }
+  };
+
+  const handleClearCustom = () => {
+    setCustomRefundAmount('');
+  };
+
+  const handleProceedCustomRefund = () => {
+    if (!selectedReason) {
+      toast.error('Please select a reason for refund');
+      return;
+    }
+    const amount = parseFloat(customRefundAmount) || 0;
+    if (amount <= 0) {
+      toast.error('Please enter a refund amount');
+      return;
+    }
+    setRefundAmount(amount);
+    setStep('confirm');
   };
 
   const handleProceedTipRefund = () => {
@@ -830,6 +872,103 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
     );
   };
 
+  // Custom Refund Screen
+  const renderCustomRefund = () => {
+    const currentCustomRefundAmount = parseFloat(customRefundAmount) || 0;
+    
+    return (
+      <div className="flex flex-col h-full">
+        {renderHeader('Custom Refund')}
+        
+        <div className="flex-1 p-3 space-y-3">
+          {/* Custom Refund Amount Display */}
+          <div className="text-center py-4 border-b border-neutral-700">
+            <span className="text-white/60 text-xs block mb-1">Enter Refund Amount</span>
+            <span className="text-white text-4xl font-bold block">
+              ${customRefundAmount || '0.00'}
+            </span>
+            <span className="text-white/50 text-xs block mt-1">
+              Max refund: {formatPrice(maxRefund)}
+            </span>
+          </div>
+
+          {/* Numeric Keypad */}
+          <div className="grid grid-cols-3 gap-2">
+            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'delete'].map(key => (
+              <button 
+                key={key}
+                onClick={() => handleCustomKeyPress(key)}
+                className={`h-14 rounded-xl text-xl font-medium transition-colors ${
+                  key === 'delete' ? 'bg-red-900/50 text-white hover:bg-red-900/70' : 
+                  'bg-neutral-800 text-white hover:bg-neutral-700'
+                }`}
+              >
+                {key === 'delete' ? <Delete className="w-6 h-6 mx-auto" /> : key}
+              </button>
+            ))}
+          </div>
+
+          {/* Clear Button */}
+          <button
+            onClick={handleClearCustom}
+            className="w-full h-10 rounded-full font-semibold text-white text-sm bg-neutral-700 hover:bg-neutral-600"
+          >
+            Clear
+          </button>
+
+          {/* Reason Dropdown */}
+          <div className="relative">
+            <span className="text-white/60 text-xs block mb-2">Reason for Refund</span>
+            <button
+              onClick={() => setCustomReasonDropdownOpen(!customReasonDropdownOpen)}
+              className="w-full flex items-center justify-between p-3 rounded-xl border border-white/10"
+              style={glassStyle}
+            >
+              <span className="text-white text-sm">{selectedReason || 'Select reason'}</span>
+              <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${customReasonDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {customReasonDropdownOpen && (
+              <div 
+                className="absolute bottom-full left-0 right-0 mb-1 rounded-xl border border-white/10 overflow-hidden z-50"
+                style={{ background: '#2a2a2a' }}
+              >
+                {refundReasons.map((reason) => (
+                  <button
+                    key={reason}
+                    onClick={() => {
+                      setSelectedReason(reason);
+                      setCustomReasonDropdownOpen(false);
+                    }}
+                    className={`w-full text-left p-3 text-sm transition-colors ${
+                      selectedReason === reason 
+                        ? 'bg-amber-500/20 text-amber-400' 
+                        : 'text-white hover:bg-white/10'
+                    }`}
+                  >
+                    {reason}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Proceed Button */}
+        <div className="p-3">
+          <button
+            onClick={handleProceedCustomRefund}
+            disabled={currentCustomRefundAmount <= 0}
+            className="w-full h-12 rounded-full font-semibold text-white text-sm disabled:opacity-50"
+            style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
+          >
+            PROCEED REFUND
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   // Confirm Refund Screen
   const renderConfirm = () => {
     const refundWithoutTip = includeTip ? orderTotal : refundAmount;
@@ -1128,6 +1267,8 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
         return renderPartialRefund();
       case 'tip-refund':
         return renderTipRefund();
+      case 'custom-refund':
+        return renderCustomRefund();
       case 'confirm':
         return renderConfirm();
       case 'success':

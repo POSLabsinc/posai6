@@ -90,19 +90,19 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
   };
 
   const renderHeader = (title: string, showBack: boolean = true) => (
-    <div className="relative flex items-center justify-center py-4 border-b border-neutral-700">
+    <div className="relative flex items-center justify-center py-3 border-b border-neutral-700">
       {showBack && (
         <button
           onClick={() => setStep(step === 'confirm' ? 'full-refund' : 'select-type')}
-          className="absolute left-4 p-2 rounded-full hover:bg-white/10 transition-colors"
+          className="absolute left-4 p-1.5 rounded-full hover:bg-white/10 transition-colors"
         >
           <ChevronLeft className="w-5 h-5 text-white" />
         </button>
       )}
-      <span className="text-white font-semibold text-lg">{title}</span>
+      <span className="text-white font-semibold text-base">{title}</span>
       <button
         onClick={resetAndClose}
-        className="absolute right-4 p-2 rounded-full hover:bg-white/10 transition-colors"
+        className="absolute right-4 p-1.5 rounded-full hover:bg-white/10 transition-colors"
       >
         <X className="w-5 h-5 text-white" />
       </button>
@@ -114,69 +114,69 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
     <div className="flex flex-col h-full">
       {renderHeader('Select Refund Type', false)}
       
-      <div className="flex-1 p-4 space-y-3 overflow-y-auto">
+      <div className="flex-1 p-3 space-y-2">
         {/* Full Refund */}
         <button
           onClick={() => handleSelectRefundType('full')}
-          className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
+          className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
           style={glassStyle}
         >
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
-            <DollarSign className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center">
+            <DollarSign className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 text-left">
-            <span className="text-white font-semibold block">Full Refund</span>
-            <span className="text-white/60 text-sm">Refund the entire order amount</span>
+            <span className="text-white font-semibold block text-sm">Full Refund</span>
+            <span className="text-white/60 text-xs">Refund the entire order amount</span>
           </div>
-          <ChevronRight className="w-5 h-5 text-white/40" />
+          <ChevronRight className="w-4 h-4 text-white/40" />
         </button>
 
         {/* Partial Refund */}
         <button
           onClick={() => handleSelectRefundType('partial')}
-          className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
+          className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
           style={glassStyle}
         >
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center">
-            <Percent className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center">
+            <Percent className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 text-left">
-            <span className="text-white font-semibold block">Partial Refund</span>
-            <span className="text-white/60 text-sm">Refund specific items</span>
+            <span className="text-white font-semibold block text-sm">Partial Refund</span>
+            <span className="text-white/60 text-xs">Refund specific items</span>
           </div>
-          <ChevronRight className="w-5 h-5 text-white/40" />
+          <ChevronRight className="w-4 h-4 text-white/40" />
         </button>
 
         {/* Tip Refund */}
         <button
           onClick={() => handleSelectRefundType('tip')}
-          className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
+          className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
           style={glassStyle}
         >
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center">
-            <DollarSign className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-500 to-amber-700 flex items-center justify-center">
+            <DollarSign className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 text-left">
-            <span className="text-white font-semibold block">Tip Refund</span>
-            <span className="text-white/60 text-sm">Refund tip amount ({formatPrice(tipAmount)})</span>
+            <span className="text-white font-semibold block text-sm">Tip Refund</span>
+            <span className="text-white/60 text-xs">Refund tip amount ({formatPrice(tipAmount)})</span>
           </div>
-          <ChevronRight className="w-5 h-5 text-white/40" />
+          <ChevronRight className="w-4 h-4 text-white/40" />
         </button>
 
         {/* Custom Refund */}
         <button
           onClick={() => handleSelectRefundType('custom')}
-          className="w-full flex items-center gap-4 p-4 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
+          className="w-full flex items-center gap-3 p-3 rounded-xl border border-white/10 hover:border-white/20 transition-colors"
           style={glassStyle}
         >
-          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
-            <FileText className="w-6 h-6 text-white" />
+          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-700 flex items-center justify-center">
+            <FileText className="w-5 h-5 text-white" />
           </div>
           <div className="flex-1 text-left">
-            <span className="text-white font-semibold block">Custom Refund</span>
-            <span className="text-white/60 text-sm">Enter a custom amount (max {formatPrice(maxRefund)})</span>
+            <span className="text-white font-semibold block text-sm">Custom Refund</span>
+            <span className="text-white/60 text-xs">Enter a custom amount (max {formatPrice(maxRefund)})</span>
           </div>
-          <ChevronRight className="w-5 h-5 text-white/40" />
+          <ChevronRight className="w-4 h-4 text-white/40" />
         </button>
       </div>
     </div>
@@ -190,56 +190,56 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
       <div className="flex flex-col h-full">
         {renderHeader('Full Refund')}
         
-        <div className="flex-1 p-4 overflow-y-auto">
+        <div className="flex-1 p-3">
           {/* Refund Amount Display */}
-          <div className="text-center py-6 border-b border-neutral-700 mb-4">
-            <span className="text-white/60 text-sm block mb-2">Refund Amount</span>
-            <span className="text-white text-4xl font-bold block">{formatPrice(currentRefundAmount)}</span>
-            <span className="text-white/50 text-sm block mt-2">
+          <div className="text-center py-4 border-b border-neutral-700 mb-3">
+            <span className="text-white/60 text-xs block mb-1">Refund Amount</span>
+            <span className="text-white text-3xl font-bold block">{formatPrice(currentRefundAmount)}</span>
+            <span className="text-white/50 text-xs block mt-1">
               Total {formatPrice(orderTotal)} + Tip {formatPrice(tipAmount)}
             </span>
-            <span className="text-white/40 text-sm block mt-1">
+            <span className="text-white/40 text-xs block mt-0.5">
               Order #{orderId} • {guestName}
             </span>
           </div>
 
           {/* Include Tip Toggle */}
-          <div className="flex items-center justify-between py-4 border-b border-neutral-700 mb-4">
+          <div className="flex items-center justify-between py-3 border-b border-neutral-700 mb-3">
             <div>
-              <span className="text-white font-semibold block">Include Tip in Refund</span>
-              <span className="text-white/50 text-sm">Tip amount: {formatPrice(tipAmount)}</span>
+              <span className="text-white font-semibold block text-sm">Include Tip in Refund</span>
+              <span className="text-white/50 text-xs">Tip amount: {formatPrice(tipAmount)}</span>
             </div>
             <button
               onClick={() => setIncludeTip(!includeTip)}
-              className={`w-12 h-6 rounded-full transition-colors relative ${includeTip ? 'bg-orange-500' : 'bg-neutral-600'}`}
+              className={`w-10 h-5 rounded-full transition-colors relative ${includeTip ? 'bg-orange-500' : 'bg-neutral-600'}`}
             >
-              <div className={`absolute top-0.5 w-5 h-5 rounded-full bg-white transition-transform ${includeTip ? 'right-0.5' : 'left-0.5'}`} />
+              <div className={`absolute top-0.5 w-4 h-4 rounded-full bg-white transition-transform ${includeTip ? 'right-0.5' : 'left-0.5'}`} />
             </button>
           </div>
 
           {/* Reason Selection */}
-          <div className="mb-4">
-            <span className="text-white/60 text-sm block mb-3">Reason for Refund</span>
-            <div className="space-y-2">
+          <div className="mb-3">
+            <span className="text-white/60 text-xs block mb-2">Reason for Refund</span>
+            <div className="space-y-1.5">
               {refundReasons.map((reason) => (
                 <button
                   key={reason}
                   onClick={() => setSelectedReason(reason)}
-                  className={`w-full flex items-center gap-3 p-4 rounded-xl border transition-colors ${
+                  className={`w-full flex items-center gap-2 p-2.5 rounded-xl border transition-colors ${
                     selectedReason === reason 
                       ? 'border-red-500 bg-red-500/10' 
                       : 'border-white/10 hover:border-white/20'
                   }`}
                   style={selectedReason !== reason ? glassStyle : undefined}
                 >
-                  <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                  <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
                     selectedReason === reason ? 'border-red-500 bg-red-500' : 'border-white/40'
                   }`}>
                     {selectedReason === reason && (
-                      <div className="w-2 h-2 rounded-full bg-white" />
+                      <div className="w-1.5 h-1.5 rounded-full bg-white" />
                     )}
                   </div>
-                  <span className="text-white">{reason}</span>
+                  <span className="text-white text-sm">{reason}</span>
                 </button>
               ))}
             </div>
@@ -247,13 +247,13 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
         </div>
 
         {/* Proceed Button */}
-        <div className="p-4">
+        <div className="p-3">
           <button
             onClick={() => {
               setRefundAmount(currentRefundAmount);
               handleProceedRefund();
             }}
-            className="w-full h-12 rounded-full font-semibold text-white"
+            className="w-full h-10 rounded-full font-semibold text-white text-sm"
             style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
           >
             PROCEED REFUND
@@ -273,41 +273,41 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
       <div className="flex flex-col h-full">
         {renderHeader('Confirm Refund')}
         
-        <div className="flex-1 p-4 overflow-y-auto">
+        <div className="flex-1 p-3">
           {/* Total Refund Amount */}
-          <div className="text-center py-6 border-b border-neutral-700 mb-4">
-            <span className="text-white/60 text-sm block mb-2">Total Refund Amount</span>
-            <span className="text-white text-4xl font-bold block">{formatPrice(refundAmount)}</span>
-            <span className="text-white/40 text-sm block mt-2">
+          <div className="text-center py-4 border-b border-neutral-700 mb-3">
+            <span className="text-white/60 text-xs block mb-1">Total Refund Amount</span>
+            <span className="text-white text-3xl font-bold block">{formatPrice(refundAmount)}</span>
+            <span className="text-white/40 text-xs block mt-1">
               Order #{orderId} • {guestName}
             </span>
           </div>
 
           {/* Refund Details */}
-          <div className="mb-4">
-            <span className="text-white/60 text-sm block mb-3">Refund Details</span>
+          <div className="mb-3">
+            <span className="text-white/60 text-xs block mb-2">Refund Details</span>
             
-            <div className="p-4 rounded-xl border border-white/10 space-y-3" style={glassStyle}>
+            <div className="p-3 rounded-xl border border-white/10 space-y-2" style={glassStyle}>
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <CreditCard className="w-4 h-4 text-blue-400" />
                   <div>
-                    <span className="text-white block">Cash</span>
-                    <span className="text-white/50 text-sm">Original: {formatPrice(orderTotal)} + Tip: {formatPrice(tipAmount)}</span>
+                    <span className="text-white block text-sm">Cash</span>
+                    <span className="text-white/50 text-xs">Original: {formatPrice(orderTotal)} + Tip: {formatPrice(tipAmount)}</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="text-red-400 font-semibold">-{formatPrice(refundAmount)}</span>
-                  <span className="text-white/50 text-sm block">of {formatPrice(totalWithTip)}</span>
+                  <span className="text-red-400 font-semibold text-sm">-{formatPrice(refundAmount)}</span>
+                  <span className="text-white/50 text-xs block">of {formatPrice(totalWithTip)}</span>
                 </div>
               </div>
 
-              <div className="border-t border-white/10 pt-3 flex items-center gap-4">
+              <div className="border-t border-white/10 pt-2 flex items-center gap-3 text-sm">
                 <span className="text-white">Order <span className="font-semibold">{formatPrice(orderTotal)}</span></span>
                 <span className="text-white">Tip <span className="font-semibold">{formatPrice(tipAmount)}</span></span>
               </div>
 
-              <div className="flex items-center justify-between text-white/50">
+              <div className="flex items-center justify-between text-white/50 text-xs">
                 <span>Remaining after refund</span>
                 <span>{formatPrice(remainingAfterRefund)}</span>
               </div>
@@ -315,17 +315,17 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
           </div>
 
           {/* Reason */}
-          <div className="p-4 rounded-xl border border-white/10 flex items-center justify-between" style={glassStyle}>
-            <span className="text-white/60">Reason</span>
-            <span className="text-white">{selectedReason}</span>
+          <div className="p-3 rounded-xl border border-white/10 flex items-center justify-between" style={glassStyle}>
+            <span className="text-white/60 text-sm">Reason</span>
+            <span className="text-white text-sm">{selectedReason}</span>
           </div>
         </div>
 
         {/* Confirm Button */}
-        <div className="p-4">
+        <div className="p-3">
           <button
             onClick={handleConfirmRefund}
-            className="w-full h-12 rounded-full font-semibold text-white"
+            className="w-full h-10 rounded-full font-semibold text-white text-sm"
             style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
           >
             CONFIRM REFUND ({formatPrice(refundAmount)})
@@ -338,53 +338,53 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
   // Success Screen
   const renderSuccess = () => (
     <div className="flex flex-col h-full">
-      <div className="relative flex items-center justify-center py-4 border-b border-neutral-700">
-        <span className="text-white font-semibold text-lg">Refund Successful</span>
+      <div className="relative flex items-center justify-center py-3 border-b border-neutral-700">
+        <span className="text-white font-semibold text-base">Refund Successful</span>
         <button
           onClick={resetAndClose}
-          className="absolute right-4 p-2 rounded-full hover:bg-white/10 transition-colors"
+          className="absolute right-4 p-1.5 rounded-full hover:bg-white/10 transition-colors"
         >
           <X className="w-5 h-5 text-white" />
         </button>
       </div>
       
-      <div className="flex-1 flex flex-col items-center justify-center p-4">
-        <img src={tickSuccessIcon} alt="Success" className="w-20 h-20 mb-4" />
-        <span className="text-white font-semibold text-xl mb-2">Refund Successful</span>
-        <span className="text-amber-400 text-3xl font-bold mb-6">{formatPrice(refundAmount)}</span>
+      <div className="flex-1 flex flex-col items-center justify-center p-3">
+        <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-3" />
+        <span className="text-white font-semibold text-lg mb-1">Refund Successful</span>
+        <span className="text-amber-400 text-2xl font-bold mb-4">{formatPrice(refundAmount)}</span>
         
-        <span className="text-white/50 text-sm mb-4">Send refund receipt</span>
+        <span className="text-white/50 text-xs mb-3">Send refund receipt</span>
         
-        <div className="flex items-center gap-3 w-full max-w-sm">
+        <div className="flex items-center gap-2 w-full max-w-sm">
           <button 
-            className="flex-1 h-12 rounded-full flex items-center justify-center gap-2"
+            className="flex-1 h-10 rounded-full flex items-center justify-center gap-1.5"
             style={glassStyle}
           >
             <Printer className="w-4 h-4 text-white" />
-            <span className="text-white font-medium">Print</span>
+            <span className="text-white font-medium text-sm">Print</span>
           </button>
           <button 
-            className="flex-1 h-12 rounded-full flex items-center justify-center gap-2"
+            className="flex-1 h-10 rounded-full flex items-center justify-center gap-1.5"
             style={glassStyle}
           >
             <MessageSquare className="w-4 h-4 text-white" />
-            <span className="text-white font-medium">Text</span>
+            <span className="text-white font-medium text-sm">Text</span>
           </button>
           <button 
-            className="flex-1 h-12 rounded-full flex items-center justify-center gap-2"
+            className="flex-1 h-10 rounded-full flex items-center justify-center gap-1.5"
             style={glassStyle}
           >
             <Mail className="w-4 h-4 text-white" />
-            <span className="text-white font-medium">Email</span>
+            <span className="text-white font-medium text-sm">Email</span>
           </button>
         </div>
       </div>
 
       {/* Done Button */}
-      <div className="p-4">
+      <div className="p-3">
         <button
           onClick={resetAndClose}
-          className="w-full h-12 rounded-full font-semibold text-black"
+          className="w-full h-10 rounded-full font-semibold text-black text-sm"
           style={{ background: 'linear-gradient(180deg, #FFC107 0%, #FF9800 100%)' }}
         >
           DONE
@@ -411,15 +411,14 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="p-0 border-0 bg-transparent max-w-md w-full h-auto max-h-[80vh]"
+        className="p-0 border-0 bg-transparent max-w-md w-full h-auto"
         style={{ background: 'none' }}
       >
         <div 
           className="rounded-2xl overflow-hidden flex flex-col"
           style={{ 
             background: '#1a1a1a',
-            border: '1px solid rgba(255,255,255,0.1)',
-            maxHeight: '80vh'
+            border: '1px solid rgba(255,255,255,0.1)'
           }}
         >
           {renderContent()}

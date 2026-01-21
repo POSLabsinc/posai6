@@ -1939,7 +1939,12 @@ const TableOrderDetails = () => {
         orderItems={currentSelectedGuest?.items?.map(item => ({
           name: item.name,
           price: item.price,
-          qty: item.qty
+          qty: item.qty,
+          modifiers: item.modifiers?.map((mod, idx) => ({
+            name: mod,
+            // Assign prices to some modifiers for demo - every 2nd modifier has a charge
+            price: idx % 2 === 1 ? (idx + 1) * 1.5 : 0
+          }))
         }))}
         onRefundComplete={(amount, reason) => {
           console.log("Refund completed:", amount, reason);

@@ -5597,6 +5597,8 @@ interface OrderItem {
   assignedSeats?: number[];
   discountName?: string;
   discountAmount?: number;
+  noTax?: boolean;
+  isFired?: boolean;
 }
 const initialOrderItems: OrderItem[] = [];
 const orderTypes = [
@@ -6609,7 +6611,29 @@ const Orders = () => {
     : 0;
   const serviceCharge = appliedServiceCharge;
   const taxRate = 0.02;
-  const tax = isTaxExempt ? 0 : (subtotal - discount) * taxRate;
+  // Calculate tax only on items NOT marked as noTax
+  const taxableSubtotal = orderItems
+    .filter(item => !item.noTax)
+    .reduce((sum, item) => sum + item.price * item.qty, 0);
+  const tax = isTaxExempt ? 0 : Math.max(0, taxableSubtotal - discount) * taxRate;
+
+  // Handler to toggle no-tax state for individual items
+  const handleToggleItemNoTax = (itemId: number) => {
+    setOrderItems(prev => prev.map(item => 
+      item.id === itemId 
+        ? { ...item, noTax: !item.noTax } 
+        : item
+    ));
+  };
+
+  // Handler to toggle fired state for individual items
+  const handleToggleItemFire = (itemId: number) => {
+    setOrderItems(prev => prev.map(item => 
+      item.id === itemId 
+        ? { ...item, isFired: !item.isFired } 
+        : item
+    ));
+  };
   const total = subtotal - discount + serviceCharge + tax;
   
   // Calculate new items total for add-item mode when existing order is paid
@@ -7167,7 +7191,7 @@ const Orders = () => {
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? null : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
                 <div className="px-1.5 py-0.5 space-y-0.5">
-                  {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
+                  {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
                       <div 
                         className="bg-neutral-800 rounded px-1.5 py-1 cursor-pointer"
                         onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}
@@ -7179,15 +7203,28 @@ const Orders = () => {
                             </span>
                             <span className="text-[11px] font-medium text-foreground">{item.name}</span>
                           </div>
-                          <span 
-                            className="text-[11px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
-                            }}
-                          >
-                            ${item.price.toFixed(2)}
-                          </span>
+                          {item.noTax ? (
+                            <span 
+                              className="text-[11px] font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                              }}
+                            >
+                              <span className="line-through text-white/40">${(item.price * (1 + taxRate)).toFixed(2)}</span>
+                              <span className="text-green-400">${item.price.toFixed(2)}</span>
+                            </span>
+                          ) : (
+                            <span 
+                              className="text-[11px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                              }}
+                            >
+                              ${item.price.toFixed(2)}
+                            </span>
+                          )}
                         </div>
                         
                         {/* Modifiers with tree hierarchy - Mobile */}
@@ -8262,7 +8299,7 @@ const Orders = () => {
                         <img src={emptyOrderIcon} alt="Empty order" className="w-16 h-16 opacity-50 mb-3" />
                         <span className="text-muted-foreground text-sm">Let's create an order</span>
                       </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
-                        {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
+                        {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
                             <div 
                               className="p-2 md:p-1.5 lg:p-3 border border-sidebar-border rounded-md md:rounded lg:rounded-lg cursor-pointer" 
                               style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
@@ -8277,15 +8314,28 @@ const Orders = () => {
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between">
                                       <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
-                                      <span 
-                                        className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors ml-2"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
-                                        }}
-                                      >
-                                        ${item.price.toFixed(2)}
-                                      </span>
+                                      {item.noTax ? (
+                                        <span 
+                                          className="text-sm md:text-xs lg:text-sm font-medium flex items-center gap-1.5 ml-2 cursor-pointer transition-colors"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                                          }}
+                                        >
+                                          <span className="line-through text-white/40">${(item.price * (1 + taxRate)).toFixed(2)}</span>
+                                          <span className="text-green-400">${item.price.toFixed(2)}</span>
+                                        </span>
+                                      ) : (
+                                        <span 
+                                          className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors ml-2"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                                          }}
+                                        >
+                                          ${item.price.toFixed(2)}
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </div>

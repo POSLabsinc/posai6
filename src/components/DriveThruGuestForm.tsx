@@ -189,22 +189,16 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
   const isFormValid = formData.guestName;
 
   return (
-    <div 
-      className="flex flex-col h-full rounded-lg overflow-hidden"
-      style={{ 
-        background: '#7575754D',
-        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
-      }}
-    >
+    <div className="flex flex-col h-full rounded-lg overflow-hidden bg-neutral-900">
       {/* Fixed Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10">
+      <div className="flex items-center justify-between p-4 border-b border-neutral-700">
         <h2 className="text-lg font-semibold text-white">Drive-Thru Guest Information</h2>
         {onClose && (
           <button 
             onClick={onClose}
-            className="p-1 hover:bg-white/10 rounded-full transition-colors"
+            className="p-1 hover:bg-neutral-800 rounded-full transition-colors"
           >
-            <X className="w-5 h-5 text-white/70" />
+            <X className="w-5 h-5 text-neutral-400" />
           </button>
         )}
       </div>
@@ -216,7 +210,7 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
       >
         {/* Search Field */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
           <Input
             placeholder="Search by Guest Name or Phone Number"
             value={searchQuery}
@@ -225,7 +219,7 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
               setShowSearchResults(true);
             }}
             onFocus={() => setShowSearchResults(true)}
-            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="pl-10 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
           {showSearchResults && searchResults.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
@@ -245,41 +239,41 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
 
         {/* Guest Name */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Guest Name *</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Guest Name *</label>
           <Input
             placeholder="Enter guest name"
             value={formData.guestName}
             onChange={(e) => handleInputChange("guestName", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
         </div>
 
         {/* Phone Number */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Phone Number</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Phone Number</label>
           <div className="flex gap-2">
-            <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-white/10 border border-white/20">
+            <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700">
               <span className="text-lg">🇺🇸</span>
-              <span className="text-white/70 text-sm">+1</span>
+              <span className="text-neutral-400 text-sm">+1</span>
             </div>
             <Input
               placeholder="(XXX) XXX-XXXX"
               value={formData.phoneNumber}
               onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-              className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="flex-1 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
           </div>
         </div>
 
         {/* Email */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Email</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Email</label>
           <Input
             type="email"
             placeholder="guest@email.com"
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
         </div>
 
@@ -289,9 +283,9 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
           <button
             type="button"
             onClick={() => vehicleSaved ? handleEditVehicle() : setShowVehicleInfo(!showVehicleInfo)}
-            className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors"
+            className="p-1.5 bg-neutral-800 rounded hover:bg-neutral-700 transition-colors"
           >
-            <Car className="w-4 h-4 text-white/70" />
+            <Car className="w-4 h-4 text-neutral-400" />
           </button>
         </div>
 
@@ -320,11 +314,10 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
             </div>
             
             <div 
-              className="relative p-3 bg-white/5 rounded-lg border border-white/10 flex items-center gap-3 cursor-grab active:cursor-grabbing select-none"
+              className="relative p-3 bg-neutral-800/50 rounded-lg border border-neutral-700 flex items-center gap-3 cursor-grab active:cursor-grabbing select-none"
               style={{
                 transform: `translateX(${vehicleSwipeX}px)`,
                 transition: isVehicleSwiping ? "none" : "transform 0.2s ease-out",
-                backgroundColor: 'rgba(255, 255, 255, 0.05)',
               }}
               onTouchStart={handleVehicleTouchStart}
               onTouchMove={handleVehicleTouchMove}
@@ -334,8 +327,8 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
               onMouseUp={handleVehicleMouseUp}
               onMouseLeave={handleVehicleMouseLeave}
             >
-              <div className="p-2 bg-white/10 rounded">
-                <Car className="w-5 h-5 text-white/70" />
+              <div className="p-2 bg-neutral-800 rounded">
+                <Car className="w-5 h-5 text-neutral-400" />
               </div>
               <div className="flex flex-col flex-1">
                 <span className="text-sm font-medium text-white">
@@ -351,15 +344,15 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
 
         {/* Vehicle Information Fields - Collapsible */}
         {showVehicleInfo && (
-          <div className="p-3 bg-white/5 rounded-lg border border-white/10 space-y-3">
+          <div className="p-3 bg-neutral-800/50 rounded-lg border border-neutral-700 space-y-3">
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-white/60 mb-1 block">Vehicle Type</label>
+                <label className="text-xs text-neutral-500 mb-1 block">Vehicle Type</label>
                 <Select
                   value={formData.vehicleType}
                   onValueChange={(value) => handleInputChange("vehicleType", value)}
                 >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
                     <SelectValue placeholder="Select type" />
                   </SelectTrigger>
                   <SelectContent>
@@ -370,12 +363,12 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
                 </Select>
               </div>
               <div>
-                <label className="text-xs text-white/60 mb-1 block">Color</label>
+                <label className="text-xs text-neutral-500 mb-1 block">Color</label>
                 <Select
                   value={formData.vehicleColor}
                   onValueChange={(value) => handleInputChange("vehicleColor", value)}
                 >
-                  <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                  <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
                     <SelectValue placeholder="Select color" />
                   </SelectTrigger>
                   <SelectContent>
@@ -388,21 +381,21 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-xs text-white/60 mb-1 block">Brand</label>
+                <label className="text-xs text-neutral-500 mb-1 block">Brand</label>
                 <Input
                   placeholder="Enter brand"
                   value={formData.vehicleBrand}
                   onChange={(e) => handleInputChange("vehicleBrand", e.target.value)}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                  className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
                 />
               </div>
               <div>
-                <label className="text-xs text-white/60 mb-1 block">License Plate</label>
+                <label className="text-xs text-neutral-500 mb-1 block">License Plate</label>
                 <Input
                   placeholder="Enter plate"
                   value={formData.licensePlate}
                   onChange={(e) => handleInputChange("licensePlate", e.target.value)}
-                  className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                  className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
                 />
               </div>
             </div>
@@ -411,7 +404,7 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
                 type="button"
                 variant="outline"
                 onClick={() => setShowVehicleInfo(false)}
-                className="flex-1 h-9 bg-white/5 border-white/20 hover:bg-white/10 text-white"
+                className="flex-1 h-9 bg-neutral-800 border-neutral-700 hover:bg-neutral-700 text-white"
               >
                 Cancel
               </Button>
@@ -429,21 +422,21 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
 
         {/* Notes */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Notes</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Notes</label>
           <textarea
             placeholder="Add any special instructions..."
             value={formData.notes}
             onChange={(e) => handleInputChange("notes", e.target.value)}
-            className="w-full bg-white/10 border border-white/20 rounded-md text-sm p-3 text-white placeholder:text-white/40 resize-none min-h-[80px] outline-none focus:border-primary"
+            className="w-full bg-neutral-800 border border-neutral-700 rounded-md text-sm p-3 text-white placeholder:text-neutral-500 resize-none min-h-[80px] outline-none focus:border-primary"
           />
-          <div className="text-xs text-white/40 text-right mt-1">
+          <div className="text-xs text-neutral-500 text-right mt-1">
             {countWords(formData.notes)}/70 Words
           </div>
         </div>
       </div>
 
       {/* Fixed Footer */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-neutral-700">
         <button
           onClick={handleSave}
           disabled={!isFormValid}

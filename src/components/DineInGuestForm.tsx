@@ -90,15 +90,9 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
   const isFormValid = formData.guestName && formData.tableNumber;
 
   return (
-    <div 
-      className="flex flex-col h-full rounded-lg overflow-hidden"
-      style={{ 
-        background: '#7575754D',
-        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
-      }}
-    >
+    <div className="flex flex-col h-full rounded-lg overflow-hidden bg-neutral-900">
       {/* Fixed Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10">
+      <div className="flex items-center justify-between p-4 border-b border-neutral-700">
         <h2 className="text-lg font-semibold text-white">Dine-In Guest Information</h2>
         {onClose && (
           <button 
@@ -117,7 +111,7 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
       >
         {/* Search Field */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
           <Input
             placeholder="Search by Guest Name or Phone Number"
             value={searchQuery}
@@ -126,7 +120,7 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
               setShowSearchResults(true);
             }}
             onFocus={() => setShowSearchResults(true)}
-            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="pl-10 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
           {showSearchResults && searchResults.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
@@ -147,16 +141,16 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
         {/* Guest Name and Table Number */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-sm text-white/70 mb-1 block">Guest Name *</label>
+            <label className="text-sm text-neutral-500 mb-1 block">Guest Name *</label>
             <Input
               placeholder="Enter guest name"
               value={formData.guestName}
               onChange={(e) => handleInputChange("guestName", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
           </div>
           <div>
-            <label className="text-sm text-white/70 mb-1 block">Table Number *</label>
+            <label className="text-sm text-neutral-500 mb-1 block">Table Number *</label>
             <Input
               type="number"
               min={1}
@@ -165,57 +159,57 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
               placeholder="Enter table number"
               value={formData.tableNumber}
               onChange={(e) => handleInputChange("tableNumber", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
           </div>
         </div>
 
         {/* Phone Number */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Phone Number</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Phone Number</label>
           <div className="flex gap-2">
-            <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-white/10 border border-white/20">
+            <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700">
               <span className="text-lg">🇺🇸</span>
-              <span className="text-white/70 text-sm">+1</span>
+              <span className="text-neutral-400 text-sm">+1</span>
             </div>
             <Input
               placeholder="(XXX) XXX-XXXX"
               value={formData.phoneNumber}
               onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-              className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="flex-1 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
           </div>
         </div>
 
         {/* Email */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Email</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Email</label>
           <Input
             type="email"
             placeholder="guest@email.com"
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
         </div>
 
         {/* Notes */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Notes</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Notes</label>
           <textarea
             placeholder="Add any special instructions..."
             value={formData.notes}
             onChange={(e) => handleInputChange("notes", e.target.value)}
-            className="w-full bg-white/10 border border-white/20 rounded-md text-sm p-3 text-white placeholder:text-white/40 resize-none min-h-[80px] outline-none focus:border-primary"
+            className="w-full bg-neutral-800 border border-neutral-700 rounded-md text-sm p-3 text-white placeholder:text-neutral-500 resize-none min-h-[80px] outline-none focus:border-primary"
           />
-          <div className="text-xs text-white/40 text-right mt-1">
+          <div className="text-xs text-neutral-500 text-right mt-1">
             {countWords(formData.notes)}/70 Words
           </div>
         </div>
       </div>
 
       {/* Fixed Footer */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-neutral-700">
         <button
           onClick={handleSave}
           disabled={!isFormValid}

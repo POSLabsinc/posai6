@@ -146,22 +146,16 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
   const isFormValid = formData.guestName && formData.eventType;
 
   return (
-    <div 
-      className="flex flex-col h-full rounded-lg overflow-hidden"
-      style={{ 
-        background: '#7575754D',
-        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
-      }}
-    >
+    <div className="flex flex-col h-full rounded-lg overflow-hidden bg-neutral-900">
       {/* Fixed Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10">
+      <div className="flex items-center justify-between p-4 border-b border-neutral-700">
         <h2 className="text-lg font-semibold text-white">Banquet Guest Information</h2>
         {onClose && (
           <button 
             onClick={onClose}
-            className="p-1 hover:bg-white/10 rounded-full transition-colors"
+            className="p-1 hover:bg-neutral-800 rounded-full transition-colors"
           >
-            <X className="w-5 h-5 text-white/70" />
+            <X className="w-5 h-5 text-neutral-400" />
           </button>
         )}
       </div>
@@ -173,7 +167,7 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
       >
         {/* Search Field */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
           <Input
             placeholder="Search by Guest Name or Phone Number"
             value={searchQuery}
@@ -182,7 +176,7 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
               setShowSearchResults(true);
             }}
             onFocus={() => setShowSearchResults(true)}
-            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="pl-10 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
           {showSearchResults && searchResults.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
@@ -203,9 +197,9 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
         {/* Event Type and Date */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-sm text-white/70 mb-1 block">Event Type *</label>
+            <label className="text-sm text-neutral-500 mb-1 block">Event Type *</label>
             <Select value={formData.eventType} onValueChange={(value) => handleInputChange("eventType", value)}>
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+              <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
                 <SelectValue placeholder="Select event type" />
               </SelectTrigger>
               <SelectContent className="bg-neutral-800 border-neutral-700">
@@ -218,16 +212,16 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
             </Select>
           </div>
           <div>
-            <label className="text-sm text-white/70 mb-1 block">Event Date</label>
+            <label className="text-sm text-neutral-500 mb-1 block">Event Date</label>
             <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
               <PopoverTrigger asChild>
                 <button
                   className={cn(
-                    "flex items-center gap-2 w-full h-10 px-3 rounded-md border bg-white/10 border-white/20 text-sm text-white cursor-pointer hover:bg-white/15 transition-colors",
-                    !formData.eventDate && "text-white/40"
+                    "flex items-center gap-2 w-full h-10 px-3 rounded-md border bg-neutral-800 border-neutral-700 text-sm text-white cursor-pointer hover:bg-neutral-700 transition-colors",
+                    !formData.eventDate && "text-neutral-500"
                   )}
                 >
-                  <Calendar className="w-4 h-4 text-white/40" />
+                  <Calendar className="w-4 h-4 text-neutral-500" />
                   <span>
                     {formData.eventDate 
                       ? format(new Date(formData.eventDate), "MMM d, yyyy")
@@ -257,16 +251,16 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
         {/* Time and Number of Guests */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-sm text-white/70 mb-1 block">Event Time</label>
+            <label className="text-sm text-neutral-500 mb-1 block">Event Time</label>
             <Popover open={timePickerOpen} onOpenChange={setTimePickerOpen}>
               <PopoverTrigger asChild>
                 <button
                   className={cn(
-                    "flex items-center gap-2 w-full h-10 px-3 rounded-md border bg-white/10 border-white/20 text-sm text-white cursor-pointer hover:bg-white/15 transition-colors",
-                    !formData.eventTime && "text-white/40"
+                    "flex items-center gap-2 w-full h-10 px-3 rounded-md border bg-neutral-800 border-neutral-700 text-sm text-white cursor-pointer hover:bg-neutral-700 transition-colors",
+                    !formData.eventTime && "text-neutral-500"
                   )}
                 >
-                  <Clock className="w-4 h-4 text-white/40" />
+                  <Clock className="w-4 h-4 text-neutral-500" />
                   <span>
                     {formData.eventTime 
                       ? (() => {
@@ -294,55 +288,55 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
             </Popover>
           </div>
           <div>
-            <label className="text-sm text-white/70 mb-1 block">Number of Guests</label>
+            <label className="text-sm text-neutral-500 mb-1 block">Number of Guests</label>
             <Input
               type="number"
               placeholder="Enter number"
               value={formData.numberOfGuests}
               onChange={(e) => handleInputChange("numberOfGuests", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
           </div>
         </div>
 
         {/* Guest Name */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Guest Name *</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Guest Name *</label>
           <Input
             placeholder="Enter guest name"
             value={formData.guestName}
             onChange={(e) => handleInputChange("guestName", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
         </div>
 
         {/* Venue Name */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Venue Name</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Venue Name</label>
           <Input
             placeholder="Enter venue name"
             value={formData.venue}
             onChange={(e) => handleInputChange("venue", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
         </div>
 
         {/* Address Section */}
-        <div className="space-y-3 p-3 rounded-lg bg-white/5 border border-white/10">
+        <div className="space-y-3 p-3 rounded-lg bg-neutral-800/50 border border-neutral-700">
           <h4 className="text-sm font-medium text-white/90">Venue Address</h4>
           
           <Input
             placeholder="Address Line 1"
             value={formData.address.street}
             onChange={(e) => handleAddressChange("street", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
           
           <Input
             placeholder="Address Line 2 (Apt, Suite, etc.)"
             value={formData.address.apt}
             onChange={(e) => handleAddressChange("apt", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
           
           <div className="grid grid-cols-2 gap-3">
@@ -350,13 +344,13 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
               placeholder="City"
               value={formData.address.city}
               onChange={(e) => handleAddressChange("city", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
             <Select
               value={formData.address.state}
               onValueChange={(value) => handleAddressChange("state", value)}
             >
-              <SelectTrigger className="bg-white/10 border-white/20 text-white">
+              <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
                 <SelectValue placeholder="State" />
               </SelectTrigger>
               <SelectContent className="bg-neutral-800 border-neutral-700 max-h-60">
@@ -373,56 +367,56 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
             placeholder="ZIP Code"
             value={formData.address.zipCode}
             onChange={(e) => handleAddressChange("zipCode", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40 w-1/2"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 w-1/2"
           />
         </div>
 
         {/* Phone Number */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Phone Number</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Phone Number</label>
           <div className="flex gap-2">
-            <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-white/10 border border-white/20">
+            <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700">
               <span className="text-lg">🇺🇸</span>
-              <span className="text-white/70 text-sm">+1</span>
+              <span className="text-neutral-400 text-sm">+1</span>
             </div>
             <Input
               placeholder="(XXX) XXX-XXXX"
               value={formData.phoneNumber}
               onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-              className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="flex-1 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
           </div>
         </div>
 
         {/* Email */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Email</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Email</label>
           <Input
             type="email"
             placeholder="guest@email.com"
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
         </div>
 
         {/* Notes */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Notes</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Notes</label>
           <textarea
             placeholder="Add any special instructions..."
             value={formData.notes}
             onChange={(e) => handleInputChange("notes", e.target.value)}
-            className="w-full bg-white/10 border border-white/20 rounded-md text-sm p-3 text-white placeholder:text-white/40 resize-none min-h-[80px] outline-none focus:border-primary"
+            className="w-full bg-neutral-800 border border-neutral-700 rounded-md text-sm p-3 text-white placeholder:text-neutral-500 resize-none min-h-[80px] outline-none focus:border-primary"
           />
-          <div className="text-xs text-white/40 text-right mt-1">
+          <div className="text-xs text-neutral-500 text-right mt-1">
             {countWords(formData.notes)}/70 Words
           </div>
         </div>
       </div>
 
       {/* Fixed Footer */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-neutral-700">
         <button
           onClick={handleSave}
           disabled={!isFormValid}

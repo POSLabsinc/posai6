@@ -155,21 +155,15 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
   const isFormValid = formData.guestName && formData.scheduledDate && formData.scheduledTime;
 
   return (
-    <div 
-      className="flex flex-col h-full rounded-lg overflow-hidden"
-      style={{ 
-        background: '#7575754D',
-        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
-      }}
-    >
+    <div className="flex flex-col h-full rounded-lg overflow-hidden bg-neutral-900">
       {/* Fixed Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10">
+      <div className="flex items-center justify-between p-4 border-b border-neutral-700">
         <h2 className="text-lg font-semibold text-white">Scheduled Order Information</h2>
         <button 
           onClick={onClose}
-          className="p-1 hover:bg-white/10 rounded-full transition-colors"
+          className="p-1 hover:bg-neutral-800 rounded-full transition-colors"
         >
-          <X className="w-5 h-5 text-white/70" />
+          <X className="w-5 h-5 text-neutral-400" />
         </button>
       </div>
 
@@ -180,7 +174,7 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
       >
         {/* Search */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
           <Input
             placeholder="Search by Guest Name or Phone Number"
             value={searchQuery}
@@ -189,7 +183,7 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
               setShowSearchResults(true);
             }}
             onFocus={() => setShowSearchResults(true)}
-            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="pl-10 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
           {showSearchResults && searchResults.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-zinc-800 border border-white/20 rounded-lg overflow-hidden z-10 max-h-40 overflow-y-auto">
@@ -209,40 +203,40 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
 
         {/* Guest Name */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">
+          <label className="text-sm text-neutral-500 mb-1 block">
             Guest Name <span className="text-red-400">*</span>
           </label>
           <Input
             placeholder="Enter guest name"
             value={formData.guestName}
             onChange={(e) => handleInputChange("guestName", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
         </div>
 
         {/* Schedule Date & Time */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="text-sm text-white/70 mb-1 block">
+            <label className="text-sm text-neutral-500 mb-1 block">
               Scheduled Date <span className="text-red-400">*</span>
             </label>
             <Popover open={dateOpen} onOpenChange={setDateOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white overflow-hidden"
+                  className="w-full justify-start text-left font-normal bg-neutral-800 border-neutral-700 text-white hover:bg-neutral-700 hover:text-white overflow-hidden"
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4 text-white/60 flex-shrink-0" />
+                  <CalendarIcon className="mr-2 h-4 w-4 text-neutral-500 flex-shrink-0" />
                   <span className="truncate">
                     {formData.scheduledDate ? (
                       format(formData.scheduledDate, "MMM d, yyyy")
                     ) : (
-                      <span className="text-white/40">Pick a date</span>
+                      <span className="text-neutral-500">Pick a date</span>
                     )}
                   </span>
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-zinc-900 border-white/20 pointer-events-auto" align="start">
+              <PopoverContent className="w-auto p-0 bg-zinc-900 border-neutral-700 pointer-events-auto" align="start">
                 <Calendar
                   mode="single"
                   selected={formData.scheduledDate || undefined}
@@ -259,20 +253,20 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
           </div>
 
           <div>
-            <label className="text-sm text-white/70 mb-1 block">
+            <label className="text-sm text-neutral-500 mb-1 block">
               Scheduled Time <span className="text-red-400">*</span>
             </label>
             <Popover open={timeOpen} onOpenChange={setTimeOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
-                  className="w-full justify-start text-left font-normal bg-white/10 border-white/20 text-white hover:bg-white/20 hover:text-white"
+                  className="w-full justify-start text-left font-normal bg-neutral-800 border-neutral-700 text-white hover:bg-neutral-700 hover:text-white"
                 >
-                  <Clock className="mr-2 h-4 w-4 text-white/60" />
+                  <Clock className="mr-2 h-4 w-4 text-neutral-500" />
                   {formData.scheduledTime ? (
                     formatTime12Hour(formData.scheduledTime)
                   ) : (
-                    <span className="text-white/40">Pick a time</span>
+                    <span className="text-neutral-500">Pick a time</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -300,21 +294,21 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
 
         {/* Order Type Selection */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Order Type</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Order Type</label>
           <Select
             value={formData.orderFulfillmentType}
             onValueChange={(value: "Pickup" | "Delivery") =>
               setFormData((prev) => ({ ...prev, orderFulfillmentType: value }))
             }
           >
-            <SelectTrigger className="bg-white/10 border-white/20 text-white">
+            <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
               <SelectValue />
             </SelectTrigger>
-            <SelectContent className="bg-zinc-800 border-white/20">
-              <SelectItem value="Pickup" className="text-white hover:bg-white/10">
+            <SelectContent className="bg-zinc-800 border-neutral-700">
+              <SelectItem value="Pickup" className="text-white hover:bg-neutral-700">
                 Pickup
               </SelectItem>
-              <SelectItem value="Delivery" className="text-white hover:bg-white/10">
+              <SelectItem value="Delivery" className="text-white hover:bg-neutral-700">
                 Delivery
               </SelectItem>
             </SelectContent>
@@ -323,21 +317,21 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
 
         {/* Delivery Address (conditional) */}
         {formData.orderFulfillmentType === "Delivery" && (
-          <div className="space-y-3 p-3 bg-white/5 rounded-lg border border-white/10">
+          <div className="space-y-3 p-3 bg-neutral-800/50 rounded-lg border border-neutral-700">
             <h4 className="text-sm font-medium text-white/90">Delivery Address</h4>
             
             <Input
               placeholder="Address Line 1*"
               value={formData.address?.street || ""}
               onChange={(e) => handleAddressChange("street", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
             
             <Input
               placeholder="Address Line 2 (Apt, Suite, etc.)"
               value={formData.address?.apt || ""}
               onChange={(e) => handleAddressChange("apt", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
             
             <div className="grid grid-cols-2 gap-3">
@@ -345,18 +339,18 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
                 placeholder="City*"
                 value={formData.address?.city || ""}
                 onChange={(e) => handleAddressChange("city", e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
               />
               <Select
                 value={formData.address?.state || ""}
                 onValueChange={(value) => handleAddressChange("state", value)}
               >
-                <SelectTrigger className="bg-white/10 border-white/20 text-white">
+                <SelectTrigger className="bg-neutral-800 border-neutral-700 text-white">
                   <SelectValue placeholder="State*" />
                 </SelectTrigger>
-                <SelectContent className="bg-zinc-800 border-white/20 max-h-60">
+                <SelectContent className="bg-zinc-800 border-neutral-700 max-h-60">
                   {["AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA", "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD", "MA", "MI", "MN", "MS", "MO", "MT", "NE", "NV", "NH", "NJ", "NM", "NY", "NC", "ND", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VT", "VA", "WA", "WV", "WI", "WY"].map((state) => (
-                    <SelectItem key={state} value={state} className="text-white hover:bg-white/10">
+                    <SelectItem key={state} value={state} className="text-white hover:bg-neutral-700">
                       {state}
                     </SelectItem>
                   ))}
@@ -368,56 +362,56 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
               placeholder="ZIP Code*"
               value={formData.address?.zipCode || ""}
               onChange={(e) => handleAddressChange("zipCode", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 w-1/2"
+              className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 w-1/2"
             />
           </div>
         )}
 
         {/* Phone Number */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Phone Number</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Phone Number</label>
           <div className="flex gap-2">
-            <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-white/10 border border-white/20">
+            <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700">
               <span className="text-lg">🇺🇸</span>
-              <span className="text-white/70 text-sm">+1</span>
+              <span className="text-neutral-400 text-sm">+1</span>
             </div>
             <Input
               placeholder="(XXX) XXX-XXXX"
               value={formData.phoneNumber}
               onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-              className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="flex-1 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
           </div>
         </div>
 
         {/* Email */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Email</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Email</label>
           <Input
             placeholder="guest@email.com"
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
         </div>
 
         {/* Notes */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Notes</label>
+          <label className="text-sm text-neutral-500 mb-1 block">Notes</label>
           <textarea
             placeholder="Add any special instructions..."
             value={formData.notes}
             onChange={(e) => handleInputChange("notes", e.target.value)}
-            className="w-full bg-white/10 border border-white/20 rounded-md text-sm p-3 text-white placeholder:text-white/40 resize-none min-h-[80px] outline-none focus:border-primary"
+            className="w-full bg-neutral-800 border border-neutral-700 rounded-md text-sm p-3 text-white placeholder:text-neutral-500 resize-none min-h-[80px] outline-none focus:border-primary"
           />
-          <div className="text-xs text-white/40 text-right mt-1">
+          <div className="text-xs text-neutral-500 text-right mt-1">
             {countWords(formData.notes)}/70 Words
           </div>
         </div>
       </div>
 
       {/* Fixed Footer */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-neutral-700">
         <button
           onClick={handleSave}
           disabled={!isFormValid}

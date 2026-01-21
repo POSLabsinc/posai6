@@ -1371,7 +1371,7 @@ const TableOrderDetails = () => {
 
           {/* Action Buttons */}
           <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
-            {currentSelectedGuest?.status?.toUpperCase() === 'PAID' ? (
+            {currentSelectedGuest?.status?.toUpperCase() === 'PAID' || currentSelectedGuest?.status?.toUpperCase() === 'COMPLETED' ? (
               <>
                 {/* Add Tip Button */}
                 <button 

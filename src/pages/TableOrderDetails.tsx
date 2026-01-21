@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
+import RefundDialog from "@/components/RefundDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -288,6 +289,8 @@ const TableOrderDetails = () => {
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
   const [receiptGuest, setReceiptGuest] = useState<GuestOrder | null>(null);
   const [showTipDialog, setShowTipDialog] = useState(false);
+  const [showRefundMode, setShowRefundMode] = useState(false);
+  const [showRefundDialog, setShowRefundDialog] = useState(false);
   
   // Set initial selected guest when guestOrders changes
   const currentSelectedGuest = selectedGuest || guestOrders[0];
@@ -1373,21 +1376,35 @@ const TableOrderDetails = () => {
           <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
             {currentSelectedGuest?.status?.toUpperCase() === 'PAID' || currentSelectedGuest?.status?.toUpperCase() === 'COMPLETED' ? (
               <>
-                {/* Add Tip Button */}
-                <button 
-                  onClick={() => setShowTipDialog(true)}
-                  className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
-                  style={{ background: '#1B1C20' }}
-                >
-                  <span className="text-amber-400 font-semibold text-sm">ADD TIP</span>
-                </button>
-                {/* Close Button */}
-                <button 
-                  className="flex-1 h-10 rounded-full flex items-center justify-center" 
-                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                >
-                  <span className="text-black font-semibold text-sm">CLOSE</span>
-                </button>
+                {showRefundMode ? (
+                  /* Refund Button - shown after clicking Close */
+                  <button 
+                    onClick={() => setShowRefundDialog(true)}
+                    className="flex-1 h-10 rounded-full flex items-center justify-center" 
+                    style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
+                  >
+                    <span className="text-white font-semibold text-sm">REFUND</span>
+                  </button>
+                ) : (
+                  <>
+                    {/* Add Tip Button */}
+                    <button 
+                      onClick={() => setShowTipDialog(true)}
+                      className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
+                      style={{ background: '#1B1C20' }}
+                    >
+                      <span className="text-white font-semibold text-sm">ADD TIP</span>
+                    </button>
+                    {/* Close Button */}
+                    <button 
+                      onClick={() => setShowRefundMode(true)}
+                      className="flex-1 h-10 rounded-full flex items-center justify-center" 
+                      style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                    >
+                      <span className="text-black font-semibold text-sm">CLOSE</span>
+                    </button>
+                  </>
+                )}
               </>
             ) : (
               <>
@@ -1795,22 +1812,58 @@ const TableOrderDetails = () => {
 
         {/* Bottom Actions */}
         <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
-          <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
-            <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
-          </button>
-          <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{
-            background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
-          }}>
-            <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
-            <span>FIRE</span>
-          </button>
-          <button 
-            onClick={() => setShowPaymentDialog(true)}
-            className="flex-1 py-2 rounded-full text-black text-sm font-bold" 
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
-            CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
-          </button>
+          {currentSelectedGuest?.status?.toUpperCase() === 'PAID' || currentSelectedGuest?.status?.toUpperCase() === 'COMPLETED' ? (
+            <>
+              {showRefundMode ? (
+                /* Refund Button - shown after clicking Close */
+                <button 
+                  onClick={() => setShowRefundDialog(true)}
+                  className="flex-1 h-10 rounded-full flex items-center justify-center" 
+                  style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
+                >
+                  <span className="text-white font-semibold text-sm">REFUND</span>
+                </button>
+              ) : (
+                <>
+                  {/* Add Tip Button */}
+                  <button 
+                    onClick={() => setShowTipDialog(true)}
+                    className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
+                    style={{ background: '#1B1C20' }}
+                  >
+                    <span className="text-white font-semibold text-sm">ADD TIP</span>
+                  </button>
+                  {/* Close Button */}
+                  <button 
+                    onClick={() => setShowRefundMode(true)}
+                    className="flex-1 h-10 rounded-full flex items-center justify-center" 
+                    style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                  >
+                    <span className="text-black font-semibold text-sm">CLOSE</span>
+                  </button>
+                </>
+              )}
+            </>
+          ) : (
+            <>
+              <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+                <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+              </button>
+              <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{
+                background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+              }}>
+                <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+                <span>FIRE</span>
+              </button>
+              <button 
+                onClick={() => setShowPaymentDialog(true)}
+                className="flex-1 py-2 rounded-full text-black text-sm font-bold" 
+                style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+              >
+                CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
+              </button>
+            </>
+          )}
         </div>
         </div>
         </div>
@@ -1872,6 +1925,20 @@ const TableOrderDetails = () => {
         onTipSelected={(tip) => {
           console.log("Tip selected:", tip);
           // Handle tip logic here
+        }}
+      />
+
+      {/* Refund Dialog */}
+      <RefundDialog
+        open={showRefundDialog}
+        onOpenChange={setShowRefundDialog}
+        orderTotal={currentSelectedGuest?.subtotal || 0}
+        tipAmount={currentSelectedGuest?.tip || 0.88}
+        orderId={currentSelectedGuest?.id}
+        guestName={currentSelectedGuest?.name}
+        onRefundComplete={(amount, reason) => {
+          console.log("Refund completed:", amount, reason);
+          setShowRefundMode(false);
         }}
       />
     </>;

@@ -84,7 +84,10 @@ const MultiPaymentDisplay = ({ paymentMethods, paymentType }: { paymentMethods?:
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="flex items-center gap-1 text-white/60 hover:text-white transition-colors cursor-pointer">
+        <button 
+          className="flex items-center gap-1 text-white/60 hover:text-white transition-colors cursor-pointer"
+          onClick={(e) => e.stopPropagation()}
+        >
           <span>{getCardIcon(primaryMethod.type)}</span>
           <span>{primaryMethod.type}</span>
           {primaryMethod.lastFour && <span>•••• {primaryMethod.lastFour}</span>}
@@ -92,9 +95,10 @@ const MultiPaymentDisplay = ({ paymentMethods, paymentType }: { paymentMethods?:
         </button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-56 p-3 bg-neutral-800 border-neutral-700 z-[9999]" 
+        className="w-56 p-3 bg-neutral-800 border border-neutral-700 shadow-xl z-[9999]" 
         side="bottom" 
         align="start"
+        sideOffset={8}
       >
         <div className="space-y-1">
           <h4 className="text-white/80 text-xs font-medium mb-2">Payment Methods</h4>
@@ -914,7 +918,7 @@ const TableOrderDetails = () => {
                       <span className="text-white">{transferToTable}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="hidden md:flex items-stretch">

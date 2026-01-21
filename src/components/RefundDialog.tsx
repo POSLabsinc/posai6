@@ -38,6 +38,14 @@ const refundReasons = [
   'Other'
 ];
 
+const tipRefundReasons = [
+  'Wrongly Given High Tip Amount',
+  'Customer Request',
+  'Service Issue',
+  'System Error',
+  'Other'
+];
+
 const emailKeys = [
   ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
@@ -69,6 +77,8 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
   const [selectedModifiers, setSelectedModifiers] = useState<Record<string, boolean>>({});
   const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
   const [reasonDropdownOpen, setReasonDropdownOpen] = useState(false);
+  const [tipRefundAmount, setTipRefundAmount] = useState('');
+  const [tipReasonDropdownOpen, setTipReasonDropdownOpen] = useState(false);
 
   const totalWithTip = orderTotal + tipAmount;
   const maxRefund = totalWithTip;
@@ -188,7 +198,50 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
     setSelectedModifiers({});
     setExpandedItems({});
     setReasonDropdownOpen(false);
+    setTipRefundAmount('');
+    setTipReasonDropdownOpen(false);
     onOpenChange(false);
+  };
+
+  const handleTipKeyPress = (key: string) => {
+    if (key === 'delete') {
+      setTipRefundAmount(prev => prev.slice(0, -1));
+    } else if (key === '.') {
+      if (!tipRefundAmount.includes('.')) {
+        setTipRefundAmount(prev => prev + '.');
+      }
+    } else {
+      // Limit to 2 decimal places
+      const parts = tipRefundAmount.split('.');
+      if (parts[1] && parts[1].length >= 2) return;
+      // Don't exceed tip amount
+      const newValue = tipRefundAmount + key;
+      if (parseFloat(newValue) <= tipAmount) {
+        setTipRefundAmount(newValue);
+      }
+    }
+  };
+
+  const handleFullTip = () => {
+    setTipRefundAmount(tipAmount.toFixed(2));
+  };
+
+  const handleClearTip = () => {
+    setTipRefundAmount('');
+  };
+
+  const handleProceedTipRefund = () => {
+    if (!selectedReason) {
+      toast.error('Please select a reason for refund');
+      return;
+    }
+    const amount = parseFloat(tipRefundAmount) || 0;
+    if (amount <= 0) {
+      toast.error('Please enter a tip refund amount');
+      return;
+    }
+    setRefundAmount(amount);
+    setStep('confirm');
   };
 
   const formatPhoneNumber = (digits: string) => {
@@ -671,6 +724,112 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
     </div>
   );
 
+  // Tip Refund Screen
+  const renderTipRefund = () => {
+    const currentTipRefundAmount = parseFloat(tipRefundAmount) || 0;
+    
+    return (
+      <div className="flex flex-col h-full">
+        {renderHeader('Tip Refund')}
+        
+        <div className="flex-1 p-3 space-y-3">
+          {/* Tip Refund Amount Display */}
+          <div className="text-center py-4 border-b border-neutral-700">
+            <span className="text-white/60 text-xs block mb-1">Tip Refund Amount</span>
+            <span className="text-white text-4xl font-bold block">
+              ${tipRefundAmount || '0.00'}
+            </span>
+            <span className="text-white/50 text-xs block mt-1">
+              Original tip: {formatPrice(tipAmount)}
+            </span>
+          </div>
+
+          {/* Numeric Keypad */}
+          <div className="grid grid-cols-3 gap-2">
+            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'delete'].map(key => (
+              <button 
+                key={key}
+                onClick={() => handleTipKeyPress(key)}
+                className={`h-14 rounded-xl text-xl font-medium transition-colors ${
+                  key === 'delete' ? 'bg-red-900/50 text-white hover:bg-red-900/70' : 
+                  'bg-neutral-800 text-white hover:bg-neutral-700'
+                }`}
+              >
+                {key === 'delete' ? <Delete className="w-6 h-6 mx-auto" /> : key}
+              </button>
+            ))}
+          </div>
+
+          {/* Full Tip / Clear Buttons */}
+          <div className="flex gap-2">
+            <button
+              onClick={handleFullTip}
+              className="flex-1 h-10 rounded-full font-semibold text-white text-sm"
+              style={{ background: 'linear-gradient(180deg, #F59E0B 0%, #D97706 100%)' }}
+            >
+              Full Tip ({formatPrice(tipAmount)})
+            </button>
+            <button
+              onClick={handleClearTip}
+              className="flex-1 h-10 rounded-full font-semibold text-white text-sm bg-neutral-700 hover:bg-neutral-600"
+            >
+              Clear
+            </button>
+          </div>
+
+          {/* Reason Dropdown */}
+          <div className="relative">
+            <span className="text-white/60 text-xs block mb-2">Reason for Refund</span>
+            <button
+              onClick={() => setTipReasonDropdownOpen(!tipReasonDropdownOpen)}
+              className="w-full flex items-center justify-between p-3 rounded-xl border border-white/10"
+              style={glassStyle}
+            >
+              <span className="text-white text-sm">{selectedReason || 'Select reason'}</span>
+              <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${tipReasonDropdownOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {tipReasonDropdownOpen && (
+              <div 
+                className="absolute bottom-full left-0 right-0 mb-1 rounded-xl border border-white/10 overflow-hidden z-50"
+                style={{ background: '#2a2a2a' }}
+              >
+                {tipRefundReasons.map((reason) => (
+                  <button
+                    key={reason}
+                    onClick={() => {
+                      setSelectedReason(reason);
+                      setTipReasonDropdownOpen(false);
+                    }}
+                    className={`w-full text-left p-3 text-sm transition-colors ${
+                      selectedReason === reason 
+                        ? 'bg-amber-500/20 text-amber-400' 
+                        : 'text-white hover:bg-white/10'
+                    }`}
+                  >
+                    {reason}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Proceed Button */}
+        <div className="p-3">
+          <button
+            onClick={handleProceedTipRefund}
+            disabled={currentTipRefundAmount <= 0}
+            className="w-full h-12 rounded-full font-semibold text-white text-sm disabled:opacity-50"
+            style={{ background: 'linear-gradient(180deg, #F59E0B 0%, #D97706 100%)' }}
+          >
+            PROCEED REFUND ({formatPrice(currentTipRefundAmount)})
+          </button>
+        </div>
+      </div>
+    );
+  };
+
   // Confirm Refund Screen
   const renderConfirm = () => {
     const refundWithoutTip = includeTip ? orderTotal : refundAmount;
@@ -967,6 +1126,8 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
         return renderFullRefund();
       case 'partial-refund':
         return renderPartialRefund();
+      case 'tip-refund':
+        return renderTipRefund();
       case 'confirm':
         return renderConfirm();
       case 'success':

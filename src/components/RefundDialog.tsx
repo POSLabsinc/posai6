@@ -5,10 +5,16 @@ import { formatPrice } from '@/lib/orderUtils';
 import tickSuccessIcon from '@/assets/icons/tick-success.svg';
 import { toast } from 'sonner';
 
+interface ModifierForRefund {
+  name: string;
+  price: number;
+}
+
 interface OrderItemForRefund {
   name: string;
   price: number;
   qty: number;
+  modifiers?: ModifierForRefund[];
 }
 
 interface RefundDialogProps {
@@ -60,36 +66,82 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
   const [noMarketing, setNoMarketing] = useState(false);
   const [refundType, setRefundType] = useState<'full' | 'partial' | 'tip' | 'custom'>('full');
   const [selectedItems, setSelectedItems] = useState<Record<number, number>>({});
+  const [selectedModifiers, setSelectedModifiers] = useState<Record<string, boolean>>({});
+  const [expandedItems, setExpandedItems] = useState<Record<number, boolean>>({});
   const [reasonDropdownOpen, setReasonDropdownOpen] = useState(false);
 
   const totalWithTip = orderTotal + tipAmount;
   const maxRefund = totalWithTip;
 
-  // Default order items for demo
+  // Default order items for demo with modifiers
   const defaultOrderItems: OrderItemForRefund[] = [
-    { name: "New York Strip Steak", price: 28.00, qty: 1 },
-    { name: "Grilled Salmon", price: 24.00, qty: 1 },
-    { name: "Caesar Salad", price: 12.00, qty: 1 }
+    { 
+      name: "New York Strip Steak", 
+      price: 28.00, 
+      qty: 1,
+      modifiers: [
+        { name: "Medium Rare", price: 0 },
+        { name: "Garlic Butter", price: 2.50 },
+        { name: "Side Asparagus", price: 4.00 }
+      ]
+    },
+    { 
+      name: "Grilled Salmon", 
+      price: 24.00, 
+      qty: 1,
+      modifiers: [
+        { name: "Lemon Herb Sauce", price: 1.50 },
+        { name: "Extra Veggies", price: 3.00 }
+      ]
+    },
+    { 
+      name: "Caesar Salad", 
+      price: 12.00, 
+      qty: 1,
+      modifiers: [
+        { name: "Grilled Chicken", price: 5.00 },
+        { name: "Extra Parmesan", price: 1.00 }
+      ]
+    }
   ];
 
   const orderItemsToUse = orderItems && orderItems.length > 0 ? orderItems : defaultOrderItems;
 
-  // Calculate partial refund totals
+  // Calculate partial refund totals including modifiers
   const calculatePartialRefundTotal = () => {
     let itemsTotal = 0;
+    
+    // Add selected items (base price)
     Object.entries(selectedItems).forEach(([index, qty]) => {
       const item = orderItemsToUse[Number(index)];
       if (item && qty > 0) {
         itemsTotal += item.price * qty;
       }
     });
+    
+    // Add selected modifiers
+    Object.entries(selectedModifiers).forEach(([key, isSelected]) => {
+      if (isSelected) {
+        const [itemIndex, modIndex] = key.split('-').map(Number);
+        const item = orderItemsToUse[itemIndex];
+        const modifier = item?.modifiers?.[modIndex];
+        if (modifier && modifier.price > 0) {
+          itemsTotal += modifier.price;
+        }
+      }
+    });
+    
     return itemsTotal;
   };
 
   const partialItemsTotal = calculatePartialRefundTotal();
   const partialTipTotal = includeTip ? tipAmount : 0;
   const partialRefundTotal = partialItemsTotal + partialTipTotal;
-  const totalSelections = Object.values(selectedItems).filter(qty => qty > 0).length;
+  
+  // Count selections (items + modifiers with price)
+  const totalItemSelections = Object.values(selectedItems).filter(qty => qty > 0).length;
+  const totalModifierSelections = Object.values(selectedModifiers).filter(Boolean).length;
+  const totalSelections = totalItemSelections + totalModifierSelections;
 
   const toggleItemSelection = (index: number) => {
     const item = orderItemsToUse[index];
@@ -107,6 +159,21 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
     });
   };
 
+  const toggleModifierSelection = (itemIndex: number, modIndex: number) => {
+    const key = `${itemIndex}-${modIndex}`;
+    setSelectedModifiers(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const toggleItemExpanded = (index: number) => {
+    setExpandedItems(prev => ({
+      ...prev,
+      [index]: !prev[index]
+    }));
+  };
+
   const resetAndClose = () => {
     setStep('select-type');
     setSelectedReason('');
@@ -118,6 +185,8 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
     setNoMarketing(false);
     setRefundType('full');
     setSelectedItems({});
+    setSelectedModifiers({});
+    setExpandedItems({});
     setReasonDropdownOpen(false);
     onOpenChange(false);
   };
@@ -432,33 +501,83 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
         <span className="text-white/60 text-xs block">Select items to refund</span>
         
         {/* Items List */}
-        <div className="space-y-2 max-h-[200px] overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+        <div className="space-y-2 max-h-[220px] overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
           {orderItemsToUse.map((item, index) => {
             const isSelected = (selectedItems[index] || 0) > 0;
-            const selectedQty = selectedItems[index] || 0;
+            const isExpanded = expandedItems[index] || false;
+            const hasModifiers = item.modifiers && item.modifiers.length > 0;
+            const paidModifiers = item.modifiers?.filter(m => m.price > 0) || [];
             
             return (
-              <div 
-                key={index}
-                className="flex items-center gap-3 p-3 rounded-xl border border-white/10"
-                style={glassStyle}
-              >
-                <div 
-                  onClick={() => toggleItemSelection(index)}
-                  className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
-                    isSelected ? 'bg-amber-500 border-amber-500' : 'border-white/40'
-                  }`}
-                >
-                  {isSelected && <Check className="w-3 h-3 text-white" />}
+              <div key={index} className="rounded-xl border border-white/10 overflow-hidden" style={glassStyle}>
+                {/* Main Item Row */}
+                <div className="flex items-center gap-3 p-3">
+                  <div 
+                    onClick={() => toggleItemSelection(index)}
+                    className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${
+                      isSelected ? 'bg-amber-500 border-amber-500' : 'border-white/40'
+                    }`}
+                  >
+                    {isSelected && <Check className="w-3 h-3 text-white" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <span className="text-white text-sm block truncate">{item.name}</span>
+                    <span className="text-white/50 text-xs">${item.price.toFixed(2)} each • Remaining: {item.qty} of {item.qty}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-white text-sm">${(item.price * item.qty).toFixed(2)}</span>
+                    {hasModifiers && (
+                      <button 
+                        onClick={() => toggleItemExpanded(index)}
+                        className="p-1 hover:bg-white/10 rounded transition-colors"
+                      >
+                        <ChevronDown className={`w-4 h-4 text-white/40 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <span className="text-white text-sm block truncate">{item.name}</span>
-                  <span className="text-white/50 text-xs">${item.price.toFixed(2)} each • Remaining: {item.qty} of {item.qty}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-white text-sm">${(item.price * item.qty).toFixed(2)}</span>
-                  <ChevronDown className="w-4 h-4 text-white/40" />
-                </div>
+                
+                {/* Expanded Modifiers Section */}
+                {isExpanded && hasModifiers && (
+                  <div className="border-t border-white/10 bg-black/20 px-3 py-2 space-y-1.5">
+                    <span className="text-white/50 text-xs block mb-2">Add-ons & Modifiers</span>
+                    {item.modifiers?.map((modifier, modIndex) => {
+                      const modKey = `${index}-${modIndex}`;
+                      const isModSelected = selectedModifiers[modKey] || false;
+                      const hasCost = modifier.price > 0;
+                      
+                      return (
+                        <div 
+                          key={modIndex}
+                          className={`flex items-center gap-2 p-2 rounded-lg ${hasCost ? 'cursor-pointer hover:bg-white/5' : ''}`}
+                          onClick={() => hasCost && toggleModifierSelection(index, modIndex)}
+                        >
+                          {hasCost ? (
+                            <div 
+                              className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${
+                                isModSelected ? 'bg-amber-500 border-amber-500' : 'border-white/40'
+                              }`}
+                            >
+                              {isModSelected && <Check className="w-2.5 h-2.5 text-white" />}
+                            </div>
+                          ) : (
+                            <div className="w-4 h-4 flex items-center justify-center">
+                              <div className="w-1.5 h-1.5 rounded-full bg-white/30" />
+                            </div>
+                          )}
+                          <span className={`flex-1 text-xs ${hasCost ? 'text-white' : 'text-white/50'}`}>
+                            {modifier.name}
+                          </span>
+                          {hasCost && (
+                            <span className={`text-xs ${isModSelected ? 'text-amber-400' : 'text-white/60'}`}>
+                              +${modifier.price.toFixed(2)}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
             );
           })}

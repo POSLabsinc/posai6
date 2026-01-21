@@ -273,22 +273,16 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
   const isFormValid = formData.guestName && formData.phoneNumber && formData.address?.address1;
 
   return (
-    <div 
-      className="flex flex-col h-full rounded-lg overflow-hidden"
-      style={{ 
-        background: '#7575754D',
-        boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)',
-      }}
-    >
+    <div className="flex flex-col h-full rounded-lg overflow-hidden bg-neutral-900">
       {/* Fixed Header */}
-      <div className="flex items-center justify-between p-4 border-b border-white/10">
+      <div className="flex items-center justify-between p-4 border-b border-neutral-700">
         <h2 className="text-lg font-semibold text-white">Delivery Guest Information</h2>
         {onClose && (
           <button 
             onClick={onClose}
-            className="p-1 hover:bg-white/10 rounded-full transition-colors"
+            className="p-1 hover:bg-neutral-800 rounded-full transition-colors"
           >
-            <X className="w-5 h-5 text-white/70" />
+            <X className="w-5 h-5 text-neutral-400" />
           </button>
         )}
       </div>
@@ -300,7 +294,7 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
       >
         {/* Search Field */}
         <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
           <Input
             placeholder="Search by Guest Name or Phone Number"
             value={searchQuery}
@@ -309,7 +303,7 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
               setShowSearchResults(true);
             }}
             onFocus={() => setShowSearchResults(true)}
-            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="pl-10 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
           {showSearchResults && searchResults.length > 0 && (
             <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-700 rounded-md shadow-lg z-10 max-h-40 overflow-y-auto">
@@ -329,48 +323,48 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
 
         {/* Guest Name */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Guest Name *</label>
+          <label className="text-sm text-neutral-400 mb-1 block">Guest Name *</label>
           <Input
             placeholder="Enter guest name"
             value={formData.guestName}
             onChange={(e) => handleInputChange("guestName", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
         </div>
 
         {/* Phone Number */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Phone Number *</label>
+          <label className="text-sm text-neutral-400 mb-1 block">Phone Number *</label>
           <div className="flex gap-2">
-            <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-white/10 border border-white/20">
+            <div className="flex items-center gap-1 px-3 py-2 rounded-md bg-neutral-800 border border-neutral-700">
               <span className="text-lg">🇺🇸</span>
-              <span className="text-white/70 text-sm">+1</span>
+              <span className="text-neutral-400 text-sm">+1</span>
             </div>
             <Input
               placeholder="(XXX) XXX-XXXX"
               value={formData.phoneNumber}
               onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-              className="flex-1 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="flex-1 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
             />
           </div>
         </div>
 
         {/* Email */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Email</label>
+          <label className="text-sm text-neutral-400 mb-1 block">Email</label>
           <Input
             type="email"
             placeholder="guest@email.com"
             value={formData.email}
             onChange={(e) => handleInputChange("email", e.target.value)}
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
         </div>
 
         {/* Address Search Field */}
         <div className="relative">
-          <label className="text-sm text-white/70 mb-1 block">Search Address</label>
-          <Search className="absolute left-3 top-[calc(50%+10px)] -translate-y-1/2 w-4 h-4 text-white/40" />
+          <label className="text-sm text-neutral-400 mb-1 block">Search Address</label>
+          <Search className="absolute left-3 top-[calc(50%+10px)] -translate-y-1/2 w-4 h-4 text-neutral-500" />
           <Input
             placeholder="Search for an address..."
             value={addressSearchQuery}
@@ -379,7 +373,7 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
               setShowAddressSuggestions(true);
             }}
             onFocus={() => setShowAddressSuggestions(true)}
-            className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40"
+            className="pl-10 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
           />
           
           {showAddressSuggestions && addressSuggestions.length > 0 && (
@@ -398,16 +392,16 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
         </div>
 
         {/* Address Fields */}
-        <div className="space-y-3 p-3 rounded-lg bg-white/5 border border-white/10">
+        <div className="space-y-3 p-3 rounded-lg bg-neutral-800 border border-neutral-700">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <Home className="w-4 h-4 text-white/60" />
-              <span className="text-sm font-medium text-white/90">Delivery Address</span>
+              <Home className="w-4 h-4 text-neutral-400" />
+              <span className="text-sm font-medium text-white">Delivery Address</span>
             </div>
             <button
               onClick={handleGetCurrentLocation}
               disabled={isLocating}
-              className="flex items-center gap-1 px-2 py-1 text-xs text-white/70 hover:text-white bg-white/10 hover:bg-white/20 rounded transition-colors"
+              className="flex items-center gap-1 px-2 py-1 text-xs text-neutral-400 hover:text-white bg-neutral-700 hover:bg-neutral-600 rounded transition-colors"
             >
               {isLocating ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
@@ -419,81 +413,81 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
           </div>
           
           <div>
-            <label className="text-xs text-white/60 mb-1 block">Street Address *</label>
+            <label className="text-xs text-neutral-500 mb-1 block">Street Address *</label>
             <Input
               placeholder="123 Main Street"
               value={formData.address?.address1 || ""}
               onChange={(e) => handleAddressFieldChange('address1', e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="bg-neutral-900 border-neutral-600 text-white placeholder:text-neutral-500"
             />
           </div>
           
           <div>
-            <label className="text-xs text-white/60 mb-1 block">Apt, Suite, Unit (Optional)</label>
+            <label className="text-xs text-neutral-500 mb-1 block">Apt, Suite, Unit (Optional)</label>
             <Input
               placeholder="Apt 4B"
               value={formData.address?.address2 || ""}
               onChange={(e) => handleAddressFieldChange('address2', e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="bg-neutral-900 border-neutral-600 text-white placeholder:text-neutral-500"
             />
           </div>
           
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="text-xs text-white/60 mb-1 block">City *</label>
+              <label className="text-xs text-neutral-500 mb-1 block">City *</label>
               <Input
                 placeholder="New York"
                 value={formData.address?.city || ""}
                 onChange={(e) => handleAddressFieldChange('city', e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                className="bg-neutral-900 border-neutral-600 text-white placeholder:text-neutral-500"
               />
             </div>
             <div>
-              <label className="text-xs text-white/60 mb-1 block">State *</label>
+              <label className="text-xs text-neutral-500 mb-1 block">State *</label>
               <Input
                 placeholder="NY"
                 value={formData.address?.state || ""}
                 onChange={(e) => handleAddressFieldChange('state', e.target.value)}
-                className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+                className="bg-neutral-900 border-neutral-600 text-white placeholder:text-neutral-500"
               />
             </div>
           </div>
           
           <div className="w-1/2">
-            <label className="text-xs text-white/60 mb-1 block">ZIP Code *</label>
+            <label className="text-xs text-neutral-500 mb-1 block">ZIP Code *</label>
             <Input
               placeholder="10001"
               value={formData.address?.zip || ""}
               onChange={(e) => handleAddressFieldChange('zip', e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+              className="bg-neutral-900 border-neutral-600 text-white placeholder:text-neutral-500"
             />
           </div>
         </div>
 
         {/* Notes */}
         <div>
-          <label className="text-sm text-white/70 mb-1 block">Delivery Notes</label>
+          <label className="text-sm text-neutral-400 mb-1 block">Delivery Notes</label>
           <textarea
             placeholder="Add any special delivery instructions..."
             value={formData.notes}
             onChange={(e) => handleInputChange("notes", e.target.value)}
-            className="w-full bg-white/10 border border-white/20 rounded-md text-sm p-3 text-white placeholder:text-white/40 resize-none min-h-[80px] outline-none focus:border-primary"
+            className="w-full bg-neutral-800 border border-neutral-700 rounded-md text-sm p-3 text-white placeholder:text-neutral-500 resize-none min-h-[80px] outline-none focus:border-primary"
           />
-          <div className="text-xs text-white/40 text-right mt-1">
+          <div className="text-xs text-neutral-500 text-right mt-1">
             {countWords(formData.notes)}/70 Words
           </div>
         </div>
       </div>
 
       {/* Fixed Footer */}
-      <div className="p-4 border-t border-white/10">
+      <div className="p-4 border-t border-neutral-700">
         <button
           onClick={handleSave}
           disabled={!isFormValid}
           className={`w-full py-3 rounded-lg font-medium transition-colors ${
             isFormValid
               ? "bg-primary text-primary-foreground hover:bg-primary/90"
-              : "bg-white/10 text-white/40 cursor-not-allowed"
+              : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
           }`}
         >
           Save Delivery Info

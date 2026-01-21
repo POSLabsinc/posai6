@@ -7626,7 +7626,7 @@ const Orders = () => {
                 <img src={burgerCloseIcon} alt="Close menu" className="w-4 md:w-5 lg:w-6 h-4 md:h-5 lg:h-6" />
               </Button>
               <Button variant="ghost" size="icon" className="h-5 md:h-6 lg:h-7 w-5 md:w-6 lg:w-7 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setHorizontalScrollMode(!horizontalScrollMode)} title={horizontalScrollMode ? "Show all subcategories" : "Enable horizontal scroll"}>
-                {horizontalScrollMode ? <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
+                {horizontalScrollMode ? <img src={horizontalScrollIcon} alt="Horizontal scroll" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={verticalScrollIcon} alt="All view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}
               </Button>
               <Button variant="ghost" size="icon" className="h-5 md:h-6 lg:h-7 w-5 md:w-6 lg:w-7 p-0 bg-white hover:bg-white border border-white rounded-full" onClick={() => setThumbnailViewMode(!thumbnailViewMode)} title={thumbnailViewMode ? "Show list view" : "Show thumbnail view"}>
                 {thumbnailViewMode ? <img src={listViewIcon} alt="List view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" /> : <img src={thumbnailViewIcon} alt="Thumbnail view" className="w-3 md:w-4 lg:w-5 h-3 md:h-4 lg:h-5" />}

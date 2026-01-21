@@ -2,27 +2,13 @@ import { useState, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import ReceiptDialog from "@/components/ReceiptDialog";
-import TipDialog from "@/components/TipDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 
 // Import shared order data
-import { 
-  Order, 
-  OrderItem,
-  PaymentMethod,
-  allOrders, 
-  getOrdersByTable, 
-  getOrderWithTotals,
-  formatPrice,
-  getStatusColor as getSharedStatusColor,
-  getMergedOrderDisplay,
-  calculateCombinedTotals,
-  hasMergedOrTransferredItems,
-  MergedOrderSource
-} from "@/data/orders";
+import { Order, OrderItem, PaymentMethod, allOrders, getOrdersByTable, getOrderWithTotals, formatPrice, getStatusColor as getSharedStatusColor, getMergedOrderDisplay, calculateCombinedTotals, hasMergedOrTransferredItems, MergedOrderSource } from "@/data/orders";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 // Import icons
@@ -62,61 +48,59 @@ interface GuestOrder extends Order {
 }
 
 // Helper component for multi-payment display
-const MultiPaymentDisplay = ({ paymentMethods, paymentType }: { paymentMethods?: PaymentMethod[], paymentType: string }) => {
+const MultiPaymentDisplay = ({
+  paymentMethods,
+  paymentType
+}: {
+  paymentMethods?: PaymentMethod[];
+  paymentType: string;
+}) => {
   if (!paymentMethods || paymentMethods.length <= 1) {
     return <span className="text-white/60 truncate">{paymentType && paymentType !== '--' ? paymentType : 'Paid'}</span>;
   }
-
   const primaryMethod = paymentMethods[0];
   const additionalCount = paymentMethods.length - 1;
-
   const getCardIcon = (type: string) => {
     switch (type) {
-      case 'Visa': return <span className="w-5 h-3 rounded-sm bg-white flex items-center justify-center"><span className="text-[8px] font-bold text-blue-600">VISA</span></span>;
-      case 'Amex': return <span className="w-5 h-3 rounded-sm bg-blue-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">AMEX</span></span>;
-      case 'Mastercard': return <span className="w-5 h-3 rounded-sm bg-gradient-to-r from-red-500 to-yellow-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">MC</span></span>;
-      case 'Discover': return <span className="w-5 h-3 rounded-sm bg-orange-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">DISC</span></span>;
-      case 'Cash': return <span className="w-5 h-3 rounded-sm bg-green-600 flex items-center justify-center"><span className="text-[6px] font-bold text-white">$</span></span>;
-      case 'Gift Card': return <span className="w-5 h-3 rounded-sm bg-purple-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">GC</span></span>;
-      default: return <span className="w-5 h-3 rounded-sm bg-gray-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">CC</span></span>;
+      case 'Visa':
+        return <span className="w-5 h-3 rounded-sm bg-white flex items-center justify-center"><span className="text-[8px] font-bold text-blue-600">VISA</span></span>;
+      case 'Amex':
+        return <span className="w-5 h-3 rounded-sm bg-blue-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">AMEX</span></span>;
+      case 'Mastercard':
+        return <span className="w-5 h-3 rounded-sm bg-gradient-to-r from-red-500 to-yellow-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">MC</span></span>;
+      case 'Discover':
+        return <span className="w-5 h-3 rounded-sm bg-orange-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">DISC</span></span>;
+      case 'Cash':
+        return <span className="w-5 h-3 rounded-sm bg-green-600 flex items-center justify-center"><span className="text-[6px] font-bold text-white">$</span></span>;
+      case 'Gift Card':
+        return <span className="w-5 h-3 rounded-sm bg-purple-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">GC</span></span>;
+      default:
+        return <span className="w-5 h-3 rounded-sm bg-gray-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">CC</span></span>;
     }
   };
-
-  return (
-    <Popover>
+  return <Popover>
       <PopoverTrigger asChild>
-        <button 
-          className="flex items-center gap-1 text-white/60 hover:text-white transition-colors cursor-pointer"
-          onClick={(e) => e.stopPropagation()}
-        >
+        <button className="flex items-center gap-1 text-white/60 hover:text-white transition-colors cursor-pointer">
           <span>{getCardIcon(primaryMethod.type)}</span>
           <span>{primaryMethod.type}</span>
           {primaryMethod.lastFour && <span>•••• {primaryMethod.lastFour}</span>}
           <span className="text-[#8AC4FF]">+{additionalCount} more</span>
         </button>
       </PopoverTrigger>
-      <PopoverContent 
-        className="w-56 p-3 bg-neutral-800 border border-neutral-700 shadow-xl z-[9999]" 
-        side="bottom" 
-        align="start"
-        sideOffset={8}
-      >
+      <PopoverContent className="w-56 p-3 bg-neutral-800 border-neutral-700 z-[9999]" side="bottom" align="start">
         <div className="space-y-1">
           <h4 className="text-white/80 text-xs font-medium mb-2">Payment Methods</h4>
-          {paymentMethods.map((method, index) => (
-            <div key={index} className="flex items-center justify-between text-sm">
+          {paymentMethods.map((method, index) => <div key={index} className="flex items-center justify-between text-sm">
               <div className="flex items-center gap-2">
                 <span>{getCardIcon(method.type)}</span>
                 <span className="text-white">{method.type}</span>
                 {method.lastFour && <span className="text-white/60">•••• {method.lastFour}</span>}
               </div>
               <span className="text-white font-medium">{formatPrice(method.amount)}</span>
-            </div>
-          ))}
+            </div>)}
         </div>
       </PopoverContent>
-    </Popover>
-  );
+    </Popover>;
 };
 
 // Helper function to get order items for display (backwards compatibility)
@@ -129,7 +113,6 @@ const getOrderItems = (order: GuestOrder) => order.items.map(item => ({
 const filterItemsBySeats = (items: OrderItem[], selectedSeats: number[], allSeatsSelected: boolean) => {
   // If all seats are selected (or no specific filtering), show all items
   if (allSeatsSelected) return items;
-  
   return items.filter(item => {
     // Items with no seat assignment are shared items - show them when any seat is selected
     if (item.seats.length === 0) return true;
@@ -141,52 +124,44 @@ const filterItemsBySeats = (items: OrderItem[], selectedSeats: number[], allSeat
 // Dynamic function to build merged order data from actual orders
 const getMergedPanelData = (destOrderId: string | null, mergedOrderId: string | null, mergedFromTable: string | null) => {
   if (!destOrderId || !mergedOrderId) return null;
-  
   const destOrder = allOrders.find(o => o.id === destOrderId);
   const mergedOrder = allOrders.find(o => o.id === mergedOrderId);
-  
   if (!destOrder || !mergedOrder) return null;
-  
   return {
     guestName: destOrder.name,
     phone: destOrder.phone,
     time: destOrder.time,
     server: destOrder.server,
-    orders: [
-      {
-        id: destOrder.id,
-        table: destOrder.table,
-        partySize: destOrder.partySize,
-        time: destOrder.time,
-        notes: destOrder.notes || "",
-        items: destOrder.items.map(item => ({
-          qty: item.qty,
-          name: item.name,
-          price: `$${(item.price * item.qty).toFixed(2)}`,
-          seats: item.seats,
-          modifiers: item.modifiers
-        }))
-      },
-      {
-        id: mergedOrder.id,
-        table: mergedFromTable || mergedOrder.table,
-        partySize: mergedOrder.partySize,
-        time: mergedOrder.time,
-        notes: mergedOrder.notes || "",
-        items: mergedOrder.items.map(item => ({
-          qty: item.qty,
-          name: item.name,
-          price: `$${(item.price * item.qty).toFixed(2)}`,
-          seats: item.seats,
-          modifiers: item.modifiers
-        }))
-      }
-    ]
+    orders: [{
+      id: destOrder.id,
+      table: destOrder.table,
+      partySize: destOrder.partySize,
+      time: destOrder.time,
+      notes: destOrder.notes || "",
+      items: destOrder.items.map(item => ({
+        qty: item.qty,
+        name: item.name,
+        price: `$${(item.price * item.qty).toFixed(2)}`,
+        seats: item.seats,
+        modifiers: item.modifiers
+      }))
+    }, {
+      id: mergedOrder.id,
+      table: mergedFromTable || mergedOrder.table,
+      partySize: mergedOrder.partySize,
+      time: mergedOrder.time,
+      notes: mergedOrder.notes || "",
+      items: mergedOrder.items.map(item => ({
+        qty: item.qty,
+        name: item.name,
+        price: `$${(item.price * item.qty).toFixed(2)}`,
+        seats: item.seats,
+        modifiers: item.modifiers
+      }))
+    }]
   };
 };
-
 const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
-
 const TableOrderDetails = () => {
   const navigate = useNavigate();
   const {
@@ -196,24 +171,24 @@ const TableOrderDetails = () => {
   const mergedOrderId = searchParams.get("merged");
   const mergedFromTable = searchParams.get("from");
   const destOrderId = searchParams.get("dest");
-  
+
   // Transfer params (destination - receiving items)
   const transferredOrderId = searchParams.get("transferred");
   const transferredFromTable = searchParams.get("transferFrom");
   const transferDestOrderId = searchParams.get("transferDest");
   const transferredItemsParam = searchParams.get("items"); // comma-separated item names
-  
+
   // Transfer source params (source - sending items out)
   const transferSourceOrderId = searchParams.get("transferSource");
   const transferType = searchParams.get("transferType"); // 'partial' or 'full'
   const transferredToOrderId = searchParams.get("transferredTo");
   const transferToTable = searchParams.get("transferToTable");
   const transferredItemsFromSource = searchParams.get("items");
-  
+
   // Parse transferred items from URL
   const transferredItemNames = transferredItemsParam ? transferredItemsParam.split(',') : [];
   const transferredOutItemNames = transferredItemsFromSource ? transferredItemsFromSource.split(',') : [];
-  
+
   // Get the revenueCenter (area) of an order by ID
   const getOrderArea = (orderId: string | null): string => {
     if (!orderId) return "";
@@ -224,11 +199,11 @@ const TableOrderDetails = () => {
   const destOrderArea = getOrderArea(destOrderId);
   const transferSourceArea = getOrderArea(transferredOrderId);
   const transferDestArea = getOrderArea(transferredToOrderId);
-  
+
   // Get orders for this table with calculated totals
   const guestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
     const orderWithTotals = getOrderWithTotals(order) as GuestOrder;
-    
+
     // If this order is the destination of a merge, add merged order data
     if (destOrderId === order.id && mergedOrderId) {
       const mergedSource = allOrders.find(o => o.id === mergedOrderId);
@@ -248,15 +223,13 @@ const TableOrderDetails = () => {
         orderWithTotals.total = combinedTotals.total;
       }
     }
-    
+
     // If this order is the destination of a transfer, add transferred order data
     if (transferDestOrderId === order.id && transferredOrderId && transferredItemNames.length > 0) {
       const transferSource = allOrders.find(o => o.id === transferredOrderId);
       if (transferSource) {
         // Get the transferred items from the source order
-        const transferredItems = transferSource.items.filter(item => 
-          transferredItemNames.includes(item.name)
-        );
+        const transferredItems = transferSource.items.filter(item => transferredItemNames.includes(item.name));
         orderWithTotals.transferredFrom = [{
           orderId: transferSource.id,
           orderName: transferSource.name,
@@ -272,10 +245,8 @@ const TableOrderDetails = () => {
         orderWithTotals.total = combinedTotals.total;
       }
     }
-    
     return orderWithTotals;
   });
-  
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState<GuestOrder | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
@@ -287,8 +258,7 @@ const TableOrderDetails = () => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
   const [receiptGuest, setReceiptGuest] = useState<GuestOrder | null>(null);
-  const [showTipDialog, setShowTipDialog] = useState(false);
-  
+
   // Set initial selected guest when guestOrders changes
   const currentSelectedGuest = selectedGuest || guestOrders[0];
 
@@ -456,8 +426,7 @@ const TableOrderDetails = () => {
   // Mobile Order Panel Component
   const MobileOrderPanel = () => {
     if (!currentSelectedGuest) return null;
-    return (
-      <div className="fixed inset-0 z-50 bg-black flex flex-col">
+    return <div className="fixed inset-0 z-50 bg-black flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between p-3 border-b border-neutral-700/50">
           <div className="flex items-center gap-2">
@@ -520,10 +489,9 @@ const TableOrderDetails = () => {
         <ScrollArea className="flex-1 px-3">
           <div className="py-2 space-y-2">
             {(() => {
-              const allSeatsSelected = selectedSeats.length === 4;
-              const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
-              return filteredItems.map((item, index) => (
-                <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+            const allSeatsSelected = selectedSeats.length === 4;
+            const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
+            return filteredItems.map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2">
                       <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
@@ -544,9 +512,8 @@ const TableOrderDetails = () => {
                           {seat}
                         </span>)}
                     </div>}
-                </div>
-              ));
-            })()}
+                </div>);
+          })()}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
@@ -568,8 +535,7 @@ const TableOrderDetails = () => {
             CHARGE {formatPrice(currentSelectedGuest.total)}
           </button>
         </div>
-      </div>
-    );
+      </div>;
   };
 
   // Mobile Layout
@@ -625,7 +591,11 @@ const TableOrderDetails = () => {
               {/* Merged Order Indicator - Destination */}
               {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
                   <span className="text-xs font-medium">
-                    <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">T{mergedFromTable}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                    <span style={{
+                color: '#FFC48A'
+              }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{
+                color: '#FFC48A'
+              }}>from</span> <span className="text-white">T{mergedFromTable}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
                   </span>
                 </div>}
               {/* Merged Order Indicator - Source (disabled look) */}
@@ -635,37 +605,25 @@ const TableOrderDetails = () => {
                   </span>
                 </div>}
               
-              <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
+              <div className={`relative ${destOrderId === guest.id && mergedFromTable || guest.id === mergedOrderId && destOrderId ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
               {/* Swipe Action Buttons (revealed on swipe left) - hidden for Paid/Completed orders */}
-              {guest.status !== 'Paid' && guest.status !== 'Completed' && (
-              <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 z-10 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+              {guest.status !== 'Paid' && guest.status !== 'Completed' && <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 z-10 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
                 {/* Merge button - orange */}
-                <button 
-                  onMouseDown={e => e.stopPropagation()}
-                  onTouchStart={e => e.stopPropagation()}
-                  onClick={e => {
-                    e.stopPropagation();
-                    navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
-                  }} 
-                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-gradient-to-b from-orange-400 to-orange-600 hover:from-orange-300 hover:to-orange-500"
-                >
+                <button onMouseDown={e => e.stopPropagation()} onTouchStart={e => e.stopPropagation()} onClick={e => {
+                e.stopPropagation();
+                navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+              }} className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-gradient-to-b from-orange-400 to-orange-600 hover:from-orange-300 hover:to-orange-500">
                   <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
                 </button>
                 
                 {/* Transfer button - gray */}
-                <button 
-                  onMouseDown={e => e.stopPropagation()}
-                  onTouchStart={e => e.stopPropagation()}
-                  onClick={e => {
-                    e.stopPropagation();
-                    navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
-                  }} 
-                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-muted-foreground/60 hover:bg-muted-foreground/80"
-                >
+                <button onMouseDown={e => e.stopPropagation()} onTouchStart={e => e.stopPropagation()} onClick={e => {
+                e.stopPropagation();
+                navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+              }} className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-muted-foreground/60 hover:bg-muted-foreground/80">
                   <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
                 </button>
-              </div>
-              )}
+              </div>}
 
               {/* Swipeable card content - everything inside moves together */}
               <div className="relative transition-transform duration-200 ease-out md:transform-none bg-black rounded-xl select-none" style={{
@@ -696,14 +654,18 @@ const TableOrderDetails = () => {
                          <div className="flex items-center justify-between">
                            <span className="text-white font-medium text-sm">{guest.name} - {tableId} · {guest.revenueCenter}</span>
                            <div className="flex items-center gap-2">
-                             <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.server}</span>
+                             <span className="text-sm" style={{
+                          color: '#B5B6BB'
+                        }}>{guest.server}</span>
                              <span className={`text-sm font-medium ${getStatusColor(guest.status)}`}>{guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}</span>
                            </div>
                          </div>
                         
                          {/* Row 2: Party info, Timer, Total */}
                          <div className="flex items-center justify-between">
-                           <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                           <div className="flex items-center gap-1 text-xs" style={{
+                        color: '#B5B6BB'
+                      }}>
                              <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
                              <span>Party of {guest.partySize}, {guest.time}</span>
                              <span className="text-gray-500">|</span>
@@ -714,7 +676,9 @@ const TableOrderDetails = () => {
                         
                          {/* Row 3: Payment status */}
                          <div className="flex items-center justify-between">
-                           <span className="text-sm" style={{ color: guest.paymentType === '--' ? '#B5B6BB' : '#4ade80' }}>
+                           <span className="text-sm" style={{
+                        color: guest.paymentType === '--' ? '#B5B6BB' : '#4ade80'
+                      }}>
                              {guest.paymentType === '--' ? 'Un Paid' : 'Paid'}
                            </span>
                            <span className="text-white text-sm">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
@@ -739,7 +703,7 @@ const TableOrderDetails = () => {
                             <span>Party Of {guest.partySize},</span>
                            <span>⚡ {guest.time}</span>
                          </div>
-                         <span className={guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}>{guest.id === mergedOrderId && destOrderId ? 'MERGED' : (guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status)}</span>
+                         <span className={guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}>{guest.id === mergedOrderId && destOrderId ? 'MERGED' : guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}</span>
                        </div>
                      </div>
                    </div>
@@ -748,9 +712,9 @@ const TableOrderDetails = () => {
                    <div className="hidden md:flex flex-shrink-0">
                      <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
                        <button className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors" onClick={e => {
-                       e.stopPropagation();
-                       navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
-                     }}>
+                      e.stopPropagation();
+                      navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                    }}>
                          <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
                        </button>
                      </div>
@@ -791,8 +755,7 @@ const TableOrderDetails = () => {
                     </div>
 
                     {/* Action Buttons - hidden for Paid/Completed/Merged orders */}
-                    {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId ? (
-                    <div className="flex gap-2 mt-2">
+                    {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId ? <div className="flex gap-2 mt-2">
                       <button className="flex-1 py-1.5 flex items-center justify-center gap-2 text-white text-sm font-semibold rounded-full hover:opacity-90 transition-opacity" style={{
                     background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
                   }} onClick={e => {
@@ -813,10 +776,7 @@ const TableOrderDetails = () => {
                     }} />
                         TRANSFER
                       </button>
-                    </div>
-                    ) : guest.id === mergedOrderId ? (
-                    null
-                    ) : null}
+                    </div> : guest.id === mergedOrderId ? null : null}
                   </div>}
               </div>
             </div>
@@ -827,11 +787,9 @@ const TableOrderDetails = () => {
 
       {/* Add Order Button */}
       <div className="px-3 py-2">
-        <button 
-          onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
-          className="w-full py-2 text-black text-sm font-medium rounded-full hover:opacity-90 transition-opacity" 
-          style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-        >
+        <button onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)} className="w-full py-2 text-black text-sm font-medium rounded-full hover:opacity-90 transition-opacity" style={{
+        background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+      }}>
           ADD ORDER TO TABLE
         </button>
       </div>
@@ -896,7 +854,11 @@ const TableOrderDetails = () => {
                 {/* Merged Order Indicator - Destination */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">Table T{mergedFromTable}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                      <span style={{
+                  color: '#FFC48A'
+                }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{
+                  color: '#FFC48A'
+                }}>from</span> <span className="text-white">Table T{mergedFromTable}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
                     </span>
                   </div>}
                 {/* Merged Order Indicator - Source (disabled look) */}
@@ -908,26 +870,36 @@ const TableOrderDetails = () => {
                 {/* Transferred Items Indicator (Destination - receiving items) */}
                 {transferDestOrderId === guest.id && transferredFromTable && transferredOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · Table {transferredFromTable}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                      <span style={{
+                  color: '#8AC4FF'
+                }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{
+                  color: '#8AC4FF'
+                }}>from</span> <span className="text-white">Order {transferredOrderId} · Table {transferredFromTable}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
                     </span>
                   </div>}
                 {/* Transferred OUT Indicator (Source - sending items out) */}
                 {transferSourceOrderId === guest.id && transferType && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
+                      <span style={{
+                  color: '#8AC4FF'
+                }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
                       <span className="text-white"> to Order {transferredToOrderId}</span>
-                      <span style={{ color: '#8AC4FF' }}> · Table </span>
+                      <span style={{
+                  color: '#8AC4FF'
+                }}> · Table </span>
                       <span className="text-white">{transferToTable}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable || transferDestOrderId === guest.id && transferredFromTable || transferSourceOrderId === guest.id && transferType || guest.id === mergedOrderId && destOrderId ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="hidden md:flex items-stretch">
                   {/* Left Content with padding */}
                   <div className="flex-1 flex items-stretch gap-3 p-3">
                     {/* Order Number Box */}
-                    <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
+                    <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{
+                    background: '#1A1A1A'
+                  }}>
                       <span className="text-lg font-bold text-white">{guest.id}</span>
                       <span className="text-xs text-white/40">000</span>
                     </div>
@@ -942,10 +914,8 @@ const TableOrderDetails = () => {
                         <div className="flex-1">
                           <span className="text-white/60 truncate">{guest.server}</span>
                         </div>
-                        <span 
-                          className={`font-semibold uppercase flex-shrink-0 ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}
-                        >
-                          {guest.id === mergedOrderId && destOrderId ? 'MERGED' : (guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status)}
+                        <span className={`font-semibold uppercase flex-shrink-0 ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}>
+                          {guest.id === mergedOrderId && destOrderId ? 'MERGED' : guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}
                         </span>
                       </div>
                       
@@ -965,9 +935,7 @@ const TableOrderDetails = () => {
                       <div className="flex items-center text-xs lg:text-sm">
                         <div className="w-[180px] lg:w-[220px] flex-shrink-0"></div>
                         <div className="flex-1">
-                          {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' 
-                            ? <MultiPaymentDisplay paymentMethods={guest.paymentMethods} paymentType={guest.paymentType} />
-                            : <span className="text-white/60 truncate">Pending Payment</span>}
+                          {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' ? <MultiPaymentDisplay paymentMethods={guest.paymentMethods} paymentType={guest.paymentType} /> : <span className="text-white/60 truncate">Pending Payment</span>}
                         </div>
                         <span className="text-white flex-shrink-0">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
                       </div>
@@ -975,54 +943,40 @@ const TableOrderDetails = () => {
                   </div>
 
                   {/* Right Action Buttons - Edge to edge */}
-                  {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' ? (
-                    /* Receipt and Register buttons for paid orders */
-                    <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600 rounded-tr-xl"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setReceiptGuest(guest);
-                          setShowReceiptDialog(true);
-                        }}
-                      >
+                  {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' ? (/* Receipt and Register buttons for paid orders */
+                <div className="flex-shrink-0 flex flex-col w-10">
+                      <button className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600" onClick={e => {
+                    e.stopPropagation();
+                    setReceiptGuest(guest);
+                    setShowReceiptDialog(true);
+                  }}>
                         <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
                       </button>
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Handle register action
-                        }}
-                      >
+                      <button className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500" onClick={e => {
+                    e.stopPropagation();
+                    // Handle register action
+                  }}>
                         <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
                       </button>
-                    </div>
-                  ) : guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full') ? (
-                    /* Merge and Transfer buttons for unpaid orders */
-                    <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-tr-xl"
-                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
-                        }}
-                      >
+                    </div>) : guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full') ? (/* Merge and Transfer buttons for unpaid orders */
+                <div className="flex-shrink-0 flex flex-col w-10">
+                      <button className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity" style={{
+                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                  }} onClick={e => {
+                    e.stopPropagation();
+                    navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                  }}>
                         <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
                       </button>
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-br-xl"
-                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
-                        }}
-                      >
+                      <button className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity" style={{
+                    background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                  }} onClick={e => {
+                    e.stopPropagation();
+                    navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                  }}>
                         <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
                       </button>
-                    </div>
-                  ) : null}
+                    </div>) : null}
                 </div>
 
                 {/* Mobile Layout - Keep existing */}
@@ -1065,11 +1019,9 @@ const TableOrderDetails = () => {
 
         {/* Add Order Button */}
         <div className="p-3 border-t border-neutral-700/50">
-          <button 
-            onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
-            className="w-full py-2 text-sm text-black font-medium rounded-full hover:opacity-90 transition-opacity" 
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
+          <button onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)} className="w-full py-2 text-sm text-black font-medium rounded-full hover:opacity-90 transition-opacity" style={{
+          background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+        }}>
             ADD ORDER TO TABLE
           </button>
         </div>
@@ -1077,22 +1029,10 @@ const TableOrderDetails = () => {
 
       {/* Right Panel - Order Details */}
       {(() => {
-        const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
-        // Only show merged panel if the currently selected guest is the merge destination
-        const showMergedPanel = mergedPanelData && currentSelectedGuest?.id === destOrderId;
-        
-        return showMergedPanel ? (
-          <MergedOrderPanel 
-            guestName={mergedPanelData.guestName} 
-            phone={mergedPanelData.phone} 
-            time={mergedPanelData.time} 
-            server={mergedPanelData.server} 
-            tableId={tableId || ""} 
-            mergedOrderIds={mergedPanelData.orders.map(o => o.id)} 
-            orders={mergedPanelData.orders} 
-          />
-        ) : (
-          <div className="w-[345px] flex flex-col m-2 ml-0">
+      const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
+      // Only show merged panel if the currently selected guest is the merge destination
+      const showMergedPanel = mergedPanelData && currentSelectedGuest?.id === destOrderId;
+      return showMergedPanel ? <MergedOrderPanel guestName={mergedPanelData.guestName} phone={mergedPanelData.phone} time={mergedPanelData.time} server={mergedPanelData.server} tableId={tableId || ""} mergedOrderIds={mergedPanelData.orders.map(o => o.id)} orders={mergedPanelData.orders} /> : <div className="w-[345px] flex flex-col m-2 ml-0">
         {/* Guest Header - Outside the box */}
         <div className="px-2 py-3">
           <div className="flex items-center justify-between mb-2">
@@ -1109,10 +1049,7 @@ const TableOrderDetails = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button 
-              className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors"
-              onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
-            >
+            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors" onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}>
               Add Item
             </button>
             <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
@@ -1129,9 +1066,9 @@ const TableOrderDetails = () => {
 
         {/* Main Panel Box */}
         <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{
-        background: "#7575754D",
-        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-      }}>
+          background: "#7575754D",
+          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+        }}>
 
         {/* Table Order Header - Row 1 */}
         <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
@@ -1154,60 +1091,30 @@ const TableOrderDetails = () => {
           <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
             <img src={chairWhiteIcon} alt="Chair" className="w-3.5 h-3.5" />
           </button>
-          <button 
-            onClick={() => toggleSeatFilter('all')}
-            className={`p-1 rounded transition-colors ${
-              seatFilter.includes('all') 
-                ? 'bg-white' 
-                : 'bg-neutral-700 hover:bg-neutral-600'
-            }`}
-          >
+          <button onClick={() => toggleSeatFilter('all')} className={`p-1 rounded transition-colors ${seatFilter.includes('all') ? 'bg-white' : 'bg-neutral-700 hover:bg-neutral-600'}`}>
             <Share2 className={`w-3.5 h-3.5 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
           </button>
-          {[1, 2, 3, 4].map((seat) => (
-            <button
-              key={seat}
-              onClick={() => toggleSeatFilter(seat)}
-              className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold transition-colors ${
-                seatFilter.includes(seat) 
-                  ? 'bg-white text-black' 
-                  : 'bg-neutral-600 text-white hover:bg-neutral-500'
-              }`}
-            >
+          {[1, 2, 3, 4].map(seat => <button key={seat} onClick={() => toggleSeatFilter(seat)} className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold transition-colors ${seatFilter.includes(seat) ? 'bg-white text-black' : 'bg-neutral-600 text-white hover:bg-neutral-500'}`}>
               {seat}
-            </button>
-          ))}
+            </button>)}
         </div>
 
         {/* Order Notes */}
         <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
-          <OrderNotesAutocomplete
-            value={orderNotes}
-            onChange={setOrderNotes}
-            placeholder="Order notes and Allergies"
-          />
+          <OrderNotesAutocomplete value={orderNotes} onChange={setOrderNotes} placeholder="Order notes and Allergies" />
         </div>
 
         {/* Order Items */}
         <ScrollArea className="flex-1 min-h-0 px-2">
           <div className="py-1 space-y-1">
             {currentSelectedGuest && (() => {
-              const allSeatsSelected = seatFilter.includes('all') || seatFilter.length === 0;
-              const numericSeats = seatFilter.filter((s): s is number => typeof s === 'number');
-              const filteredItems = filterItemsBySeats(currentSelectedGuest.items, numericSeats, allSeatsSelected);
-              return filteredItems.map((item, index) => (
-                <SwipeableCartItem 
-                  key={`${currentSelectedGuest.id}-${index}`}
-                  onDelete={() => {}}
-                  itemOrderType="Dine In"
-                  onOrderTypeChange={() => {}}
-                  isOpen={activeSwipedItemId === `${currentSelectedGuest.id}-${index}`}
-                  onSwipeStart={() => setActiveSwipedItemId(`${currentSelectedGuest.id}-${index}`)}
-                >
-                  <div 
-                    className="p-2 border border-sidebar-border rounded-md cursor-pointer" 
-                    style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
-                  >
+                const allSeatsSelected = seatFilter.includes('all') || seatFilter.length === 0;
+                const numericSeats = seatFilter.filter((s): s is number => typeof s === 'number');
+                const filteredItems = filterItemsBySeats(currentSelectedGuest.items, numericSeats, allSeatsSelected);
+                return filteredItems.map((item, index) => <SwipeableCartItem key={`${currentSelectedGuest.id}-${index}`} onDelete={() => {}} itemOrderType="Dine In" onOrderTypeChange={() => {}} isOpen={activeSwipedItemId === `${currentSelectedGuest.id}-${index}`} onSwipeStart={() => setActiveSwipedItemId(`${currentSelectedGuest.id}-${index}`)}>
+                  <div className="p-2 border border-sidebar-border rounded-md cursor-pointer" style={{
+                    background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
+                  }}>
                     <div className="flex flex-col">
                       {/* Item header row */}
                       <div className="flex items-start gap-2">
@@ -1217,16 +1124,13 @@ const TableOrderDetails = () => {
                         <div className="flex-1 min-w-0">
                           {(() => {
                             // Check if this item was transferred out
-                            const isTransferredOut = transferSourceOrderId === currentSelectedGuest.id && 
-                              transferredOutItemNames.includes(item.name);
-                            return (
-                              <div className="flex items-center justify-between">
+                            const isTransferredOut = transferSourceOrderId === currentSelectedGuest.id && transferredOutItemNames.includes(item.name);
+                            return <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-1">
                                   <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
                                     {item.name}
                                   </span>
-                                  {isTransferredOut && (
-                                    <TooltipProvider>
+                                  {isTransferredOut && <TooltipProvider>
                                       <Tooltip delayDuration={0}>
                                         <TooltipTrigger asChild>
                                           <Info className="w-3.5 h-3.5 text-[#8AC4FF] cursor-help" />
@@ -1240,30 +1144,25 @@ const TableOrderDetails = () => {
                                           </p>
                                         </TooltipContent>
                                       </Tooltip>
-                                    </TooltipProvider>
-                                  )}
+                                    </TooltipProvider>}
                                 </div>
                                 <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
                                   {formatPrice(item.price * item.qty)}
                                 </span>
-                              </div>
-                            );
+                              </div>;
                           })()}
                           
                           {/* Modifiers with tree hierarchy */}
-                          {item.modifiers.length > 0 && (
-                            <div className="mt-1 relative">
+                          {item.modifiers.length > 0 && <div className="mt-1 relative">
                               {item.modifiers.map((mod, idx) => {
-                                const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
-                                const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
-                                const isLastItem = idx === item.modifiers.length - 1;
-                                
-                                return (
-                                  <div key={idx} className="relative flex items-center text-xs py-[3px]">
+                              const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
+                              const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                              const isLastItem = idx === item.modifiers.length - 1;
+                              return <div key={idx} className="relative flex items-center text-xs py-[3px]">
                                     {/* Vertical line - only show if not last item */}
-                                    {!isLastItem && (
-                                      <div className="absolute left-0 top-1/2 w-px bg-white" style={{ height: 'calc(100% + 3px)' }} />
-                                    )}
+                                    {!isLastItem && <div className="absolute left-0 top-1/2 w-px bg-white" style={{
+                                  height: 'calc(100% + 3px)'
+                                }} />}
                                     {/* Vertical line segment to connect to horizontal */}
                                     <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                     {/* Horizontal connector */}
@@ -1277,58 +1176,41 @@ const TableOrderDetails = () => {
                                         {mod}
                                       </span>
                                     </div>
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )}
+                                  </div>;
+                            })}
+                            </div>}
                           
                           {/* Seat Assignment Display */}
-                          {item.seats.length > 0 && (
-                            <div className="mt-1.5 flex items-center gap-1.5">
+                          {item.seats.length > 0 && <div className="mt-1.5 flex items-center gap-1.5">
                               <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
-                              {item.seats.length === 4 ? (
-                                <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                              {item.seats.length === 4 ? <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
                                   <Share2 className="w-3 h-3" />
-                                </span>
-                              ) : (
-                                item.seats.map(seat => (
-                                  <span 
-                                    key={seat}
-                                    className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
-                                  >
+                                </span> : item.seats.map(seat => <span key={seat} className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center">
                                     {seat}
-                                  </span>
-                                ))
-                              )}
-                            </div>
-                          )}
+                                  </span>)}
+                            </div>}
                         </div>
                       </div>
                     </div>
                   </div>
-                </SwipeableCartItem>
-              ));
-            })()}
+                </SwipeableCartItem>);
+              })()}
             
             {/* Transferred Items Section */}
-            {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && (
-              <div className="mt-3 pt-2 border-t border-white/10">
-                {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
-                  <div key={sourceIdx}>
+            {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && <div className="mt-3 pt-2 border-t border-white/10">
+                {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => <div key={sourceIdx}>
                     <div className="flex items-center gap-2 mb-2 px-1">
                       <img src={transferIcon} alt="Transferred" className="w-4 h-4 opacity-70" />
-                      <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+                      <span className="text-xs font-medium" style={{
+                      color: '#8AC4FF'
+                    }}>
                         Transferred from Order {source.orderId} · Table {source.table}
                       </span>
                     </div>
                     <div className="space-y-1">
-                      {source.items.map((item, index) => (
-                        <div 
-                          key={`transferred-${sourceIdx}-${index}`}
-                          className="p-2 border border-[#3B6A9E] rounded-md" 
-                          style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' }}
-                        >
+                      {source.items.map((item, index) => <div key={`transferred-${sourceIdx}-${index}`} className="p-2 border border-[#3B6A9E] rounded-md" style={{
+                      background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)'
+                    }}>
                           <div className="flex items-start gap-2">
                             <span className="w-5 h-5 rounded bg-[#3B6A9E] text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
                               {item.qty}
@@ -1342,13 +1224,10 @@ const TableOrderDetails = () => {
                               </div>
                             </div>
                           </div>
-                        </div>
-                      ))}
+                        </div>)}
                     </div>
-                  </div>
-                ))}
-              </div>
-            )}
+                  </div>)}
+              </div>}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
@@ -1356,9 +1235,9 @@ const TableOrderDetails = () => {
         {/* Order Summary */}
         <div className="p-2 border-t border-sidebar-border flex-shrink-0">
           <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-          }}>
+              background: '#7575754D',
+              boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+            }}>
             <div className="flex justify-between gap-3">
               <span className="text-foreground">Sub Total: <span className="font-medium">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span></span>
               <span className="text-white">Discount: <span className="font-medium">{formatPrice(currentSelectedGuest?.discount || 0)}</span></span>
@@ -1371,57 +1250,32 @@ const TableOrderDetails = () => {
 
           {/* Action Buttons */}
           <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
-            {currentSelectedGuest?.status?.toUpperCase() === 'PAID' || currentSelectedGuest?.status?.toUpperCase() === 'COMPLETED' ? (
-              <>
-                {/* Add Tip Button */}
-                <button 
-                  onClick={() => setShowTipDialog(true)}
-                  className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
-                  style={{ background: '#1B1C20' }}
-                >
-                  <span className="text-amber-400 font-semibold text-sm">ADD TIP</span>
-                </button>
-                {/* Close Button */}
-                <button 
-                  className="flex-1 h-10 rounded-full flex items-center justify-center" 
-                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                >
-                  <span className="text-black font-semibold text-sm">CLOSE</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <button className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
-                  <img src={clearIcon} alt="Clear" className="w-3 h-3" />
-                </button>
-                <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
-                  backgroundColor: '#C9C9C9'
-                }}>
-                  <img src={saveIcon} alt="Save" className="w-4 h-4" />
-                </button>
-                <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
-                  background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-                }}>
-                  <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-                  <span className="text-white font-semibold text-sm">FIRE</span>
-                </button>
-                <button 
-                  onClick={() => setShowPaymentDialog(true)}
-                  className="flex-1 h-8 rounded-full flex items-center justify-center" 
-                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                >
-                  <span className="text-black font-semibold text-xs">
-                    CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
-                  </span>
-                </button>
-              </>
-            )}
+            <button className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+              <img src={clearIcon} alt="Clear" className="w-3 h-3" />
+            </button>
+            <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                backgroundColor: '#C9C9C9'
+              }}>
+              <img src={saveIcon} alt="Save" className="w-4 h-4" />
+            </button>
+            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
+                background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+              }}>
+              <img src={fireIcon} alt="Fire" className="w-4 h-4" />
+              <span className="text-white font-semibold text-sm">FIRE</span>
+            </button>
+            <button onClick={() => setShowPaymentDialog(true)} className="flex-1 h-8 rounded-full flex items-center justify-center text-primary" style={{
+                background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+              }}>
+              <span className="text-black font-semibold text-xs">
+                CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
+              </span>
+            </button>
           </div>
         </div>
         </div>
-        </div>
-        );
-      })()}
+        </div>;
+    })()}
     </div>;
 
   // Tablet Layout - Similar to mobile order cards on left, order details on right
@@ -1486,7 +1340,9 @@ const TableOrderDetails = () => {
                   {/* Left Content with padding */}
                   <div className="flex-1 flex items-stretch gap-2 p-2">
                     {/* Order Number Box */}
-                    <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 rounded-lg border border-white/20 py-1.5 gap-0.5" style={{ background: '#1A1A1A' }}>
+                    <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 rounded-lg border border-white/20 py-1.5 gap-0.5" style={{
+                    background: '#1A1A1A'
+                  }}>
                       <span className="text-base font-bold text-white">{guest.id}</span>
                       <span className="text-[10px] text-white/40">000</span>
                     </div>
@@ -1525,38 +1381,32 @@ const TableOrderDetails = () => {
                   </div>
 
                   {/* Right Action Buttons - Edge to edge (hidden for completed/paid/merged orders) */}
-                  {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId ? (
-                    <div className="flex-shrink-0 flex flex-col w-9">
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
-                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
-                        }}
-                      >
+                  {guest.status !== 'Paid' && guest.status !== 'Completed' && guest.id !== mergedOrderId ? <div className="flex-shrink-0 flex flex-col w-9">
+                      <button className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity" style={{
+                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                  }} onClick={e => {
+                    e.stopPropagation();
+                    navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                  }}>
                         <img src={arrowRightIcon} alt="Merge" className="w-3.5 h-3.5 object-contain" />
                       </button>
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
-                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
-                        }}
-                      >
+                      <button className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity" style={{
+                    background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                  }} onClick={e => {
+                    e.stopPropagation();
+                    navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                  }}>
                         <img src={shareOrderIcon} alt="Transfer" className="w-3.5 h-3.5 object-contain brightness-0" />
                       </button>
-                    </div>
-                  ) : guest.id === mergedOrderId ? (
-                    <div className="flex-shrink-0 flex items-center justify-center w-20 px-2 rounded-r-xl" style={{ background: 'linear-gradient(180deg, #5C3D1E 0%, #392514 100%)' }}>
+                    </div> : guest.id === mergedOrderId ? <div className="flex-shrink-0 flex items-center justify-center w-20 px-2 rounded-r-xl" style={{
+                  background: 'linear-gradient(180deg, #5C3D1E 0%, #392514 100%)'
+                }}>
                       <div className="flex flex-col items-center text-center">
                         <img src={linkMergeIcon} alt="Merged" className="w-3.5 h-3.5 mb-1" />
                         <span className="text-[9px] text-[#FFC48A]">Merged with</span>
                         <span className="text-[10px] text-white font-medium">Order #{destOrderId}</span>
                       </div>
-                    </div>
-                  ) : null}
+                    </div> : null}
                 </div>
               </div>
             </div>)}
@@ -1566,11 +1416,9 @@ const TableOrderDetails = () => {
 
         {/* Add Order Button */}
         <div className="p-3 border-t border-neutral-700/50">
-          <button 
-            onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
-            className="w-full py-3 text-black font-medium rounded-full hover:opacity-90 transition-opacity" 
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
+          <button onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)} className="w-full py-3 text-black font-medium rounded-full hover:opacity-90 transition-opacity" style={{
+          background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+        }}>
             ADD ORDER TO TABLE
           </button>
         </div>
@@ -1578,23 +1426,10 @@ const TableOrderDetails = () => {
 
       {/* Right Panel - Order Details (same as desktop) */}
       {(() => {
-        const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
-        // Only show merged panel if the currently selected guest is the merge destination
-        const showMergedPanel = mergedPanelData && currentSelectedGuest?.id === destOrderId;
-        
-        return showMergedPanel ? (
-          <MergedOrderPanel 
-            guestName={mergedPanelData.guestName} 
-            phone={mergedPanelData.phone} 
-            time={mergedPanelData.time} 
-            server={mergedPanelData.server} 
-            tableId={tableId || ""} 
-            mergedOrderIds={mergedPanelData.orders.map(o => o.id)} 
-            orders={mergedPanelData.orders} 
-            width="w-[280px]" 
-          />
-        ) : (
-          <div className="w-[280px] flex flex-col m-2 ml-0">
+      const mergedPanelData = getMergedPanelData(destOrderId, mergedOrderId, mergedFromTable);
+      // Only show merged panel if the currently selected guest is the merge destination
+      const showMergedPanel = mergedPanelData && currentSelectedGuest?.id === destOrderId;
+      return showMergedPanel ? <MergedOrderPanel guestName={mergedPanelData.guestName} phone={mergedPanelData.phone} time={mergedPanelData.time} server={mergedPanelData.server} tableId={tableId || ""} mergedOrderIds={mergedPanelData.orders.map(o => o.id)} orders={mergedPanelData.orders} width="w-[280px]" /> : <div className="w-[280px] flex flex-col m-2 ml-0">
         {/* Guest Header - Outside the box */}
         <div className="px-2 py-3">
           <div className="flex items-center justify-between mb-2">
@@ -1611,10 +1446,7 @@ const TableOrderDetails = () => {
             </div>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <button 
-              className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors"
-              onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
-            >
+            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors" onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}>
               Add Item
             </button>
             <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
@@ -1628,9 +1460,9 @@ const TableOrderDetails = () => {
 
         {/* Main Panel Box */}
         <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{
-        background: "#7575754D",
-        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-      }}>
+          background: "#7575754D",
+          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+        }}>
 
         {/* Table Order Info */}
         <div className="px-4 py-3 border-b border-white/10">
@@ -1670,35 +1502,28 @@ const TableOrderDetails = () => {
         {/* Order Items */}
         <ScrollArea className="flex-1 px-4">
           <div className="py-2 space-y-2">
-            {currentSelectedGuest && (
-              <>
+            {currentSelectedGuest && <>
                 {/* Check if this order has merged items */}
-                {hasMergedOrTransferredItems(currentSelectedGuest) ? (
-                  // Display items grouped by source
-                  getMergedOrderDisplay(currentSelectedGuest).map((section, sectionIndex) => {
-                    const allSeatsSelected = selectedSeats.length === 4;
-                    const filteredSectionItems = filterItemsBySeats(section.items, selectedSeats, allSeatsSelected);
-                    if (filteredSectionItems.length === 0) return null;
-                    return (
-                      <div key={sectionIndex} className="space-y-2">
+                {hasMergedOrTransferredItems(currentSelectedGuest) ?
+                // Display items grouped by source
+                getMergedOrderDisplay(currentSelectedGuest).map((section, sectionIndex) => {
+                  const allSeatsSelected = selectedSeats.length === 4;
+                  const filteredSectionItems = filterItemsBySeats(section.items, selectedSeats, allSeatsSelected);
+                  if (filteredSectionItems.length === 0) return null;
+                  return <div key={sectionIndex} className="space-y-2">
                         {/* Section Header */}
                         <div className={`flex items-center gap-2 py-2 ${sectionIndex > 0 ? 'mt-3 pt-3 border-t border-white/20' : ''}`}>
-                          {section.isOriginal ? (
-                            <span className="text-white/70 text-xs font-medium uppercase tracking-wide">
+                          {section.isOriginal ? <span className="text-white/70 text-xs font-medium uppercase tracking-wide">
                               {section.label}
-                            </span>
-                          ) : (
-                            <div className="flex items-center gap-2">
+                            </span> : <div className="flex items-center gap-2">
                               <img src={mergeIcon} alt="Merged" className="w-4 h-4 opacity-60" />
                               <span className="text-[#FFC48A] text-xs font-medium uppercase tracking-wide">
                                 {section.label}
                               </span>
-                            </div>
-                          )}
+                            </div>}
                         </div>
                         {/* Section Items */}
-                        {filteredSectionItems.map((item, index) => (
-                          <div key={`${sectionIndex}-${index}`} className={`p-3 rounded-xl border ${section.isOriginal ? 'bg-white/5 border-white/10' : 'bg-[#FFC48A]/5 border-[#FFC48A]/20'}`}>
+                        {filteredSectionItems.map((item, index) => <div key={`${sectionIndex}-${index}`} className={`p-3 rounded-xl border ${section.isOriginal ? 'bg-white/5 border-white/10' : 'bg-[#FFC48A]/5 border-[#FFC48A]/20'}`}>
                             <div className="flex items-start justify-between">
                               <div className="flex items-start gap-2">
                                 <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${section.isOriginal ? 'bg-white text-black' : 'bg-[#FFC48A] text-black'}`}>
@@ -1706,37 +1531,27 @@ const TableOrderDetails = () => {
                                 </span>
                                 <div>
                                   <span className="text-white font-medium">{item.name}</span>
-                                  {item.modifiers.length > 0 && (
-                                    <div className="mt-1 text-white/50 text-sm space-y-0.5">
+                                  {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-sm space-y-0.5">
                                       {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                                    </div>
-                                  )}
+                                    </div>}
                                 </div>
                               </div>
                               <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
                             </div>
-                            {item.seats.length > 0 && (
-                              <div className="flex items-center gap-1 mt-2">
+                            {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
                                 <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                                {item.seats.map(seat => (
-                                  <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
+                                {item.seats.map(seat => <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
                                     {seat}
-                                  </span>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    );
-                  })
-                ) : (
-                  // Display regular items (no merge)
-                  (() => {
-                    const allSeatsSelected = selectedSeats.length === 4;
-                    const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
-                    return filteredItems.map((item, index) => (
-                      <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
+                                  </span>)}
+                              </div>}
+                          </div>)}
+                      </div>;
+                }) :
+                // Display regular items (no merge)
+                (() => {
+                  const allSeatsSelected = selectedSeats.length === 4;
+                  const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
+                  return filteredItems.map((item, index) => <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
                         <div className="flex items-start justify-between">
                           <div className="flex items-start gap-2">
                             <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
@@ -1744,31 +1559,22 @@ const TableOrderDetails = () => {
                             </span>
                             <div>
                               <span className="text-white font-medium">{item.name}</span>
-                              {item.modifiers.length > 0 && (
-                                <div className="mt-1 text-white/50 text-sm space-y-0.5">
+                              {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-sm space-y-0.5">
                                   {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                                </div>
-                              )}
+                                </div>}
                             </div>
                           </div>
                           <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
                         </div>
-                        {item.seats.length > 0 && (
-                          <div className="flex items-center gap-1 mt-2">
+                        {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
                             <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                            {item.seats.map(seat => (
-                              <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
+                            {item.seats.map(seat => <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
                                 {seat}
-                              </span>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    ));
-                  })()
-                )}
-              </>
-            )}
+                              </span>)}
+                          </div>}
+                      </div>);
+                })()}
+              </>}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
@@ -1799,23 +1605,20 @@ const TableOrderDetails = () => {
             <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
           </button>
           <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{
-            background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
-          }}>
+              background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+            }}>
             <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
             <span>FIRE</span>
           </button>
-          <button 
-            onClick={() => setShowPaymentDialog(true)}
-            className="flex-1 py-2 rounded-full text-black text-sm font-bold" 
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
+          <button onClick={() => setShowPaymentDialog(true)} className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{
+              background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+            }}>
             CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
           </button>
         </div>
         </div>
-        </div>
-        );
-      })()}
+        </div>;
+    })()}
     </div>;
   return <>
       {/* Mobile Layout */}
@@ -1833,47 +1636,23 @@ const TableOrderDetails = () => {
         <DesktopLayout />
       </div>
       {/* Payment Dialog */}
-      <PaymentDialog
-        open={showPaymentDialog}
-        onOpenChange={setShowPaymentDialog}
-        orderDetails={{
-          guest: currentSelectedGuest?.name || "Guest",
-          phone: currentSelectedGuest?.phone,
-          table: tableId,
-          check: currentSelectedGuest?.id,
-          items: currentSelectedGuest?.items.map((item, index) => ({
-            id: index + 1,
-            qty: item.qty,
-            name: item.name,
-            price: item.price * item.qty
-          })) || []
-        }}
-        subtotal={currentSelectedGuest?.subtotal || 0}
-        tax={currentSelectedGuest?.tax || 0}
-        total={currentSelectedGuest?.total || 0}
-        onPaymentComplete={(history) => {
-          console.log("Payment completed:", history);
-        }}
-      />
+      <PaymentDialog open={showPaymentDialog} onOpenChange={setShowPaymentDialog} orderDetails={{
+      guest: currentSelectedGuest?.name || "Guest",
+      phone: currentSelectedGuest?.phone,
+      table: tableId,
+      check: currentSelectedGuest?.id,
+      items: currentSelectedGuest?.items.map((item, index) => ({
+        id: index + 1,
+        qty: item.qty,
+        name: item.name,
+        price: item.price * item.qty
+      })) || []
+    }} subtotal={currentSelectedGuest?.subtotal || 0} tax={currentSelectedGuest?.tax || 0} total={currentSelectedGuest?.total || 0} onPaymentComplete={history => {
+      console.log("Payment completed:", history);
+    }} />
 
       {/* Receipt Dialog */}
-      <ReceiptDialog
-        open={showReceiptDialog}
-        onOpenChange={setShowReceiptDialog}
-        orderTotal={receiptGuest?.total || 0}
-        orderId={receiptGuest?.id}
-      />
-
-      {/* Tip Dialog */}
-      <TipDialog
-        open={showTipDialog}
-        onOpenChange={setShowTipDialog}
-        orderTotal={currentSelectedGuest?.total || 0}
-        onTipSelected={(tip) => {
-          console.log("Tip selected:", tip);
-          // Handle tip logic here
-        }}
-      />
+      <ReceiptDialog open={showReceiptDialog} onOpenChange={setShowReceiptDialog} orderTotal={receiptGuest?.total || 0} orderId={receiptGuest?.id} />
     </>;
 };
 export default TableOrderDetails;

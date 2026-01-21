@@ -920,7 +920,7 @@ const TableOrderDetails = () => {
                       <span className="text-white">{transferToTable}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="hidden md:flex items-stretch">
@@ -977,9 +977,9 @@ const TableOrderDetails = () => {
                   {/* Right Action Buttons - Edge to edge */}
                   {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' ? (
                     /* Receipt and Register buttons for paid orders */
-                    <div className="flex-shrink-0 flex flex-col w-10">
+                    <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
                       <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600"
+                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600 rounded-tr-xl"
                         onClick={(e) => {
                           e.stopPropagation();
                           setReceiptGuest(guest);
@@ -989,7 +989,7 @@ const TableOrderDetails = () => {
                         <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
                       </button>
                       <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500"
+                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
                         onClick={(e) => {
                           e.stopPropagation();
                           // Handle register action
@@ -1000,9 +1000,9 @@ const TableOrderDetails = () => {
                     </div>
                   ) : guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full') ? (
                     /* Merge and Transfer buttons for unpaid orders */
-                    <div className="flex-shrink-0 flex flex-col w-10">
+                    <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
                       <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
+                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-tr-xl"
                         style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -1012,7 +1012,7 @@ const TableOrderDetails = () => {
                         <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
                       </button>
                       <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
+                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-br-xl"
                         style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
                         onClick={(e) => {
                           e.stopPropagation();

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { X, ChevronLeft, ChevronRight, DollarSign, Percent, FileText, Printer, MessageSquare, Mail, CreditCard } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, DollarSign, Percent, FileText, Printer, MessageSquare, Mail, CreditCard, ArrowLeft, Check, Delete, ChevronDown } from 'lucide-react';
 import { formatPrice } from '@/lib/orderUtils';
 import tickSuccessIcon from '@/assets/icons/tick-success.svg';
 import { toast } from 'sonner';
@@ -15,7 +15,7 @@ interface RefundDialogProps {
   onRefundComplete?: (refundAmount: number, reason: string) => void;
 }
 
-type RefundStep = 'select-type' | 'full-refund' | 'partial-refund' | 'tip-refund' | 'custom-refund' | 'confirm' | 'success';
+type RefundStep = 'select-type' | 'full-refund' | 'partial-refund' | 'tip-refund' | 'custom-refund' | 'confirm' | 'success' | 'phone-input' | 'email-input';
 
 const refundReasons = [
   'Customer Dissatisfaction',
@@ -23,6 +23,14 @@ const refundReasons = [
   'Quality Issue',
   'Wrong Order Delivered',
   'Other'
+];
+
+const emailKeys = [
+  ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+  ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+  ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+  ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'delete'],
+  ['@', '.', '_', '-', '.com', '.net', '@gmail.com']
 ];
 
 const RefundDialog: React.FC<RefundDialogProps> = ({
@@ -39,6 +47,9 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
   const [includeTip, setIncludeTip] = useState(true);
   const [refundAmount, setRefundAmount] = useState(0);
   const [customAmount, setCustomAmount] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [emailAddress, setEmailAddress] = useState('');
+  const [noMarketing, setNoMarketing] = useState(false);
 
   const totalWithTip = orderTotal + tipAmount;
   const maxRefund = totalWithTip;
@@ -49,7 +60,60 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
     setIncludeTip(true);
     setRefundAmount(0);
     setCustomAmount('');
+    setPhoneNumber('');
+    setEmailAddress('');
+    setNoMarketing(false);
     onOpenChange(false);
+  };
+
+  const formatPhoneNumber = (digits: string) => {
+    if (digits.length === 0) return '';
+    if (digits.length <= 3) return `(${digits}`;
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  };
+
+  const handlePhoneKeyPress = (key: string) => {
+    if (key === 'delete') {
+      const digits = phoneNumber.replace(/\D/g, '');
+      const newDigits = digits.slice(0, -1);
+      setPhoneNumber(formatPhoneNumber(newDigits));
+    } else if (key !== '') {
+      const digits = phoneNumber.replace(/\D/g, '');
+      if (digits.length < 10) {
+        const newDigits = digits + key;
+        setPhoneNumber(formatPhoneNumber(newDigits));
+      }
+    }
+  };
+
+  const handleEmailKeyPress = (key: string) => {
+    if (key === 'delete') {
+      setEmailAddress(prev => prev.slice(0, -1));
+    } else if (key === 'space') {
+      // No space in email
+    } else {
+      setEmailAddress(prev => prev + key);
+    }
+  };
+
+  const handlePrint = () => {
+    toast.success('Refund receipt sent to printer');
+    resetAndClose();
+  };
+
+  const handleSendText = () => {
+    if (phoneNumber.replace(/\D/g, '').length >= 10) {
+      toast.success('Refund receipt sent via SMS');
+      resetAndClose();
+    }
+  };
+
+  const handleSendEmail = () => {
+    if (emailAddress.includes('@') && emailAddress.includes('.')) {
+      toast.success('Refund receipt sent via Email');
+      resetAndClose();
+    }
   };
 
   const handleSelectRefundType = (type: 'full' | 'partial' | 'tip' | 'custom') => {
@@ -357,6 +421,7 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
         
         <div className="flex items-center gap-2 w-full max-w-sm">
           <button 
+            onClick={handlePrint}
             className="flex-1 h-10 rounded-full flex items-center justify-center gap-1.5"
             style={glassStyle}
           >
@@ -364,6 +429,7 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
             <span className="text-white font-medium text-sm">Print</span>
           </button>
           <button 
+            onClick={() => setStep('phone-input')}
             className="flex-1 h-10 rounded-full flex items-center justify-center gap-1.5"
             style={glassStyle}
           >
@@ -371,6 +437,7 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
             <span className="text-white font-medium text-sm">Text</span>
           </button>
           <button 
+            onClick={() => setStep('email-input')}
             className="flex-1 h-10 rounded-full flex items-center justify-center gap-1.5"
             style={glassStyle}
           >
@@ -393,6 +460,161 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
     </div>
   );
 
+  // Phone Input Screen
+  const renderPhoneInput = () => (
+    <div className="flex flex-col h-[480px]">
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-2 p-3 border-b border-neutral-800">
+        <button 
+          onClick={() => setStep('success')}
+          className="w-8 h-8 rounded-full hover:bg-neutral-800 flex items-center justify-center transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 text-white" />
+        </button>
+        <h2 className="text-white text-sm font-semibold flex-1 text-center pr-8">Where should we text your receipt?</h2>
+      </div>
+
+      {/* Phone Input */}
+      <div className="px-3 py-2">
+        <div className="flex items-center bg-neutral-800 rounded-lg overflow-hidden">
+          <div className="flex items-center gap-1 px-3 py-2.5 border-r border-neutral-700">
+            <span className="text-white text-sm font-medium">US +1</span>
+            <ChevronDown className="w-4 h-4 text-neutral-400" />
+          </div>
+          <input 
+            type="text" 
+            placeholder="(000) 000-0000" 
+            value={phoneNumber} 
+            readOnly 
+            className="flex-1 bg-transparent text-white px-3 py-2.5 text-sm placeholder:text-neutral-500 outline-none" 
+          />
+        </div>
+      </div>
+
+      {/* Marketing Checkbox */}
+      <div className="px-3 py-1.5">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <div 
+            onClick={() => setNoMarketing(!noMarketing)} 
+            className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${noMarketing ? 'bg-white border-white' : 'border-neutral-600 bg-transparent'}`}
+          >
+            {noMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+          </div>
+          <span className="text-neutral-400 text-xs">Do not use my phone number for marketing</span>
+        </label>
+      </div>
+
+      {/* Terms */}
+      <div className="px-3 py-1 text-center">
+        <p className="text-neutral-500 text-[10px] leading-relaxed">
+          Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
+        </p>
+      </div>
+
+      {/* Send Button */}
+      <div className="px-3 py-2">
+        <button 
+          onClick={handleSendText}
+          disabled={phoneNumber.replace(/\D/g, '').length < 10}
+          className="w-full py-2.5 bg-neutral-700 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+        >
+          SEND
+        </button>
+      </div>
+
+      {/* Numeric Keypad */}
+      <div className="flex-1 flex flex-col justify-end px-3 pb-3">
+        <div className="grid grid-cols-3 gap-1.5">
+          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => (
+            <button 
+              key={key}
+              onClick={() => handlePhoneKeyPress(key)}
+              className={`h-11 rounded-lg text-base font-medium transition-colors ${
+                key === '' ? 'invisible' : 
+                key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 
+                'bg-neutral-800 text-white hover:bg-neutral-700'
+              }`}
+            >
+              {key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+
+  // Email Input Screen
+  const renderEmailInput = () => (
+    <div className="flex flex-col h-[480px]">
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-2 p-3 border-b border-neutral-800">
+        <button 
+          onClick={() => setStep('success')}
+          className="w-8 h-8 rounded-full hover:bg-neutral-800 flex items-center justify-center transition-colors"
+        >
+          <ArrowLeft className="w-5 h-5 text-white" />
+        </button>
+        <h2 className="text-white text-sm font-semibold flex-1 text-center pr-8">Where should we email your receipt?</h2>
+      </div>
+
+      {/* Email Input */}
+      <div className="px-3 py-2">
+        <input 
+          type="text" 
+          placeholder="email@example.com" 
+          value={emailAddress} 
+          readOnly 
+          className="w-full bg-neutral-800 text-white px-3 py-2.5 rounded-lg text-sm placeholder:text-neutral-500 outline-none" 
+        />
+      </div>
+
+      {/* Marketing Checkbox */}
+      <div className="px-3 py-1.5">
+        <label className="flex items-center gap-2 cursor-pointer">
+          <div 
+            onClick={() => setNoMarketing(!noMarketing)} 
+            className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${noMarketing ? 'bg-white border-white' : 'border-neutral-600 bg-transparent'}`}
+          >
+            {noMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+          </div>
+          <span className="text-neutral-400 text-xs">Do not use my email address for marketing</span>
+        </label>
+      </div>
+
+      {/* Send Button */}
+      <div className="px-3 py-2">
+        <button 
+          onClick={handleSendEmail}
+          disabled={!emailAddress.includes('@') || !emailAddress.includes('.')}
+          className="w-full py-2.5 bg-neutral-700 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+        >
+          SEND
+        </button>
+      </div>
+
+      {/* QWERTY Keyboard */}
+      <div className="flex-1 flex flex-col justify-end px-2 pb-3 gap-1">
+        {emailKeys.map((row, rowIndex) => (
+          <div key={rowIndex} className="flex justify-center gap-1">
+            {row.map(key => (
+              <button 
+                key={key}
+                onClick={() => handleEmailKeyPress(key)}
+                className={`rounded-md text-xs font-medium transition-colors ${
+                  key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600 px-2.5 h-9' :
+                  key.length > 1 ? 'bg-neutral-700 text-white hover:bg-neutral-600 px-1.5 h-9 text-[10px]' :
+                  'bg-neutral-800 text-white hover:bg-neutral-700 w-7 h-9'
+                }`}
+              >
+                {key === 'delete' ? <Delete className="w-4 h-4 mx-auto" /> : key}
+              </button>
+            ))}
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   const renderContent = () => {
     switch (step) {
       case 'select-type':
@@ -403,6 +625,10 @@ const RefundDialog: React.FC<RefundDialogProps> = ({
         return renderConfirm();
       case 'success':
         return renderSuccess();
+      case 'phone-input':
+        return renderPhoneInput();
+      case 'email-input':
+        return renderEmailInput();
       default:
         return renderSelectType();
     }

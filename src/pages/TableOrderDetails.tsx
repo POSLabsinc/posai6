@@ -1,4 +1,5 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useMemo } from "react";
+import { useOrderTimers } from "@/hooks/use-order-timer";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import ReceiptDialog from "@/components/ReceiptDialog";
@@ -276,6 +277,16 @@ const TableOrderDetails = () => {
     
     return orderWithTotals;
   });
+  
+
+  // Memoize order timer data to avoid recreating array on every render
+  const orderTimerData = useMemo(() => 
+    guestOrders.map(o => ({ id: o.id, time: o.time, status: o.status, timer: o.timer })), 
+    [guestOrders]
+  );
+  
+  // Dynamic timers - running for ongoing orders, static for paid orders
+  const orderTimers = useOrderTimers(orderTimerData);
   
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState<GuestOrder | null>(null);
@@ -710,7 +721,7 @@ const TableOrderDetails = () => {
                              <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
                              <span>Party of {guest.partySize}, {guest.time}</span>
                              <span className="text-gray-500">|</span>
-                             <span>{guest.timer}</span>
+                              <span>{orderTimers[guest.id] || guest.timer}</span>
                            </div>
                            <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
                          </div>
@@ -958,7 +969,7 @@ const TableOrderDetails = () => {
                           <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
                           <span className="truncate">Party of {guest.partySize}, {guest.time}</span>
                           <span className="text-white/40">|</span>
-                          <span>{guest.timer}</span>
+                          <span>{orderTimers[guest.id] || guest.timer}</span>
                         </div>
                         <div className="flex-1"></div>
                         <span className="text-white font-semibold flex-shrink-0">{formatPrice(guest.total)}</span>
@@ -1526,7 +1537,7 @@ const TableOrderDetails = () => {
                         <div className="flex items-center gap-1 text-white/60 flex-shrink-0">
                           <span className="truncate">Party of {guest.partySize}, {guest.time}</span>
                           <span className="text-white/40">|</span>
-                          <span>{guest.timer}</span>
+                          <span>{orderTimers[guest.id] || guest.timer}</span>
                         </div>
                         <div className="flex-1"></div>
                         <span className="text-white font-semibold flex-shrink-0">{formatPrice(guest.total)}</span>

@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Search, X, Calendar, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -7,6 +7,8 @@ import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
 import { format } from "date-fns";
 import { cn, formatPhoneNumber } from "@/lib/utils";
+import { customers, checkPhoneConflict, Customer } from "@/data/customers";
+import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
 interface BanquetGuestFormProps {
   onSave: (data: BanquetGuestData) => void;
@@ -47,14 +49,6 @@ const eventTypes = [
   "Other"
 ];
 
-// Mock guest data for search
-const mockGuests = [
-  { name: "John Smith", phone: "(555) 123-4567", email: "john@example.com" },
-  { name: "Jane Doe", phone: "(555) 987-6543", email: "jane@example.com" },
-  { name: "Mike Johnson", phone: "(555) 456-7890", email: "mike@example.com" },
-  { name: "Sarah Williams", phone: "(555) 321-0987", email: "sarah@example.com" },
-];
-
 const US_STATES = [
   "AL", "AK", "AZ", "AR", "CA", "CO", "CT", "DE", "FL", "GA",
   "HI", "ID", "IL", "IN", "IA", "KS", "KY", "LA", "ME", "MD",
@@ -87,24 +81,37 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [timePickerOpen, setTimePickerOpen] = useState(false);
 
+  // Phone conflict state
+  const [showConflictDialog, setShowConflictDialog] = useState(false);
+  const [conflictCustomer, setConflictCustomer] = useState<Customer | null>(null);
+
   const maxNotes = 70;
 
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const query = searchQuery.toLowerCase();
-    return mockGuests.filter(
+    return customers.filter(
       (guest) =>
         guest.name.toLowerCase().includes(query) ||
         guest.phone.replace(/\D/g, "").includes(query.replace(/\D/g, ""))
     );
   }, [searchQuery]);
 
-  const handleSelectGuest = (guest: typeof mockGuests[0]) => {
+  // Check for phone conflict when phone number changes
+  useEffect(() => {
+    const conflict = checkPhoneConflict(formData.phoneNumber, formData.guestName);
+    if (conflict) {
+      setConflictCustomer(conflict);
+      setShowConflictDialog(true);
+    }
+  }, [formData.phoneNumber, formData.guestName]);
+
+  const handleSelectGuest = (guest: Customer) => {
     setFormData((prev) => ({
       ...prev,
       guestName: guest.name,
       phoneNumber: guest.phone,
-      email: guest.email,
+      email: guest.email || "",
     }));
     setSearchQuery("");
     setShowSearchResults(false);
@@ -141,6 +148,38 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
 
   const countWords = (text: string) => {
     return text.trim() ? text.trim().split(/\s+/).length : 0;
+  };
+
+  // Conflict resolution handlers
+  const handleUseExisting = () => {
+    if (conflictCustomer) {
+      setFormData((prev) => ({
+        ...prev,
+        guestName: conflictCustomer.name,
+        email: conflictCustomer.email || prev.email,
+      }));
+    }
+    setShowConflictDialog(false);
+    setConflictCustomer(null);
+  };
+
+  const handleUpdateName = () => {
+    setShowConflictDialog(false);
+    setConflictCustomer(null);
+  };
+
+  const handleAddFamilyMember = () => {
+    setShowConflictDialog(false);
+    setConflictCustomer(null);
+  };
+
+  const handleCreateNew = () => {
+    setFormData((prev) => ({
+      ...prev,
+      phoneNumber: "",
+    }));
+    setShowConflictDialog(false);
+    setConflictCustomer(null);
   };
 
   const isFormValid = formData.guestName && formData.eventType;
@@ -429,6 +468,21 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
           Save Banquet Info
         </button>
       </div>
+
+      {/* Phone Conflict Dialog */}
+      <PhoneConflictDialog
+        isOpen={showConflictDialog}
+        onClose={() => {
+          setShowConflictDialog(false);
+          setConflictCustomer(null);
+        }}
+        existingCustomer={conflictCustomer}
+        newName={formData.guestName}
+        onUseExisting={handleUseExisting}
+        onUpdateName={handleUpdateName}
+        onAddFamilyMember={handleAddFamilyMember}
+        onCreateNew={handleCreateNew}
+      />
     </div>
   );
 };

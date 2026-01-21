@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Search, X, Calendar as CalendarIcon, Clock } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
 import { format, addDays } from "date-fns";
 import { formatPhoneNumber } from "@/lib/utils";
+import { customers, checkPhoneConflict, Customer } from "@/data/customers";
+import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
 export interface ScheduledGuestData {
   guestName: string;
@@ -33,13 +35,6 @@ interface ScheduledGuestFormProps {
   onClose: () => void;
   initialData?: ScheduledGuestData | null;
 }
-
-const mockGuests = [
-  { name: "John Smith", phone: "(555) 123-4567", email: "john@email.com" },
-  { name: "Jane Doe", phone: "(555) 234-5678", email: "jane@email.com" },
-  { name: "Bob Wilson", phone: "(555) 345-6789", email: "bob@email.com" },
-  { name: "Alice Brown", phone: "(555) 456-7890", email: "alice@email.com" },
-];
 
 const getCurrentTimeRounded = (): string => {
   const now = new Date();
@@ -88,22 +83,35 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
   const [dateOpen, setDateOpen] = useState(false);
   const [timeOpen, setTimeOpen] = useState(false);
 
+  // Phone conflict state
+  const [showConflictDialog, setShowConflictDialog] = useState(false);
+  const [conflictCustomer, setConflictCustomer] = useState<Customer | null>(null);
+
   const searchResults = useMemo(() => {
     if (!searchQuery.trim()) return [];
     const query = searchQuery.toLowerCase();
-    return mockGuests.filter(
+    return customers.filter(
       (guest) =>
         guest.name.toLowerCase().includes(query) ||
         guest.phone.includes(query)
     );
   }, [searchQuery]);
 
-  const handleSelectGuest = (guest: (typeof mockGuests)[0]) => {
+  // Check for phone conflict when phone number changes
+  useEffect(() => {
+    const conflict = checkPhoneConflict(formData.phoneNumber, formData.guestName);
+    if (conflict) {
+      setConflictCustomer(conflict);
+      setShowConflictDialog(true);
+    }
+  }, [formData.phoneNumber, formData.guestName]);
+
+  const handleSelectGuest = (guest: Customer) => {
     setFormData((prev) => ({
       ...prev,
       guestName: guest.name,
       phoneNumber: guest.phone,
-      email: guest.email,
+      email: guest.email || "",
     }));
     setSearchQuery("");
     setShowSearchResults(false);
@@ -150,6 +158,38 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
 
   const countWords = (text: string) => {
     return text.trim() ? text.trim().split(/\s+/).length : 0;
+  };
+
+  // Conflict resolution handlers
+  const handleUseExisting = () => {
+    if (conflictCustomer) {
+      setFormData((prev) => ({
+        ...prev,
+        guestName: conflictCustomer.name,
+        email: conflictCustomer.email || prev.email,
+      }));
+    }
+    setShowConflictDialog(false);
+    setConflictCustomer(null);
+  };
+
+  const handleUpdateName = () => {
+    setShowConflictDialog(false);
+    setConflictCustomer(null);
+  };
+
+  const handleAddFamilyMember = () => {
+    setShowConflictDialog(false);
+    setConflictCustomer(null);
+  };
+
+  const handleCreateNew = () => {
+    setFormData((prev) => ({
+      ...prev,
+      phoneNumber: "",
+    }));
+    setShowConflictDialog(false);
+    setConflictCustomer(null);
   };
 
   const isFormValid = formData.guestName && formData.scheduledDate && formData.scheduledTime;
@@ -424,6 +464,21 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
           Save Scheduled Order
         </button>
       </div>
+
+      {/* Phone Conflict Dialog */}
+      <PhoneConflictDialog
+        isOpen={showConflictDialog}
+        onClose={() => {
+          setShowConflictDialog(false);
+          setConflictCustomer(null);
+        }}
+        existingCustomer={conflictCustomer}
+        newName={formData.guestName}
+        onUseExisting={handleUseExisting}
+        onUpdateName={handleUpdateName}
+        onAddFamilyMember={handleAddFamilyMember}
+        onCreateNew={handleCreateNew}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
 import ReceiptDialog from "@/components/ReceiptDialog";
+import TipDialog from "@/components/TipDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -286,6 +287,7 @@ const TableOrderDetails = () => {
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
   const [receiptGuest, setReceiptGuest] = useState<GuestOrder | null>(null);
+  const [showTipDialog, setShowTipDialog] = useState(false);
   
   // Set initial selected guest when guestOrders changes
   const currentSelectedGuest = selectedGuest || guestOrders[0];
@@ -1369,29 +1371,51 @@ const TableOrderDetails = () => {
 
           {/* Action Buttons */}
           <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
-            <button className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
-              <img src={clearIcon} alt="Clear" className="w-3 h-3" />
-            </button>
-            <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
-              backgroundColor: '#C9C9C9'
-            }}>
-              <img src={saveIcon} alt="Save" className="w-4 h-4" />
-            </button>
-            <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
-              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-            }}>
-              <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-              <span className="text-white font-semibold text-sm">FIRE</span>
-            </button>
-            <button 
-              onClick={() => setShowPaymentDialog(true)}
-              className="flex-1 h-8 rounded-full flex items-center justify-center" 
-              style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-            >
-              <span className="text-black font-semibold text-xs">
-                CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
-              </span>
-            </button>
+            {currentSelectedGuest?.status?.toUpperCase() === 'PAID' ? (
+              <>
+                {/* Add Tip Button */}
+                <button 
+                  onClick={() => setShowTipDialog(true)}
+                  className="flex-1 h-10 rounded-full flex items-center justify-center border border-white/20"
+                  style={{ background: '#1B1C20' }}
+                >
+                  <span className="text-amber-400 font-semibold text-sm">ADD TIP</span>
+                </button>
+                {/* Close Button */}
+                <button 
+                  className="flex-1 h-10 rounded-full flex items-center justify-center" 
+                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                >
+                  <span className="text-black font-semibold text-sm">CLOSE</span>
+                </button>
+              </>
+            ) : (
+              <>
+                <button className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+                  <img src={clearIcon} alt="Clear" className="w-3 h-3" />
+                </button>
+                <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                  backgroundColor: '#C9C9C9'
+                }}>
+                  <img src={saveIcon} alt="Save" className="w-4 h-4" />
+                </button>
+                <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
+                  background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                }}>
+                  <img src={fireIcon} alt="Fire" className="w-4 h-4" />
+                  <span className="text-white font-semibold text-sm">FIRE</span>
+                </button>
+                <button 
+                  onClick={() => setShowPaymentDialog(true)}
+                  className="flex-1 h-8 rounded-full flex items-center justify-center" 
+                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                >
+                  <span className="text-black font-semibold text-xs">
+                    CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
+                  </span>
+                </button>
+              </>
+            )}
           </div>
         </div>
         </div>
@@ -1838,6 +1862,17 @@ const TableOrderDetails = () => {
         onOpenChange={setShowReceiptDialog}
         orderTotal={receiptGuest?.total || 0}
         orderId={receiptGuest?.id}
+      />
+
+      {/* Tip Dialog */}
+      <TipDialog
+        open={showTipDialog}
+        onOpenChange={setShowTipDialog}
+        orderTotal={currentSelectedGuest?.total || 0}
+        onTipSelected={(tip) => {
+          console.log("Tip selected:", tip);
+          // Handle tip logic here
+        }}
       />
     </>;
 };

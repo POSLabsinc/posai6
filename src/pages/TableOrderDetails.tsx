@@ -1936,6 +1936,11 @@ const TableOrderDetails = () => {
         tipAmount={currentSelectedGuest?.tip || 0.88}
         orderId={currentSelectedGuest?.id}
         guestName={currentSelectedGuest?.name}
+        orderItems={currentSelectedGuest?.items?.map(item => ({
+          name: item.name,
+          price: item.price,
+          qty: item.qty
+        }))}
         onRefundComplete={(amount, reason) => {
           console.log("Refund completed:", amount, reason);
           setShowRefundMode(false);

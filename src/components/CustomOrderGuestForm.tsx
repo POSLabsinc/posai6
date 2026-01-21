@@ -127,7 +127,7 @@ const CustomOrderGuestForm = ({ onSave, onClose, initialData }: CustomOrderGuest
   return (
     <div className="flex flex-col h-full rounded-lg overflow-hidden bg-neutral-900">
       {/* Fixed Header */}
-      <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+      <div className="flex items-center justify-between p-4 border-b border-neutral-700 md:border-b-0">
         <h2 className="text-lg font-semibold text-white">Custom Order Information</h2>
         <button 
           onClick={onClose}

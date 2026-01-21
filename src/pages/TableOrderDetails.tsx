@@ -302,6 +302,7 @@ const TableOrderDetails = () => {
   const [showTipDialog, setShowTipDialog] = useState(false);
   const [showRefundMode, setShowRefundMode] = useState(false);
   const [showRefundDialog, setShowRefundDialog] = useState(false);
+  const [expandedCartItems, setExpandedCartItems] = useState<Set<string>>(new Set());
   
   // Set initial selected guest when guestOrders changes
   const currentSelectedGuest = selectedGuest || guestOrders[0];
@@ -543,11 +544,72 @@ const TableOrderDetails = () => {
                       <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
                         {item.qty}
                       </span>
-                      <div>
+                      <div className="flex-1 min-w-0">
                         <span className="text-white font-medium text-sm">{item.name}</span>
-                        {item.modifiers.length > 0 && <div className="mt-1 text-white/50 text-xs space-y-0.5">
-                            {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                          </div>}
+                        {/* Modifiers with tree hierarchy */}
+                        {item.modifiers.length > 0 && (() => {
+                          const itemKey = `mobile-${currentSelectedGuest.id}-${index}`;
+                          const displayedModifiers = expandedCartItems.has(itemKey) ? item.modifiers : item.modifiers.slice(0, 2);
+                          const hasShowButton = item.modifiers.length > 2;
+                          
+                          return (
+                            <div className="ml-2 mt-1 relative">
+                              {displayedModifiers.map((mod, idx) => {
+                                const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
+                                const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
+                                
+                                return (
+                                  <div key={idx} className="relative flex items-center text-xs py-[2px]">
+                                    {/* Vertical line - only show if not last item */}
+                                    {!isLastItem && (
+                                      <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
+                                    )}
+                                    {/* Vertical line segment to connect to horizontal */}
+                                    <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                    {/* Horizontal connector */}
+                                    <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
+                                    {/* Content */}
+                                    <div className="flex items-center gap-1.5 ml-4">
+                                      <span className="text-white">
+                                        {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                      </span>
+                                      <span className={`text-white/70 ${isRemoval ? 'line-through' : ''}`}>
+                                        {displayMod}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              {hasShowButton && (
+                                <div className="relative flex items-center py-[2px]">
+                                  {/* Vertical line segment to connect to horizontal (this is the last item) */}
+                                  <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                  {/* Horizontal connector */}
+                                  <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
+                                  <button 
+                                    className="text-xs text-white/60 hover:text-white ml-4"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedCartItems(prev => {
+                                        const newSet = new Set(prev);
+                                        if (newSet.has(itemKey)) {
+                                          newSet.delete(itemKey);
+                                        } else {
+                                          newSet.add(itemKey);
+                                        }
+                                        return newSet;
+                                      });
+                                    }}
+                                  >
+                                    {expandedCartItems.has(itemKey) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
                     <span className="text-white font-medium text-sm">{formatPrice(item.price * item.qty)}</span>
@@ -1265,37 +1327,69 @@ const TableOrderDetails = () => {
                           })()}
                           
                           {/* Modifiers with tree hierarchy */}
-                          {item.modifiers.length > 0 && (
-                            <div className="mt-1 relative">
-                              {item.modifiers.map((mod, idx) => {
-                                const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
-                                const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
-                                const isLastItem = idx === item.modifiers.length - 1;
-                                
-                                return (
-                                  <div key={idx} className="relative flex items-center text-xs py-[3px]">
-                                    {/* Vertical line - only show if not last item */}
-                                    {!isLastItem && (
-                                      <div className="absolute left-0 top-1/2 w-px bg-white" style={{ height: 'calc(100% + 3px)' }} />
-                                    )}
-                                    {/* Vertical line segment to connect to horizontal */}
+                          {item.modifiers.length > 0 && (() => {
+                            const itemKey = `desktop-${currentSelectedGuest.id}-${index}`;
+                            const displayedModifiers = expandedCartItems.has(itemKey) ? item.modifiers : item.modifiers.slice(0, 2);
+                            const hasShowButton = item.modifiers.length > 2;
+                            
+                            return (
+                              <div className="mt-1 ml-3 relative">
+                                {displayedModifiers.map((mod, idx) => {
+                                  const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
+                                  const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                  const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                  const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
+                                  
+                                  return (
+                                    <div key={idx} className="relative flex items-center text-xs py-[3px]">
+                                      {/* Vertical line - only show if not last item */}
+                                      {!isLastItem && (
+                                        <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
+                                      )}
+                                      {/* Vertical line segment to connect to horizontal */}
+                                      <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                      {/* Horizontal connector */}
+                                      <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
+                                      {/* Content */}
+                                      <div className="flex items-center gap-2 ml-5">
+                                        <span className="text-white">
+                                          {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                        </span>
+                                        <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
+                                          {displayMod}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                                {hasShowButton && (
+                                  <div className="relative flex items-center py-[3px]">
+                                    {/* Vertical line segment to connect to horizontal (this is the last item) */}
                                     <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                     {/* Horizontal connector */}
                                     <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
-                                    {/* Content */}
-                                    <div className="flex items-center gap-2 ml-5">
-                                      <span className="text-white">
-                                        {isAddOn ? '+' : isRemoval ? '-' : '•'}
-                                      </span>
-                                      <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
-                                        {mod}
-                                      </span>
-                                    </div>
+                                    <button 
+                                      className="text-xs text-white/60 hover:text-white ml-5"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setExpandedCartItems(prev => {
+                                          const newSet = new Set(prev);
+                                          if (newSet.has(itemKey)) {
+                                            newSet.delete(itemKey);
+                                          } else {
+                                            newSet.add(itemKey);
+                                          }
+                                          return newSet;
+                                        });
+                                      }}
+                                    >
+                                      {expandedCartItems.has(itemKey) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                    </button>
                                   </div>
-                                );
-                              })}
-                            </div>
-                          )}
+                                )}
+                              </div>
+                            );
+                          })()}
                           
                           {/* Seat Assignment Display */}
                           {item.seats.length > 0 && (
@@ -1732,13 +1826,72 @@ const TableOrderDetails = () => {
                                 <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${section.isOriginal ? 'bg-white text-black' : 'bg-[#FFC48A] text-black'}`}>
                                   {item.qty}
                                 </span>
-                                <div>
+                                <div className="flex-1 min-w-0">
                                   <span className="text-white font-medium">{item.name}</span>
-                                  {item.modifiers.length > 0 && (
-                                    <div className="mt-1 text-white/50 text-sm space-y-0.5">
-                                      {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                                    </div>
-                                  )}
+                                  {/* Modifiers with tree hierarchy */}
+                                  {item.modifiers.length > 0 && (() => {
+                                    const itemKey = `tablet-merged-${sectionIndex}-${index}`;
+                                    const displayedModifiers = expandedCartItems.has(itemKey) ? item.modifiers : item.modifiers.slice(0, 2);
+                                    const hasShowButton = item.modifiers.length > 2;
+                                    
+                                    return (
+                                      <div className="ml-2 mt-1 relative">
+                                        {displayedModifiers.map((mod, idx) => {
+                                          const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
+                                          const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                          const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                          const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
+                                          
+                                          return (
+                                            <div key={idx} className="relative flex items-center text-xs py-[2px]">
+                                              {/* Vertical line - only show if not last item */}
+                                              {!isLastItem && (
+                                                <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
+                                              )}
+                                              {/* Vertical line segment to connect to horizontal */}
+                                              <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                              {/* Horizontal connector */}
+                                              <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
+                                              {/* Content */}
+                                              <div className="flex items-center gap-1.5 ml-4">
+                                                <span className="text-white">
+                                                  {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                                </span>
+                                                <span className={`text-white/70 ${isRemoval ? 'line-through' : ''}`}>
+                                                  {displayMod}
+                                                </span>
+                                              </div>
+                                            </div>
+                                          );
+                                        })}
+                                        {hasShowButton && (
+                                          <div className="relative flex items-center py-[2px]">
+                                            {/* Vertical line segment to connect to horizontal (this is the last item) */}
+                                            <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                            {/* Horizontal connector */}
+                                            <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
+                                            <button 
+                                              className="text-xs text-white/60 hover:text-white ml-4"
+                                              onClick={(e) => {
+                                                e.stopPropagation();
+                                                setExpandedCartItems(prev => {
+                                                  const newSet = new Set(prev);
+                                                  if (newSet.has(itemKey)) {
+                                                    newSet.delete(itemKey);
+                                                  } else {
+                                                    newSet.add(itemKey);
+                                                  }
+                                                  return newSet;
+                                                });
+                                              }}
+                                            >
+                                              {expandedCartItems.has(itemKey) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                            </button>
+                                          </div>
+                                        )}
+                                      </div>
+                                    );
+                                  })()}
                                 </div>
                               </div>
                               <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
@@ -1770,13 +1923,72 @@ const TableOrderDetails = () => {
                             <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
                               {item.qty}
                             </span>
-                            <div>
+                            <div className="flex-1 min-w-0">
                               <span className="text-white font-medium">{item.name}</span>
-                              {item.modifiers.length > 0 && (
-                                <div className="mt-1 text-white/50 text-sm space-y-0.5">
-                                  {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                                </div>
-                              )}
+                              {/* Modifiers with tree hierarchy */}
+                              {item.modifiers.length > 0 && (() => {
+                                const itemKey = `tablet-${currentSelectedGuest.id}-${index}`;
+                                const displayedModifiers = expandedCartItems.has(itemKey) ? item.modifiers : item.modifiers.slice(0, 2);
+                                const hasShowButton = item.modifiers.length > 2;
+                                
+                                return (
+                                  <div className="ml-2 mt-1 relative">
+                                    {displayedModifiers.map((mod, idx) => {
+                                      const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
+                                      const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                      const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                      const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
+                                      
+                                      return (
+                                        <div key={idx} className="relative flex items-center text-xs py-[2px]">
+                                          {/* Vertical line - only show if not last item */}
+                                          {!isLastItem && (
+                                            <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
+                                          )}
+                                          {/* Vertical line segment to connect to horizontal */}
+                                          <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                          {/* Horizontal connector */}
+                                          <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
+                                          {/* Content */}
+                                          <div className="flex items-center gap-1.5 ml-4">
+                                            <span className="text-white">
+                                              {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                            </span>
+                                            <span className={`text-white/70 ${isRemoval ? 'line-through' : ''}`}>
+                                              {displayMod}
+                                            </span>
+                                          </div>
+                                        </div>
+                                      );
+                                    })}
+                                    {hasShowButton && (
+                                      <div className="relative flex items-center py-[2px]">
+                                        {/* Vertical line segment to connect to horizontal (this is the last item) */}
+                                        <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                        {/* Horizontal connector */}
+                                        <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
+                                        <button 
+                                          className="text-xs text-white/60 hover:text-white ml-4"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            setExpandedCartItems(prev => {
+                                              const newSet = new Set(prev);
+                                              if (newSet.has(itemKey)) {
+                                                newSet.delete(itemKey);
+                                              } else {
+                                                newSet.add(itemKey);
+                                              }
+                                              return newSet;
+                                            });
+                                          }}
+                                        >
+                                          {expandedCartItems.has(itemKey) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                );
+                              })()}
                             </div>
                           </div>
                           <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>

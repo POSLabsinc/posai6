@@ -467,8 +467,8 @@ const TableOrderDetails = () => {
     setShowMobileOrderPanel(true);
   };
 
-  // Mobile Order Panel Component
-  const MobileOrderPanel = () => {
+  // Mobile Order Panel - render function (not component) to prevent scroll reset
+  const renderMobileOrderPanel = () => {
     if (!currentSelectedGuest) return null;
     return (
       <div className="fixed inset-0 z-50 bg-black flex flex-col">
@@ -586,8 +586,8 @@ const TableOrderDetails = () => {
     );
   };
 
-  // Mobile Layout
-  const MobileLayout = () => <div className="flex flex-col h-full bg-black">
+  // Mobile Layout - render function (not component) to prevent scroll reset
+  const renderMobileLayout = () => <div className="flex flex-col h-full bg-black">
       {/* Header */}
       <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
         <button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity z-10" style={{
@@ -851,11 +851,11 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Mobile Order Panel */}
-      {showMobileOrderPanel && <MobileOrderPanel />}
+      {showMobileOrderPanel && renderMobileOrderPanel()}
     </div>;
 
-  // Desktop Layout (existing)
-  const DesktopLayout = () => <div className="flex h-full bg-black">
+  // Desktop Layout - render function (not component) to prevent scroll reset
+  const renderDesktopLayout = () => <div className="flex h-full bg-black">
       {/* Left Panel - Order List */}
       <div className="flex flex-col flex-1 mx-2 mb-2 rounded-[20px] overflow-hidden">
         {/* Header */}
@@ -1452,8 +1452,8 @@ const TableOrderDetails = () => {
       })()}
     </div>;
 
-  // Tablet Layout - Similar to mobile order cards on left, order details on right
-  const TabletLayout = () => <div className="flex h-full bg-black">
+  // Tablet Layout - render function (not component) to prevent scroll reset
+  const renderTabletLayout = () => <div className="flex h-full bg-black">
       {/* Left Panel - Order List (Mobile-style cards) */}
       <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
         {/* Header */}
@@ -1884,17 +1884,17 @@ const TableOrderDetails = () => {
   return <>
       {/* Mobile Layout */}
       <div className="md:hidden h-full">
-        <MobileLayout />
+        {renderMobileLayout()}
       </div>
 
       {/* Tablet Layout */}
       <div className="hidden md:block lg:hidden h-full">
-        <TabletLayout />
+        {renderTabletLayout()}
       </div>
 
       {/* Desktop Layout */}
       <div className="hidden lg:block h-full">
-        <DesktopLayout />
+        {renderDesktopLayout()}
       </div>
       {/* Payment Dialog */}
       <PaymentDialog

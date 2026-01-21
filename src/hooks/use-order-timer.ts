@@ -127,8 +127,8 @@ export const useOrderTimers = (orders: OrderTimerData[]): Record<string, string>
     // Initial update
     updateTimers();
 
-    // Check if any orders are ongoing
-    const hasOngoingOrders = orders.some(order => 
+    // Check if any orders are ongoing (use ref to get latest)
+    const hasOngoingOrders = ordersRef.current.some(order => 
       !['PAID', 'COMPLETED', 'Paid', 'Completed'].includes(order.status)
     );
 

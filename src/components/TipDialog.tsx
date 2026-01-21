@@ -21,6 +21,7 @@ const TipDialog = ({ open, onOpenChange, orderTotal, onTipSelected }: TipDialogP
   const [phoneNumber, setPhoneNumber] = useState('');
   const [emailAddress, setEmailAddress] = useState('');
   const [noMarketing, setNoMarketing] = useState(false);
+  const [isCFDOn, setIsCFDOn] = useState(false);
 
   const tipPercentages = [
     { percent: 25, amount: orderTotal * 0.25 },
@@ -37,6 +38,7 @@ const TipDialog = ({ open, onOpenChange, orderTotal, onTipSelected }: TipDialogP
     setPhoneNumber('');
     setEmailAddress('');
     setNoMarketing(false);
+    setIsCFDOn(false);
     onOpenChange(false);
   };
 
@@ -495,13 +497,27 @@ const TipDialog = ({ open, onOpenChange, orderTotal, onTipSelected }: TipDialogP
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <button 
-              className="px-3 py-1.5 rounded-full text-white/80 text-xs"
+              onClick={() => {
+                setIsCFDOn(!isCFDOn);
+                if (!isCFDOn) {
+                  toast.success("CFD screen activated for customer tip selection");
+                }
+              }}
+              className={`px-3 py-1.5 rounded-full text-xs transition-all ${
+                isCFDOn 
+                  ? 'text-amber-400 border border-amber-500/50' 
+                  : 'text-white/80'
+              }`}
               style={{
-                background: "#7575754D",
-                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+                background: isCFDOn 
+                  ? "rgba(180, 130, 50, 0.3)" 
+                  : "#7575754D",
+                boxShadow: isCFDOn
+                  ? "inset 0px 0px 12px 0px rgba(200, 150, 50, 0.3)"
+                  : "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
               }}
             >
-              Request tip on built-in CFD
+              {isCFDOn ? "CFD • On" : "Request tip on built-in CFD"}
             </button>
           </div>
 

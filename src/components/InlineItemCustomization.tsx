@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { ChevronDown, X, Search, Mic, ArrowUpDown, Delete, Fingerprint, ScanFace, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
@@ -104,6 +104,15 @@ const itemModifiers: ModifierCategory[] = [
 const addOnCategories = ["House Favorites", "All"];
 const addOnSubcategories = ["Beverages", "Desserts", "Side Options", "Proteins", "Extras"];
 
+// Sort options
+type SortOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc';
+const sortOptions: { value: SortOption; label: string }[] = [
+  { value: 'name-asc', label: 'Name A-Z' },
+  { value: 'name-desc', label: 'Name Z-A' },
+  { value: 'price-asc', label: 'Price Low-High' },
+  { value: 'price-desc', label: 'Price High-Low' },
+];
+
 const addOnItems: ModifierOption[] = [{
   name: "Dew Mojito",
   price: 2.00,
@@ -176,6 +185,8 @@ export const InlineItemCustomization = ({
   const [addOnSearchQuery, setAddOnSearchQuery] = useState("");
   const [activeAddOnCategory, setActiveAddOnCategory] = useState("House Favorites");
   const [activeAddOnSubcategory, setActiveAddOnSubcategory] = useState("Beverages");
+  const [addOnSortBy, setAddOnSortBy] = useState<SortOption>('name-asc');
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
   const [overriddenPrice, setOverriddenPrice] = useState<number | null>(null);
   
   // View state: 'customization' | 'mpin' | 'priceOverride' | 'productInfo'
@@ -355,6 +366,33 @@ export const InlineItemCustomization = ({
     onAddToCart(item, quantity, allModifiers, itemNotes, totalPrice, discountInfo);
   };
   const activeCategory = itemModifiers.find(cat => cat.name === activeModifierCategory);
+
+  // Filter and sort add-ons
+  const filteredAndSortedAddOns = useMemo(() => {
+    let items = addOnItems.filter(addOn => {
+      const matchesSearch = addOnSearchQuery === "" || addOn.name.toLowerCase().includes(addOnSearchQuery.toLowerCase());
+      const matchesSubcategory = activeAddOnCategory === "All" || addOn.category === activeAddOnSubcategory;
+      return matchesSearch && matchesSubcategory;
+    });
+
+    // Sort items
+    items.sort((a, b) => {
+      switch (addOnSortBy) {
+        case 'name-asc':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        case 'price-asc':
+          return (a.price || 0) - (b.price || 0);
+        case 'price-desc':
+          return (b.price || 0) - (a.price || 0);
+        default:
+          return 0;
+      }
+    });
+
+    return items;
+  }, [addOnSearchQuery, activeAddOnCategory, activeAddOnSubcategory, addOnSortBy]);
 
   // Calculate add-on prices
   const addOnTotal = selectedAddOns.reduce((total, addOnName) => {
@@ -706,19 +744,53 @@ export const InlineItemCustomization = ({
             </div>
           </ScrollArea>
         </div> : <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
-          {/* Search Bar */}
+          {/* Search Bar with Sort Dropdown */}
           <div className="px-3 pb-2">
-            <div className="flex items-center gap-2 bg-neutral-700 rounded-full px-3 py-1.5">
-              <Search className="w-3 h-3 text-neutral-400" />
+            <div className="flex items-center gap-2 bg-neutral-700 rounded-full px-3 py-1.5 relative">
+              <Search className="w-3 h-3 text-neutral-400 flex-shrink-0" />
               <input 
                 type="text" 
                 placeholder="Search for Add-Ons" 
                 value={addOnSearchQuery} 
                 onChange={e => setAddOnSearchQuery(e.target.value)} 
-                className="flex-1 bg-transparent text-white text-xs placeholder:text-neutral-400 outline-none" 
+                className="flex-1 bg-transparent text-white text-xs placeholder:text-neutral-400 outline-none min-w-0" 
               />
-              <Mic className="w-3 h-3 text-neutral-400" />
-              <ArrowUpDown className="w-3 h-3 text-neutral-400" />
+              {addOnSearchQuery && (
+                <button 
+                  onClick={() => setAddOnSearchQuery("")}
+                  className="p-0.5 hover:bg-neutral-600 rounded-full transition-colors"
+                >
+                  <X className="w-3 h-3 text-neutral-400" />
+                </button>
+              )}
+              <div className="relative">
+                <button 
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                  className="p-0.5 hover:bg-neutral-600 rounded-full transition-colors"
+                >
+                  <ArrowUpDown className="w-3 h-3 text-neutral-400" />
+                </button>
+                {showSortDropdown && (
+                  <div className="absolute right-0 top-full mt-1 bg-neutral-800 border border-neutral-600 rounded-lg shadow-lg z-50 min-w-[120px] overflow-hidden">
+                    {sortOptions.map(option => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setAddOnSortBy(option.value);
+                          setShowSortDropdown(false);
+                        }}
+                        className={`w-full px-3 py-1.5 text-left text-[10px] font-medium transition-colors ${
+                          addOnSortBy === option.value 
+                            ? 'bg-white text-black' 
+                            : 'text-neutral-300 hover:bg-neutral-700'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
 
@@ -760,29 +832,31 @@ export const InlineItemCustomization = ({
             </div>
           </div>
 
-          {/* Add-On Items */}
-          <ScrollArea className="flex-1 min-h-0">
+          {/* Add-On Items - Scrollable */}
+          <ScrollArea className="flex-1 min-h-0 max-h-[200px]">
             <div className="px-3 pb-2">
-              <div className="flex flex-wrap gap-x-3 gap-y-2">
-                {addOnItems
-                  .filter(addOn => {
-                    const matchesSearch = addOnSearchQuery === "" || addOn.name.toLowerCase().includes(addOnSearchQuery.toLowerCase());
-                    const matchesSubcategory = activeAddOnCategory === "All" || addOn.category === activeAddOnSubcategory;
-                    return matchesSearch && matchesSubcategory;
-                  })
-                  .map(addOn => (
-                    <button 
-                      key={addOn.name} 
-                      onClick={() => toggleAddOn(addOn.name)} 
-                      className={`px-2 py-1 rounded-full text-[11px] font-medium transition-colors ${
-                        selectedAddOns.includes(addOn.name) 
-                          ? 'bg-white text-black' 
-                          : 'bg-neutral-700 text-neutral-300'
-                      }`}
-                    >
-                      {addOn.name} <span className="text-neutral-400">${addOn.price?.toFixed(2)}</span>
-                    </button>
-                  ))}
+              <div className="bg-neutral-800 rounded-lg p-2">
+                <div className="flex flex-wrap gap-1.5">
+                  {filteredAndSortedAddOns.length > 0 ? (
+                    filteredAndSortedAddOns.map(addOn => (
+                      <button 
+                        key={addOn.name} 
+                        onClick={() => toggleAddOn(addOn.name)} 
+                        className={`px-3 py-1.5 rounded-full text-[10px] font-medium transition-colors border ${
+                          selectedAddOns.includes(addOn.name) 
+                            ? 'bg-white text-black border-white' 
+                            : 'bg-neutral-900 text-white border-neutral-600'
+                        }`}
+                      >
+                        {addOn.name} <span className="text-neutral-400">${addOn.price?.toFixed(2)}</span>
+                      </button>
+                    ))
+                  ) : (
+                    <div className="w-full text-center py-4 text-neutral-400 text-xs">
+                      No add-ons found
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </ScrollArea>

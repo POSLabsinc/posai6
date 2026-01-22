@@ -9,6 +9,11 @@ import OrderSummary from "@/components/OrderSummary";
 import { getOrderStatusColor } from "@/lib/orderUtils";
 import { Order, allOrders, getOrderById, calculateOrderTotals, getOrderAmount, toOrderTemplateData } from "@/data/orders";
 
+// Helper to format table ID (T2 -> Table 2)
+const formatTableName = (tableId: string) => {
+  return tableId?.replace(/^T/i, 'Table ') || tableId;
+};
+
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
 import fireIcon from "@/assets/icons/fire.png";
@@ -433,7 +438,7 @@ const MergeOrders = () => {
         <div className="px-3 py-2 border-b border-white/10">
           <div className="flex items-center justify-between mb-1.5">
             <div className="flex items-center gap-2">
-              <span className="px-1.5 py-0.5 bg-white/10 text-white text-[10px] rounded">TABLE {panelOrder.table}</span>
+              <span className="px-1.5 py-0.5 bg-white/10 text-white text-[10px] rounded">{formatTableName(panelOrder.table).toUpperCase()}</span>
               <span className="text-white text-sm font-bold">{panelOrder.id}</span>
             </div>
             <div className="flex items-center gap-1.5">

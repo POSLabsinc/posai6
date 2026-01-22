@@ -9,6 +9,11 @@ import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import OrderSummary from "@/components/OrderSummary";
 import { getOrderStatusColor, formatPrice } from "@/lib/orderUtils";
 import { Order, allOrders, getOrderById, getAvailableOrdersForTransfer, calculateOrderTotals, getOrderAmount, toOrderTemplateData } from "@/data/orders";
+
+// Helper to format table ID (T2 -> Table 2)
+const formatTableName = (tableId: string) => {
+  return tableId?.replace(/^T/i, 'Table ') || tableId;
+};
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
@@ -1100,7 +1105,7 @@ const TransferOrders = () => {
           }} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
             background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
           }}>
-                  TRANSFER ITEMS TO ORDER {targetOrder.id} ON TABLE {targetOrder.table?.replace('T', '')}
+                  TRANSFER ITEMS TO ORDER {targetOrder.id} ON {formatTableName(targetOrder.table || '').toUpperCase()}
                 </button>
               </div>}
           </>}
@@ -1269,7 +1274,7 @@ const TransferOrders = () => {
           {/* Transfer Summary */}
           <div className="px-4 pb-4">
             <p className="text-white/60 text-sm mb-3">
-              From <span className="text-amber-400">Order #{currentOrder.id}</span> to <span className="text-emerald-400">Order #{toOrder?.id} on Table {toOrder?.table?.replace('T', '')}</span>
+              From <span className="text-amber-400">Order #{currentOrder.id}</span> to <span className="text-emerald-400">Order #{toOrder?.id} on {formatTableName(toOrder?.table || '')}</span>
             </p>
             
             {/* Transferred Items List */}

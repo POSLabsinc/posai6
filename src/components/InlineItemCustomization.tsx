@@ -833,7 +833,8 @@ export const InlineItemCustomization = ({
           </div>
 
           {/* Add-On Items - Scrollable */}
-          <ScrollArea className="flex-1 min-h-0 max-h-[200px]">
+          {/* NOTE: our ScrollArea viewport is h-full, so the root must have an explicit height */}
+          <ScrollArea className="h-[200px]">
             <div className="px-3 pb-2">
               <div className="bg-neutral-800 rounded-lg p-2">
                 <div className="flex flex-wrap gap-1.5">

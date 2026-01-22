@@ -1085,7 +1085,7 @@ const TableOrderDetails = () => {
                       {/* Row 1: Name + Table | Server (center) | Status */}
                       <div className="flex items-center text-xs lg:text-sm">
                         <div className="flex items-center gap-1 lg:gap-2 w-[180px] lg:w-[220px] flex-shrink-0">
-                          <span className="text-white font-medium truncate">{guest.name} · {guest.revenueCenter}</span>
+                          <span className="text-white font-medium truncate">{guest.name}</span>
                         </div>
                         <div className="flex-1">
                           <span className="text-white/60 truncate">{guest.server}</span>
@@ -1109,9 +1109,11 @@ const TableOrderDetails = () => {
                         <span className="text-white font-semibold flex-shrink-0">{formatPrice(guest.total)}</span>
                       </div>
                       
-                      {/* Row 3: Payment Status (center) | Amount */}
+                      {/* Row 3: Revenue Center | Payment Status (center) | Tip */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="w-[180px] lg:w-[220px] flex-shrink-0"></div>
+                        <div className="w-[180px] lg:w-[220px] flex-shrink-0">
+                          <span className="text-white/60 truncate">{guest.revenueCenter}</span>
+                        </div>
                         <div className="flex-1">
                           {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' 
                             ? <MultiPaymentDisplay paymentMethods={guest.paymentMethods} paymentType={guest.paymentType} />

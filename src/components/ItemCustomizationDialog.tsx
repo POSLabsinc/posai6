@@ -1200,7 +1200,8 @@ export const ItemCustomizationDialog = ({
           </div>
 
           {/* Modifier Options */}
-          <ScrollArea className="flex-1 min-h-0 max-h-[140px]">
+          {/* NOTE: our ScrollArea viewport is h-full, so the root must have an explicit height */}
+          <ScrollArea className="h-[140px]">
             <div className="px-4 pb-3">
               <div className="flex flex-wrap gap-2">
                 {activeCategory?.options.map(option => (
@@ -1326,7 +1327,8 @@ export const ItemCustomizationDialog = ({
           </div>
 
           {/* Add-On Items - Scrollable */}
-          <ScrollArea className="flex-1 min-h-0 max-h-[180px]">
+          {/* NOTE: our ScrollArea viewport is h-full, so the root must have an explicit height */}
+          <ScrollArea className="h-[180px]">
             <div className="px-4 py-2">
               <div className="flex flex-wrap gap-2">
                 {filteredAddOnItems.length > 0 ? (

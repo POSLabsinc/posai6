@@ -194,12 +194,21 @@ const SwipeableCartItem = ({
     }
   };
 
-  const handleQuantityChange = (delta: number) => {
-    const newQty = Math.max(1, Math.min(refireQuantity + delta, itemQuantity));
-    setRefireQuantity(newQty);
+  const handleQuantityDecrease = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setRefireQuantity(prev => Math.max(1, prev - 1));
   };
 
-  const handleCheckboxToggle = () => {
+  const handleQuantityIncrease = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+    setRefireQuantity(prev => Math.min(prev + 1, itemQuantity));
+  };
+
+  const handleCheckboxToggle = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
     if (isSelected) {
       setIsSelected(false);
       setShowRefireControls(false);
@@ -210,49 +219,6 @@ const SwipeableCartItem = ({
 
   return (
     <div className="relative overflow-hidden rounded-lg">
-      {/* Refire quantity controls - shown after long press */}
-      {showRefireControls && (
-        <div className="flex items-center gap-2 mb-1 animate-in slide-in-from-top-2 duration-200">
-          <button
-            onClick={handleCheckboxToggle}
-            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
-              isSelected 
-                ? 'bg-white border-white' 
-                : 'bg-transparent border-neutral-500'
-            }`}
-          >
-            {isSelected && (
-              <svg className="w-3 h-3 text-black" viewBox="0 0 12 12" fill="none">
-                <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              </svg>
-            )}
-          </button>
-          
-          {isSelected && (
-            <div 
-              className="flex items-center rounded-full h-7 px-1"
-              style={{ background: 'linear-gradient(180deg, #2A2A2A 0%, #1A1A1A 100%)' }}
-            >
-              <button
-                onClick={() => handleQuantityChange(-1)}
-                className="w-6 h-6 flex items-center justify-center text-[#FF6B35] hover:text-[#FF8555] transition-colors"
-                disabled={refireQuantity <= 1}
-              >
-                <Minus className="w-4 h-4" />
-              </button>
-              <span className="w-6 text-center text-white text-sm font-medium">{refireQuantity}</span>
-              <button
-                onClick={() => handleQuantityChange(1)}
-                className="w-6 h-6 flex items-center justify-center text-white hover:text-neutral-300 transition-colors"
-                disabled={refireQuantity >= itemQuantity}
-              >
-                <Plus className="w-4 h-4" />
-              </button>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Left side action buttons (revealed when swiping right) */}
       <div className="absolute left-1 top-1/2 -translate-y-1/2 flex items-center gap-1 py-1">
         {/* No Tax button */}
@@ -350,6 +316,49 @@ const SwipeableCartItem = ({
           style={{ opacity: translateX !== 0 ? 0 : 1 }}
         />
       </div>
+
+      {/* Refire quantity controls - shown below item after long press */}
+      {showRefireControls && (
+        <div className="flex items-center gap-2 mt-1 pl-1 animate-in slide-in-from-top-2 duration-200">
+          <button
+            onClick={handleCheckboxToggle}
+            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+              isSelected 
+                ? 'bg-white border-white' 
+                : 'bg-transparent border-neutral-500'
+            }`}
+          >
+            {isSelected && (
+              <svg className="w-3 h-3 text-black" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </button>
+          
+          {isSelected && (
+            <div 
+              className="flex items-center rounded-full h-7 px-1"
+              style={{ background: 'linear-gradient(180deg, #2A2A2A 0%, #1A1A1A 100%)' }}
+            >
+              <button
+                onClick={handleQuantityDecrease}
+                className="w-6 h-6 flex items-center justify-center text-[#FF6B35] hover:text-[#FF8555] transition-colors disabled:opacity-50"
+                disabled={refireQuantity <= 1}
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <span className="w-6 text-center text-white text-sm font-medium">{refireQuantity}</span>
+              <button
+                onClick={handleQuantityIncrease}
+                className="w-6 h-6 flex items-center justify-center text-white hover:text-neutral-300 transition-colors disabled:opacity-50"
+                disabled={refireQuantity >= itemQuantity}
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };

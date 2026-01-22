@@ -72,9 +72,9 @@ const OrderLayoutTemplate = ({
         {/* Guest Info - Mobile compact layout */}
         <div className="flex-1 min-w-0 py-2 pr-2">
           <div className="flex flex-col gap-1">
-            {/* Row 1: Name + Table + Revenue Center, Server, Status */}
+            {/* Row 1: Name + Table, Server, Status */}
             <div className="flex items-center justify-between">
-              <span className="text-white font-medium text-sm">{order.name} - {order.table} · {order.revenueCenter}</span>
+              <span className="text-white font-medium text-sm">{order.name} - {order.table}</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
                 <span className={`text-sm font-medium ${getOrderStatusColor(order.status)}`}>{order.status}</span>
@@ -92,12 +92,15 @@ const OrderLayoutTemplate = ({
               <span className="text-white font-semibold text-sm">{order.amount}</span>
             </div>
             
-            {/* Row 3: Payment status */}
+            {/* Row 3: Revenue Center, Payment status, Tip */}
             <div className="flex items-center justify-between">
-              <span className="text-sm" style={{ color: order.paymentType === '--' ? '#B5B6BB' : '#4ade80' }}>
-                {order.paymentType === '--' ? 'Un Paid' : 'Paid'}
-              </span>
-              <span className="text-white text-sm">$0.00</span>
+              <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.revenueCenter}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm" style={{ color: order.paymentType === '--' ? '#B5B6BB' : '#4ade80' }}>
+                  {order.paymentType === '--' ? 'Un Paid' : 'Paid'}
+                </span>
+                <span className="text-white text-sm">$0.00</span>
+              </div>
             </div>
           </div>
         </div>

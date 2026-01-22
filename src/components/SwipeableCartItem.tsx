@@ -203,7 +203,7 @@ const SwipeableCartItem = ({
   const handleQuantityIncrease = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
-    setRefireQuantity(prev => Math.min(prev + 1, itemQuantity));
+    setRefireQuantity(prev => prev + 1);
   };
 
   const handleCheckboxToggle = (e: React.MouseEvent) => {
@@ -217,10 +217,18 @@ const SwipeableCartItem = ({
     }
   };
 
+  // Check if buttons should be visible based on swipe position
+  const showLeftButtons = translateX > 20;
+  const showRightButtons = translateX < -20;
+
   return (
     <div className="relative overflow-hidden rounded-lg">
       {/* Left side action buttons (revealed when swiping right) */}
-      <div className="absolute left-1 top-1/2 -translate-y-1/2 flex items-center gap-1 py-1">
+      <div 
+        className={`absolute left-1 top-1/2 -translate-y-1/2 flex items-center gap-1 py-1 transition-opacity duration-150 ${
+          showLeftButtons ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      >
         {/* No Tax button */}
         <button
           onClick={() => onNoTax?.()}
@@ -265,7 +273,11 @@ const SwipeableCartItem = ({
       </div>
 
       {/* Right side action buttons (revealed when swiping left) */}
-      <div className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 py-1">
+      <div 
+        className={`absolute right-1 top-1/2 -translate-y-1/2 flex items-center gap-1 py-1 transition-opacity duration-150 ${
+          showRightButtons ? 'opacity-100' : 'opacity-0 pointer-events-none'
+        }`}
+      >
         {/* Clear button - Red */}
         <button
           onClick={onDelete}
@@ -350,8 +362,7 @@ const SwipeableCartItem = ({
               <span className="w-6 text-center text-white text-sm font-medium">{refireQuantity}</span>
               <button
                 onClick={handleQuantityIncrease}
-                className="w-6 h-6 flex items-center justify-center text-white hover:text-neutral-300 transition-colors disabled:opacity-50"
-                disabled={refireQuantity >= itemQuantity}
+                className="w-6 h-6 flex items-center justify-center text-white hover:text-neutral-300 transition-colors"
               >
                 <Plus className="w-4 h-4" />
               </button>

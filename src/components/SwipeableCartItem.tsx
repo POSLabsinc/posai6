@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import clearCIcon from "@/assets/icons/clear-c.png";
 import fireVectorIcon from "@/assets/icons/fire-vector.png";
 import noTaxIcon from "@/assets/icons/no-tax.png";
@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Minus, Plus } from "lucide-react";
 
 interface SwipeableCartItemProps {
   children: React.ReactNode;
@@ -21,6 +21,8 @@ interface SwipeableCartItemProps {
   isFired?: boolean;
   isOpen?: boolean;
   onSwipeStart?: () => void;
+  onRefire?: (quantity: number) => void;
+  itemQuantity?: number;
 }
 
 const ORDER_TYPES = [
@@ -35,6 +37,8 @@ const ORDER_TYPES = [
   "CUSTOM"
 ];
 
+const LONG_PRESS_DURATION = 500; // 500ms for long press
+
 const SwipeableCartItem = ({ 
   children, 
   onDelete, 
@@ -45,12 +49,19 @@ const SwipeableCartItem = ({
   isNoTax = false,
   isFired = false,
   isOpen,
-  onSwipeStart
+  onSwipeStart,
+  onRefire,
+  itemQuantity = 1
 }: SwipeableCartItemProps) => {
   const [internalTranslateX, setInternalTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [showRefireControls, setShowRefireControls] = useState(false);
+  const [refireQuantity, setRefireQuantity] = useState(1);
+  const [isSelected, setIsSelected] = useState(false);
   const startX = useRef(0);
   const currentX = useRef(0);
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const hasMoved = useRef(false);
   
   // Use controlled state if provided, otherwise use internal state
   const translateX = isOpen === undefined ? internalTranslateX : (isOpen ? internalTranslateX : 0);
@@ -65,6 +76,36 @@ const SwipeableCartItem = ({
     }
   }, [isOpen]);
 
+  // Clear long press timer on unmount
+  useEffect(() => {
+    return () => {
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current);
+      }
+    };
+  }, []);
+
+  const handleLongPress = useCallback(() => {
+    if (!hasMoved.current) {
+      setShowRefireControls(true);
+      setIsSelected(true);
+      setRefireQuantity(1);
+    }
+  }, []);
+
+  const clearLongPressTimer = useCallback(() => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  }, []);
+
+  const startLongPressTimer = useCallback(() => {
+    clearLongPressTimer();
+    hasMoved.current = false;
+    longPressTimer.current = setTimeout(handleLongPress, LONG_PRESS_DURATION);
+  }, [clearLongPressTimer, handleLongPress]);
+
   // Width for buttons on each side - responsive values
   const rightSwipeWidth = -80; // 2 buttons on right (swipe left to reveal) - reduced for tablet
   const leftSwipeWidth = 130; // buttons on left (swipe right to reveal) - reduced for tablet
@@ -72,6 +113,8 @@ const SwipeableCartItem = ({
   const handleTouchStart = (e: React.TouchEvent) => {
     startX.current = e.touches[0].clientX;
     setIsDragging(true);
+    hasMoved.current = false;
+    startLongPressTimer();
     onSwipeStart?.();
   };
 
@@ -79,12 +122,20 @@ const SwipeableCartItem = ({
     if (!isDragging) return;
     currentX.current = e.touches[0].clientX;
     const diff = currentX.current - startX.current;
+    
+    // If moved more than 5px, cancel long press
+    if (Math.abs(diff) > 5) {
+      hasMoved.current = true;
+      clearLongPressTimer();
+    }
+    
     // Allow swipe in both directions
     setTranslateX(Math.max(rightSwipeWidth, Math.min(diff, leftSwipeWidth)));
   };
 
   const handleTouchEnd = () => {
     setIsDragging(false);
+    clearLongPressTimer();
     // Snap to open or closed position
     if (translateX < rightSwipeWidth / 2) {
       setTranslateX(rightSwipeWidth);
@@ -98,6 +149,8 @@ const SwipeableCartItem = ({
   const handleMouseDown = (e: React.MouseEvent) => {
     startX.current = e.clientX;
     setIsDragging(true);
+    hasMoved.current = false;
+    startLongPressTimer();
     onSwipeStart?.();
   };
 
@@ -105,11 +158,19 @@ const SwipeableCartItem = ({
     if (!isDragging) return;
     currentX.current = e.clientX;
     const diff = currentX.current - startX.current;
+    
+    // If moved more than 5px, cancel long press
+    if (Math.abs(diff) > 5) {
+      hasMoved.current = true;
+      clearLongPressTimer();
+    }
+    
     setTranslateX(Math.max(rightSwipeWidth, Math.min(diff, leftSwipeWidth)));
   };
 
   const handleMouseUp = () => {
     setIsDragging(false);
+    clearLongPressTimer();
     if (translateX < rightSwipeWidth / 2) {
       setTranslateX(rightSwipeWidth);
     } else if (translateX > leftSwipeWidth / 2) {
@@ -120,6 +181,7 @@ const SwipeableCartItem = ({
   };
 
   const handleMouseLeave = () => {
+    clearLongPressTimer();
     if (isDragging) {
       setIsDragging(false);
       if (translateX < rightSwipeWidth / 2) {
@@ -132,8 +194,65 @@ const SwipeableCartItem = ({
     }
   };
 
+  const handleQuantityChange = (delta: number) => {
+    const newQty = Math.max(1, Math.min(refireQuantity + delta, itemQuantity));
+    setRefireQuantity(newQty);
+  };
+
+  const handleCheckboxToggle = () => {
+    if (isSelected) {
+      setIsSelected(false);
+      setShowRefireControls(false);
+    } else {
+      setIsSelected(true);
+    }
+  };
+
   return (
     <div className="relative overflow-hidden rounded-lg">
+      {/* Refire quantity controls - shown after long press */}
+      {showRefireControls && (
+        <div className="flex items-center gap-2 mb-1 animate-in slide-in-from-top-2 duration-200">
+          <button
+            onClick={handleCheckboxToggle}
+            className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${
+              isSelected 
+                ? 'bg-white border-white' 
+                : 'bg-transparent border-neutral-500'
+            }`}
+          >
+            {isSelected && (
+              <svg className="w-3 h-3 text-black" viewBox="0 0 12 12" fill="none">
+                <path d="M2 6L5 9L10 3" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              </svg>
+            )}
+          </button>
+          
+          {isSelected && (
+            <div 
+              className="flex items-center rounded-full h-7 px-1"
+              style={{ background: 'linear-gradient(180deg, #2A2A2A 0%, #1A1A1A 100%)' }}
+            >
+              <button
+                onClick={() => handleQuantityChange(-1)}
+                className="w-6 h-6 flex items-center justify-center text-[#FF6B35] hover:text-[#FF8555] transition-colors"
+                disabled={refireQuantity <= 1}
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              <span className="w-6 text-center text-white text-sm font-medium">{refireQuantity}</span>
+              <button
+                onClick={() => handleQuantityChange(1)}
+                className="w-6 h-6 flex items-center justify-center text-white hover:text-neutral-300 transition-colors"
+                disabled={refireQuantity >= itemQuantity}
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Left side action buttons (revealed when swiping right) */}
       <div className="absolute left-1 top-1/2 -translate-y-1/2 flex items-center gap-1 py-1">
         {/* No Tax button */}

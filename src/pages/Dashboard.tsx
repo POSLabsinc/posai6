@@ -4887,11 +4887,11 @@ const Dashboard = () => {
                         <span className="text-white font-semibold text-sm">${calculateOrderTotal(order.items).toFixed(2)}</span>
                       </div>
                       
-                      {/* Row 3: Payment status */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm" style={{
-                          color: '#B5B6BB'
-                        }}>{order.isPaid ? "Paid" : "Un Paid"}</span>
+                      {/* Row 3: Empty | Payment Status (center) | Tip */}
+                      <div className="flex items-center">
+                        <div className="flex-1">
+                          <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.isPaid ? "Paid" : "Pending Payment"}</span>
+                        </div>
                         <span className="text-white text-sm">{order.tip}</span>
                       </div>
                     </div>
@@ -4914,25 +4914,21 @@ const Dashboard = () => {
                       <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                         {/* Row 1: Name + Table + Revenue Center | Server | Status */}
                         <div className="flex items-center text-xs lg:text-sm">
-                          <div className="flex items-center gap-1 lg:gap-2 w-[220px] lg:w-[280px] flex-shrink-0">
-                            <span className="text-white font-medium truncate">{order.guest}</span>
-                            <span className="text-white/60">·</span>
-                            <span className="text-white font-medium">{order.table}</span>
-                            <span className="text-white/60">·</span>
-                            <span className="text-white/60 truncate">{order.revenueCenter}</span>
+                          <div className="flex items-center gap-1 lg:gap-2 w-[180px] lg:w-[220px] flex-shrink-0">
+                            <span className="text-white font-medium truncate">{order.guest} · {order.revenueCenter}</span>
                           </div>
                           <span className="text-white/60 flex-1 truncate px-1 lg:px-2">{order.server}</span>
                           <span className="font-semibold uppercase flex-shrink-0" style={{
                         color: order.statusColor
                       }}>
-                            {order.status}
+                            {order.status === 'Completed' ? 'PAID' : order.status}
                           </span>
                         </div>
                         
                         {/* Row 2: Party info | Timer | Total */}
                         <div className="flex items-center text-xs lg:text-sm">
-                          <div className="flex items-center gap-1 text-white/60 w-[220px] lg:w-[280px] flex-shrink-0">
-                            <img src={dineInIcon} alt="Dine In" className="w-3 h-3 lg:w-4 lg:h-4 object-contain" />
+                          <div className="flex items-center gap-1 text-white/60 w-[180px] lg:w-[220px] flex-shrink-0">
+                            <img src={dineInIcon} alt="Dine In" className="w-3 h-3 lg:w-4 lg:h-4 object-contain opacity-60" />
                             <span className="truncate">Party of {order.seats}, {order.arrivedAt}</span>
                             <span className="text-white/40">|</span>
                             <span>{order.timer}</span>
@@ -4941,10 +4937,12 @@ const Dashboard = () => {
                           <span className="text-white font-semibold flex-shrink-0">${calculateOrderTotal(order.items).toFixed(2)}</span>
                         </div>
                         
-                        {/* Row 3: Payment Status | Amount */}
+                        {/* Row 3: Empty | Payment Status (center) | Tip */}
                         <div className="flex items-center text-xs lg:text-sm">
-                          <span className="text-white/60 w-[220px] lg:w-[280px] flex-shrink-0 truncate">{order.isPaid ? "Paid" : "Un Paid"}</span>
-                          <div className="flex-1"></div>
+                          <div className="w-[180px] lg:w-[220px] flex-shrink-0"></div>
+                          <div className="flex-1">
+                            <span className="text-white/60 truncate">{order.isPaid ? "Paid" : "Pending Payment"}</span>
+                          </div>
                           <span className="text-white flex-shrink-0">{order.tip}</span>
                         </div>
                       </div>

@@ -1253,37 +1253,37 @@ export const ItemCustomizationDialog = ({
           {/* Search Bar with Sort */}
           <div className="px-4 pb-2">
             <div className="flex items-center gap-2">
-              {/* Search input - light rounded pill */}
-              <div className="flex-1 flex items-center gap-2 bg-neutral-200 rounded-full px-3 py-2">
-                <Search className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+              {/* Search input - dark rounded pill */}
+              <div className="flex-1 flex items-center gap-2 bg-neutral-800 border border-neutral-600 rounded-full px-3 py-2">
+                <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
                 <input 
                   type="text" 
                   placeholder="Search for Add-Ons" 
                   value={addOnSearchQuery} 
                   onChange={e => setAddOnSearchQuery(e.target.value)} 
-                  className="flex-1 bg-transparent text-neutral-800 text-sm placeholder:text-neutral-500 outline-none min-w-0" 
+                  className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-400 outline-none min-w-0" 
                 />
                 {addOnSearchQuery ? (
                   <button 
                     onClick={() => setAddOnSearchQuery("")}
-                    className="p-0.5 hover:bg-neutral-300 rounded-full transition-colors"
+                    className="p-0.5 hover:bg-neutral-700 rounded-full transition-colors"
                   >
-                    <X className="w-4 h-4 text-neutral-500" />
+                    <X className="w-4 h-4 text-neutral-400" />
                   </button>
                 ) : (
-                  <Mic className="w-4 h-4 text-neutral-500 flex-shrink-0" />
+                  <Mic className="w-4 h-4 text-neutral-400 flex-shrink-0" />
                 )}
               </div>
               
-              {/* Sort button - separate rounded pill */}
+              {/* Sort button - separate dark rounded pill */}
               <div className="relative">
                 <button 
                   onClick={() => setShowSortDropdown(!showSortDropdown)}
-                  className="flex items-center justify-center bg-neutral-200 rounded-full p-2 hover:bg-neutral-300 transition-colors"
+                  className="flex items-center justify-center bg-neutral-800 border border-neutral-600 rounded-full p-2 hover:bg-neutral-700 transition-colors"
                 >
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M4.5 3V13M4.5 13L2 10.5M4.5 13L7 10.5" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                    <path d="M11.5 13V3M11.5 3L9 5.5M11.5 3L14 5.5" stroke="#6B7280" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M4.5 3V13M4.5 13L2 10.5M4.5 13L7 10.5" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                    <path d="M11.5 13V3M11.5 3L9 5.5M11.5 3L14 5.5" stroke="#9CA3AF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
                   </svg>
                 </button>
                 {showSortDropdown && (

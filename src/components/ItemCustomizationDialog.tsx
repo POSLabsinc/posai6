@@ -1,13 +1,22 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogContent } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronDown, Delete, Fingerprint, ScanFace, Share2, X, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
+import { ChevronLeft, ChevronDown, Delete, Fingerprint, ScanFace, Share2, X, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Search, ArrowUpDown } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import offerIcon from "@/assets/icons/offer.png";
+
+// Sort options for add-ons
+type SortOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc';
+const sortOptions: { value: SortOption; label: string }[] = [
+  { value: 'name-asc', label: 'Name A-Z' },
+  { value: 'name-desc', label: 'Name Z-A' },
+  { value: 'price-asc', label: 'Price Low-High' },
+  { value: 'price-desc', label: 'Price High-Low' },
+];
 
 interface DiscountType {
   id: string;
@@ -311,12 +320,39 @@ export const ItemCustomizationDialog = ({
   
   // Add-on filter state
   const [addOnFilterGroup, setAddOnFilterGroup] = useState<'favorites' | 'all'>('favorites');
+  const [addOnSearchQuery, setAddOnSearchQuery] = useState("");
+  const [addOnSortBy, setAddOnSortBy] = useState<SortOption>('name-asc');
+  const [showSortDropdown, setShowSortDropdown] = useState(false);
 
   // Get add-ons for current item and filter based on group
   const currentItemAddOns = item ? (addOnsByItemId[item.id] || defaultAddOns) : defaultAddOns;
-  const filteredAddOnItems = currentItemAddOns.filter(addOn => 
-    addOnFilterGroup === 'all' || addOn.isFavorite
-  );
+  
+  // Filter and sort add-ons
+  const filteredAddOnItems = useMemo(() => {
+    let items = currentItemAddOns.filter(addOn => {
+      const matchesFavorite = addOnFilterGroup === 'all' || addOn.isFavorite;
+      const matchesSearch = addOnSearchQuery === "" || addOn.name.toLowerCase().includes(addOnSearchQuery.toLowerCase());
+      return matchesFavorite && matchesSearch;
+    });
+
+    // Sort items
+    items.sort((a, b) => {
+      switch (addOnSortBy) {
+        case 'name-asc':
+          return a.name.localeCompare(b.name);
+        case 'name-desc':
+          return b.name.localeCompare(a.name);
+        case 'price-asc':
+          return (a.price || 0) - (b.price || 0);
+        case 'price-desc':
+          return (b.price || 0) - (a.price || 0);
+        default:
+          return 0;
+      }
+    });
+
+    return items;
+  }, [currentItemAddOns, addOnFilterGroup, addOnSearchQuery, addOnSortBy]);
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => 
       prev.includes(seat) 
@@ -352,6 +388,9 @@ export const ItemCustomizationDialog = ({
       setSelectedDiscountId(null);
       setShowDiscountDialog(false);
       setDiscountDialogView('mpin');
+      setAddOnSearchQuery("");
+      setAddOnSortBy('name-asc');
+      setShowSortDropdown(false);
       
       // Pre-select first option from each required modifier group
       const defaultModifiers: string[] = [];
@@ -1210,6 +1249,56 @@ export const ItemCustomizationDialog = ({
         </div>
       ) : (
         <div className="flex-1 flex flex-col min-h-0">
+          {/* Search Bar with Sort */}
+          <div className="px-4 pb-2">
+            <div className="flex items-center gap-2 bg-neutral-700 rounded-full px-3 py-2 relative">
+              <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+              <input 
+                type="text" 
+                placeholder="Search Add-Ons" 
+                value={addOnSearchQuery} 
+                onChange={e => setAddOnSearchQuery(e.target.value)} 
+                className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-400 outline-none min-w-0" 
+              />
+              {addOnSearchQuery && (
+                <button 
+                  onClick={() => setAddOnSearchQuery("")}
+                  className="p-0.5 hover:bg-neutral-600 rounded-full transition-colors"
+                >
+                  <X className="w-4 h-4 text-neutral-400" />
+                </button>
+              )}
+              <div className="relative">
+                <button 
+                  onClick={() => setShowSortDropdown(!showSortDropdown)}
+                  className="p-1 hover:bg-neutral-600 rounded-full transition-colors"
+                >
+                  <ArrowUpDown className="w-4 h-4 text-neutral-400" />
+                </button>
+                {showSortDropdown && (
+                  <div className="absolute right-0 top-full mt-1 bg-neutral-800 border border-neutral-600 rounded-lg shadow-lg z-50 min-w-[140px] overflow-hidden">
+                    {sortOptions.map(option => (
+                      <button
+                        key={option.value}
+                        onClick={() => {
+                          setAddOnSortBy(option.value);
+                          setShowSortDropdown(false);
+                        }}
+                        className={`w-full px-3 py-2 text-left text-sm font-medium transition-colors ${
+                          addOnSortBy === option.value 
+                            ? 'bg-white text-black' 
+                            : 'text-neutral-300 hover:bg-neutral-700'
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           {/* House Favorites / All Toggle */}
           <div className="px-4 pb-2">
             <div className="flex gap-2">
@@ -1236,25 +1325,30 @@ export const ItemCustomizationDialog = ({
             </div>
           </div>
 
-
-          {/* Add-On Items */}
+          {/* Add-On Items - Scrollable */}
           <ScrollArea className="flex-1 min-h-0 max-h-[180px]">
             <div className="px-4 py-2">
               <div className="flex flex-wrap gap-2">
-                {filteredAddOnItems.map(addOn => (
-                  <button
-                    key={addOn.name}
-                    onClick={() => toggleAddOn(addOn.name)}
-                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                      selectedAddOns.includes(addOn.name)
-                        ? 'bg-white text-black'
-                        : 'bg-neutral-800 text-neutral-300'
-                    }`}
-                  >
-                    {addOn.name}
-                    {addOn.price && <span className="ml-1 text-neutral-500">${addOn.price.toFixed(2)}</span>}
-                  </button>
-                ))}
+                {filteredAddOnItems.length > 0 ? (
+                  filteredAddOnItems.map(addOn => (
+                    <button
+                      key={addOn.name}
+                      onClick={() => toggleAddOn(addOn.name)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        selectedAddOns.includes(addOn.name)
+                          ? 'bg-white text-black'
+                          : 'bg-neutral-800 text-neutral-300'
+                      }`}
+                    >
+                      {addOn.name}
+                      {addOn.price && <span className="ml-1 text-neutral-500">${addOn.price.toFixed(2)}</span>}
+                    </button>
+                  ))
+                ) : (
+                  <div className="w-full text-center py-4 text-neutral-400 text-sm">
+                    No add-ons found
+                  </div>
+                )}
               </div>
             </div>
           </ScrollArea>

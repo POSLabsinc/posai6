@@ -1,6 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, RefreshCw, Send, Zap } from "lucide-react";
+import ReceiptDialog from "@/components/ReceiptDialog";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -4556,6 +4557,9 @@ const Dashboard = () => {
   // Table card selection state (matching TableOrder page behavior)
   const [selectedTableCard, setSelectedTableCard] = useState<string | null>(null);
   const [guestDropdownTableCard, setGuestDropdownTableCard] = useState<string | null>(null);
+  // Receipt dialog state
+  const [showReceiptDialog, setShowReceiptDialog] = useState(false);
+  const [receiptOrder, setReceiptOrder] = useState<DashboardOrder | null>(null);
 
   // Handle selecting a payment method from the dropdown - swap with last visible method
   const handleSelectFromDropdown = (selectedMethod: PaymentMethodType) => {
@@ -5022,7 +5026,8 @@ const Dashboard = () => {
                           className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600 rounded-tr-xl"
                           onClick={(e) => {
                             e.stopPropagation();
-                            // Handle receipt action
+                            setReceiptOrder(order);
+                            setShowReceiptDialog(true);
                           }}
                         >
                           <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
@@ -5148,6 +5153,14 @@ const Dashboard = () => {
           </div>
         </DrawerContent>
       </Drawer>
+
+      {/* Receipt Dialog */}
+      <ReceiptDialog
+        open={showReceiptDialog}
+        onOpenChange={setShowReceiptDialog}
+        orderTotal={receiptOrder?.total || 0}
+        orderId={receiptOrder?.id?.toString()}
+      />
     </div>;
 };
 export default Dashboard;

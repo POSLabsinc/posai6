@@ -544,6 +544,7 @@ export interface DashboardOrder {
   table: string;
   notes: string;
   items: DashboardOrderItem[];
+  paymentMethods?: PaymentMethod[];
 }
 
 // Get filter category from order status
@@ -622,7 +623,8 @@ export const toDashboardOrder = (order: Order): DashboardOrder => {
       noTax: false,
       itemOrderType: displayType,
       isFired: false
-    }))
+    })),
+    paymentMethods: order.paymentMethods
   };
 };
 

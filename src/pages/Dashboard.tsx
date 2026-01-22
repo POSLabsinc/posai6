@@ -23,7 +23,69 @@ import runnerIcon from "@/assets/icons/runner.png";
 import tickSuccessIcon from "@/assets/icons/tick-success.svg";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
-import { getDashboardOrders, DashboardOrder, DashboardOrderItem } from "@/data/orders";
+import { getDashboardOrders, DashboardOrder, DashboardOrderItem, PaymentMethod } from "@/data/orders";
+import receiptIcon from "@/assets/icons/receipt-icon.svg";
+import registerIcon from "@/assets/icons/register-icon.svg";
+
+// Helper component for multi-payment display (matching TableOrderDetails)
+const MultiPaymentDisplay = ({ paymentMethods, paymentType }: { paymentMethods?: PaymentMethod[], paymentType: string }) => {
+  if (!paymentMethods || paymentMethods.length <= 1) {
+    return <span className="text-white/60 truncate">{paymentType && paymentType !== '--' ? paymentType : 'Paid'}</span>;
+  }
+
+  const primaryMethod = paymentMethods[0];
+  const additionalCount = paymentMethods.length - 1;
+
+  const getCardIcon = (type: string) => {
+    switch (type) {
+      case 'Visa': return <span className="w-5 h-3 rounded-sm bg-white flex items-center justify-center"><span className="text-[8px] font-bold text-blue-600">VISA</span></span>;
+      case 'Amex': return <span className="w-5 h-3 rounded-sm bg-blue-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">AMEX</span></span>;
+      case 'Mastercard': return <span className="w-5 h-3 rounded-sm bg-gradient-to-r from-red-500 to-yellow-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">MC</span></span>;
+      case 'Discover': return <span className="w-5 h-3 rounded-sm bg-orange-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">DISC</span></span>;
+      case 'Cash': return <span className="w-5 h-3 rounded-sm bg-green-600 flex items-center justify-center"><span className="text-[6px] font-bold text-white">$</span></span>;
+      case 'Gift Card': return <span className="w-5 h-3 rounded-sm bg-purple-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">GC</span></span>;
+      default: return <span className="w-5 h-3 rounded-sm bg-gray-500 flex items-center justify-center"><span className="text-[6px] font-bold text-white">CC</span></span>;
+    }
+  };
+
+  const formatPrice = (amount: number) => `$${amount.toFixed(2)}`;
+
+  return (
+    <Popover>
+      <PopoverTrigger asChild>
+        <button 
+          className="flex items-center gap-1 text-white/60 hover:text-white transition-colors cursor-pointer"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <span>{getCardIcon(primaryMethod.type)}</span>
+          <span>{primaryMethod.type}</span>
+          {primaryMethod.lastFour && <span>•••• {primaryMethod.lastFour}</span>}
+          <span className="text-[#8AC4FF]">+{additionalCount} more</span>
+        </button>
+      </PopoverTrigger>
+      <PopoverContent 
+        className="w-56 p-3 bg-neutral-800 border border-neutral-700 shadow-xl z-[9999]" 
+        side="bottom" 
+        align="start"
+        sideOffset={8}
+      >
+        <div className="space-y-1">
+          <h4 className="text-white/80 text-xs font-medium mb-2">Payment Methods</h4>
+          {paymentMethods.map((method, index) => (
+            <div key={index} className="flex items-center justify-between text-sm">
+              <div className="flex items-center gap-2">
+                <span>{getCardIcon(method.type)}</span>
+                <span className="text-white">{method.type}</span>
+                {method.lastFour && <span className="text-white/60">•••• {method.lastFour}</span>}
+              </div>
+              <span className="text-white font-medium">{formatPrice(method.amount)}</span>
+            </div>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 // Stats data by date filter
 const statsData: Record<string, Array<{
@@ -4854,8 +4916,8 @@ const Dashboard = () => {
                   {/* Order Number - Mobile compact style */}
                   <div className="flex-shrink-0 px-2 py-2 flex items-center">
                     <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                      <span className="text-xs font-bold text-white">{order.id}</span>
-                      <span className="text-sm text-gray-500">000</span>
+                      <span className="text-lg font-bold text-white">{order.id}</span>
+                      <span className="text-[9px] text-gray-500">000</span>
                     </div>
                   </div>
 
@@ -4866,20 +4928,17 @@ const Dashboard = () => {
                       <div className="flex items-center justify-between">
                         <span className="text-white font-medium text-sm">{order.guest} - {order.table} · {order.revenueCenter}</span>
                         <div className="flex items-center gap-2">
-                          <span className="text-sm" style={{
-                          color: '#B5B6BB'
-                        }}>{order.server}</span>
-                          <span className="text-sm font-medium" style={{
-                          color: order.statusColor
-                        }}>{order.status}</span>
+                          <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
+                          <span className="text-sm font-medium" style={{ color: order.statusColor }}>
+                            {order.status === 'Completed' ? 'PAID' : order.status}
+                          </span>
                         </div>
                       </div>
                       
                       {/* Row 2: Party info, Timer, Total */}
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-xs" style={{
-                        color: '#B5B6BB'
-                      }}>
+                        <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                          <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
                           <span>Party of {order.seats}, {order.arrivedAt}</span>
                           <span className="text-gray-500">|</span>
                           <span>{order.timer}</span>
@@ -4889,8 +4948,11 @@ const Dashboard = () => {
                       
                       {/* Row 3: Empty | Payment Status (center) | Tip */}
                       <div className="flex items-center">
+                        <div className="flex-1"></div>
                         <div className="flex-1">
-                          <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.isPaid ? "Paid" : "Pending Payment"}</span>
+                          <span className="text-sm" style={{ color: '#B5B6BB' }}>
+                            {order.isPaid ? "Paid" : "Pending Payment"}
+                          </span>
                         </div>
                         <span className="text-white text-sm">{order.tip}</span>
                       </div>
@@ -4906,18 +4968,20 @@ const Dashboard = () => {
                       <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{
                     background: '#1A1A1A'
                   }}>
-                        <span className="text-xs lg:text-sm font-bold text-white">{order.id}</span>
-                        <span className="text-xs text-white/40">{String(order.check).padStart(3, '0')}</span>
+                        <span className="text-lg font-bold text-white">{order.id}</span>
+                        <span className="text-xs text-white/40">000</span>
                       </div>
 
                       {/* Main Content */}
                       <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                        {/* Row 1: Name + Table + Revenue Center | Server | Status */}
+                        {/* Row 1: Name + Revenue Center | Server (center) | Status */}
                         <div className="flex items-center text-xs lg:text-sm">
                           <div className="flex items-center gap-1 lg:gap-2 w-[180px] lg:w-[220px] flex-shrink-0">
                             <span className="text-white font-medium truncate">{order.guest} · {order.revenueCenter}</span>
                           </div>
-                          <span className="text-white/60 flex-1 truncate px-1 lg:px-2">{order.server}</span>
+                          <div className="flex-1">
+                            <span className="text-white/60 truncate">{order.server}</span>
+                          </div>
                           <span className="font-semibold uppercase flex-shrink-0" style={{
                         color: order.statusColor
                       }}>
@@ -4928,7 +4992,7 @@ const Dashboard = () => {
                         {/* Row 2: Party info | Timer | Total */}
                         <div className="flex items-center text-xs lg:text-sm">
                           <div className="flex items-center gap-1 text-white/60 w-[180px] lg:w-[220px] flex-shrink-0">
-                            <img src={dineInIcon} alt="Dine In" className="w-3 h-3 lg:w-4 lg:h-4 object-contain opacity-60" />
+                            <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
                             <span className="truncate">Party of {order.seats}, {order.arrivedAt}</span>
                             <span className="text-white/40">|</span>
                             <span>{order.timer}</span>
@@ -4941,32 +5005,63 @@ const Dashboard = () => {
                         <div className="flex items-center text-xs lg:text-sm">
                           <div className="w-[180px] lg:w-[220px] flex-shrink-0"></div>
                           <div className="flex-1">
-                            <span className="text-white/60 truncate">{order.isPaid ? "Paid" : "Pending Payment"}</span>
+                            {order.isPaid 
+                              ? <MultiPaymentDisplay paymentMethods={order.paymentMethods} paymentType={order.paymentType} />
+                              : <span className="text-white/60 truncate">Pending Payment</span>}
                           </div>
                           <span className="text-white flex-shrink-0">{order.tip}</span>
                         </div>
                       </div>
                     </div>
 
-                    {/* Right Action Buttons - Edge to edge (hidden for completed/paid orders) */}
-                    {order.status !== "Completed" && !order.isPaid && <div className="flex-shrink-0 flex flex-col w-10">
-                        <button className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity" style={{
-                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-                  }} onClick={e => {
-                    e.stopPropagation();
-                    navigate(`/tableorder/T${order.seats}/merge?orderId=${order.id}`);
-                  }}>
+                    {/* Right Action Buttons - Edge to edge */}
+                    {order.isPaid || order.status === "Completed" ? (
+                      /* Receipt and Register buttons for paid orders */
+                      <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
+                        <button 
+                          className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600 rounded-tr-xl"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Handle receipt action
+                          }}
+                        >
+                          <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
+                        </button>
+                        <button 
+                          className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Handle register action
+                          }}
+                        >
+                          <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
+                        </button>
+                      </div>
+                    ) : (
+                      /* Merge and Transfer buttons for unpaid orders */
+                      <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
+                        <button 
+                          className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-tr-xl"
+                          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            navigate(`/tableorder/${order.table}/merge?orderId=${order.id}`);
+                          }}
+                        >
                           <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
                         </button>
-                        <button className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity" style={{
-                    background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-                  }} onClick={e => {
-                    e.stopPropagation();
-                    navigate(`/tableorder/T${order.seats}/transfer?orderId=${order.id}`);
-                  }}>
+                        <button 
+                          className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-br-xl"
+                          style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                          onClick={e => {
+                            e.stopPropagation();
+                            navigate(`/tableorder/${order.table}/transfer?orderId=${order.id}`);
+                          }}
+                        >
                           <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
                         </button>
-                      </div>}
+                      </div>
+                    )}
                   </div>
                 </div>)}
             </div>

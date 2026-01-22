@@ -505,3 +505,128 @@ export const toOrderTemplateData = (order: Order) => ({
   paymentType: order.paymentType || "--",
   phone: order.phone,
 });
+
+// Dashboard-specific types and helpers
+
+// Dashboard order item interface
+export interface DashboardOrderItem {
+  id: number;
+  qty: number;
+  name: string;
+  price: number;
+  seats: number[];
+  noTax: boolean;
+  itemOrderType: string;
+  isFired: boolean;
+}
+
+// Dashboard order interface
+export interface DashboardOrder {
+  id: number;
+  status: string;
+  statusColor: string;
+  filterCategory: string;
+  guest: string;
+  orderNo: string;
+  seats: number;
+  date: string;
+  arrivedAt: string;
+  timer: string;
+  type: string;
+  check: number | string;
+  revenueCenter: string;
+  tip: string;
+  paymentType: string;
+  isPaid: boolean;
+  server: string;
+  total: number;
+  phone: string;
+  table: string;
+  notes: string;
+  items: DashboardOrderItem[];
+}
+
+// Get filter category from order status
+export const getFilterCategory = (status: string): string => {
+  const normalizedStatus = status.toUpperCase();
+  if (['ORDERING', 'ORDERED', 'PREPARING'].includes(normalizedStatus)) return 'In Progress';
+  if (['UNPAID', 'PENDING PAYMENT'].includes(normalizedStatus)) return 'Unpaid';
+  if (['NEW ORDER', 'READY'].includes(normalizedStatus)) return 'Open';
+  if (['PAID', 'COMPLETED'].includes(normalizedStatus)) return 'Paid';
+  if (['CLOSED'].includes(normalizedStatus)) return 'Closed';
+  return 'Open';
+};
+
+// Get status color hex from order status
+export const getStatusColorHex = (status: string): string => {
+  const normalizedStatus = status.toUpperCase();
+  switch (normalizedStatus) {
+    case 'ORDERING': return '#FACC15';
+    case 'ORDERED': return '#F97316';
+    case 'PREPARING': return '#3B82F6';
+    case 'READY': return '#3B82F6';
+    case 'PAID':
+    case 'COMPLETED': return '#22C55E';
+    case 'UNPAID':
+    case 'PENDING PAYMENT': return '#EAB308';
+    case 'CLOSED': return '#6B7280';
+    case 'NEW ORDER': return '#3B82F6';
+    default: return '#FFFFFF';
+  }
+};
+
+// Map order type to dashboard display format
+const mapOrderType = (orderType: string): string => {
+  switch (orderType) {
+    case 'Dine-In': return 'Dine In';
+    case 'Takeout': return 'Take Out';
+    case 'Delivery': return 'Delivery';
+    case 'Bar': return 'Bar';
+    default: return orderType;
+  }
+};
+
+// Convert centralized order to Dashboard format
+export const toDashboardOrder = (order: Order): DashboardOrder => {
+  const totals = calculateOrderTotals(order.items, order.tipAmount || 0);
+  const displayType = mapOrderType(order.orderType);
+  
+  return {
+    id: Number(order.id),
+    status: order.status,
+    statusColor: getStatusColorHex(order.status),
+    filterCategory: getFilterCategory(order.status),
+    guest: order.name,
+    orderNo: `Order No ${order.id}`,
+    seats: order.partySize,
+    date: "Thu, 22 Jun 2024", // Static for demo
+    arrivedAt: order.time,
+    timer: order.timer || "00:00",
+    type: displayType,
+    check: order.check !== "--" ? Number(order.check) || order.check : "--",
+    revenueCenter: order.revenueCenter,
+    tip: order.tipAmount ? `$${order.tipAmount.toFixed(2)}` : "$0.00",
+    paymentType: order.paymentType,
+    isPaid: order.status.toUpperCase() === 'PAID' || order.status.toUpperCase() === 'COMPLETED',
+    server: order.server,
+    total: totals.total,
+    phone: order.phone || "(555) 000-0000",
+    table: order.table,
+    notes: order.notes || "",
+    items: order.items.map((item, idx) => ({
+      id: idx + 1,
+      qty: item.qty,
+      name: item.name,
+      price: item.price,
+      seats: item.seats,
+      noTax: false,
+      itemOrderType: displayType,
+      isFired: false
+    }))
+  };
+};
+
+// Get all orders in Dashboard format
+export const getDashboardOrders = (): DashboardOrder[] => {
+  return allOrders.map(toDashboardOrder);
+};

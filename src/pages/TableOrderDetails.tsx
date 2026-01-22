@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo } from "react";
+import { useState, useRef, useMemo, useEffect } from "react";
 import { useOrderTimers } from "@/hooks/use-order-timer";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
@@ -306,6 +306,11 @@ const TableOrderDetails = () => {
   
   // Set initial selected guest when guestOrders changes
   const currentSelectedGuest = selectedGuest || guestOrders[0];
+
+  // Reset refund mode when selected guest changes
+  useEffect(() => {
+    setShowRefundMode(false);
+  }, [selectedGuest?.id]);
 
   // Swipe state for mobile cards
   const [swipeStates, setSwipeStates] = useState<Record<string, number>>({});
@@ -629,20 +634,55 @@ const TableOrderDetails = () => {
 
         {/* Bottom Actions */}
         <div className="px-3 py-3 border-t border-neutral-700/50 flex items-center gap-2">
-          <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
-            <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
-          </button>
-          <button className="px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium" style={{
-          background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
-        }}>
-            <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
-            <span>FIRE</span>
-          </button>
-          <button className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" style={{
-          background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-        }}>
-            CHARGE {formatPrice(currentSelectedGuest.total)}
-          </button>
+          {(currentSelectedGuest.status === 'Paid' || currentSelectedGuest.status === 'PAID' || currentSelectedGuest.status === 'Completed') ? (
+            /* Paid order actions: Add Tip / Close / Refund */
+            showRefundMode ? (
+              <button 
+                onClick={() => setShowRefundDialog(true)}
+                className="flex-1 py-2.5 rounded-full text-white text-sm font-bold"
+                style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
+              >
+                REFUND
+              </button>
+            ) : (
+              <>
+                <button 
+                  onClick={() => setShowTipDialog(true)}
+                  className="flex-1 py-2.5 rounded-full text-white text-sm font-bold border border-white/20"
+                  style={{ background: '#1B1C20' }}
+                >
+                  ADD TIP
+                </button>
+                <button 
+                  onClick={() => setShowRefundMode(true)}
+                  className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"
+                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                >
+                  CLOSE
+                </button>
+              </>
+            )
+          ) : (
+            /* Unpaid order actions: Clear, Fire, Charge */
+            <>
+              <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+                <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+              </button>
+              <button className="px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium" style={{
+                background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
+              }}>
+                <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+                <span>FIRE</span>
+              </button>
+              <button 
+                onClick={() => setShowPaymentDialog(true)}
+                className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" 
+                style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+              >
+                CHARGE {formatPrice(currentSelectedGuest.total)}
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -712,35 +752,64 @@ const TableOrderDetails = () => {
                 </div>}
               
               <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
-              {/* Swipe Action Buttons (revealed on swipe left) - hidden for Paid/Completed orders */}
-              {guest.status !== 'Paid' && guest.status !== 'Completed' && (
-              <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 z-10 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                {/* Merge button - orange */}
-                <button 
-                  onMouseDown={e => e.stopPropagation()}
-                  onTouchStart={e => e.stopPropagation()}
-                  onClick={e => {
-                    e.stopPropagation();
-                    navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
-                  }} 
-                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-gradient-to-b from-orange-400 to-orange-600 hover:from-orange-300 hover:to-orange-500"
-                >
-                  <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
-                </button>
-                
-                {/* Transfer button - gray */}
-                <button 
-                  onMouseDown={e => e.stopPropagation()}
-                  onTouchStart={e => e.stopPropagation()}
-                  onClick={e => {
-                    e.stopPropagation();
-                    navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
-                  }} 
-                  className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-muted-foreground/60 hover:bg-muted-foreground/80"
-                >
-                  <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
-                </button>
-              </div>
+              {/* Swipe Action Buttons (revealed on swipe left) */}
+              {(guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed') ? (
+                /* Receipt and Register buttons for paid orders */
+                <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 z-10 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                  <button 
+                    onMouseDown={e => e.stopPropagation()}
+                    onTouchStart={e => e.stopPropagation()}
+                    onClick={e => {
+                      e.stopPropagation();
+                      setReceiptGuest(guest);
+                      setShowReceiptDialog(true);
+                    }} 
+                    className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-neutral-700 hover:bg-neutral-600"
+                  >
+                    <img src={receiptIcon} alt="Receipt" className="w-5 h-5 object-contain" />
+                  </button>
+                  
+                  <button 
+                    onMouseDown={e => e.stopPropagation()}
+                    onTouchStart={e => e.stopPropagation()}
+                    onClick={e => {
+                      e.stopPropagation();
+                      // Handle register action
+                    }} 
+                    className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-neutral-600 hover:bg-neutral-500"
+                  >
+                    <img src={registerIcon} alt="Register" className="w-5 h-5 object-contain" />
+                  </button>
+                </div>
+              ) : (
+                /* Merge and Transfer buttons for unpaid orders */
+                <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 z-10 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                  {/* Merge button - orange */}
+                  <button 
+                    onMouseDown={e => e.stopPropagation()}
+                    onTouchStart={e => e.stopPropagation()}
+                    onClick={e => {
+                      e.stopPropagation();
+                      navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                    }} 
+                    className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-gradient-to-b from-orange-400 to-orange-600 hover:from-orange-300 hover:to-orange-500"
+                  >
+                    <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
+                  </button>
+                  
+                  {/* Transfer button - gray */}
+                  <button 
+                    onMouseDown={e => e.stopPropagation()}
+                    onTouchStart={e => e.stopPropagation()}
+                    onClick={e => {
+                      e.stopPropagation();
+                      navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                    }} 
+                    className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-muted-foreground/60 hover:bg-muted-foreground/80"
+                  >
+                    <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
+                  </button>
+                </div>
               )}
 
               {/* Swipeable card content - everything inside moves together */}

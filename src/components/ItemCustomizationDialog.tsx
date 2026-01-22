@@ -1305,20 +1305,20 @@ export const ItemCustomizationDialog = ({
             <div className="flex gap-2">
               <button
                 onClick={() => setAddOnFilterGroup('favorites')}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
                   addOnFilterGroup === 'favorites'
-                    ? 'bg-neutral-700 text-white'
-                    : 'bg-transparent text-neutral-400 border border-neutral-600'
+                    ? 'bg-white text-black border-white'
+                    : 'bg-transparent text-neutral-400 border-neutral-600'
                 }`}
               >
                 House Favorites
               </button>
               <button
                 onClick={() => setAddOnFilterGroup('all')}
-                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors ${
+                className={`px-4 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors border ${
                   addOnFilterGroup === 'all'
-                    ? 'bg-neutral-700 text-white'
-                    : 'bg-transparent text-neutral-400 border border-neutral-600'
+                    ? 'bg-white text-black border-white'
+                    : 'bg-transparent text-neutral-400 border-neutral-600'
                 }`}
               >
                 All

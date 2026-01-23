@@ -3653,13 +3653,13 @@ export function PaymentDialog({
                 </div>
               </div>
 
-              {/* Check Cards Grid - Horizontal scroll for many checks */}
-              <div className="flex-1 overflow-hidden p-4">
+              {/* Check Cards Grid - 3 per row with vertical scroll */}
+              <div className="flex-1 overflow-hidden p-2">
                 <div 
-                  className="h-full overflow-x-auto overflow-y-auto pb-2"
-                  style={{ scrollbarWidth: 'thin' }}
+                  className="h-full overflow-y-auto"
+                  style={{ scrollbarWidth: 'none' }}
                 >
-                  <div className={`flex gap-3 h-full ${numberOfChecks <= 3 ? 'justify-center' : ''}`}>
+                  <div className="grid grid-cols-3 gap-2 justify-items-center">
                     {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => {
                       const checkItems = getItemsForCheck(checkNum);
                       const checkTotals = getCheckTotals(checkNum);
@@ -3668,7 +3668,7 @@ export function PaymentDialog({
                       return (
                         <div 
                           key={checkNum}
-                          className={`bg-white rounded-lg flex flex-col shadow-lg relative overflow-hidden flex-shrink-0 p-2 w-[140px] min-w-[140px] ${
+                          className={`bg-white rounded-lg flex flex-col shadow-md relative overflow-hidden p-1.5 w-full ${
                             isPaid ? 'opacity-60' : ''
                           }`}
                       >

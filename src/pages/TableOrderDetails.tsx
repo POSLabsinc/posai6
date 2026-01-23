@@ -840,7 +840,7 @@ const TableOrderDetails = () => {
                       <div className="flex flex-col gap-1">
                          {/* Row 1: Name + Table, Server, Status */}
                          <div className="flex items-center justify-between">
-                           <span className="text-white font-medium text-sm">{guest.name} - {tableId}</span>
+                           <span className="text-white font-medium text-sm">{guest.name} · {tableId}</span>
                            <div className="flex items-center gap-2">
                              <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.server}</span>
                              <span className={`text-sm font-medium ${getStatusColor(guest.status)}`}>{guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}</span>

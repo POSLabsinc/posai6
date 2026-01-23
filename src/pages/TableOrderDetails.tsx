@@ -25,7 +25,7 @@ import {
   hasMergedOrTransferredItems,
   MergedOrderSource
 } from "@/data/orders";
-import { formatTableName } from "@/lib/orderUtils";
+import { formatTableName, isActiveOrderStatus, doCustomerDetailsMatch } from "@/lib/orderUtils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 // Import icons
@@ -278,7 +278,48 @@ const TableOrderDetails = () => {
     
     return orderWithTotals;
   });
-  
+
+  // Detect same-party orders (multiple active orders from the same customer)
+  const samePartyGroups = useMemo(() => {
+    const activeOrders = guestOrders.filter(o => isActiveOrderStatus(o.status));
+    const groups: Map<string, GuestOrder[]> = new Map();
+    
+    activeOrders.forEach(order => {
+      // Find if this order matches any existing group
+      let foundGroup = false;
+      groups.forEach((groupOrders, groupKey) => {
+        if (groupOrders.some(go => doCustomerDetailsMatch(go, order))) {
+          groupOrders.push(order);
+          foundGroup = true;
+        }
+      });
+      
+      if (!foundGroup) {
+        groups.set(order.id, [order]);
+      }
+    });
+    
+    // Filter to only groups with more than one order
+    const multiOrderGroups: Map<string, GuestOrder[]> = new Map();
+    groups.forEach((orders, key) => {
+      if (orders.length > 1) {
+        multiOrderGroups.set(key, orders);
+      }
+    });
+    
+    return multiOrderGroups;
+  }, [guestOrders]);
+
+  // Check if an order belongs to a same-party group
+  const getOrderSamePartyInfo = (orderId: string): { isInGroup: boolean; groupSize: number; groupName: string } => {
+    let result = { isInGroup: false, groupSize: 0, groupName: '' };
+    samePartyGroups.forEach((orders) => {
+      if (orders.some(o => o.id === orderId)) {
+        result = { isInGroup: true, groupSize: orders.length, groupName: orders[0].name };
+      }
+    });
+    return result;
+  };
 
   // Memoize order timer data to avoid recreating array on every render
   const orderTimerData = useMemo(() => 
@@ -1041,37 +1082,57 @@ const TableOrderDetails = () => {
         {/* Guest Orders List */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
-            {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-0">
-                {/* Merged Order Indicator - Destination */}
-                {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
-                    <span className="text-sm font-medium">
-                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
-                    </span>
-                  </div>}
-                {/* Merged Order Indicator - Source (disabled look) */}
-                {guest.id === mergedOrderId && destOrderId && <div className="px-3 py-1 rounded-t-xl bg-neutral-700/80">
-                    <span className="text-sm font-medium">
-                      <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to Order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">{formatTableName(tableId || "")}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
-                    </span>
-                  </div>}
-                {/* Transferred Items Indicator (Destination - receiving items) */}
-                {transferDestOrderId === guest.id && transferredFromTable && transferredOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
-                    <span className="text-sm font-medium">
-                      <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
-                    </span>
-                  </div>}
-                {/* Transferred OUT Indicator (Source - sending items out) */}
-                {transferSourceOrderId === guest.id && transferType && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
-                    <span className="text-sm font-medium">
-                      <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
-                      <span className="text-white"> to Order {transferredToOrderId}</span>
-                      <span style={{ color: '#8AC4FF' }}> · </span>
-                      <span className="text-white">{formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
-                    </span>
-                  </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
-              backgroundColor: '#1B1C20'
-            }}>
+            {filteredGuestOrders.map(guest => {
+              const samePartyInfo = getOrderSamePartyInfo(guest.id);
+              const hasIndicatorAbove = (destOrderId === guest.id && mergedFromTable) || 
+                                        (guest.id === mergedOrderId && destOrderId) ||
+                                        (transferDestOrderId === guest.id && transferredFromTable) ||
+                                        (transferSourceOrderId === guest.id && transferType) ||
+                                        samePartyInfo.isInGroup;
+              
+              return (
+                <div key={guest.id} className="space-y-0">
+                  {/* Same Party Indicator - Only show if no other indicator and in same-party group */}
+                  {samePartyInfo.isInGroup && !(destOrderId === guest.id && mergedFromTable) && !(guest.id === mergedOrderId && destOrderId) && !(transferDestOrderId === guest.id && transferredFromTable) && !(transferSourceOrderId === guest.id && transferType) && (
+                    <div className="px-3 py-1 rounded-t-xl bg-emerald-900/60 border-l-2 border-emerald-500">
+                      <span className="text-sm font-medium flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-emerald-400">Same Party</span>
+                        <span className="text-white/70">·</span>
+                        <span className="text-white">{samePartyInfo.groupSize} Active Orders for {samePartyInfo.groupName}</span>
+                      </span>
+                    </div>
+                  )}
+                  {/* Merged Order Indicator - Destination */}
+                  {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
+                      <span className="text-sm font-medium">
+                        <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                      </span>
+                    </div>}
+                  {/* Merged Order Indicator - Source (disabled look) */}
+                  {guest.id === mergedOrderId && destOrderId && <div className="px-3 py-1 rounded-t-xl bg-neutral-700/80">
+                      <span className="text-sm font-medium">
+                        <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to Order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">{formatTableName(tableId || "")}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
+                      </span>
+                    </div>}
+                  {/* Transferred Items Indicator (Destination - receiving items) */}
+                  {transferDestOrderId === guest.id && transferredFromTable && transferredOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
+                      <span className="text-sm font-medium">
+                        <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                      </span>
+                    </div>}
+                  {/* Transferred OUT Indicator (Source - sending items out) */}
+                  {transferSourceOrderId === guest.id && transferType && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
+                      <span className="text-sm font-medium">
+                        <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
+                        <span className="text-white"> to Order {transferredToOrderId}</span>
+                        <span style={{ color: '#8AC4FF' }}> · </span>
+                        <span className="text-white">{formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
+                      </span>
+                    </div>}
+                  <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${hasIndicatorAbove ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                    backgroundColor: '#1B1C20'
+                  }}>
                 <div className="hidden md:flex items-stretch">
                   {/* Left Content with padding */}
                   <div className="flex-1 flex items-stretch gap-3 p-3">
@@ -1253,7 +1314,9 @@ const TableOrderDetails = () => {
                   </div>
                 </div>
               </div>
-            </div>)}
+            </div>
+          );
+            })}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>

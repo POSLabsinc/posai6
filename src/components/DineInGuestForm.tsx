@@ -4,6 +4,9 @@ import { Input } from "@/components/ui/input";
 import { formatPhoneNumber } from "@/lib/utils";
 import { customers, checkPhoneConflict, Customer } from "@/data/customers";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
+import ActiveOrderExistsDialog from "@/components/ActiveOrderExistsDialog";
+import { getActiveOrdersForTable, validateNewOrderForTable } from "@/data/orders";
+import type { ActiveOrderInfo } from "@/lib/orderUtils";
 
 interface DineInGuestFormProps {
   onSave: (data: DineInGuestData) => void;
@@ -35,6 +38,11 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
   const [showConflictDialog, setShowConflictDialog] = useState(false);
   const [conflictCustomer, setConflictCustomer] = useState<Customer | null>(null);
 
+  // Active order validation state
+  const [showActiveOrderDialog, setShowActiveOrderDialog] = useState(false);
+  const [existingActiveOrder, setExistingActiveOrder] = useState<ActiveOrderInfo | null>(null);
+  const [validationChecked, setValidationChecked] = useState(false);
+
   const maxNotes = 70;
 
   const searchResults = useMemo(() => {
@@ -55,6 +63,43 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
       setShowConflictDialog(true);
     }
   }, [formData.phoneNumber, formData.guestName]);
+
+  // Check for active orders on table when table number or customer info changes
+  useEffect(() => {
+    if (!formData.tableNumber || !formData.guestName) {
+      setValidationChecked(false);
+      return;
+    }
+
+    const activeOrders = getActiveOrdersForTable(formData.tableNumber);
+    const validation = validateNewOrderForTable(
+      formData.tableNumber,
+      formData.guestName,
+      formData.phoneNumber,
+      activeOrders
+    );
+
+    if (!validation.allowed && validation.existingOrder) {
+      setExistingActiveOrder(validation.existingOrder);
+      setShowActiveOrderDialog(true);
+    } else {
+      setExistingActiveOrder(null);
+    }
+    setValidationChecked(true);
+  }, [formData.tableNumber, formData.guestName, formData.phoneNumber]);
+
+  // Handle using same customer from active order
+  const handleUseSameCustomer = () => {
+    if (existingActiveOrder) {
+      setFormData((prev) => ({
+        ...prev,
+        guestName: existingActiveOrder.name,
+        phoneNumber: existingActiveOrder.phone ? formatPhoneNumber(existingActiveOrder.phone) : "",
+      }));
+    }
+    setShowActiveOrderDialog(false);
+    setExistingActiveOrder(null);
+  };
 
   const handleSelectGuest = (guest: Customer) => {
     setFormData((prev) => ({
@@ -271,6 +316,18 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
         onUpdateName={handleUpdateName}
         onAddFamilyMember={handleAddFamilyMember}
         onCreateNew={handleCreateNew}
+      />
+
+      {/* Active Order Exists Dialog */}
+      <ActiveOrderExistsDialog
+        isOpen={showActiveOrderDialog}
+        onClose={() => {
+          setShowActiveOrderDialog(false);
+          setExistingActiveOrder(null);
+        }}
+        existingOrder={existingActiveOrder}
+        onUseSameCustomer={handleUseSameCustomer}
+        tableId={formData.tableNumber}
       />
     </div>
   );

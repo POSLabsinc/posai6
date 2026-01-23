@@ -11,6 +11,7 @@ export {
   DISCOUNT_AMOUNT,
   formatPrice,
   formatPriceWithSign,
+  formatTableName,
   getOrderStatusColor,
   calculateOrderTotals as calculateItemsTotals
 } from "@/lib/orderUtils";
@@ -19,7 +20,8 @@ import {
   TAX_RATE, 
   SERVICE_CHARGE_RATE, 
   DISCOUNT_THRESHOLD, 
-  DISCOUNT_AMOUNT 
+  DISCOUNT_AMOUNT,
+  formatTableName
 } from "@/lib/orderUtils";
 
 // Order item interface
@@ -439,7 +441,7 @@ export const getMergedOrderDisplay = (order: Order) => {
   if (order.mergedFrom && order.mergedFrom.length > 0) {
     order.mergedFrom.forEach(merged => {
       sections.push({
-        label: `Merged from Order #${merged.orderId} (${merged.table})`,
+        label: `Merged from Order #${merged.orderId} (${formatTableName(merged.table)})`,
         orderId: merged.orderId,
         table: merged.table,
         items: merged.items,
@@ -452,7 +454,7 @@ export const getMergedOrderDisplay = (order: Order) => {
   if (order.transferredFrom && order.transferredFrom.length > 0) {
     order.transferredFrom.forEach(transferred => {
       sections.push({
-        label: `Transferred from Order #${transferred.orderId} (${transferred.table})`,
+        label: `Transferred from Order #${transferred.orderId} (${formatTableName(transferred.table)})`,
         orderId: transferred.orderId,
         table: transferred.table,
         items: transferred.items,

@@ -1087,7 +1087,7 @@ const TableOrderDetails = () => {
                         <div className="flex items-center gap-1 lg:gap-2 w-[160px] lg:w-[180px] flex-shrink-0">
                           <span className="text-white font-medium truncate">{guest.name}</span>
                         </div>
-                        <div className="flex-1 text-center">
+                        <div className="flex-1 text-left pl-4">
                           <span className="text-white/60 truncate">{guest.server}</span>
                         </div>
                         <span 
@@ -1114,7 +1114,7 @@ const TableOrderDetails = () => {
                         <div className="w-[160px] lg:w-[180px] flex-shrink-0">
                           <span className="text-white/60 truncate">{guest.revenueCenter}</span>
                         </div>
-                        <div className="flex-1 text-center">
+                        <div className="flex-1 text-left pl-4">
                           {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' 
                             ? <MultiPaymentDisplay paymentMethods={guest.paymentMethods} paymentType={guest.paymentType} />
                             : <span className="text-white/60 truncate">Pending Payment</span>}

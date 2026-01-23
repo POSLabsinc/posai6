@@ -188,7 +188,7 @@ const TransferOrders = () => {
           </div>
         </div>
 
-        {/* Tablet/Desktop layout - matching MergeOrders 3-row format */}
+        {/* Tablet/Desktop layout - 45% | 35% | 20% matching TableOrderDetails */}
         <div className="hidden md:flex flex-1 items-stretch gap-3 p-3">
           {/* Order Number Box */}
           <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{
@@ -198,42 +198,48 @@ const TransferOrders = () => {
             <span className="text-xs text-white/40">000</span>
           </div>
 
-          {/* Main Content */}
+          {/* Main Content - 45% | 35% | 20% */}
           <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-            {/* Row 1: Name + Table + Revenue Center | Server | Status */}
-            <div className="flex items-center text-sm">
-              <div className="flex items-center gap-2 w-[260px] flex-shrink-0">
-                <span className="text-white font-medium truncate">{order.name}</span>
-                <span className="text-white/60">·</span>
-                <span className="text-white font-medium">{order.table}</span>
-                <span className="text-white/60">·</span>
-                <span className="text-white/60 truncate">{order.revenueCenter}</span>
+            {/* Row 1: Name + Table | Server | Status - 45% | 35% | 20% */}
+            <div className="flex items-center text-xs md:text-sm">
+              <div className="w-[45%] text-left">
+                <span className="text-white font-medium truncate">{order.name} - {formatTableName(order.table)}</span>
               </div>
-              <div className="flex-1">
+              <div className="w-[35%] text-left pl-4">
                 <span className="text-white/60 truncate">{order.server}</span>
               </div>
-              <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(order.status)}`}>
-                {order.status}
-              </span>
+              <div className="w-[20%] text-right">
+                <span className={`font-semibold uppercase ${getStatusColor(order.status)}`}>
+                  {order.status}
+                </span>
+              </div>
             </div>
             
-            {/* Row 2: Party info | Timer | Total */}
-            <div className="flex items-center text-sm">
-              <div className="flex items-center gap-1 text-white/60 w-[260px] flex-shrink-0">
-                <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
-                <span className="truncate">Party of {order.partySize}, {order.time}</span>
+            {/* Row 2: Party info + Timer | empty | Total - 45% | 35% | 20% */}
+            <div className="flex items-center text-xs md:text-sm">
+              <div className="w-[45%] text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
+                <img src={dineInIcon} alt="Dine In" className="w-3 h-3 md:w-4 md:h-4 object-contain opacity-60" />
+                <span>Party of {order.partySize}, {order.time}</span>
                 <span className="text-white/40">|</span>
                 <span>{order.timer}</span>
               </div>
-              <div className="flex-1"></div>
-              <span className="text-white font-semibold flex-shrink-0">{getOrderAmount(order)}</span>
+              <div className="w-[35%]"></div>
+              <div className="w-[20%] text-right">
+                <span className="text-white font-semibold">{getOrderAmount(order)}</span>
+              </div>
             </div>
             
-            {/* Row 3: Payment Status | Tip */}
-            <div className="flex items-center text-sm">
-              <span className="text-white/60 w-[260px] flex-shrink-0 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
-              <div className="flex-1"></div>
-              <span className="text-white flex-shrink-0">$0.00</span>
+            {/* Row 3: Revenue Center | Payment Status | Tip - 45% | 35% | 20% */}
+            <div className="flex items-center text-xs md:text-sm">
+              <div className="w-[45%] text-left">
+                <span className="text-white/60 truncate">{order.revenueCenter}</span>
+              </div>
+              <div className="w-[35%] text-left pl-4">
+                <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Pending Payment'}</span>
+              </div>
+              <div className="w-[20%] text-right">
+                <span className="text-white">$0.00</span>
+              </div>
             </div>
           </div>
         </div>
@@ -296,7 +302,7 @@ const TransferOrders = () => {
           </div>
         </div>
 
-        {/* Tablet/Desktop layout - matching MergeOrders 3-row format */}
+        {/* Tablet/Desktop layout - 45% | 35% | 20% matching TableOrderDetails */}
         <div className="hidden md:flex flex-1 items-stretch gap-3 p-3">
           {/* Order Number Box */}
           <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{
@@ -306,42 +312,48 @@ const TransferOrders = () => {
             <span className="text-xs text-white/40">000</span>
           </div>
 
-          {/* Main Content */}
+          {/* Main Content - 45% | 35% | 20% */}
           <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-            {/* Row 1: Name + Table + Revenue Center | Server | Status */}
-            <div className="flex items-center text-sm">
-              <div className="flex items-center gap-2 w-[260px] flex-shrink-0">
-                <span className="text-white font-medium truncate">{order.name}</span>
-                <span className="text-white/60">·</span>
-                <span className="text-white font-medium">{order.table}</span>
-                <span className="text-white/60">·</span>
-                <span className="text-white/60 truncate">{order.revenueCenter}</span>
+            {/* Row 1: Name + Table | Server | Status - 45% | 35% | 20% */}
+            <div className="flex items-center text-xs md:text-sm">
+              <div className="w-[45%] text-left">
+                <span className="text-white font-medium truncate">{order.name} - {formatTableName(order.table)}</span>
               </div>
-              <div className="flex-1">
+              <div className="w-[35%] text-left pl-4">
                 <span className="text-white/60 truncate">{order.server}</span>
               </div>
-              <span className={`font-semibold uppercase flex-shrink-0 ${getStatusColor(order.status)}`}>
-                {order.status}
-              </span>
+              <div className="w-[20%] text-right">
+                <span className={`font-semibold uppercase ${getStatusColor(order.status)}`}>
+                  {order.status}
+                </span>
+              </div>
             </div>
             
-            {/* Row 2: Party info | Timer | Total */}
-            <div className="flex items-center text-sm">
-              <div className="flex items-center gap-1 text-white/60 w-[260px] flex-shrink-0">
-                <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
-                <span className="truncate">Party of {order.partySize}, {order.time}</span>
+            {/* Row 2: Party info + Timer | empty | Total - 45% | 35% | 20% */}
+            <div className="flex items-center text-xs md:text-sm">
+              <div className="w-[45%] text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
+                <img src={dineInIcon} alt="Dine In" className="w-3 h-3 md:w-4 md:h-4 object-contain opacity-60" />
+                <span>Party of {order.partySize}, {order.time}</span>
                 <span className="text-white/40">|</span>
                 <span>{order.timer}</span>
               </div>
-              <div className="flex-1"></div>
-              <span className="text-white font-semibold flex-shrink-0">{getOrderAmount(order)}</span>
+              <div className="w-[35%]"></div>
+              <div className="w-[20%] text-right">
+                <span className="text-white font-semibold">{getOrderAmount(order)}</span>
+              </div>
             </div>
             
-            {/* Row 3: Payment Status | Tip */}
-            <div className="flex items-center text-sm">
-              <span className="text-white/60 w-[260px] flex-shrink-0 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
-              <div className="flex-1"></div>
-              <span className="text-white flex-shrink-0">$0.00</span>
+            {/* Row 3: Revenue Center | Payment Status | Tip - 45% | 35% | 20% */}
+            <div className="flex items-center text-xs md:text-sm">
+              <div className="w-[45%] text-left">
+                <span className="text-white/60 truncate">{order.revenueCenter}</span>
+              </div>
+              <div className="w-[35%] text-left pl-4">
+                <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Pending Payment'}</span>
+              </div>
+              <div className="w-[20%] text-right">
+                <span className="text-white">$0.00</span>
+              </div>
             </div>
           </div>
         </div>

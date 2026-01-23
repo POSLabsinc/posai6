@@ -4940,7 +4940,7 @@ const Dashboard = () => {
               <div className="flex items-center gap-2 text-xs text-white/60 mb-2">
                 {stat.hasCheckbox ? <div className="w-4 h-4 rounded border border-white/40 flex items-center justify-center">
                     <Check className="w-3 h-3" />
-                  </div> : stat.icon === "clock" ? <Clock className="w-4 h-4 text-white/60" /> : <span className="text-sm">{stat.icon}</span>}
+                  </div> : stat.icon === "clock" ? <Clock className="w-4 h-4 text-white/60" /> : stat.icon === "Check" ? <Check className="w-4 h-4 text-white/60" /> : <span className="text-sm">{stat.icon}</span>}
                 <span>{stat.label}</span>
               </div>
               <div className="text-xl font-semibold mb-1">{stat.value}</div>

@@ -479,7 +479,7 @@ export function PaymentDialog({
       onClick={() => onOpenChange(false)}
     >
       <div 
-        className={`bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh] transition-all duration-300 ${getSplitCheckDialogWidth()}`}
+        className={`bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh] max-w-[95vw] transition-all duration-300 ${getSplitCheckDialogWidth()}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Left Panel - Payment Methods & Keypad */}
@@ -3654,20 +3654,23 @@ export function PaymentDialog({
               </div>
 
               {/* Check Cards Grid - Horizontal scroll for many checks */}
-              <div className="flex-1 p-4 overflow-x-auto overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-                <div className={`flex gap-3 ${numberOfChecks <= 2 ? 'justify-center' : ''}`} style={{ minWidth: numberOfChecks > 3 ? `${numberOfChecks * 180}px` : 'auto' }}>
-                  {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => {
-                    const checkItems = getItemsForCheck(checkNum);
-                    const checkTotals = getCheckTotals(checkNum);
-                    const isPaid = paidChecks.includes(checkNum);
-                    
-                    return (
-                      <div 
-                        key={checkNum}
-                        className={`bg-white rounded-xl flex flex-col shadow-lg relative overflow-hidden flex-shrink-0 p-3 ${
-                          isPaid ? 'opacity-60' : ''
-                        }`}
-                        style={{ width: numberOfChecks <= 2 ? '280px' : numberOfChecks <= 4 ? '200px' : '160px' }}
+              <div className="flex-1 overflow-hidden p-4">
+                <div 
+                  className="h-full overflow-x-auto overflow-y-auto pb-2"
+                  style={{ scrollbarWidth: 'thin' }}
+                >
+                  <div className={`flex gap-3 h-full ${numberOfChecks <= 3 ? 'justify-center' : ''}`}>
+                    {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => {
+                      const checkItems = getItemsForCheck(checkNum);
+                      const checkTotals = getCheckTotals(checkNum);
+                      const isPaid = paidChecks.includes(checkNum);
+                      
+                      return (
+                        <div 
+                          key={checkNum}
+                          className={`bg-white rounded-xl flex flex-col shadow-lg relative overflow-hidden flex-shrink-0 p-3 w-[180px] min-w-[180px] ${
+                            isPaid ? 'opacity-60' : ''
+                          }`}
                       >
                         {/* Paid Stamp */}
                         {isPaid && (
@@ -3744,7 +3747,8 @@ export function PaymentDialog({
                         </button>
                       </div>
                     );
-                  })}
+                    })}
+                  </div>
                 </div>
 
                 {/* Custom Split - Item Assignment UI */}

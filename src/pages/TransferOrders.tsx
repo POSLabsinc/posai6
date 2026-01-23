@@ -151,7 +151,7 @@ const TransferOrders = () => {
           <div className="flex flex-col gap-1">
             {/* Row 1: Name + Table + Revenue Center, Server, Status */}
             <div className="flex items-center justify-between">
-              <span className="text-white font-medium text-sm">{order.name} - {formatTableName(order.table)} · {order.revenueCenter}</span>
+              <span className="text-white font-medium text-sm">{order.name} · {formatTableName(order.table)} · {order.revenueCenter}</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm" style={{
                 color: '#B5B6BB'
@@ -198,7 +198,7 @@ const TransferOrders = () => {
             {/* Row 1: Name + Table | Server | Status - 45% | 35% | 20% */}
             <div className="flex items-center text-xs md:text-sm">
               <div className="w-[45%] text-left">
-                <span className="text-white font-medium truncate">{order.name} - {formatTableName(order.table)}</span>
+                <span className="text-white font-medium truncate">{order.name} · {formatTableName(order.table)}</span>
               </div>
               <div className="w-[35%] text-left pl-4">
                 <span className="text-white/60 truncate">{order.server}</span>
@@ -265,7 +265,7 @@ const TransferOrders = () => {
           <div className="flex flex-col gap-1">
             {/* Row 1: Name + Table + Revenue Center, Server, Status */}
             <div className="flex items-center justify-between">
-              <span className="text-white font-medium text-sm">{order.name} - {formatTableName(order.table)} · {order.revenueCenter}</span>
+              <span className="text-white font-medium text-sm">{order.name} · {formatTableName(order.table)} · {order.revenueCenter}</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm" style={{
                 color: '#B5B6BB'
@@ -312,7 +312,7 @@ const TransferOrders = () => {
             {/* Row 1: Name + Table | Server | Status - 45% | 35% | 20% */}
             <div className="flex items-center text-xs md:text-sm">
               <div className="w-[45%] text-left">
-                <span className="text-white font-medium truncate">{order.name} - {formatTableName(order.table)}</span>
+                <span className="text-white font-medium truncate">{order.name} · {formatTableName(order.table)}</span>
               </div>
               <div className="w-[35%] text-left pl-4">
                 <span className="text-white/60 truncate">{order.server}</span>

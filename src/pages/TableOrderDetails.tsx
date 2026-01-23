@@ -1132,54 +1132,63 @@ const TableOrderDetails = () => {
                   </div>
 
                   {/* Right Action Buttons - Edge to edge */}
-                  {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' ? (
-                    /* Receipt and Register buttons for paid orders */
-                    <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600 rounded-tr-xl"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setReceiptGuest(guest);
-                          setShowReceiptDialog(true);
-                        }}
-                      >
-                        <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
-                      </button>
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          // Handle register action
-                        }}
-                      >
-                        <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
-                      </button>
-                    </div>
-                  ) : guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full') ? (
-                    /* Merge and Transfer buttons for unpaid orders */
-                    <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-tr-xl"
-                        style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
-                        }}
-                      >
-                        <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
-                      </button>
-                      <button 
-                        className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-br-xl"
-                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
-                        }}
-                      >
-                        <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
-                      </button>
-                    </div>
-                  ) : null}
+                  {(() => {
+                    const hasAlertAbove = (destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId);
+                    
+                    if (guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed') {
+                      return (
+                        /* Receipt and Register buttons for paid orders */
+                        <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
+                          <button 
+                            className={`flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600 ${hasAlertAbove ? '' : 'rounded-tr-xl'}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setReceiptGuest(guest);
+                              setShowReceiptDialog(true);
+                            }}
+                          >
+                            <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
+                          </button>
+                          <button 
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Handle register action
+                            }}
+                          >
+                            <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
+                          </button>
+                        </div>
+                      );
+                    } else if (guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full')) {
+                      return (
+                        /* Merge and Transfer buttons for unpaid orders */
+                        <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
+                          <button 
+                            className={`flex-1 flex items-center justify-center hover:opacity-80 transition-opacity ${hasAlertAbove ? '' : 'rounded-tr-xl'}`}
+                            style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/tableorder/${tableId}/merge?orderId=${guest.id}`);
+                            }}
+                          >
+                            <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
+                          </button>
+                          <button 
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-br-xl"
+                            style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                            }}
+                          >
+                            <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
+                          </button>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
                 </div>
 
                 {/* Mobile Layout - Keep existing */}

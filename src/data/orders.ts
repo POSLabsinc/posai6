@@ -86,195 +86,131 @@ export interface Order {
   paymentMethods?: PaymentMethod[];
 }
 
-// 15 Complete orders with realistic food data covering T1-T12 + online orders
+// 10 Complete orders with realistic food data
 export const allOrders: Order[] = [
-  // ============================================
-  // TABLE T1 - Marcus Thompson - Business Lunch
-  // ============================================
+  // Order 1 - Martin Alex (T2) - ORDERING - Dine-In
   {
     id: "1",
-    name: "Marcus Thompson",
-    phone: "(415) 555-1001",
-    partySize: 6,
-    time: "12:30 PM",
-    timer: "00:25",
+    name: "Martin Alex",
+    phone: "(415) 555-0123",
+    partySize: 4,
+    time: "8:00 PM",
+    timer: "00:00",
     server: "Mia Jones",
     check: "--",
     paymentType: "--",
-    revenueCenter: "Main Dining",
-    status: "ORDERING",
-    notes: "Business lunch - need separate checks",
-    table: "T1",
-    orderType: "Dine-In",
-    paidAmount: "$0.00",
-    paymentStatus: "Un Paid",
-    tipAmount: 0,
-    items: [
-      { qty: 3, name: "Grilled Chicken Salad", price: 16.00, seats: [1, 2, 3], modifiers: ["Dressing on Side"] },
-      { qty: 2, name: "New York Strip Steak", price: 32.00, seats: [4, 5], modifiers: ["Medium Rare", "+ Mushroom Sauce"] },
-      { qty: 1, name: "Lobster Bisque", price: 14.00, seats: [6], modifiers: [] },
-      { qty: 6, name: "Sparkling Water", price: 4.00, seats: [], modifiers: [], isShared: true }
-    ]
-  },
-
-  // ============================================
-  // TABLE T2 - Jessica Rivera - Anniversary (Same Party Demo)
-  // ============================================
-  // Order 2 - Jessica Rivera (T2) - UNPAID - First Course Complete
-  {
-    id: "2",
-    name: "Jessica Rivera",
-    phone: "(415) 555-1002",
-    partySize: 2,
-    time: "7:00 PM",
-    timer: "1:45 Hrs",
-    server: "Alex Martinez",
-    check: "100234",
-    paymentType: "--",
     revenueCenter: "FF Balcony",
-    status: "UNPAID",
-    notes: "Anniversary dinner - complimentary dessert",
+    status: "ORDERING",
+    notes: "Allergic to almonds, Don't add onion",
     table: "T2",
     orderType: "Dine-In",
-    paidAmount: "$0.00",
-    paymentStatus: "Un Paid",
-    tipAmount: 22.00,
+    tipAmount: 8.50,
     items: [
-      { qty: 1, name: "Filet Mignon", price: 45.00, seats: [1], modifiers: ["Medium", "Béarnaise Sauce"] },
-      { qty: 1, name: "Pan-Seared Salmon", price: 34.00, seats: [2], modifiers: ["Extra Lemon"] },
-      { qty: 1, name: "Truffle Fries", price: 12.00, seats: [], modifiers: [], isShared: true },
-      { qty: 2, name: "Glass of Champagne", price: 18.00, seats: [], modifiers: [] }
+      { qty: 2, name: "Classic Crispy Burger", price: 12.00, seats: [1, 2], modifiers: [] },
+      { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: ["Extra Sauce"], isShared: true },
+      { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
+      { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette", "- Medium Rare", "+ W/ Potato Wedges"] }
     ]
   },
   
-  // Order 3 - Jessica Rivera (T2) - ORDERING - Second Round (Same Party)
+  // Order 2 - Mike Wheelers (T2) - PAID - Takeout
+  {
+    id: "2",
+    name: "Mike Wheelers",
+    phone: "(415) 555-0456",
+    partySize: 3,
+    time: "7:30 PM",
+    timer: "1:16 Hrs",
+    server: "Dustin H",
+    check: "123423",
+    paymentType: "Cash",
+    revenueCenter: "FF Balcony",
+    status: "PAID",
+    notes: "Birthday celebration - bring candle",
+    table: "T2",
+    orderType: "Takeout",
+    paidAmount: "$128.47",
+    paymentStatus: "Paid",
+    tipAmount: 25.69,
+    items: [
+      { qty: 1, name: "New York Strip Steak", price: 28.00, seats: [1], modifiers: ["Medium Rare", "+ Garlic Butter"] },
+      { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [2], modifiers: ["No Lemon"] },
+      { qty: 1, name: "Caesar Salad", price: 12.00, seats: [3], modifiers: ["Extra Croutons", "Dressing on Side"] },
+      { qty: 3, name: "Glass of Red Wine", price: 9.00, seats: [], modifiers: [] },
+      { qty: 1, name: "Chocolate Lava Cake", price: 10.00, seats: [], modifiers: ["+ Extra Ice Cream"] }
+    ]
+  },
+  
+  // Order 3 - Martin Alex (T2) - UNPAID - Dine-In (Same Party as Order 1)
   {
     id: "3",
-    name: "Jessica Rivera",
-    phone: "(415) 555-1002",
+    name: "Martin Alex",
+    phone: "(415) 555-0123",
     partySize: 2,
-    time: "8:30 PM",
-    timer: "00:12",
-    server: "Alex Martinez",
-    check: "--",
+    time: "7:15 PM",
+    timer: "1:45 Hrs",
+    server: "Dustin H",
+    check: "123443",
     paymentType: "--",
     revenueCenter: "FF Balcony",
-    status: "ORDERING",
-    notes: "Second round - desserts and coffee",
+    status: "UNPAID",
+    notes: "Gluten-free options requested",
     table: "T2",
     orderType: "Dine-In",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
-    tipAmount: 0,
+    tipAmount: 15.00,
     items: [
-      { qty: 2, name: "Chocolate Lava Cake", price: 12.00, seats: [1, 2], modifiers: ["+ Extra Ice Cream"] },
-      { qty: 2, name: "Espresso", price: 5.00, seats: [], modifiers: [] }
+      { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust"] },
+      { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"] },
+      { qty: 2, name: "Tiramisu", price: 9.00, seats: [], modifiers: [] },
+      { qty: 2, name: "Espresso", price: 4.00, seats: [], modifiers: [] }
     ]
   },
-
-  // ============================================
-  // TABLE T3 - Kevin Chen - ORDERED
-  // ============================================
+  
+  // Order 4 - David Chen (T2) - COMPLETED - Dine-In - Multi-payment
   {
     id: "4",
-    name: "Kevin Chen",
-    phone: "(415) 555-1003",
-    partySize: 4,
+    name: "David Chen",
+    phone: "(415) 555-1234",
+    partySize: 6,
     time: "6:45 PM",
-    timer: "00:35",
-    server: "Sarah Wilson",
-    check: "100235",
-    paymentType: "--",
+    timer: "2:30 Hrs",
+    server: "Mia Jones",
+    check: "123456",
+    paymentType: "Credit Card",
     revenueCenter: "Main Dining",
-    status: "ORDERED",
-    notes: "Window seat requested - celebrating promotion",
-    table: "T3",
+    status: "Completed",
+    notes: "Corporate dinner - split bill 3 ways",
+    table: "T2",
     orderType: "Dine-In",
-    paidAmount: "$0.00",
-    paymentStatus: "Un Paid",
-    tipAmount: 0,
+    paidAmount: "$521.19",
+    paymentStatus: "Paid",
+    tipAmount: 104.24,
+    paymentMethods: [
+      { type: 'Visa', lastFour: '1234', amount: 300.00 },
+      { type: 'Amex', lastFour: '9876', amount: 150.00 },
+      { type: 'Cash', amount: 71.19 }
+    ],
     items: [
-      { qty: 1, name: "Ribeye Steak", price: 38.00, seats: [1], modifiers: ["Medium Well", "+ Peppercorn Sauce"] },
-      { qty: 1, name: "Chicken Parmesan", price: 26.00, seats: [2], modifiers: [] },
-      { qty: 1, name: "Grilled Salmon", price: 32.00, seats: [3], modifiers: ["No Butter"] },
-      { qty: 1, name: "Pasta Primavera", price: 22.00, seats: [4], modifiers: ["Extra Vegetables"] },
-      { qty: 2, name: "House Salad", price: 10.00, seats: [], modifiers: [], isShared: true },
-      { qty: 1, name: "Bottle of Cabernet", price: 65.00, seats: [], modifiers: [], isShared: true }
+      { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter"] },
+      { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium", "Peppercorn Sauce"] },
+      { qty: 2, name: "Vegetable Risotto", price: 22.00, seats: [5, 6], modifiers: ["Extra Parmesan"] },
+      { qty: 6, name: "House Salad", price: 8.00, seats: [], modifiers: [], isShared: true },
+      { qty: 2, name: "Bottle of Champagne", price: 85.00, seats: [], modifiers: [] },
+      { qty: 6, name: "Cheesecake", price: 11.00, seats: [], modifiers: [] }
     ]
   },
-
-  // ============================================
-  // TABLE T4 - Rachel Green - PREPARING
-  // ============================================
+  
+  // Order 5 - Guest (T6) - ORDERING - Bar
   {
     id: "5",
-    name: "Rachel Green",
-    phone: "(415) 555-1004",
-    partySize: 3,
-    time: "7:30 PM",
-    timer: "00:20",
-    server: "David Kim",
-    check: "100236",
-    paymentType: "--",
-    revenueCenter: "Patio",
-    status: "PREPARING",
-    notes: "Vegetarian options - nut allergy for seat 2",
-    table: "T4",
-    orderType: "Dine-In",
-    paidAmount: "$0.00",
-    paymentStatus: "Un Paid",
-    tipAmount: 0,
-    items: [
-      { qty: 1, name: "Mushroom Risotto", price: 24.00, seats: [1], modifiers: ["Extra Parmesan"] },
-      { qty: 1, name: "Eggplant Parmesan", price: 22.00, seats: [2], modifiers: ["No Pine Nuts - ALLERGY"] },
-      { qty: 1, name: "Mediterranean Salad", price: 16.00, seats: [3], modifiers: ["Add Feta"] },
-      { qty: 3, name: "Iced Tea", price: 4.00, seats: [], modifiers: [] }
-    ]
-  },
-
-  // ============================================
-  // TABLE T5 - Daniel Martinez - 1ST COURSE
-  // ============================================
-  {
-    id: "6",
-    name: "Daniel Martinez",
-    phone: "(415) 555-1005",
-    partySize: 4,
-    time: "6:00 PM",
-    timer: "1:15 Hrs",
-    server: "Emily Chen",
-    check: "100237",
-    paymentType: "--",
-    revenueCenter: "Private Room",
-    status: "1ST COURSE",
-    notes: "Birthday celebration - bring cake at 8pm",
-    table: "T5",
-    orderType: "Dine-In",
-    paidAmount: "$0.00",
-    paymentStatus: "Un Paid",
-    tipAmount: 0,
-    items: [
-      { qty: 4, name: "French Onion Soup", price: 12.00, seats: [1, 2, 3, 4], modifiers: [] },
-      { qty: 2, name: "Shrimp Cocktail", price: 18.00, seats: [], modifiers: [], isShared: true },
-      { qty: 1, name: "Prime Rib", price: 48.00, seats: [1], modifiers: ["Medium Rare", "Extra Au Jus"] },
-      { qty: 1, name: "Lobster Tail", price: 55.00, seats: [2], modifiers: ["Garlic Butter"] },
-      { qty: 1, name: "Surf & Turf", price: 62.00, seats: [3], modifiers: ["Filet Medium"] },
-      { qty: 1, name: "Duck Confit", price: 36.00, seats: [4], modifiers: [] },
-      { qty: 2, name: "Bottle of Pinot Noir", price: 58.00, seats: [], modifiers: [], isShared: true }
-    ]
-  },
-
-  // ============================================
-  // TABLE T6 - Guest - ORDERING (Bar Walk-in)
-  // ============================================
-  {
-    id: "7",
     name: "Guest",
     phone: "",
     partySize: 1,
-    time: "8:45 PM",
-    timer: "00:08",
-    server: "Jake Porter",
+    time: "8:30 PM",
+    timer: "00:15",
+    server: "Mia Jones",
     check: "--",
     paymentType: "--",
     revenueCenter: "Bar",
@@ -284,242 +220,143 @@ export const allOrders: Order[] = [
     orderType: "Bar",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
-    tipAmount: 0,
+    tipAmount: 5.00,
     items: [
-      { qty: 1, name: "Craft Beer Flight", price: 16.00, seats: [1], modifiers: [] },
-      { qty: 1, name: "Loaded Nachos", price: 14.00, seats: [1], modifiers: ["Extra Jalapeños"] }
+      { qty: 1, name: "Classic Burger", price: 15.00, seats: [1], modifiers: ["No Pickles", "+ Bacon"] },
+      { qty: 1, name: "Craft IPA", price: 8.00, seats: [], modifiers: [] }
     ]
   },
-
-  // ============================================
-  // TABLE T7 - Samantha Brooks - PAID (Takeout Complete)
-  // ============================================
+  
+  // Order 6 - Emily Wilson (T3) - ORDERING - Dine-In
   {
-    id: "8",
-    name: "Samantha Brooks",
-    phone: "(415) 555-1006",
-    partySize: 1,
-    time: "5:30 PM",
-    timer: "2:30 Hrs",
-    server: "Counter",
-    check: "100238",
-    paymentType: "Corporate Card",
-    revenueCenter: "Takeout",
-    status: "PAID",
-    notes: "Corporate catering order - receipt emailed",
-    table: "T7",
-    orderType: "Takeout",
-    paidAmount: "$284.00",
-    paymentStatus: "Paid",
-    tipAmount: 42.00,
-    items: [
-      { qty: 10, name: "Assorted Sandwich Platter", price: 15.00, seats: [], modifiers: [] },
-      { qty: 5, name: "Caesar Salad (Large)", price: 18.00, seats: [], modifiers: ["Dressing on Side"] },
-      { qty: 2, name: "Fruit Platter", price: 22.00, seats: [], modifiers: [] }
-    ]
-  },
-
-  // ============================================
-  // TABLE T8 - Michael Foster - ORDERED (Delivery)
-  // ============================================
-  {
-    id: "9",
-    name: "Michael Foster",
-    phone: "(415) 555-1007",
+    id: "6",
+    name: "Emily Wilson",
+    phone: "(415) 555-2345",
     partySize: 2,
-    time: "7:15 PM",
-    timer: "00:40",
-    server: "Online",
-    check: "100239",
-    paymentType: "Credit Card",
+    time: "8:15 PM",
+    timer: "00:20",
+    server: "Alex M",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "Patio",
+    status: "ORDERING",
+    notes: "Anniversary dinner - window seat",
+    table: "T3",
+    orderType: "Dine-In",
+    paidAmount: "$0.00",
+    paymentStatus: "Un Paid",
+    tipAmount: 10.00,
+    items: [
+      { qty: 2, name: "Shrimp Scampi", price: 22.00, seats: [1, 2], modifiers: ["Extra Garlic"] },
+      { qty: 1, name: "Bruschetta", price: 10.00, seats: [], modifiers: [], isShared: true }
+    ]
+  },
+  
+  // Order 7 - James Brown (T7) - ORDERED - Delivery
+  {
+    id: "7",
+    name: "James Brown",
+    phone: "(415) 555-3456",
+    partySize: 4,
+    time: "7:45 PM",
+    timer: "0:45 Hrs",
+    server: "Dustin H",
+    check: "123489",
+    paymentType: "--",
     revenueCenter: "Online",
     status: "ORDERED",
-    notes: "Delivery - 456 Oak Street, Apt 12B - Ring doorbell",
-    table: "T8",
+    notes: "Leave at door - apartment 4B",
+    table: "T7",
     orderType: "Delivery",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
-    tipAmount: 8.00,
+    tipAmount: 12.00,
     items: [
-      { qty: 2, name: "Margherita Pizza", price: 18.00, seats: [], modifiers: ["Well Done"] },
-      { qty: 1, name: "Garlic Knots", price: 8.00, seats: [], modifiers: [] },
-      { qty: 2, name: "Tiramisu", price: 10.00, seats: [], modifiers: [] },
+      { qty: 2, name: "Pepperoni Pizza (12\")", price: 18.00, seats: [], modifiers: ["Extra Cheese"] },
+      { qty: 1, name: "Garlic Knots", price: 6.00, seats: [], modifiers: [] },
+      { qty: 1, name: "Buffalo Wings (10pc)", price: 14.00, seats: [], modifiers: ["Extra Hot", "Ranch on Side"] },
       { qty: 2, name: "Soda", price: 3.00, seats: [], modifiers: [] }
     ]
   },
-
-  // ============================================
-  // TABLE T9 - Amanda Collins - UNPAID (Late Night)
-  // ============================================
+  
+  // Order 8 - Lisa Garcia (T4) - PREPARING - Dine-In
   {
-    id: "10",
-    name: "Amanda Collins",
-    phone: "(415) 555-1008",
+    id: "8",
+    name: "Lisa Garcia",
+    phone: "(415) 555-4567",
     partySize: 3,
-    time: "9:00 PM",
-    timer: "00:45",
+    time: "7:50 PM",
+    timer: "0:35 Hrs",
     server: "Mia Jones",
-    check: "100240",
-    paymentType: "--",
-    revenueCenter: "Main Dining",
-    status: "UNPAID",
-    notes: "Late-night dessert and drinks",
-    table: "T9",
-    orderType: "Dine-In",
-    paidAmount: "$0.00",
-    paymentStatus: "Un Paid",
-    tipAmount: 0,
-    items: [
-      { qty: 1, name: "Crème Brûlée", price: 11.00, seats: [1], modifiers: [] },
-      { qty: 1, name: "New York Cheesecake", price: 10.00, seats: [2], modifiers: ["+ Berry Compote"] },
-      { qty: 1, name: "Affogato", price: 9.00, seats: [3], modifiers: [] },
-      { qty: 3, name: "Espresso Martini", price: 14.00, seats: [], modifiers: [] }
-    ]
-  },
-
-  // ============================================
-  // TABLE T10 - Tyler Washington - COMPLETED
-  // ============================================
-  {
-    id: "11",
-    name: "Tyler Washington",
-    phone: "(415) 555-1009",
-    partySize: 4,
-    time: "5:00 PM",
-    timer: "3:00 Hrs",
-    server: "Sarah Wilson",
-    check: "100241",
-    paymentType: "Visa",
-    revenueCenter: "Main Dining",
-    status: "COMPLETED",
-    notes: "Early dinner - table cleared",
-    table: "T10",
-    orderType: "Dine-In",
-    paidAmount: "$186.00",
-    paymentStatus: "Paid",
-    tipAmount: 35.00,
-    items: [
-      { qty: 2, name: "Spaghetti Carbonara", price: 24.00, seats: [1, 2], modifiers: [] },
-      { qty: 1, name: "Veal Piccata", price: 32.00, seats: [3], modifiers: [] },
-      { qty: 1, name: "Grilled Lamb Chops", price: 42.00, seats: [4], modifiers: ["Medium"] },
-      { qty: 4, name: "House Wine", price: 12.00, seats: [], modifiers: [] }
-    ]
-  },
-
-  // ============================================
-  // TABLE T11 - Nicole Adams - PREPARING (Large Group)
-  // ============================================
-  {
-    id: "12",
-    name: "Nicole Adams",
-    phone: "(415) 555-1010",
-    partySize: 5,
-    time: "7:00 PM",
-    timer: "00:30",
-    server: "David Kim",
-    check: "100242",
+    check: "123490",
     paymentType: "--",
     revenueCenter: "Main Dining",
     status: "PREPARING",
-    notes: "Family gathering - kids menu for 2 seats",
-    table: "T11",
+    notes: "Nut allergy - kitchen aware",
+    table: "T4",
     orderType: "Dine-In",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
-    tipAmount: 0,
+    tipAmount: 12.50,
     items: [
-      { qty: 1, name: "Grilled Salmon", price: 32.00, seats: [1], modifiers: ["Lemon Butter"] },
-      { qty: 1, name: "Chicken Marsala", price: 28.00, seats: [2], modifiers: [] },
-      { qty: 1, name: "Pork Tenderloin", price: 30.00, seats: [3], modifiers: ["Apple Chutney"] },
-      { qty: 1, name: "Kids Chicken Tenders", price: 12.00, seats: [4], modifiers: ["+ Fries"] },
-      { qty: 1, name: "Kids Mac & Cheese", price: 10.00, seats: [5], modifiers: [] },
-      { qty: 3, name: "Lemonade", price: 4.00, seats: [], modifiers: [] },
-      { qty: 2, name: "Chocolate Milk", price: 4.00, seats: [], modifiers: [] }
+      { qty: 1, name: "Chicken Parmesan", price: 24.00, seats: [1], modifiers: ["No Nuts"] },
+      { qty: 1, name: "Fettuccine Alfredo", price: 18.00, seats: [2], modifiers: ["Add Chicken $4"] },
+      { qty: 1, name: "Minestrone Soup", price: 8.00, seats: [3], modifiers: [] }
     ]
   },
-
-  // ============================================
-  // TABLE T12 - Chris Martinez - ORDERING (First Visit)
-  // ============================================
+  
+  // Order 9 - Robert Taylor (T5) - ORDERING - Takeout
   {
-    id: "13",
-    name: "Chris Martinez",
-    phone: "(415) 555-1011",
-    partySize: 5,
-    time: "8:00 PM",
-    timer: "00:15",
-    server: "Emily Chen",
+    id: "9",
+    name: "Robert Taylor",
+    phone: "(415) 555-5678",
+    partySize: 4,
+    time: "8:20 PM",
+    timer: "00:10",
+    server: "Alex M",
     check: "--",
     paymentType: "--",
-    revenueCenter: "Main Dining",
+    revenueCenter: "Counter",
     status: "ORDERING",
-    notes: "First-time visitors - recommend house specials",
-    table: "T12",
+    notes: "Picking up in 20 mins",
+    table: "T5",
+    orderType: "Takeout",
+    paidAmount: "$0.00",
+    paymentStatus: "Un Paid",
+    tipAmount: 18.00,
+    items: [
+      { qty: 2, name: "BBQ Ribs (Full)", price: 26.00, seats: [], modifiers: ["Extra BBQ Sauce"] },
+      { qty: 2, name: "Coleslaw", price: 5.00, seats: [], modifiers: [] },
+      { qty: 2, name: "Mac & Cheese", price: 8.00, seats: [], modifiers: [] },
+      { qty: 4, name: "Cornbread", price: 3.00, seats: [], modifiers: [] }
+    ]
+  },
+  
+  // Order 10 - Amanda White (T1) - UNPAID - Dine-In
+  {
+    id: "10",
+    name: "Amanda White",
+    phone: "(415) 555-6789",
+    partySize: 5,
+    time: "7:00 PM",
+    timer: "1:30 Hrs",
+    server: "Dustin H",
+    check: "123491",
+    paymentType: "--",
+    revenueCenter: "Private Room",
+    status: "UNPAID",
+    notes: "Business meeting - quiet area preferred",
+    table: "T1",
     orderType: "Dine-In",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
-    tipAmount: 0,
+    tipAmount: 35.00,
     items: [
-      { qty: 5, name: "Bread Basket", price: 0.00, seats: [], modifiers: [], isShared: true },
-      { qty: 2, name: "Bruschetta", price: 12.00, seats: [], modifiers: [], isShared: true },
-      { qty: 1, name: "Calamari", price: 16.00, seats: [], modifiers: [], isShared: true }
-    ]
-  },
-
-  // ============================================
-  // NO TABLE - Online Takeout Order
-  // ============================================
-  {
-    id: "14",
-    name: "Online Customer",
-    phone: "(415) 555-1012",
-    partySize: 1,
-    time: "7:45 PM",
-    timer: "00:20",
-    server: "Counter",
-    check: "100243",
-    paymentType: "Apple Pay",
-    revenueCenter: "Online",
-    status: "ORDERED",
-    notes: "Counter pickup - Name: Jason",
-    table: "",
-    orderType: "Takeout",
-    paidAmount: "$42.00",
-    paymentStatus: "Paid",
-    tipAmount: 5.00,
-    items: [
-      { qty: 1, name: "BBQ Bacon Burger", price: 18.00, seats: [], modifiers: ["No Onions", "Extra Pickles"] },
-      { qty: 1, name: "Sweet Potato Fries", price: 7.00, seats: [], modifiers: [] },
-      { qty: 1, name: "Chocolate Shake", price: 8.00, seats: [], modifiers: [] },
-      { qty: 1, name: "Brownie Sundae", price: 9.00, seats: [], modifiers: [] }
-    ]
-  },
-
-  // ============================================
-  // NO TABLE - Third-Party Delivery
-  // ============================================
-  {
-    id: "15",
-    name: "DoorDash Order",
-    phone: "(415) 555-1013",
-    partySize: 1,
-    time: "8:15 PM",
-    timer: "00:12",
-    server: "Delivery App",
-    check: "DD-78234",
-    paymentType: "DoorDash",
-    revenueCenter: "Third Party",
-    status: "PREPARING",
-    notes: "Driver arriving in 10 mins",
-    table: "",
-    orderType: "Delivery",
-    paidAmount: "$38.00",
-    paymentStatus: "Paid",
-    tipAmount: 0,
-    items: [
-      { qty: 2, name: "Chicken Burrito Bowl", price: 14.00, seats: [], modifiers: ["Extra Guac"] },
-      { qty: 1, name: "Chips & Salsa", price: 6.00, seats: [], modifiers: [] },
-      { qty: 2, name: "Churros", price: 5.00, seats: [], modifiers: [] }
+      { qty: 3, name: "Grilled Chicken Breast", price: 22.00, seats: [1, 2, 3], modifiers: ["Lemon Herb"] },
+      { qty: 2, name: "Pan-Seared Duck", price: 32.00, seats: [4, 5], modifiers: ["Orange Glaze"] },
+      { qty: 1, name: "Asparagus Bundle", price: 12.00, seats: [], modifiers: [], isShared: true },
+      { qty: 5, name: "Sparkling Water", price: 4.00, seats: [], modifiers: [] },
+      { qty: 2, name: "Crème Brûlée", price: 10.00, seats: [], modifiers: [] }
     ]
   }
 ];

@@ -6,7 +6,7 @@ import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
 import RefundDialog from "@/components/RefundDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, X, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 
@@ -50,6 +50,39 @@ import receiptIcon from "@/assets/icons/receipt-icon.svg";
 import registerIcon from "@/assets/icons/register-icon.svg";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
+
+// Discount types
+interface DiscountType {
+  id: string;
+  name: string;
+  description: string;
+  percentage?: number;
+  fixedAmount?: number;
+  icon: string;
+}
+
+const discountTypes: DiscountType[] = [
+  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
+  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
+  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
+  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
+  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
+  { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
+  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
+  { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
+  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
+  { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
+  { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
+  { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
+];
+
+const getDiscountIcon = (iconName: string) => {
+  const icons: Record<string, React.ComponentType<{ className?: string }>> = {
+    briefcase: Briefcase, heart: Heart, graduation: GraduationCap, shield: Shield,
+    star: Star, clock: Clock, cake: Cake, mappin: MapPin, dollar: BadgeDollarSign, tag: Tag
+  };
+  return icons[iconName] || Tag;
+};
 
 // Extended guest order interface with calculated totals
 interface GuestOrder extends Order {
@@ -305,8 +338,22 @@ const TableOrderDetails = () => {
   const [showRefundDialog, setShowRefundDialog] = useState(false);
   const [expandedCartItems, setExpandedCartItems] = useState<Set<string>>(new Set());
   
+  // Discount state
+  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
+  const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
+  const [discountPin, setDiscountPin] = useState("");
+  const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+  
   // Set initial selected guest when guestOrders changes
   const currentSelectedGuest = selectedGuest || guestOrders[0];
+  
+  // Calculate applied discount (must be after currentSelectedGuest)
+  const appliedDiscount = useMemo(() => {
+    if (!selectedDiscountId || !currentSelectedGuest) return 0;
+    const discountType = discountTypes.find(d => d.id === selectedDiscountId);
+    if (!discountType) return 0;
+    return discountType.fixedAmount || (currentSelectedGuest.subtotal * ((discountType.percentage || 0) / 100));
+  }, [selectedDiscountId, currentSelectedGuest]);
 
   // Reset refund mode when selected guest changes
   useEffect(() => {
@@ -680,7 +727,7 @@ const TableOrderDetails = () => {
                 className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" 
                 style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
               >
-                CHARGE {formatPrice(currentSelectedGuest.total)}
+                CHARGE {formatPrice(currentSelectedGuest.total - appliedDiscount)}
               </button>
             </>
           )}
@@ -1320,7 +1367,16 @@ const TableOrderDetails = () => {
             >
               Add Item
             </button>
-            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            <button 
+              className={`px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors ${
+                selectedDiscountId ? 'ring-2 ring-orange-500' : ''
+              }`}
+              onClick={() => {
+                setDiscountDialogView('mpin');
+                setDiscountPin("");
+                setShowDiscountDialog(true);
+              }}
+            >
               Discount
             </button>
             <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
@@ -1598,7 +1654,7 @@ const TableOrderDetails = () => {
           }}>
             <div className="flex justify-between gap-3">
               <span className="text-foreground">Sub Total: <span className="font-medium">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span></span>
-              <span className="text-white">Discount: <span className="font-medium">{formatPrice(currentSelectedGuest?.discount || 0)}</span></span>
+              <span className="text-white">Discount: <span className="font-medium">{formatPrice((currentSelectedGuest?.discount || 0) + appliedDiscount)}</span></span>
             </div>
             <div className="flex justify-between gap-3">
               <span className="text-foreground">Service Charge: <span className="font-medium text-primary">+{formatPrice(currentSelectedGuest?.serviceCharge || 0)}</span></span>
@@ -1662,7 +1718,7 @@ const TableOrderDetails = () => {
                   style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
                 >
                   <span className="text-black font-semibold text-xs">
-                    CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
+                    CHARGE {formatPrice((currentSelectedGuest?.total || 0) - appliedDiscount)}
                   </span>
                 </button>
               </>
@@ -2212,7 +2268,7 @@ const TableOrderDetails = () => {
                 className="flex-1 py-2 rounded-full text-black text-sm font-bold" 
                 style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
               >
-                CHARGE {formatPrice(currentSelectedGuest?.total || 0)}
+                CHARGE {formatPrice((currentSelectedGuest?.total || 0) - appliedDiscount)}
               </button>
             </>
           )}
@@ -2310,6 +2366,117 @@ const TableOrderDetails = () => {
           setShowRefundMode(false);
         }}
       />
+
+      {/* Discount Dialog with integrated MPIN */}
+      {showDiscountDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            {discountDialogView === 'mpin' ? (
+              /* MPIN View - Manager PIN entry */
+              <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
+                {/* Manager Profile */}
+                <div className="flex flex-col items-center mb-4">
+                  <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt="Manager" className="w-full h-full object-cover" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
+                  <p className="text-xs text-muted-foreground">Manager</p>
+                </div>
+
+                {/* PIN Dots */}
+                <div className="flex items-center justify-center gap-2.5 mb-4">
+                  {[0, 1, 2, 3].map((index) => (
+                    <div key={index} className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${index < discountPin.length ? "bg-primary" : "bg-neutral-600"}`} />
+                  ))}
+                </div>
+
+                <p className="text-center text-muted-foreground text-xs mb-4">Enter Manager PIN</p>
+
+                {/* Numpad */}
+                <div className="grid grid-cols-3 gap-2 w-full">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                    <button key={num} type="button" onClick={() => {
+                      if (discountPin.length < 4) {
+                        const newPin = discountPin + num.toString();
+                        setDiscountPin(newPin);
+                        if (newPin.length === 4) {
+                          setTimeout(() => {
+                            setDiscountDialogView('discounts');
+                            setDiscountPin("");
+                          }, 200);
+                        }
+                      }
+                    }} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
+                      {num}
+                    </button>
+                  ))}
+                  <button type="button" onClick={() => setDiscountPin(discountPin.slice(0, -1))} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center">
+                    <Delete className="w-5 h-5" />
+                  </button>
+                  <button type="button" onClick={() => {
+                    if (discountPin.length < 4) {
+                      const newPin = discountPin + "0";
+                      setDiscountPin(newPin);
+                      if (newPin.length === 4) {
+                        setTimeout(() => {
+                          setDiscountDialogView('discounts');
+                          setDiscountPin("");
+                        }, 200);
+                      }
+                    }
+                  }} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
+                    0
+                  </button>
+                  <button type="button" onClick={() => setShowDiscountDialog(false)} className="h-12 rounded-xl bg-neutral-700 border border-neutral-600 text-foreground text-sm font-medium hover:bg-neutral-600 active:bg-neutral-500 transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : (
+              /* Discount Selection View */
+              <>
+                <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                  <h2 className="text-white text-lg font-semibold">Select Discount</h2>
+                  <button onClick={() => setShowDiscountDialog(false)} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
+                    <X className="w-5 h-5 text-neutral-400" />
+                  </button>
+                </div>
+
+                <div className="p-2 max-h-[400px] overflow-y-auto space-y-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                  {discountTypes.map((discountType) => {
+                    const subtotal = currentSelectedGuest?.subtotal || 0;
+                    const discountAmount = discountType.fixedAmount || (subtotal * ((discountType.percentage || 0) / 100));
+                    const isSelected = selectedDiscountId === discountType.id;
+                    const IconComponent = getDiscountIcon(discountType.icon);
+                    
+                    return (
+                      <button key={discountType.id} onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                          isSelected ? 'bg-orange-500/20 border border-orange-500' : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
+                        }`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'}`}>
+                          <IconComponent className="w-4 h-4 text-neutral-400" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="text-white text-sm font-medium">{discountType.name}</div>
+                          <div className="text-neutral-400 text-xs">{discountType.description}</div>
+                        </div>
+                        <div className="text-white text-sm font-medium">-${discountAmount.toFixed(2)}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="p-3 border-t border-neutral-700">
+                  <button onClick={() => setShowDiscountDialog(false)} className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm">
+                    Apply
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </>;
 };
 export default TableOrderDetails;

@@ -6,13 +6,8 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import OrderSummary from "@/components/OrderSummary";
-import { getOrderStatusColor } from "@/lib/orderUtils";
+import { getOrderStatusColor, formatTableName } from "@/lib/orderUtils";
 import { Order, allOrders, getOrderById, calculateOrderTotals, getOrderAmount, toOrderTemplateData } from "@/data/orders";
-
-// Helper to format table ID (T2 -> Table 2)
-const formatTableName = (tableId: string) => {
-  return tableId?.replace(/^T/i, 'Table ') || tableId;
-};
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -157,7 +152,7 @@ const MergeOrders = () => {
           <div className="flex flex-col gap-1">
             {/* Row 1: Name + Table + Revenue Center, Server, Status */}
             <div className="flex items-center justify-between">
-              <span className="text-white font-medium text-sm">{order.name} - {order.table} · {order.revenueCenter || 'FF Balcony'}</span>
+              <span className="text-white font-medium text-sm">{order.name} - {formatTableName(order.table)} · {order.revenueCenter || 'FF Balcony'}</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm" style={{
                 color: '#B5B6BB'

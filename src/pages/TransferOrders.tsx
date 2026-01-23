@@ -7,13 +7,8 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import OrderSummary from "@/components/OrderSummary";
-import { getOrderStatusColor, formatPrice } from "@/lib/orderUtils";
+import { getOrderStatusColor, formatPrice, formatTableName } from "@/lib/orderUtils";
 import { Order, allOrders, getOrderById, getAvailableOrdersForTransfer, calculateOrderTotals, getOrderAmount, toOrderTemplateData } from "@/data/orders";
-
-// Helper to format table ID (T2 -> Table 2)
-const formatTableName = (tableId: string) => {
-  return tableId?.replace(/^T/i, 'Table ') || tableId;
-};
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
@@ -156,7 +151,7 @@ const TransferOrders = () => {
           <div className="flex flex-col gap-1">
             {/* Row 1: Name + Table + Revenue Center, Server, Status */}
             <div className="flex items-center justify-between">
-              <span className="text-white font-medium text-sm">{order.name} - {order.table} · {order.revenueCenter}</span>
+              <span className="text-white font-medium text-sm">{order.name} - {formatTableName(order.table)} · {order.revenueCenter}</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm" style={{
                 color: '#B5B6BB'
@@ -270,7 +265,7 @@ const TransferOrders = () => {
           <div className="flex flex-col gap-1">
             {/* Row 1: Name + Table + Revenue Center, Server, Status */}
             <div className="flex items-center justify-between">
-              <span className="text-white font-medium text-sm">{order.name} - {order.table} · {order.revenueCenter}</span>
+              <span className="text-white font-medium text-sm">{order.name} - {formatTableName(order.table)} · {order.revenueCenter}</span>
               <div className="flex items-center gap-2">
                 <span className="text-sm" style={{
                 color: '#B5B6BB'
@@ -607,7 +602,7 @@ const TransferOrders = () => {
         {fromOrder && <CompactOrderCard order={{
         ...fromOrder,
         status: 'TRANSFERRED'
-      }} transferredTo={toOrder ? `Table ${toOrder.table?.replace('T', '')}` : undefined} />}
+      }} transferredTo={toOrder ? formatTableName(toOrder.table || '') : undefined} />}
       </div>
 
       {/* Swap Button */}
@@ -669,7 +664,7 @@ const TransferOrders = () => {
         <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
           <div className="flex items-center gap-2">
             <span className="bg-neutral-700 border border-neutral-600 px-2 py-1 rounded text-xs font-medium text-white">
-              TABLE {panelOrder.table}
+              {formatTableName(panelOrder.table).toUpperCase()}
             </span>
             <Users className="w-4 h-4 text-neutral-400" />
             <span className="text-neutral-400 text-xs">{panelOrder.items.length}</span>
@@ -839,7 +834,7 @@ const TransferOrders = () => {
               <div className="flex items-center gap-1 md:gap-2 w-[170px] md:w-[220px] flex-shrink-0">
                 <span className="text-white font-medium truncate">{order.name}</span>
                 <span className="text-white/60">·</span>
-                <span className="text-white font-medium">{order.table}</span>
+                <span className="text-white font-medium">{formatTableName(order.table)}</span>
               </div>
               <div className="flex-1">
                 <span className="text-white/60 truncate">{order.server}</span>
@@ -904,7 +899,7 @@ const TransferOrders = () => {
               <div className="flex items-center gap-1 md:gap-2 w-[170px] md:w-[220px] flex-shrink-0">
                 <span className="text-white font-medium truncate">{order.name}</span>
                 <span className="text-white/60">·</span>
-                <span className="text-white font-medium">{order.table}</span>
+                <span className="text-white font-medium">{formatTableName(order.table)}</span>
               </div>
               <div className="flex-1">
                 <span className="text-white/60 truncate">{order.server}</span>

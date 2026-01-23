@@ -4,12 +4,11 @@ import {
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
   Mail, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, 
   UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, 
-  RefreshCw, Send, Zap, Users, Clock, Percent, DollarSign
+  RefreshCw, Send, Zap, Users, Clock
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import tickSuccessIcon from "@/assets/icons/tick-success.svg";
-import splitCheckIcon from "@/assets/icons/split-check.svg";
 
 // ============= TYPES =============
 export interface PaymentDialogOrderItem {
@@ -172,13 +171,6 @@ export function PaymentDialog({
   const [emailReceiptEmail, setEmailReceiptEmail] = useState('');
   const [emailReceiptNoMarketing, setEmailReceiptNoMarketing] = useState(false);
 
-  // Split Check states
-  const [showSplitCheck, setShowSplitCheck] = useState(false);
-  const [splitType, setSplitType] = useState<'evenly' | 'by-amount' | 'by-item' | null>(null);
-  const [splitCount, setSplitCount] = useState(2);
-  const [splitAmounts, setSplitAmounts] = useState<number[]>([]);
-  const [currentSplitIndex, setCurrentSplitIndex] = useState(0);
-
   // Reset states when dialog opens
   useEffect(() => {
     if (open) {
@@ -205,11 +197,6 @@ export function PaymentDialog({
       setGrubhubStep('amount');
       setTextReceiptStep('receipt');
       setEmailReceiptStep('receipt');
-      setShowSplitCheck(false);
-      setSplitType(null);
-      setSplitCount(2);
-      setSplitAmounts([]);
-      setCurrentSplitIndex(0);
     }
   }, [open, total]);
 
@@ -3503,261 +3490,6 @@ export function PaymentDialog({
                 </>
               )}
             </>
-          ) : showSplitCheck ? (
-            <>
-              {/* ============= SPLIT CHECK VIEW ============= */}
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-700">
-                <button 
-                  onClick={() => {
-                    if (splitType) {
-                      setSplitType(null);
-                    } else {
-                      setShowSplitCheck(false);
-                    }
-                  }}
-                  className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                >
-                  <ArrowLeft className="w-5 h-5 text-neutral-400" />
-                </button>
-                <span className="text-white text-lg font-medium">Split Check</span>
-                <button 
-                  onClick={() => {
-                    setShowSplitCheck(false);
-                    setSplitType(null);
-                  }}
-                  className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                >
-                  <X className="w-5 h-5 text-neutral-400" />
-                </button>
-              </div>
-
-              {!splitType ? (
-                // Split Type Selection
-                <div className="flex-1 p-6 space-y-4">
-                  <p className="text-neutral-400 text-sm text-center mb-6">How would you like to split the check?</p>
-                  
-                  <button
-                    onClick={() => {
-                      setSplitType('evenly');
-                      setSplitCount(2);
-                    }}
-                    className="w-full flex items-center gap-4 p-4 bg-neutral-800 rounded-xl border border-neutral-700 hover:border-neutral-500 transition-colors"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-neutral-700 flex items-center justify-center">
-                      <Users className="w-6 h-6 text-neutral-300" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <span className="text-white font-medium block">Split Evenly</span>
-                      <span className="text-neutral-400 text-sm">Divide the total equally between guests</span>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setSplitType('by-amount');
-                      setSplitAmounts([total / 2, total / 2]);
-                    }}
-                    className="w-full flex items-center gap-4 p-4 bg-neutral-800 rounded-xl border border-neutral-700 hover:border-neutral-500 transition-colors"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-neutral-700 flex items-center justify-center">
-                      <DollarSign className="w-6 h-6 text-neutral-300" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <span className="text-white font-medium block">Split by Amount</span>
-                      <span className="text-neutral-400 text-sm">Enter custom amounts for each person</span>
-                    </div>
-                  </button>
-
-                  <button
-                    onClick={() => setSplitType('by-item')}
-                    className="w-full flex items-center gap-4 p-4 bg-neutral-800 rounded-xl border border-neutral-700 hover:border-neutral-500 transition-colors"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-neutral-700 flex items-center justify-center">
-                      <Clipboard className="w-6 h-6 text-neutral-300" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <span className="text-white font-medium block">Split by Item</span>
-                      <span className="text-neutral-400 text-sm">Assign items to different checks</span>
-                    </div>
-                  </button>
-                </div>
-              ) : splitType === 'evenly' ? (
-                // Split Evenly View
-                <div className="flex-1 flex flex-col p-6">
-                  <p className="text-neutral-400 text-sm text-center mb-6">How many ways to split?</p>
-                  
-                  {/* Split count selector */}
-                  <div className="flex items-center justify-center gap-4 mb-8">
-                    <button
-                      onClick={() => setSplitCount(Math.max(2, splitCount - 1))}
-                      className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:bg-neutral-600 flex items-center justify-center text-white text-2xl font-bold transition-colors"
-                    >
-                      -
-                    </button>
-                    <div className="w-20 h-20 rounded-full bg-neutral-800 border-2 border-neutral-600 flex items-center justify-center">
-                      <span className="text-white text-3xl font-bold">{splitCount}</span>
-                    </div>
-                    <button
-                      onClick={() => setSplitCount(Math.min(10, splitCount + 1))}
-                      className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:bg-neutral-600 flex items-center justify-center text-white text-2xl font-bold transition-colors"
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  {/* Amount per person display */}
-                  <div className="bg-neutral-800 rounded-xl p-4 mb-6">
-                    <div className="flex items-center justify-between mb-2">
-                      <span className="text-neutral-400 text-sm">Total</span>
-                      <span className="text-white font-medium">${total.toFixed(2)}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-neutral-400 text-sm">Per Person</span>
-                      <span className="text-green-500 font-bold text-xl">${(total / splitCount).toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  {/* Quick select buttons */}
-                  <div className="grid grid-cols-4 gap-2 mb-6">
-                    {[2, 3, 4, 5, 6, 7, 8, 10].map(num => (
-                      <button
-                        key={num}
-                        onClick={() => setSplitCount(num)}
-                        className={`py-3 rounded-lg text-sm font-medium transition-colors ${
-                          splitCount === num 
-                            ? 'bg-white text-black' 
-                            : 'bg-neutral-700 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
-                        }`}
-                      >
-                        {num}
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Apply button */}
-                  <button
-                    onClick={() => {
-                      const splitAmount = total / splitCount;
-                      setPaymentAmount(splitAmount.toFixed(2));
-                      setShowSplitCheck(false);
-                      setSplitType(null);
-                    }}
-                    className="w-full py-3 bg-white hover:bg-neutral-100 text-black font-bold rounded-xl transition-colors"
-                  >
-                    APPLY SPLIT - ${(total / splitCount).toFixed(2)} EACH
-                  </button>
-                </div>
-              ) : splitType === 'by-amount' ? (
-                // Split by Amount View
-                <div className="flex-1 flex flex-col p-6">
-                  <p className="text-neutral-400 text-sm text-center mb-4">Enter amount for check {currentSplitIndex + 1}</p>
-                  
-                  {/* Amount display */}
-                  <div className="bg-neutral-800 rounded-xl p-4 mb-4">
-                    <div className="text-center">
-                      <span className="text-green-500 text-3xl font-bold">${paymentAmount}</span>
-                    </div>
-                  </div>
-
-                  {/* Remaining display */}
-                  <div className="flex items-center justify-between bg-neutral-700/50 rounded-lg p-3 mb-4">
-                    <span className="text-neutral-400 text-sm">Remaining</span>
-                    <span className="text-white font-medium">${Math.max(0, total - parseFloat(paymentAmount || '0')).toFixed(2)}</span>
-                  </div>
-
-                  {/* Numeric Keypad */}
-                  <div className="flex flex-col gap-1.5 mb-4">
-                    {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
-                      <div key={rowIndex} className="flex gap-1.5">
-                        {row.map(key => (
-                          <button 
-                            key={key}
-                            onClick={() => handleKeypadPress(key)}
-                            className="flex-1 py-3 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                          >
-                            {key}
-                          </button>
-                        ))}
-                      </div>
-                    ))}
-                    <div className="flex gap-1.5">
-                      <button 
-                        onClick={() => handleKeypadPress('.')}
-                        className="flex-1 py-3 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                      >
-                        .
-                      </button>
-                      <button 
-                        onClick={() => handleKeypadPress('0')}
-                        className="flex-1 py-3 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
-                      >
-                        0
-                      </button>
-                      <button 
-                        onClick={() => handleKeypadPress('backspace')}
-                        className="flex-1 py-3 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
-                      >
-                        <Delete className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-
-                  {/* Apply button */}
-                  <button
-                    onClick={() => {
-                      setShowSplitCheck(false);
-                      setSplitType(null);
-                    }}
-                    className="w-full py-3 bg-white hover:bg-neutral-100 text-black font-bold rounded-xl transition-colors"
-                  >
-                    CHARGE ${paymentAmount}
-                  </button>
-                </div>
-              ) : (
-                // Split by Item View
-                <div className="flex-1 flex flex-col p-6">
-                  <p className="text-neutral-400 text-sm text-center mb-4">Select items for check {currentSplitIndex + 1}</p>
-                  
-                  {/* Items list */}
-                  <div className="flex-1 overflow-y-auto space-y-2 mb-4" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                    {orderDetails.items.map(item => (
-                      <button
-                        key={item.id}
-                        className="w-full flex items-center gap-3 p-3 bg-neutral-800 rounded-lg border border-neutral-700 hover:border-neutral-500 transition-colors"
-                      >
-                        <div className="w-8 h-8 rounded bg-neutral-700 border border-neutral-600 text-white text-sm font-medium flex items-center justify-center">
-                          {item.qty}
-                        </div>
-                        <div className="flex-1 text-left">
-                          <span className="text-white text-sm font-medium">{item.name}</span>
-                        </div>
-                        <span className="text-white text-sm font-medium">${(item.price * item.qty).toFixed(2)}</span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Selected total */}
-                  <div className="bg-neutral-800 rounded-xl p-4 mb-4">
-                    <div className="flex items-center justify-between">
-                      <span className="text-neutral-400 text-sm">Selected Total</span>
-                      <span className="text-green-500 font-bold text-xl">${total.toFixed(2)}</span>
-                    </div>
-                  </div>
-
-                  {/* Apply button */}
-                  <button
-                    onClick={() => {
-                      setShowSplitCheck(false);
-                      setSplitType(null);
-                    }}
-                    className="w-full py-3 bg-white hover:bg-neutral-100 text-black font-bold rounded-xl transition-colors"
-                  >
-                    CREATE CHECK
-                  </button>
-                </div>
-              )}
-            </>
           ) : (
             <>
               {/* ============= STANDARD PAYMENT ENTRY VIEW ============= */}
@@ -3776,17 +3508,6 @@ export function PaymentDialog({
                     <X className="w-5 h-5 text-neutral-400" />
                   </button>
                 </div>
-              </div>
-
-              {/* Split Check Button */}
-              <div className="px-6 py-3 border-b border-neutral-700">
-                <button
-                  onClick={() => setShowSplitCheck(true)}
-                  className="w-full flex items-center justify-center gap-2 py-2.5 bg-neutral-800 hover:bg-neutral-700 border border-neutral-600 rounded-xl transition-colors"
-                >
-                  <img src={splitCheckIcon} alt="" className="w-5 h-5" />
-                  <span className="text-white font-medium text-sm">Split Check</span>
-                </button>
               </div>
 
               {/* Payment Methods - Row of 6 icons */}

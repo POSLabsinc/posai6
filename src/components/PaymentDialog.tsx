@@ -3653,105 +3653,80 @@ export function PaymentDialog({
                 </div>
               </div>
 
-              {/* Check Cards Grid */}
-              <div className="flex-1 p-4 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-                <div className={`grid gap-3 ${
-                  numberOfChecks <= 2 ? 'grid-cols-2' : 
-                  numberOfChecks <= 4 ? 'grid-cols-4' : 
-                  numberOfChecks <= 6 ? 'grid-cols-6' : 
-                  numberOfChecks <= 8 ? 'grid-cols-4' :
-                  'grid-cols-5'
-                }`}>
+              {/* Check Cards Grid - Horizontal scroll for many checks */}
+              <div className="flex-1 p-4 overflow-x-auto overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                <div className={`flex gap-3 ${numberOfChecks <= 2 ? 'justify-center' : ''}`} style={{ minWidth: numberOfChecks > 3 ? `${numberOfChecks * 180}px` : 'auto' }}>
                   {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => {
                     const checkItems = getItemsForCheck(checkNum);
                     const checkTotals = getCheckTotals(checkNum);
                     const isPaid = paidChecks.includes(checkNum);
                     
-                    // Determine if compact mode based on number of checks
-                    const isCompact = numberOfChecks >= 4;
-                    const isVeryCompact = numberOfChecks >= 6;
-                    
                     return (
                       <div 
                         key={checkNum}
-                        className={`bg-white rounded-xl flex flex-col shadow-lg relative overflow-hidden ${
+                        className={`bg-white rounded-xl flex flex-col shadow-lg relative overflow-hidden flex-shrink-0 p-3 ${
                           isPaid ? 'opacity-60' : ''
-                        } ${isVeryCompact ? 'p-2' : isCompact ? 'p-3' : 'p-4'}`}
+                        }`}
+                        style={{ width: numberOfChecks <= 2 ? '280px' : numberOfChecks <= 4 ? '200px' : '160px' }}
                       >
                         {/* Paid Stamp */}
                         {isPaid && (
-                          <span className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/40 font-bold rotate-[-15deg] pointer-events-none z-10 ${
-                            isVeryCompact ? 'text-lg' : isCompact ? 'text-2xl' : 'text-3xl'
-                          }`}>
+                          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/40 font-bold rotate-[-15deg] pointer-events-none z-10 text-xl">
                             PAID
                           </span>
                         )}
                         
                         {/* Check Header */}
-                        <div className={`flex items-center justify-between border-b border-neutral-200 ${
-                          isVeryCompact ? 'mb-1.5 pb-1' : isCompact ? 'mb-2 pb-1.5' : 'mb-3 pb-2'
-                        }`}>
-                          <span className={`text-neutral-900 font-bold ${isVeryCompact ? 'text-[10px]' : isCompact ? 'text-xs' : 'text-sm'}`}>
+                        <div className="flex items-center justify-between border-b border-neutral-200 mb-2 pb-1.5">
+                          <span className="text-neutral-900 font-bold text-xs">
                             {getCheckLabel(checkNum - 1)}
                           </span>
-                          <span className={`text-green-600 font-bold ${isVeryCompact ? 'text-xs' : isCompact ? 'text-sm' : 'text-lg'}`}>
+                          <span className="text-green-600 font-bold text-sm">
                             ${checkTotals.total.toFixed(2)}
                           </span>
                         </div>
                         
                         {/* Items List - Scrollable */}
-                        <div className={`flex-1 overflow-y-auto ${
-                          isVeryCompact ? 'space-y-0.5 mb-1.5 max-h-16' : isCompact ? 'space-y-1 mb-2 max-h-20' : 'space-y-2 mb-3 max-h-32'
-                        }`} style={{ scrollbarWidth: 'none' }}>
+                        <div className="flex-1 overflow-y-auto space-y-1 mb-2 max-h-24" style={{ scrollbarWidth: 'none' }}>
                           {splitMode === 'evenly' ? (
                             // Evenly split shows summary
-                            <div className={`text-center ${isVeryCompact ? 'py-0.5' : isCompact ? 'py-1' : 'py-2'}`}>
-                              <span className={`text-neutral-500 ${isVeryCompact ? 'text-[9px]' : 'text-xs'}`}>Split evenly</span>
-                              <div className={`text-neutral-700 mt-0.5 ${isVeryCompact ? 'text-[10px]' : isCompact ? 'text-xs' : 'text-sm'}`}>
+                            <div className="text-center py-1">
+                              <span className="text-neutral-500 text-[10px]">Split evenly</span>
+                              <div className="text-neutral-700 mt-0.5 text-xs">
                                 ${checkTotals.total.toFixed(2)}
                               </div>
                             </div>
                           ) : checkItems.length > 0 ? (
                             checkItems.map(item => (
                               <div key={item.id} className="flex items-start justify-between">
-                                <span className={`text-neutral-800 font-medium truncate flex-1 ${
-                                  isVeryCompact ? 'text-[9px]' : isCompact ? 'text-[10px]' : 'text-xs'
-                                }`}>
+                                <span className="text-neutral-800 font-medium truncate flex-1 text-[10px]">
                                   {item.qty}x {item.name}
                                 </span>
-                                <span className={`text-neutral-700 font-medium ml-1 ${
-                                  isVeryCompact ? 'text-[9px]' : isCompact ? 'text-[10px]' : 'text-xs'
-                                }`}>
+                                <span className="text-neutral-700 font-medium ml-1 text-[10px]">
                                   ${(item.price * item.qty).toFixed(2)}
                                 </span>
                               </div>
                             ))
                           ) : (
-                            <div className={`text-center ${isVeryCompact ? 'py-1' : 'py-4'}`}>
-                              <span className={`text-neutral-400 ${isVeryCompact ? 'text-[9px]' : 'text-xs'}`}>No items</span>
+                            <div className="text-center py-2">
+                              <span className="text-neutral-400 text-[10px]">No items</span>
                             </div>
                           )}
                         </div>
                         
-                        {/* Subtotal & Tax - Only show full details when not very compact */}
-                        <div className={`border-t border-neutral-200 ${
-                          isVeryCompact ? 'space-y-0 pt-1' : isCompact ? 'space-y-0.5 pt-1.5' : 'space-y-1 pt-2'
-                        }`}>
-                          {!isVeryCompact && (
-                            <>
-                              <div className={`flex justify-between ${isCompact ? 'text-[10px]' : 'text-xs'}`}>
-                                <span className="text-neutral-500">Subtotal</span>
-                                <span className="text-neutral-700">${checkTotals.subtotal.toFixed(2)}</span>
-                              </div>
-                              <div className={`flex justify-between ${isCompact ? 'text-[10px]' : 'text-xs'}`}>
-                                <span className="text-neutral-500">Tax</span>
-                                <span className="text-neutral-700">${checkTotals.tax.toFixed(2)}</span>
-                              </div>
-                            </>
-                          )}
-                          <div className={`flex justify-between ${!isVeryCompact ? 'pt-1 border-t border-neutral-200' : ''}`}>
-                            <span className={`text-neutral-900 font-bold ${isVeryCompact ? 'text-[10px]' : isCompact ? 'text-xs' : 'text-xs'}`}>Total</span>
-                            <span className={`text-green-600 font-bold ${isVeryCompact ? 'text-[10px]' : isCompact ? 'text-xs' : 'text-xs'}`}>${checkTotals.total.toFixed(2)}</span>
+                        {/* Subtotal & Tax */}
+                        <div className="border-t border-neutral-200 space-y-0.5 pt-1.5 text-[10px]">
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Subtotal</span>
+                            <span className="text-neutral-700">${checkTotals.subtotal.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Tax</span>
+                            <span className="text-neutral-700">${checkTotals.tax.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between pt-1 border-t border-neutral-200">
+                            <span className="text-neutral-900 font-bold text-xs">Total</span>
+                            <span className="text-green-600 font-bold text-xs">${checkTotals.total.toFixed(2)}</span>
                           </div>
                         </div>
                         
@@ -3759,11 +3734,11 @@ export function PaymentDialog({
                         <button
                           onClick={() => handlePayCheck(checkNum)}
                           disabled={isPaid || (splitMode !== 'evenly' && checkItems.length === 0)}
-                          className={`w-full rounded-lg font-bold transition-colors ${
+                          className={`w-full rounded-lg font-bold transition-colors mt-2 py-1.5 text-xs ${
                             isPaid
                               ? 'bg-green-100 text-green-600 cursor-not-allowed'
                               : 'bg-green-500 text-white hover:bg-green-600'
-                          } ${isVeryCompact ? 'mt-1.5 py-1 text-[10px]' : isCompact ? 'mt-2 py-1.5 text-xs' : 'mt-3 py-2.5 text-sm'}`}
+                          }`}
                         >
                           {isPaid ? 'Paid' : 'Pay'}
                         </button>

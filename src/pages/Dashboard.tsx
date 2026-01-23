@@ -134,7 +134,7 @@ const statsData: Record<string, Array<{
     value: "8",
     change: "1%",
     isUp: false,
-    icon: "check"
+    icon: "Check"
   }],
   "Yesterday": [{
     label: "Total Sale",
@@ -171,7 +171,7 @@ const statsData: Record<string, Array<{
     value: "6",
     change: "0.5%",
     isUp: true,
-    icon: "check"
+    icon: "Check"
   }],
   "This Week": [{
     label: "Total Sale",
@@ -208,7 +208,7 @@ const statsData: Record<string, Array<{
     value: "45",
     change: "2.2%",
     isUp: true,
-    icon: "check"
+    icon: "Check"
   }],
   "Last Week": [{
     label: "Total Sale",
@@ -245,7 +245,7 @@ const statsData: Record<string, Array<{
     value: "38",
     change: "1.2%",
     isUp: false,
-    icon: "check"
+    icon: "Check"
   }],
   "This Month": [{
     label: "Total Sale",
@@ -282,7 +282,7 @@ const statsData: Record<string, Array<{
     value: "185",
     change: "4.1%",
     isUp: true,
-    icon: "check"
+    icon: "Check"
   }],
   "Last Month": [{
     label: "Total Sale",
@@ -319,7 +319,7 @@ const statsData: Record<string, Array<{
     value: "162",
     change: "2.5%",
     isUp: false,
-    icon: "check"
+    icon: "Check"
   }]
 };
 

@@ -13,24 +13,15 @@ export {
   formatPriceWithSign,
   formatTableName,
   getOrderStatusColor,
-  calculateOrderTotals as calculateItemsTotals,
-  isActiveOrderStatus,
-  doCustomerDetailsMatch,
-  validateNewOrderForTable,
-  normalizePhone,
-  normalizeName
+  calculateOrderTotals as calculateItemsTotals
 } from "@/lib/orderUtils";
-
-import type { ActiveOrderInfo, TableOrderValidation } from "@/lib/orderUtils";
-export type { ActiveOrderInfo, TableOrderValidation };
 
 import { 
   TAX_RATE, 
   SERVICE_CHARGE_RATE, 
   DISCOUNT_THRESHOLD, 
   DISCOUNT_AMOUNT,
-  formatTableName,
-  isActiveOrderStatus
+  formatTableName
 } from "@/lib/orderUtils";
 
 // Order item interface
@@ -141,11 +132,11 @@ export const allOrders: Order[] = [
     ]
   },
   
-  // Order 3 - Martin Alex (T2) - UNPAID - Dine-In (Same Party as Order 1)
+  // Order 3 - Sarah Johnson (T2) - UNPAID - Dine-In
   {
     id: "3",
-    name: "Martin Alex",
-    phone: "(415) 555-0123",
+    name: "Sarah Johnson",
+    phone: "(415) 555-0789",
     partySize: 2,
     time: "7:15 PM",
     timer: "1:45 Hrs",
@@ -202,7 +193,7 @@ export const allOrders: Order[] = [
     ]
   },
   
-  // Order 5 - Guest (T6) - ORDERING - Bar
+  // Order 5 - Guest (T2) - ORDERING - Bar
   {
     id: "5",
     name: "Guest",
@@ -216,7 +207,7 @@ export const allOrders: Order[] = [
     revenueCenter: "Bar",
     status: "ORDERING",
     notes: "",
-    table: "T6",
+    table: "T2",
     orderType: "Bar",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
@@ -252,7 +243,7 @@ export const allOrders: Order[] = [
     ]
   },
   
-  // Order 7 - James Brown (T7) - ORDERED - Delivery
+  // Order 7 - James Brown (T3) - ORDERED - Delivery
   {
     id: "7",
     name: "James Brown",
@@ -266,7 +257,7 @@ export const allOrders: Order[] = [
     revenueCenter: "Online",
     status: "ORDERED",
     notes: "Leave at door - apartment 4B",
-    table: "T7",
+    table: "T3",
     orderType: "Delivery",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
@@ -402,24 +393,6 @@ export const getOrderAmount = (order: Order) => {
 // Get orders by table ID
 export const getOrdersByTable = (tableId: string) => {
   return allOrders.filter(order => order.table === tableId);
-};
-
-// Get active (unpaid/incomplete) orders for a table
-export const getActiveOrdersForTable = (tableId: string): import("@/lib/orderUtils").ActiveOrderInfo[] => {
-  const tableIdNormalized = tableId.replace(/^T/i, '');
-  return allOrders
-    .filter(order => {
-      const orderTableNormalized = order.table.replace(/^T/i, '');
-      return orderTableNormalized === tableIdNormalized && isActiveOrderStatus(order.status);
-    })
-    .map(order => ({
-      id: order.id,
-      name: order.name,
-      phone: order.phone,
-      table: order.table,
-      status: order.status,
-      partySize: order.partySize
-    }));
 };
 
 // Get order by ID

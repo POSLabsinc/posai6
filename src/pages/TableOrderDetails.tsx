@@ -25,6 +25,7 @@ import {
   hasMergedOrTransferredItems,
   MergedOrderSource
 } from "@/data/orders";
+import { formatTableName } from "@/lib/orderUtils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 // Import icons
@@ -699,7 +700,7 @@ const TableOrderDetails = () => {
           <ChevronLeft className="w-5 h-5 text-white" />
         </button>
         
-        <span className="absolute left-1/2 -translate-x-1/2 text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
+        <span className="absolute left-1/2 -translate-x-1/2 text-white font-semibold text-lg">{formatTableName(tableId || "")}</span>
         
         <div className="flex items-center gap-2 z-10">
           <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
@@ -741,13 +742,13 @@ const TableOrderDetails = () => {
               {/* Merged Order Indicator - Destination */}
               {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
                   <span className="text-xs font-medium">
-                    <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">T{mergedFromTable}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                    <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
                   </span>
                 </div>}
               {/* Merged Order Indicator - Source (disabled look) */}
               {guest.id === mergedOrderId && destOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-neutral-700/80">
                   <span className="text-xs font-medium">
-                    <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">T{tableId?.replace("T", "")}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
+                    <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">{formatTableName(tableId || "")}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
                   </span>
                 </div>}
               
@@ -1001,7 +1002,7 @@ const TableOrderDetails = () => {
           }}>
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
-            <span className="text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
+            <span className="text-white font-semibold text-lg">{formatTableName(tableId || "")}</span>
           </div>
           <div className="flex items-center gap-2">
             <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
@@ -1044,19 +1045,19 @@ const TableOrderDetails = () => {
                 {/* Merged Order Indicator - Destination */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">Table T{mergedFromTable}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">Order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
                     </span>
                   </div>}
                 {/* Merged Order Indicator - Source (disabled look) */}
                 {guest.id === mergedOrderId && destOrderId && <div className="px-3 py-1 rounded-t-xl bg-neutral-700/80">
                     <span className="text-sm font-medium">
-                      <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to Order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">Table {tableId}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
+                      <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to Order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">{formatTableName(tableId || "")}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
                     </span>
                   </div>}
                 {/* Transferred Items Indicator (Destination - receiving items) */}
                 {transferDestOrderId === guest.id && transferredFromTable && transferredOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · Table {transferredFromTable}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                      <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
                     </span>
                   </div>}
                 {/* Transferred OUT Indicator (Source - sending items out) */}
@@ -1064,8 +1065,8 @@ const TableOrderDetails = () => {
                     <span className="text-sm font-medium">
                       <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
                       <span className="text-white"> to Order {transferredToOrderId}</span>
-                      <span style={{ color: '#8AC4FF' }}> · Table </span>
-                      <span className="text-white">{transferToTable}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
+                      <span style={{ color: '#8AC4FF' }}> · </span>
+                      <span className="text-white">{formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
                     </span>
                   </div>}
                 <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
@@ -1392,7 +1393,7 @@ const TableOrderDetails = () => {
                                             <span className="text-[#8AC4FF]">Transferred to</span>{' '}
                                             <span className="text-white">Order #{transferredToOrderId}</span>{' '}
                                             <span className="text-[#8AC4FF]">·</span>{' '}
-                                            <span className="text-white">Table {transferToTable}</span>
+                                            <span className="text-white">{formatTableName(transferToTable || "")}</span>
                                           </p>
                                         </TooltipContent>
                                       </Tooltip>
@@ -1507,7 +1508,7 @@ const TableOrderDetails = () => {
                     <div className="flex items-center gap-2 mb-2 px-1">
                       <img src={transferIcon} alt="Transferred" className="w-4 h-4 opacity-70" />
                       <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
-                        Transferred from Order {source.orderId} · Table {source.table}
+                        Transferred from Order {source.orderId} · {formatTableName(source.table)}
                       </span>
                     </div>
                     <div className="space-y-1">
@@ -1639,7 +1640,7 @@ const TableOrderDetails = () => {
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
           
-          <span className="absolute left-1/2 -translate-x-1/2 text-white font-semibold text-lg">Table {tableId?.replace("T", "")}</span>
+          <span className="absolute left-1/2 -translate-x-1/2 text-white font-semibold text-lg">{formatTableName(tableId || "")}</span>
           
           <div className="flex items-center gap-2 z-10">
             <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
@@ -1681,7 +1682,7 @@ const TableOrderDetails = () => {
             {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-0">
                 {/* Merged Order Indicator */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 bg-neutral-900 rounded-t-lg border-l-2 border-orange-500 flex items-center gap-1">
-                    <span className="text-orange-500 text-xs font-medium">Merged #{mergedOrderId} from T{mergedFromTable}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                    <span className="text-orange-500 text-xs font-medium">Merged #{mergedOrderId} from {formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
                   </div>}
                 <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
                 <div className="flex items-stretch w-full bg-neutral-900">

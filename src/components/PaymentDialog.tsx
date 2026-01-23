@@ -172,11 +172,11 @@ export function PaymentDialog({
   const [emailReceiptEmail, setEmailReceiptEmail] = useState('');
   const [emailReceiptNoMarketing, setEmailReceiptNoMarketing] = useState(false);
 
-  // Split Check states
-  const [splitStep, setSplitStep] = useState<'selection' | 'evenly' | 'amount' | 'item'>('selection');
-  const [splitGuestCount, setSplitGuestCount] = useState(2);
-  const [splitAmount, setSplitAmount] = useState('0.00');
-  const [selectedItemsForSplit, setSelectedItemsForSplit] = useState<number[]>([]);
+  // Split Check states - New redesigned flow
+  const [splitMode, setSplitMode] = useState<'seat' | 'evenly' | 'custom'>('evenly');
+  const [numberOfChecks, setNumberOfChecks] = useState(2);
+  const [checkAssignments, setCheckAssignments] = useState<Record<number, number>>({}); // Maps item.id -> check number
+  const [paidChecks, setPaidChecks] = useState<number[]>([]); // Track which checks have been paid
 
   // Reset states when dialog opens
   useEffect(() => {
@@ -205,10 +205,10 @@ export function PaymentDialog({
       setTextReceiptStep('receipt');
       setEmailReceiptStep('receipt');
       // Reset split check states
-      setSplitStep('selection');
-      setSplitGuestCount(2);
-      setSplitAmount('0.00');
-      setSelectedItemsForSplit([]);
+      setSplitMode('evenly');
+      setNumberOfChecks(2);
+      setCheckAssignments({});
+      setPaidChecks([]);
     }
   }, [open, total]);
 
@@ -239,25 +239,73 @@ export function PaymentDialog({
     }
   };
 
-  // Split amount keypad handler
-  const handleSplitAmountKeypadPress = (key: string) => {
-    if (key === 'backspace') {
-      setSplitAmount(prev => {
-        const newVal = prev.slice(0, -1);
-        return newVal === '' ? '0.00' : newVal;
-      });
-    } else if (key === '.') {
-      if (!splitAmount.includes('.')) {
-        setSplitAmount(prev => prev + '.');
-      }
-    } else if (key === 'C') {
-      setSplitAmount('0.00');
+  // Generate check labels like "Check 62a", "Check 62b"
+  const getCheckLabel = (index: number) => {
+    const letters = 'abcdefghijklmnopqrstuvwxyz';
+    const baseCheck = orderDetails.check || '1';
+    return `Check ${baseCheck}${letters[index]}`;
+  };
+
+  // Calculate items for each check based on split mode
+  const getItemsForCheck = (checkNumber: number): PaymentDialogOrderItem[] => {
+    if (splitMode === 'evenly') {
+      // In evenly mode, all items belong to all checks (total is split)
+      return orderDetails.items;
+    } else if (splitMode === 'seat') {
+      // Split by seat - for now just divide items evenly among checks
+      const itemsPerCheck = Math.ceil(orderDetails.items.length / numberOfChecks);
+      const startIdx = (checkNumber - 1) * itemsPerCheck;
+      return orderDetails.items.slice(startIdx, startIdx + itemsPerCheck);
     } else {
-      setSplitAmount(prev => {
-        if (prev === '0.00' || prev === '') return key;
-        return prev + key;
-      });
+      // Custom mode - use checkAssignments
+      return orderDetails.items.filter(item => checkAssignments[item.id] === checkNumber);
     }
+  };
+
+  // Calculate totals for a specific check
+  const getCheckTotals = (checkNumber: number) => {
+    if (splitMode === 'evenly') {
+      // Divide total evenly
+      const checkTotal = total / numberOfChecks;
+      const checkSubtotal = subtotal / numberOfChecks;
+      const checkTax = tax / numberOfChecks;
+      return { subtotal: checkSubtotal, tax: checkTax, total: checkTotal };
+    } else {
+      // Calculate based on assigned items
+      const items = getItemsForCheck(checkNumber);
+      const checkSubtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+      const checkTax = checkSubtotal * 0.0735; // Using TAX_RATE
+      return { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax };
+    }
+  };
+
+  // Handle paying a specific check
+  const handlePayCheck = (checkNumber: number) => {
+    const checkTotals = getCheckTotals(checkNumber);
+    setPaymentAmount(checkTotals.total.toFixed(2));
+    setPaidChecks(prev => [...prev, checkNumber]);
+    setPaymentHistory(prev => [...prev, { 
+      method: 'cash', 
+      amount: checkTotals.total, 
+      methodLabel: `Cash (${getCheckLabel(checkNumber - 1)})` 
+    }]);
+    setPaidAmount(prev => prev + checkTotals.total);
+    
+    // Check if all checks are paid
+    if (paidChecks.length + 1 >= numberOfChecks) {
+      setPaymentProcessed(true);
+    }
+  };
+
+  // Toggle item assignment for custom split
+  const toggleItemAssignment = (itemId: number, checkNumber: number) => {
+    setCheckAssignments(prev => {
+      if (prev[itemId] === checkNumber) {
+        const { [itemId]: _, ...rest } = prev;
+        return rest;
+      }
+      return { ...prev, [itemId]: checkNumber };
+    });
   };
 
   // Gift card keypad handler
@@ -3524,30 +3572,26 @@ export function PaymentDialog({
               )}
             </>
           ) : selectedPaymentMethod === 'split-check' ? (
-            /* ============= FULL SPLIT CHECK FLOW - REPLACES ENTIRE PANEL ============= */
+            /* ============= REDESIGNED SPLIT CHECK FLOW - CHECK CARDS LAYOUT ============= */
             <div className="flex flex-col h-full">
               {/* Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-700">
                 <div className="flex items-center gap-3">
-                  {splitStep !== 'selection' && (
-                    <button 
-                      onClick={() => setSplitStep('selection')} 
-                      className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-                    >
-                      <ArrowLeft className="w-5 h-5 text-neutral-300" />
-                    </button>
-                  )}
-                  <span className="text-white text-lg font-medium">
-                    {splitStep === 'selection' && 'Split Check'}
-                    {splitStep === 'evenly' && 'Split Evenly'}
-                    {splitStep === 'amount' && 'Split by Amount'}
-                    {splitStep === 'item' && 'Split by Item'}
-                  </span>
+                  <button 
+                    onClick={() => setSelectedPaymentMethod('cash')}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                  </button>
+                  <span className="text-white text-lg font-medium">Split Payment</span>
                 </div>
                 <button 
                   onClick={() => {
                     setSelectedPaymentMethod('cash');
-                    setSplitStep('selection');
+                    setSplitMode('evenly');
+                    setNumberOfChecks(2);
+                    setCheckAssignments({});
+                    setPaidChecks([]);
                   }}
                   className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
                 >
@@ -3555,227 +3599,172 @@ export function PaymentDialog({
                 </button>
               </div>
 
-              {/* Split Mode Selection */}
-              {splitStep === 'selection' && (
-                <div className="flex-1 p-6 flex flex-col gap-4">
-                  <button 
-                    onClick={() => setSplitStep('evenly')} 
-                    className="flex items-center gap-4 p-4 bg-neutral-800 hover:bg-neutral-700 rounded-xl border border-neutral-700 transition-colors"
-                  >
-                    <div className="w-12 h-12 rounded-full bg-neutral-700 flex items-center justify-center">
-                      <Users className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <span className="text-white font-semibold block">Split Evenly</span>
-                      <span className="text-neutral-400 text-sm">Divide total equally among guests</span>
-                    </div>
-                    <ArrowRightCircle className="w-5 h-5 text-neutral-500" />
-                  </button>
+              {/* Tab Navigation + Check Counter */}
+              <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700">
+                {/* Split Mode Tabs */}
+                <div className="flex gap-2">
+                  {[
+                    { id: 'seat' as const, label: 'Split by Seat' },
+                    { id: 'evenly' as const, label: 'Split Evenly' },
+                    { id: 'custom' as const, label: 'Custom Split' },
+                  ].map(tab => (
+                    <button
+                      key={tab.id}
+                      onClick={() => setSplitMode(tab.id)}
+                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                        splitMode === tab.id
+                          ? 'bg-green-500 text-white border-2 border-green-400'
+                          : 'bg-neutral-800 text-neutral-300 border-2 border-neutral-700 hover:border-neutral-600'
+                      }`}
+                    >
+                      {tab.label}
+                    </button>
+                  ))}
+                </div>
 
-                  <button 
-                    onClick={() => setSplitStep('amount')} 
-                    className="flex items-center gap-4 p-4 bg-neutral-800 hover:bg-neutral-700 rounded-xl border border-neutral-700 transition-colors"
+                {/* Check Counter */}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setNumberOfChecks(prev => Math.max(2, prev - 1))}
+                    disabled={numberOfChecks <= 2}
+                    className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   >
-                    <div className="w-12 h-12 rounded-full bg-neutral-700 flex items-center justify-center">
-                      <Banknote className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <span className="text-white font-semibold block">Split by Amount</span>
-                      <span className="text-neutral-400 text-sm">Enter custom partial payment</span>
-                    </div>
-                    <ArrowRightCircle className="w-5 h-5 text-neutral-500" />
+                    -
                   </button>
-
-                  <button 
-                    onClick={() => setSplitStep('item')} 
-                    className="flex items-center gap-4 p-4 bg-neutral-800 hover:bg-neutral-700 rounded-xl border border-neutral-700 transition-colors"
+                  <span className="text-white font-bold text-lg w-6 text-center">{numberOfChecks}</span>
+                  <button
+                    onClick={() => setNumberOfChecks(prev => Math.min(10, prev + 1))}
+                    disabled={numberOfChecks >= 10}
+                    className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                   >
-                    <div className="w-12 h-12 rounded-full bg-neutral-700 flex items-center justify-center">
-                      <Grid3X3 className="w-6 h-6 text-white" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <span className="text-white font-semibold block">Split by Item</span>
-                      <span className="text-neutral-400 text-sm">Select specific items for check</span>
-                    </div>
-                    <ArrowRightCircle className="w-5 h-5 text-neutral-500" />
+                    +
                   </button>
                 </div>
-              )}
+              </div>
 
-              {/* Split Evenly View */}
-              {splitStep === 'evenly' && (
-                <div className="flex-1 p-6 flex flex-col">
-                  <div className="text-center mb-6">
-                    <span className="text-white/60 text-sm block mb-1">Total</span>
-                    <span className="text-3xl font-bold text-white">${(remainingDue > 0 ? remainingDue : total).toFixed(2)}</span>
-                  </div>
-                  
-                  <div className="text-center mb-6">
-                    <span className="text-white/60 text-sm block mb-3">Number of Guests</span>
-                    <div className="flex justify-center gap-2 flex-wrap">
-                      {[2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
-                        <button 
-                          key={num} 
-                          onClick={() => setSplitGuestCount(num)}
-                          className={`w-10 h-10 rounded-full font-medium transition-colors ${
-                            splitGuestCount === num 
-                              ? 'bg-white text-black' 
-                              : 'bg-neutral-700 text-white hover:bg-neutral-600'
+              {/* Check Cards Grid */}
+              <div className="flex-1 p-4 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                <div className={`grid gap-4 ${numberOfChecks <= 2 ? 'grid-cols-2' : numberOfChecks <= 4 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                  {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => {
+                    const checkItems = getItemsForCheck(checkNum);
+                    const checkTotals = getCheckTotals(checkNum);
+                    const isPaid = paidChecks.includes(checkNum);
+                    
+                    return (
+                      <div 
+                        key={checkNum}
+                        className={`bg-white rounded-xl p-4 flex flex-col shadow-lg relative overflow-hidden ${
+                          isPaid ? 'opacity-60' : ''
+                        }`}
+                      >
+                        {/* Paid Stamp */}
+                        {isPaid && (
+                          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/40 text-3xl font-bold rotate-[-15deg] pointer-events-none z-10">
+                            PAID
+                          </span>
+                        )}
+                        
+                        {/* Check Header */}
+                        <div className="flex items-center justify-between mb-3 pb-2 border-b border-neutral-200">
+                          <span className="text-neutral-900 font-bold text-sm">{getCheckLabel(checkNum - 1)}</span>
+                          <span className="text-green-600 font-bold text-lg">${checkTotals.total.toFixed(2)}</span>
+                        </div>
+                        
+                        {/* Items List */}
+                        <div className="flex-1 space-y-2 mb-3 max-h-32 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                          {splitMode === 'evenly' ? (
+                            // Evenly split shows all items but indicates split
+                            <div className="text-center py-2">
+                              <span className="text-neutral-500 text-xs">Total split evenly</span>
+                              <div className="text-neutral-700 text-sm mt-1">
+                                {orderDetails.items.length} items ÷ {numberOfChecks} = ${checkTotals.total.toFixed(2)}
+                              </div>
+                            </div>
+                          ) : checkItems.length > 0 ? (
+                            checkItems.map(item => (
+                              <div key={item.id} className="flex items-start justify-between">
+                                <div className="flex-1">
+                                  <span className="text-neutral-800 text-xs font-medium">
+                                    {item.qty}x {item.name}
+                                  </span>
+                                </div>
+                                <span className="text-neutral-700 text-xs font-medium ml-2">
+                                  ${(item.price * item.qty).toFixed(2)}
+                                </span>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="text-center py-4">
+                              <span className="text-neutral-400 text-xs">No items assigned</span>
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Subtotal & Tax */}
+                        <div className="space-y-1 pt-2 border-t border-neutral-200 text-xs">
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Subtotal</span>
+                            <span className="text-neutral-700">${checkTotals.subtotal.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-neutral-500">Tax</span>
+                            <span className="text-neutral-700">${checkTotals.tax.toFixed(2)}</span>
+                          </div>
+                          <div className="flex justify-between pt-1 border-t border-neutral-200">
+                            <span className="text-neutral-900 font-bold">Total</span>
+                            <span className="text-green-600 font-bold">${checkTotals.total.toFixed(2)}</span>
+                          </div>
+                        </div>
+                        
+                        {/* Pay Button */}
+                        <button
+                          onClick={() => handlePayCheck(checkNum)}
+                          disabled={isPaid || (splitMode !== 'evenly' && checkItems.length === 0)}
+                          className={`w-full mt-3 py-2.5 rounded-lg font-bold text-sm transition-colors ${
+                            isPaid
+                              ? 'bg-green-100 text-green-600 cursor-not-allowed'
+                              : 'bg-green-500 text-white hover:bg-green-600'
                           }`}
                         >
-                          {num}
+                          {isPaid ? 'Paid' : 'Pay'}
                         </button>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Custom Split - Item Assignment UI */}
+                {splitMode === 'custom' && (
+                  <div className="mt-4 p-4 bg-neutral-800 rounded-xl">
+                    <h4 className="text-white font-medium text-sm mb-3">Assign Items to Checks</h4>
+                    <div className="space-y-2">
+                      {orderDetails.items.map(item => (
+                        <div 
+                          key={item.id}
+                          className="flex items-center justify-between p-2 bg-neutral-700 rounded-lg"
+                        >
+                          <span className="text-white text-sm">{item.qty}x {item.name}</span>
+                          <div className="flex gap-1">
+                            {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => (
+                              <button
+                                key={checkNum}
+                                onClick={() => toggleItemAssignment(item.id, checkNum)}
+                                className={`w-7 h-7 rounded-full text-xs font-bold transition-colors ${
+                                  checkAssignments[item.id] === checkNum
+                                    ? 'bg-green-500 text-white'
+                                    : 'bg-neutral-600 text-neutral-300 hover:bg-neutral-500'
+                                }`}
+                              >
+                                {checkNum}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
                       ))}
                     </div>
                   </div>
-                  
-                  <div className="text-center mt-auto mb-6">
-                    <span className="text-white/60 text-sm block mb-1">Each Guest Pays</span>
-                    <span className="text-4xl font-bold text-green-500">
-                      ${((remainingDue > 0 ? remainingDue : total) / splitGuestCount).toFixed(2)}
-                    </span>
-                  </div>
-                  
-                  <button 
-                    onClick={() => {
-                      const perGuest = (remainingDue > 0 ? remainingDue : total) / splitGuestCount;
-                      setPaymentAmount(perGuest.toFixed(2));
-                      setSelectedPaymentMethod('cash');
-                      setSplitStep('selection');
-                    }}
-                    className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-neutral-200 transition-colors"
-                  >
-                    APPLY SPLIT - ${((remainingDue > 0 ? remainingDue : total) / splitGuestCount).toFixed(2)} PER GUEST
-                  </button>
-                </div>
-              )}
-
-              {/* Split by Amount View */}
-              {splitStep === 'amount' && (
-                <div className="flex-1 p-6 flex flex-col">
-                  <div className="text-center mb-4">
-                    <span className="text-white/60 text-sm block mb-1">Remaining Due</span>
-                    <span className="text-xl font-bold text-red-500">${(remainingDue > 0 ? remainingDue : total).toFixed(2)}</span>
-                  </div>
-                  
-                  <div className="text-center mb-6">
-                    <span className="text-white/60 text-sm block mb-1">Amount to Pay</span>
-                    <div className="text-4xl font-bold text-green-500">${splitAmount}</div>
-                  </div>
-                  
-                  {/* Numeric Keypad */}
-                  <div className="flex-1 flex flex-col gap-2">
-                    {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
-                      <div key={rowIndex} className="flex gap-2">
-                        {row.map(key => (
-                          <button 
-                            key={key} 
-                            onClick={() => handleSplitAmountKeypadPress(key)}
-                            className="flex-1 py-4 rounded-lg bg-neutral-800 text-white text-xl font-medium hover:bg-neutral-700 transition-colors"
-                          >
-                            {key}
-                          </button>
-                        ))}
-                      </div>
-                    ))}
-                    <div className="flex gap-2">
-                      <button 
-                        onClick={() => handleSplitAmountKeypadPress('C')}
-                        className="flex-1 py-4 rounded-lg bg-neutral-700 text-white text-xl font-medium hover:bg-neutral-600 transition-colors"
-                      >
-                        C
-                      </button>
-                      <button 
-                        onClick={() => handleSplitAmountKeypadPress('0')}
-                        className="flex-1 py-4 rounded-lg bg-neutral-800 text-white text-xl font-medium hover:bg-neutral-700 transition-colors"
-                      >
-                        0
-                      </button>
-                      <button 
-                        onClick={() => handleSplitAmountKeypadPress('.')}
-                        className="flex-1 py-4 rounded-lg bg-neutral-800 text-white text-xl font-medium hover:bg-neutral-700 transition-colors"
-                      >
-                        .
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <button 
-                    onClick={() => {
-                      setPaymentAmount(splitAmount);
-                      setSelectedPaymentMethod('cash');
-                      setSplitStep('selection');
-                      setSplitAmount('0.00');
-                    }}
-                    disabled={splitAmount === '0.00' || parseFloat(splitAmount) === 0}
-                    className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
-                  >
-                    APPLY AMOUNT - ${splitAmount}
-                  </button>
-                </div>
-              )}
-
-              {/* Split by Item View */}
-              {splitStep === 'item' && (
-                <div className="flex-1 p-4 flex flex-col">
-                  <div className="flex-1 overflow-y-auto space-y-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                    {orderDetails.items.map(item => {
-                      const isSelected = selectedItemsForSplit.includes(item.id);
-                      return (
-                        <button
-                          key={item.id}
-                          onClick={() => {
-                            setSelectedItemsForSplit(prev => 
-                              isSelected 
-                                ? prev.filter(id => id !== item.id)
-                                : [...prev, item.id]
-                            );
-                          }}
-                          className={`w-full p-3 rounded-lg flex items-center gap-3 transition-colors ${
-                            isSelected 
-                              ? 'bg-green-500/20 border-green-500' 
-                              : 'bg-neutral-800 border-neutral-700'
-                          } border`}
-                        >
-                          <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
-                            isSelected ? 'bg-green-500 border-green-500' : 'border-neutral-500'
-                          }`}>
-                            {isSelected && <Check className="w-4 h-4 text-white" />}
-                          </div>
-                          <span className="flex-1 text-left text-white">{item.qty}x {item.name}</span>
-                          <span className="text-white font-medium">${(item.price * item.qty).toFixed(2)}</span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  
-                  <div className="text-center py-4 border-t border-neutral-700 mt-4">
-                    <span className="text-white/60 text-sm block mb-1">Selected Items Total</span>
-                    <span className="text-2xl font-bold text-green-500">
-                      ${orderDetails.items
-                        .filter(item => selectedItemsForSplit.includes(item.id))
-                        .reduce((sum, item) => sum + item.price * item.qty, 0)
-                        .toFixed(2)}
-                    </span>
-                  </div>
-                  
-                  <button 
-                    onClick={() => {
-                      const selectedTotal = orderDetails.items
-                        .filter(item => selectedItemsForSplit.includes(item.id))
-                        .reduce((sum, item) => sum + item.price * item.qty, 0);
-                      setPaymentAmount(selectedTotal.toFixed(2));
-                      setSelectedPaymentMethod('cash');
-                      setSplitStep('selection');
-                      setSelectedItemsForSplit([]);
-                    }}
-                    disabled={selectedItemsForSplit.length === 0}
-                    className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    APPLY ITEM SPLIT
-                  </button>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           ) : (
             <>

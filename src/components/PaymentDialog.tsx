@@ -464,13 +464,10 @@ export function PaymentDialog({
 
   if (!open) return null;
 
-  // Determine dialog width based on split check mode and number of checks
+  // Fixed dialog width for split check mode - no dynamic expansion
   const getSplitCheckDialogWidth = () => {
     if (selectedPaymentMethod !== 'split-check') return '';
-    if (numberOfChecks <= 3) return 'w-[720px]';
-    if (numberOfChecks <= 5) return 'w-[900px]';
-    if (numberOfChecks <= 7) return 'w-[1050px]';
-    return 'w-[1200px]';
+    return 'w-[720px]';
   };
 
   return (
@@ -3653,13 +3650,13 @@ export function PaymentDialog({
                 </div>
               </div>
 
-              {/* Check Cards Grid - 3 per row with vertical scroll after 2 rows */}
+              {/* Check Cards Grid - 3 per row with vertical scroll after 2 rows, left-aligned */}
               <div className="flex-1 overflow-hidden p-2">
                 <div 
                   className="overflow-y-auto"
                   style={{ scrollbarWidth: 'none', maxHeight: 'calc(2 * (180px + 8px))' }}
                 >
-                  <div className="grid grid-cols-3 gap-2 justify-items-center" style={{ maxWidth: 'calc(3 * 200px + 2 * 8px)', margin: '0 auto' }}>
+                  <div className="grid grid-cols-3 gap-2 justify-items-start">
                     {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => {
                       const checkItems = getItemsForCheck(checkNum);
                       const checkTotals = getCheckTotals(checkNum);

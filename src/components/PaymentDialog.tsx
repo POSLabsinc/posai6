@@ -172,6 +172,12 @@ export function PaymentDialog({
   const [emailReceiptEmail, setEmailReceiptEmail] = useState('');
   const [emailReceiptNoMarketing, setEmailReceiptNoMarketing] = useState(false);
 
+  // Split Check states
+  const [splitStep, setSplitStep] = useState<'selection' | 'evenly' | 'amount' | 'item'>('selection');
+  const [splitGuestCount, setSplitGuestCount] = useState(2);
+  const [splitAmount, setSplitAmount] = useState('0.00');
+  const [selectedItemsForSplit, setSelectedItemsForSplit] = useState<number[]>([]);
+
   // Reset states when dialog opens
   useEffect(() => {
     if (open) {
@@ -198,6 +204,11 @@ export function PaymentDialog({
       setGrubhubStep('amount');
       setTextReceiptStep('receipt');
       setEmailReceiptStep('receipt');
+      // Reset split check states
+      setSplitStep('selection');
+      setSplitGuestCount(2);
+      setSplitAmount('0.00');
+      setSelectedItemsForSplit([]);
     }
   }, [open, total]);
 
@@ -222,6 +233,27 @@ export function PaymentDialog({
       }
     } else {
       setPaymentAmount(prev => {
+        if (prev === '0.00' || prev === '') return key;
+        return prev + key;
+      });
+    }
+  };
+
+  // Split amount keypad handler
+  const handleSplitAmountKeypadPress = (key: string) => {
+    if (key === 'backspace') {
+      setSplitAmount(prev => {
+        const newVal = prev.slice(0, -1);
+        return newVal === '' ? '0.00' : newVal;
+      });
+    } else if (key === '.') {
+      if (!splitAmount.includes('.')) {
+        setSplitAmount(prev => prev + '.');
+      }
+    } else if (key === 'C') {
+      setSplitAmount('0.00');
+    } else {
+      setSplitAmount(prev => {
         if (prev === '0.00' || prev === '') return key;
         return prev + key;
       });
@@ -3491,6 +3523,260 @@ export function PaymentDialog({
                 </>
               )}
             </>
+          ) : selectedPaymentMethod === 'split-check' ? (
+            /* ============= FULL SPLIT CHECK FLOW - REPLACES ENTIRE PANEL ============= */
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-700">
+                <div className="flex items-center gap-3">
+                  {splitStep !== 'selection' && (
+                    <button 
+                      onClick={() => setSplitStep('selection')} 
+                      className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                    </button>
+                  )}
+                  <span className="text-white text-lg font-medium">
+                    {splitStep === 'selection' && 'Split Check'}
+                    {splitStep === 'evenly' && 'Split Evenly'}
+                    {splitStep === 'amount' && 'Split by Amount'}
+                    {splitStep === 'item' && 'Split by Item'}
+                  </span>
+                </div>
+                <button 
+                  onClick={() => {
+                    setSelectedPaymentMethod('cash');
+                    setSplitStep('selection');
+                  }}
+                  className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-5 h-5 text-neutral-400" />
+                </button>
+              </div>
+
+              {/* Split Mode Selection */}
+              {splitStep === 'selection' && (
+                <div className="flex-1 p-6 flex flex-col gap-4">
+                  <button 
+                    onClick={() => setSplitStep('evenly')} 
+                    className="flex items-center gap-4 p-4 bg-neutral-800 hover:bg-neutral-700 rounded-xl border border-neutral-700 transition-colors"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-neutral-700 flex items-center justify-center">
+                      <Users className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <span className="text-white font-semibold block">Split Evenly</span>
+                      <span className="text-neutral-400 text-sm">Divide total equally among guests</span>
+                    </div>
+                    <ArrowRightCircle className="w-5 h-5 text-neutral-500" />
+                  </button>
+
+                  <button 
+                    onClick={() => setSplitStep('amount')} 
+                    className="flex items-center gap-4 p-4 bg-neutral-800 hover:bg-neutral-700 rounded-xl border border-neutral-700 transition-colors"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-neutral-700 flex items-center justify-center">
+                      <Banknote className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <span className="text-white font-semibold block">Split by Amount</span>
+                      <span className="text-neutral-400 text-sm">Enter custom partial payment</span>
+                    </div>
+                    <ArrowRightCircle className="w-5 h-5 text-neutral-500" />
+                  </button>
+
+                  <button 
+                    onClick={() => setSplitStep('item')} 
+                    className="flex items-center gap-4 p-4 bg-neutral-800 hover:bg-neutral-700 rounded-xl border border-neutral-700 transition-colors"
+                  >
+                    <div className="w-12 h-12 rounded-full bg-neutral-700 flex items-center justify-center">
+                      <Grid3X3 className="w-6 h-6 text-white" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <span className="text-white font-semibold block">Split by Item</span>
+                      <span className="text-neutral-400 text-sm">Select specific items for check</span>
+                    </div>
+                    <ArrowRightCircle className="w-5 h-5 text-neutral-500" />
+                  </button>
+                </div>
+              )}
+
+              {/* Split Evenly View */}
+              {splitStep === 'evenly' && (
+                <div className="flex-1 p-6 flex flex-col">
+                  <div className="text-center mb-6">
+                    <span className="text-white/60 text-sm block mb-1">Total</span>
+                    <span className="text-3xl font-bold text-white">${(remainingDue > 0 ? remainingDue : total).toFixed(2)}</span>
+                  </div>
+                  
+                  <div className="text-center mb-6">
+                    <span className="text-white/60 text-sm block mb-3">Number of Guests</span>
+                    <div className="flex justify-center gap-2 flex-wrap">
+                      {[2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
+                        <button 
+                          key={num} 
+                          onClick={() => setSplitGuestCount(num)}
+                          className={`w-10 h-10 rounded-full font-medium transition-colors ${
+                            splitGuestCount === num 
+                              ? 'bg-white text-black' 
+                              : 'bg-neutral-700 text-white hover:bg-neutral-600'
+                          }`}
+                        >
+                          {num}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  <div className="text-center mt-auto mb-6">
+                    <span className="text-white/60 text-sm block mb-1">Each Guest Pays</span>
+                    <span className="text-4xl font-bold text-green-500">
+                      ${((remainingDue > 0 ? remainingDue : total) / splitGuestCount).toFixed(2)}
+                    </span>
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                      const perGuest = (remainingDue > 0 ? remainingDue : total) / splitGuestCount;
+                      setPaymentAmount(perGuest.toFixed(2));
+                      setSelectedPaymentMethod('cash');
+                      setSplitStep('selection');
+                    }}
+                    className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-neutral-200 transition-colors"
+                  >
+                    APPLY SPLIT - ${((remainingDue > 0 ? remainingDue : total) / splitGuestCount).toFixed(2)} PER GUEST
+                  </button>
+                </div>
+              )}
+
+              {/* Split by Amount View */}
+              {splitStep === 'amount' && (
+                <div className="flex-1 p-6 flex flex-col">
+                  <div className="text-center mb-4">
+                    <span className="text-white/60 text-sm block mb-1">Remaining Due</span>
+                    <span className="text-xl font-bold text-red-500">${(remainingDue > 0 ? remainingDue : total).toFixed(2)}</span>
+                  </div>
+                  
+                  <div className="text-center mb-6">
+                    <span className="text-white/60 text-sm block mb-1">Amount to Pay</span>
+                    <div className="text-4xl font-bold text-green-500">${splitAmount}</div>
+                  </div>
+                  
+                  {/* Numeric Keypad */}
+                  <div className="flex-1 flex flex-col gap-2">
+                    {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => (
+                      <div key={rowIndex} className="flex gap-2">
+                        {row.map(key => (
+                          <button 
+                            key={key} 
+                            onClick={() => handleSplitAmountKeypadPress(key)}
+                            className="flex-1 py-4 rounded-lg bg-neutral-800 text-white text-xl font-medium hover:bg-neutral-700 transition-colors"
+                          >
+                            {key}
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                    <div className="flex gap-2">
+                      <button 
+                        onClick={() => handleSplitAmountKeypadPress('C')}
+                        className="flex-1 py-4 rounded-lg bg-neutral-700 text-white text-xl font-medium hover:bg-neutral-600 transition-colors"
+                      >
+                        C
+                      </button>
+                      <button 
+                        onClick={() => handleSplitAmountKeypadPress('0')}
+                        className="flex-1 py-4 rounded-lg bg-neutral-800 text-white text-xl font-medium hover:bg-neutral-700 transition-colors"
+                      >
+                        0
+                      </button>
+                      <button 
+                        onClick={() => handleSplitAmountKeypadPress('.')}
+                        className="flex-1 py-4 rounded-lg bg-neutral-800 text-white text-xl font-medium hover:bg-neutral-700 transition-colors"
+                      >
+                        .
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                      setPaymentAmount(splitAmount);
+                      setSelectedPaymentMethod('cash');
+                      setSplitStep('selection');
+                      setSplitAmount('0.00');
+                    }}
+                    disabled={splitAmount === '0.00' || parseFloat(splitAmount) === 0}
+                    className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mt-4"
+                  >
+                    APPLY AMOUNT - ${splitAmount}
+                  </button>
+                </div>
+              )}
+
+              {/* Split by Item View */}
+              {splitStep === 'item' && (
+                <div className="flex-1 p-4 flex flex-col">
+                  <div className="flex-1 overflow-y-auto space-y-2" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                    {orderDetails.items.map(item => {
+                      const isSelected = selectedItemsForSplit.includes(item.id);
+                      return (
+                        <button
+                          key={item.id}
+                          onClick={() => {
+                            setSelectedItemsForSplit(prev => 
+                              isSelected 
+                                ? prev.filter(id => id !== item.id)
+                                : [...prev, item.id]
+                            );
+                          }}
+                          className={`w-full p-3 rounded-lg flex items-center gap-3 transition-colors ${
+                            isSelected 
+                              ? 'bg-green-500/20 border-green-500' 
+                              : 'bg-neutral-800 border-neutral-700'
+                          } border`}
+                        >
+                          <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-colors ${
+                            isSelected ? 'bg-green-500 border-green-500' : 'border-neutral-500'
+                          }`}>
+                            {isSelected && <Check className="w-4 h-4 text-white" />}
+                          </div>
+                          <span className="flex-1 text-left text-white">{item.qty}x {item.name}</span>
+                          <span className="text-white font-medium">${(item.price * item.qty).toFixed(2)}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  
+                  <div className="text-center py-4 border-t border-neutral-700 mt-4">
+                    <span className="text-white/60 text-sm block mb-1">Selected Items Total</span>
+                    <span className="text-2xl font-bold text-green-500">
+                      ${orderDetails.items
+                        .filter(item => selectedItemsForSplit.includes(item.id))
+                        .reduce((sum, item) => sum + item.price * item.qty, 0)
+                        .toFixed(2)}
+                    </span>
+                  </div>
+                  
+                  <button 
+                    onClick={() => {
+                      const selectedTotal = orderDetails.items
+                        .filter(item => selectedItemsForSplit.includes(item.id))
+                        .reduce((sum, item) => sum + item.price * item.qty, 0);
+                      setPaymentAmount(selectedTotal.toFixed(2));
+                      setSelectedPaymentMethod('cash');
+                      setSplitStep('selection');
+                      setSelectedItemsForSplit([]);
+                    }}
+                    disabled={selectedItemsForSplit.length === 0}
+                    className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-neutral-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    APPLY ITEM SPLIT
+                  </button>
+                </div>
+              )}
+            </div>
           ) : (
             <>
               {/* ============= STANDARD PAYMENT ENTRY VIEW ============= */}

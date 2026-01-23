@@ -10,6 +10,11 @@ export const DISCOUNT_AMOUNT = 5.00; // $5 discount
 // ============= FORMATTING =============
 export const formatPrice = (price: number): string => `$${price.toFixed(2)}`;
 
+// Format table ID (T2 -> Table 2)
+export const formatTableName = (tableId: string): string => {
+  return tableId?.replace(/^T/i, 'Table ') || tableId;
+};
+
 export const formatPriceWithSign = (price: number, showPositive = false): string => {
   if (price === 0) return '$0.00';
   if (price < 0) return `-$${Math.abs(price).toFixed(2)}`;

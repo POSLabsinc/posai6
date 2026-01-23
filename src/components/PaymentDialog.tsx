@@ -464,17 +464,28 @@ export function PaymentDialog({
 
   if (!open) return null;
 
+  // Determine dialog width based on split check mode and number of checks
+  const getSplitCheckDialogWidth = () => {
+    if (selectedPaymentMethod !== 'split-check') return '';
+    if (numberOfChecks <= 3) return 'w-[720px]';
+    if (numberOfChecks <= 5) return 'w-[900px]';
+    if (numberOfChecks <= 7) return 'w-[1050px]';
+    return 'w-[1200px]';
+  };
+
   return (
     <div 
       className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm"
       onClick={() => onOpenChange(false)}
     >
       <div 
-        className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh]"
+        className={`bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh] transition-all duration-300 ${getSplitCheckDialogWidth()}`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Left Panel - Payment Methods & Keypad */}
-        <div className="w-[480px] flex flex-col bg-neutral-900 max-h-[90vh] overflow-hidden">
+        <div className={`flex flex-col bg-neutral-900 max-h-[90vh] overflow-hidden transition-all duration-300 ${
+          selectedPaymentMethod === 'split-check' ? 'w-full' : 'w-[480px]'
+        }`}>
           {paymentProcessed ? (
             // Receipt Screen
             <div className="flex-1 flex flex-col items-center py-8 px-6">
@@ -3644,75 +3655,103 @@ export function PaymentDialog({
 
               {/* Check Cards Grid */}
               <div className="flex-1 p-4 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
-                <div className={`grid gap-4 ${numberOfChecks <= 2 ? 'grid-cols-2' : numberOfChecks <= 4 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                <div className={`grid gap-3 ${
+                  numberOfChecks <= 2 ? 'grid-cols-2' : 
+                  numberOfChecks <= 4 ? 'grid-cols-4' : 
+                  numberOfChecks <= 6 ? 'grid-cols-6' : 
+                  numberOfChecks <= 8 ? 'grid-cols-4' :
+                  'grid-cols-5'
+                }`}>
                   {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => {
                     const checkItems = getItemsForCheck(checkNum);
                     const checkTotals = getCheckTotals(checkNum);
                     const isPaid = paidChecks.includes(checkNum);
                     
+                    // Determine if compact mode based on number of checks
+                    const isCompact = numberOfChecks >= 4;
+                    const isVeryCompact = numberOfChecks >= 6;
+                    
                     return (
                       <div 
                         key={checkNum}
-                        className={`bg-white rounded-xl p-4 flex flex-col shadow-lg relative overflow-hidden ${
+                        className={`bg-white rounded-xl flex flex-col shadow-lg relative overflow-hidden ${
                           isPaid ? 'opacity-60' : ''
-                        }`}
+                        } ${isVeryCompact ? 'p-2' : isCompact ? 'p-3' : 'p-4'}`}
                       >
                         {/* Paid Stamp */}
                         {isPaid && (
-                          <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/40 text-3xl font-bold rotate-[-15deg] pointer-events-none z-10">
+                          <span className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/40 font-bold rotate-[-15deg] pointer-events-none z-10 ${
+                            isVeryCompact ? 'text-lg' : isCompact ? 'text-2xl' : 'text-3xl'
+                          }`}>
                             PAID
                           </span>
                         )}
                         
                         {/* Check Header */}
-                        <div className="flex items-center justify-between mb-3 pb-2 border-b border-neutral-200">
-                          <span className="text-neutral-900 font-bold text-sm">{getCheckLabel(checkNum - 1)}</span>
-                          <span className="text-green-600 font-bold text-lg">${checkTotals.total.toFixed(2)}</span>
+                        <div className={`flex items-center justify-between border-b border-neutral-200 ${
+                          isVeryCompact ? 'mb-1.5 pb-1' : isCompact ? 'mb-2 pb-1.5' : 'mb-3 pb-2'
+                        }`}>
+                          <span className={`text-neutral-900 font-bold ${isVeryCompact ? 'text-[10px]' : isCompact ? 'text-xs' : 'text-sm'}`}>
+                            {getCheckLabel(checkNum - 1)}
+                          </span>
+                          <span className={`text-green-600 font-bold ${isVeryCompact ? 'text-xs' : isCompact ? 'text-sm' : 'text-lg'}`}>
+                            ${checkTotals.total.toFixed(2)}
+                          </span>
                         </div>
                         
-                        {/* Items List */}
-                        <div className="flex-1 space-y-2 mb-3 max-h-32 overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                        {/* Items List - Scrollable */}
+                        <div className={`flex-1 overflow-y-auto ${
+                          isVeryCompact ? 'space-y-0.5 mb-1.5 max-h-16' : isCompact ? 'space-y-1 mb-2 max-h-20' : 'space-y-2 mb-3 max-h-32'
+                        }`} style={{ scrollbarWidth: 'none' }}>
                           {splitMode === 'evenly' ? (
-                            // Evenly split shows all items but indicates split
-                            <div className="text-center py-2">
-                              <span className="text-neutral-500 text-xs">Total split evenly</span>
-                              <div className="text-neutral-700 text-sm mt-1">
-                                {orderDetails.items.length} items ÷ {numberOfChecks} = ${checkTotals.total.toFixed(2)}
+                            // Evenly split shows summary
+                            <div className={`text-center ${isVeryCompact ? 'py-0.5' : isCompact ? 'py-1' : 'py-2'}`}>
+                              <span className={`text-neutral-500 ${isVeryCompact ? 'text-[9px]' : 'text-xs'}`}>Split evenly</span>
+                              <div className={`text-neutral-700 mt-0.5 ${isVeryCompact ? 'text-[10px]' : isCompact ? 'text-xs' : 'text-sm'}`}>
+                                ${checkTotals.total.toFixed(2)}
                               </div>
                             </div>
                           ) : checkItems.length > 0 ? (
                             checkItems.map(item => (
                               <div key={item.id} className="flex items-start justify-between">
-                                <div className="flex-1">
-                                  <span className="text-neutral-800 text-xs font-medium">
-                                    {item.qty}x {item.name}
-                                  </span>
-                                </div>
-                                <span className="text-neutral-700 text-xs font-medium ml-2">
+                                <span className={`text-neutral-800 font-medium truncate flex-1 ${
+                                  isVeryCompact ? 'text-[9px]' : isCompact ? 'text-[10px]' : 'text-xs'
+                                }`}>
+                                  {item.qty}x {item.name}
+                                </span>
+                                <span className={`text-neutral-700 font-medium ml-1 ${
+                                  isVeryCompact ? 'text-[9px]' : isCompact ? 'text-[10px]' : 'text-xs'
+                                }`}>
                                   ${(item.price * item.qty).toFixed(2)}
                                 </span>
                               </div>
                             ))
                           ) : (
-                            <div className="text-center py-4">
-                              <span className="text-neutral-400 text-xs">No items assigned</span>
+                            <div className={`text-center ${isVeryCompact ? 'py-1' : 'py-4'}`}>
+                              <span className={`text-neutral-400 ${isVeryCompact ? 'text-[9px]' : 'text-xs'}`}>No items</span>
                             </div>
                           )}
                         </div>
                         
-                        {/* Subtotal & Tax */}
-                        <div className="space-y-1 pt-2 border-t border-neutral-200 text-xs">
-                          <div className="flex justify-between">
-                            <span className="text-neutral-500">Subtotal</span>
-                            <span className="text-neutral-700">${checkTotals.subtotal.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-neutral-500">Tax</span>
-                            <span className="text-neutral-700">${checkTotals.tax.toFixed(2)}</span>
-                          </div>
-                          <div className="flex justify-between pt-1 border-t border-neutral-200">
-                            <span className="text-neutral-900 font-bold">Total</span>
-                            <span className="text-green-600 font-bold">${checkTotals.total.toFixed(2)}</span>
+                        {/* Subtotal & Tax - Only show full details when not very compact */}
+                        <div className={`border-t border-neutral-200 ${
+                          isVeryCompact ? 'space-y-0 pt-1' : isCompact ? 'space-y-0.5 pt-1.5' : 'space-y-1 pt-2'
+                        }`}>
+                          {!isVeryCompact && (
+                            <>
+                              <div className={`flex justify-between ${isCompact ? 'text-[10px]' : 'text-xs'}`}>
+                                <span className="text-neutral-500">Subtotal</span>
+                                <span className="text-neutral-700">${checkTotals.subtotal.toFixed(2)}</span>
+                              </div>
+                              <div className={`flex justify-between ${isCompact ? 'text-[10px]' : 'text-xs'}`}>
+                                <span className="text-neutral-500">Tax</span>
+                                <span className="text-neutral-700">${checkTotals.tax.toFixed(2)}</span>
+                              </div>
+                            </>
+                          )}
+                          <div className={`flex justify-between ${!isVeryCompact ? 'pt-1 border-t border-neutral-200' : ''}`}>
+                            <span className={`text-neutral-900 font-bold ${isVeryCompact ? 'text-[10px]' : isCompact ? 'text-xs' : 'text-xs'}`}>Total</span>
+                            <span className={`text-green-600 font-bold ${isVeryCompact ? 'text-[10px]' : isCompact ? 'text-xs' : 'text-xs'}`}>${checkTotals.total.toFixed(2)}</span>
                           </div>
                         </div>
                         
@@ -3720,11 +3759,11 @@ export function PaymentDialog({
                         <button
                           onClick={() => handlePayCheck(checkNum)}
                           disabled={isPaid || (splitMode !== 'evenly' && checkItems.length === 0)}
-                          className={`w-full mt-3 py-2.5 rounded-lg font-bold text-sm transition-colors ${
+                          className={`w-full rounded-lg font-bold transition-colors ${
                             isPaid
                               ? 'bg-green-100 text-green-600 cursor-not-allowed'
                               : 'bg-green-500 text-white hover:bg-green-600'
-                          }`}
+                          } ${isVeryCompact ? 'mt-1.5 py-1 text-[10px]' : isCompact ? 'mt-2 py-1.5 text-xs' : 'mt-3 py-2.5 text-sm'}`}
                         >
                           {isPaid ? 'Paid' : 'Pay'}
                         </button>

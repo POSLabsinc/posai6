@@ -42,6 +42,8 @@ interface MergedOrderPanelProps {
   mergedOrderIds: string[];
   orders: MergedOrder[];
   width?: string;
+  onReceiptClick?: () => void;
+  onRegisterClick?: () => void;
 }
 
 const MergedOrderPanel = ({
@@ -52,7 +54,9 @@ const MergedOrderPanel = ({
   tableId,
   mergedOrderIds,
   orders,
-  width = "w-[345px]"
+  width = "w-[345px]",
+  onReceiptClick,
+  onRegisterClick
 }: MergedOrderPanelProps) => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>(['all']);
@@ -117,10 +121,16 @@ const MergedOrderPanel = ({
           <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
             Discount
           </button>
-          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+          <button 
+            className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors"
+            onClick={onReceiptClick}
+          >
             Receipt
           </button>
-          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+          <button 
+            className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors"
+            onClick={onRegisterClick}
+          >
             Cash Register
           </button>
         </div>

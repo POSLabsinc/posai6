@@ -9,6 +9,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import tickSuccessIcon from "@/assets/icons/tick-success.svg";
+import splitCheckIcon from "@/assets/icons/split-check.svg";
 
 // ============= TYPES =============
 export interface PaymentDialogOrderItem {
@@ -3513,7 +3514,7 @@ export function PaymentDialog({
               {/* Payment Methods - Row of 6 icons */}
               <div className="px-6 py-4 border-b border-neutral-700">
                 <div className="relative">
-                  <div className="grid grid-cols-7 gap-2">
+                  <div className="grid grid-cols-8 gap-2">
                     {visiblePaymentMethods.map((method) => {
                       const IconComponent = method.icon;
                       return (
@@ -3546,6 +3547,27 @@ export function PaymentDialog({
                         </button>
                       );
                     })}
+
+                    {/* Split Check button */}
+                    <button 
+                      onClick={() => setSelectedPaymentMethod('split-check')}
+                      className="flex flex-col items-center gap-1"
+                    >
+                      <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
+                        selectedPaymentMethod === 'split-check' 
+                          ? 'bg-white border-white' 
+                          : 'bg-neutral-700 border-neutral-600 hover:border-neutral-500'
+                      }`}>
+                        <img 
+                          src={splitCheckIcon} 
+                          alt="Split Check" 
+                          className={`w-5 h-5 ${selectedPaymentMethod === 'split-check' ? 'invert' : ''}`}
+                        />
+                      </div>
+                      <span className={`text-[10px] ${selectedPaymentMethod === 'split-check' ? 'text-white' : 'text-neutral-400'}`}>
+                        Split Check
+                      </span>
+                    </button>
 
                     {/* Other dropdown button */}
                     <button 

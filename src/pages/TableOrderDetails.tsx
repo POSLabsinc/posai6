@@ -1361,24 +1361,28 @@ const TableOrderDetails = () => {
             </div>
           </div>
           <div className="flex gap-2">
-            <button 
-              className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors"
-              onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
-            >
-              Add Item
-            </button>
-            <button 
-              className={`px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors ${
-                selectedDiscountId ? 'ring-2 ring-orange-500' : ''
-              }`}
-              onClick={() => {
-                setDiscountDialogView('mpin');
-                setDiscountPin("");
-                setShowDiscountDialog(true);
-              }}
-            >
-              Discount
-            </button>
+            {currentSelectedGuest?.status?.toUpperCase() !== 'PAID' && currentSelectedGuest?.status?.toUpperCase() !== 'COMPLETED' && (
+              <>
+                <button 
+                  className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors"
+                  onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
+                >
+                  Add Item
+                </button>
+                <button 
+                  className={`px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors ${
+                    selectedDiscountId ? 'ring-2 ring-orange-500' : ''
+                  }`}
+                  onClick={() => {
+                    setDiscountDialogView('mpin');
+                    setDiscountPin("");
+                    setShowDiscountDialog(true);
+                  }}
+                >
+                  Discount
+                </button>
+              </>
+            )}
             <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
               Receipt
             </button>

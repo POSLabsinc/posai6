@@ -1138,9 +1138,9 @@ const TableOrderDetails = () => {
                     if (guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed') {
                       return (
                         /* Receipt and Register buttons for paid orders */
-                        <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
+                        <div className={`flex-shrink-0 flex flex-col w-10 overflow-hidden ${hasAlertAbove ? 'rounded-br-xl' : 'rounded-r-xl'}`}>
                           <button 
-                            className={`flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600 ${hasAlertAbove ? '' : 'rounded-tr-xl'}`}
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600"
                             onClick={(e) => {
                               e.stopPropagation();
                               setReceiptGuest(guest);
@@ -1150,7 +1150,7 @@ const TableOrderDetails = () => {
                             <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
                           </button>
                           <button 
-                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500"
                             onClick={(e) => {
                               e.stopPropagation();
                               // Handle register action
@@ -1163,9 +1163,9 @@ const TableOrderDetails = () => {
                     } else if (guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full')) {
                       return (
                         /* Merge and Transfer buttons for unpaid orders */
-                        <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
+                        <div className={`flex-shrink-0 flex flex-col w-10 overflow-hidden ${hasAlertAbove ? 'rounded-br-xl' : 'rounded-r-xl'}`}>
                           <button 
-                            className={`flex-1 flex items-center justify-center hover:opacity-80 transition-opacity ${hasAlertAbove ? '' : 'rounded-tr-xl'}`}
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
                             style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
                             onClick={(e) => {
                               e.stopPropagation();
@@ -1175,7 +1175,7 @@ const TableOrderDetails = () => {
                             <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
                           </button>
                           <button 
-                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-br-xl"
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
                             style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
                             onClick={(e) => {
                               e.stopPropagation();

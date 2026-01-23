@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine } from "lucide-react";
 
@@ -296,27 +296,10 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const Tickets = () => {
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const highlightOrderId = searchParams.get('highlight');
-  
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
-  const [highlightedOrderId, setHighlightedOrderId] = useState<string | null>(null);
-
-  // Handle highlight parameter from URL (when order is fired)
-  useEffect(() => {
-    if (highlightOrderId) {
-      const order = allOrders.find(o => o.id === highlightOrderId);
-      if (order) {
-        setSelectedGuest(order);
-        setHighlightedOrderId(highlightOrderId);
-        // Remove highlight after 3 seconds
-        setTimeout(() => setHighlightedOrderId(null), 3000);
-      }
-    }
-  }, [highlightOrderId]);
 
   // Swipe state for mobile cards
   const [swipeStates, setSwipeStates] = useState<Record<string, number>>({});
@@ -416,7 +399,6 @@ const Tickets = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case "ORDERING": return "text-[#F87171]";
-      case "FIRED": return "text-orange-500";
       case "PAID": return "text-green-500";
       case "UNPAID": return "text-red-400";
       case "COMPLETED": return "text-green-500";
@@ -645,7 +627,7 @@ const Tickets = () => {
                   onMouseLeave={e => handleSwipeEnd(false, e, guest)} 
                   onClick={() => handleCardClick(guest)}
                 >
-                  <div className={`flex items-stretch w-full gap-2 border rounded-xl bg-neutral-900 ${selectedGuest.id === guest.id ? 'border-white' : 'border-white/10'} ${highlightedOrderId === guest.id ? 'ring-2 ring-orange-500 animate-pulse' : ''}`}>
+                  <div className={`flex items-stretch w-full gap-2 border rounded-xl bg-neutral-900 ${selectedGuest.id === guest.id ? 'border-white' : 'border-white/10'}`}>
                     {/* Column 1: Order Number */}
                     <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
                       <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
@@ -747,7 +729,7 @@ const Tickets = () => {
               <div key={guest.id} className="space-y-0">
                 <div 
                   onClick={() => setSelectedGuest(guest)} 
-                  className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"} ${highlightedOrderId === guest.id ? 'ring-2 ring-orange-500 animate-pulse' : ''}`} 
+                  className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} 
                   style={{ backgroundColor: '#1B1C20' }}
                 >
                   <div className="flex items-stretch w-full gap-4">
@@ -1042,7 +1024,7 @@ const Tickets = () => {
           <div className="space-y-2 pb-3">
             {filteredOrders.map(guest => (
               <div key={guest.id} className="space-y-0">
-                <div onClick={() => setSelectedGuest(guest)} className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"} ${highlightedOrderId === guest.id ? 'ring-2 ring-orange-500 animate-pulse' : ''}`} style={{ backgroundColor: '#1B1C20' }}>
+                <div onClick={() => setSelectedGuest(guest)} className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{ backgroundColor: '#1B1C20' }}>
                   <div className="flex items-stretch w-full gap-2">
                     {/* Column 1: Order Number */}
                     <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">

@@ -344,6 +344,27 @@ const TableOrderDetails = () => {
   const [discountPin, setDiscountPin] = useState("");
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
   
+  // Fire order state
+  const [showFireConfirmation, setShowFireConfirmation] = useState(false);
+  const [firedOrderId, setFiredOrderId] = useState<string | null>(null);
+  
+  // Handle fire order - update status and navigate to tickets
+  const handleFireOrder = () => {
+    if (!currentSelectedGuest) return;
+    
+    // Store the fired order ID
+    setFiredOrderId(currentSelectedGuest.id);
+    
+    // Show success confirmation
+    setShowFireConfirmation(true);
+    
+    // Auto-navigate to Tickets after 2 seconds
+    setTimeout(() => {
+      setShowFireConfirmation(false);
+      navigate(`/tickets?highlight=${currentSelectedGuest.id}`);
+    }, 2000);
+  };
+  
   // Set initial selected guest when guestOrders changes
   const currentSelectedGuest = selectedGuest || guestOrders[0];
   
@@ -716,9 +737,11 @@ const TableOrderDetails = () => {
               <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
                 <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
               </button>
-              <button className="px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium" style={{
-                background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
-              }}>
+              <button 
+                onClick={handleFireOrder}
+                className="px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium" 
+                style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+              >
                 <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
                 <span>FIRE</span>
               </button>
@@ -1710,9 +1733,11 @@ const TableOrderDetails = () => {
                 }}>
                   <img src={saveIcon} alt="Save" className="w-4 h-4" />
                 </button>
-                <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
-                  background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-                }}>
+                <button 
+                  onClick={handleFireOrder}
+                  className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" 
+                  style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                >
                   <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                   <span className="text-white font-semibold text-sm">FIRE</span>
                 </button>
@@ -2261,9 +2286,11 @@ const TableOrderDetails = () => {
               <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
                 <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
               </button>
-              <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{
-                background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
-              }}>
+              <button 
+                onClick={handleFireOrder}
+                className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium" 
+                style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+              >
                 <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
                 <span>FIRE</span>
               </button>
@@ -2478,6 +2505,24 @@ const TableOrderDetails = () => {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Fire Success Confirmation */}
+      {showFireConfirmation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70">
+          <div className="bg-neutral-900 rounded-2xl p-8 flex flex-col items-center gap-4 animate-scale-in border border-neutral-700">
+            <div className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center">
+              <img src={fireIcon} alt="Fired" className="w-10 h-10" />
+            </div>
+            <h2 className="text-white text-xl font-bold">Order Fired!</h2>
+            <p className="text-neutral-400 text-sm text-center">
+              Order #{firedOrderId} has been sent to kitchen
+            </p>
+            <div className="flex items-center gap-2 text-orange-400 text-sm">
+              <span>Redirecting to Tickets...</span>
+            </div>
           </div>
         </div>
       )}

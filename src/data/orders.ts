@@ -141,11 +141,11 @@ export const allOrders: Order[] = [
     ]
   },
   
-  // Order 3 - Sarah Johnson (T2) - UNPAID - Dine-In
+  // Order 3 - Martin Alex (T2) - UNPAID - Dine-In (Same Party as Order 1)
   {
     id: "3",
-    name: "Sarah Johnson",
-    phone: "(415) 555-0789",
+    name: "Martin Alex",
+    phone: "(415) 555-0123",
     partySize: 2,
     time: "7:15 PM",
     timer: "1:45 Hrs",
@@ -202,7 +202,7 @@ export const allOrders: Order[] = [
     ]
   },
   
-  // Order 5 - Guest (T2) - ORDERING - Bar
+  // Order 5 - Guest (T6) - ORDERING - Bar
   {
     id: "5",
     name: "Guest",
@@ -216,7 +216,7 @@ export const allOrders: Order[] = [
     revenueCenter: "Bar",
     status: "ORDERING",
     notes: "",
-    table: "T2",
+    table: "T6",
     orderType: "Bar",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
@@ -252,7 +252,7 @@ export const allOrders: Order[] = [
     ]
   },
   
-  // Order 7 - James Brown (T3) - ORDERED - Delivery
+  // Order 7 - James Brown (T7) - ORDERED - Delivery
   {
     id: "7",
     name: "James Brown",
@@ -266,7 +266,7 @@ export const allOrders: Order[] = [
     revenueCenter: "Online",
     status: "ORDERED",
     notes: "Leave at door - apartment 4B",
-    table: "T3",
+    table: "T7",
     orderType: "Delivery",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",

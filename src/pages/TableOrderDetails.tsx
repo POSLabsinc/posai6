@@ -1084,10 +1084,10 @@ const TableOrderDetails = () => {
                     <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
                       {/* Row 1: Name + Table | Server (center) | Status */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="flex items-center gap-1 lg:gap-2 w-[180px] lg:w-[220px] flex-shrink-0">
+                        <div className="flex items-center gap-1 lg:gap-2 w-[160px] lg:w-[180px] flex-shrink-0">
                           <span className="text-white font-medium truncate">{guest.name}</span>
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 text-center">
                           <span className="text-white/60 truncate">{guest.server}</span>
                         </div>
                         <span 
@@ -1099,9 +1099,9 @@ const TableOrderDetails = () => {
                       
                       {/* Row 2: Party info | Timer | Total */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="flex items-center gap-1 text-white/60 w-[180px] lg:w-[220px] flex-shrink-0">
+                        <div className="flex items-center gap-1 text-white/60 w-[160px] lg:w-[180px] flex-shrink-0 whitespace-nowrap">
                           <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
-                          <span className="truncate">Party of {guest.partySize}, {guest.time}</span>
+                          <span>Party of {guest.partySize}, {guest.time}</span>
                           <span className="text-white/40">|</span>
                           <span>{orderTimers[guest.id] || guest.timer}</span>
                         </div>
@@ -1111,10 +1111,10 @@ const TableOrderDetails = () => {
                       
                       {/* Row 3: Revenue Center | Payment Status (center) | Tip */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="w-[180px] lg:w-[220px] flex-shrink-0">
+                        <div className="w-[160px] lg:w-[180px] flex-shrink-0">
                           <span className="text-white/60 truncate">{guest.revenueCenter}</span>
                         </div>
-                        <div className="flex-1">
+                        <div className="flex-1 text-center">
                           {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' 
                             ? <MultiPaymentDisplay paymentMethods={guest.paymentMethods} paymentType={guest.paymentType} />
                             : <span className="text-white/60 truncate">Pending Payment</span>}

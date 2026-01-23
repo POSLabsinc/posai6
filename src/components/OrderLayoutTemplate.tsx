@@ -106,7 +106,7 @@ const OrderLayoutTemplate = ({
         </div>
       </div>
 
-      {/* Tablet/Desktop Layout - matching TransferOrders 3-row format */}
+      {/* Tablet/Desktop Layout - matching 45%/35%/20% column ratio */}
       <div className="hidden md:flex items-stretch w-full">
         {/* Left Content with padding */}
         <div className="flex-1 flex items-stretch gap-3 p-3">
@@ -116,42 +116,48 @@ const OrderLayoutTemplate = ({
             <span className="text-xs text-white/40">000</span>
           </div>
 
-          {/* Main Content - 3 rows */}
+          {/* Main Content - 3 rows with 45%/35%/20% ratio */}
           <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-            {/* Row 1: Name + Table + Revenue Center | Server | Status */}
+            {/* Row 1: Name + Table | Server | Status - 45% | 35% | 20% */}
             <div className="flex items-center text-sm">
-              <div className="flex items-center gap-2 w-[260px] flex-shrink-0">
-                <span className="text-white font-medium truncate">{order.name}</span>
-                <span className="text-white/60">·</span>
-                <span className="text-white font-medium">{order.table}</span>
-                <span className="text-white/60">·</span>
-                <span className="text-white/60 truncate">{order.revenueCenter}</span>
+              <div className="w-[45%] text-left">
+                <span className="text-white font-medium truncate">{order.name} - {order.table}</span>
               </div>
-              <div className="flex-1">
+              <div className="w-[35%] text-left pl-4">
                 <span className="text-white/60 truncate">{order.server}</span>
               </div>
-              <span className={`font-semibold uppercase flex-shrink-0 ${getOrderStatusColor(order.status)}`}>
-                {order.status}
-              </span>
+              <div className="w-[20%] text-right">
+                <span className={`font-semibold uppercase ${getOrderStatusColor(order.status)}`}>
+                  {order.status}
+                </span>
+              </div>
             </div>
             
-            {/* Row 2: Party info | Timer | Total */}
+            {/* Row 2: Party info + Timer | empty | Total - 45% | 35% | 20% */}
             <div className="flex items-center text-sm">
-              <div className="flex items-center gap-1 text-white/60 w-[260px] flex-shrink-0">
+              <div className="w-[45%] text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
                 <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
                 <span className="truncate">Party of {order.partySize}, {order.time}</span>
                 <span className="text-white/40">|</span>
                 <span>{order.timer}</span>
               </div>
-              <div className="flex-1"></div>
-              <span className="text-white font-semibold flex-shrink-0">{order.amount}</span>
+              <div className="w-[35%]"></div>
+              <div className="w-[20%] text-right">
+                <span className="text-white font-semibold">{order.amount}</span>
+              </div>
             </div>
             
-            {/* Row 3: Payment Status | Tip */}
+            {/* Row 3: Revenue Center | Payment Status | Tip - 45% | 35% | 20% */}
             <div className="flex items-center text-sm">
-              <span className="text-white/60 w-[260px] flex-shrink-0 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
-              <div className="flex-1"></div>
-              <span className="text-white flex-shrink-0">$0.00</span>
+              <div className="w-[45%] text-left">
+                <span className="text-white/60 truncate">{order.revenueCenter}</span>
+              </div>
+              <div className="w-[35%] text-left pl-4">
+                <span className="text-white/60 truncate">{order.status === 'Paid' || order.status === 'Completed' ? 'Paid' : 'Un Paid'}</span>
+              </div>
+              <div className="w-[20%] text-right">
+                <span className="text-white">$0.00</span>
+              </div>
             </div>
           </div>
         </div>

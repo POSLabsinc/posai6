@@ -3,16 +3,27 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Printer, MessageSquare, Mail, ChevronDown, Delete, Check, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
+interface ReceiptItem {
+  name: string;
+  price: number;
+  qty: number;
+  fromOrder?: string;
+}
+
 interface ReceiptDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   orderTotal?: number;
   orderId?: string;
+  // Props for merged orders
+  mergedOrderIds?: string[];
+  guestName?: string;
+  items?: ReceiptItem[];
 }
 
 type ReceiptStep = 'selection' | 'phone-input' | 'email-input';
 
-const ReceiptDialog = ({ open, onOpenChange, orderTotal = 0, orderId }: ReceiptDialogProps) => {
+const ReceiptDialog = ({ open, onOpenChange, orderTotal = 0, orderId, mergedOrderIds, guestName, items }: ReceiptDialogProps) => {
   const [step, setStep] = useState<ReceiptStep>('selection');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [emailAddress, setEmailAddress] = useState('');
@@ -89,10 +100,42 @@ const ReceiptDialog = ({ open, onOpenChange, orderTotal = 0, orderId }: ReceiptD
       <DialogContent className="bg-neutral-900 border-neutral-800 p-0 max-w-md w-full overflow-hidden [&>button]:hidden">
         {step === 'selection' && (
           <div className="flex flex-col p-6">
-            {/* Header */}
-            <h2 className="text-white text-xl font-semibold text-center mb-8">
-              How would you like to<br />receive your receipt?
+            {/* Header - Show merged order info if applicable */}
+            <h2 className="text-white text-xl font-semibold text-center mb-2">
+              {mergedOrderIds && mergedOrderIds.length > 1 ? (
+                <>Merged Order Receipt</>
+              ) : (
+                <>How would you like to<br />receive your receipt?</>
+              )}
             </h2>
+            
+            {/* Merged order details */}
+            {mergedOrderIds && mergedOrderIds.length > 1 && (
+              <div className="text-center mb-4">
+                <div className="text-sm text-white/60 mb-2">
+                  Orders: {mergedOrderIds.join(' + ')}
+                </div>
+                {guestName && (
+                  <div className="text-sm text-white/80">
+                    Guest: {guestName}
+                  </div>
+                )}
+              </div>
+            )}
+            
+            {/* Total amount */}
+            {orderTotal > 0 && (
+              <div className="text-center mb-6">
+                <span className="text-2xl font-bold text-white">
+                  ${orderTotal.toFixed(2)}
+                </span>
+              </div>
+            )}
+            
+            {/* Subtitle for non-merged orders */}
+            {(!mergedOrderIds || mergedOrderIds.length <= 1) && (
+              <div className="mb-6"></div>
+            )}
 
             {/* Receipt Options */}
             <div className="flex gap-4 mb-6">

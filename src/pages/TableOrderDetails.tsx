@@ -1160,6 +1160,35 @@ const TableOrderDetails = () => {
                           </button>
                         </div>
                       );
+                    } else if (guest.id === mergedOrderId && destOrderId) {
+                      // Receipt and Register buttons for merged source orders
+                      return (
+                        <div className={`flex-shrink-0 flex flex-col w-10 overflow-hidden ${hasAlertAbove ? 'rounded-br-xl' : 'rounded-r-xl'}`}>
+                          <button 
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Open receipt for the merged destination order (combined receipt)
+                              const destGuest = guestOrders.find(g => g.id === destOrderId);
+                              if (destGuest) {
+                                setReceiptGuest(destGuest);
+                                setShowReceiptDialog(true);
+                              }
+                            }}
+                          >
+                            <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
+                          </button>
+                          <button 
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // Handle register action for merged order
+                            }}
+                          >
+                            <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
+                          </button>
+                        </div>
+                      );
                     } else if (guest.id !== mergedOrderId && !(guest.id === transferSourceOrderId && transferType === 'full')) {
                       return (
                         /* Merge and Transfer buttons for unpaid orders */
@@ -1255,7 +1284,17 @@ const TableOrderDetails = () => {
             server={mergedPanelData.server} 
             tableId={tableId || ""} 
             mergedOrderIds={mergedPanelData.orders.map(o => o.id)} 
-            orders={mergedPanelData.orders} 
+            orders={mergedPanelData.orders}
+            onReceiptClick={() => {
+              const destGuest = guestOrders.find(g => g.id === destOrderId);
+              if (destGuest) {
+                setReceiptGuest(destGuest);
+                setShowReceiptDialog(true);
+              }
+            }}
+            onRegisterClick={() => {
+              // Handle register action for merged order
+            }}
           />
         ) : (
           <div className="w-[345px] flex flex-col m-2 ml-0">
@@ -2228,6 +2267,13 @@ const TableOrderDetails = () => {
         onOpenChange={setShowReceiptDialog}
         orderTotal={receiptGuest?.total || 0}
         orderId={receiptGuest?.id}
+        mergedOrderIds={receiptGuest?.mergedFrom ? [receiptGuest.id, ...receiptGuest.mergedFrom.map(m => m.orderId)] : undefined}
+        guestName={receiptGuest?.name}
+        items={receiptGuest?.items?.map(item => ({
+          name: item.name,
+          price: item.price * item.qty,
+          qty: item.qty
+        }))}
       />
 
       {/* Tip Dialog */}

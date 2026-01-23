@@ -13,15 +13,24 @@ export {
   formatPriceWithSign,
   formatTableName,
   getOrderStatusColor,
-  calculateOrderTotals as calculateItemsTotals
+  calculateOrderTotals as calculateItemsTotals,
+  isActiveOrderStatus,
+  doCustomerDetailsMatch,
+  validateNewOrderForTable,
+  normalizePhone,
+  normalizeName
 } from "@/lib/orderUtils";
+
+import type { ActiveOrderInfo, TableOrderValidation } from "@/lib/orderUtils";
+export type { ActiveOrderInfo, TableOrderValidation };
 
 import { 
   TAX_RATE, 
   SERVICE_CHARGE_RATE, 
   DISCOUNT_THRESHOLD, 
   DISCOUNT_AMOUNT,
-  formatTableName
+  formatTableName,
+  isActiveOrderStatus
 } from "@/lib/orderUtils";
 
 // Order item interface
@@ -393,6 +402,24 @@ export const getOrderAmount = (order: Order) => {
 // Get orders by table ID
 export const getOrdersByTable = (tableId: string) => {
   return allOrders.filter(order => order.table === tableId);
+};
+
+// Get active (unpaid/incomplete) orders for a table
+export const getActiveOrdersForTable = (tableId: string): import("@/lib/orderUtils").ActiveOrderInfo[] => {
+  const tableIdNormalized = tableId.replace(/^T/i, '');
+  return allOrders
+    .filter(order => {
+      const orderTableNormalized = order.table.replace(/^T/i, '');
+      return orderTableNormalized === tableIdNormalized && isActiveOrderStatus(order.status);
+    })
+    .map(order => ({
+      id: order.id,
+      name: order.name,
+      phone: order.phone,
+      table: order.table,
+      status: order.status,
+      partySize: order.partySize
+    }));
 };
 
 // Get order by ID

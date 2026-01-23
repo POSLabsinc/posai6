@@ -132,7 +132,7 @@ export const allOrders: Order[] = [
     ]
   },
   
-  // Order 3 - Sarah Johnson (T2) - UNPAID - Dine-In
+  // Order 3 - Sarah Johnson (T6) - UNPAID - Dine-In
   {
     id: "3",
     name: "Sarah Johnson",
@@ -146,7 +146,7 @@ export const allOrders: Order[] = [
     revenueCenter: "FF Balcony",
     status: "UNPAID",
     notes: "Gluten-free options requested",
-    table: "T2",
+    table: "T6",
     orderType: "Dine-In",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
@@ -193,7 +193,7 @@ export const allOrders: Order[] = [
     ]
   },
   
-  // Order 5 - Guest (T2) - ORDERING - Bar
+  // Order 5 - Guest (T7) - ORDERING - Bar
   {
     id: "5",
     name: "Guest",
@@ -207,7 +207,7 @@ export const allOrders: Order[] = [
     revenueCenter: "Bar",
     status: "ORDERING",
     notes: "",
-    table: "T2",
+    table: "T7",
     orderType: "Bar",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
@@ -243,30 +243,28 @@ export const allOrders: Order[] = [
     ]
   },
   
-  // Order 7 - James Brown (T3) - ORDERED - Delivery
+  // Order 7 - Emily Wilson (T3) - ORDERED - Dine-In (Same Party as Order 6)
   {
     id: "7",
-    name: "James Brown",
-    phone: "(415) 555-3456",
-    partySize: 4,
+    name: "Emily Wilson",
+    phone: "(415) 555-2345",
+    partySize: 2,
     time: "7:45 PM",
     timer: "0:45 Hrs",
-    server: "Dustin H",
+    server: "Alex M",
     check: "123489",
     paymentType: "--",
-    revenueCenter: "Online",
+    revenueCenter: "Patio",
     status: "ORDERED",
-    notes: "Leave at door - apartment 4B",
+    notes: "Anniversary dinner - second round of drinks",
     table: "T3",
-    orderType: "Delivery",
+    orderType: "Dine-In",
     paidAmount: "$0.00",
     paymentStatus: "Un Paid",
     tipAmount: 12.00,
     items: [
-      { qty: 2, name: "Pepperoni Pizza (12\")", price: 18.00, seats: [], modifiers: ["Extra Cheese"] },
-      { qty: 1, name: "Garlic Knots", price: 6.00, seats: [], modifiers: [] },
-      { qty: 1, name: "Buffalo Wings (10pc)", price: 14.00, seats: [], modifiers: ["Extra Hot", "Ranch on Side"] },
-      { qty: 2, name: "Soda", price: 3.00, seats: [], modifiers: [] }
+      { qty: 2, name: "Champagne Glass", price: 15.00, seats: [1, 2], modifiers: [] },
+      { qty: 1, name: "Chocolate Soufflé", price: 14.00, seats: [], modifiers: ["Extra Cream"], isShared: true }
     ]
   },
   

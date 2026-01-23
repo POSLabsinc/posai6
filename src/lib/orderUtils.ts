@@ -10,9 +10,18 @@ export const DISCOUNT_AMOUNT = 5.00; // $5 discount
 // ============= FORMATTING =============
 export const formatPrice = (price: number): string => `$${price.toFixed(2)}`;
 
-// Format table ID (T2 -> Table 2)
+// Format table ID (T2 -> Table 2, or just "2" -> "Table 2")
 export const formatTableName = (tableId: string): string => {
-  return tableId?.replace(/^T/i, 'Table ') || tableId;
+  if (!tableId) return tableId;
+  // If it starts with T, replace T with "Table "
+  if (/^T/i.test(tableId)) {
+    return tableId.replace(/^T/i, 'Table ');
+  }
+  // If it's just a number, prepend "Table "
+  if (/^\d+$/.test(tableId)) {
+    return `Table ${tableId}`;
+  }
+  return tableId;
 };
 
 export const formatPriceWithSign = (price: number, showPositive = false): string => {

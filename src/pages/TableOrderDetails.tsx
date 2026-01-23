@@ -1082,15 +1082,15 @@ const TableOrderDetails = () => {
 
                     {/* Main Content */}
                     <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                      {/* Row 1: Name | Server | Status - 50% | 25% | 25% */}
+                      {/* Row 1: Name | Server | Status - 45% | 35% | 20% */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="w-1/2 text-left">
+                        <div className="w-[45%] text-left">
                           <span className="text-white font-medium truncate">{guest.name}</span>
                         </div>
-                        <div className="w-1/4 text-left">
+                        <div className="w-[35%] text-left">
                           <span className="text-white/60 truncate">{guest.server}</span>
                         </div>
-                        <div className="w-1/4 text-right">
+                        <div className="w-[20%] text-right">
                           <span 
                             className={`font-semibold uppercase ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}
                           >
@@ -1099,31 +1099,31 @@ const TableOrderDetails = () => {
                         </div>
                       </div>
                       
-                      {/* Row 2: Party info + Timer | empty | Total - 50% | 25% | 25% */}
+                      {/* Row 2: Party info + Timer | empty | Total - 45% | 35% | 20% */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="w-1/2 text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
+                        <div className="w-[45%] text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
                           <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
                           <span>Party of {guest.partySize}, {guest.time}</span>
                           <span className="text-white/40">|</span>
                           <span>{orderTimers[guest.id] || guest.timer}</span>
                         </div>
-                        <div className="w-1/4"></div>
-                        <div className="w-1/4 text-right">
+                        <div className="w-[35%]"></div>
+                        <div className="w-[20%] text-right">
                           <span className="text-white font-semibold">{formatPrice(guest.total)}</span>
                         </div>
                       </div>
                       
-                      {/* Row 3: Revenue Center | Payment Status | Tip - 50% | 25% | 25% */}
+                      {/* Row 3: Revenue Center | Payment Status | Tip - 45% | 35% | 20% */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="w-1/2 text-left">
+                        <div className="w-[45%] text-left">
                           <span className="text-white/60 truncate">{guest.revenueCenter}</span>
                         </div>
-                        <div className="w-1/4 text-left">
+                        <div className="w-[35%] text-left">
                           {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' 
                             ? <MultiPaymentDisplay paymentMethods={guest.paymentMethods} paymentType={guest.paymentType} />
                             : <span className="text-white/60 truncate">Pending Payment</span>}
                         </div>
-                        <div className="w-1/4 text-right">
+                        <div className="w-[20%] text-right">
                           <span className="text-white">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
                         </div>
                       </div>

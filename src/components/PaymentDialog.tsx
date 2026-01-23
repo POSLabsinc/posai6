@@ -73,7 +73,6 @@ type PaymentMethodType = {
 
 const initialPaymentMethods: PaymentMethodType[] = [
   { id: 'loyalty', name: 'Loyalty', icon: Tag },
-  { id: 'account', name: 'Account', icon: User },
   { id: 'card', name: 'Card', icon: CreditCard },
   { id: 'cash', name: 'Cash', icon: Banknote },
   { id: 'gift-card', name: 'Gift Card', icon: Gift },
@@ -81,6 +80,7 @@ const initialPaymentMethods: PaymentMethodType[] = [
 ];
 
 const initialOtherPaymentMethods: PaymentMethodType[] = [
+  { id: 'account', name: 'Account', icon: User },
   { id: 'qr-code', name: 'QR Code', icon: QrCode },
   { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
   { id: 'external-cc', name: 'External CC', icon: ExternalLink },
@@ -3514,7 +3514,7 @@ export function PaymentDialog({
               {/* Payment Methods - Row of 6 icons */}
               <div className="px-6 py-4 border-b border-neutral-700">
                 <div className="relative">
-                  <div className="grid grid-cols-8 gap-2">
+                  <div className="grid grid-cols-7 gap-2">
                     {visiblePaymentMethods.map((method) => {
                       const IconComponent = method.icon;
                       return (

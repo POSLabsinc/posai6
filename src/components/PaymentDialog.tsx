@@ -3681,10 +3681,10 @@ export function PaymentDialog({
                         
                         {/* Check Header */}
                         <div className="flex items-center justify-between border-b border-neutral-200 mb-1 pb-1">
-                          <span className="text-neutral-900 font-bold text-[10px]">
+                          <span className="text-neutral-900 font-bold text-xs">
                             {getCheckLabel(checkNum - 1)}
                           </span>
-                          <span className="text-green-600 font-bold text-xs">
+                          <span className="text-green-600 font-bold text-sm">
                             ${checkTotals.total.toFixed(2)}
                           </span>
                         </div>
@@ -3694,31 +3694,31 @@ export function PaymentDialog({
                           {splitMode === 'evenly' ? (
                             // Evenly split shows summary
                             <div className="text-center py-0.5">
-                              <span className="text-neutral-500 text-[9px]">Split evenly</span>
-                              <div className="text-neutral-700 text-[10px]">
+                              <span className="text-neutral-500 text-[11px]">Split evenly</span>
+                              <div className="text-neutral-700 text-xs">
                                 ${checkTotals.total.toFixed(2)}
                               </div>
                             </div>
                           ) : checkItems.length > 0 ? (
                             checkItems.map(item => (
                               <div key={item.id} className="flex items-start justify-between">
-                                <span className="text-neutral-800 font-medium truncate flex-1 text-[9px]">
+                                <span className="text-neutral-800 font-medium truncate flex-1 text-[11px]">
                                   {item.qty}x {item.name}
                                 </span>
-                                <span className="text-neutral-700 font-medium ml-1 text-[9px]">
+                                <span className="text-neutral-700 font-medium ml-1 text-[11px]">
                                   ${(item.price * item.qty).toFixed(2)}
                                 </span>
                               </div>
                             ))
                           ) : (
                             <div className="text-center py-1">
-                              <span className="text-neutral-400 text-[9px]">No items</span>
+                              <span className="text-neutral-400 text-[11px]">No items</span>
                             </div>
                           )}
                         </div>
                         
                         {/* Subtotal & Tax */}
-                        <div className="border-t border-neutral-200 space-y-0 pt-1 text-[9px]">
+                        <div className="border-t border-neutral-200 space-y-0 pt-1 text-[11px]">
                           <div className="flex justify-between">
                             <span className="text-neutral-500">Subtotal</span>
                             <span className="text-neutral-700">${checkTotals.subtotal.toFixed(2)}</span>
@@ -3728,8 +3728,8 @@ export function PaymentDialog({
                             <span className="text-neutral-700">${checkTotals.tax.toFixed(2)}</span>
                           </div>
                           <div className="flex justify-between pt-0.5 border-t border-neutral-200">
-                            <span className="text-neutral-900 font-bold text-[10px]">Total</span>
-                            <span className="text-green-600 font-bold text-[10px]">${checkTotals.total.toFixed(2)}</span>
+                            <span className="text-neutral-900 font-bold text-xs">Total</span>
+                            <span className="text-green-600 font-bold text-xs">${checkTotals.total.toFixed(2)}</span>
                           </div>
                         </div>
                         
@@ -3737,7 +3737,7 @@ export function PaymentDialog({
                         <button
                           onClick={() => handlePayCheck(checkNum)}
                           disabled={isPaid || (splitMode !== 'evenly' && checkItems.length === 0)}
-                          className={`w-full rounded-md font-bold transition-colors mt-1.5 py-1 text-[10px] ${
+                          className={`w-full rounded-md font-bold transition-colors mt-1.5 py-1 text-xs ${
                             isPaid
                               ? 'bg-green-100 text-green-600 cursor-not-allowed'
                               : 'bg-green-500 text-white hover:bg-green-600'

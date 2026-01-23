@@ -3651,12 +3651,12 @@ export function PaymentDialog({
               </div>
 
               {/* Check Cards Grid - 3 per row with vertical scroll after 2 rows, left-aligned */}
-              <div className="flex-1 overflow-hidden p-2">
+              <div className="flex-1 overflow-hidden overflow-x-hidden p-2">
                 <div 
-                  className="overflow-y-auto"
-                  style={{ scrollbarWidth: 'none', maxHeight: 'calc(2 * (180px + 8px))' }}
+                  className="overflow-y-auto overflow-x-hidden scrollbar-hide"
+                  style={{ maxHeight: 'calc(2 * (180px + 8px))' }}
                 >
-                  <div className="grid grid-cols-3 gap-2 justify-items-start">
+                  <div className="grid grid-cols-3 gap-2">
                     {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => {
                       const checkItems = getItemsForCheck(checkNum);
                       const checkTotals = getCheckTotals(checkNum);
@@ -3665,7 +3665,7 @@ export function PaymentDialog({
                       return (
                         <div 
                           key={checkNum}
-                          className={`bg-neutral-800 border border-neutral-700 rounded-lg flex flex-col shadow-md relative overflow-hidden p-1.5 w-[200px] ${
+                          className={`bg-neutral-800 border border-neutral-700 rounded-lg flex flex-col shadow-md relative overflow-hidden p-1.5 w-full min-w-0 ${
                             isPaid ? 'opacity-60' : ''
                           }`}
                       >
@@ -3687,22 +3687,22 @@ export function PaymentDialog({
                         </div>
                         
                         {/* Items List - Scrollable */}
-                        <div className="flex-1 overflow-y-auto space-y-0.5 mb-1 max-h-16" style={{ scrollbarWidth: 'none' }}>
+                        <div className="flex-1 overflow-y-auto space-y-0.5 mb-1 max-h-16 scrollbar-hide">
                           {splitMode === 'evenly' ? (
                             // Evenly split shows summary
                             <div className="text-center py-0.5">
-                              <span className="text-neutral-400 text-[11px]">Split evenly</span>
+                              <span className="text-neutral-400 text-[11px] whitespace-nowrap">Split evenly</span>
                               <div className="text-neutral-200 text-xs">
                                 ${checkTotals.total.toFixed(2)}
                               </div>
                             </div>
                           ) : checkItems.length > 0 ? (
                             checkItems.map(item => (
-                              <div key={item.id} className="flex items-start justify-between">
-                                <span className="text-neutral-200 font-medium truncate flex-1 text-[11px]">
+                              <div key={item.id} className="flex items-start justify-between min-w-0">
+                                <span className="text-neutral-200 font-medium truncate flex-1 text-[11px] min-w-0">
                                   {item.qty}x {item.name}
                                 </span>
-                                <span className="text-neutral-300 font-medium ml-1 text-[11px]">
+                                <span className="text-neutral-300 font-medium ml-1 text-[11px] whitespace-nowrap">
                                   ${(item.price * item.qty).toFixed(2)}
                                 </span>
                               </div>

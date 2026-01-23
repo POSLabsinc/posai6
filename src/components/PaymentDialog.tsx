@@ -3653,13 +3653,13 @@ export function PaymentDialog({
                 </div>
               </div>
 
-              {/* Check Cards Grid - 3 per row with vertical scroll */}
+              {/* Check Cards Grid - 3 per row with vertical scroll after 2 rows */}
               <div className="flex-1 overflow-hidden p-2">
                 <div 
-                  className="h-full overflow-y-auto"
-                  style={{ scrollbarWidth: 'none' }}
+                  className="overflow-y-auto"
+                  style={{ scrollbarWidth: 'none', maxHeight: 'calc(2 * (180px + 8px))' }}
                 >
-                  <div className="flex flex-wrap gap-2 justify-center">
+                  <div className="grid grid-cols-3 gap-2 justify-items-center" style={{ maxWidth: 'calc(3 * 200px + 2 * 8px)', margin: '0 auto' }}>
                     {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => {
                       const checkItems = getItemsForCheck(checkNum);
                       const checkTotals = getCheckTotals(checkNum);

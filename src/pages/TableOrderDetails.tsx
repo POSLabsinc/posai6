@@ -1082,44 +1082,50 @@ const TableOrderDetails = () => {
 
                     {/* Main Content */}
                     <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                      {/* Row 1: Name + Table | Server (center) | Status */}
+                      {/* Row 1: Name | Server | Status - 50% | 25% | 25% */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="flex items-center gap-1 lg:gap-2 w-[160px] lg:w-[180px] flex-shrink-0">
+                        <div className="w-1/2 text-left">
                           <span className="text-white font-medium truncate">{guest.name}</span>
                         </div>
-                        <div className="flex-1 text-left pl-4">
+                        <div className="w-1/4 text-left">
                           <span className="text-white/60 truncate">{guest.server}</span>
                         </div>
-                        <span 
-                          className={`font-semibold uppercase flex-shrink-0 ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}
-                        >
-                          {guest.id === mergedOrderId && destOrderId ? 'MERGED' : (guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status)}
-                        </span>
+                        <div className="w-1/4 text-right">
+                          <span 
+                            className={`font-semibold uppercase ${guest.id === mergedOrderId && destOrderId ? 'text-amber-400' : getStatusColor(guest.status)}`}
+                          >
+                            {guest.id === mergedOrderId && destOrderId ? 'MERGED' : (guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status)}
+                          </span>
+                        </div>
                       </div>
                       
-                      {/* Row 2: Party info | Timer | Total */}
+                      {/* Row 2: Party info + Timer | empty | Total - 50% | 25% | 25% */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="flex items-center gap-1 text-white/60 w-[160px] lg:w-[180px] flex-shrink-0 whitespace-nowrap">
+                        <div className="w-1/2 text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
                           <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
                           <span>Party of {guest.partySize}, {guest.time}</span>
                           <span className="text-white/40">|</span>
                           <span>{orderTimers[guest.id] || guest.timer}</span>
                         </div>
-                        <div className="flex-1"></div>
-                        <span className="text-white font-semibold flex-shrink-0">{formatPrice(guest.total)}</span>
+                        <div className="w-1/4"></div>
+                        <div className="w-1/4 text-right">
+                          <span className="text-white font-semibold">{formatPrice(guest.total)}</span>
+                        </div>
                       </div>
                       
-                      {/* Row 3: Revenue Center | Payment Status (center) | Tip */}
+                      {/* Row 3: Revenue Center | Payment Status | Tip - 50% | 25% | 25% */}
                       <div className="flex items-center text-xs lg:text-sm">
-                        <div className="w-[160px] lg:w-[180px] flex-shrink-0">
+                        <div className="w-1/2 text-left">
                           <span className="text-white/60 truncate">{guest.revenueCenter}</span>
                         </div>
-                        <div className="flex-1 text-left pl-4">
+                        <div className="w-1/4 text-left">
                           {guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed' 
                             ? <MultiPaymentDisplay paymentMethods={guest.paymentMethods} paymentType={guest.paymentType} />
                             : <span className="text-white/60 truncate">Pending Payment</span>}
                         </div>
-                        <span className="text-white flex-shrink-0">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
+                        <div className="w-1/4 text-right">
+                          <span className="text-white">{guest.tip > 0 ? formatPrice(guest.tip) : '$0.00'}</span>
+                        </div>
                       </div>
                     </div>
                   </div>

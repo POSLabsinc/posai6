@@ -4,7 +4,7 @@ import {
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
   Mail, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, 
   UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, 
-  RefreshCw, Send, Zap, Users, Clock, Share2
+  RefreshCw, Send, Zap, Users, Clock, Share2, GripVertical
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -192,6 +192,10 @@ export function PaymentDialog({
   const [splitCheckReceiptNoMarketing, setSplitCheckReceiptNoMarketing] = useState(false);
   const [splitCheckLastPaidAmount, setSplitCheckLastPaidAmount] = useState(0);
 
+  // Custom Split drag-and-drop states
+  const [draggingItemId, setDraggingItemId] = useState<number | null>(null);
+  const [dragOverCheckNum, setDragOverCheckNum] = useState<number | null>(null);
+
   // Reset states when dialog opens
   useEffect(() => {
     if (open) {
@@ -230,6 +234,9 @@ export function PaymentDialog({
       setSplitCheckReceiptStep('options');
       setSplitCheckReceiptNoMarketing(false);
       setSplitCheckLastPaidAmount(0);
+      // Reset drag states
+      setDraggingItemId(null);
+      setDragOverCheckNum(null);
     }
   }, [open, total]);
 
@@ -4183,10 +4190,42 @@ export function PaymentDialog({
                       return (
                         <div 
                           key={checkNum}
-                          className={`bg-neutral-800 border border-neutral-700 rounded-lg flex flex-col shadow-md relative overflow-hidden p-1.5 w-full min-w-0 ${
+                          onDragOver={(e) => {
+                            if (splitMode === 'custom' && !isPaid) {
+                              e.preventDefault();
+                              setDragOverCheckNum(checkNum);
+                            }
+                          }}
+                          onDragLeave={() => setDragOverCheckNum(null)}
+                          onDrop={(e) => {
+                            if (splitMode === 'custom' && !isPaid) {
+                              e.preventDefault();
+                              const itemId = parseInt(e.dataTransfer.getData('itemId'));
+                              if (!isNaN(itemId)) {
+                                setCheckAssignments(prev => ({ ...prev, [itemId]: checkNum }));
+                              }
+                              setDragOverCheckNum(null);
+                              setDraggingItemId(null);
+                            }
+                          }}
+                          className={`bg-neutral-800 border rounded-lg flex flex-col shadow-md relative overflow-hidden p-1.5 w-full min-w-0 transition-all ${
                             isPaid ? 'opacity-60' : ''
+                          } ${
+                            splitMode === 'custom' && dragOverCheckNum === checkNum
+                              ? 'border-green-500 bg-green-500/10 scale-[1.02]'
+                              : 'border-neutral-700'
                           }`}
                       >
+                        {/* Drop indicator when dragging in custom mode */}
+                        {splitMode === 'custom' && draggingItemId !== null && !isPaid && (
+                          <div className={`absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity z-20 ${
+                            dragOverCheckNum === checkNum ? 'opacity-100' : 'opacity-0'
+                          }`}>
+                            <div className="bg-green-500/20 rounded-lg px-3 py-1.5">
+                              <span className="text-green-400 text-xs font-medium">Drop here</span>
+                            </div>
+                          </div>
+                        )}
                         {/* Paid Stamp */}
                         {isPaid && (
                           <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/40 font-bold rotate-[-15deg] pointer-events-none z-10 text-base">
@@ -4336,37 +4375,6 @@ export function PaymentDialog({
                   </div>
                 </div>
 
-                {/* Custom Split - Item Assignment UI */}
-                {splitMode === 'custom' && (
-                  <div className="mt-4 p-4 bg-neutral-800 rounded-xl">
-                    <h4 className="text-white font-medium text-sm mb-3">Assign Items to Checks</h4>
-                    <div className="space-y-2">
-                      {orderDetails.items.map(item => (
-                        <div 
-                          key={item.id}
-                          className="flex items-center justify-between p-2 bg-neutral-700 rounded-lg"
-                        >
-                          <span className="text-white text-sm">{item.qty}x {item.name}</span>
-                          <div className="flex gap-1">
-                            {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => (
-                              <button
-                                key={checkNum}
-                                onClick={() => toggleItemAssignment(item.id, checkNum)}
-                                className={`w-7 h-7 rounded-full text-xs font-bold transition-colors ${
-                                  checkAssignments[item.id] === checkNum
-                                    ? 'bg-green-500 text-white'
-                                    : 'bg-neutral-600 text-neutral-300 hover:bg-neutral-500'
-                                }`}
-                              >
-                                {checkNum}
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
           ) : (
@@ -4780,16 +4788,53 @@ export function PaymentDialog({
             className="flex-1 overflow-y-auto p-3 space-y-2" 
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
+            {/* Drag instruction for custom split */}
+            {selectedPaymentMethod === 'split-check' && splitMode === 'custom' && splitCheckPaymentStep === 'tickets' && (
+              <div className="mb-2 p-2 bg-neutral-700/50 rounded-lg border border-dashed border-neutral-600">
+                <p className="text-neutral-400 text-[10px] text-center flex items-center justify-center gap-1">
+                  <GripVertical className="w-3 h-3" />
+                  Drag items to assign to checks
+                </p>
+              </div>
+            )}
+            
             {orderDetails.items.map(item => {
               const itemSeats = item.assignedSeats || [];
               const isItemShared = item.isShared || itemSeats.length === 0;
+              const isInCustomSplitMode = selectedPaymentMethod === 'split-check' && splitMode === 'custom' && splitCheckPaymentStep === 'tickets';
+              const isAssigned = checkAssignments[item.id] !== undefined;
+              const assignedCheckNum = checkAssignments[item.id];
+              
               return (
                 <div 
                   key={item.id} 
-                  className="p-2 border border-sidebar-border rounded-lg" 
-                  style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                  draggable={isInCustomSplitMode}
+                  onDragStart={(e) => {
+                    if (isInCustomSplitMode) {
+                      e.dataTransfer.setData('itemId', item.id.toString());
+                      setDraggingItemId(item.id);
+                    }
+                  }}
+                  onDragEnd={() => {
+                    setDraggingItemId(null);
+                    setDragOverCheckNum(null);
+                  }}
+                  className={`p-2 border rounded-lg transition-all ${
+                    isInCustomSplitMode
+                      ? 'cursor-grab active:cursor-grabbing hover:border-green-500/50'
+                      : ''
+                  } ${
+                    draggingItemId === item.id ? 'opacity-50 border-green-500' : 'border-sidebar-border'
+                  } ${
+                    isAssigned && isInCustomSplitMode ? 'border-green-500/30 bg-green-500/5' : ''
+                  }`}
+                  style={{ background: draggingItemId === item.id ? undefined : 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
                 >
                   <div className="flex items-center gap-2">
+                    {/* Drag handle for custom split mode */}
+                    {isInCustomSplitMode && (
+                      <GripVertical className="w-3 h-3 text-neutral-500 flex-shrink-0" />
+                    )}
                     <span className="w-5 h-5 rounded bg-neutral-700 border border-neutral-600 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
                       {item.qty}
                     </span>
@@ -4813,6 +4858,29 @@ export function PaymentDialog({
                           ))
                         )}
                       </div>
+                      
+                      {/* Show assigned check badge in custom split mode */}
+                      {isAssigned && isInCustomSplitMode && (
+                        <div className="flex items-center justify-between mt-1">
+                          <span className="text-green-400 text-[10px]">
+                            → {getCheckLabel(assignedCheckNum - 1)}
+                          </span>
+                          <button 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              e.preventDefault();
+                              setCheckAssignments(prev => {
+                                const newAssignments = { ...prev };
+                                delete newAssignments[item.id];
+                                return newAssignments;
+                              });
+                            }}
+                            className="text-red-400 hover:text-red-300 text-[10px] font-medium"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

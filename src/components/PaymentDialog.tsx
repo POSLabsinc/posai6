@@ -609,95 +609,234 @@ export function PaymentDialog({
           selectedPaymentMethod === 'split-check' ? 'w-full' : 'w-[480px]'
         }`}>
           {paymentProcessed ? (
-            // Receipt Screen
-            <div className="flex-1 flex flex-col items-center py-8 px-6">
-              {/* Success Icon */}
-              <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-4" />
-              
-              <p className="text-neutral-300 text-sm mb-6">
-                <span className="text-green-500 font-medium">${totalPaid.toFixed(2)}</span> has been successfully processed
-              </p>
-
-              {/* Change Due / Due Amount Box */}
-              {isFullyPaid ? (
-                <div className="w-full max-w-xs mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
-                  <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
-                  <p className="text-green-500 text-3xl font-bold text-center">
-                    ${Math.abs(remainingDue).toFixed(2)}
-                  </p>
+            // Receipt Screen with Text/Email input handling
+            textReceiptStep === 'phone-input' ? (
+              // Text Receipt Phone Input Screen
+              <div className="flex flex-col flex-1">
+                {/* Header with Back Button */}
+                <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => setTextReceiptStep('receipt')}
+                      className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                    </button>
+                    <span className="text-white text-lg font-medium">Text Receipt</span>
+                  </div>
                 </div>
-              ) : (
-                <div className="w-full max-w-xs mb-4 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
-                  <p className="text-red-500 text-sm text-center mb-1">Due Amount</p>
-                  <p className="text-red-500 text-3xl font-bold text-center">
-                    ${remainingDue.toFixed(2)}
-                  </p>
+                
+                <div className="px-4 pt-4 pb-2 text-center">
+                  <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
                 </div>
-              )}
-
-              {/* Pay Remaining Button - Show when there's still due amount */}
-              {!isFullyPaid && (
-                <div className="w-full max-w-xs mb-6">
-                  <button
-                    onClick={() => {
-                      setPaymentAmount(remainingDue.toFixed(2));
-                      setPaymentProcessed(false);
-                      setSelectedPaymentMethod('cash');
-                      setAmountQuantities({});
-                      setGiftCardStep('amount');
-                      setGiftCardNumber('');
-                      setPayByLinkStep('amount');
-                      setQrCodeStep('amount');
-                      setManualCCStep('amount');
-                      setExternalCCStep('amount');
-                      setManualCardStep('amount');
-                      setDoordashStep('amount');
-                      setBlizzfulStep('amount');
-                      setUbereatsStep('amount');
-                      setGrubhubStep('amount');
-                      setLoyaltyStep('guest-list');
-                    }}
-                    className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
+                <div className="px-4 mb-2">
+                  <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                    <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
+                      <span className="text-white text-xs font-medium">US +1</span>
+                      <ChevronDown className="w-3 h-3 text-neutral-400" />
+                    </div>
+                    <input type="text" placeholder="(000) 000-0000" value={textReceiptPhone} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                  </div>
+                </div>
+                <div className="px-4 mb-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <div onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${textReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
+                      {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                    </div>
+                    <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
+                  </label>
+                </div>
+                <div className="px-4 mb-2 text-center">
+                  <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
+                </div>
+                <div className="px-4 mb-2">
+                  <button 
+                    onClick={() => { 
+                      setTextReceiptStep('receipt'); 
+                      setTextReceiptPhone('');
+                      handleComplete(); 
+                    }} 
+                    disabled={textReceiptPhone.replace(/\D/g, '').length < 10} 
+                    className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
                   >
-                    PAY REMAINING ${remainingDue.toFixed(2)}
+                    SEND
                   </button>
                 </div>
-              )}
+                <div className="flex-1 flex flex-col justify-end px-4 pb-4">
+                  <div className="grid grid-cols-3 gap-2">
+                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => (
+                      <button key={key} onClick={() => { if (key === 'delete') { const digits = textReceiptPhone.replace(/\D/g, ''); const newDigits = digits.slice(0, -1); if (newDigits.length === 0) { setTextReceiptPhone(''); } else if (newDigits.length <= 3) { setTextReceiptPhone(`(${newDigits}`); } else if (newDigits.length <= 6) { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`); } else { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`); } } else if (key !== '') { const digits = textReceiptPhone.replace(/\D/g, ''); if (digits.length < 10) { const newDigits = digits + key; if (newDigits.length <= 3) { setTextReceiptPhone(`(${newDigits}`); } else if (newDigits.length <= 6) { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`); } else { setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`); } } } }} className={`h-12 rounded-lg text-lg font-medium transition-colors ${key === '' ? 'invisible' : key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}>{key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}</button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : emailReceiptStep === 'email-input' ? (
+              // Email Receipt Input Screen
+              <div className="flex flex-col flex-1">
+                {/* Header with Back Button */}
+                <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                  <div className="flex items-center gap-3">
+                    <button 
+                      onClick={() => setEmailReceiptStep('receipt')}
+                      className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                    </button>
+                    <span className="text-white text-lg font-medium">Email Receipt</span>
+                  </div>
+                </div>
+                
+                <div className="px-4 pt-4 pb-2 text-center">
+                  <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
+                </div>
+                <div className="px-4 mb-2">
+                  <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
+                    <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600"><Mail className="w-4 h-4 text-neutral-400" /></div>
+                    <input type="email" placeholder="email@example.com" value={emailReceiptEmail} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
+                  </div>
+                </div>
+                <div className="px-4 mb-2">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <div onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${emailReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
+                      {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
+                    </div>
+                    <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
+                  </label>
+                </div>
+                <div className="px-4 mb-2 text-center">
+                  <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
+                </div>
+                <div className="px-4 mb-2">
+                  <button 
+                    onClick={() => { 
+                      setEmailReceiptStep('receipt'); 
+                      setEmailReceiptEmail('');
+                      handleComplete(); 
+                    }} 
+                    disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} 
+                    className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+                  >
+                    SEND
+                  </button>
+                </div>
+                {/* Email Keyboard */}
+                <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
+                  <div className="flex flex-1">
+                    {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                  </div>
+                  <div className="flex flex-1">
+                    {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                  </div>
+                  <div className="flex flex-1 px-2">
+                    {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                  </div>
+                  <div className="flex flex-1">
+                    <div className="w-10"></div>
+                    {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><span className="text-white text-lg font-medium">{key}</span></button>)}
+                    <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600"><Delete className="w-5 h-5 text-neutral-400" /></button>
+                  </div>
+                  <div className="flex flex-1 gap-1 px-1">
+                    <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">@</span></button>
+                    <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">.</span></button>
+                    <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">_</span></button>
+                    <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-lg font-medium">-</span></button>
+                    <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.com</span></button>
+                    <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-sm font-medium">.net</span></button>
+                    <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500"><span className="text-white text-xs font-medium">@gmail</span></button>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Default Receipt Screen
+              <div className="flex-1 flex flex-col items-center py-8 px-6">
+                {/* Success Icon */}
+                <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-4" />
+                
+                <p className="text-neutral-300 text-sm mb-6">
+                  <span className="text-green-500 font-medium">${totalPaid.toFixed(2)}</span> has been successfully processed
+                </p>
 
-              {/* Receipt Section */}
-              <div className="w-full max-w-xs">
-                <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
-                <div className="flex gap-4 justify-center mb-4">
+                {/* Change Due / Due Amount Box */}
+                {isFullyPaid ? (
+                  <div className="w-full max-w-xs mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
+                    <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
+                    <p className="text-green-500 text-3xl font-bold text-center">
+                      ${Math.abs(remainingDue).toFixed(2)}
+                    </p>
+                  </div>
+                ) : (
+                  <div className="w-full max-w-xs mb-4 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
+                    <p className="text-red-500 text-sm text-center mb-1">Due Amount</p>
+                    <p className="text-red-500 text-3xl font-bold text-center">
+                      ${remainingDue.toFixed(2)}
+                    </p>
+                  </div>
+                )}
+
+                {/* Pay Remaining Button - Show when there's still due amount */}
+                {!isFullyPaid && (
+                  <div className="w-full max-w-xs mb-6">
+                    <button
+                      onClick={() => {
+                        setPaymentAmount(remainingDue.toFixed(2));
+                        setPaymentProcessed(false);
+                        setSelectedPaymentMethod('cash');
+                        setAmountQuantities({});
+                        setGiftCardStep('amount');
+                        setGiftCardNumber('');
+                        setPayByLinkStep('amount');
+                        setQrCodeStep('amount');
+                        setManualCCStep('amount');
+                        setExternalCCStep('amount');
+                        setManualCardStep('amount');
+                        setDoordashStep('amount');
+                        setBlizzfulStep('amount');
+                        setUbereatsStep('amount');
+                        setGrubhubStep('amount');
+                        setLoyaltyStep('guest-list');
+                      }}
+                      className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
+                    >
+                      PAY REMAINING ${remainingDue.toFixed(2)}
+                    </button>
+                  </div>
+                )}
+
+                {/* Receipt Section */}
+                <div className="w-full max-w-xs">
+                  <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
+                  <div className="flex gap-4 justify-center mb-4">
+                    <button 
+                      onClick={handleComplete}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                    >
+                      <Printer className="w-6 h-6 text-neutral-400" />
+                      <span className="text-neutral-400 text-sm">Print</span>
+                    </button>
+                    <button 
+                      onClick={() => setTextReceiptStep('phone-input')}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                    >
+                      <MessageSquare className="w-6 h-6 text-neutral-400" />
+                      <span className="text-neutral-400 text-sm">Text</span>
+                    </button>
+                    <button 
+                      onClick={() => setEmailReceiptStep('email-input')}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                    >
+                      <Mail className="w-6 h-6 text-neutral-400" />
+                      <span className="text-neutral-400 text-sm">Email</span>
+                    </button>
+                  </div>
                   <button 
                     onClick={handleComplete}
-                    className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                    className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                   >
-                    <Printer className="w-6 h-6 text-neutral-400" />
-                    <span className="text-neutral-400 text-sm">Print</span>
-                  </button>
-                  <button 
-                    onClick={() => setTextReceiptStep('phone-input')}
-                    className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
-                  >
-                    <MessageSquare className="w-6 h-6 text-neutral-400" />
-                    <span className="text-neutral-400 text-sm">Text</span>
-                  </button>
-                  <button 
-                    onClick={() => setEmailReceiptStep('email-input')}
-                    className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
-                  >
-                    <Mail className="w-6 h-6 text-neutral-400" />
-                    <span className="text-neutral-400 text-sm">Email</span>
+                    NO RECEIPT
                   </button>
                 </div>
-                <button 
-                  onClick={handleComplete}
-                  className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
-                >
-                  NO RECEIPT
-                </button>
               </div>
-            </div>
+            )
           ) : selectedPaymentMethod === 'loyalty' ? (
             /* ============= FULL LOYALTY FLOW - REPLACES ENTIRE PANEL ============= */
             <>

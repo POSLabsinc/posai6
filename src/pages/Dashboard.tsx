@@ -26,7 +26,7 @@ import runnerIcon from "@/assets/icons/runner.png";
 import tickSuccessIcon from "@/assets/icons/tick-success.svg";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
-import { getDashboardOrders, DashboardOrder, DashboardOrderItem, PaymentMethod } from "@/data/orders";
+import { getDashboardOrders, DashboardOrder, DashboardOrderItem, PaymentMethod, formatTableName } from "@/data/orders";
 import receiptIcon from "@/assets/icons/receipt-icon.svg";
 import registerIcon from "@/assets/icons/register-icon.svg";
 
@@ -4972,8 +4972,8 @@ const Dashboard = () => {
           {/* Orders List with Scroll */}
           <ScrollArea className="flex-1 min-h-0">
             <div className="space-y-2 pr-2">
-              {filteredOrders.map(order => <div key={order.id} onClick={() => handleOrderClick(order)} className={`rounded-xl cursor-pointer transition-all overflow-hidden ${selectedOrder?.id === order.id ? "border border-white" : "border border-white/10"}`} style={{
-              background: "#2A2A2A"
+              {filteredOrders.map(order => <div key={order.id} onClick={() => handleOrderClick(order)} className={`rounded-xl cursor-pointer transition-all overflow-hidden border ${selectedOrder?.id === order.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+              backgroundColor: "#1B1C20"
             }}>
                 {/* Mobile Layout */}
                 <div className="flex items-stretch w-full md:hidden p-3">
@@ -4990,7 +4990,7 @@ const Dashboard = () => {
                     <div className="flex flex-col gap-1">
                       {/* Row 1: Name - Table, Server, Status */}
                       <div className="flex items-center justify-between">
-                        <span className="text-white font-medium text-sm">{order.guest} · {order.table}</span>
+                        <span className="text-white font-medium text-sm">{order.guest} · {formatTableName(order.table)}</span>
                         <div className="flex items-center gap-2">
                           <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
                           <span className="text-sm font-medium" style={{ color: order.statusColor }}>
@@ -5041,7 +5041,7 @@ const Dashboard = () => {
                         {/* Row 1: Name - Table | Server | Status - 45% | 35% | 20% */}
                         <div className="flex items-center text-xs lg:text-sm">
                           <div className="w-[45%] text-left">
-                            <span className="text-white font-medium truncate">{order.guest} · {order.table}</span>
+                            <span className="text-white font-medium truncate">{order.guest} · {formatTableName(order.table)}</span>
                           </div>
                           <div className="w-[35%] text-left pl-4">
                             <span className="text-white/60 truncate">{order.server}</span>

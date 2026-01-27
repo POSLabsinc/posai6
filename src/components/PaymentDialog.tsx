@@ -177,6 +177,10 @@ export function PaymentDialog({
   const [numberOfChecks, setNumberOfChecks] = useState(2);
   const [checkAssignments, setCheckAssignments] = useState<Record<number, number>>({}); // Maps item.id -> check number
   const [paidChecks, setPaidChecks] = useState<number[]>([]); // Track which checks have been paid
+  
+  // Split Check ticket-by-ticket payment flow
+  const [activePayingCheck, setActivePayingCheck] = useState<number | null>(null); // Which check is being paid
+  const [splitCheckPaymentStep, setSplitCheckPaymentStep] = useState<'tickets' | 'payment'>('tickets');
 
   // Reset states when dialog opens
   useEffect(() => {
@@ -209,6 +213,8 @@ export function PaymentDialog({
       setNumberOfChecks(2);
       setCheckAssignments({});
       setPaidChecks([]);
+      setActivePayingCheck(null);
+      setSplitCheckPaymentStep('tickets');
     }
   }, [open, total]);
 
@@ -279,22 +285,65 @@ export function PaymentDialog({
     }
   };
 
-  // Handle paying a specific check
+  // Handle initiating payment for a specific check - transitions to payment method selection
   const handlePayCheck = (checkNumber: number) => {
     const checkTotals = getCheckTotals(checkNumber);
+    setActivePayingCheck(checkNumber);
+    setSplitCheckPaymentStep('payment');
     setPaymentAmount(checkTotals.total.toFixed(2));
-    setPaidChecks(prev => [...prev, checkNumber]);
-    setPaymentHistory(prev => [...prev, { 
-      method: 'cash', 
-      amount: checkTotals.total, 
-      methodLabel: `Cash (${getCheckLabel(checkNumber - 1)})` 
-    }]);
-    setPaidAmount(prev => prev + checkTotals.total);
+    setSelectedPaymentMethod('cash'); // Default to cash, user can change
+    setAmountQuantities({});
+    // Reset any payment method specific steps
+    setGiftCardStep('amount');
+    setPayByLinkStep('amount');
+    setQrCodeStep('amount');
+    setManualCCStep('amount');
+    setExternalCCStep('amount');
+    setManualCardStep('amount');
+    setDoordashStep('amount');
+    setBlizzfulStep('amount');
+    setUbereatsStep('amount');
+    setGrubhubStep('amount');
+    setLoyaltyStep('guest-list');
+  };
+
+  // Handle completing payment for a split check ticket
+  const handleSplitCheckPaymentComplete = () => {
+    if (activePayingCheck === null) return;
     
-    // Check if all checks are paid
+    const amount = parseFloat(paymentAmount) || 0;
+    const methodLabel = getMethodLabel(selectedPaymentMethod);
+    const checkLabel = getCheckLabel(activePayingCheck - 1);
+    
+    // Mark check as paid
+    setPaidChecks(prev => [...prev, activePayingCheck]);
+    
+    // Record payment with check info
+    setPaymentHistory(prev => [...prev, { 
+      method: selectedPaymentMethod, 
+      amount, 
+      methodLabel: `${methodLabel} (${checkLabel})` 
+    }]);
+    
+    // Update paid amount
+    setPaidAmount(prev => prev + amount);
+    
+    // Check if all checks are now paid
     if (paidChecks.length + 1 >= numberOfChecks) {
       setPaymentProcessed(true);
+    } else {
+      // Return to split check ticket view
+      setActivePayingCheck(null);
+      setSplitCheckPaymentStep('tickets');
+      setSelectedPaymentMethod('split-check');
     }
+  };
+
+  // Handle going back from split check payment to ticket view
+  const handleBackToSplitCheck = () => {
+    setActivePayingCheck(null);
+    setSplitCheckPaymentStep('tickets');
+    setSelectedPaymentMethod('split-check');
   };
 
   // Toggle item assignment for custom split
@@ -440,6 +489,12 @@ export function PaymentDialog({
     // For Grubhub, go to reference step first
     if (selectedPaymentMethod === 'grubhub' && grubhubStep === 'amount') {
       setGrubhubStep('reference');
+      return;
+    }
+    
+    // If paying a split check ticket, use the split check completion handler
+    if (activePayingCheck !== null) {
+      handleSplitCheckPaymentComplete();
       return;
     }
     
@@ -3579,7 +3634,7 @@ export function PaymentDialog({
                 </>
               )}
             </>
-          ) : selectedPaymentMethod === 'split-check' ? (
+          ) : selectedPaymentMethod === 'split-check' && activePayingCheck === null ? (
             /* ============= REDESIGNED SPLIT CHECK FLOW - CHECK CARDS LAYOUT ============= */
             <div className="flex flex-col h-full">
               {/* Header */}
@@ -3786,14 +3841,38 @@ export function PaymentDialog({
               {/* ============= STANDARD PAYMENT ENTRY VIEW ============= */}
               {/* Header Section */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-700">
-                <div className="flex-1" />
+                <div className="flex-1 flex items-center">
+                  {activePayingCheck !== null && (
+                    <button 
+                      onClick={handleBackToSplitCheck}
+                      className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors mr-2"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                    </button>
+                  )}
+                </div>
                 <div className="flex items-center">
-                  <span className="text-white text-lg font-medium">Total Due</span>
-                  <span className="text-red-500 text-lg font-bold ml-2">${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
+                  {activePayingCheck !== null ? (
+                    <>
+                      <span className="text-white text-lg font-medium">Pay {getCheckLabel(activePayingCheck - 1)}</span>
+                      <span className="text-red-500 text-lg font-bold ml-2">${paymentAmount}</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-white text-lg font-medium">Total Due</span>
+                      <span className="text-red-500 text-lg font-bold ml-2">${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
+                    </>
+                  )}
                 </div>
                 <div className="flex-1 flex justify-end">
                   <button 
-                    onClick={() => onOpenChange(false)}
+                    onClick={() => {
+                      if (activePayingCheck !== null) {
+                        handleBackToSplitCheck();
+                      } else {
+                        onOpenChange(false);
+                      }
+                    }}
                     className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
                   >
                     <X className="w-5 h-5 text-neutral-400" />
@@ -3801,10 +3880,10 @@ export function PaymentDialog({
                 </div>
               </div>
 
-              {/* Payment Methods - Row of 6 icons */}
+              {/* Payment Methods - Row of icons */}
               <div className="px-6 py-4 border-b border-neutral-700">
                 <div className="relative">
-                  <div className="grid grid-cols-7 gap-2">
+                  <div className={`grid gap-2 ${activePayingCheck !== null ? 'grid-cols-6' : 'grid-cols-7'}`}>
                     {visiblePaymentMethods.map((method) => {
                       const IconComponent = method.icon;
                       return (
@@ -3838,26 +3917,28 @@ export function PaymentDialog({
                       );
                     })}
 
-                    {/* Split Check button */}
-                    <button 
-                      onClick={() => setSelectedPaymentMethod('split-check')}
-                      className="flex flex-col items-center gap-1"
-                    >
-                      <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
-                        selectedPaymentMethod === 'split-check' 
-                          ? 'bg-white border-white' 
-                          : 'bg-neutral-700 border-neutral-600 hover:border-neutral-500'
-                      }`}>
-                        <img 
-                          src={splitCheckIcon} 
-                          alt="Split Check" 
-                          className={`w-5 h-5 ${selectedPaymentMethod === 'split-check' ? 'invert' : ''}`}
-                        />
-                      </div>
-                      <span className={`text-[10px] ${selectedPaymentMethod === 'split-check' ? 'text-white' : 'text-neutral-400'}`}>
-                        Split Check
-                      </span>
-                    </button>
+                    {/* Split Check button - hidden when paying a split check ticket */}
+                    {activePayingCheck === null && (
+                      <button 
+                        onClick={() => setSelectedPaymentMethod('split-check')}
+                        className="flex flex-col items-center gap-1"
+                      >
+                        <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
+                          selectedPaymentMethod === 'split-check' 
+                            ? 'bg-white border-white' 
+                            : 'bg-neutral-700 border-neutral-600 hover:border-neutral-500'
+                        }`}>
+                          <img 
+                            src={splitCheckIcon} 
+                            alt="Split Check" 
+                            className={`w-5 h-5 ${selectedPaymentMethod === 'split-check' ? 'invert' : ''}`}
+                          />
+                        </div>
+                        <span className={`text-[10px] ${selectedPaymentMethod === 'split-check' ? 'text-white' : 'text-neutral-400'}`}>
+                          Split Check
+                        </span>
+                      </button>
+                    )}
 
                     {/* Other dropdown button */}
                     <button 
@@ -4081,7 +4162,10 @@ export function PaymentDialog({
                       onClick={handleChargePayment}
                       className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
                     >
-                      CHARGE ${paymentAmount}
+                      {activePayingCheck !== null 
+                        ? `PAY ${getCheckLabel(activePayingCheck - 1)} - $${paymentAmount}`
+                        : `CHARGE $${paymentAmount}`
+                      }
                     </button>
                   </div>
             </>

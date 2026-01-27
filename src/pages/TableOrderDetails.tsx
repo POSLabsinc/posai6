@@ -667,12 +667,19 @@ const TableOrderDetails = () => {
                     </div>
                     <span className="text-white font-medium text-sm">{formatPrice(item.price * item.qty)}</span>
                   </div>
-                  {item.seats.length > 0 && <div className="flex items-center gap-1 mt-2">
-                      <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                      {item.seats.map(seat => <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
+                  {/* Show seat indicator for all items */}
+                  <div className="flex items-center gap-1 mt-2">
+                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                    {item.isShared || item.seats.length === 0 || item.seats.length === currentSelectedGuest?.partySize ? (
+                      <span className="w-5 h-5 rounded bg-white/20 text-white flex items-center justify-center">
+                        <Share2 className="w-3 h-3" />
+                      </span>
+                    ) : (
+                      item.seats.map(seat => <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
                           {seat}
-                        </span>)}
-                    </div>}
+                        </span>)
+                    )}
+                  </div>
                 </div>
               ));
             })()}
@@ -1581,25 +1588,24 @@ const TableOrderDetails = () => {
                           })()}
                           
                           {/* Seat Assignment Display */}
-                          {item.seats.length > 0 && (
-                            <div className="mt-1.5 flex items-center gap-1.5">
-                              <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
-                              {item.seats.length === 4 ? (
-                                <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
-                                  <Share2 className="w-3 h-3" />
+                          {/* Show seat indicator for all items */}
+                          <div className="mt-1.5 flex items-center gap-1.5">
+                            <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
+                            {item.isShared || item.seats.length === 0 || item.seats.length === currentSelectedGuest?.partySize ? (
+                              <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                                <Share2 className="w-3 h-3" />
+                              </span>
+                            ) : (
+                              item.seats.map(seat => (
+                                <span 
+                                  key={seat}
+                                  className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                                >
+                                  {seat}
                                 </span>
-                              ) : (
-                                item.seats.map(seat => (
-                                  <span 
-                                    key={seat}
-                                    className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
-                                  >
-                                    {seat}
-                                  </span>
-                                ))
-                              )}
-                            </div>
-                          )}
+                              ))
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -2085,16 +2091,21 @@ const TableOrderDetails = () => {
                               </div>
                               <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
                             </div>
-                            {item.seats.length > 0 && (
-                              <div className="flex items-center gap-1 mt-2">
-                                <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                                {item.seats.map(seat => (
+                            {/* Show seat indicator for all items */}
+                            <div className="flex items-center gap-1 mt-2">
+                              <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                              {item.isShared || item.seats.length === 0 || item.seats.length === currentSelectedGuest?.partySize ? (
+                                <span className="w-5 h-5 rounded bg-white/20 text-white flex items-center justify-center">
+                                  <Share2 className="w-3 h-3" />
+                                </span>
+                              ) : (
+                                item.seats.map(seat => (
                                   <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
                                     {seat}
                                   </span>
-                                ))}
-                              </div>
-                            )}
+                                ))
+                              )}
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -2182,16 +2193,21 @@ const TableOrderDetails = () => {
                           </div>
                           <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
                         </div>
-                        {item.seats.length > 0 && (
-                          <div className="flex items-center gap-1 mt-2">
-                            <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                            {item.seats.map(seat => (
+                        {/* Show seat indicator for all items */}
+                        <div className="flex items-center gap-1 mt-2">
+                          <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                          {item.isShared || item.seats.length === 0 || item.seats.length === currentSelectedGuest?.partySize ? (
+                            <span className="w-5 h-5 rounded bg-white/20 text-white flex items-center justify-center">
+                              <Share2 className="w-3 h-3" />
+                            </span>
+                          ) : (
+                            item.seats.map(seat => (
                               <span key={seat} className={`w-5 h-5 rounded text-white text-xs flex items-center justify-center ${selectedSeats.includes(seat) ? 'bg-white/30' : 'bg-white/10'}`}>
                                 {seat}
                               </span>
-                            ))}
-                          </div>
-                        )}
+                            ))
+                          )}
+                        </div>
                       </div>
                     ));
                   })()

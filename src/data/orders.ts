@@ -100,7 +100,7 @@ export const allOrders: Order[] = [
       { qty: 2, name: "Classic Crispy Burger", price: 12.00, seats: [1, 2], modifiers: [] },
       { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: ["Extra Sauce"], isShared: true },
       { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
-      { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette", "- Medium Rare", "+ W/ Potato Wedges"] }
+      { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette", "- Medium Rare", "+ W/ Potato Wedges"], isShared: true }
     ]
   },
   
@@ -127,8 +127,8 @@ export const allOrders: Order[] = [
       { qty: 1, name: "New York Strip Steak", price: 28.00, seats: [1], modifiers: ["Medium Rare", "+ Garlic Butter"] },
       { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [2], modifiers: ["No Lemon"] },
       { qty: 1, name: "Caesar Salad", price: 12.00, seats: [3], modifiers: ["Extra Croutons", "Dressing on Side"] },
-      { qty: 3, name: "Glass of Red Wine", price: 9.00, seats: [], modifiers: [] },
-      { qty: 1, name: "Chocolate Lava Cake", price: 10.00, seats: [], modifiers: ["+ Extra Ice Cream"] }
+      { qty: 3, name: "Glass of Red Wine", price: 9.00, seats: [], modifiers: [], isShared: true },
+      { qty: 1, name: "Chocolate Lava Cake", price: 10.00, seats: [], modifiers: ["+ Extra Ice Cream"], isShared: true }
     ]
   },
   
@@ -153,9 +153,9 @@ export const allOrders: Order[] = [
     tipAmount: 15.00,
     items: [
       { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust"] },
-      { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"] },
-      { qty: 2, name: "Tiramisu", price: 9.00, seats: [], modifiers: [] },
-      { qty: 2, name: "Espresso", price: 4.00, seats: [], modifiers: [] }
+      { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"], isShared: true },
+      { qty: 2, name: "Tiramisu", price: 9.00, seats: [], modifiers: [], isShared: true },
+      { qty: 2, name: "Espresso", price: 4.00, seats: [], modifiers: [], isShared: true }
     ]
   },
   
@@ -188,8 +188,8 @@ export const allOrders: Order[] = [
       { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium", "Peppercorn Sauce"] },
       { qty: 2, name: "Vegetable Risotto", price: 22.00, seats: [5, 6], modifiers: ["Extra Parmesan"] },
       { qty: 6, name: "House Salad", price: 8.00, seats: [], modifiers: [], isShared: true },
-      { qty: 2, name: "Bottle of Champagne", price: 85.00, seats: [], modifiers: [] },
-      { qty: 6, name: "Cheesecake", price: 11.00, seats: [], modifiers: [] }
+      { qty: 2, name: "Bottle of Champagne", price: 85.00, seats: [], modifiers: [], isShared: true },
+      { qty: 6, name: "Cheesecake", price: 11.00, seats: [], modifiers: [], isShared: true }
     ]
   },
   
@@ -214,7 +214,7 @@ export const allOrders: Order[] = [
     tipAmount: 5.00,
     items: [
       { qty: 1, name: "Classic Burger", price: 15.00, seats: [1], modifiers: ["No Pickles", "+ Bacon"] },
-      { qty: 1, name: "Craft IPA", price: 8.00, seats: [], modifiers: [] }
+      { qty: 1, name: "Craft IPA", price: 8.00, seats: [], modifiers: [], isShared: true }
     ]
   },
   
@@ -314,10 +314,10 @@ export const allOrders: Order[] = [
     paymentStatus: "Un Paid",
     tipAmount: 18.00,
     items: [
-      { qty: 2, name: "BBQ Ribs (Full)", price: 26.00, seats: [], modifiers: ["Extra BBQ Sauce"] },
-      { qty: 2, name: "Coleslaw", price: 5.00, seats: [], modifiers: [] },
-      { qty: 2, name: "Mac & Cheese", price: 8.00, seats: [], modifiers: [] },
-      { qty: 4, name: "Cornbread", price: 3.00, seats: [], modifiers: [] }
+      { qty: 2, name: "BBQ Ribs (Full)", price: 26.00, seats: [], modifiers: ["Extra BBQ Sauce"], isShared: true },
+      { qty: 2, name: "Coleslaw", price: 5.00, seats: [], modifiers: [], isShared: true },
+      { qty: 2, name: "Mac & Cheese", price: 8.00, seats: [], modifiers: [], isShared: true },
+      { qty: 4, name: "Cornbread", price: 3.00, seats: [], modifiers: [], isShared: true }
     ]
   },
   
@@ -344,8 +344,8 @@ export const allOrders: Order[] = [
       { qty: 3, name: "Grilled Chicken Breast", price: 22.00, seats: [1, 2, 3], modifiers: ["Lemon Herb"] },
       { qty: 2, name: "Pan-Seared Duck", price: 32.00, seats: [4, 5], modifiers: ["Orange Glaze"] },
       { qty: 1, name: "Asparagus Bundle", price: 12.00, seats: [], modifiers: [], isShared: true },
-      { qty: 5, name: "Sparkling Water", price: 4.00, seats: [], modifiers: [] },
-      { qty: 2, name: "Crème Brûlée", price: 10.00, seats: [], modifiers: [] }
+      { qty: 5, name: "Sparkling Water", price: 4.00, seats: [], modifiers: [], isShared: true },
+      { qty: 2, name: "Crème Brûlée", price: 10.00, seats: [], modifiers: [], isShared: true }
     ]
   }
 ];

@@ -2306,11 +2306,14 @@ const TableOrderDetails = () => {
           phone: currentSelectedGuest?.phone,
           table: tableId,
           check: currentSelectedGuest?.id,
+          partySize: currentSelectedGuest?.partySize || 4,
           items: currentSelectedGuest?.items.map((item, index) => ({
             id: index + 1,
             qty: item.qty,
             name: item.name,
-            price: item.price * item.qty
+            price: item.price * item.qty,
+            assignedSeats: item.seats || [],
+            isShared: item.isShared || false
           })) || []
         }}
         subtotal={currentSelectedGuest?.subtotal || 0}

@@ -17,6 +17,8 @@ export interface PaymentDialogOrderItem {
   qty: number;
   name: string;
   price: number;
+  assignedSeats?: number[];  // Which seats this item belongs to
+  isShared?: boolean;        // If true, split cost among all seats
 }
 
 export interface PaymentDialogOrderDetails {
@@ -24,6 +26,7 @@ export interface PaymentDialogOrderDetails {
   phone?: string;
   table?: string;
   check?: number | string;
+  partySize?: number;        // Number of guests at the table
   items: PaymentDialogOrderItem[];
 }
 
@@ -264,16 +267,31 @@ export function PaymentDialog({
     return `Check ${baseCheck}${letters[index]}`;
   };
 
+  // Get ticket label based on split mode
+  const getTicketLabel = (checkNumber: number) => {
+    if (splitMode === 'seat') {
+      return `Seat ${checkNumber}`;
+    }
+    return getCheckLabel(checkNumber - 1);
+  };
+
   // Calculate items for each check based on split mode
   const getItemsForCheck = (checkNumber: number): PaymentDialogOrderItem[] => {
     if (splitMode === 'evenly') {
       // In evenly mode, all items belong to all checks (total is split)
       return orderDetails.items;
     } else if (splitMode === 'seat') {
-      // Split by seat - for now just divide items evenly among checks
-      const itemsPerCheck = Math.ceil(orderDetails.items.length / numberOfChecks);
-      const startIdx = (checkNumber - 1) * itemsPerCheck;
-      return orderDetails.items.slice(startIdx, startIdx + itemsPerCheck);
+      // checkNumber corresponds to seat number
+      const seatNumber = checkNumber;
+      
+      return orderDetails.items.filter(item => {
+        // Shared items or items with no seat assignment appear on all tickets
+        if (item.isShared || (item.assignedSeats?.length === 0)) {
+          return true;
+        }
+        // Item appears on ticket if seat is in assignedSeats
+        return item.assignedSeats?.includes(seatNumber);
+      });
     } else {
       // Custom mode - use checkAssignments
       return orderDetails.items.filter(item => checkAssignments[item.id] === checkNumber);
@@ -288,6 +306,28 @@ export function PaymentDialog({
       const checkSubtotal = subtotal / numberOfChecks;
       const checkTax = tax / numberOfChecks;
       return { subtotal: checkSubtotal, tax: checkTax, total: checkTotal };
+    } else if (splitMode === 'seat') {
+      // Calculate based on seat assignments with proper cost splitting
+      const seatNumber = checkNumber;
+      const partySize = orderDetails.partySize || numberOfChecks;
+      
+      let checkSubtotal = 0;
+      
+      orderDetails.items.forEach(item => {
+        const isShared = item.isShared || (item.assignedSeats?.length === 0);
+        
+        if (isShared) {
+          // Shared items: divide cost by party size
+          checkSubtotal += item.price / partySize;
+        } else if (item.assignedSeats?.includes(seatNumber)) {
+          // Seat-specific items: divide by number of seats assigned
+          const seatsForItem = item.assignedSeats.length;
+          checkSubtotal += item.price / seatsForItem;
+        }
+      });
+      
+      const checkTax = checkSubtotal * 0.0735; // TAX_RATE
+      return { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax };
     } else {
       // Calculate based on assigned items
       const items = getItemsForCheck(checkNumber);
@@ -325,7 +365,7 @@ export function PaymentDialog({
     
     const amount = parseFloat(paymentAmount) || 0;
     const methodLabel = getMethodLabel(selectedPaymentMethod);
-    const checkLabel = getCheckLabel(activePayingCheck - 1);
+    const ticketLabel = getTicketLabel(activePayingCheck);
     
     // Mark check as paid
     setPaidChecks(prev => [...prev, activePayingCheck]);
@@ -334,7 +374,7 @@ export function PaymentDialog({
     setPaymentHistory(prev => [...prev, { 
       method: selectedPaymentMethod, 
       amount, 
-      methodLabel: `${methodLabel} (${checkLabel})` 
+      methodLabel: `${methodLabel} (${ticketLabel})` 
     }]);
     
     // Update paid amount
@@ -410,7 +450,7 @@ export function PaymentDialog({
   const finalizePayment = (methodId: string, amount: number, methodLabel: string) => {
     // If paying a split check ticket, use split check handler
     if (activePayingCheck !== null) {
-      const checkLabel = getCheckLabel(activePayingCheck - 1);
+      const ticketLabel = getTicketLabel(activePayingCheck);
       
       // Mark check as paid
       setPaidChecks(prev => [...prev, activePayingCheck]);
@@ -419,7 +459,7 @@ export function PaymentDialog({
       setPaymentHistory(prev => [...prev, { 
         method: methodId, 
         amount, 
-        methodLabel: `${methodLabel} (${checkLabel})` 
+        methodLabel: `${methodLabel} (${ticketLabel})` 
       }]);
       
       // Update paid amount
@@ -3873,7 +3913,7 @@ export function PaymentDialog({
                       >
                         <ArrowLeft className="w-5 h-5 text-neutral-300" />
                       </button>
-                      <span className="text-white text-lg font-medium">Text Receipt - {getCheckLabel(activePayingCheck - 1)}</span>
+                      <span className="text-white text-lg font-medium">Text Receipt - {getTicketLabel(activePayingCheck)}</span>
                     </div>
                   </div>
                   
@@ -3929,7 +3969,7 @@ export function PaymentDialog({
                       >
                         <ArrowLeft className="w-5 h-5 text-neutral-300" />
                       </button>
-                      <span className="text-white text-lg font-medium">Email Receipt - {getCheckLabel(activePayingCheck - 1)}</span>
+                      <span className="text-white text-lg font-medium">Email Receipt - {getTicketLabel(activePayingCheck)}</span>
                     </div>
                   </div>
                   
@@ -3995,7 +4035,7 @@ export function PaymentDialog({
                   {/* Success Icon */}
                   <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-4" />
                   
-                  <h2 className="text-white text-xl font-bold mb-2">{getCheckLabel(activePayingCheck - 1)} Paid</h2>
+                  <h2 className="text-white text-xl font-bold mb-2">{getTicketLabel(activePayingCheck)} Paid</h2>
                   <p className="text-neutral-300 text-sm mb-6">
                     <span className="text-green-500 font-medium">${splitCheckLastPaidAmount.toFixed(2)}</span> has been successfully processed
                   </p>
@@ -4080,7 +4120,13 @@ export function PaymentDialog({
                   ].map(tab => (
                     <button
                       key={tab.id}
-                      onClick={() => setSplitMode(tab.id)}
+                      onClick={() => {
+                        setSplitMode(tab.id);
+                        if (tab.id === 'seat') {
+                          // Auto-set checks to party size
+                          setNumberOfChecks(orderDetails.partySize || 4);
+                        }
+                      }}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                         splitMode === tab.id
                           ? 'bg-green-500 text-white border-2 border-green-400'
@@ -4092,24 +4138,34 @@ export function PaymentDialog({
                   ))}
                 </div>
 
-                {/* Check Counter */}
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => setNumberOfChecks(prev => Math.max(2, prev - 1))}
-                    disabled={numberOfChecks <= 2}
-                    className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  >
-                    -
-                  </button>
-                  <span className="text-white font-bold text-lg w-6 text-center">{numberOfChecks}</span>
-                  <button
-                    onClick={() => setNumberOfChecks(prev => Math.min(10, prev + 1))}
-                    disabled={numberOfChecks >= 10}
-                    className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-                  >
-                    +
-                  </button>
-                </div>
+                {/* Check Counter - only show for evenly and custom modes */}
+                {splitMode !== 'seat' && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setNumberOfChecks(prev => Math.max(2, prev - 1))}
+                      disabled={numberOfChecks <= 2}
+                      className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      -
+                    </button>
+                    <span className="text-white font-bold text-lg w-6 text-center">{numberOfChecks}</span>
+                    <button
+                      onClick={() => setNumberOfChecks(prev => Math.min(10, prev + 1))}
+                      disabled={numberOfChecks >= 10}
+                      className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
+                
+                {/* Party Size Indicator - show only in seat mode */}
+                {splitMode === 'seat' && (
+                  <div className="flex items-center gap-2 text-neutral-400 text-sm">
+                    <Users className="w-4 h-4" />
+                    <span>{orderDetails.partySize || numberOfChecks} Guests</span>
+                  </div>
+                )}
               </div>
 
               {/* Check Cards Grid - 3 per row with vertical scroll after 2 rows, left-aligned */}
@@ -4141,7 +4197,7 @@ export function PaymentDialog({
                         {/* Check Header */}
                         <div className="flex items-center justify-between border-b border-neutral-600 mb-1 pb-1">
                           <span className="text-white font-bold text-xs">
-                            {getCheckLabel(checkNum - 1)}
+                            {splitMode === 'seat' ? `Seat ${checkNum}` : getCheckLabel(checkNum - 1)}
                           </span>
                           <span className="text-green-500 font-bold text-sm">
                             ${checkTotals.total.toFixed(2)}
@@ -4158,6 +4214,33 @@ export function PaymentDialog({
                                 ${checkTotals.total.toFixed(2)}
                               </div>
                             </div>
+                          ) : splitMode === 'seat' ? (
+                            // Seat-based split shows items with split indicators
+                            checkItems.length > 0 ? (
+                              checkItems.map(item => {
+                                const isShared = item.isShared || (item.assignedSeats?.length === 0);
+                                const seatsForItem = item.assignedSeats?.length || (orderDetails.partySize || numberOfChecks);
+                                const itemPrice = isShared 
+                                  ? item.price / (orderDetails.partySize || numberOfChecks)
+                                  : item.price / seatsForItem;
+                                
+                                return (
+                                  <div key={item.id} className="flex items-start justify-between min-w-0">
+                                    <span className="text-neutral-200 font-medium truncate flex-1 text-[11px] min-w-0">
+                                      {item.qty}x {item.name}
+                                      {isShared && <span className="text-neutral-500 ml-1">(split)</span>}
+                                    </span>
+                                    <span className="text-neutral-300 font-medium ml-1 text-[11px] whitespace-nowrap">
+                                      ${itemPrice.toFixed(2)}
+                                    </span>
+                                  </div>
+                                );
+                              })
+                            ) : (
+                              <div className="text-center py-1">
+                                <span className="text-neutral-500 text-[11px]">No items</span>
+                              </div>
+                            )
                           ) : checkItems.length > 0 ? (
                             checkItems.map(item => (
                               <div key={item.id} className="flex items-start justify-between min-w-0">
@@ -4261,7 +4344,7 @@ export function PaymentDialog({
                 <div className="flex items-center">
                   {activePayingCheck !== null ? (
                     <>
-                      <span className="text-white text-lg font-medium">Pay {getCheckLabel(activePayingCheck - 1)}</span>
+                      <span className="text-white text-lg font-medium">Pay {getTicketLabel(activePayingCheck)}</span>
                       <span className="text-red-500 text-lg font-bold ml-2">${paymentAmount}</span>
                     </>
                   ) : (
@@ -4570,7 +4653,7 @@ export function PaymentDialog({
                       className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
                     >
                       {activePayingCheck !== null 
-                        ? `PAY ${getCheckLabel(activePayingCheck - 1)} - $${paymentAmount}`
+                        ? `PAY ${getTicketLabel(activePayingCheck)} - $${paymentAmount}`
                         : `CHARGE $${paymentAmount}`
                       }
                     </button>

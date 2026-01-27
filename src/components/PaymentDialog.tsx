@@ -346,6 +346,76 @@ export function PaymentDialog({
     setSelectedPaymentMethod('split-check');
   };
 
+  // Reset all payment method specific states - used when returning to split check grid
+  const resetPaymentMethodStates = () => {
+    setGiftCardStep('amount');
+    setGiftCardNumber('');
+    setPayByLinkStep('amount');
+    setSelectedGuest(null);
+    setQrCodeStep('amount');
+    setQrPhoneNumber('');
+    setShowQrPhoneInput(false);
+    setManualCCStep('amount');
+    setExternalCCStep('amount');
+    setManualCardStep('amount');
+    setManualCardDetails({ cardNumber: '', cardHolder: '', expiry: '', cvv: '' });
+    setDoordashStep('amount');
+    setDoordashReference('');
+    setBlizzfulStep('amount');
+    setBlizzfulReference('');
+    setUbereatsStep('amount');
+    setUbereatsReference('');
+    setGrubhubStep('amount');
+    setGrubhubReference('');
+    setLoyaltyStep('guest-list');
+    setLoyaltySelectedGuest(null);
+    setLoyaltyPointsToRedeem('');
+    setLoyaltyOtp(['', '', '', '']);
+    setTextReceiptStep('receipt');
+    setTextReceiptPhone('');
+    setEmailReceiptStep('receipt');
+    setEmailReceiptEmail('');
+  };
+
+  // Universal payment completion helper - routes to split check or final receipt appropriately
+  const finalizePayment = (methodId: string, amount: number, methodLabel: string) => {
+    // If paying a split check ticket, use split check handler
+    if (activePayingCheck !== null) {
+      const checkLabel = getCheckLabel(activePayingCheck - 1);
+      
+      // Mark check as paid
+      setPaidChecks(prev => [...prev, activePayingCheck]);
+      
+      // Record payment with check info
+      setPaymentHistory(prev => [...prev, { 
+        method: methodId, 
+        amount, 
+        methodLabel: `${methodLabel} (${checkLabel})` 
+      }]);
+      
+      // Update paid amount
+      setPaidAmount(prev => prev + amount);
+      
+      // Check if all checks are now paid
+      if (paidChecks.length + 1 >= numberOfChecks) {
+        setPaymentProcessed(true);
+      } else {
+        // Return to split check ticket view
+        setActivePayingCheck(null);
+        setSplitCheckPaymentStep('tickets');
+        setSelectedPaymentMethod('split-check');
+        // Reset method-specific states for next payment
+        resetPaymentMethodStates();
+      }
+      return;
+    }
+    
+    // Normal payment flow - proceed with final receipt
+    setPaymentHistory(prev => [...prev, { method: methodId, amount, methodLabel }]);
+    setPaidAmount(prev => prev + amount);
+    setPaymentProcessed(true);
+  };
+
   // Toggle item assignment for custom split
   const toggleItemAssignment = (itemId: number, checkNumber: number) => {
     setCheckAssignments(prev => {
@@ -1182,7 +1252,8 @@ export function PaymentDialog({
                     {/* CONTINUE Button */}
                     <button 
                       onClick={() => {
-                        setPaymentProcessed(true);
+                        const pointsValue = parseFloat(loyaltyPointsToRedeem || '0');
+                        finalizePayment('loyalty', pointsValue, 'Loyalty');
                       }} 
                       className="w-full max-w-xs py-2.5 bg-white hover:bg-neutral-200 text-neutral-900 font-semibold rounded-lg transition-colors text-sm"
                     >
@@ -1270,9 +1341,7 @@ export function PaymentDialog({
                     const digits = giftCardNumber.replace(/\s/g, '');
                     if (digits.length === 16) {
                       const paid = parseFloat(paymentAmount) || 0;
-                      setPaidAmount(prev => prev + paid);
-                      setPaymentHistory(prev => [...prev, { method: 'gift-card', amount: paid, methodLabel: 'Gift Card' }]);
-                      setPaymentProcessed(true);
+                      finalizePayment('gift-card', paid, 'Gift Card');
                     }
                   }}
                   disabled={giftCardNumber.replace(/\s/g, '').length !== 16}
@@ -1727,8 +1796,8 @@ export function PaymentDialog({
 
                   <button 
                     onClick={() => {
-                      setPaymentHistory(prev => [...prev, { method: 'pay-link', amount: parseFloat(paymentAmount) || 0, methodLabel: 'Pay by Link' }]);
-                      setPaymentProcessed(true);
+                      const amount = parseFloat(paymentAmount) || 0;
+                      finalizePayment('pay-link', amount, 'Pay by Link');
                     }}
                     className="w-full py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors"
                   >
@@ -1930,8 +1999,8 @@ export function PaymentDialog({
 
                   <button 
                     onClick={() => {
-                      setPaymentHistory(prev => [...prev, { method: 'qr-code', amount: parseFloat(paymentAmount) || 0, methodLabel: 'QR Code' }]);
-                      setPaymentProcessed(true);
+                      const amount = parseFloat(paymentAmount) || 0;
+                      finalizePayment('qr-code', amount, 'QR Code');
                     }}
                     className="w-full py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors"
                   >
@@ -2049,8 +2118,8 @@ export function PaymentDialog({
                       <div className="flex gap-4 mb-6">
                         <button 
                           onClick={() => {
-                            setPaymentHistory(prev => [...prev, { method: 'manual-cc', amount: parseFloat(paymentAmount), methodLabel: 'Manual CC' }]);
-                            setPaymentProcessed(true);
+                            const amount = parseFloat(paymentAmount) || 0;
+                            finalizePayment('manual-cc', amount, 'Manual CC');
                           }} 
                           className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
                         >
@@ -2083,8 +2152,8 @@ export function PaymentDialog({
                       
                       <button 
                         onClick={() => {
-                          setPaymentHistory(prev => [...prev, { method: 'manual-cc', amount: parseFloat(paymentAmount), methodLabel: 'Manual CC' }]);
-                          setPaymentProcessed(true);
+                          const amount = parseFloat(paymentAmount) || 0;
+                          finalizePayment('manual-cc', amount, 'Manual CC');
                         }} 
                         className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                       >
@@ -2117,7 +2186,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setTextReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-cc', amount: parseFloat(paymentAmount), methodLabel: 'Manual CC' }]); setPaymentProcessed(true); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setTextReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('manual-cc', amount, 'Manual CC'); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       <div className="flex-1 flex flex-col justify-end px-4 pb-4">
                         <div className="grid grid-cols-3 gap-2">
@@ -2150,7 +2219,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-cc', amount: parseFloat(paymentAmount), methodLabel: 'Manual CC' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setEmailReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('manual-cc', amount, 'Manual CC'); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       {/* Email Keyboard */}
                       <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
@@ -2222,8 +2291,8 @@ export function PaymentDialog({
                   <div className="flex gap-4 mb-6">
                     <button 
                       onClick={() => {
-                        setPaymentHistory(prev => [...prev, { method: 'external-cc', amount: parseFloat(paymentAmount), methodLabel: 'External CC' }]);
-                        setPaymentProcessed(true);
+                        const amount = parseFloat(paymentAmount) || 0;
+                        finalizePayment('external-cc', amount, 'External CC');
                       }} 
                       className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
                     >
@@ -2256,8 +2325,8 @@ export function PaymentDialog({
                   
                   <button 
                     onClick={() => {
-                      setPaymentHistory(prev => [...prev, { method: 'external-cc', amount: parseFloat(paymentAmount), methodLabel: 'External CC' }]);
-                      setPaymentProcessed(true);
+                      const amount = parseFloat(paymentAmount) || 0;
+                      finalizePayment('external-cc', amount, 'External CC');
                     }} 
                     className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                   >
@@ -2290,7 +2359,7 @@ export function PaymentDialog({
                     <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                   </div>
                   <div className="px-4 mb-2">
-                    <button onClick={() => { setTextReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'external-cc', amount: parseFloat(paymentAmount), methodLabel: 'External CC' }]); setPaymentProcessed(true); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                    <button onClick={() => { setTextReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('external-cc', amount, 'External CC'); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                   </div>
                   <div className="flex-1 flex flex-col justify-end px-4 pb-4">
                     <div className="grid grid-cols-3 gap-2">
@@ -2323,7 +2392,7 @@ export function PaymentDialog({
                     <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                   </div>
                   <div className="px-4 mb-2">
-                    <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'external-cc', amount: parseFloat(paymentAmount), methodLabel: 'External CC' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                    <button onClick={() => { setEmailReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('external-cc', amount, 'External CC'); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                   </div>
                   {/* Email Keyboard */}
                   <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
@@ -2484,8 +2553,8 @@ export function PaymentDialog({
                       <div className="flex gap-4 mb-6">
                         <button 
                           onClick={() => {
-                            setPaymentHistory(prev => [...prev, { method: 'manual-card', amount: parseFloat(paymentAmount), methodLabel: 'Manual Card' }]);
-                            setPaymentProcessed(true);
+                            const amount = parseFloat(paymentAmount) || 0;
+                            finalizePayment('manual-card', amount, 'Manual Card');
                           }} 
                           className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
                         >
@@ -2518,8 +2587,8 @@ export function PaymentDialog({
                       
                       <button 
                         onClick={() => {
-                          setPaymentHistory(prev => [...prev, { method: 'manual-card', amount: parseFloat(paymentAmount), methodLabel: 'Manual Card' }]);
-                          setPaymentProcessed(true);
+                          const amount = parseFloat(paymentAmount) || 0;
+                          finalizePayment('manual-card', amount, 'Manual Card');
                         }} 
                         className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                       >
@@ -2552,7 +2621,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setTextReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-card', amount: parseFloat(paymentAmount), methodLabel: 'Manual Card' }]); setPaymentProcessed(true); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setTextReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('manual-card', amount, 'Manual Card'); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       <div className="flex-1 flex flex-col justify-end px-4 pb-4">
                         <div className="grid grid-cols-3 gap-2">
@@ -2585,7 +2654,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'manual-card', amount: parseFloat(paymentAmount), methodLabel: 'Manual Card' }]); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setEmailReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('manual-card', amount, 'Manual Card'); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       {/* Email Keyboard */}
                       <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
@@ -2734,10 +2803,8 @@ export function PaymentDialog({
                       <div className="flex gap-4 mb-6">
                         <button 
                           onClick={() => {
-                            setPaymentHistory(prev => [...prev, { method: 'doordash', amount: parseFloat(paymentAmount), methodLabel: 'DoorDash' }]);
-                            setDoordashStep('amount');
-                            setDoordashReference('');
-                            setPaymentProcessed(true);
+                            const amount = parseFloat(paymentAmount) || 0;
+                            finalizePayment('doordash', amount, 'DoorDash');
                           }} 
                           className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
                         >
@@ -2770,10 +2837,8 @@ export function PaymentDialog({
                       
                       <button 
                         onClick={() => {
-                          setPaymentHistory(prev => [...prev, { method: 'doordash', amount: parseFloat(paymentAmount), methodLabel: 'DoorDash' }]);
-                          setDoordashStep('amount');
-                          setDoordashReference('');
-                          setPaymentProcessed(true);
+                          const amount = parseFloat(paymentAmount) || 0;
+                          finalizePayment('doordash', amount, 'DoorDash');
                         }} 
                         className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                       >
@@ -2806,7 +2871,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setTextReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'doordash', amount: parseFloat(paymentAmount), methodLabel: 'DoorDash' }]); setDoordashStep('amount'); setDoordashReference(''); setPaymentProcessed(true); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setTextReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('doordash', amount, 'DoorDash'); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       <div className="flex-1 flex flex-col justify-end px-4 pb-4">
                         <div className="grid grid-cols-3 gap-2">
@@ -2839,7 +2904,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'doordash', amount: parseFloat(paymentAmount), methodLabel: 'DoorDash' }]); setDoordashStep('amount'); setDoordashReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setEmailReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('doordash', amount, 'DoorDash'); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       {/* Email Keyboard */}
                       <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
@@ -2988,10 +3053,8 @@ export function PaymentDialog({
                       <div className="flex gap-4 mb-6">
                         <button 
                           onClick={() => {
-                            setPaymentHistory(prev => [...prev, { method: 'blizzful', amount: parseFloat(paymentAmount), methodLabel: 'Blizzful' }]);
-                            setBlizzfulStep('amount');
-                            setBlizzfulReference('');
-                            setPaymentProcessed(true);
+                            const amount = parseFloat(paymentAmount) || 0;
+                            finalizePayment('blizzful', amount, 'Blizzful');
                           }} 
                           className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
                         >
@@ -3024,10 +3087,8 @@ export function PaymentDialog({
                       
                       <button 
                         onClick={() => {
-                          setPaymentHistory(prev => [...prev, { method: 'blizzful', amount: parseFloat(paymentAmount), methodLabel: 'Blizzful' }]);
-                          setBlizzfulStep('amount');
-                          setBlizzfulReference('');
-                          setPaymentProcessed(true);
+                          const amount = parseFloat(paymentAmount) || 0;
+                          finalizePayment('blizzful', amount, 'Blizzful');
                         }} 
                         className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                       >
@@ -3060,7 +3121,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setTextReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'blizzful', amount: parseFloat(paymentAmount), methodLabel: 'Blizzful' }]); setBlizzfulStep('amount'); setBlizzfulReference(''); setPaymentProcessed(true); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setTextReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('blizzful', amount, 'Blizzful'); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       <div className="flex-1 flex flex-col justify-end px-4 pb-4">
                         <div className="grid grid-cols-3 gap-2">
@@ -3093,7 +3154,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'blizzful', amount: parseFloat(paymentAmount), methodLabel: 'Blizzful' }]); setBlizzfulStep('amount'); setBlizzfulReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setEmailReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('blizzful', amount, 'Blizzful'); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       {/* Email Keyboard */}
                       <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
@@ -3242,10 +3303,8 @@ export function PaymentDialog({
                       <div className="flex gap-4 mb-6">
                         <button 
                           onClick={() => {
-                            setPaymentHistory(prev => [...prev, { method: 'ubereats', amount: parseFloat(paymentAmount), methodLabel: 'UberEats' }]);
-                            setUbereatsStep('amount');
-                            setUbereatsReference('');
-                            setPaymentProcessed(true);
+                            const amount = parseFloat(paymentAmount) || 0;
+                            finalizePayment('ubereats', amount, 'UberEats');
                           }} 
                           className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
                         >
@@ -3278,10 +3337,8 @@ export function PaymentDialog({
                       
                       <button 
                         onClick={() => {
-                          setPaymentHistory(prev => [...prev, { method: 'ubereats', amount: parseFloat(paymentAmount), methodLabel: 'UberEats' }]);
-                          setUbereatsStep('amount');
-                          setUbereatsReference('');
-                          setPaymentProcessed(true);
+                          const amount = parseFloat(paymentAmount) || 0;
+                          finalizePayment('ubereats', amount, 'UberEats');
                         }} 
                         className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                       >
@@ -3314,7 +3371,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setTextReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'ubereats', amount: parseFloat(paymentAmount), methodLabel: 'UberEats' }]); setUbereatsStep('amount'); setUbereatsReference(''); setPaymentProcessed(true); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setTextReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('ubereats', amount, 'UberEats'); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       <div className="flex-1 flex flex-col justify-end px-4 pb-4">
                         <div className="grid grid-cols-3 gap-2">
@@ -3347,7 +3404,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'ubereats', amount: parseFloat(paymentAmount), methodLabel: 'UberEats' }]); setUbereatsStep('amount'); setUbereatsReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setEmailReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('ubereats', amount, 'UberEats'); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       {/* Email Keyboard */}
                       <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
@@ -3496,10 +3553,8 @@ export function PaymentDialog({
                       <div className="flex gap-4 mb-6">
                         <button 
                           onClick={() => {
-                            setPaymentHistory(prev => [...prev, { method: 'grubhub', amount: parseFloat(paymentAmount), methodLabel: 'Grubhub' }]);
-                            setGrubhubStep('amount');
-                            setGrubhubReference('');
-                            setPaymentProcessed(true);
+                            const amount = parseFloat(paymentAmount) || 0;
+                            finalizePayment('grubhub', amount, 'Grubhub');
                           }} 
                           className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
                         >
@@ -3532,10 +3587,8 @@ export function PaymentDialog({
                       
                       <button 
                         onClick={() => {
-                          setPaymentHistory(prev => [...prev, { method: 'grubhub', amount: parseFloat(paymentAmount), methodLabel: 'Grubhub' }]);
-                          setGrubhubStep('amount');
-                          setGrubhubReference('');
-                          setPaymentProcessed(true);
+                          const amount = parseFloat(paymentAmount) || 0;
+                          finalizePayment('grubhub', amount, 'Grubhub');
                         }} 
                         className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
                       >
@@ -3568,7 +3621,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setTextReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'grubhub', amount: parseFloat(paymentAmount), methodLabel: 'Grubhub' }]); setGrubhubStep('amount'); setGrubhubReference(''); setPaymentProcessed(true); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setTextReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('grubhub', amount, 'Grubhub'); }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       <div className="flex-1 flex flex-col justify-end px-4 pb-4">
                         <div className="grid grid-cols-3 gap-2">
@@ -3601,7 +3654,7 @@ export function PaymentDialog({
                         <p className="text-neutral-500 text-[10px] leading-relaxed">Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.</p>
                       </div>
                       <div className="px-4 mb-2">
-                        <button onClick={() => { setEmailReceiptStep('receipt'); setPaymentHistory(prev => [...prev, { method: 'grubhub', amount: parseFloat(paymentAmount), methodLabel: 'Grubhub' }]); setGrubhubStep('amount'); setGrubhubReference(''); setPaymentProcessed(true); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
+                        <button onClick={() => { setEmailReceiptStep('receipt'); const amount = parseFloat(paymentAmount) || 0; finalizePayment('grubhub', amount, 'Grubhub'); }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">SEND</button>
                       </div>
                       {/* Email Keyboard */}
                       <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">

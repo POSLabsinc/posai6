@@ -664,7 +664,7 @@ export function PaymentDialog({
   // Fixed dialog width for split check mode - no dynamic expansion
   const getSplitCheckDialogWidth = () => {
     if (selectedPaymentMethod !== 'split-check') return '';
-    return 'w-[780px]';
+    return 'w-[720px]';
   };
 
   return (
@@ -4707,7 +4707,7 @@ export function PaymentDialog({
 
         {/* Order Details Panel */}
         <div 
-          className="w-[360px] border-l border-neutral-700 flex flex-col rounded-xl"
+          className="w-[280px] border-l border-neutral-700 flex flex-col rounded-xl" 
           style={{
             background: "#7575754D",
             boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"

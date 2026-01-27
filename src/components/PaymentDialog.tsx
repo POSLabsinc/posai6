@@ -4,7 +4,7 @@ import {
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
   Mail, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, 
   UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, 
-  RefreshCw, Send, Zap, Users, Clock
+  RefreshCw, Send, Zap, Users, Clock, Share2
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -4225,14 +4225,34 @@ export function PaymentDialog({
                                   : item.price / seatsForItem;
                                 
                                 return (
-                                  <div key={item.id} className="flex items-start justify-between min-w-0">
-                                    <span className="text-neutral-200 font-medium truncate flex-1 text-[11px] min-w-0">
-                                      {item.qty}x {item.name}
-                                      {isShared && <span className="text-neutral-500 ml-1">(split)</span>}
-                                    </span>
-                                    <span className="text-neutral-300 font-medium ml-1 text-[11px] whitespace-nowrap">
-                                      ${itemPrice.toFixed(2)}
-                                    </span>
+                                  <div key={item.id} className="flex flex-col min-w-0">
+                                    <div className="flex items-start justify-between min-w-0">
+                                      <span className="text-neutral-200 font-medium truncate flex-1 text-[11px] min-w-0">
+                                        {item.qty}x {item.name}
+                                        {isShared && <span className="text-neutral-500 ml-1">(split)</span>}
+                                      </span>
+                                      <span className="text-neutral-300 font-medium ml-1 text-[11px] whitespace-nowrap">
+                                        ${itemPrice.toFixed(2)}
+                                      </span>
+                                    </div>
+                                    {/* Seat indicator */}
+                                    <div className="flex items-center gap-0.5 mt-0.5">
+                                      <Users className="w-2.5 h-2.5 text-neutral-500" />
+                                      {isShared ? (
+                                        <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
+                                          <Share2 className="w-2.5 h-2.5" />
+                                        </span>
+                                      ) : (
+                                        item.assignedSeats?.map(seat => (
+                                          <span 
+                                            key={seat}
+                                            className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center"
+                                          >
+                                            {seat}
+                                          </span>
+                                        ))
+                                      )}
+                                    </div>
                                   </div>
                                 );
                               })
@@ -4242,16 +4262,39 @@ export function PaymentDialog({
                               </div>
                             )
                           ) : checkItems.length > 0 ? (
-                            checkItems.map(item => (
-                              <div key={item.id} className="flex items-start justify-between min-w-0">
-                                <span className="text-neutral-200 font-medium truncate flex-1 text-[11px] min-w-0">
-                                  {item.qty}x {item.name}
-                                </span>
-                                <span className="text-neutral-300 font-medium ml-1 text-[11px] whitespace-nowrap">
-                                  ${(item.price * item.qty).toFixed(2)}
-                                </span>
-                              </div>
-                            ))
+                            checkItems.map(item => {
+                              const isShared = item.isShared || (item.assignedSeats?.length === 0);
+                              return (
+                                <div key={item.id} className="flex flex-col min-w-0">
+                                  <div className="flex items-start justify-between min-w-0">
+                                    <span className="text-neutral-200 font-medium truncate flex-1 text-[11px] min-w-0">
+                                      {item.qty}x {item.name}
+                                    </span>
+                                    <span className="text-neutral-300 font-medium ml-1 text-[11px] whitespace-nowrap">
+                                      ${(item.price * item.qty).toFixed(2)}
+                                    </span>
+                                  </div>
+                                  {/* Seat indicator */}
+                                  <div className="flex items-center gap-0.5 mt-0.5">
+                                    <Users className="w-2.5 h-2.5 text-neutral-500" />
+                                    {isShared ? (
+                                      <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
+                                        <Share2 className="w-2.5 h-2.5" />
+                                      </span>
+                                    ) : (
+                                      item.assignedSeats?.map(seat => (
+                                        <span 
+                                          key={seat}
+                                          className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center"
+                                        >
+                                          {seat}
+                                        </span>
+                                      ))
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })
                           ) : (
                             <div className="text-center py-1">
                               <span className="text-neutral-500 text-[11px]">No items</span>

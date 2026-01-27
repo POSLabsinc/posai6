@@ -1,258 +1,88 @@
 
+# Show Shared Item Icon for Table Orders
 
-# Split by Seat Implementation Plan
+## Problem
+Items in the order data that don't have specific seat assignments (`seats: []`) are meant to be shared among all guests at the table. However, in `TableOrderDetails`, these items don't display any seat indicator - they should show the chair icon with the Share2 icon to indicate they're shared across all seats.
 
-## Overview
-Implement proper "Split by Seat" functionality where:
-- Number of tickets automatically equals the party size
-- Items are assigned to tickets based on their seat assignments
-- Shared items (served to all guests) are split equally across all tickets
+Additionally, the current condition checks if `seats.length === 4` (hardcoded) instead of comparing against the actual party size.
 
----
-
-## Current Behavior (Problem)
-
-When users select "Split by Seat", the current implementation:
-- Uses a manually adjustable check counter (unrelated to party size)
-- Divides items by array slicing without considering seat assignments
-- Does not handle shared items
-
-```text
-// Current problematic logic in getItemsForCheck():
-if (splitMode === 'seat') {
-  const itemsPerCheck = Math.ceil(orderDetails.items.length / numberOfChecks);
-  const startIdx = (checkNumber - 1) * itemsPerCheck;
-  return orderDetails.items.slice(startIdx, startIdx + itemsPerCheck);
-}
-```
-
----
-
-## Solution Architecture
-
-### Data Flow
-
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│  Order Data (src/data/orders.ts)                                │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ partySize: 4                                                ││
-│  │ items: [                                                    ││
-│  │   { name: "Burger", seats: [1, 2], isShared: false }        ││
-│  │   { name: "Meatballs", seats: [], isShared: true }          ││
-│  │   { name: "Pasta", seats: [3, 4], isShared: false }         ││
-│  │ ]                                                           ││
-│  └─────────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────────┘
-                           │
-        TableOrderDetails.tsx (mapping with seat data)
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  PaymentDialog (enhanced props)                                 │
-│  ┌─────────────────────────────────────────────────────────────┐│
-│  │ orderDetails: {                                             ││
-│  │   partySize: 4,                                             ││
-│  │   items: [                                                  ││
-│  │     { id: 1, name: "Burger", assignedSeats: [1,2] }         ││
-│  │     { id: 2, name: "Meatballs", isShared: true }            ││
-│  │     { id: 3, name: "Pasta", assignedSeats: [3,4] }          ││
-│  │   ]                                                         ││
-│  │ }                                                           ││
-│  └─────────────────────────────────────────────────────────────┘│
-└─────────────────────────────────────────────────────────────────┘
-                           │
-           Split by Seat Logic (new implementation)
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│  Generated Tickets (4 tickets = party size)                     │
-│  ┌─────────┐ ┌─────────┐ ┌─────────┐ ┌─────────┐              │
-│  │ Seat 1  │ │ Seat 2  │ │ Seat 3  │ │ Seat 4  │              │
-│  │─────────│ │─────────│ │─────────│ │─────────│              │
-│  │ Burger  │ │ Burger  │ │ Pasta   │ │ Pasta   │              │
-│  │ $12.00  │ │ $12.00  │ │ $8.00   │ │ $8.00   │              │
-│  │Meatballs│ │Meatballs│ │Meatballs│ │Meatballs│              │
-│  │ $4.00   │ │ $4.00   │ │ $4.00   │ │ $4.00   │              │
-│  │─────────│ │─────────│ │─────────│ │─────────│              │
-│  │Total:   │ │Total:   │ │Total:   │ │Total:   │              │
-│  │ $16.00  │ │ $16.00  │ │ $12.00  │ │ $12.00  │              │
-│  └─────────┘ └─────────┘ └─────────┘ └─────────┘              │
-└─────────────────────────────────────────────────────────────────┘
-```
+## Solution Overview
+1. Update the seat display logic in TableOrderDetails to show the share icon for items that are shared (`seats.length === 0` or `isShared: true`)
+2. Compare seat count against the order's actual party size, not a hardcoded value
+3. Update the mock data in `orders.ts` to mark all items with empty `seats: []` as `isShared: true`
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Update PaymentDialog Types
+### Step 1: Update Mock Data in orders.ts
 
-Modify the `PaymentDialogOrderItem` interface to include seat data:
+Add `isShared: true` to all items that have empty seats arrays but are missing the flag. Several items already have this flag, but some are missing it:
 
-```text
-// PaymentDialog.tsx - Lines 15-20
-export interface PaymentDialogOrderItem {
-  id: number;
-  qty: number;
-  name: string;
-  price: number;
-  assignedSeats?: number[];  // NEW: Which seats this item belongs to
-  isShared?: boolean;        // NEW: If true, split cost among all seats
-}
-```
+**Order 2 (Mike Wheelers):**
+- `Glass of Red Wine` - seats: [], needs `isShared: true`
+- `Chocolate Lava Cake` - seats: [], needs `isShared: true`
 
-Modify the `PaymentDialogOrderDetails` interface to include party size:
+**Order 3 (Sarah Johnson):**
+- `Caprese Salad` - seats: [], needs `isShared: true`
+- `Tiramisu` - seats: [], needs `isShared: true`
+- `Espresso` - seats: [], needs `isShared: true`
 
-```text
-// PaymentDialog.tsx - Lines 22-28
-export interface PaymentDialogOrderDetails {
-  guest?: string;
-  phone?: string;
-  table?: string;
-  check?: number | string;
-  partySize?: number;        // NEW: Number of guests at the table
-  items: PaymentDialogOrderItem[];
-}
-```
+**Order 4 (David Chen):**
+- `Bottle of Champagne` - seats: [], needs `isShared: true`
+- `Cheesecake` - seats: [], needs `isShared: true`
 
-### Step 2: Update TableOrderDetails to Pass Seat Data
+**Order 5 (Guest):**
+- `Craft IPA` - seats: [], needs `isShared: true`
 
-Modify the PaymentDialog invocation to include seat information:
+**Order 9 (Robert Taylor):**
+- All items have seats: [] (takeout), add `isShared: true` to all
 
-```text
-// TableOrderDetails.tsx - Lines 2309-2315
-items: currentSelectedGuest?.items.map((item, index) => ({
-  id: index + 1,
-  qty: item.qty,
-  name: item.name,
-  price: item.price * item.qty,
-  assignedSeats: item.seats || [],        // NEW
-  isShared: item.isShared || false        // NEW
-})) || []
+**Order 10 (Amanda White):**
+- `Sparkling Water` - seats: [], needs `isShared: true`
+- `Crème Brûlée` - seats: [], needs `isShared: true`
 
-// Also add partySize to orderDetails
-partySize: currentSelectedGuest?.partySize || 4
-```
+**Order 1 (Martin Alex):**
+- `Almond Crusted Salmon` - seats: [], needs `isShared: true`
 
-### Step 3: Auto-Set Check Count for Seat Mode
+### Step 2: Update TableOrderDetails Seat Display Logic
 
-When user switches to "Split by Seat" mode, automatically set `numberOfChecks` to match `partySize`:
+Change the seat assignment display in the order items (desktop view) from:
 
 ```text
-// In split mode tab click handler (around line 4083)
-onClick={() => {
-  setSplitMode(tab.id);
-  if (tab.id === 'seat') {
-    // Auto-set checks to party size
-    setNumberOfChecks(orderDetails.partySize || 4);
-  }
-}}
-```
-
-### Step 4: Update getItemsForCheck for Seat Mode
-
-Implement proper seat-based item filtering:
-
-```text
-const getItemsForCheck = (checkNumber: number): PaymentDialogOrderItem[] => {
-  if (splitMode === 'evenly') {
-    return orderDetails.items;
-  } else if (splitMode === 'seat') {
-    // checkNumber corresponds to seat number
-    const seatNumber = checkNumber;
-    
-    return orderDetails.items.filter(item => {
-      // Shared items appear on all tickets
-      if (item.isShared || (item.assignedSeats?.length === 0)) {
-        return true;
-      }
-      // Item appears on ticket if seat is in assignedSeats
-      return item.assignedSeats?.includes(seatNumber);
-    });
-  } else {
-    // Custom mode
-    return orderDetails.items.filter(item => checkAssignments[item.id] === checkNumber);
-  }
-};
-```
-
-### Step 5: Update getCheckTotals for Seat Mode
-
-Handle shared item cost splitting:
-
-```text
-const getCheckTotals = (checkNumber: number) => {
-  if (splitMode === 'evenly') {
-    const checkTotal = total / numberOfChecks;
-    const checkSubtotal = subtotal / numberOfChecks;
-    const checkTax = tax / numberOfChecks;
-    return { subtotal: checkSubtotal, tax: checkTax, total: checkTotal };
-  } else if (splitMode === 'seat') {
-    const seatNumber = checkNumber;
-    const partySize = orderDetails.partySize || numberOfChecks;
-    
-    let checkSubtotal = 0;
-    
-    orderDetails.items.forEach(item => {
-      const isShared = item.isShared || (item.assignedSeats?.length === 0);
-      
-      if (isShared) {
-        // Shared items: divide cost by party size
-        checkSubtotal += item.price / partySize;
-      } else if (item.assignedSeats?.includes(seatNumber)) {
-        // Seat-specific items: divide by number of seats assigned
-        const seatsForItem = item.assignedSeats.length;
-        checkSubtotal += item.price / seatsForItem;
-      }
-    });
-    
-    const checkTax = checkSubtotal * 0.0735;
-    return { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax };
-  } else {
-    // Custom mode - existing logic
-    const items = getItemsForCheck(checkNumber);
-    const checkSubtotal = items.reduce((sum, item) => sum + item.price * item.qty, 0);
-    const checkTax = checkSubtotal * 0.0735;
-    return { subtotal: checkSubtotal, tax: checkTax, total: checkSubtotal + checkTax };
-  }
-};
-```
-
-### Step 6: Update Ticket Labels for Seat Mode
-
-Change ticket labels from "Check 1a" to "Seat 1" when in seat mode:
-
-```text
-// Update getCheckLabel or add conditional logic
-const getSeatModeCheckLabel = (seatIndex: number) => `Seat ${seatIndex + 1}`;
-
-// In ticket card rendering, conditionally use:
-{splitMode === 'seat' ? `Seat ${checkNum}` : getCheckLabel(checkNum - 1)}
-```
-
-### Step 7: Hide Check Counter in Seat Mode
-
-When in seat mode, the check count is determined by party size, so hide the +/- counter:
-
-```text
-{/* Check Counter - only show for evenly and custom modes */}
-{splitMode !== 'seat' && (
-  <div className="flex items-center gap-2">
-    {/* existing counter UI */}
+{item.seats.length > 0 && (
+  <div className="mt-1.5 flex items-center gap-1.5">
+    <img src={chairWhiteIcon} ... />
+    {item.seats.length === 4 ? (
+      <Share2 icon />
+    ) : (
+      item.seats.map(...)
+    )}
   </div>
 )}
 ```
 
-### Step 8: Display Shared Item Indicator on Tickets
-
-When rendering items on seat-based tickets, show that shared items are split:
+To:
 
 ```text
-// In items list rendering for seat mode
-{item.isShared && (
-  <span className="text-neutral-500 text-[9px] ml-1">(split)</span>
-)}
+{/* Show seat indicator for items with seats OR shared items */}
+<div className="mt-1.5 flex items-center gap-1.5">
+  <img src={chairWhiteIcon} ... />
+  {item.isShared || item.seats.length === 0 || item.seats.length === currentSelectedGuest.partySize ? (
+    <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+      <Share2 className="w-3 h-3" />
+    </span>
+  ) : (
+    item.seats.map(seat => ...)
+  )}
+</div>
 ```
+
+This ensures:
+- Items with `isShared: true` show the share icon
+- Items with empty `seats: []` show the share icon (fallback)
+- Items assigned to ALL seats (seats.length === partySize) show the share icon
+- Items with specific seat assignments show individual seat numbers
 
 ---
 
@@ -260,61 +90,39 @@ When rendering items on seat-based tickets, show that shared items are split:
 
 ### Files to Modify
 
-1. **`src/components/PaymentDialog.tsx`**
-   - Update `PaymentDialogOrderItem` interface (add `assignedSeats`, `isShared`)
-   - Update `PaymentDialogOrderDetails` interface (add `partySize`)
-   - Modify `getItemsForCheck()` function for seat-based filtering
-   - Modify `getCheckTotals()` function for proper cost splitting
-   - Update split mode tab handler to auto-set check count
-   - Conditionally hide check counter in seat mode
-   - Update ticket labels for seat mode
+| File | Changes |
+|------|---------|
+| `src/data/orders.ts` | Add `isShared: true` to ~15 items with empty seats arrays |
+| `src/pages/TableOrderDetails.tsx` | Update seat display logic to show share icon for shared items |
 
-2. **`src/pages/TableOrderDetails.tsx`**
-   - Update PaymentDialog invocation to pass `partySize`
-   - Update item mapping to include `assignedSeats` and `isShared`
+### Visual Result
+
+**Before:**
+- Shared items show no seat indicator at all
+
+**After:**
+- Shared items show: 🪑 + [Share icon] (indicating shared with all guests)
+- Seat-specific items show: 🪑 + [1] [2] (individual seat numbers)
 
 ---
 
-## Example Calculation
+## Example Display
 
-Given an order:
-- Party size: 4
-- Items:
-  - Classic Burger ($24.00 total) - Seats [1, 2]
-  - Meatballs ($16.00 total) - Shared (all seats)
-  - Pasta ($16.00 total) - Seats [3, 4]
+For Order 1 (Martin Alex, Party of 4):
 
-**Seat 1 Ticket:**
-- Burger: $24.00 / 2 seats = $12.00
-- Meatballs: $16.00 / 4 guests = $4.00
-- **Subtotal: $16.00**
-
-**Seat 2 Ticket:**
-- Burger: $24.00 / 2 seats = $12.00
-- Meatballs: $16.00 / 4 guests = $4.00
-- **Subtotal: $16.00**
-
-**Seat 3 Ticket:**
-- Pasta: $16.00 / 2 seats = $8.00
-- Meatballs: $16.00 / 4 guests = $4.00
-- **Subtotal: $12.00**
-
-**Seat 4 Ticket:**
-- Pasta: $16.00 / 2 seats = $8.00
-- Meatballs: $16.00 / 4 guests = $4.00
-- **Subtotal: $12.00**
-
-**Total: $16 + $16 + $12 + $12 = $56.00** (matches original order total)
+| Item | Seats Data | Display |
+|------|------------|---------|
+| Classic Crispy Burger | seats: [1, 2] | 🪑 1 2 |
+| Meatballs | seats: [], isShared: true | 🪑 ⤨ (share icon) |
+| Rigatoni Pasta | seats: [3, 4] | 🪑 3 4 |
+| Almond Crusted Salmon | seats: [], isShared: true | 🪑 ⤨ (share icon) |
 
 ---
 
 ## Testing Checklist
-- Selecting "Split by Seat" auto-sets check count to party size
-- Check counter is hidden in seat mode
-- Items appear only on tickets matching their assigned seats
-- Shared items appear on all tickets with divided costs
-- Total of all tickets equals original order total
-- Ticket labels show "Seat 1", "Seat 2", etc.
-- Payment flow works correctly for seat-based tickets
-- Switching between split modes resets appropriately
-
+- Items with `isShared: true` show share icon
+- Items with empty seats array show share icon
+- Items assigned to specific seats show seat numbers
+- Items assigned to ALL seats show share icon
+- Party size comparison works correctly (not hardcoded to 4)
+- Display is consistent between mobile and desktop views

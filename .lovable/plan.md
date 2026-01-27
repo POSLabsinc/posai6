@@ -1,146 +1,185 @@
 
-# Split Check Ticket-by-Ticket Payment Flow
+# Split Check Payment Flow for All Payment Methods
 
-## Overview
-Implement a proper payment flow for the "Split Evenly" (and other split modes) in Split Check where each ticket goes through the full payment method selection process before being marked as paid.
+## Problem
+The Split Check ticket-by-ticket payment flow currently only works correctly for **Cash** and **Card** payment methods. When using other payment methods like Loyalty, Gift Card, Pay by Link, QR Code, Manual CC, External CC, Manual Card, or delivery services (DoorDash, Blizzful, UberEats, Grubhub), the payment goes directly to the final receipt screen instead of returning to the Split Check ticket grid.
 
-## Current Behavior
-Currently, clicking "Pay" on a ticket in Split Check immediately marks it as paid without showing any payment method options. The `handlePayCheck()` function directly updates `paidChecks` and `paymentHistory`.
+## Root Cause
+Each payment method has its own completion logic that calls `setPaymentProcessed(true)` directly, bypassing the `handleSplitCheckPaymentComplete()` function that properly handles:
+1. Marking the individual check as paid
+2. Recording the payment method with the check label
+3. Returning to the Split Check ticket view to process remaining checks
+4. Only showing the final receipt when ALL checks are paid
 
-## Proposed Solution
+## Solution
+Create a centralized helper function that all payment methods will use when completing a payment. This function will detect if we're in Split Check mode (`activePayingCheck !== null`) and route appropriately.
 
-### New State Variables
-Add state to track which check is currently being paid:
+---
+
+## Implementation Steps
+
+### Step 1: Create a Universal Payment Completion Helper
+Add a new function `finalizePayment()` that wraps the completion logic:
+
 ```text
-activePayingCheck: number | null  // The check number currently being processed
-splitCheckPaymentStep: 'tickets' | 'payment' | 'complete'  // Current step in split check flow
+const finalizePayment = (method: string, amount: number, methodLabel: string) => {
+  // If paying a split check ticket, use split check handler
+  if (activePayingCheck !== null) {
+    // Mark check as paid, record payment with check label, return to tickets
+    handleSplitCheckPaymentComplete();
+    return;
+  }
+  
+  // Otherwise, proceed with normal payment completion
+  setPaymentHistory(prev => [...prev, { method, amount, methodLabel }]);
+  setPaidAmount(prev => prev + amount);
+  setPaymentProcessed(true);
+};
 ```
 
-### Flow Diagram
-```text
-┌─────────────────────────────────────────────────────────────────┐
-│                     SPLIT CHECK VIEW                            │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐                      │
-│  │ Check 1a │  │ Check 1b │  │ Check 1c │                      │
-│  │ $25.00   │  │ $25.00   │  │ $25.00   │                      │
-│  │  [Pay]   │  │  [Pay]   │  │  [Pay]   │                      │
-│  └──────────┘  └──────────┘  └──────────┘                      │
-└─────────────────────────────────────────────────────────────────┘
-                           │
-                     User clicks "Pay"
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                   PAYMENT METHODS SCREEN                        │
-│  Amount: $25.00 (Check 1a)                                      │
-│                                                                 │
-│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐                   │
-│  │Loyalty │ │  Card  │ │  Cash  │ │Gift Card│                   │
-│  └────────┘ └────────┘ └────────┘ └────────┘                   │
-│                                                                 │
-│  [← Back to Split Check]              [CHARGE $25.00]          │
-└─────────────────────────────────────────────────────────────────┘
-                           │
-                     Payment processed
-                           │
-                           ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                     SPLIT CHECK VIEW                            │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐                      │
-│  │ Check 1a │  │ Check 1b │  │ Check 1c │                      │
-│  │  PAID    │  │ $25.00   │  │ $25.00   │                      │
-│  │ [Paid]   │  │  [Pay]   │  │  [Pay]   │                      │
-│  └──────────┘  └──────────┘  └──────────┘                      │
-└─────────────────────────────────────────────────────────────────┘
-```
+### Step 2: Update All Payment Completion Points
+Replace all instances of `setPaymentProcessed(true)` with calls to `finalizePayment()`:
 
-### Implementation Steps
+**Payment Methods to Update:**
 
-#### Step 1: Add New State Variables
-Add to existing state declarations (around line 175-179):
-- `activePayingCheck` - tracks which check is being paid (null when viewing tickets)
-- `splitCheckPaymentStep` - controls whether we show tickets or payment methods
+| Payment Method | Completion Points |
+|----------------|-------------------|
+| **Loyalty** | CONTINUE button after OTP verification |
+| **Gift Card** | Continue button after card entry |
+| **Pay by Link** | CONTINUE button on payment complete screen |
+| **QR Code** | CONTINUE button on payment complete screen |
+| **Manual CC** | Print button, NO RECEIPT button |
+| **External CC** | Print button, NO RECEIPT button |
+| **Manual Card** | Print button, NO RECEIPT button |
+| **DoorDash** | Print button, NO RECEIPT button |
+| **Blizzful** | Print button, NO RECEIPT button |
+| **UberEats** | Print button, NO RECEIPT button |
+| **Grubhub** | Print button, NO RECEIPT button |
 
-#### Step 2: Modify `handlePayCheck` Function
-Change the function to transition to payment method selection instead of immediately marking as paid:
-- Set `activePayingCheck` to the selected check number
-- Set `splitCheckPaymentStep` to 'payment'
-- Set `paymentAmount` to the check's total
-- Exit split-check mode temporarily (set `selectedPaymentMethod` to 'cash')
+### Step 3: Handle Text/Email Receipt Flows
+Payment methods with receipt options (Manual CC, External CC, Manual Card, delivery services) also have Text and Email receipt flows that lead to payment completion. These "Send" buttons in the text/email receipt screens will also need to call `finalizePayment()`.
 
-#### Step 3: Create Payment Completion Handler for Split Check
-Add new function `handleSplitCheckPaymentComplete()`:
-- Mark the `activePayingCheck` as paid (add to `paidChecks`)
-- Record the payment in `paymentHistory` with the selected method
-- Reset `activePayingCheck` to null
-- Return to split-check view (`selectedPaymentMethod` = 'split-check')
-- If all checks are paid, show final receipt
+### Step 4: Update handleSplitCheckPaymentComplete to Use Current Method
+Modify `handleSplitCheckPaymentComplete()` to not hard-code the method from state, but allow passing method info or use the current `selectedPaymentMethod`:
 
-#### Step 4: Add Back Button to Payment Screen
-When in split-check payment mode, show a "Back to Split Check" button:
-- Allows user to cancel payment and return to ticket selection
-- Resets the temporary payment state
+The existing logic already uses `selectedPaymentMethod` correctly, but we need to ensure the payment history is not double-recorded (once by the method's own flow and once by split check completion).
 
-#### Step 5: Modify Charge Button Behavior
-Update `handleChargePayment()` to detect split-check payment mode:
-- If `activePayingCheck` is set, call the new completion handler
-- Otherwise, use existing payment logic
+### Step 5: Adjust Special Flows
+Some payment methods record to `paymentHistory` before setting `paymentProcessed`. We need to consolidate this so either:
+- The method flow does NOT record to history, and `finalizePayment` handles it, OR
+- We detect if already recorded and skip duplicate recording
 
-#### Step 6: Update Header Display
-When paying a specific check, show which check is being paid:
-- Header: "Pay Check 1a - $25.00" instead of generic "Total Due"
-
-#### Step 7: Reset States on Dialog Close
-Ensure all new state variables are reset when dialog opens/closes.
+**Recommended approach**: Let each method's completion button call `finalizePayment()` with the method details, and `finalizePayment` handles both split-check and normal flows consistently.
 
 ---
 
 ## Technical Details
 
 ### Files to Modify
-- `src/components/PaymentDialog.tsx` - All changes are in this single file
+- `src/components/PaymentDialog.tsx` - Single file with all changes
 
-### State Changes Summary
+### Key Changes Summary
+
+1. **New Helper Function** (add after `handleSplitCheckPaymentComplete`):
 ```text
-// New states to add:
-const [activePayingCheck, setActivePayingCheck] = useState<number | null>(null);
-const [splitCheckPaymentStep, setSplitCheckPaymentStep] = useState<'tickets' | 'payment'>('tickets');
-```
-
-### Key Logic Points
-
-1. **When "Pay" is clicked on a ticket:**
-   - Store the check number in `activePayingCheck`
-   - Set `splitCheckPaymentStep` to 'payment'
-   - Change `selectedPaymentMethod` to 'cash' (default)
-   - Set `paymentAmount` to check total
-
-2. **When payment is charged (for a split check):**
-   - Add check to `paidChecks`
-   - Record in `paymentHistory` with actual method used
-   - Update `paidAmount`
-   - Reset `activePayingCheck` to null
-   - Set `selectedPaymentMethod` back to 'split-check'
-   - If all checks paid, set `paymentProcessed` to true
-
-3. **"Back" button behavior:**
-   - Reset `activePayingCheck` to null
-   - Set `selectedPaymentMethod` back to 'split-check'
-   - Keep `paidChecks` and `paymentHistory` unchanged
-
-### Conditional Rendering Logic
-```text
-if (selectedPaymentMethod === 'split-check' && !activePayingCheck):
-    → Show Split Check tickets view
+const finalizePayment = (methodId: string, amount: number, methodLabel: string) => {
+  if (activePayingCheck !== null) {
+    const checkLabel = getCheckLabel(activePayingCheck - 1);
+    setPaidChecks(prev => [...prev, activePayingCheck]);
+    setPaymentHistory(prev => [...prev, { 
+      method: methodId, 
+      amount, 
+      methodLabel: `${methodLabel} (${checkLabel})` 
+    }]);
+    setPaidAmount(prev => prev + amount);
     
-if (activePayingCheck !== null):
-    → Show standard payment methods screen
-    → Include "Back to Split Check" button
-    → Show check label in header
+    if (paidChecks.length + 1 >= numberOfChecks) {
+      setPaymentProcessed(true);
+    } else {
+      setActivePayingCheck(null);
+      setSplitCheckPaymentStep('tickets');
+      setSelectedPaymentMethod('split-check');
+      // Reset method-specific states
+      resetPaymentMethodStates();
+    }
+    return;
+  }
+  
+  // Normal payment flow
+  setPaymentHistory(prev => [...prev, { method: methodId, amount, methodLabel }]);
+  setPaidAmount(prev => prev + amount);
+  setPaymentProcessed(true);
+};
 ```
 
-### Edge Cases to Handle
-- User closes dialog mid-payment → Reset all states
-- User clicks back after partial amount entry → Restore check total
-- All payment methods work with split check (Cash, Card, Loyalty, etc.)
-- Payment history shows which check was paid: "Cash (Check 1a)"
+2. **Add Reset Helper for Method States**:
+```text
+const resetPaymentMethodStates = () => {
+  setGiftCardStep('amount');
+  setGiftCardNumber('');
+  setPayByLinkStep('amount');
+  setSelectedGuest(null);
+  setQrCodeStep('amount');
+  setManualCCStep('amount');
+  setExternalCCStep('amount');
+  setManualCardStep('amount');
+  setDoordashStep('amount');
+  setBlizzfulStep('amount');
+  setUbereatsStep('amount');
+  setGrubhubStep('amount');
+  setLoyaltyStep('guest-list');
+  setLoyaltySelectedGuest(null);
+  setLoyaltyPointsToRedeem('');
+  setLoyaltyOtp(['', '', '', '']);
+  setTextReceiptStep('receipt');
+  setEmailReceiptStep('receipt');
+};
+```
+
+3. **Update Completion Points** - Replace direct `setPaymentProcessed(true)` with `finalizePayment()`:
+
+   - **Loyalty** (line ~1185): Replace with `finalizePayment('loyalty', pointsValue, 'Loyalty')`
+   - **Gift Card** (line ~1275): Replace with `finalizePayment('gift-card', paid, 'Gift Card')`
+   - **Pay by Link** (line ~1731): Replace with `finalizePayment('pay-link', amount, 'Pay by Link')`
+   - **QR Code** (line ~1934): Replace with `finalizePayment('qr-code', amount, 'QR Code')`
+   - **Manual CC** (lines ~2053, ~2087): Replace with `finalizePayment('manual-cc', amount, 'Manual CC')`
+   - **External CC** (lines ~2226, ~2260): Replace with `finalizePayment('external-cc', amount, 'External CC')`
+   - **Manual Card** (lines ~2488, ~2522): Replace with `finalizePayment('manual-card', amount, 'Manual Card')`
+   - **DoorDash** (lines ~2740, ~2776): Replace with `finalizePayment('doordash', amount, 'DoorDash')`
+   - **Blizzful** (lines ~2994, ~3030): Replace with `finalizePayment('blizzful', amount, 'Blizzful')`
+   - **UberEats** (~3248, ~3284): Replace with `finalizePayment('ubereats', amount, 'UberEats')`
+   - **Grubhub** (~3502, ~3538): Replace with `finalizePayment('grubhub', amount, 'Grubhub')`
+
+---
+
+## Expected Behavior After Fix
+
+1. User opens Split Check, selects "Split Evenly" with 3 checks
+2. User clicks "Pay" on Check 1a - transitions to payment methods
+3. User selects "Loyalty" (or any method) and completes the flow
+4. After completion, user returns to Split Check ticket grid
+5. Check 1a shows "PAID" stamp, Checks 1b and 1c remain payable
+6. User clicks "Pay" on Check 1b, selects "Gift Card", completes
+7. Returns to ticket grid, Check 1b now shows "PAID"
+8. User clicks "Pay" on Check 1c, selects "Cash", completes
+9. All checks paid - shows final receipt screen
+
+---
+
+## Testing Checklist
+- [ ] Split Check with Cash payment
+- [ ] Split Check with Card payment
+- [ ] Split Check with Loyalty payment
+- [ ] Split Check with Gift Card payment
+- [ ] Split Check with Pay by Link payment
+- [ ] Split Check with QR Code payment
+- [ ] Split Check with Manual CC payment
+- [ ] Split Check with External CC payment
+- [ ] Split Check with Manual Card payment
+- [ ] Split Check with DoorDash payment
+- [ ] Split Check with Blizzful payment
+- [ ] Split Check with UberEats payment
+- [ ] Split Check with Grubhub payment
+- [ ] Verify payment history shows correct check labels
+- [ ] Verify all checks paid triggers final receipt
+- [ ] Verify "Back to Split Check" button works from all methods

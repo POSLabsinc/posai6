@@ -180,7 +180,12 @@ export function PaymentDialog({
   
   // Split Check ticket-by-ticket payment flow
   const [activePayingCheck, setActivePayingCheck] = useState<number | null>(null); // Which check is being paid
-  const [splitCheckPaymentStep, setSplitCheckPaymentStep] = useState<'tickets' | 'payment'>('tickets');
+  const [splitCheckPaymentStep, setSplitCheckPaymentStep] = useState<'tickets' | 'payment' | 'receipt'>('tickets');
+  const [lastPaidCheckAmount, setLastPaidCheckAmount] = useState<number>(0); // Track amount for receipt display
+  const [lastPaidCheckLabel, setLastPaidCheckLabel] = useState<string>(''); // Track check label for receipt display
+  const [splitCheckReceiptPhone, setSplitCheckReceiptPhone] = useState('');
+  const [splitCheckReceiptEmail, setSplitCheckReceiptEmail] = useState('');
+  const [splitCheckReceiptMode, setSplitCheckReceiptMode] = useState<'selection' | 'phone' | 'email'>('selection');
 
   // Reset states when dialog opens
   useEffect(() => {
@@ -215,6 +220,11 @@ export function PaymentDialog({
       setPaidChecks([]);
       setActivePayingCheck(null);
       setSplitCheckPaymentStep('tickets');
+      setLastPaidCheckAmount(0);
+      setLastPaidCheckLabel('');
+      setSplitCheckReceiptPhone('');
+      setSplitCheckReceiptEmail('');
+      setSplitCheckReceiptMode('selection');
     }
   }, [open, total]);
 
@@ -328,14 +338,19 @@ export function PaymentDialog({
     // Update paid amount
     setPaidAmount(prev => prev + amount);
     
+    // Store info for receipt display
+    setLastPaidCheckAmount(amount);
+    setLastPaidCheckLabel(checkLabel);
+    setSplitCheckReceiptMode('selection');
+    setSplitCheckReceiptPhone('');
+    setSplitCheckReceiptEmail('');
+    
     // Check if all checks are now paid
     if (paidChecks.length + 1 >= numberOfChecks) {
       setPaymentProcessed(true);
     } else {
-      // Return to split check ticket view
-      setActivePayingCheck(null);
-      setSplitCheckPaymentStep('tickets');
-      setSelectedPaymentMethod('split-check');
+      // Show receipt screen for this ticket before returning to grid
+      setSplitCheckPaymentStep('receipt');
     }
   };
 
@@ -344,6 +359,45 @@ export function PaymentDialog({
     setActivePayingCheck(null);
     setSplitCheckPaymentStep('tickets');
     setSelectedPaymentMethod('split-check');
+  };
+
+  // Handle continuing from split check receipt to next ticket
+  const handleSplitCheckReceiptComplete = () => {
+    setActivePayingCheck(null);
+    setSplitCheckPaymentStep('tickets');
+    setSelectedPaymentMethod('split-check');
+    setSplitCheckReceiptMode('selection');
+    setSplitCheckReceiptPhone('');
+    setSplitCheckReceiptEmail('');
+  };
+
+  // Split check receipt phone keypad handler
+  const handleSplitCheckPhoneKeypress = (key: string) => {
+    if (key === 'delete') {
+      setSplitCheckReceiptPhone(prev => prev.slice(0, -1));
+    } else {
+      const digits = splitCheckReceiptPhone.replace(/\D/g, '');
+      if (digits.length < 10) {
+        const newDigits = digits + key;
+        // Format as (XXX) XXX-XXXX
+        if (newDigits.length <= 3) {
+          setSplitCheckReceiptPhone(`(${newDigits}`);
+        } else if (newDigits.length <= 6) {
+          setSplitCheckReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
+        } else {
+          setSplitCheckReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
+        }
+      }
+    }
+  };
+
+  // Split check receipt email keyboard handler
+  const handleSplitCheckEmailKeypress = (key: string) => {
+    if (key === 'delete') {
+      setSplitCheckReceiptEmail(prev => prev.slice(0, -1));
+    } else {
+      setSplitCheckReceiptEmail(prev => prev + key);
+    }
   };
 
   // Reset all payment method specific states - used when returning to split check grid
@@ -396,14 +450,20 @@ export function PaymentDialog({
       // Update paid amount
       setPaidAmount(prev => prev + amount);
       
+      // Store info for receipt display
+      setLastPaidCheckAmount(amount);
+      setLastPaidCheckLabel(checkLabel);
+      setSplitCheckReceiptMode('selection');
+      setSplitCheckReceiptPhone('');
+      setSplitCheckReceiptEmail('');
+      
       // Check if all checks are now paid
       if (paidChecks.length + 1 >= numberOfChecks) {
+        // All checks paid - go to final receipt
         setPaymentProcessed(true);
       } else {
-        // Return to split check ticket view
-        setActivePayingCheck(null);
-        setSplitCheckPaymentStep('tickets');
-        setSelectedPaymentMethod('split-check');
+        // Show receipt screen for this ticket before returning to grid
+        setSplitCheckPaymentStep('receipt');
         // Reset method-specific states for next payment
         resetPaymentMethodStates();
       }
@@ -3687,7 +3747,188 @@ export function PaymentDialog({
                 </>
               )}
             </>
-          ) : selectedPaymentMethod === 'split-check' && activePayingCheck === null ? (
+          ) : selectedPaymentMethod === 'split-check' && splitCheckPaymentStep === 'receipt' ? (
+            /* ============= SPLIT CHECK TICKET RECEIPT SCREEN ============= */
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-700">
+                <div className="flex-1" />
+                <span className="text-white text-lg font-medium">{lastPaidCheckLabel} Receipt</span>
+                <div className="flex-1 flex justify-end">
+                  <button 
+                    onClick={handleSplitCheckReceiptComplete}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <X className="w-5 h-5 text-neutral-400" />
+                  </button>
+                </div>
+              </div>
+
+              {splitCheckReceiptMode === 'selection' ? (
+                <div className="flex-1 flex flex-col items-center justify-center py-8 px-6">
+                  {/* Success Icon */}
+                  <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-4" />
+                  
+                  <p className="text-neutral-300 text-sm mb-6">
+                    <span className="text-green-500 font-medium">${lastPaidCheckAmount.toFixed(2)}</span> has been successfully processed for {lastPaidCheckLabel}
+                  </p>
+
+                  {/* Receipt Options */}
+                  <div className="w-full max-w-xs">
+                    <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
+                    <div className="flex gap-4 justify-center mb-4">
+                      <button 
+                        onClick={handleSplitCheckReceiptComplete}
+                        className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        <Printer className="w-6 h-6 text-neutral-400" />
+                        <span className="text-neutral-400 text-sm">Print</span>
+                      </button>
+                      <button 
+                        onClick={() => setSplitCheckReceiptMode('phone')}
+                        className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        <MessageSquare className="w-6 h-6 text-neutral-400" />
+                        <span className="text-neutral-400 text-sm">Text</span>
+                      </button>
+                      <button 
+                        onClick={() => setSplitCheckReceiptMode('email')}
+                        className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                      >
+                        <Mail className="w-6 h-6 text-neutral-400" />
+                        <span className="text-neutral-400 text-sm">Email</span>
+                      </button>
+                    </div>
+                    <button 
+                      onClick={handleSplitCheckReceiptComplete}
+                      className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors mb-6"
+                    >
+                      NO RECEIPT
+                    </button>
+
+                    {/* Remaining checks info */}
+                    <div className="text-center text-neutral-400 text-sm">
+                      {numberOfChecks - paidChecks.length} of {numberOfChecks} checks remaining
+                    </div>
+                  </div>
+                </div>
+              ) : splitCheckReceiptMode === 'phone' ? (
+                <div className="flex-1 flex flex-col py-4 px-6">
+                  {/* Phone Input Header */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <button 
+                      onClick={() => setSplitCheckReceiptMode('selection')}
+                      className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                    </button>
+                    <span className="text-white font-medium">Send {lastPaidCheckLabel} receipt via SMS</span>
+                  </div>
+
+                  {/* Phone Input */}
+                  <div className="flex items-center bg-neutral-800 rounded-lg overflow-hidden mb-4">
+                    <div className="flex items-center gap-1 px-3 py-3 border-r border-neutral-700">
+                      <span className="text-white text-sm font-medium">US +1</span>
+                      <ChevronDown className="w-4 h-4 text-neutral-400" />
+                    </div>
+                    <input 
+                      type="text" 
+                      placeholder="(000) 000-0000" 
+                      value={splitCheckReceiptPhone} 
+                      readOnly 
+                      className="flex-1 bg-transparent text-white px-3 py-3 text-sm placeholder:text-neutral-500 outline-none" 
+                    />
+                  </div>
+
+                  {/* Send Button */}
+                  <button 
+                    onClick={handleSplitCheckReceiptComplete}
+                    disabled={splitCheckReceiptPhone.replace(/\D/g, '').length < 10}
+                    className="w-full py-3 bg-neutral-700 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+                  >
+                    SEND
+                  </button>
+
+                  {/* Numeric Keypad */}
+                  <div className="flex-1 flex flex-col justify-end">
+                    <div className="grid grid-cols-3 gap-2">
+                      {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => (
+                        <button 
+                          key={key}
+                          onClick={() => handleSplitCheckPhoneKeypress(key)}
+                          className={`h-12 rounded-lg text-lg font-medium transition-colors ${
+                            key === '' ? 'invisible' : 
+                            key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 
+                            'bg-neutral-800 text-white hover:bg-neutral-700'
+                          }`}
+                        >
+                          {key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ) : splitCheckReceiptMode === 'email' ? (
+                <div className="flex-1 flex flex-col py-4 px-6">
+                  {/* Email Input Header */}
+                  <div className="flex items-center gap-2 mb-4">
+                    <button 
+                      onClick={() => setSplitCheckReceiptMode('selection')}
+                      className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                    </button>
+                    <span className="text-white font-medium">Send {lastPaidCheckLabel} receipt via Email</span>
+                  </div>
+
+                  {/* Email Input */}
+                  <input 
+                    type="text" 
+                    placeholder="email@example.com" 
+                    value={splitCheckReceiptEmail} 
+                    readOnly 
+                    className="w-full bg-neutral-800 text-white px-4 py-3 rounded-lg text-sm placeholder:text-neutral-500 outline-none mb-4" 
+                  />
+
+                  {/* Send Button */}
+                  <button 
+                    onClick={handleSplitCheckReceiptComplete}
+                    disabled={!splitCheckReceiptEmail.includes('@') || !splitCheckReceiptEmail.includes('.')}
+                    className="w-full py-3 bg-neutral-700 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed mb-4"
+                  >
+                    SEND
+                  </button>
+
+                  {/* QWERTY Keyboard */}
+                  <div className="flex-1 flex flex-col justify-end gap-1">
+                    {[
+                      ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+                      ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+                      ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+                      ['z', 'x', 'c', 'v', 'b', 'n', 'm', 'delete'],
+                      ['@', '.', '_', '-', '.com', '.net', '@gmail.com']
+                    ].map((row, rowIndex) => (
+                      <div key={rowIndex} className="flex justify-center gap-1">
+                        {row.map(key => (
+                          <button 
+                            key={key}
+                            onClick={() => handleSplitCheckEmailKeypress(key)}
+                            className={`rounded-md text-sm font-medium transition-colors ${
+                              key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600 px-3 h-10' :
+                              key.length > 1 ? 'bg-neutral-700 text-white hover:bg-neutral-600 px-2 h-10 text-xs' :
+                              'bg-neutral-800 text-white hover:bg-neutral-700 w-8 h-10'
+                            }`}
+                          >
+                            {key === 'delete' ? <Delete className="w-4 h-4 mx-auto" /> : key}
+                          </button>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          ) : selectedPaymentMethod === 'split-check' && activePayingCheck === null && splitCheckPaymentStep === 'tickets' ? (
             /* ============= REDESIGNED SPLIT CHECK FLOW - CHECK CARDS LAYOUT ============= */
             <div className="flex flex-col h-full">
               {/* Header */}

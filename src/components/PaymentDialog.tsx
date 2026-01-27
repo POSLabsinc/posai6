@@ -4707,7 +4707,7 @@ export function PaymentDialog({
 
         {/* Order Details Panel */}
         <div 
-          className="w-[320px] border-l border-neutral-700 flex flex-col rounded-xl"
+          className="w-[360px] border-l border-neutral-700 flex flex-col rounded-xl"
           style={{
             background: "#7575754D",
             boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"

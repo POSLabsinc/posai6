@@ -4780,25 +4780,44 @@ export function PaymentDialog({
             className="flex-1 overflow-y-auto p-3 space-y-2" 
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
-            {orderDetails.items.map(item => (
-              <div 
-                key={item.id} 
-                className="p-2 border border-sidebar-border rounded-lg" 
-                style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
-              >
-                <div className="flex items-center gap-2">
-                  <span className="w-5 h-5 rounded bg-neutral-700 border border-neutral-600 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
-                    {item.qty}
-                  </span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between">
-                      <span className="text-white text-xs font-medium truncate">{item.name}</span>
-                      <span className="text-white text-xs font-medium ml-2">${(item.price * item.qty).toFixed(2)}</span>
+            {orderDetails.items.map(item => {
+              const itemSeats = item.assignedSeats || [];
+              const isItemShared = item.isShared || itemSeats.length === 0;
+              return (
+                <div 
+                  key={item.id} 
+                  className="p-2 border border-sidebar-border rounded-lg" 
+                  style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="w-5 h-5 rounded bg-neutral-700 border border-neutral-600 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
+                      {item.qty}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white text-xs font-medium truncate">{item.name}</span>
+                        <span className="text-white text-xs font-medium ml-2">${(item.price * item.qty).toFixed(2)}</span>
+                      </div>
+                      {/* Seat indicators */}
+                      <div className="flex items-center gap-0.5 mt-1">
+                        <Users className="w-2.5 h-2.5 text-neutral-500" />
+                        {isItemShared ? (
+                          <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
+                            <Share2 className="w-2.5 h-2.5" />
+                          </span>
+                        ) : (
+                          itemSeats.map(seat => (
+                            <span key={seat} className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center">
+                              {seat}
+                            </span>
+                          ))
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
 
           {/* Payment History */}

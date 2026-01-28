@@ -1,57 +1,39 @@
 
-# Hide Table-Specific Details for Direct Orders in Payment Dialog Sidebar
+
+# Show Direct Order Details in Payment Dialog Sidebar
 
 ## Overview
-When creating a direct order from the New Order screen and opening the Payment Dialog, the sidebar currently displays table-specific information (party size, seat numbers) that is not relevant for direct orders. These elements should only appear for table orders.
+When processing payment for direct orders from the New Order screen, the Payment Dialog sidebar should display relevant order information instead of table-specific details. Currently, the sidebar shows hardcoded values and table-centric UI that doesn't apply to direct orders.
 
 ---
 
-## Current Issues
-
-The sidebar in PaymentDialog shows table-specific UI elements even for direct orders:
-
-| Element | Location | Issue |
-|---------|----------|-------|
-| Users icon + "4" guests | Header Row 2 | Hardcoded "4" displayed for all orders |
-| Seat number badges per item | Item list | Shows Users icon + seat/share indicators for every item |
-
----
-
-## Solution
-
-Use `orderDetails.partySize` as the conditional check to determine if the order is a table order. This property is:
-- **Present** for table orders (passed from TableOrderDetails)
-- **Undefined** for direct orders (not passed from Orders page)
+## Current vs Desired Behavior
 
 ```text
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                    Sidebar Display Logic                                 │
+│                    CURRENT STATE (Direct Order)                          │
 ├─────────────────────────────────────────────────────────────────────────┤
-│                                                                          │
-│  TABLE ORDER (partySize defined):                                        │
 │  ┌─────────────────────────────────────────────────────────────────┐    │
-│  │  Guest Name         (555) 123-4567              2:30 PM         │    │
-│  │  ┌─────────┐   ┌───────────────┐   ┌─────────────────┐         │    │
-│  │  │TABLE T2 │   │ 👥 4    10    │   │ 👤 SERVER       │         │    │
-│  │  └─────────┘   └───────────────┘   └─────────────────┘         │    │
-│  └─────────────────────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────────────────────┐    │
-│  │  [1] Margherita Pizza                              $18.99       │    │
-│  │      👥 [1] [2]                    ← Seat indicators shown      │    │
+│  │  Guest Name         (555) 123-4567              [LIVE TIME]     │    │
+│  │                                                                  │    │
+│  │                     👤 SERVER   ← Hardcoded "SERVER" text       │    │
 │  └─────────────────────────────────────────────────────────────────┘    │
 │                                                                          │
-│  DIRECT ORDER (partySize undefined):                                     │
+│  Missing: Order Type, Order Number, Actual Server Name, Order Time      │
+└─────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    DESIRED STATE (Direct Order)                          │
+├─────────────────────────────────────────────────────────────────────────┤
 │  ┌─────────────────────────────────────────────────────────────────┐    │
-│  │  Guest Name         (555) 123-4567              2:30 PM         │    │
-│  │                     ┌─────────────────┐                         │    │
-│  │                     │ 👤 SERVER       │    ← Only server shown  │    │
-│  │                     └─────────────────┘                         │    │
-│  └─────────────────────────────────────────────────────────────────┘    │
-│  ┌─────────────────────────────────────────────────────────────────┐    │
-│  │  [1] Margherita Pizza                              $18.99       │    │
-│  │                                     ← No seat indicators        │    │
+│  │  Guest Name         (555) 123-4567              8:30 PM         │    │
+│  │                                                                  │    │
+│  │  ┌──────────┐   ┌─────────────┐   ┌────────────────────┐       │    │
+│  │  │ TAKE OUT │   │ ORDER #123  │   │ 👤 MIA JONES       │       │    │
+│  │  └──────────┘   └─────────────┘   └────────────────────┘       │    │
 │  └─────────────────────────────────────────────────────────────────┘    │
 │                                                                          │
+│  Shows: Order Type Badge, Order Number, Server Name, Order Time         │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -59,107 +41,161 @@ Use `orderDetails.partySize` as the conditional check to determine if the order 
 
 ## Implementation Steps
 
-### Step 1: Conditionally Render Party Size Display in Header
+### Step 1: Extend the PaymentDialogOrderDetails Interface
 
-Update the header Row 2 to only show the Users/guests section when `partySize` exists:
+Add new optional fields to support direct order information:
 
-**Current code (lines 4779-4783):**
+**File:** `src/components/PaymentDialog.tsx` (lines 24-31)
+
 ```typescript
-<div className="flex items-center gap-2 text-neutral-300">
-  <Users className="w-3 h-3" />
-  <span className="text-xs">4</span>
-  <span className="text-white font-medium text-xs ml-1">10</span>
-</div>
+export interface PaymentDialogOrderDetails {
+  guest?: string;
+  phone?: string;
+  table?: string;
+  check?: number | string;
+  partySize?: number;        // Number of guests at the table
+  orderType?: string;        // NEW: "DINE IN", "TAKE OUT", "DELIVERY", etc.
+  orderNumber?: number | string;  // NEW: Order number for display
+  serverName?: string;       // NEW: Actual server name
+  orderTime?: string;        // NEW: Time order was created (formatted string)
+  items: PaymentDialogOrderItem[];
+}
 ```
 
-**New code:**
+### Step 2: Update Orders.tsx to Pass New Fields
+
+Add order creation time tracking and pass new fields to PaymentDialog:
+
+**File:** `src/pages/Orders.tsx`
+
+1. Add state for order creation time (after line 6141):
 ```typescript
-{orderDetails.partySize && (
-  <div className="flex items-center gap-2 text-neutral-300">
-    <Users className="w-3 h-3" />
-    <span className="text-xs">{orderDetails.partySize}</span>
-  </div>
-)}
+const [orderCreatedTime, setOrderCreatedTime] = useState<string>(() => {
+  return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+});
 ```
 
-This also fixes the hardcoded "4" to use the actual `partySize` value.
-
-### Step 2: Conditionally Render Seat Indicators on Items
-
-Update the order items mapping to only show seat indicators when `partySize` exists:
-
-**Current code (lines 4869-4883):**
+2. Update PaymentDialog invocation (lines 8878-8892):
 ```typescript
-{/* Seat indicators */}
-<div className="flex items-center gap-0.5 mt-1">
-  <Users className="w-2.5 h-2.5 text-neutral-500" />
-  {isItemShared ? (
-    <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
-      <Share2 className="w-2.5 h-2.5" />
+<PaymentDialog
+  open={showPaymentDialog}
+  onOpenChange={setShowPaymentDialog}
+  orderDetails={{
+    guest: guestName || "Guest",
+    phone: guestPhone ? formatPhoneNumber(guestPhone) : undefined,
+    table: isTableOrder ? `T${orderNumber}` : undefined,
+    check: orderNumber,
+    orderType: orderType,           // NEW
+    orderNumber: orderNumber,       // NEW
+    serverName: "Mia Jones",        // NEW (can be made dynamic later)
+    orderTime: orderCreatedTime,    // NEW
+    items: orderItems.map(item => ({
+      id: item.id,
+      qty: item.qty,
+      name: item.name,
+      price: item.price
+    }))
+  }}
+  // ... rest of props
+/>
+```
+
+### Step 3: Update PaymentDialog Sidebar Header
+
+Modify the sidebar to show direct order info when `partySize` is not present:
+
+**File:** `src/components/PaymentDialog.tsx` (lines 4752-4790)
+
+**Row 1: Update time display** - Use `orderDetails.orderTime` when available, fallback to live time:
+```typescript
+<span className="text-neutral-300 text-xs">
+  {orderDetails.orderTime || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+</span>
+```
+
+**Row 2: Conditional rendering for direct orders**:
+```typescript
+{/* Row 2: Table/Order Type, Order Number, Server */}
+<div className="flex items-center justify-between mt-3">
+  {/* For table orders: show TABLE badge */}
+  {orderDetails.table && (
+    <span className="text-white text-[10px] font-medium px-2 py-1 rounded" 
+      style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+      TABLE {orderDetails.table}
     </span>
-  ) : (
-    itemSeats.map(seat => (
-      <span key={seat} className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center">
-        {seat}
-      </span>
-    ))
   )}
-</div>
-```
-
-**New code:**
-```typescript
-{/* Seat indicators - only for table orders */}
-{orderDetails.partySize && (
-  <div className="flex items-center gap-0.5 mt-1">
-    <Users className="w-2.5 h-2.5 text-neutral-500" />
-    {isItemShared ? (
-      <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
-        <Share2 className="w-2.5 h-2.5" />
-      </span>
-    ) : (
-      itemSeats.map(seat => (
-        <span key={seat} className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center">
-          {seat}
-        </span>
-      ))
-    )}
+  
+  {/* For direct orders (no table): show ORDER TYPE badge */}
+  {!orderDetails.table && orderDetails.orderType && (
+    <span className="text-white text-[10px] font-medium px-2 py-1 rounded" 
+      style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+      {orderDetails.orderType}
+    </span>
+  )}
+  
+  {/* For table orders: show party size */}
+  {orderDetails.partySize && (
+    <div className="flex items-center gap-2 text-neutral-300">
+      <Users className="w-3 h-3" />
+      <span className="text-xs">{orderDetails.partySize}</span>
+    </div>
+  )}
+  
+  {/* For direct orders: show order number */}
+  {!orderDetails.partySize && orderDetails.orderNumber && (
+    <span className="text-white text-[10px] font-medium px-2 py-1 rounded" 
+      style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+      ORDER #{orderDetails.orderNumber}
+    </span>
+  )}
+  
+  {/* Server name - use actual name if provided */}
+  <div className="flex items-center gap-1.5 text-neutral-300">
+    <User className="w-3 h-3" />
+    <span className="text-xs">{orderDetails.serverName || "SERVER"}</span>
   </div>
-)}
+</div>
 ```
 
 ---
 
 ## Technical Details
 
-### File to Modify
+### Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/components/PaymentDialog.tsx` | Add conditional rendering for party size and seat indicators |
+| `src/components/PaymentDialog.tsx` | Extend interface, update sidebar header rendering |
+| `src/pages/Orders.tsx` | Add order time state, pass new fields to PaymentDialog |
 
-### Code Change Locations
+### New Interface Fields
 
-| Lines | Change |
-|-------|--------|
-| 4779-4783 | Wrap party size display in `orderDetails.partySize &&` conditional |
-| 4869-4883 | Wrap seat indicators in `orderDetails.partySize &&` conditional |
+| Field | Type | Purpose |
+|-------|------|---------|
+| `orderType` | `string?` | Display order type badge (DINE IN, TAKE OUT, etc.) |
+| `orderNumber` | `number \| string?` | Display order number |
+| `serverName` | `string?` | Display actual server name instead of "SERVER" |
+| `orderTime` | `string?` | Display order creation time instead of live time |
 
 ---
 
-## Behavior Summary
+## Visual Comparison
 
-| Order Type | Table Badge | Party Size | Server | Item Seat Indicators |
-|------------|-------------|------------|--------|---------------------|
-| Table Order | Shown (if table exists) | Shown (actual value) | Shown | Shown |
-| Direct Order | Hidden | Hidden | Shown | Hidden |
+| Element | Table Order | Direct Order |
+|---------|-------------|--------------|
+| Row 1 Left | Guest Name | Guest Name |
+| Row 1 Center | Phone Number | Phone Number |
+| Row 1 Right | Order Time | Order Time |
+| Row 2 Left | TABLE T2 badge | TAKE OUT badge |
+| Row 2 Center | Party Size (4 guests) | ORDER #123 |
+| Row 2 Right | Server Name | Server Name |
 
 ---
 
 ## Testing Checklist
-- Open Payment Dialog from New Order screen (direct order) - no party size or seat indicators shown
-- Open Payment Dialog from Table Order screen - party size and seat indicators shown
-- Party size displays actual value from `partySize` instead of hardcoded "4"
-- Server label remains visible for both order types
-- Table badge still shows only when `orderDetails.table` exists
-- All payment functionality works correctly after changes
+- Open Payment Dialog from New Order screen → Shows order type, order number, server name
+- Open Payment Dialog from Table Order screen → Shows table badge, party size (existing behavior)
+- Order time displays the actual creation time, not live updating time
+- Server name displays "Mia Jones" instead of hardcoded "SERVER"
+- All existing payment flows continue to work correctly
+

@@ -178,6 +178,7 @@ export function PaymentDialog({
   // Split Check states - New redesigned flow
   const [splitMode, setSplitMode] = useState<'seat' | 'evenly' | 'custom'>('evenly');
   const [numberOfChecks, setNumberOfChecks] = useState(2);
+  const [savedNonSeatChecks, setSavedNonSeatChecks] = useState(2); // Preserve manual count when switching modes
   const [checkAssignments, setCheckAssignments] = useState<Record<number, number>>({}); // Maps item.id -> check number
   const [paidChecks, setPaidChecks] = useState<number[]>([]); // Track which checks have been paid
   
@@ -225,6 +226,7 @@ export function PaymentDialog({
       // Reset split check states
       setSplitMode('evenly');
       setNumberOfChecks(2);
+      setSavedNonSeatChecks(2);
       setCheckAssignments({});
       setPaidChecks([]);
       setActivePayingCheck(null);
@@ -4128,10 +4130,19 @@ export function PaymentDialog({
                     <button
                       key={tab.id}
                       onClick={() => {
+                        const previousMode = splitMode;
                         setSplitMode(tab.id);
+                        
                         if (tab.id === 'seat') {
+                          // Save current count before switching to seat mode
+                          if (previousMode !== 'seat') {
+                            setSavedNonSeatChecks(numberOfChecks);
+                          }
                           // Auto-set checks to party size
                           setNumberOfChecks(orderDetails.partySize || 4);
+                        } else if (previousMode === 'seat') {
+                          // Restore saved count when leaving seat mode
+                          setNumberOfChecks(savedNonSeatChecks);
                         }
                       }}
                       className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
@@ -4149,7 +4160,13 @@ export function PaymentDialog({
                 {splitMode !== 'seat' && (
                   <div className="flex items-center gap-2">
                     <button
-                      onClick={() => setNumberOfChecks(prev => Math.max(2, prev - 1))}
+                      onClick={() => {
+                        setNumberOfChecks(prev => {
+                          const newVal = Math.max(2, prev - 1);
+                          setSavedNonSeatChecks(newVal);
+                          return newVal;
+                        });
+                      }}
                       disabled={numberOfChecks <= 2}
                       className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >
@@ -4157,7 +4174,13 @@ export function PaymentDialog({
                     </button>
                     <span className="text-white font-bold text-lg w-6 text-center">{numberOfChecks}</span>
                     <button
-                      onClick={() => setNumberOfChecks(prev => Math.min(10, prev + 1))}
+                      onClick={() => {
+                        setNumberOfChecks(prev => {
+                          const newVal = Math.min(10, prev + 1);
+                          setSavedNonSeatChecks(newVal);
+                          return newVal;
+                        });
+                      }}
                       disabled={numberOfChecks >= 10}
                       className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                     >

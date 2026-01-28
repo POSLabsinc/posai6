@@ -4776,11 +4776,12 @@ export function PaymentDialog({
                   TABLE {orderDetails.table}
                 </span>
               )}
-              <div className="flex items-center gap-2 text-neutral-300">
-                <Users className="w-3 h-3" />
-                <span className="text-xs">4</span>
-                <span className="text-white font-medium text-xs ml-1">10</span>
-              </div>
+              {orderDetails.partySize && (
+                <div className="flex items-center gap-2 text-neutral-300">
+                  <Users className="w-3 h-3" />
+                  <span className="text-xs">{orderDetails.partySize}</span>
+                </div>
+              )}
               <div className="flex items-center gap-1.5 text-neutral-300">
                 <User className="w-3 h-3" />
                 <span className="text-xs">SERVER</span>
@@ -4866,21 +4867,23 @@ export function PaymentDialog({
                         <span className="text-white text-xs font-medium truncate">{item.name}</span>
                         <span className="text-white text-xs font-medium ml-2">${(item.price * item.qty).toFixed(2)}</span>
                       </div>
-                      {/* Seat indicators */}
-                      <div className="flex items-center gap-0.5 mt-1">
-                        <Users className="w-2.5 h-2.5 text-neutral-500" />
-                        {isItemShared ? (
-                          <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
-                            <Share2 className="w-2.5 h-2.5" />
-                          </span>
-                        ) : (
-                          itemSeats.map(seat => (
-                            <span key={seat} className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center">
-                              {seat}
+                      {/* Seat indicators - only for table orders */}
+                      {orderDetails.partySize && (
+                        <div className="flex items-center gap-0.5 mt-1">
+                          <Users className="w-2.5 h-2.5 text-neutral-500" />
+                          {isItemShared ? (
+                            <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
+                              <Share2 className="w-2.5 h-2.5" />
                             </span>
-                          ))
-                        )}
-                      </div>
+                          ) : (
+                            itemSeats.map(seat => (
+                              <span key={seat} className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center">
+                                {seat}
+                              </span>
+                            ))
+                          )}
+                        </div>
+                      )}
                       
                       {/* Show assigned check badge in custom split mode */}
                       {isAssigned && isInCustomSplitMode && (

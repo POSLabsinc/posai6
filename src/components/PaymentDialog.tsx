@@ -6,6 +6,7 @@ import {
   UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, 
   RefreshCw, Send, Zap, Users, Clock, Share2, GripVertical
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import tickSuccessIcon from "@/assets/icons/tick-success.svg";
@@ -200,6 +201,9 @@ export function PaymentDialog({
   // Custom Split drag-and-drop states
   const [draggingItemId, setDraggingItemId] = useState<number | null>(null);
   const [dragOverCheckNum, setDragOverCheckNum] = useState<number | null>(null);
+
+  // Mobile detection
+  const isMobile = useIsMobile();
 
   // Reset states when dialog opens
   useEffect(() => {
@@ -686,12 +690,45 @@ export function PaymentDialog({
       onClick={() => onOpenChange(false)}
     >
       <div 
-        className={`bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh] max-w-[95vw] transition-all duration-300 ${getSplitCheckDialogWidth()}`}
+        className={`bg-neutral-900 rounded-xl border border-neutral-700 overflow-hidden animate-scale-in transition-all duration-300 ${
+          isMobile 
+            ? 'flex flex-col w-full h-[100dvh] max-h-[100dvh] rounded-none m-0' 
+            : `flex max-h-[90vh] max-w-[95vw] mx-4 ${getSplitCheckDialogWidth()}`
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Mobile Order Summary Header */}
+        {isMobile && !paymentProcessed && (
+          <div className="px-4 py-2 border-b border-neutral-700 bg-neutral-800/50 flex-shrink-0">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-white font-medium text-sm">{orderDetails.guest || "Guest"}</span>
+                {orderDetails.orderType && !orderDetails.table && (
+                  <span className="text-[10px] text-neutral-400 px-1.5 py-0.5 bg-neutral-700 rounded">
+                    {orderDetails.orderType}
+                  </span>
+                )}
+                {orderDetails.table && (
+                  <span className="text-[10px] text-neutral-400 px-1.5 py-0.5 bg-neutral-700 rounded">
+                    TABLE {orderDetails.table}
+                  </span>
+                )}
+              </div>
+              <span className="text-red-500 font-bold">${total.toFixed(2)}</span>
+            </div>
+            <div className="flex items-center gap-2 mt-1 text-neutral-400 text-xs">
+              {orderDetails.phone && <span>{orderDetails.phone}</span>}
+              {orderDetails.orderNumber && <span>Order #{orderDetails.orderNumber}</span>}
+              {orderDetails.serverName && <span>• {orderDetails.serverName}</span>}
+            </div>
+          </div>
+        )}
+        
         {/* Left Panel - Payment Methods & Keypad */}
-        <div className={`flex flex-col bg-neutral-900 max-h-[90vh] overflow-hidden transition-all duration-300 ${
-          selectedPaymentMethod === 'split-check' ? 'w-full' : 'w-[480px]'
+        <div className={`flex flex-col bg-neutral-900 overflow-hidden transition-all duration-300 ${
+          isMobile 
+            ? 'flex-1 w-full max-h-full overflow-y-auto' 
+            : `max-h-[90vh] ${selectedPaymentMethod === 'split-check' ? 'w-full' : 'w-[480px]'}`
         }`}>
           {paymentProcessed ? (
             // Receipt Screen with Text/Email input handling
@@ -4098,7 +4135,7 @@ export function PaymentDialog({
             /* ============= REDESIGNED SPLIT CHECK FLOW - CHECK CARDS LAYOUT ============= */
             <div className="flex flex-col h-full">
               {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-700">
+              <div className={`flex items-center justify-between ${isMobile ? 'px-4 py-3' : 'px-6 py-4'} border-b border-neutral-700`}>
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={() => setSelectedPaymentMethod('cash')}
@@ -4106,7 +4143,7 @@ export function PaymentDialog({
                   >
                     <ArrowLeft className="w-5 h-5 text-neutral-300" />
                   </button>
-                  <span className="text-white text-lg font-medium">Split Payment</span>
+                  <span className={`text-white ${isMobile ? 'text-base' : 'text-lg'} font-medium`}>Split Payment</span>
                 </div>
                 <button 
                   onClick={() => {
@@ -4123,13 +4160,13 @@ export function PaymentDialog({
               </div>
 
               {/* Tab Navigation + Check Counter */}
-              <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700">
+              <div className={`flex items-center justify-between ${isMobile ? 'px-2 py-2' : 'px-4 py-3'} border-b border-neutral-700`}>
                 {/* Split Mode Tabs */}
-                <div className="flex gap-2">
+                <div className={`flex gap-2 ${isMobile ? 'overflow-x-auto scrollbar-hide' : ''}`}>
                   {[
-                    ...(orderDetails.partySize ? [{ id: 'seat' as const, label: 'Split by Seat' }] : []),
-                    { id: 'evenly' as const, label: 'Split Evenly' },
-                    { id: 'custom' as const, label: 'Custom Split' },
+                    ...(orderDetails.partySize ? [{ id: 'seat' as const, label: isMobile ? 'Seat' : 'Split by Seat' }] : []),
+                    { id: 'evenly' as const, label: isMobile ? 'Evenly' : 'Split Evenly' },
+                    { id: 'custom' as const, label: isMobile ? 'Custom' : 'Custom Split' },
                   ].map(tab => (
                     <button
                       key={tab.id}
@@ -4149,7 +4186,7 @@ export function PaymentDialog({
                           setNumberOfChecks(savedNonSeatChecks);
                         }
                       }}
-                      className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
+                      className={`${isMobile ? 'px-2 py-1 text-[10px] whitespace-nowrap' : 'px-3 py-1.5 text-xs'} rounded-full font-medium transition-all ${
                         splitMode === tab.id
                           ? 'bg-green-500 text-white border-2 border-green-400'
                           : 'bg-neutral-800 text-neutral-300 border-2 border-neutral-700 hover:border-neutral-600'
@@ -4172,11 +4209,11 @@ export function PaymentDialog({
                         });
                       }}
                       disabled={numberOfChecks <= 2}
-                      className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      className={`${isMobile ? 'w-6 h-6 text-sm' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors`}
                     >
                       -
                     </button>
-                    <span className="text-white font-bold text-lg w-6 text-center">{numberOfChecks}</span>
+                    <span className={`text-white font-bold ${isMobile ? 'text-base' : 'text-lg'} w-6 text-center`}>{numberOfChecks}</span>
                     <button
                       onClick={() => {
                         setNumberOfChecks(prev => {
@@ -4186,7 +4223,7 @@ export function PaymentDialog({
                         });
                       }}
                       disabled={numberOfChecks >= 10}
-                      className="w-8 h-8 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                      className={`${isMobile ? 'w-6 h-6 text-sm' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors`}
                     >
                       +
                     </button>
@@ -4195,20 +4232,20 @@ export function PaymentDialog({
                 
                 {/* Party Size Indicator - show only in seat mode */}
                 {splitMode === 'seat' && (
-                  <div className="flex items-center gap-2 text-neutral-400 text-sm">
-                    <Users className="w-4 h-4" />
+                  <div className={`flex items-center gap-2 text-neutral-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                    <Users className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
                     <span>{orderDetails.partySize || numberOfChecks} Guests</span>
                   </div>
                 )}
               </div>
 
-              {/* Check Cards Grid - 3 per row with vertical scroll after 2 rows, left-aligned */}
+              {/* Check Cards Grid - 3 per row (2 on mobile) with vertical scroll */}
               <div className="flex-1 overflow-hidden overflow-x-hidden p-2">
                 <div 
                   className="overflow-y-auto overflow-x-hidden scrollbar-hide"
-                  style={{ maxHeight: 'calc(2 * (180px + 8px))' }}
+                  style={{ maxHeight: isMobile ? 'calc(100% - 10px)' : 'calc(2 * (180px + 8px))' }}
                 >
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-3'} gap-2`}>
                     {Array.from({ length: numberOfChecks }, (_, i) => i + 1).map(checkNum => {
                       const checkItems = getItemsForCheck(checkNum);
                       const checkTotals = getCheckTotals(checkNum);
@@ -4408,7 +4445,7 @@ export function PaymentDialog({
             <>
               {/* ============= STANDARD PAYMENT ENTRY VIEW ============= */}
               {/* Header Section */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-700">
+              <div className={`flex items-center justify-between ${isMobile ? 'px-4 py-3' : 'px-6 py-4'} border-b border-neutral-700`}>
                 <div className="flex-1 flex items-center">
                   {activePayingCheck !== null && (
                     <button 
@@ -4422,13 +4459,13 @@ export function PaymentDialog({
                 <div className="flex items-center">
                   {activePayingCheck !== null ? (
                     <>
-                      <span className="text-white text-lg font-medium">Pay {getTicketLabel(activePayingCheck)}</span>
-                      <span className="text-red-500 text-lg font-bold ml-2">${paymentAmount}</span>
+                      <span className={`text-white ${isMobile ? 'text-base' : 'text-lg'} font-medium`}>Pay {getTicketLabel(activePayingCheck)}</span>
+                      <span className={`text-red-500 ${isMobile ? 'text-base' : 'text-lg'} font-bold ml-2`}>${paymentAmount}</span>
                     </>
                   ) : (
                     <>
-                      <span className="text-white text-lg font-medium">Total Due</span>
-                      <span className="text-red-500 text-lg font-bold ml-2">${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
+                      <span className={`text-white ${isMobile ? 'text-base' : 'text-lg'} font-medium`}>Total Due</span>
+                      <span className={`text-red-500 ${isMobile ? 'text-base' : 'text-lg'} font-bold ml-2`}>${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
                     </>
                   )}
                 </div>
@@ -4449,9 +4486,13 @@ export function PaymentDialog({
               </div>
 
               {/* Payment Methods - Row of icons */}
-              <div className="px-6 py-4 border-b border-neutral-700">
+              <div className={`${isMobile ? 'px-3 py-3' : 'px-6 py-4'} border-b border-neutral-700`}>
                 <div className="relative">
-                  <div className={`grid gap-2 ${activePayingCheck !== null ? 'grid-cols-6' : 'grid-cols-7'}`}>
+                  <div className={`grid gap-2 ${
+                    isMobile 
+                      ? 'grid-cols-4' 
+                      : activePayingCheck !== null ? 'grid-cols-6' : 'grid-cols-7'
+                  }`}>
                     {visiblePaymentMethods.map((method) => {
                       const IconComponent = method.icon;
                       return (
@@ -4469,12 +4510,12 @@ export function PaymentDialog({
                           }}
                           className="flex flex-col items-center gap-1"
                         >
-                          <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
+                          <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full border-2 flex items-center justify-center transition-all ${
                             selectedPaymentMethod === method.id 
                               ? 'bg-white border-white' 
                               : 'bg-neutral-700 border-neutral-600 hover:border-neutral-500'
                           }`}>
-                            <IconComponent className={`w-5 h-5 ${
+                            <IconComponent className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} ${
                               selectedPaymentMethod === method.id ? 'text-neutral-900' : 'text-neutral-300'
                             }`} />
                           </div>
@@ -4486,12 +4527,12 @@ export function PaymentDialog({
                     })}
 
                     {/* Split Check button - hidden when paying a split check ticket */}
-                    {activePayingCheck === null && (
+                    {activePayingCheck === null && !isMobile && (
                       <button 
                         onClick={() => setSelectedPaymentMethod('split-check')}
                         className="flex flex-col items-center gap-1"
                       >
-                        <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
+                        <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full border-2 flex items-center justify-center transition-all ${
                           selectedPaymentMethod === 'split-check' 
                             ? 'bg-white border-white' 
                             : 'bg-neutral-700 border-neutral-600 hover:border-neutral-500'
@@ -4499,7 +4540,7 @@ export function PaymentDialog({
                           <img 
                             src={splitCheckIcon} 
                             alt="Split Check" 
-                            className={`w-5 h-5 ${selectedPaymentMethod === 'split-check' ? 'invert' : ''}`}
+                            className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} ${selectedPaymentMethod === 'split-check' ? 'invert' : ''}`}
                           />
                         </div>
                         <span className={`text-[10px] ${selectedPaymentMethod === 'split-check' ? 'text-white' : 'text-neutral-400'}`}>
@@ -4513,12 +4554,12 @@ export function PaymentDialog({
                       onClick={() => setShowOtherPayments(!showOtherPayments)}
                       className="flex flex-col items-center gap-1"
                     >
-                      <div className={`w-12 h-12 rounded-full border-2 flex items-center justify-center transition-all ${
+                      <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full border-2 flex items-center justify-center transition-all ${
                         showOtherPayments 
                           ? 'bg-white border-white' 
                           : 'bg-neutral-700 border-neutral-600 hover:border-neutral-500'
                       }`}>
-                        <ChevronDown className={`w-5 h-5 ${showOtherPayments ? 'text-neutral-900' : 'text-neutral-300'}`} />
+                        <ChevronDown className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} ${showOtherPayments ? 'text-neutral-900' : 'text-neutral-300'}`} />
                       </div>
                       <span className={`text-[10px] ${showOtherPayments ? 'text-white' : 'text-neutral-400'}`}>Other</span>
                     </button>
@@ -4536,8 +4577,8 @@ export function PaymentDialog({
                           </button>
                         </div>
                         
-                        <div className="grid grid-cols-6 gap-3 mb-3">
-                          {dropdownPaymentMethods.slice(0, 6).map(otherMethod => {
+                        <div className={`grid ${isMobile ? 'grid-cols-4' : 'grid-cols-6'} gap-3 mb-3`}>
+                          {dropdownPaymentMethods.slice(0, isMobile ? 8 : 6).map(otherMethod => {
                             const OtherIcon = otherMethod.icon;
                             return (
                               <button 
@@ -4545,8 +4586,8 @@ export function PaymentDialog({
                                 onClick={() => handleSelectFromDropdown(otherMethod)}
                                 className="flex flex-col items-center gap-1"
                               >
-                                <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
-                                  <OtherIcon className="w-5 h-5 text-neutral-300" />
+                                <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors`}>
+                                  <OtherIcon className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-neutral-300`} />
                                 </div>
                                 <span className="text-[10px] text-neutral-400 text-center leading-tight">{otherMethod.name}</span>
                               </button>
@@ -4554,9 +4595,9 @@ export function PaymentDialog({
                           })}
                         </div>
                         
-                        {dropdownPaymentMethods.length > 6 && (
-                          <div className="flex justify-center gap-3">
-                            {dropdownPaymentMethods.slice(6).map(otherMethod => {
+                        {dropdownPaymentMethods.length > (isMobile ? 8 : 6) && (
+                          <div className="flex justify-center gap-3 flex-wrap">
+                            {dropdownPaymentMethods.slice(isMobile ? 8 : 6).map(otherMethod => {
                               const OtherIcon = otherMethod.icon;
                               return (
                                 <button 
@@ -4564,8 +4605,8 @@ export function PaymentDialog({
                                   onClick={() => handleSelectFromDropdown(otherMethod)}
                                   className="flex flex-col items-center gap-1"
                                 >
-                                  <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
-                                    <OtherIcon className="w-5 h-5 text-neutral-300" />
+                                  <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors`}>
+                                    <OtherIcon className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} text-neutral-300`} />
                                   </div>
                                   <span className="text-[10px] text-neutral-400 text-center leading-tight">{otherMethod.name}</span>
                                 </button>
@@ -4580,21 +4621,21 @@ export function PaymentDialog({
               </div>
 
               {/* Amount Display */}
-              <div className="px-6 py-4 border-b border-neutral-700">
-                <div className="flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
-                  <span className="flex-1 text-green-500 text-2xl font-bold text-center">${paymentAmount}</span>
+              <div className={`${isMobile ? 'px-3 py-3' : 'px-6 py-4'} border-b border-neutral-700`}>
+                <div className={`flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 ${isMobile ? 'py-3' : 'py-4'}`}>
+                  <span className={`flex-1 text-green-500 ${isMobile ? 'text-xl' : 'text-2xl'} font-bold text-center`}>${paymentAmount}</span>
                   {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && selectedPaymentMethod !== 'pay-link' && selectedPaymentMethod !== 'qr-code' && selectedPaymentMethod !== 'manual-cc' && selectedPaymentMethod !== 'external-cc' && selectedPaymentMethod !== 'manual-card' && selectedPaymentMethod !== 'doordash' && selectedPaymentMethod !== 'blizzful' && selectedPaymentMethod !== 'ubereats' && selectedPaymentMethod !== 'grubhub' && (
                     <button 
                       onClick={() => setShowKeypad(!showKeypad)}
-                      className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${showKeypad ? 'bg-white border-white' : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600'}`}
+                      className={`${isMobile ? 'w-9 h-9' : 'w-10 h-10'} rounded-lg border flex items-center justify-center transition-colors ${showKeypad ? 'bg-white border-white' : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600'}`}
                     >
-                      <Grid3X3 className={`w-5 h-5 ${showKeypad ? 'text-neutral-900' : 'text-neutral-300'}`} />
+                      <Grid3X3 className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} ${showKeypad ? 'text-neutral-900' : 'text-neutral-300'}`} />
                     </button>
                   )}
                 </div>
               </div>
               {/* Quick Amounts OR Keypad */}
-              <div className="p-3 space-y-1.5 flex-1">
+              <div className={`${isMobile ? 'p-2' : 'p-3'} space-y-1.5 flex-1`}>
                     {showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card' || selectedPaymentMethod === 'pay-link' || selectedPaymentMethod === 'qr-code' || selectedPaymentMethod === 'manual-cc' || selectedPaymentMethod === 'external-cc' || selectedPaymentMethod === 'manual-card' || selectedPaymentMethod === 'doordash' || selectedPaymentMethod === 'blizzful' || selectedPaymentMethod === 'ubereats' || selectedPaymentMethod === 'grubhub' ? (
                       // Numeric Keypad
                       <div className="flex flex-col gap-1.5">
@@ -4604,7 +4645,7 @@ export function PaymentDialog({
                               <button 
                                 key={key}
                                 onClick={() => handleKeypadPress(key)}
-                                className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                                className={`flex-1 ${isMobile ? 'py-3 text-base' : 'py-2 text-sm'} rounded-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors`}
                               >
                                 {key}
                               </button>
@@ -4614,35 +4655,35 @@ export function PaymentDialog({
                         <div className="flex gap-1.5">
                           <button 
                             onClick={() => handleKeypadPress('.')}
-                            className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                            className={`flex-1 ${isMobile ? 'py-3 text-base' : 'py-2 text-sm'} rounded-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors`}
                           >
                             .
                           </button>
                           <button 
                             onClick={() => handleKeypadPress('0')}
-                            className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors"
+                            className={`flex-1 ${isMobile ? 'py-3 text-base' : 'py-2 text-sm'} rounded-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors`}
                           >
                             0
                           </button>
                           <button 
                             onClick={() => handleKeypadPress('backspace')}
-                            className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center"
+                            className={`flex-1 ${isMobile ? 'py-3 text-base' : 'py-2 text-sm'} rounded-lg font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center`}
                           >
-                            <Delete className="w-4 h-4" />
+                            <Delete className={`${isMobile ? 'w-5 h-5' : 'w-4 h-4'}`} />
                           </button>
                         </div>
                       </div>
                     ) : (
                       // Quick Amount Buttons with quantity tracking - 2 row layout
                       <>
-                        <div className="flex gap-4 px-2">
-                          <div className="flex-1 relative py-1">
+                        <div className={`flex ${isMobile ? 'gap-2 px-1' : 'gap-4 px-2'}`}>
+                          <div className={`flex-1 relative ${isMobile ? 'py-0.5' : 'py-1'}`}>
                             <button 
                               onClick={() => {
                                 setAmountQuantities({});
                                 setPaymentAmount(total.toFixed(2));
                               }} 
-                              className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                              className={`w-full ${isMobile ? 'py-2 text-xs' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
                                 paymentAmount === total.toFixed(2) && Object.keys(amountQuantities).length === 0 
                                   ? 'bg-neutral-900 text-white border border-neutral-600' 
                                   : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
@@ -4651,13 +4692,13 @@ export function PaymentDialog({
                               ${total.toFixed(2)}
                             </button>
                           </div>
-                          {quickAmounts.slice(0, 3).map(amount => {
+                          {quickAmounts.slice(0, isMobile ? 3 : 3).map(amount => {
                             const qty = amountQuantities[amount] || 0;
                             return (
-                              <div key={amount} className="flex-1 relative py-1">
+                              <div key={amount} className={`flex-1 relative ${isMobile ? 'py-0.5' : 'py-1'}`}>
                                 <button 
                                   onClick={() => handleAddAmount(amount)} 
-                                  className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                  className={`w-full ${isMobile ? 'py-2 text-xs' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
                                     qty > 0 
                                       ? 'bg-neutral-900 text-white border border-neutral-600' 
                                       : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
@@ -4685,14 +4726,14 @@ export function PaymentDialog({
                             );
                           })}
                         </div>
-                        <div className="flex gap-4 px-2">
+                        <div className={`flex ${isMobile ? 'gap-2 px-1' : 'gap-4 px-2'}`}>
                           {quickAmounts.slice(3).map(amount => {
                             const qty = amountQuantities[amount] || 0;
                             return (
-                              <div key={amount} className="flex-1 relative py-1">
+                              <div key={amount} className={`flex-1 relative ${isMobile ? 'py-0.5' : 'py-1'}`}>
                                 <button 
                                   onClick={() => handleAddAmount(amount)} 
-                                  className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${
+                                  className={`w-full ${isMobile ? 'py-2 text-xs' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
                                     qty > 0 
                                       ? 'bg-neutral-900 text-white border border-neutral-600' 
                                       : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
@@ -4725,10 +4766,10 @@ export function PaymentDialog({
                   </div>
 
                   {/* Charge Button */}
-                  <div className="p-3 pt-0">
+                  <div className={`${isMobile ? 'p-2' : 'p-3'} pt-0`}>
                     <button 
                       onClick={handleChargePayment}
-                      className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm"
+                      className={`w-full ${isMobile ? 'py-4' : 'py-3'} bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm`}
                     >
                       {activePayingCheck !== null 
                         ? `PAY ${getTicketLabel(activePayingCheck)} - $${paymentAmount}`
@@ -4740,14 +4781,15 @@ export function PaymentDialog({
           )}
         </div>
 
-        {/* Order Details Panel */}
-        <div 
-          className={`${selectedPaymentMethod === 'split-check' ? 'w-[320px]' : 'w-[280px]'} border-l border-neutral-700 flex flex-col rounded-xl`}
-          style={{
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}
-        >
+        {/* Order Details Panel - Hidden on mobile */}
+        {!isMobile && (
+          <div 
+            className={`${selectedPaymentMethod === 'split-check' ? 'w-[320px]' : 'w-[280px]'} border-l border-neutral-700 flex flex-col rounded-xl`}
+            style={{
+              background: "#7575754D",
+              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+            }}
+          >
           {/* Guest Info Header - Matching Order Panel Style */}
           <div 
             className="p-3 border-b border-neutral-600 rounded-t-xl" 
@@ -4972,6 +5014,7 @@ export function PaymentDialog({
             </div>
           </div>
         </div>
+        )}
       </div>
     </div>
   );

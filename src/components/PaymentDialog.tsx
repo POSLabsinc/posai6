@@ -4121,7 +4121,7 @@ export function PaymentDialog({
                 {/* Split Mode Tabs */}
                 <div className="flex gap-2">
                   {[
-                    { id: 'seat' as const, label: 'Split by Seat' },
+                    ...(orderDetails.partySize ? [{ id: 'seat' as const, label: 'Split by Seat' }] : []),
                     { id: 'evenly' as const, label: 'Split Evenly' },
                     { id: 'custom' as const, label: 'Custom Split' },
                   ].map(tab => (

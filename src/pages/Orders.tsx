@@ -6139,6 +6139,9 @@ const Orders = () => {
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [priceOverrideItem, setPriceOverrideItem] = useState<{ id: number; name: string; price: number; image?: string } | null>(null);
   const [orderNumber, setOrderNumber] = useState(1);
+  const [orderCreatedTime] = useState<string>(() => {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+  });
   
   // Payment Dialog State (component manages its own internal states)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -8883,6 +8886,10 @@ const Orders = () => {
           phone: guestPhone ? formatPhoneNumber(guestPhone) : undefined,
           table: isTableOrder ? `T${orderNumber}` : undefined,
           check: orderNumber,
+          orderType: orderType,
+          orderNumber: orderNumber,
+          serverName: "Mia Jones",
+          orderTime: orderCreatedTime,
           items: orderItems.map(item => ({
             id: item.id,
             qty: item.qty,

@@ -27,6 +27,10 @@ export interface PaymentDialogOrderDetails {
   table?: string;
   check?: number | string;
   partySize?: number;        // Number of guests at the table
+  orderType?: string;        // "DINE IN", "TAKE OUT", "DELIVERY", etc.
+  orderNumber?: number | string;  // Order number for display
+  serverName?: string;       // Actual server name
+  orderTime?: string;        // Time order was created (formatted string)
   items: PaymentDialogOrderItem[];
 }
 
@@ -4761,13 +4765,14 @@ export function PaymentDialog({
               <div className="flex items-center gap-1.5">
                 <Zap className="w-3 h-3 text-yellow-400" />
                 <span className="text-neutral-300 text-xs">
-                  {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
+                  {orderDetails.orderTime || new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true })}
                 </span>
               </div>
             </div>
             
-            {/* Row 2: Table, Guests, Server */}
+            {/* Row 2: Table/Order Type, Order Number/Party Size, Server */}
             <div className="flex items-center justify-between mt-3">
+              {/* For table orders: show TABLE badge */}
               {orderDetails.table && (
                 <span 
                   className="text-white text-[10px] font-medium px-2 py-1 rounded" 
@@ -4776,15 +4781,39 @@ export function PaymentDialog({
                   TABLE {orderDetails.table}
                 </span>
               )}
+              
+              {/* For direct orders (no table): show ORDER TYPE badge */}
+              {!orderDetails.table && orderDetails.orderType && (
+                <span 
+                  className="text-white text-[10px] font-medium px-2 py-1 rounded" 
+                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                >
+                  {orderDetails.orderType}
+                </span>
+              )}
+              
+              {/* For table orders: show party size */}
               {orderDetails.partySize && (
                 <div className="flex items-center gap-2 text-neutral-300">
                   <Users className="w-3 h-3" />
                   <span className="text-xs">{orderDetails.partySize}</span>
                 </div>
               )}
+              
+              {/* For direct orders: show order number */}
+              {!orderDetails.partySize && orderDetails.orderNumber && (
+                <span 
+                  className="text-white text-[10px] font-medium px-2 py-1 rounded" 
+                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                >
+                  ORDER #{orderDetails.orderNumber}
+                </span>
+              )}
+              
+              {/* Server name - use actual name if provided */}
               <div className="flex items-center gap-1.5 text-neutral-300">
                 <User className="w-3 h-3" />
-                <span className="text-xs">SERVER</span>
+                <span className="text-xs">{orderDetails.serverName || "SERVER"}</span>
               </div>
             </div>
           </div>

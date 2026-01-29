@@ -7007,14 +7007,6 @@ const Orders = () => {
                       <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />
                       Add Guest
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <img src={openOrdersIcon} alt="" className="w-3.5 h-3.5" />
-                      Open Orders
-                    </DropdownMenuItem>
-                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <img src={allergyIcon} alt="" className="w-3.5 h-3.5" />
-                      Allergy
-                    </DropdownMenuItem>
                     <DropdownMenuItem 
                       onClick={() => setShowVoucherDialog(true)}
                       className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
@@ -8652,14 +8644,6 @@ const Orders = () => {
                   >
                     <img src={addGuestIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
-                  </button>
-                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <img src={openOrdersIcon} alt="" className="w-5 h-5" />
-                    <span className="text-[9px] text-white text-center leading-tight">Open<br/>Orders</span>
-                  </button>
-                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <img src={allergyIcon} alt="" className="w-5 h-5" />
-                    <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
                   </button>
                   <button 
                     onClick={() => setShowVoucherDialog(true)}

@@ -4,7 +4,7 @@ import {
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
   Mail, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, 
   UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, 
-  RefreshCw, Send, Zap, Users, Clock, Share2, GripVertical
+  RefreshCw, Send, Zap, Users, Clock, Share2, GripVertical, Save
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
@@ -4226,6 +4226,15 @@ export function PaymentDialog({
                       className={`${isMobile ? 'w-6 h-6 text-sm' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors`}
                     >
                       +
+                    </button>
+                    <button
+                      onClick={() => {
+                        // Save action placeholder
+                        console.log('Save split configuration');
+                      }}
+                      className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 transition-colors ml-1`}
+                    >
+                      <Save className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
                     </button>
                   </div>
                 )}

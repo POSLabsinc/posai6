@@ -1367,34 +1367,52 @@ const TableOrderDetails = () => {
               </div>
             </div>
           </div>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-2">
             {currentSelectedGuest?.status?.toUpperCase() !== 'PAID' && currentSelectedGuest?.status?.toUpperCase() !== 'COMPLETED' && (
               <>
                 <button 
-                  className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors"
+                  className="h-8 px-4 rounded-full flex items-center justify-center gap-1.5 transition-colors"
+                  style={{
+                    background: 'linear-gradient(180deg, #4ADE80 0%, #22C55E 100%)'
+                  }}
                   onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
                 >
-                  Add Item
+                  <span className="text-white font-semibold text-xs">Add Item</span>
                 </button>
                 <button 
-                  className={`px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors ${
+                  className={`h-8 px-4 rounded-full flex items-center justify-center gap-1.5 transition-colors ${
                     selectedDiscountId ? 'ring-2 ring-orange-500' : ''
                   }`}
+                  style={{
+                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                  }}
                   onClick={() => {
                     setDiscountDialogView('mpin');
                     setDiscountPin("");
                     setShowDiscountDialog(true);
                   }}
                 >
-                  Discount
+                  <span className="text-white font-semibold text-xs">Discount</span>
                 </button>
               </>
             )}
-            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
-              Receipt
+            <button 
+              className="h-8 px-4 rounded-full flex items-center justify-center gap-1.5"
+              style={{
+                background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+              }}
+            >
+              <img src={receiptIcon} alt="Receipt" className="w-4 h-4" />
+              <span className="text-black font-semibold text-xs">Receipt</span>
             </button>
-            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
-              Cash Register
+            <button 
+              className="h-8 px-4 rounded-full flex items-center justify-center gap-1.5"
+              style={{
+                background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+              }}
+            >
+              <img src={registerIcon} alt="Register" className="w-4 h-4" />
+              <span className="text-black font-semibold text-xs">Cash Register</span>
             </button>
           </div>
         </div>

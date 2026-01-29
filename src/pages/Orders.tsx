@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import searchIcon from "@/assets/icons/search.png";
@@ -82,6 +82,7 @@ import PhoneInGuestForm, { PhoneInGuestData } from "@/components/PhoneInGuestFor
 import CustomOrderGuestForm, { CustomOrderGuestData } from "@/components/CustomOrderGuestForm";
 import MPINDialog from "@/components/MPINDialog";
 import PriceOverrideDialog from "@/components/PriceOverrideDialog";
+import VoucherDialog from "@/components/VoucherDialog";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6140,6 +6141,9 @@ const Orders = () => {
   const [showAddGuestForm, setShowAddGuestForm] = useState(false);
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
+  const [showVoucherDialog, setShowVoucherDialog] = useState(false);
+  const [appliedVoucherAmount, setAppliedVoucherAmount] = useState(0);
+  const [voucherCode, setVoucherCode] = useState('');
   const [priceOverrideItem, setPriceOverrideItem] = useState<{ id: number; name: string; price: number; image?: string } | null>(null);
   const [orderNumber, setOrderNumber] = useState(1);
   const [orderCreatedTime] = useState<string>(() => {
@@ -7011,9 +7015,12 @@ const Orders = () => {
                       <img src={allergyIcon} alt="" className="w-3.5 h-3.5" />
                       Allergy
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-                      <img src={splitCheckIcon} alt="" className="w-3.5 h-3.5" />
-                      Split Check
+                    <DropdownMenuItem 
+                      onClick={() => setShowVoucherDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
+                      <Ticket className="w-3.5 h-3.5" />
+                      Voucher
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                       <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />
@@ -8602,9 +8609,12 @@ const Orders = () => {
                     <img src={allergyIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Allergy</span>
                   </button>
-                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-                    <img src={splitCheckIcon} alt="" className="w-5 h-5" />
-                    <span className="text-[9px] text-white text-center leading-tight">Split<br/>Check</span>
+                  <button 
+                    onClick={() => setShowVoucherDialog(true)}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                  >
+                    <Ticket className="w-5 h-5 text-white" />
+                    <span className="text-[9px] text-white text-center leading-tight">Voucher</span>
                   </button>
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
                     <img src={reopenCheckIcon} alt="" className="w-5 h-5" />
@@ -8922,6 +8932,27 @@ const Orders = () => {
         onTransfer={(newServerName) => {
           setCurrentServerName(newServerName);
           setShowTransferCheckDialog(false);
+        }}
+      />
+
+      {/* Voucher Dialog */}
+      <VoucherDialog
+        isOpen={showVoucherDialog}
+        onClose={() => setShowVoucherDialog(false)}
+        onAddVoucher={(amount) => {
+          setOrderItems(prev => [...prev, {
+            id: Date.now(),
+            qty: 1,
+            name: `Voucher - $${amount.toFixed(2)}`,
+            price: amount,
+            itemOrderType: 'VOUCHER'
+          }]);
+          setShowVoucherDialog(false);
+        }}
+        onRedeemVoucher={(code, balance) => {
+          setAppliedVoucherAmount(balance);
+          setVoucherCode(code);
+          setShowVoucherDialog(false);
         }}
       />
     </div>;

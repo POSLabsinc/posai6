@@ -8562,7 +8562,7 @@ const Orders = () => {
                   {appliedVoucherAmount > 0 && (
                     <div className="flex justify-between gap-3">
                       <span className="text-foreground flex items-center gap-1">
-                        Voucher ({voucherCode}): <span className="font-medium text-green-500">-${appliedVoucherAmount.toFixed(2)}</span>
+                        Voucher ({voucherCode}): <span className="font-medium">-${appliedVoucherAmount.toFixed(2)}</span>
                         <button 
                           onClick={() => {
                             setAppliedVoucherAmount(0);

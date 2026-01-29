@@ -7219,7 +7219,17 @@ const Orders = () => {
                             </span>
                             <span className="text-[11px] font-medium text-foreground">{item.name}</span>
                           </div>
-                          {item.noTax ? (
+                          {item.itemOrderType === 'VOUCHER' ? (
+                            <span 
+                              className="text-[11px] font-medium text-foreground cursor-pointer transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                              }}
+                            >
+                              ${item.price.toFixed(2)}
+                            </span>
+                          ) : item.noTax ? (
                             <span 
                               className="text-[11px] font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
                               onClick={(e) => {
@@ -8330,7 +8340,17 @@ const Orders = () => {
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between">
                                       <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
-                                      {item.noTax ? (
+                                      {item.itemOrderType === 'VOUCHER' ? (
+                                        <span 
+                                          className="text-sm md:text-xs lg:text-sm font-medium text-foreground cursor-pointer transition-colors ml-2"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                                          }}
+                                        >
+                                          ${item.price.toFixed(2)}
+                                        </span>
+                                      ) : item.noTax ? (
                                         <span 
                                           className="text-sm md:text-xs lg:text-sm font-medium flex items-center gap-1.5 ml-2 cursor-pointer transition-colors"
                                           onClick={(e) => {

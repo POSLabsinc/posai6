@@ -6653,9 +6653,9 @@ const Orders = () => {
   const newItemsTax = newItemsSubtotal * taxRate;
   const newItemsTotal = newItemsSubtotal + newItemsTax;
   
-  // Determine what to charge based on payment status and gift card
+  // Determine what to charge based on payment status, gift card, and voucher
   const baseChargeAmount = addItemMode && isExistingOrderPaid ? newItemsTotal : total;
-  const chargeAmount = Math.max(0, baseChargeAmount - appliedGiftCardAmount);
+  const chargeAmount = Math.max(0, baseChargeAmount - appliedGiftCardAmount - appliedVoucherAmount);
   const chargeLabel = addItemMode 
     ? (isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER') 
     : '';
@@ -8557,6 +8557,22 @@ const Orders = () => {
                   {appliedGiftCardAmount > 0 && (
                     <div className="flex justify-between gap-3 pt-1 border-t border-white/10">
                       <span className="text-green-500">Gift Card: <span className="font-medium">-${appliedGiftCardAmount.toFixed(2)}</span></span>
+                    </div>
+                  )}
+                  {appliedVoucherAmount > 0 && (
+                    <div className="flex justify-between gap-3">
+                      <span className="text-green-500 flex items-center gap-1">
+                        Voucher ({voucherCode}): <span className="font-medium">-${appliedVoucherAmount.toFixed(2)}</span>
+                        <button 
+                          onClick={() => {
+                            setAppliedVoucherAmount(0);
+                            setVoucherCode('');
+                          }}
+                          className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5"
+                        >
+                          ×
+                        </button>
+                      </span>
                     </div>
                   )}
                 </div>

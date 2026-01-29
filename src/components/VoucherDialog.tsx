@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ArrowLeft } from "lucide-react";
 
 interface VoucherDialogProps {
   isOpen: boolean;
@@ -16,8 +15,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: Vouch
   const [amount, setAmount] = useState<string>('');
   const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
   const [voucherCode, setVoucherCode] = useState<string>('');
-  const [isValidating, setIsValidating] = useState(false);
-  const [validatedBalance, setValidatedBalance] = useState<number | null>(null);
 
   // Calculate display amount from string (treating input as cents)
   const getDisplayAmount = (): number => {
@@ -57,38 +54,19 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: Vouch
   const handleRedeemClick = () => {
     setView('redeem');
     setVoucherCode('');
-    setValidatedBalance(null);
   };
 
   const handleBackToSell = () => {
     setView('sell');
     setVoucherCode('');
-    setValidatedBalance(null);
-  };
-
-  const handleVoucherKeypad = (key: string) => {
-    if (key === 'C') {
-      setVoucherCode('');
-      setValidatedBalance(null);
-      return;
-    }
-    
-    if (voucherCode.length >= 16) return;
-    setVoucherCode(prev => prev + key);
-  };
-
-  const handleValidateVoucher = () => {
-    setIsValidating(true);
-    // Simulate validation - in real app this would call an API
-    setTimeout(() => {
-      setValidatedBalance(25.00); // Mock balance
-      setIsValidating(false);
-    }, 500);
   };
 
   const handleApplyVoucher = () => {
-    if (validatedBalance && voucherCode) {
-      onRedeemVoucher(voucherCode, validatedBalance);
+    if (voucherCode) {
+      // Mock validation - in real app this would call an API
+      // For demo purposes, using a fixed balance of $25
+      const mockBalance = 25.00;
+      onRedeemVoucher(voucherCode, mockBalance);
       resetState();
     }
   };
@@ -98,7 +76,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: Vouch
     setAmount('');
     setSelectedPreset(null);
     setVoucherCode('');
-    setValidatedBalance(null);
   };
 
   const handleClose = () => {
@@ -185,70 +162,42 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: Vouch
           </div>
         ) : (
           <div className="p-5">
-            {/* Redeem View Header */}
-            <div className="flex items-center mb-6">
-              <button
-                onClick={handleBackToSell}
-                className="p-1 rounded-lg hover:bg-neutral-800 transition-colors"
-              >
-                <ArrowLeft className="w-5 h-5 text-white" />
-              </button>
-              <h2 className="text-white text-lg font-semibold text-center flex-1 pr-6">Redeem Voucher</h2>
+            {/* Header - Centered */}
+            <h2 className="text-white text-lg font-semibold text-center mb-6">Redeem Voucher</h2>
+            
+            {/* Voucher Code Input Field */}
+            <div className="mb-5">
+              <input
+                type="text"
+                value={voucherCode}
+                onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                placeholder="ENTER VOUCHER CODE"
+                className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-4 
+                           text-white text-center text-lg font-mono tracking-wider 
+                           placeholder:text-neutral-500 uppercase focus:outline-none focus:border-neutral-500"
+              />
             </div>
             
-            {/* Voucher Code Display - Field Style */}
-            <div className="bg-neutral-800 rounded-lg px-4 py-4 mb-5 flex items-center justify-center">
-              <span className="text-green-500 text-2xl font-bold font-mono tracking-wider">
-                {voucherCode || 'Enter Code'}
-              </span>
-            </div>
+            {/* REDEEM VOUCHER Button */}
+            <button
+              onClick={handleApplyVoucher}
+              disabled={!voucherCode}
+              className={`w-full py-3 rounded-lg text-sm font-semibold mb-3 transition-colors ${
+                voucherCode
+                  ? 'bg-neutral-700 text-white hover:bg-neutral-600'
+                  : 'bg-neutral-800/50 text-neutral-500 cursor-not-allowed'
+              }`}
+            >
+              REDEEM VOUCHER
+            </button>
             
-            {/* Validated Balance Display */}
-            {validatedBalance !== null && (
-              <div className="bg-green-500/20 border border-green-500/50 rounded-lg p-3 mb-5 text-center">
-                <span className="text-green-400 text-sm">Valid Voucher</span>
-                <div className="text-white text-xl font-bold">${validatedBalance.toFixed(2)}</div>
-              </div>
-            )}
-            
-            {/* Keypad for code entry */}
-            <div className="grid grid-cols-3 gap-2 mb-5">
-              {keypadKeys.flat().map((key) => (
-                <button
-                  key={key}
-                  onClick={() => handleVoucherKeypad(key)}
-                  className={`h-12 rounded-lg text-lg font-semibold transition-colors ${
-                    key === 'C'
-                      ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                      : 'bg-neutral-800 text-white hover:bg-neutral-700'
-                  }`}
-                >
-                  {key}
-                </button>
-              ))}
-            </div>
-            
-            {/* Validate / Apply Button */}
-            {validatedBalance === null ? (
-              <button
-                onClick={handleValidateVoucher}
-                disabled={!voucherCode || isValidating}
-                className={`w-full py-3 rounded-lg text-sm font-semibold transition-colors ${
-                  voucherCode && !isValidating
-                    ? 'bg-neutral-800 text-white hover:bg-neutral-700'
-                    : 'bg-neutral-800/50 text-neutral-500 cursor-not-allowed'
-                }`}
-              >
-                {isValidating ? 'VALIDATING...' : 'VALIDATE VOUCHER'}
-              </button>
-            ) : (
-              <button
-                onClick={handleApplyVoucher}
-                className="w-full py-3 rounded-lg text-sm font-semibold bg-green-600 text-white hover:bg-green-700 transition-colors"
-              >
-                APPLY ${validatedBalance.toFixed(2)} TO ORDER
-              </button>
-            )}
+            {/* SELL VOUCHER Button */}
+            <button
+              onClick={handleBackToSell}
+              className="w-full py-3 rounded-lg text-sm font-semibold bg-neutral-800 border border-neutral-600 text-white hover:bg-neutral-700 transition-colors"
+            >
+              SELL VOUCHER
+            </button>
           </div>
         )}
       </DialogContent>

@@ -8643,19 +8643,6 @@ const Orders = () => {
                   background: '#7575754D',
                   boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
                 }}>
-                  {/* Merge - Only show when order is split */}
-                  {isOrderSplit && (
-                    <button 
-                      onClick={() => {
-                        setIsOrderSplit(false);
-                        setSplitConfiguration(null);
-                      }}
-                      className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
-                    >
-                      <img src={mergeIcon} alt="" className="w-5 h-5" />
-                      <span className="text-[9px] text-white text-center leading-tight">Merge</span>
-                    </button>
-                  )}
                   {/* Transfer Check - Only show when items in cart */}
                   {orderItems.length > 0 && (
                     <button 
@@ -8698,6 +8685,19 @@ const Orders = () => {
                     <Ticket className="w-5 h-5 text-white" />
                     <span className="text-[9px] text-white text-center leading-tight">Voucher</span>
                   </button>
+                  {/* Merge - Only show when order is split */}
+                  {isOrderSplit && (
+                    <button 
+                      onClick={() => {
+                        setIsOrderSplit(false);
+                        setSplitConfiguration(null);
+                      }}
+                      className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                    >
+                      <img src={mergeIcon} alt="" className="w-5 h-5" />
+                      <span className="text-[9px] text-white text-center leading-tight">Merge</span>
+                    </button>
+                  )}
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
                     <img src={reopenCheckIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>

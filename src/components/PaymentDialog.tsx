@@ -49,6 +49,11 @@ export interface PaymentDialogProps {
   tax: number;
   total: number;
   onPaymentComplete?: (paymentHistory: PaymentHistoryItem[]) => void;
+  onSaveSplit?: (config: {
+    mode: 'seat' | 'evenly' | 'custom';
+    numberOfChecks: number;
+    checkAssignments: Record<number, number>;
+  }) => void;
 }
 
 // ============= CONSTANTS =============
@@ -110,6 +115,7 @@ export function PaymentDialog({
   tax,
   total,
   onPaymentComplete,
+  onSaveSplit,
 }: PaymentDialogProps) {
   // Core payment states
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cash');
@@ -4229,8 +4235,12 @@ export function PaymentDialog({
                     </button>
                     <button
                       onClick={() => {
-                        // Save action placeholder
-                        console.log('Save split configuration');
+                        onSaveSplit?.({
+                          mode: splitMode,
+                          numberOfChecks,
+                          checkAssignments
+                        });
+                        onOpenChange(false);
                       }}
                       className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 transition-colors ml-1`}
                     >

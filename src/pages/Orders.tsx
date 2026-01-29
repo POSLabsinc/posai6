@@ -64,6 +64,7 @@ import phoneInIcon from "@/assets/icons/phone-in.svg";
 import customOrderIcon from "@/assets/icons/custom-order.svg";
 import menuIcon from "@/assets/icons/menu-icon.svg";
 import tableOrderIcon from "@/assets/icons/table-order.png";
+import mergeIcon from "@/assets/icons/link-merge.png";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
 import settingsIcon from "@/assets/icons/settings.png";
@@ -6153,6 +6154,15 @@ const Orders = () => {
   // Payment Dialog State (component manages its own internal states)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   
+  // Split order state
+  const [isOrderSplit, setIsOrderSplit] = useState(false);
+  const [splitConfiguration, setSplitConfiguration] = useState<{
+    mode: 'seat' | 'evenly' | 'custom';
+    numberOfChecks: number;
+    checkAssignments: Record<number, number>;
+  } | null>(null);
+  const [showSplitOrderAlert, setShowSplitOrderAlert] = useState(false);
+  
   // Table order seat selection state - initialize with all seats selected when coming from table orders
   const [selectedSeats, setSelectedSeats] = useState<number[]>(() => {
     if (isTableOrder && guestCount > 0) {
@@ -6407,6 +6417,12 @@ const Orders = () => {
     name: string;
     price: number;
   }) => {
+    // Block adding items if order is split
+    if (isOrderSplit) {
+      setShowSplitOrderAlert(true);
+      return;
+    }
+    
     // When coming from table order, assign all seats by default
     const allSeats = isTableOrder ? Array.from({ length: guestCount }, (_, i) => i + 1) : undefined;
     
@@ -8508,6 +8524,17 @@ const Orders = () => {
                       </div>}
                   </ScrollArea>
 
+                  {/* Split Order Warning */}
+                  {isOrderSplit && orderItems.length > 0 && (
+                    <div className="px-2 py-2">
+                      <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg px-3 py-2">
+                        <p className="text-amber-400 text-xs leading-relaxed">
+                          This check has been split. Re-merge this ticket if you want to fire it or add products to it.
+                        </p>
+                      </div>
+                    </div>
+                  )}
+
                   {/* Order Summary - Only show when cart has items */}
                   {orderItems.length > 0 && (
                   <div className="p-2 border-t border-sidebar-border flex-shrink-0">
@@ -8579,9 +8606,15 @@ const Orders = () => {
                   }}>
                     <img src={saveIcon} alt="Save" className="w-4 h-4" />
                   </button>
-                  <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
-                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-                  }}>
+                  <button 
+                    disabled={isOrderSplit}
+                    className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${
+                      isOrderSplit ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
+                    style={{
+                      background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                    }}
+                  >
                     <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                     <span className="text-white font-semibold text-sm">FIRE</span>
                   </button>
@@ -8610,6 +8643,19 @@ const Orders = () => {
                   background: '#7575754D',
                   boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
                 }}>
+                  {/* Merge - Only show when order is split */}
+                  {isOrderSplit && (
+                    <button 
+                      onClick={() => {
+                        setIsOrderSplit(false);
+                        setSplitConfiguration(null);
+                      }}
+                      className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                    >
+                      <img src={mergeIcon} alt="" className="w-5 h-5" />
+                      <span className="text-[9px] text-white text-center leading-tight">Merge</span>
+                    </button>
+                  )}
                   {/* Transfer Check - Only show when items in cart */}
                   {orderItems.length > 0 && (
                     <button 
@@ -8958,7 +9004,34 @@ const Orders = () => {
         onPaymentComplete={(history) => {
           console.log("Payment completed:", history);
         }}
+        onSaveSplit={(config) => {
+          setIsOrderSplit(true);
+          setSplitConfiguration(config);
+        }}
       />
+
+      {/* Split Order Alert Dialog */}
+      {showSplitOrderAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 overflow-hidden animate-scale-in">
+            <div className="p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
+                <AlertCircle className="w-6 h-6 text-amber-400" />
+              </div>
+              <h3 className="text-white font-semibold text-lg mb-2">Cannot Add Items</h3>
+              <p className="text-neutral-400 text-sm mb-6">
+                You cannot add more items to a split order. If you want to add items, please merge the order first.
+              </p>
+              <button
+                onClick={() => setShowSplitOrderAlert(false)}
+                className="w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Transfer Check Dialog */}
       <TransferCheckDialog

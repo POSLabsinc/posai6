@@ -2,6 +2,16 @@ import { useState, useMemo } from "react";
 import { Search, Check, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { staffList, StaffMember } from "@/data/staff";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface TransferCheckDialogProps {
   isOpen: boolean;
@@ -33,6 +43,7 @@ export function TransferCheckDialog({
 }: TransferCheckDialogProps) {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedEmployee, setSelectedEmployee] = useState<StaffMember | null>(null);
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Filter staff based on search query
   const filteredStaff = useMemo(() => {
@@ -45,12 +56,20 @@ export function TransferCheckDialog({
     );
   }, [searchQuery]);
 
-  // Handle update button click
+  // Handle update button click - show confirmation
   const handleUpdate = () => {
+    if (selectedEmployee) {
+      setShowConfirmation(true);
+    }
+  };
+
+  // Handle confirmed transfer
+  const handleConfirmTransfer = () => {
     if (selectedEmployee) {
       onTransfer(selectedEmployee.name);
       setSearchQuery("");
       setSelectedEmployee(null);
+      setShowConfirmation(false);
     }
   };
 
@@ -189,6 +208,31 @@ export function TransferCheckDialog({
           </div>
         </ScrollArea>
       </div>
+
+      {/* Confirmation Dialog */}
+      <AlertDialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+        <AlertDialogContent className="bg-neutral-900 border-neutral-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Confirm Transfer</AlertDialogTitle>
+            <AlertDialogDescription className="text-neutral-400">
+              Are you sure you want to transfer this check from{" "}
+              <span className="text-white font-medium">{currentServer}</span> to{" "}
+              <span className="text-white font-medium">{selectedEmployee?.name}</span>?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-neutral-800 border-neutral-700 text-white hover:bg-neutral-700 hover:text-white">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmTransfer}
+              className="bg-emerald-600 text-white hover:bg-emerald-700"
+            >
+              Confirm Transfer
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

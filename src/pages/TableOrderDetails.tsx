@@ -47,7 +47,8 @@ import saveIcon from "@/assets/icons/save.png";
 import linkMergeIcon from "@/assets/icons/link-merge.png";
 import cashRegisterIcon from "@/assets/icons/cash-register.png";
 import receiptIcon from "@/assets/icons/receipt-icon.svg";
-import registerIcon from "@/assets/icons/register-icon.svg";
+import registerIcon from "@/assets/icons/register.svg";
+import discountBtnIcon from "@/assets/icons/discount-icon.svg";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 
@@ -1371,48 +1372,32 @@ const TableOrderDetails = () => {
             {currentSelectedGuest?.status?.toUpperCase() !== 'PAID' && currentSelectedGuest?.status?.toUpperCase() !== 'COMPLETED' && (
               <>
                 <button 
-                  className="h-8 px-4 rounded-full flex items-center justify-center gap-1.5 transition-colors"
-                  style={{
-                    background: 'linear-gradient(180deg, #4ADE80 0%, #22C55E 100%)'
-                  }}
+                  className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
                   onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
                 >
-                  <span className="text-white font-semibold text-xs">Add Item</span>
+                  <img src={receiptIcon} alt="" className="w-3 h-3" />
+                  Add Item
                 </button>
                 <button 
-                  className={`h-8 px-4 rounded-full flex items-center justify-center gap-1.5 transition-colors ${
-                    selectedDiscountId ? 'ring-2 ring-orange-500' : ''
-                  }`}
-                  style={{
-                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-                  }}
+                  className={`text-[10px] rounded-[10px] ${selectedDiscountId ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors`}
                   onClick={() => {
                     setDiscountDialogView('mpin');
                     setDiscountPin("");
                     setShowDiscountDialog(true);
                   }}
                 >
-                  <span className="text-white font-semibold text-xs">Discount</span>
+                  <img src={discountBtnIcon} alt="" className="w-3 h-3" />
+                  Discount
                 </button>
               </>
             )}
-            <button 
-              className="h-8 px-4 rounded-full flex items-center justify-center gap-1.5"
-              style={{
-                background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-              }}
-            >
-              <img src={receiptIcon} alt="Receipt" className="w-4 h-4" />
-              <span className="text-black font-semibold text-xs">Receipt</span>
+            <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
+              <img src={receiptIcon} alt="" className="w-3 h-3" />
+              Receipt
             </button>
-            <button 
-              className="h-8 px-4 rounded-full flex items-center justify-center gap-1.5"
-              style={{
-                background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-              }}
-            >
-              <img src={registerIcon} alt="Register" className="w-4 h-4" />
-              <span className="text-black font-semibold text-xs">Cash Register</span>
+            <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
+              <img src={registerIcon} alt="" className="w-3 h-3" />
+              Register
             </button>
           </div>
         </div>

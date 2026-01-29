@@ -1,323 +1,220 @@
 
 
-# Make Payment Dialog Fully Responsive for Mobile View
+# Transfer Check Feature Implementation
 
-## Problem Overview
-
-The Payment Dialog currently works well on desktop and tablet but has significant issues on mobile:
-
-1. **Fixed widths** (480px, 780px) exceed mobile viewport widths
-2. **Side-by-side layout** (left panel + right order panel) doesn't fit on narrow screens
-3. **Grid layouts** (7-column payment methods, 3-column split check tickets) are too wide
-4. **No mobile detection** - the `useIsMobile` hook is not used in PaymentDialog
-5. **Sidebar elements** (order details) cannot be accessed properly on mobile
-6. **Quick amount buttons** and **keypads** have touch targets that are too small
+## Overview
+Implement a "Transfer Check" popup that allows staff to transfer the current order to another employee/server. When clicking the Transfer Check button in the order actions sidebar, a dark-themed dialog opens with a searchable list of employees. Selecting an employee updates the order's server assignment.
 
 ---
 
-## Solution Architecture
+## Visual Reference
+
+Based on the provided image, the popup will have:
+- Header with "Cancel" (left), "Transfer Check" title (center), "Update" button (right)
+- Search bar to filter employees
+- Helper text: "Select an employee to transfer the ordering check"
+- List of employees with avatar/initials, name, and "Current Owner" indicator with checkmark
 
 ```text
-+---------------------------+          +---------------------------+
-|     DESKTOP/TABLET        |          |         MOBILE            |
-+---------------------------+          +---------------------------+
-|                           |          |                           |
-| +-------+    +---------+  |          | +------------------------+|
-| | Left  |    | Right   |  |          | |                        ||
-| | Panel |    | Order   |  |          | |   Full-Width Payment   ||
-| |       |    | Details |  |          | |        Panel           ||
-| |       |    |         |  |          | |                        ||
-| |       |    |         |  |   -->    | |  Order summary shown   ||
-| |       |    |         |  |          | |  inline or via toggle  ||
-| +-------+    +---------+  |          | |                        ||
-|                           |          | +------------------------+|
-|  Side-by-side layout      |          |  Single column, stacked  |
-+---------------------------+          +---------------------------+
+┌─────────────────────────────────────────────────────────────┐
+│  Cancel          Transfer Check              Update         │
+├─────────────────────────────────────────────────────────────┤
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  🔍  Search                                          │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│  Select an employee to transfer the ordering check          │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  (AA)  Account Admin                                 │   │
+│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  (RY)  Rohan Yadav                                   │   │
+│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  (MJ)  Mia Jones          Current Owner      ✓      │   │
+│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  (DH)  Dustin H                                      │   │
+│  └─────────────────────────────────────────────────────┘   │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │  (AM)  Alex M                                        │   │
+│  └─────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
 ```
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Add Mobile Detection Hook
+### Step 1: Create Mock Staff Data
 
-Import and use the existing `useIsMobile` hook at the top of the component:
+Create a new data file for staff/employees that can be reused across the application.
+
+**File:** `src/data/staff.ts`
 
 ```typescript
-import { useIsMobile } from "@/hooks/use-mobile";
+export interface StaffMember {
+  id: number;
+  name: string;
+  initials: string;
+  avatar?: string;
+  role: 'Server' | 'Manager' | 'Host' | 'Admin';
+}
 
-// Inside component:
-const isMobile = useIsMobile();
+export const staffList: StaffMember[] = [
+  { id: 1, name: "Account Admin", initials: "AA", role: "Admin" },
+  { id: 2, name: "Rohan Yadav", initials: "RY", role: "Server" },
+  { id: 3, name: "Mia Jones", initials: "MJ", role: "Server" },
+  { id: 4, name: "Dustin H", initials: "DH", role: "Server" },
+  { id: 5, name: "Alex M", initials: "AM", role: "Server" },
+  { id: 6, name: "Sarah Wilson", initials: "SW", role: "Host" },
+  { id: 7, name: "James Rodriguez", initials: "JR", role: "Manager" },
+];
 ```
 
-### Step 2: Make Dialog Container Responsive
+### Step 2: Create TransferCheckDialog Component
 
-Update the main dialog container to use responsive widths:
+Create a new dialog component with dark theme styling matching the rest of the application.
 
-**Current (lines 688-695):**
+**File:** `src/components/TransferCheckDialog.tsx`
+
+**Structure:**
+- Props: `isOpen`, `onClose`, `currentServer`, `onTransfer`
+- State: `searchQuery`, `selectedEmployee`
+- UI Elements:
+  - Header with Cancel, Title, Update buttons
+  - Search input with search icon
+  - Helper text
+  - Scrollable list of employees
+  - Each employee row shows avatar/initials, name, and current owner indicator
+
+**Styling (Dark Theme):**
+- Dialog container: `bg-neutral-900 border-neutral-700`
+- Header buttons: Cancel (text), Update (neutral button)
+- Search input: `bg-neutral-800 border-neutral-700 text-white`
+- Employee rows: `bg-neutral-800/50 hover:bg-neutral-700`
+- Selected state: Border highlight or checkmark
+- Initials circle: Colored background with white text
+- Current Owner label: `text-neutral-400`
+- Checkmark: `text-green-500`
+
+### Step 3: Update Orders.tsx State Management
+
+Add state and handler for the Transfer Check dialog.
+
+**New State Variables:**
 ```typescript
-<div className={`bg-neutral-900 rounded-xl ... flex ... ${getSplitCheckDialogWidth()}`}>
-  <div className={`... ${selectedPaymentMethod === 'split-check' ? 'w-full' : 'w-[480px]'}`}>
+const [showTransferCheckDialog, setShowTransferCheckDialog] = useState(false);
+const [currentServerName, setCurrentServerName] = useState("Mia Jones");
 ```
 
-**New:**
+**Handler Function:**
 ```typescript
-<div className={`bg-neutral-900 rounded-xl border border-neutral-700 
-  ${isMobile 
-    ? 'flex-col w-full h-[100dvh] max-h-[100dvh] rounded-none m-0' 
-    : `flex max-h-[90vh] max-w-[95vw] mx-4 ${getSplitCheckDialogWidth()}`
-  } overflow-hidden animate-scale-in transition-all duration-300`}>
-  
-  <div className={`flex flex-col bg-neutral-900 overflow-hidden transition-all duration-300 
-    ${isMobile 
-      ? 'flex-1 w-full' 
-      : selectedPaymentMethod === 'split-check' ? 'w-full' : 'w-[480px]'
-    }`}>
+const handleTransferCheck = (newServerName: string) => {
+  setCurrentServerName(newServerName);
+  setShowTransferCheckDialog(false);
+  // Optional: Show success toast
+};
 ```
 
-### Step 3: Hide Order Details Panel on Mobile (Show Summary Inline)
+### Step 4: Connect Transfer Check Button
 
-On mobile, hide the right sidebar and show order info inline:
+Update the Transfer Check button to open the dialog.
 
-**Current (lines 4743-4750):**
+**Current Code (line 8558):**
 ```typescript
-<div className={`${selectedPaymentMethod === 'split-check' ? 'w-[320px]' : 'w-[280px]'} border-l...`}>
+<button className="flex-1 flex flex-col items-center justify-center...">
 ```
 
-**New:**
+**Updated Code:**
 ```typescript
-{/* Order Details Panel - Hidden on mobile */}
-{!isMobile && (
-  <div className={`${selectedPaymentMethod === 'split-check' ? 'w-[320px]' : 'w-[280px]'} border-l...`}>
-    {/* ... existing order panel content ... */}
-  </div>
-)}
+<button 
+  onClick={() => setShowTransferCheckDialog(true)}
+  className="flex-1 flex flex-col items-center justify-center..."
+>
 ```
 
-### Step 4: Add Mobile Order Summary Header
+### Step 5: Pass Server Name Dynamically
 
-Add a compact order summary at the top of the payment section for mobile:
+Update the PaymentDialog to use the dynamic server name instead of hardcoded value.
 
+**Current Code (line 8891):**
 ```typescript
-{/* Mobile Order Summary - Compact inline header */}
-{isMobile && (
-  <div className="px-4 py-2 border-b border-neutral-700 bg-neutral-800/50">
-    <div className="flex items-center justify-between">
-      <div className="flex items-center gap-2">
-        <span className="text-white font-medium text-sm">{orderDetails.guest || "Guest"}</span>
-        {orderDetails.orderType && (
-          <span className="text-[10px] text-neutral-400 px-1.5 py-0.5 bg-neutral-700 rounded">
-            {orderDetails.orderType}
-          </span>
-        )}
-      </div>
-      <span className="text-red-500 font-bold">${total.toFixed(2)}</span>
-    </div>
-    <div className="flex items-center gap-2 mt-1 text-neutral-400 text-xs">
-      {orderDetails.phone && <span>{orderDetails.phone}</span>}
-      {orderDetails.orderNumber && <span>Order #{orderDetails.orderNumber}</span>}
-    </div>
-  </div>
-)}
+serverName: "Mia Jones",
 ```
 
-### Step 5: Make Payment Methods Grid Responsive
-
-Update the payment method icons grid:
-
-**Current (line 4454):**
+**Updated Code:**
 ```typescript
-<div className={`grid gap-2 ${activePayingCheck !== null ? 'grid-cols-6' : 'grid-cols-7'}`}>
+serverName: currentServerName,
 ```
 
-**New:**
-```typescript
-<div className={`grid gap-2 ${
-  isMobile 
-    ? 'grid-cols-4' 
-    : activePayingCheck !== null ? 'grid-cols-6' : 'grid-cols-7'
-}`}>
-```
+### Step 6: Render the Dialog
 
-Also reduce icon sizes on mobile:
+Add the TransferCheckDialog component at the end of the Orders component.
 
 ```typescript
-<div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} rounded-full border-2...`}>
-  <IconComponent className={`${isMobile ? 'w-4 h-4' : 'w-5 h-5'} ...`} />
-</div>
-```
-
-### Step 6: Make Split Check Grid Responsive
-
-Update the split check tickets grid:
-
-**Current (line 4211):**
-```typescript
-<div className="grid grid-cols-3 gap-2">
-```
-
-**New:**
-```typescript
-<div className={`grid gap-2 ${isMobile ? 'grid-cols-2' : 'grid-cols-3'}`}>
-```
-
-Also update the ticket card styles for mobile:
-
-```typescript
-<div className={`bg-neutral-800 border rounded-lg flex flex-col shadow-md relative overflow-hidden 
-  ${isMobile ? 'p-1' : 'p-1.5'} w-full min-w-0...`}>
-```
-
-### Step 7: Make Quick Amount Buttons Responsive
-
-Update quick amounts grid for mobile:
-
-**Current (lines 4638-4687):**
-```typescript
-<div className="flex gap-4 px-2">
-  {quickAmounts.slice(0, 3).map(amount => ...)}
-</div>
-```
-
-**New:**
-```typescript
-<div className={`flex gap-2 ${isMobile ? 'px-2' : 'gap-4 px-2'}`}>
-  {quickAmounts.slice(0, isMobile ? 4 : 3).map(amount => {
-    return (
-      <div key={amount} className={`flex-1 relative ${isMobile ? 'py-0.5' : 'py-1'}`}>
-        <button className={`w-full ${isMobile ? 'py-2 text-xs' : 'py-3 text-sm'} rounded-lg font-medium...`}>
-```
-
-### Step 8: Make Keypad Responsive
-
-Update keypad buttons for mobile touch:
-
-**Current (lines 4601-4633):**
-```typescript
-<button className="flex-1 py-2 rounded-lg text-sm font-medium...">
-```
-
-**New:**
-```typescript
-<button className={`flex-1 ${isMobile ? 'py-3' : 'py-2'} rounded-lg ${isMobile ? 'text-base' : 'text-sm'} font-medium...`}>
-```
-
-### Step 9: Make Header and Charge Button Responsive
-
-Update header padding and button sizes:
-
-**Current (line 4411):**
-```typescript
-<div className="flex items-center justify-between px-6 py-4 border-b border-neutral-700">
-```
-
-**New:**
-```typescript
-<div className={`flex items-center justify-between ${isMobile ? 'px-4 py-3' : 'px-6 py-4'} border-b border-neutral-700`}>
-```
-
-Update charge button:
-
-**Current (line 4729-4737):**
-```typescript
-<button className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl...">
-```
-
-**New:**
-```typescript
-<button className={`w-full ${isMobile ? 'py-4' : 'py-3'} bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl...`}>
-```
-
-### Step 10: Make Split Mode Tabs Scrollable on Mobile
-
-Update split mode tabs for mobile:
-
-**Current (lines 4128-4161):**
-```typescript
-<div className="flex gap-2">
-  {[...].map(tab => (
-    <button className={`px-3 py-1.5 rounded-full text-xs font-medium...`}>
-```
-
-**New:**
-```typescript
-<div className={`flex gap-2 ${isMobile ? 'overflow-x-auto scrollbar-hide' : ''}`}>
-  {[...].map(tab => (
-    <button className={`${isMobile ? 'px-2 py-1 text-[10px] whitespace-nowrap' : 'px-3 py-1.5 text-xs'} rounded-full font-medium...`}>
-```
-
-### Step 11: Update Other Payment Method Dropdown for Mobile
-
-**Current (line 4531):**
-```typescript
-<div className="absolute left-0 right-0 top-full mt-3 z-20 bg-neutral-800 rounded-xl p-4...">
-  <div className="grid grid-cols-6 gap-3 mb-3">
-```
-
-**New:**
-```typescript
-<div className={`absolute left-0 right-0 top-full mt-3 z-20 bg-neutral-800 rounded-xl ${isMobile ? 'p-3' : 'p-4'}...`}>
-  <div className={`grid ${isMobile ? 'grid-cols-4' : 'grid-cols-6'} gap-3 mb-3`}>
+<TransferCheckDialog
+  isOpen={showTransferCheckDialog}
+  onClose={() => setShowTransferCheckDialog(false)}
+  currentServer={currentServerName}
+  onTransfer={handleTransferCheck}
+/>
 ```
 
 ---
 
-## Technical Summary
+## Technical Details
 
-| Area | Desktop/Tablet | Mobile |
-|------|---------------|--------|
-| Dialog Width | 480px / 780px fixed | 100% viewport width |
-| Dialog Height | max 90vh | 100dvh full screen |
-| Layout | Side-by-side (flex row) | Single column (flex col) |
-| Order Panel | Visible sidebar | Hidden (summary inline) |
-| Payment Methods | 7 columns | 4 columns |
-| Payment Icons | 48x48px | 40x40px |
-| Split Check Grid | 3 columns | 2 columns |
-| Quick Amounts | 4 per row | 4 per row (compact) |
-| Keypad Buttons | py-2 | py-3 (larger touch) |
-| Split Mode Tabs | Static row | Horizontal scroll |
+### Files to Create
 
----
+| File | Purpose |
+|------|---------|
+| `src/data/staff.ts` | Centralized staff/employee data |
+| `src/components/TransferCheckDialog.tsx` | Transfer Check popup component |
 
-## Files to Modify
+### Files to Modify
 
 | File | Changes |
 |------|---------|
-| `src/components/PaymentDialog.tsx` | All responsive updates |
+| `src/pages/Orders.tsx` | Add state, handler, button click, dialog render |
+
+### Component Props Interface
+
+```typescript
+interface TransferCheckDialogProps {
+  isOpen: boolean;
+  onClose: () => void;
+  currentServer: string;
+  onTransfer: (newServerName: string) => void;
+}
+```
 
 ---
 
-## Visual Comparison
+## Dialog Features
 
-```text
-MOBILE BEFORE:                    MOBILE AFTER:
-+------------------+              +------------------+
-|   Dialog too     |              | +---------------+|
-|   wide, content  |              | | Guest Info   ||
-|   overflows      |              | | Order #123   ||
-|                  |              | +---------------+|
-|   [████████████] |              | ○ ○ ○ ○        ||
-|   7 cols cramped |              | 4 cols, larger ||
-|                  |              |                 ||
-|   Right panel    |              | [Amount: $xx]  ||
-|   cut off        |              |                 ||
-|                  |              | [CHARGE $xx]   ||
-+------------------+              +------------------+
-```
+| Feature | Implementation |
+|---------|----------------|
+| Search | Filter staff by name as user types |
+| Current Owner | Show "Current Owner" label + checkmark for active server |
+| Selection | Highlight selected employee, enable Update button |
+| Cancel | Close dialog without changes |
+| Update | Apply transfer and close dialog |
+| Dark Theme | Match existing dialog styling (neutral-900/800/700) |
+| Scrollable List | ScrollArea for long employee lists |
 
 ---
 
 ## Testing Checklist
 
-- Open Payment Dialog on mobile - takes full screen
-- Payment method icons are 4 per row with proper spacing
-- Can scroll horizontally through split mode tabs if needed
-- Split check tickets show 2 per row on mobile
-- Keypad buttons are large enough for touch
-- Order summary shows inline at top on mobile
-- Charge button is easily tappable
-- Quick amounts display properly without overflow
-- Other payment methods dropdown displays properly
-- All payment flows (Cash, Card, Gift Card, Loyalty, etc.) work on mobile
-- Receipt screens are properly sized for mobile
+- Open Transfer Check dialog from order actions sidebar
+- Search filters employee list correctly
+- Current server is marked with "Current Owner" label and checkmark
+- Can select a different employee
+- Update button transfers the order to selected employee
+- Cancel closes dialog without changes
+- Server name updates in PaymentDialog after transfer
+- Dialog styling matches dark theme of other dialogs
+- Dialog works on mobile and tablet views
 

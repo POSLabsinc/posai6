@@ -8454,6 +8454,22 @@ const Orders = () => {
                                   </div>
                                 )}
                                 
+                                {/* No Tax Added Display for Vouchers - Desktop/Tablet */}
+                                {item.itemOrderType === 'VOUCHER' && (
+                                  <div className="ml-3 mt-1 relative">
+                                    <div className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
+                                      {/* Vertical line segment to connect to horizontal */}
+                                      <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                      {/* Horizontal connector */}
+                                      <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
+                                      {/* Content */}
+                                      <div className="flex items-center gap-2 ml-5">
+                                        <span className="text-white/60 italic">No tax added</span>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+                                
                                 {/* Seat Assignment Display - Desktop/Tablet */}
                                 {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
                                   <div className="mt-1.5 md:mt-1 lg:mt-2 flex items-center gap-1.5 ml-8">
@@ -8945,7 +8961,8 @@ const Orders = () => {
             qty: 1,
             name: `Voucher - $${amount.toFixed(2)}`,
             price: amount,
-            itemOrderType: 'VOUCHER'
+            itemOrderType: 'VOUCHER',
+            noTax: true
           }]);
           setShowVoucherDialog(false);
         }}

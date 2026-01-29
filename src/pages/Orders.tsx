@@ -7,6 +7,7 @@ import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 import GiftCardDialog from "@/components/GiftCardDialog";
 import ServiceChargeDialog from "@/components/ServiceChargeDialog";
+import { TransferCheckDialog } from "@/components/TransferCheckDialog";
 import InlineItemCustomization from "@/components/InlineItemCustomization";
 import OrderNotesAutocomplete from "@/components/OrderNotesAutocomplete";
 import clearIcon from "@/assets/icons/clear.png";
@@ -6134,6 +6135,8 @@ const Orders = () => {
   const [showServiceChargeDialog, setShowServiceChargeDialog] = useState(false);
   const [appliedServiceCharge, setAppliedServiceCharge] = useState(0);
   const [appliedServiceChargeName, setAppliedServiceChargeName] = useState('');
+  const [showTransferCheckDialog, setShowTransferCheckDialog] = useState(false);
+  const [currentServerName, setCurrentServerName] = useState("Mia Jones");
   const [showAddGuestForm, setShowAddGuestForm] = useState(false);
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
@@ -6972,7 +6975,10 @@ const Orders = () => {
                       <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
                       Register
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                    <DropdownMenuItem 
+                      onClick={() => setShowTransferCheckDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
                       <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
                       Transfer Check
                     </DropdownMenuItem>
@@ -8555,7 +8561,10 @@ const Orders = () => {
                 }}>
                   {/* Transfer Check - Only show when items in cart */}
                   {orderItems.length > 0 && (
-                    <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    <button 
+                      onClick={() => setShowTransferCheckDialog(true)}
+                      className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                    >
                       <img src={transferCheckIcon} alt="" className="w-5 h-5" />
                       <span className="text-[9px] text-white text-center leading-tight">Transfer<br/>Check</span>
                     </button>
@@ -8888,7 +8897,7 @@ const Orders = () => {
           check: orderNumber,
           orderType: orderType,
           orderNumber: orderNumber,
-          serverName: "Mia Jones",
+          serverName: currentServerName,
           orderTime: orderCreatedTime,
           items: orderItems.map(item => ({
             id: item.id,
@@ -8902,6 +8911,17 @@ const Orders = () => {
         total={chargeAmount}
         onPaymentComplete={(history) => {
           console.log("Payment completed:", history);
+        }}
+      />
+
+      {/* Transfer Check Dialog */}
+      <TransferCheckDialog
+        isOpen={showTransferCheckDialog}
+        onClose={() => setShowTransferCheckDialog(false)}
+        currentServer={currentServerName}
+        onTransfer={(newServerName) => {
+          setCurrentServerName(newServerName);
+          setShowTransferCheckDialog(false);
         }}
       />
     </div>;

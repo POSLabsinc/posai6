@@ -115,15 +115,15 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: Vouch
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 rounded-xl p-0 max-w-[340px] w-full">
+      <DialogContent className="bg-neutral-900 border-neutral-700 rounded-xl p-0 max-w-[420px] w-full">
         {view === 'sell' ? (
           <div className="p-5">
             {/* Header */}
             <h2 className="text-white text-lg font-semibold text-center mb-6">Sell Voucher</h2>
             
-            {/* Amount Display */}
-            <div className="text-center mb-6">
-              <span className="text-white text-4xl font-bold">
+            {/* Amount Display - Field Style */}
+            <div className="flex items-center justify-center bg-neutral-800 rounded-lg px-4 py-4 mb-6">
+              <span className="text-green-500 text-2xl font-bold text-center">
                 ${displayAmount.toFixed(2)}
               </span>
             </div>
@@ -196,9 +196,9 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: Vouch
               <h2 className="text-white text-lg font-semibold text-center flex-1 pr-6">Redeem Voucher</h2>
             </div>
             
-            {/* Voucher Code Display */}
-            <div className="bg-neutral-800 border border-neutral-600 rounded-lg p-4 mb-5 text-center min-h-[60px] flex items-center justify-center">
-              <span className="text-white text-2xl font-mono tracking-wider">
+            {/* Voucher Code Display - Field Style */}
+            <div className="bg-neutral-800 rounded-lg px-4 py-4 mb-5 flex items-center justify-center">
+              <span className="text-green-500 text-2xl font-bold font-mono tracking-wider">
                 {voucherCode || 'Enter Code'}
               </span>
             </div>

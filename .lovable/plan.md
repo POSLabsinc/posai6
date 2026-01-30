@@ -1,63 +1,78 @@
 
-# Split and Save Order Feature
+# Consolidate Delivery Methods into "Third Party Delivery"
 
 ## Overview
-Implement a "split and save" workflow where clicking the Save button in the split payment popup saves the order in split mode, displays a warning message in the order panel, adds a Merge button to re-merge the order, and prevents firing or adding items until the order is merged again.
+Replace the four separate delivery payment methods (Blizzful, UberEats, DoorDash, Grubhub) with a single "Third Party Delivery" option. When selected, this will show a list of delivery partners to choose from, followed by the existing reference number input flow.
 
 ---
 
-## Feature Requirements Summary
-
-1. **Save button in split payment popup** → Saves split configuration and closes dialog
-2. **Order panel warning message** → "This check has been split. Re-merge this ticket if you want to fire it or add products to it."
-3. **Merge button in sidebar** → Allows re-merging a split order
-4. **Block FIRE action** → Disable when order is split
-5. **Block adding items** → Show popup message when attempting to add items to a split order
-
----
-
-## UI Flow Diagram
+## User Flow
 
 ```text
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           NORMAL ORDER STATE                            │
+Payment Methods Grid
+        │
+        ├── [Card] [Cash] [Gift Card] [Pay Link] [Other ▼]
+        │                                            │
+        │                               ┌────────────┴───────────────┐
+        │                               │ Account                    │
+        │                               │ QR Code                    │
+        │                               │ Manual CC                  │
+        │                               │ External CC                │
+        │                               │ Manual Card                │
+        │                               │ Third Party Delivery  ◄────┼─── NEW (replaces 4 methods)
+        │                               └────────────────────────────┘
+        │
+        ▼ Select "Third Party Delivery"
+        │
+┌───────┴───────────────────────────────────────────────────────────────┐
+│  Step 1: Select Delivery Partner                                       │
 │                                                                         │
-│  [Order Items]                    Sidebar:                              │
-│  ├─ Item 1                        [Transfer Check]                      │
-│  ├─ Item 2                        [Gift Card]                           │
-│  └─ Item 3                        [Service Charge]                      │
-│                                   [Add Guest]                           │
-│  [Summary]                        [Voucher]                             │
-│                                   [Reopen Check]                        │
-│  [Clear] [Save] [FIRE] [CHARGE]                                         │
+│  ┌──────────────┐ ┌──────────────┐ ┌──────────────┐ ┌──────────────┐  │
+│  │  [Blizzful]  │ │  [UberEats]  │ │  [DoorDash]  │ │  [Grubhub]   │  │
+│  │   (blue)     │ │   (green)    │ │    (red)     │ │  (orange)    │  │
+│  └──────────────┘ └──────────────┘ └──────────────┘ └──────────────┘  │
+│                                                                         │
+│  (Partners list can be expanded for other countries/regions)           │
 └─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    │ Click CHARGE → Payment Dialog
-                                    │ Select Split Check → Configure
-                                    │ Click SAVE icon
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                           SPLIT ORDER STATE                             │
+        │
+        ▼ Select a partner (e.g., UberEats)
+        │
+┌───────┴───────────────────────────────────────────────────────────────┐
+│  Step 2: Enter Reference Number                                        │
 │                                                                         │
-│  ┌────────────────────────────────────────────────────────────────────┐ │
-│  │ ⚠ This check has been split. Re-merge this ticket if you want to  │ │
-│  │   fire it or add products to it.                                   │ │
-│  └────────────────────────────────────────────────────────────────────┘ │
+│              ┌─────────────────────────┐                               │
+│              │  [UberEats Logo]        │                               │
+│              │       (green)           │                               │
+│              └─────────────────────────┘                               │
 │                                                                         │
-│  [Order Items]                    Sidebar:                              │
-│  ├─ Item 1                        [Merge] ← NEW                         │
-│  ├─ Item 2                        [Transfer Check]                      │
-│  └─ Item 3                        [Gift Card]                           │
-│                                   [Service Charge]                      │
-│  [Summary]                        [Add Guest]                           │
-│                                   [Voucher]                             │
-│  [Clear] [Save] [FIRE-disabled] [CHARGE]    [Reopen Check]              │
+│  Reference Number: [________________]                                   │
+│                                                                         │
+│  ┌─────┬─────┬─────┐                                                   │
+│  │  1  │  2  │  3  │   Numeric Keypad                                  │
+│  ├─────┼─────┼─────┤                                                   │
+│  │  4  │  5  │  6  │                                                   │
+│  ├─────┼─────┼─────┤                                                   │
+│  │  7  │  8  │  9  │                                                   │
+│  ├─────┼─────┼─────┤                                                   │
+│  │  0  │ 00  │  C  │                                                   │
+│  └─────┴─────┴─────┘                                                   │
+│                                                                         │
+│  [CONTINUE]                                                             │
 └─────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    │ Click "Merge" button
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────┐
-│                      BACK TO NORMAL ORDER STATE                         │
+        │
+        ▼ Enter reference and click CONTINUE
+        │
+┌───────┴───────────────────────────────────────────────────────────────┐
+│  Step 3: Completion / Receipt                                          │
+│                                                                         │
+│              ✓ Success                                                  │
+│                                                                         │
+│  $XX.XX has been successfully processed                                │
+│  UberEats Ref: 1234 5678                                               │
+│                                                                         │
+│  [Print] [Text] [Email]                                                │
+│                                                                         │
+│  [NO RECEIPT]                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -65,261 +80,374 @@ Implement a "split and save" workflow where clicking the Save button in the spli
 
 ## Implementation Steps
 
-### Step 1: Add State for Split Order in Orders.tsx
+### Step 1: Define Delivery Partners Data Structure
 
-Add a new state variable to track if the order is in split mode.
+Create a new constant for delivery partners that can be easily extended per country.
 
-**File:** `src/pages/Orders.tsx` (around line 6154)
+**File:** `src/components/PaymentDialog.tsx`
 
-**New State:**
+**New Constant (near line 107):**
 ```typescript
-const [isOrderSplit, setIsOrderSplit] = useState(false);
-```
-
----
-
-### Step 2: Add Split Configuration State
-
-Store the split configuration details for potential display/use.
-
-**File:** `src/pages/Orders.tsx` (around line 6154)
-
-**New State:**
-```typescript
-const [splitConfiguration, setSplitConfiguration] = useState<{
-  mode: 'seat' | 'evenly' | 'custom';
-  numberOfChecks: number;
-  checkAssignments: Record<number, number>;
-} | null>(null);
-```
-
----
-
-### Step 3: Add onSaveSplit Prop to PaymentDialog
-
-Extend the PaymentDialogProps interface to accept a callback for saving split configuration.
-
-**File:** `src/components/PaymentDialog.tsx` (lines 44-52)
-
-**Updated Interface:**
-```typescript
-export interface PaymentDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  orderDetails: PaymentDialogOrderDetails;
-  subtotal: number;
-  tax: number;
-  total: number;
-  onPaymentComplete?: (paymentHistory: PaymentHistoryItem[]) => void;
-  onSaveSplit?: (config: {
-    mode: 'seat' | 'evenly' | 'custom';
-    numberOfChecks: number;
-    checkAssignments: Record<number, number>;
-  }) => void;
-}
-```
-
----
-
-### Step 4: Update Save Button in PaymentDialog
-
-Modify the Save button's onClick handler to call the new onSaveSplit callback.
-
-**File:** `src/components/PaymentDialog.tsx` (lines 4230-4238)
-
-**Updated Handler:**
-```typescript
-<button
-  onClick={() => {
-    onSaveSplit?.({
-      mode: splitMode,
-      numberOfChecks,
-      checkAssignments
-    });
-    onOpenChange(false); // Close the dialog
-  }}
-  className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 transition-colors ml-1`}
->
-  <Save className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-</button>
-```
-
----
-
-### Step 5: Pass onSaveSplit to PaymentDialog
-
-Update the PaymentDialog usage in Orders.tsx to pass the new callback.
-
-**File:** `src/pages/Orders.tsx` (lines 8936-8961)
-
-**Updated Usage:**
-```typescript
-<PaymentDialog
-  open={showPaymentDialog}
-  onOpenChange={setShowPaymentDialog}
-  orderDetails={{...}}
-  subtotal={subtotal}
-  tax={tax}
-  total={chargeAmount}
-  onPaymentComplete={(history) => {
-    console.log("Payment completed:", history);
-  }}
-  onSaveSplit={(config) => {
-    setIsOrderSplit(true);
-    setSplitConfiguration(config);
-  }}
-/>
-```
-
----
-
-### Step 6: Display Warning Message in Order Panel
-
-Add a warning banner above the order summary when the order is split.
-
-**File:** `src/pages/Orders.tsx` (before line 8512, inside the order panel)
-
-**New Component:**
-```typescript
-{/* Split Order Warning */}
-{isOrderSplit && orderItems.length > 0 && (
-  <div className="px-2 py-2">
-    <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg px-3 py-2">
-      <p className="text-amber-400 text-xs leading-relaxed">
-        This check has been split. Re-merge this ticket if you want to fire it or add products to it.
-      </p>
-    </div>
-  </div>
-)}
-```
-
----
-
-### Step 7: Add Merge Button to Sidebar
-
-Add a Merge button at the top of the sidebar that appears when the order is split.
-
-**File:** `src/pages/Orders.tsx` (lines 8613-8622, inside the sidebar)
-
-**New Button:**
-```typescript
-{/* Merge - Only show when order is split */}
-{isOrderSplit && (
-  <button 
-    onClick={() => {
-      setIsOrderSplit(false);
-      setSplitConfiguration(null);
-    }}
-    className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
-  >
-    <img src={mergeIcon} alt="" className="w-5 h-5" />
-    <span className="text-[9px] text-white text-center leading-tight">Merge</span>
-  </button>
-)}
-```
-
-**Note:** Import the merge icon at the top of the file. We'll use the existing `link-merge.png` icon.
-
----
-
-### Step 8: Disable FIRE Button When Split
-
-Modify the FIRE button to be disabled and styled appropriately when the order is split.
-
-**File:** `src/pages/Orders.tsx` (lines 8582-8587)
-
-**Updated FIRE Button:**
-```typescript
-<button 
-  disabled={isOrderSplit}
-  onClick={() => {
-    if (!isOrderSplit) {
-      // Fire action
-    }
-  }}
-  className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${
-    isOrderSplit ? 'opacity-50 cursor-not-allowed' : ''
-  }`}
-  style={{
-    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-  }}
->
-  <img src={fireIcon} alt="Fire" className="w-4 h-4" />
-  <span className="text-white font-semibold text-sm">FIRE</span>
-</button>
-```
-
----
-
-### Step 9: Add State for Split Order Alert Dialog
-
-Add state to control showing the split order alert when trying to add items.
-
-**File:** `src/pages/Orders.tsx` (around line 6154)
-
-**New State:**
-```typescript
-const [showSplitOrderAlert, setShowSplitOrderAlert] = useState(false);
-```
-
----
-
-### Step 10: Block Adding Items to Split Order
-
-Modify the addToCart function to check if the order is split and show an alert instead.
-
-**File:** `src/pages/Orders.tsx` (function addToCart around line 6405)
-
-**Updated Function:**
-```typescript
-const addToCart = (item: {
-  id: number;
+interface DeliveryPartner {
+  id: string;
   name: string;
-  price: number;
-}) => {
-  // Block adding items if order is split
-  if (isOrderSplit) {
-    setShowSplitOrderAlert(true);
-    return;
-  }
-  
-  // ... existing add to cart logic
+  icon: React.ComponentType<{ className?: string }>;
+  color: string;  // Button/accent color
+  bgColor: string; // Background color class
+}
+
+const deliveryPartners: DeliveryPartner[] = [
+  { id: 'blizzful', name: 'Blizzful', icon: Utensils, color: 'bg-blue-500', bgColor: 'hover:bg-blue-500/20' },
+  { id: 'ubereats', name: 'UberEats', icon: ShoppingBag, color: 'bg-green-500', bgColor: 'hover:bg-green-500/20' },
+  { id: 'doordash', name: 'DoorDash', icon: Truck, color: 'bg-red-500', bgColor: 'hover:bg-red-500/20' },
+  { id: 'grubhub', name: 'Grubhub', icon: UtensilsCrossed, color: 'bg-orange-500', bgColor: 'hover:bg-orange-500/20' },
+];
+```
+
+---
+
+### Step 2: Update Payment Methods Lists
+
+Replace the four individual delivery methods with a single "Third Party Delivery" option.
+
+**File:** `src/components/PaymentDialog.tsx` (lines 95-105)
+
+**Updated:**
+```typescript
+const initialOtherPaymentMethods: PaymentMethodType[] = [
+  { id: 'account', name: 'Account', icon: User },
+  { id: 'qr-code', name: 'QR Code', icon: QrCode },
+  { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
+  { id: 'external-cc', name: 'External CC', icon: ExternalLink },
+  { id: 'manual-card', name: 'Manual card', icon: Clipboard },
+  { id: 'third-party-delivery', name: '3rd Party Delivery', icon: Truck },
+];
+```
+
+---
+
+### Step 3: Add New State Variables
+
+Replace the four individual delivery states with unified states.
+
+**File:** `src/components/PaymentDialog.tsx` (lines 171-179)
+
+**Updated States:**
+```typescript
+// Third Party Delivery states (replaces individual blizzful/ubereats/doordash/grubhub states)
+const [thirdPartyDeliveryStep, setThirdPartyDeliveryStep] = useState<'amount' | 'select-partner' | 'reference' | 'complete'>('amount');
+const [selectedDeliveryPartner, setSelectedDeliveryPartner] = useState<DeliveryPartner | null>(null);
+const [deliveryReference, setDeliveryReference] = useState('');
+```
+
+---
+
+### Step 4: Update Reset Logic
+
+Update the useEffect that resets states when dialog opens.
+
+**File:** `src/components/PaymentDialog.tsx` (lines 214-257)
+
+**Add to reset:**
+```typescript
+// Reset third party delivery states
+setThirdPartyDeliveryStep('amount');
+setSelectedDeliveryPartner(null);
+setDeliveryReference('');
+```
+
+**Remove old resets:**
+```typescript
+// Remove these lines:
+setDoordashStep('amount');
+setBlizzfulStep('amount');
+setUbereatsStep('amount');
+setGrubhubStep('amount');
+```
+
+---
+
+### Step 5: Update resetPaymentMethodStates Function
+
+**File:** `src/components/PaymentDialog.tsx` (lines 441-470)
+
+**Update to:**
+```typescript
+const resetPaymentMethodStates = () => {
+  setGiftCardStep('amount');
+  setGiftCardNumber('');
+  setPayByLinkStep('amount');
+  setSelectedGuest(null);
+  setQrCodeStep('amount');
+  setQrPhoneNumber('');
+  setShowQrPhoneInput(false);
+  setManualCCStep('amount');
+  setExternalCCStep('amount');
+  setManualCardStep('amount');
+  setManualCardDetails({ cardNumber: '', cardHolder: '', expiry: '', cvv: '' });
+  // Third Party Delivery reset
+  setThirdPartyDeliveryStep('amount');
+  setSelectedDeliveryPartner(null);
+  setDeliveryReference('');
+  // ... rest unchanged
 };
 ```
 
 ---
 
-### Step 11: Add Split Order Alert Dialog
+### Step 6: Update handleSelectFromDropdown
 
-Add a dialog component to display the split order warning when trying to add items.
+Modify the function to handle the new third-party-delivery method.
 
-**File:** `src/pages/Orders.tsx` (near other dialogs, around line 8900)
+**File:** `src/components/PaymentDialog.tsx` (lines 553-588)
 
-**New Dialog:**
+**Add:**
 ```typescript
-{/* Split Order Alert Dialog */}
-{showSplitOrderAlert && (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-    <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 overflow-hidden animate-scale-in">
-      <div className="p-6 text-center">
-        <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
-          <AlertCircle className="w-6 h-6 text-amber-400" />
-        </div>
-        <h3 className="text-white font-semibold text-lg mb-2">Cannot Add Items</h3>
-        <p className="text-neutral-400 text-sm mb-6">
-          You cannot add more items to a split order. If you want to add items, please merge the order first.
-        </p>
-        <button
-          onClick={() => setShowSplitOrderAlert(false)}
-          className="w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity"
+if (selectedMethod.id === 'third-party-delivery') {
+  setThirdPartyDeliveryStep('amount');
+  setSelectedDeliveryPartner(null);
+  setDeliveryReference('');
+}
+```
+
+**Remove the blizzful, ubereats, doordash, grubhub handlers.**
+
+---
+
+### Step 7: Update handleChargePayment
+
+Update the charge handler for the new consolidated method.
+
+**File:** `src/components/PaymentDialog.tsx` (lines 596-672)
+
+**Replace the four delivery handlers with:**
+```typescript
+// Third Party Delivery: transition to partner selection
+if (selectedPaymentMethod === 'third-party-delivery' && thirdPartyDeliveryStep === 'amount') {
+  setThirdPartyDeliveryStep('select-partner');
+  return;
+}
+```
+
+**Remove the individual doordash, blizzful, ubereats, grubhub handlers.**
+
+---
+
+### Step 8: Update handlePayCheck (Split Check)
+
+**File:** `src/components/PaymentDialog.tsx` (lines 363-383)
+
+**Replace:**
+```typescript
+// Reset third party delivery states
+setThirdPartyDeliveryStep('amount');
+setSelectedDeliveryPartner(null);
+setDeliveryReference('');
+```
+
+**Remove individual delivery step resets.**
+
+---
+
+### Step 9: Create New Third Party Delivery UI Flow
+
+Replace the four separate delivery UI blocks with a single consolidated flow.
+
+**File:** `src/components/PaymentDialog.tsx`
+
+**New UI Section (replaces lines ~2957-4200 approximately):**
+
+```typescript
+) : selectedPaymentMethod === 'third-party-delivery' && thirdPartyDeliveryStep !== 'amount' ? (
+  /* ============= THIRD PARTY DELIVERY FLOW ============= */
+  <>
+    {/* Header with Back Button */}
+    <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+      <div className="flex items-center gap-3">
+        <button 
+          onClick={() => {
+            if (textReceiptStep === 'phone-input') {
+              setTextReceiptStep('receipt');
+            } else if (emailReceiptStep === 'email-input') {
+              setEmailReceiptStep('receipt');
+            } else if (thirdPartyDeliveryStep === 'reference') {
+              setThirdPartyDeliveryStep('select-partner');
+            } else if (thirdPartyDeliveryStep === 'select-partner') {
+              setThirdPartyDeliveryStep('amount');
+              setSelectedDeliveryPartner(null);
+            } else if (thirdPartyDeliveryStep === 'complete') {
+              setThirdPartyDeliveryStep('amount');
+              setSelectedDeliveryPartner(null);
+            }
+          }} 
+          className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
         >
-          OK
+          <ArrowLeft className="w-5 h-5 text-neutral-300" />
         </button>
+        <span className="text-white text-lg font-medium">
+          {thirdPartyDeliveryStep === 'select-partner' 
+            ? 'Select Delivery Partner' 
+            : selectedDeliveryPartner 
+              ? `Pay by ${selectedDeliveryPartner.name}` 
+              : 'Third Party Delivery'}
+        </span>
       </div>
     </div>
-  </div>
-)}
+
+    {/* Step 1: Partner Selection */}
+    {thirdPartyDeliveryStep === 'select-partner' && (
+      <div className="flex-1 flex flex-col p-4">
+        <p className="text-neutral-400 text-sm mb-4">Choose your delivery partner</p>
+        <div className="grid grid-cols-2 gap-3">
+          {deliveryPartners.map((partner) => (
+            <button
+              key={partner.id}
+              onClick={() => {
+                setSelectedDeliveryPartner(partner);
+                setThirdPartyDeliveryStep('reference');
+                setDeliveryReference('');
+              }}
+              className={`flex flex-col items-center gap-3 p-6 rounded-xl border border-neutral-700 bg-neutral-800 ${partner.bgColor} transition-all`}
+            >
+              <div className={`w-14 h-14 rounded-full ${partner.color} flex items-center justify-center`}>
+                <partner.icon className="w-7 h-7 text-white" />
+              </div>
+              <span className="text-white font-medium">{partner.name}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    )}
+
+    {/* Step 2: Reference Number Entry */}
+    {thirdPartyDeliveryStep === 'reference' && selectedDeliveryPartner && (
+      <div className="flex-1 flex flex-col">
+        {/* Partner Logo */}
+        <div className="flex justify-center py-6">
+          <div className={`w-16 h-16 rounded-full ${selectedDeliveryPartner.color} flex items-center justify-center`}>
+            <selectedDeliveryPartner.icon className="w-8 h-8 text-white" />
+          </div>
+        </div>
+
+        {/* Reference Number Label */}
+        <div className="px-4 mb-1">
+          <span className="text-neutral-400 text-xs">Reference number</span>
+        </div>
+
+        {/* Reference Number Input */}
+        <div className="px-4 mb-3">
+          <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
+            <span className="text-white text-base font-medium">
+              {deliveryReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
+            </span>
+          </div>
+        </div>
+
+        {/* Keypad */}
+        <div className="flex-1 px-4">
+          <div className="grid grid-cols-3 gap-2">
+            {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map(key => (
+              <button 
+                key={key} 
+                onClick={() => {
+                  if (key === 'C') {
+                    setDeliveryReference('');
+                  } else {
+                    setDeliveryReference(deliveryReference + key);
+                  }
+                }} 
+                className={`h-12 rounded-xl text-lg font-medium transition-colors ${
+                  key === 'C' 
+                    ? 'bg-neutral-800 border border-neutral-700 text-red-500 hover:bg-neutral-700' 
+                    : 'bg-neutral-800 border border-neutral-700 text-white hover:bg-neutral-700 active:bg-neutral-600'
+                }`}
+              >
+                {key}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Continue Button */}
+        <div className="p-4">
+          <button 
+            onClick={() => {
+              const paid = parseFloat(paymentAmount) || 0;
+              setPaidAmount(prev => prev + paid);
+              setThirdPartyDeliveryStep('complete');
+            }} 
+            disabled={!deliveryReference} 
+            className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${
+              deliveryReference 
+                ? `${selectedDeliveryPartner.color.replace('bg-', 'bg-')} hover:opacity-90 text-white` 
+                : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+            }`}
+          >
+            CONTINUE
+          </button>
+        </div>
+      </div>
+    )}
+
+    {/* Step 3: Complete / Receipt */}
+    {thirdPartyDeliveryStep === 'complete' && selectedDeliveryPartner && (
+      <>
+        {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? (
+          <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
+            <img src={tickSuccessIcon} alt="Success" className="w-16 h-16 mb-4" />
+            
+            <p className="text-center mb-6">
+              <span className="text-green-500 font-bold text-lg">${paidAmount.toFixed(2)}</span>
+              <span className="text-neutral-400 text-sm"> has been successfully processed</span>
+            </p>
+            
+            <p className="text-neutral-400 text-sm mb-6">
+              {selectedDeliveryPartner.name} Ref: {deliveryReference}
+            </p>
+            
+            <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
+            
+            <div className="flex gap-4 mb-6">
+              {/* Print, Text, Email buttons */}
+              <button 
+                onClick={() => {
+                  const amount = parseFloat(paymentAmount) || 0;
+                  finalizePayment('third-party-delivery', amount, selectedDeliveryPartner.name);
+                }} 
+                className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]"
+              >
+                <Printer className="w-6 h-6 text-neutral-300" />
+                <span className="text-neutral-300 text-xs">Print</span>
+              </button>
+              {/* Text and Email buttons similar pattern */}
+            </div>
+            
+            <button 
+              onClick={() => {
+                const amount = parseFloat(paymentAmount) || 0;
+                finalizePayment('third-party-delivery', amount, selectedDeliveryPartner.name);
+              }} 
+              className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors"
+            >
+              NO RECEIPT
+            </button>
+          </div>
+        ) : (
+          {/* Text/Email receipt input screens - same pattern as existing */}
+        )}
+      </>
+    )}
+  </>
+)
 ```
+
+---
+
+### Step 10: Update getMethodLabel Function
+
+**File:** `src/components/PaymentDialog.tsx` (lines 590-594)
+
+Ensure it properly returns the partner name for third-party-delivery payments.
 
 ---
 
@@ -327,33 +455,32 @@ Add a dialog component to display the split order warning when trying to add ite
 
 | File | Changes |
 |------|---------|
-| `src/pages/Orders.tsx` | Add states (isOrderSplit, splitConfiguration, showSplitOrderAlert), add warning message, add Merge button, disable FIRE, block addToCart, add alert dialog, pass onSaveSplit prop |
-| `src/components/PaymentDialog.tsx` | Add onSaveSplit prop to interface, implement Save button handler |
+| `src/components/PaymentDialog.tsx` | Add DeliveryPartner interface and data, replace 4 delivery methods with single option, add new states, update all handlers, create new consolidated UI flow, remove ~800 lines of duplicate code |
 
 ---
 
 ## Technical Notes
 
-1. **Icon for Merge Button:** Use existing `link-merge.png` from `src/assets/icons/`
-2. **AlertCircle icon:** Already imported in Orders.tsx
-3. **State reset on Merge:** Clicking Merge sets `isOrderSplit` to false and clears `splitConfiguration`
-4. **Dialog closing:** Save button closes the PaymentDialog after saving the split configuration
-5. **Visual consistency:** Warning message uses amber color scheme matching the design screenshot
+1. **Code Reduction:** This consolidation removes approximately 800+ lines of duplicated code from the four individual delivery flows
+2. **Extensibility:** The `deliveryPartners` array can easily be extended with additional partners or filtered by country/region
+3. **Dynamic Colors:** Partner-specific colors are maintained through the `color` and `bgColor` properties
+4. **Payment Recording:** The `finalizePayment` call will use the partner name (e.g., "UberEats") as the methodLabel for accurate payment history
+5. **Split Check Compatibility:** The new flow integrates with the existing split check payment system
 
 ---
 
 ## Testing Checklist
 
-- Add items to cart, click CHARGE to open payment dialog
-- Select Split Check payment method
-- Configure split (evenly, by seat, or custom)
-- Click Save icon button
-- Verify dialog closes and warning message appears in order panel
-- Verify FIRE button is disabled (grayed out)
-- Try to add new items - verify alert dialog appears
-- Click OK to dismiss alert
-- Verify Merge button appears in sidebar when split
-- Click Merge button
-- Verify warning message disappears
-- Verify FIRE button is enabled again
-- Verify items can be added to cart again
+- Open Payment Dialog
+- Click "Other" dropdown and select "3rd Party Delivery"
+- Verify partner selection screen shows all 4 partners
+- Select a partner (e.g., UberEats)
+- Verify the partner logo appears with correct color
+- Enter a reference number using the keypad
+- Click CONTINUE
+- Verify success screen shows correct partner name and reference
+- Test Print/Text/Email receipt options
+- Test NO RECEIPT flow
+- Verify payment history shows partner name correctly
+- Test with Split Check flow
+- Verify back navigation works at each step

@@ -1720,11 +1720,6 @@ const TableOrder = () => {
               )}
             </button>
 
-            {/* Users Button */}
-            <button className="flex items-center justify-center bg-neutral-800 rounded-full p-1.5 hover:bg-neutral-700 transition-colors">
-              <Users className="w-4 h-4 text-white" />
-            </button>
-
             {/* Dining Area Dropdown */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>

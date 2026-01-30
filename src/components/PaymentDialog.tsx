@@ -551,7 +551,7 @@ export function PaymentDialog({
     });
   };
 
-  // Handle selecting from dropdown
+  // Handle selecting from dropdown - skip keypad and go directly to method-specific flow
   const handleSelectFromDropdown = (selectedMethod: PaymentMethodType) => {
     const lastVisibleMethod = visiblePaymentMethods[visiblePaymentMethods.length - 1];
     const newDropdownMethods = dropdownPaymentMethods.filter(m => m.id !== selectedMethod.id);
@@ -563,18 +563,34 @@ export function PaymentDialog({
     setSelectedPaymentMethod(selectedMethod.id);
     setShowOtherPayments(false);
     
-    // Reset steps for special payment methods
-    if (selectedMethod.id === 'manual-cc') setManualCCStep('amount');
-    if (selectedMethod.id === 'external-cc') setExternalCCStep('amount');
-    if (selectedMethod.id === 'manual-card') {
-      setManualCardStep('amount');
+    // Direct flow for each payment method (skip keypad except Cash)
+    if (selectedMethod.id === 'manual-cc') {
+      setManualCCStep('tap-card');
+    } else if (selectedMethod.id === 'external-cc') {
+      // External CC goes directly to complete/receipt
+      const paid = parseFloat(paymentAmount) || total;
+      setPaidAmount(prev => prev + paid);
+      setExternalCCStep('complete');
+    } else if (selectedMethod.id === 'manual-card') {
+      setManualCardStep('card-details');
       setManualCardDetails({ cardNumber: '', cardHolder: '', expiry: '', cvv: '' });
-    }
-    if (selectedMethod.id === 'third-party-delivery') {
-      setThirdPartyDeliveryStep('amount');
+    } else if (selectedMethod.id === 'third-party-delivery') {
+      setThirdPartyDeliveryStep('select-partner');
       setSelectedDeliveryPartner(null);
       setDeliveryReference('');
+    } else if (selectedMethod.id === 'qr-code') {
+      setQrCodeStep('qr-display');
+      setQrPhoneNumber('');
+      setShowQrPhoneInput(false);
+    } else if (selectedMethod.id === 'gift-card') {
+      setGiftCardStep('enter-card');
+      setGiftCardNumber('');
+    } else if (selectedMethod.id === 'pay-link') {
+      setPayByLinkStep('select-guest');
+      setSelectedGuest(null);
+      setGuestSearchQuery('');
     }
+    // Cash and Account stay on amount keypad (no action needed)
   };
 
   // Get method label for history
@@ -3776,13 +3792,31 @@ export function PaymentDialog({
                           key={method.id}
                           onClick={() => {
                             setSelectedPaymentMethod(method.id);
-                            // Reset loyalty step when switching to loyalty
+                            // Direct flow for each payment method (skip keypad except Cash)
                             if (method.id === 'loyalty') {
                               setLoyaltyStep('guest-list');
                               setLoyaltySelectedGuest(null);
                               setLoyaltyPointsToRedeem('');
                               setLoyaltyOtp(['', '', '', '']);
+                            } else if (method.id === 'gift-card') {
+                              setGiftCardStep('enter-card');
+                              setGiftCardNumber('');
+                            } else if (method.id === 'pay-link') {
+                              setPayByLinkStep('select-guest');
+                              setSelectedGuest(null);
+                              setGuestSearchQuery('');
+                            } else if (method.id === 'card') {
+                              setManualCCStep('tap-card');
+                            } else if (method.id === 'qr-code') {
+                              setQrCodeStep('qr-display');
+                              setQrPhoneNumber('');
+                              setShowQrPhoneInput(false);
+                            } else if (method.id === 'third-party-delivery') {
+                              setThirdPartyDeliveryStep('select-partner');
+                              setSelectedDeliveryPartner(null);
+                              setDeliveryReference('');
                             }
+                            // Cash stays on amount keypad (no action needed)
                           }}
                           className="flex flex-col items-center gap-1"
                         >

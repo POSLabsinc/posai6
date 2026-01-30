@@ -2088,29 +2088,29 @@ export function PaymentDialog({
 
               {/* QR Display Screen */}
               {qrCodeStep === 'qr-display' && (
-                <div className="flex-1 flex flex-col items-center px-6 py-6">
-                  <span className="text-neutral-400 text-sm mb-2">Scan to Pay</span>
-                  <span className="text-green-500 text-3xl font-bold mb-6">${paymentAmount}</span>
+                <div className="flex-1 flex flex-col items-center px-6 py-4 overflow-y-auto scrollbar-hide">
+                  <span className="text-neutral-400 text-sm mb-1">Scan to Pay</span>
+                  <span className={`text-green-500 font-bold ${showQrPhoneInput ? 'text-2xl mb-3' : 'text-3xl mb-6'}`}>${paymentAmount}</span>
                   
                   {/* QR Code Placeholder */}
-                  <div className="w-48 h-48 bg-white rounded-xl flex items-center justify-center mb-6 relative">
-                    <div className="grid grid-cols-8 gap-0.5 p-4">
+                  <div className={`${showQrPhoneInput ? 'w-32 h-32 mb-3' : 'w-48 h-48 mb-6'} bg-white rounded-xl flex items-center justify-center relative transition-all`}>
+                    <div className="grid grid-cols-8 gap-0.5 p-2">
                       {Array.from({ length: 64 }).map((_, i) => (
                         <div 
                           key={i} 
-                          className={`w-4 h-4 ${Math.random() > 0.5 ? 'bg-black' : 'bg-white'}`}
+                          className={`${showQrPhoneInput ? 'w-2 h-2' : 'w-4 h-4'} ${Math.random() > 0.5 ? 'bg-black' : 'bg-white'}`}
                         />
                       ))}
                     </div>
                     <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="w-12 h-12 bg-white rounded-lg flex items-center justify-center">
-                        <QrCode className="w-8 h-8 text-black" />
+                      <div className={`${showQrPhoneInput ? 'w-8 h-8' : 'w-12 h-12'} bg-white rounded-lg flex items-center justify-center`}>
+                        <QrCode className={`${showQrPhoneInput ? 'w-5 h-5' : 'w-8 h-8'} text-black`} />
                       </div>
                     </div>
                   </div>
                   
                   {/* Action Buttons */}
-                  <div className="flex gap-3 w-full mb-4">
+                  <div className={`flex gap-3 w-full ${showQrPhoneInput ? 'mb-3' : 'mb-4'}`}>
                     <button className="flex-1 py-3 bg-neutral-800 border border-neutral-700 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors">
                       SHARE QR
                     </button>

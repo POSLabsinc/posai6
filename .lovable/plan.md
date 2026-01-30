@@ -1,153 +1,106 @@
 
-# Skip Amount Keypad for Non-Cash Payment Methods
 
-## Overview
-Modify the payment method selection behavior so that when a user clicks on any payment method (except Cash), it immediately proceeds to that method's specific flow instead of showing the keypad to enter an amount and requiring another click on the CHARGE button.
+# Fix QR Code "Share via Text" Scrolling Issue
+
+## Problem
+When clicking "SHARE VIA TEXT" in the QR Code payment flow, the phone number input and numeric keypad appear but are cut off at the bottom of the screen. The user cannot scroll to see the full keypad.
 
 ---
 
-## Current Behavior vs Desired Behavior
+## Root Cause Analysis
 
 ```text
-CURRENT FLOW (for Gift Card, Pay Link, Card, QR Code, etc.):
-┌─────────────────────────────────────────────────────────────────────────┐
-│  Step 1: Click on "Gift Card" icon                                       │
-│                           ↓                                              │
-│  Step 2: See Amount Keypad (enter amount + click CHARGE)                │
-│                           ↓                                              │
-│  Step 3: Enter Gift Card Number                                          │
-└─────────────────────────────────────────────────────────────────────────┘
-
-DESIRED FLOW (matching Loyalty behavior):
-┌─────────────────────────────────────────────────────────────────────────┐
-│  Step 1: Click on "Gift Card" icon                                       │
-│                           ↓                                              │
-│  Step 2: Enter Gift Card Number (skip keypad)                            │
-└─────────────────────────────────────────────────────────────────────────┘
+QR Code Payment Flow Layout:
+┌─────────────────────────────────────────────────────────┐
+│  Header: "Pay by QR" + Amount                           │  <- Fixed height
+├─────────────────────────────────────────────────────────┤
+│  ┌───────────────────────────────────────────────────┐  │
+│  │  QR Display Screen (flex-1, NO overflow-y-auto)   │  │
+│  │  ┌─────────────────────────────────────────────┐  │  │
+│  │  │  "Scan to Pay" + Amount                     │  │  │
+│  │  │  ┌─────────────────┐                        │  │  │
+│  │  │  │   QR Code       │  <- 192px x 192px      │  │  │
+│  │  │  │   (w-48 h-48)   │                        │  │  │
+│  │  │  └─────────────────┘                        │  │  │
+│  │  │  [SHARE QR] [SHARE VIA TEXT]                │  │  │
+│  │  │                                             │  │  │
+│  │  │  ┌───────────────────────────────┐ ◄──────────────── HIDDEN/CUT OFF
+│  │  │  │ Phone Input + Send Button    │          │  │  │
+│  │  │  └───────────────────────────────┘          │  │  │
+│  │  │  ┌─────┬─────┬─────┐                        │  │  │
+│  │  │  │  1  │  2  │  3  │                        │  │  │
+│  │  │  ├─────┼─────┼─────┤                        │  │  │
+│  │  │  │  4  │  5  │  6  │ ◄──────────────────────────── HIDDEN/CUT OFF
+│  │  │  ├─────┼─────┼─────┤                        │  │  │
+│  │  │  │  7  │  8  │  9  │                        │  │  │
+│  │  │  ├─────┼─────┼─────┤                        │  │  │
+│  │  │  │     │  0  │ DEL │                        │  │  │
+│  │  │  └─────┴─────┴─────┘                        │  │  │
+│  │  └─────────────────────────────────────────────┘  │  │
+│  └───────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────┘
 ```
+
+**Issue:** The QR Display Screen container (line 2091) has `flex-1` which gives it flexible height, but it lacks `overflow-y-auto` to enable scrolling when content exceeds available space.
 
 ---
 
-## Payment Methods to Update
+## Solution
 
-| Method | Current First Step | New First Step |
-|--------|-------------------|----------------|
-| **Cash** | Amount Keypad | Amount Keypad (NO CHANGE) |
-| **Loyalty** | Guest List | Guest List (already correct) |
-| **Card** | Amount Keypad | Tap Card screen |
-| **Gift Card** | Amount Keypad | Card Entry screen |
-| **Pay by Link** | Amount Keypad | Guest Selection screen |
-| **QR Code** | Amount Keypad | QR Display screen |
-| **Manual CC** | Amount Keypad | Tap Card screen |
-| **External CC** | Amount Keypad | Complete/Receipt screen |
-| **Manual Card** | Amount Keypad | Card Details screen |
-| **Third Party Delivery** | Amount Keypad | Partner Selection screen |
-| **Account** | Amount Keypad | (Keep as-is for now) |
-| **Split Check** | Split Config | Split Config (already correct) |
+Add `overflow-y-auto scrollbar-hide` to the QR Display Screen container to enable vertical scrolling while hiding the scrollbar for a clean look.
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Update Payment Method Grid onClick Handler
+### Step 1: Update QR Display Screen Container
 
-Modify the onClick handler for the payment method buttons in the grid to immediately transition to the appropriate step based on the selected method.
-
-**File:** `src/components/PaymentDialog.tsx` (lines 3775-3786)
+**File:** `src/components/PaymentDialog.tsx` (line 2091)
 
 **Current:**
 ```typescript
-onClick={() => {
-  setSelectedPaymentMethod(method.id);
-  // Reset loyalty step when switching to loyalty
-  if (method.id === 'loyalty') {
-    setLoyaltyStep('guest-list');
-    setLoyaltySelectedGuest(null);
-    setLoyaltyPointsToRedeem('');
-    setLoyaltyOtp(['', '', '', '']);
-  }
-}}
+<div className="flex-1 flex flex-col items-center px-6 py-6">
 ```
 
 **Updated:**
 ```typescript
-onClick={() => {
-  setSelectedPaymentMethod(method.id);
-  
-  // Direct flow for each payment method (skip keypad except for Cash)
-  if (method.id === 'loyalty') {
-    setLoyaltyStep('guest-list');
-    setLoyaltySelectedGuest(null);
-    setLoyaltyPointsToRedeem('');
-    setLoyaltyOtp(['', '', '', '']);
-  } else if (method.id === 'gift-card') {
-    setGiftCardStep('enter-card');
-    setGiftCardNumber('');
-  } else if (method.id === 'pay-link') {
-    setPayByLinkStep('select-guest');
-    setSelectedGuest(null);
-    setGuestSearchQuery('');
-  } else if (method.id === 'card') {
-    // Card goes directly to tap card screen
-    setManualCCStep('tap-card');
-  } else if (method.id === 'qr-code') {
-    setQrCodeStep('qr-display');
-    setQrPhoneNumber('');
-    setShowQrPhoneInput(false);
-  }
-  // Cash stays on amount keypad (no action needed)
-}}
+<div className="flex-1 flex flex-col items-center px-6 py-6 overflow-y-auto scrollbar-hide">
 ```
 
-### Step 2: Update handleSelectFromDropdown Function
+This single change enables vertical scrolling within the QR display screen, allowing users to scroll down to see and use the full keypad when "SHARE VIA TEXT" is active.
 
-Modify the dropdown selection handler to also immediately transition to the appropriate step for methods selected from the "Other" dropdown.
+---
 
-**File:** `src/components/PaymentDialog.tsx` (lines 554-578)
+## Additional Improvements (Optional)
+
+To further improve the UX, we can also:
+
+### Step 2: Make QR Code Smaller on Mobile When Keypad is Shown
+
+When the phone input is visible, reduce the QR code size on mobile to fit more content above the fold.
+
+**File:** `src/components/PaymentDialog.tsx` (line 2096)
+
+**Current:**
+```typescript
+<div className="w-48 h-48 bg-white rounded-xl...">
+```
 
 **Updated:**
 ```typescript
-const handleSelectFromDropdown = (selectedMethod: PaymentMethodType) => {
-  const lastVisibleMethod = visiblePaymentMethods[visiblePaymentMethods.length - 1];
-  const newDropdownMethods = dropdownPaymentMethods.filter(m => m.id !== selectedMethod.id);
-  newDropdownMethods.unshift(lastVisibleMethod);
-  const newVisibleMethods = [selectedMethod, ...visiblePaymentMethods.slice(0, -1)];
-  
-  setVisiblePaymentMethods(newVisibleMethods);
-  setDropdownPaymentMethods(newDropdownMethods);
-  setSelectedPaymentMethod(selectedMethod.id);
-  setShowOtherPayments(false);
-  
-  // Direct flow for each payment method (skip keypad)
-  if (selectedMethod.id === 'manual-cc') {
-    setManualCCStep('tap-card');
-  } else if (selectedMethod.id === 'external-cc') {
-    // External CC goes directly to complete/receipt
-    const paid = parseFloat(paymentAmount) || total;
-    setPaidAmount(prev => prev + paid);
-    setExternalCCStep('complete');
-  } else if (selectedMethod.id === 'manual-card') {
-    setManualCardStep('card-details');
-    setManualCardDetails({ cardNumber: '', cardHolder: '', expiry: '', cvv: '' });
-  } else if (selectedMethod.id === 'third-party-delivery') {
-    setThirdPartyDeliveryStep('select-partner');
-    setSelectedDeliveryPartner(null);
-    setDeliveryReference('');
-  } else if (selectedMethod.id === 'qr-code') {
-    setQrCodeStep('qr-display');
-    setQrPhoneNumber('');
-    setShowQrPhoneInput(false);
-  } else if (selectedMethod.id === 'account') {
-    // Account can stay on amount for now or add specific flow
-  }
-};
+<div className={`${showQrPhoneInput && isMobile ? 'w-32 h-32' : 'w-48 h-48'} bg-white rounded-xl...`}>
 ```
 
-### Step 3: Ensure Card Method Works Correctly
+### Step 3: Reduce Vertical Spacing When Keypad is Shown
 
-The "Card" payment method in the main grid should directly transition to the tap-card screen. Need to verify if "card" and "manual-cc" share the same state or are separate.
+Reduce margins between elements when the phone input is active to fit more content.
 
-**Check:** Looking at the code, `card` method doesn't have its own step state. It should use `manualCCStep` to transition to tap-card screen when clicked.
+**File:** `src/components/PaymentDialog.tsx**
+
+**Update margins (lines 2092-2093, 2096, 2113):**
+- Change `mb-6` to `mb-3` for amount display when keypad shown
+- Change `mb-6` to `mb-3` for QR code when keypad shown
+- Change `mb-4` to `mb-2` for action buttons
 
 ---
 
@@ -155,30 +108,20 @@ The "Card" payment method in the main grid should directly transition to the tap
 
 | File | Changes |
 |------|---------|
-| `src/components/PaymentDialog.tsx` | Update onClick handlers for payment method grid and dropdown to immediately transition to method-specific flows |
-
----
-
-## Technical Notes
-
-1. **Cash Exception:** Cash payment should continue to show the keypad since it requires entering the exact cash amount received
-2. **Amount Defaulting:** When skipping the keypad, the payment amount should default to the total due (or remaining due in multi-payment scenarios)
-3. **State Reset:** Each method should reset its specific states when selected to ensure a clean flow
-4. **External CC Special Case:** This method completes immediately since it's processed on an external device
-5. **Account Method:** May need to define a specific flow if not already implemented
+| `src/components/PaymentDialog.tsx` | Add `overflow-y-auto scrollbar-hide` to QR Display Screen container (line 2091), optionally reduce sizes/spacing when keypad is shown |
 
 ---
 
 ## Testing Checklist
 
-- Click on Loyalty - should go directly to guest list (already works)
-- Click on Cash - should show amount keypad (no change)
-- Click on Card - should go directly to tap card screen
-- Click on Gift Card - should go directly to card entry screen
-- Click on Pay by Link - should go directly to guest selection
-- Select QR Code from Other dropdown - should go directly to QR display
-- Select Manual CC from Other dropdown - should go directly to tap card
-- Select External CC from Other dropdown - should go directly to complete/receipt
-- Select Manual Card from Other dropdown - should go directly to card details entry
-- Select Third Party Delivery from Other dropdown - should go directly to partner selection
-- Test all flows complete successfully without requiring the keypad first
+- Open Payment Dialog
+- Click "Other" dropdown and select "QR Code" (or navigate to it)
+- Verify QR code screen displays correctly
+- Click "SHARE VIA TEXT" button
+- Verify phone input field appears
+- **Verify you can scroll down to see the full numeric keypad**
+- Test entering phone number using the keypad
+- Test the Send button functionality
+- Verify scrolling works smoothly on mobile viewport
+- Verify the layout returns to normal when "SHARE VIA TEXT" is toggled off
+

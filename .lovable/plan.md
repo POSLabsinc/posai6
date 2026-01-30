@@ -1,106 +1,80 @@
 
-
-# Fix QR Code "Share via Text" Scrolling Issue
+# Enhance Ready Status Visibility on Table T8
 
 ## Problem
-When clicking "SHARE VIA TEXT" in the QR Code payment flow, the phone number input and numeric keypad appear but are cut off at the bottom of the screen. The user cannot scroll to see the full keypad.
+The "Ready" status on table T8 is showing but lacks the noticeable visual effects. The ready-glow animation and ready-ring effects are only implemented in `DraggableRoundTable` and `DraggableSquareTable` components but not in `MapRoundTable` and `MapSquareTable` components which are used in the floorplan view.
 
 ---
 
-## Root Cause Analysis
+## Current vs Proposed Visual
 
 ```text
-QR Code Payment Flow Layout:
-┌─────────────────────────────────────────────────────────┐
-│  Header: "Pay by QR" + Amount                           │  <- Fixed height
-├─────────────────────────────────────────────────────────┤
-│  ┌───────────────────────────────────────────────────┐  │
-│  │  QR Display Screen (flex-1, NO overflow-y-auto)   │  │
-│  │  ┌─────────────────────────────────────────────┐  │  │
-│  │  │  "Scan to Pay" + Amount                     │  │  │
-│  │  │  ┌─────────────────┐                        │  │  │
-│  │  │  │   QR Code       │  <- 192px x 192px      │  │  │
-│  │  │  │   (w-48 h-48)   │                        │  │  │
-│  │  │  └─────────────────┘                        │  │  │
-│  │  │  [SHARE QR] [SHARE VIA TEXT]                │  │  │
-│  │  │                                             │  │  │
-│  │  │  ┌───────────────────────────────┐ ◄──────────────── HIDDEN/CUT OFF
-│  │  │  │ Phone Input + Send Button    │          │  │  │
-│  │  │  └───────────────────────────────┘          │  │  │
-│  │  │  ┌─────┬─────┬─────┐                        │  │  │
-│  │  │  │  1  │  2  │  3  │                        │  │  │
-│  │  │  ├─────┼─────┼─────┤                        │  │  │
-│  │  │  │  4  │  5  │  6  │ ◄──────────────────────────── HIDDEN/CUT OFF
-│  │  │  ├─────┼─────┼─────┤                        │  │  │
-│  │  │  │  7  │  8  │  9  │                        │  │  │
-│  │  │  ├─────┼─────┼─────┤                        │  │  │
-│  │  │  │     │  0  │ DEL │                        │  │  │
-│  │  │  └─────┴─────┴─────┘                        │  │  │
-│  │  └─────────────────────────────────────────────┘  │  │
-│  └───────────────────────────────────────────────────┘  │
-└─────────────────────────────────────────────────────────┘
+CURRENT (T8 - barely visible):
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│               ┌─────────┐                                               │
+│               │   T8    │  <- Just emerald color, no animation          │
+│               │  Ready  │                                               │
+│               └─────────┘                                               │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+PROPOSED (T8 - highly visible):
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│           🔔 ORDER READY                                                │
+│          (( ┌─────────┐ ))   <- Expanding ring animation                │
+│          (  │   T8    │  )   <- Pulsing emerald glow                    │
+│             │  Ready  │                                                 │
+│             └─────────┘                                                 │
+│               13M                                                       │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
 ```
-
-**Issue:** The QR Display Screen container (line 2091) has `flex-1` which gives it flexible height, but it lacks `overflow-y-auto` to enable scrolling when content exceeds available space.
-
----
-
-## Solution
-
-Add `overflow-y-auto scrollbar-hide` to the QR Display Screen container to enable vertical scrolling while hiding the scrollbar for a clean look.
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Update QR Display Screen Container
+### Step 1: Add Bell Icon Import
+Add the `Bell` icon from lucide-react to use for the ready notification badge.
 
-**File:** `src/components/PaymentDialog.tsx` (line 2091)
+**File:** `src/pages/TableOrder.tsx` (line 4)
 
-**Current:**
-```typescript
-<div className="flex-1 flex flex-col items-center px-6 py-6">
-```
+Add `Bell` to the lucide-react imports.
 
-**Updated:**
-```typescript
-<div className="flex-1 flex flex-col items-center px-6 py-6 overflow-y-auto scrollbar-hide">
-```
+### Step 2: Update MapRoundTable Component
+Add the ready-glow, ready-ring animation, and notification bell badge to the MapRoundTable component.
 
-This single change enables vertical scrolling within the QR display screen, allowing users to scroll down to see and use the full keypad when "SHARE VIA TEXT" is active.
+**File:** `src/pages/TableOrder.tsx` (lines 735-766)
+
+Changes:
+- Add ready-ring expanding animation element when `config.isReady` is true
+- Add `ready-glow` class to the table div when `config.isReady` is true
+- Add a floating bell notification badge above the table for ready status
+- Update boxShadow to use the glow animation instead of static shadow
+
+### Step 3: Update MapSquareTable Component
+Apply the same ready effects to the MapSquareTable component (which is what T8 uses since it's a square table).
+
+**File:** `src/pages/TableOrder.tsx` (lines 875-906)
+
+Changes:
+- Add ready-ring expanding animation element when `config.isReady` is true
+- Add `ready-glow` class to the table div when `config.isReady` is true
+- Add a floating bell notification badge above the table for ready status
+- Update boxShadow to use the glow animation instead of static shadow
 
 ---
 
-## Additional Improvements (Optional)
+## Visual Effects Applied
 
-To further improve the UX, we can also:
-
-### Step 2: Make QR Code Smaller on Mobile When Keypad is Shown
-
-When the phone input is visible, reduce the QR code size on mobile to fit more content above the fold.
-
-**File:** `src/components/PaymentDialog.tsx` (line 2096)
-
-**Current:**
-```typescript
-<div className="w-48 h-48 bg-white rounded-xl...">
-```
-
-**Updated:**
-```typescript
-<div className={`${showQrPhoneInput && isMobile ? 'w-32 h-32' : 'w-48 h-48'} bg-white rounded-xl...`}>
-```
-
-### Step 3: Reduce Vertical Spacing When Keypad is Shown
-
-Reduce margins between elements when the phone input is active to fit more content.
-
-**File:** `src/components/PaymentDialog.tsx**
-
-**Update margins (lines 2092-2093, 2096, 2113):**
-- Change `mb-6` to `mb-3` for amount display when keypad shown
-- Change `mb-6` to `mb-3` for QR code when keypad shown
-- Change `mb-4` to `mb-2` for action buttons
+| Effect | Description |
+|--------|-------------|
+| **Pulsing Glow** | Emerald green shadow that pulses from subtle to bright using the `ready-glow` CSS class |
+| **Expanding Ring** | An outer ring that continuously expands and fades out using the `ready-ring` CSS class |
+| **Bell Notification Badge** | A floating badge above the table with a bell icon and "ORDER READY" text that bounces to grab attention |
+| **Enhanced Border** | Slightly thicker border with enhanced glow effect |
 
 ---
 
@@ -108,20 +82,24 @@ Reduce margins between elements when the phone input is active to fit more conte
 
 | File | Changes |
 |------|---------|
-| `src/components/PaymentDialog.tsx` | Add `overflow-y-auto scrollbar-hide` to QR Display Screen container (line 2091), optionally reduce sizes/spacing when keypad is shown |
+| `src/pages/TableOrder.tsx` | Add Bell import, update MapRoundTable and MapSquareTable components with ready effects and notification badge |
+
+---
+
+## CSS Classes Used (Already Exist)
+
+From `src/index.css`:
+- `.ready-glow` - Pulsing emerald box-shadow animation
+- `.ready-ring` - Expanding ring that fades out
 
 ---
 
 ## Testing Checklist
 
-- Open Payment Dialog
-- Click "Other" dropdown and select "QR Code" (or navigate to it)
-- Verify QR code screen displays correctly
-- Click "SHARE VIA TEXT" button
-- Verify phone input field appears
-- **Verify you can scroll down to see the full numeric keypad**
-- Test entering phone number using the keypad
-- Test the Send button functionality
-- Verify scrolling works smoothly on mobile viewport
-- Verify the layout returns to normal when "SHARE VIA TEXT" is toggled off
-
+- Navigate to /tableorder page
+- Look at table T8 in the floorplan view
+- Verify the pulsing emerald glow effect is visible
+- Verify the expanding ring animation is visible
+- Verify the bell notification badge with "ORDER READY" is displayed above the table
+- Verify the effect is highly noticeable and attention-grabbing
+- Test that other tables without Ready status don't show these effects

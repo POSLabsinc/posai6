@@ -1,10 +1,10 @@
 import { useState, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, RefreshCw, Send, Zap } from "lucide-react";
+import { Check, ChevronDown, Clock, Calendar as CalendarIcon, X, Users, Share2, Briefcase, Heart, GraduationCap, Shield, Star, Cake, MapPin, BadgeDollarSign, Tag, CreditCard, User, Gift, Link, QrCode, Banknote, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, Zap } from "lucide-react";
 import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
 import RefundDialog from "@/components/RefundDialog";
-import { Input } from "@/components/ui/input";
+import { PaymentDialog, PaymentDialogOrderDetails, PaymentHistoryItem } from "@/components/PaymentDialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Drawer, DrawerContent, DrawerClose } from "@/components/ui/drawer";
@@ -21,9 +21,9 @@ import arrowRightIcon from "@/assets/icons/arrow-right.png";
 import shareOrderIcon from "@/assets/icons/share-order.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
-import saveIcon from "@/assets/icons/save.png";
 import runnerIcon from "@/assets/icons/runner.png";
-import tickSuccessIcon from "@/assets/icons/tick-success.svg";
+import clearIcon from "@/assets/icons/clear-c.png";
+import saveIcon from "@/assets/icons/save.png";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 import { getDashboardOrders, DashboardOrder, DashboardOrderItem, PaymentMethod, formatTableName } from "@/data/orders";
@@ -351,125 +351,39 @@ const tableStatusConfig: Record<string, {
   textColor: string;
   bgColor: string;
 }> = {
-  "Available": {
-    textColor: "#FFFFFF",
-    bgColor: "#22C55E"
-  },
-  "Ordering": {
-    textColor: "#000000",
-    bgColor: "#FACC15"
-  },
-  "Ordered": {
-    textColor: "#000000",
-    bgColor: "#F97316"
-  },
-  "Reserved": {
-    textColor: "#FFFFFF",
-    bgColor: "#6B7280"
-  },
-  "Seated": {
-    textColor: "#FFFFFF",
-    bgColor: "#9CA3AF"
-  },
-  "Running Late": {
-    textColor: "#FFFFFF",
-    bgColor: "#EF4444"
-  },
-  "1st Course": {
-    textColor: "#FFFFFF",
-    bgColor: "#A855F7"
-  },
-  "2nd Course": {
-    textColor: "#000000",
-    bgColor: "#FACC15"
-  },
-  "3rd Course": {
-    textColor: "#000000",
-    bgColor: "#F97316"
-  },
-  "Dessert": {
-    textColor: "#FFFFFF",
-    bgColor: "#EC4899"
-  },
-  "Partially Seated": {
-    textColor: "#000000",
-    bgColor: "#4ADE80"
-  },
-  "Served": {
-    textColor: "#FFFFFF",
-    bgColor: "#3B82F6"
-  },
-  "Paid": {
-    textColor: "#000000",
-    bgColor: "#34D399"
-  }
+  "Available": { textColor: "#FFFFFF", bgColor: "#22C55E" },
+  "Ordering": { textColor: "#000000", bgColor: "#FACC15" },
+  "Ordered": { textColor: "#000000", bgColor: "#F97316" },
+  "Reserved": { textColor: "#FFFFFF", bgColor: "#6B7280" },
+  "Seated": { textColor: "#FFFFFF", bgColor: "#9CA3AF" },
+  "Running Late": { textColor: "#FFFFFF", bgColor: "#EF4444" },
+  "1st Course": { textColor: "#FFFFFF", bgColor: "#A855F7" },
+  "2nd Course": { textColor: "#000000", bgColor: "#FACC15" },
+  "3rd Course": { textColor: "#000000", bgColor: "#F97316" },
+  "Dessert": { textColor: "#FFFFFF", bgColor: "#EC4899" },
+  "Partially Seated": { textColor: "#000000", bgColor: "#4ADE80" },
+  "Served": { textColor: "#FFFFFF", bgColor: "#3B82F6" },
+  "Paid": { textColor: "#000000", bgColor: "#34D399" }
 };
 
 // Mock table data (matching /tableorder screen)
-const mockTables = [{
-  id: "T1",
-  seats: 6,
-  status: "Available"
-}, {
-  id: "T2",
-  seats: 4,
-  status: "Ordering"
-}, {
-  id: "T3",
-  seats: 6,
-  status: "Ordered"
-}, {
-  id: "T4",
-  seats: 10,
-  status: "Reserved"
-}, {
-  id: "T5",
-  seats: 10,
-  status: "Seated"
-}, {
-  id: "T6",
-  seats: 8,
-  status: "Running Late"
-}, {
-  id: "T7",
-  seats: 6,
-  status: "1st Course"
-}, {
-  id: "T8",
-  seats: 4,
-  status: "2nd Course"
-}, {
-  id: "T9",
-  seats: 2,
-  status: "3rd Course"
-}, {
-  id: "T10",
-  seats: 6,
-  status: "Dessert"
-}, {
-  id: "T11",
-  seats: 4,
-  status: "Partially Seated"
-}, {
-  id: "T12",
-  seats: 8,
-  status: "Served"
-}, {
-  id: "T13",
-  seats: 6,
-  status: "Available"
-}, {
-  id: "T14",
-  seats: 4,
-  status: "Paid"
-}, {
-  id: "T15",
-  seats: 2,
-  status: "Ordering"
-}];
-
-// Import additional icons for order panel
-import clearIcon from "@/assets/icons/clear-c.png";
+const mockTables = [
+  { id: "T1", seats: 6, status: "Available" },
+  { id: "T2", seats: 4, status: "Ordering" },
+  { id: "T3", seats: 6, status: "Ordered" },
+  { id: "T4", seats: 10, status: "Reserved" },
+  { id: "T5", seats: 10, status: "Seated" },
+  { id: "T6", seats: 8, status: "Running Late" },
+  { id: "T7", seats: 6, status: "1st Course" },
+  { id: "T8", seats: 4, status: "2nd Course" },
+  { id: "T9", seats: 2, status: "3rd Course" },
+  { id: "T10", seats: 6, status: "Dessert" },
+  { id: "T11", seats: 4, status: "Partially Seated" },
+  { id: "T12", seats: 8, status: "Served" },
+  { id: "T13", seats: 6, status: "Available" },
+  { id: "T14", seats: 4, status: "Paid" },
+  { id: "T15", seats: 2, status: "Ordering" }
+];
 
 // Discount types data
 interface DiscountType {
@@ -480,234 +394,28 @@ interface DiscountType {
   fixedAmount?: number;
   icon: 'briefcase' | 'heart' | 'graduation' | 'shield' | 'star' | 'clock' | 'cake' | 'mappin' | 'dollar' | 'tag';
 }
-const discountTypes: DiscountType[] = [{
-  id: 'employee',
-  name: 'Employee Discount',
-  description: '20% off',
-  percentage: 20,
-  icon: 'briefcase'
-}, {
-  id: 'senior',
-  name: 'Senior Citizen',
-  description: '15% off',
-  percentage: 15,
-  icon: 'heart'
-}, {
-  id: 'student',
-  name: 'Student Discount',
-  description: '10% off',
-  percentage: 10,
-  icon: 'graduation'
-}, {
-  id: 'military',
-  name: 'Military Discount',
-  description: '15% off',
-  percentage: 15,
-  icon: 'shield'
-}, {
-  id: 'loyalty',
-  name: 'Loyalty Member',
-  description: '5% off',
-  percentage: 5,
-  icon: 'star'
-}, {
-  id: 'happy',
-  name: 'Happy Hour',
-  description: '25% off',
-  percentage: 25,
-  icon: 'clock'
-}, {
-  id: 'birthday',
-  name: 'Birthday Special',
-  description: '30% off',
-  percentage: 30,
-  icon: 'cake'
-}, {
-  id: 'first',
-  name: 'First Visit',
-  description: '10% off',
-  percentage: 10,
-  icon: 'mappin'
-}, {
-  id: 'comp5',
-  name: 'Manager Comp $5',
-  description: '$5.00 off',
-  fixedAmount: 5,
-  icon: 'dollar'
-}, {
-  id: 'comp10',
-  name: 'Manager Comp $10',
-  description: '$10.00 off',
-  fixedAmount: 10,
-  icon: 'dollar'
-}, {
-  id: 'comp15',
-  name: 'Manager Comp $15',
-  description: '$15.00 off',
-  fixedAmount: 15,
-  icon: 'dollar'
-}, {
-  id: 'promo',
-  name: 'Promo Code Discount',
-  description: '20% off',
-  percentage: 20,
-  icon: 'tag'
-}];
 
-// Initial payment methods data (visible)
-const initialPaymentMethods = [{
-  id: 'loyalty',
-  name: 'Loyalty',
-  icon: Tag
-}, {
-  id: 'account',
-  name: 'Account',
-  icon: User
-}, {
-  id: 'card',
-  name: 'Card',
-  icon: CreditCard
-}, {
-  id: 'cash',
-  name: 'Cash',
-  icon: Banknote
-}, {
-  id: 'gift-card',
-  name: 'Gift Card',
-  icon: Gift
-}, {
-  id: 'pay-link',
-  name: 'Pay by Link',
-  icon: Link
-}];
+const discountTypes: DiscountType[] = [
+  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
+  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
+  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
+  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
+  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
+  { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
+  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
+  { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
+  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
+  { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
+  { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
+  { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' }
+];
 
-// Initial other payment methods (in dropdown)
-const initialOtherPaymentMethods = [{
-  id: 'qr-code',
-  name: 'QR Code',
-  icon: QrCode
-}, {
-  id: 'manual-cc',
-  name: 'Manual CC',
-  icon: CreditCard
-}, {
-  id: 'external-cc',
-  name: 'External CC',
-  icon: ExternalLink
-}, {
-  id: 'manual-card',
-  name: 'Manual card',
-  icon: Clipboard
-}, {
-  id: 'blizzful',
-  name: 'Blizzful',
-  icon: Utensils
-}, {
-  id: 'ubereats',
-  name: 'UberEats',
-  icon: ShoppingBag
-}, {
-  id: 'doordash',
-  name: 'DoorDash',
-  icon: Truck
-}, {
-  id: 'grubhub',
-  name: 'Grubhub',
-  icon: UtensilsCrossed
-}];
-
-// Payment method type
-type PaymentMethodType = {
-  id: string;
-  name: string;
-  icon: React.ComponentType<{
-    className?: string;
-  }>;
-};
-
-// Quick amount values
-const quickAmounts = [1, 2, 5, 10, 20, 50, 100];
-
-// Mock guests data for Pay by Link and Loyalty
-interface GuestType {
-  name: string;
-  phone: string;
-  email: string;
-  avatar: string;
-  loyaltyPoints?: number;
-}
-const mockGuests: GuestType[] = [{
-  name: "Ayden Veum",
-  phone: "(346) 346-3636",
-  email: "cow@user.com",
-  avatar: "AV",
-  loyaltyPoints: 850
-}, {
-  name: "Arjun Gerhold",
-  phone: "(574) 747-3634",
-  email: "cow@user.com",
-  avatar: "AG",
-  loyaltyPoints: 1250
-}, {
-  name: "Bergnaum",
-  phone: "(643) 636-4377",
-  email: "abc@gmail.com",
-  avatar: "B",
-  loyaltyPoints: 320
-}, {
-  name: "Cleora Hills",
-  phone: "(100) 000-0000",
-  email: "cleorahills@gmail.com",
-  avatar: "CH",
-  loyaltyPoints: 1580
-}, {
-  name: "Eden Kautzer",
-  phone: "(353) 253-2523",
-  email: "dog@Test.com",
-  avatar: "EK",
-  loyaltyPoints: 920
-}, {
-  name: "Wunderlich",
-  phone: "(234) 235-2323",
-  email: "alaskanm@dog.com",
-  avatar: "W",
-  loyaltyPoints: 450
-}, {
-  name: "Simeon Wilderman",
-  phone: "(643) 634-6334",
-  email: "dominate@user.com",
-  avatar: "SW",
-  loyaltyPoints: 2100
-}, {
-  name: "Gino Yost",
-  phone: "(234) 254-3235",
-  email: "dominate@user.com",
-  avatar: "GY",
-  loyaltyPoints: 680
-}, {
-  name: "Miss Estrella",
-  phone: "(643) 634-6352",
-  email: "guest@synd.com",
-  avatar: "ME",
-  loyaltyPoints: 1100
-}, {
-  name: "Teresa Barton",
-  phone: "(325) 235-2324",
-  email: "Rem@user.com",
-  avatar: "TB",
-  loyaltyPoints: 780
-}];
-
-// Order Panel Content Component
+// Simplified Order Panel Content Component Props (payment handled by PaymentDialog)
 interface OrderPanelContentProps {
   selectedOrder: typeof mockOrders[0] | null;
   orderItems: OrderItemType[];
   subtotal: number;
   total: number;
-  phoneIcon: string;
-  timeIcon: string;
-  itemNotesIcon: string;
-  fireIcon: string;
   seatFilter: (number | 'all')[];
   toggleSeatFilter: (seat: number | 'all') => void;
   orderNotes: string;
@@ -722,145 +430,7 @@ interface OrderPanelContentProps {
   setShowDiscountDialog: (show: boolean) => void;
   selectedDiscountId: string | null;
   setSelectedDiscountId: (id: string | null) => void;
-  showPaymentDialog: boolean;
-  setShowPaymentDialog: (show: boolean) => void;
-  selectedPaymentMethod: string;
-  setSelectedPaymentMethod: (method: string) => void;
-  paymentAmount: string;
-  setPaymentAmount: (amount: string) => void;
-  showKeypad: boolean;
-  setShowKeypad: (show: boolean) => void;
-  handleKeypadPress: (key: string) => void;
-  amountQuantities: Record<number, number>;
-  setAmountQuantities: React.Dispatch<React.SetStateAction<Record<number, number>>>;
-  handleAddAmount: (amount: number) => void;
-  handleRemoveAmount: (amount: number) => void;
-  paymentProcessed: boolean;
-  setPaymentProcessed: (processed: boolean) => void;
-  paidAmount: number;
-  setPaidAmount: (amount: number) => void;
-  showOtherPayments: boolean;
-  setShowOtherPayments: (show: boolean) => void;
-  giftCardStep: 'amount' | 'enter-card' | 'processing';
-  setGiftCardStep: (step: 'amount' | 'enter-card' | 'processing') => void;
-  giftCardNumber: string;
-  setGiftCardNumber: (number: string) => void;
-  handleGiftCardKeypadPress: (key: string) => void;
-  // Pay by Link props
-  payByLinkStep: 'amount' | 'select-guest' | 'add-guest' | 'guest-confirmed' | 'pending' | 'expired' | 'complete';
-  setPayByLinkStep: (step: 'amount' | 'select-guest' | 'add-guest' | 'guest-confirmed' | 'pending' | 'expired' | 'complete') => void;
-  newGuestForLink: {
-    name: string;
-    phone: string;
-    email: string;
-  };
-  setNewGuestForLink: (guest: {
-    name: string;
-    phone: string;
-    email: string;
-  }) => void;
-  selectedGuest: GuestType | null;
-  setSelectedGuest: (guest: GuestType | null) => void;
-  guestSearchQuery: string;
-  setGuestSearchQuery: (query: string) => void;
-  hoveredGuestIndex: number | null;
-  setHoveredGuestIndex: (index: number | null) => void;
-  sendLinkMethod: 'text' | 'email';
-  setSendLinkMethod: (method: 'text' | 'email') => void;
-  // QR Code props
-  qrCodeStep: 'amount' | 'qr-display' | 'pending' | 'complete';
-  setQrCodeStep: (step: 'amount' | 'qr-display' | 'pending' | 'complete') => void;
-  qrPhoneNumber: string;
-  setQrPhoneNumber: (phone: string) => void;
-  showQrPhoneInput: boolean;
-  setShowQrPhoneInput: (show: boolean) => void;
-  // Loyalty props
-  loyaltyStep: 'guest-list' | 'guest-selected' | 'points-input' | 'otp' | 'complete';
-  setLoyaltyStep: (step: 'guest-list' | 'guest-selected' | 'points-input' | 'otp' | 'complete') => void;
-  loyaltySelectedGuest: GuestType | null;
-  setLoyaltySelectedGuest: (guest: GuestType | null) => void;
-  loyaltyPointsToRedeem: string;
-  setLoyaltyPointsToRedeem: (points: string) => void;
-  showLoyaltyAddGuest: boolean;
-  setShowLoyaltyAddGuest: (show: boolean) => void;
-  loyaltyNewGuest: {
-    name: string;
-    phone: string;
-    email: string;
-  };
-  setLoyaltyNewGuest: (guest: {
-    name: string;
-    phone: string;
-    email: string;
-  }) => void;
-  loyaltyOtp: string[];
-  setLoyaltyOtp: (otp: string[]) => void;
-  loyaltySearchQuery: string;
-  setLoyaltySearchQuery: (query: string) => void;
-  showLoyaltyKeypad: boolean;
-  setShowLoyaltyKeypad: (show: boolean) => void;
-  // Manual CC props
-  manualCCStep: 'amount' | 'tap-card' | 'processing' | 'complete';
-  setManualCCStep: (step: 'amount' | 'tap-card' | 'processing' | 'complete') => void;
-  // External CC props
-  externalCCStep: 'amount' | 'complete';
-  setExternalCCStep: (step: 'amount' | 'complete') => void;
-  // Manual Card props
-  manualCardStep: 'amount' | 'card-details' | 'complete';
-  setManualCardStep: (step: 'amount' | 'card-details' | 'complete') => void;
-  manualCardDetails: {
-    cardNumber: string;
-    cardHolder: string;
-    expiry: string;
-    cvv: string;
-  };
-  setManualCardDetails: (details: {
-    cardNumber: string;
-    cardHolder: string;
-    expiry: string;
-    cvv: string;
-  }) => void;
-  // DoorDash props
-  doordashStep: 'amount' | 'reference' | 'complete';
-  setDoordashStep: (step: 'amount' | 'reference' | 'complete') => void;
-  doordashReference: string;
-  setDoordashReference: (ref: string) => void;
-  // Blizzful props
-  blizzfulStep: 'amount' | 'reference' | 'complete';
-  setBlizzfulStep: (step: 'amount' | 'reference' | 'complete') => void;
-  blizzfulReference: string;
-  setBlizzfulReference: (ref: string) => void;
-  // UberEats props
-  ubereatsStep: 'amount' | 'reference' | 'complete';
-  setUbereatsStep: (step: 'amount' | 'reference' | 'complete') => void;
-  ubereatsReference: string;
-  setUbereatsReference: (ref: string) => void;
-  // Grubhub props
-  grubhubStep: 'amount' | 'reference' | 'complete';
-  setGrubhubStep: (step: 'amount' | 'reference' | 'complete') => void;
-  grubhubReference: string;
-  setGrubhubReference: (ref: string) => void;
-  // Dynamic payment methods
-  visiblePaymentMethods: PaymentMethodType[];
-  dropdownPaymentMethods: PaymentMethodType[];
-  handleSelectFromDropdown: (method: PaymentMethodType) => void;
-  // Text receipt props
-  textReceiptStep: 'receipt' | 'phone-input';
-  setTextReceiptStep: (step: 'receipt' | 'phone-input') => void;
-  textReceiptPhone: string;
-  setTextReceiptPhone: (phone: string) => void;
-  textReceiptNoMarketing: boolean;
-  setTextReceiptNoMarketing: (value: boolean) => void;
-  // Email receipt props
-  emailReceiptStep: 'receipt' | 'email-input';
-  setEmailReceiptStep: (step: 'receipt' | 'email-input') => void;
-  emailReceiptEmail: string;
-  setEmailReceiptEmail: (email: string) => void;
-  emailReceiptNoMarketing: boolean;
-  setEmailReceiptNoMarketing: (value: boolean) => void;
-  // Multi-payment history props
-  paymentHistory: Array<{ method: string; amount: number; methodLabel: string }>;
-  setPaymentHistory: React.Dispatch<React.SetStateAction<Array<{ method: string; amount: number; methodLabel: string }>>>;
+  onChargeClick: () => void;
   // Tip and Refund props for paid orders
   showTipDialog: boolean;
   setShowTipDialog: (show: boolean) => void;
@@ -869,15 +439,12 @@ interface OrderPanelContentProps {
   showRefundDialog: boolean;
   setShowRefundDialog: (show: boolean) => void;
 }
+
 const OrderPanelContent = ({
   selectedOrder,
   orderItems,
   subtotal,
   total,
-  phoneIcon,
-  timeIcon,
-  itemNotesIcon,
-  fireIcon,
   seatFilter,
   toggleSeatFilter,
   orderNotes,
@@ -892,120 +459,7 @@ const OrderPanelContent = ({
   setShowDiscountDialog,
   selectedDiscountId,
   setSelectedDiscountId,
-  showPaymentDialog,
-  setShowPaymentDialog,
-  selectedPaymentMethod,
-  setSelectedPaymentMethod,
-  paymentAmount,
-  setPaymentAmount,
-  showKeypad,
-  setShowKeypad,
-  handleKeypadPress,
-  amountQuantities,
-  setAmountQuantities,
-  handleAddAmount,
-  handleRemoveAmount,
-  paymentProcessed,
-  setPaymentProcessed,
-  paidAmount,
-  setPaidAmount,
-  showOtherPayments,
-  setShowOtherPayments,
-  giftCardStep,
-  setGiftCardStep,
-  giftCardNumber,
-  setGiftCardNumber,
-  handleGiftCardKeypadPress,
-  // Pay by Link
-  payByLinkStep,
-  setPayByLinkStep,
-  selectedGuest,
-  setSelectedGuest,
-  guestSearchQuery,
-  setGuestSearchQuery,
-  hoveredGuestIndex,
-  setHoveredGuestIndex,
-  sendLinkMethod,
-  setSendLinkMethod,
-  newGuestForLink,
-  setNewGuestForLink,
-  // QR Code
-  qrCodeStep,
-  setQrCodeStep,
-  qrPhoneNumber,
-  setQrPhoneNumber,
-  showQrPhoneInput,
-  setShowQrPhoneInput,
-  // Loyalty
-  loyaltyStep,
-  setLoyaltyStep,
-  loyaltySelectedGuest,
-  setLoyaltySelectedGuest,
-  loyaltyPointsToRedeem,
-  setLoyaltyPointsToRedeem,
-  showLoyaltyAddGuest,
-  setShowLoyaltyAddGuest,
-  loyaltyNewGuest,
-  setLoyaltyNewGuest,
-  loyaltyOtp,
-  setLoyaltyOtp,
-  loyaltySearchQuery,
-  setLoyaltySearchQuery,
-  showLoyaltyKeypad,
-  setShowLoyaltyKeypad,
-  // Manual CC
-  manualCCStep,
-  setManualCCStep,
-  // External CC
-  externalCCStep,
-  setExternalCCStep,
-  // Manual Card
-  manualCardStep,
-  setManualCardStep,
-  manualCardDetails,
-  setManualCardDetails,
-  // DoorDash
-  doordashStep,
-  setDoordashStep,
-  doordashReference,
-  setDoordashReference,
-  // Blizzful
-  blizzfulStep,
-  setBlizzfulStep,
-  blizzfulReference,
-  setBlizzfulReference,
-  // UberEats
-  ubereatsStep,
-  setUbereatsStep,
-  ubereatsReference,
-  setUbereatsReference,
-  // Grubhub
-  grubhubStep,
-  setGrubhubStep,
-  grubhubReference,
-  setGrubhubReference,
-  // Dynamic payment methods
-  visiblePaymentMethods,
-  dropdownPaymentMethods,
-  handleSelectFromDropdown,
-  // Text receipt
-  textReceiptStep,
-  setTextReceiptStep,
-  textReceiptPhone,
-  setTextReceiptPhone,
-  textReceiptNoMarketing,
-  setTextReceiptNoMarketing,
-  // Email receipt
-  emailReceiptStep,
-  setEmailReceiptStep,
-  emailReceiptEmail,
-  setEmailReceiptEmail,
-  emailReceiptNoMarketing,
-  setEmailReceiptNoMarketing,
-  // Multi-payment history
-  paymentHistory,
-  setPaymentHistory,
-  // Tip and Refund props
+  onChargeClick,
   showTipDialog,
   setShowTipDialog,
   showRefundMode,
@@ -1021,7 +475,9 @@ const OrderPanelContent = ({
   const finalTotal = subtotal - discount + tax + serviceCharge + tip;
   const guestCount = selectedOrder?.seats || 4;
   const isOrderDisabled = selectedOrder && ['Completed', 'Paid', 'Closed'].includes(selectedOrder.status);
-  return <>
+
+  return (
+    <>
       {/* Guest Header - Outside the box */}
       <div className="px-2 py-3">
         <div className="flex items-center justify-between mb-2">
@@ -1039,9 +495,14 @@ const OrderPanelContent = ({
           <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
             Add Item
           </button>
-          {!isOrderDisabled && <button className="px-3 py-1.5 text-xs rounded-full transition-colors bg-neutral-700 text-white hover:bg-neutral-600" onClick={() => setShowDiscountDialog(true)}>
+          {!isOrderDisabled && (
+            <button 
+              className="px-3 py-1.5 text-xs rounded-full transition-colors bg-neutral-700 text-white hover:bg-neutral-600" 
+              onClick={() => setShowDiscountDialog(true)}
+            >
               Discount
-            </button>}
+            </button>
+          )}
           <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
             Receipt
           </button>
@@ -1053,9 +514,9 @@ const OrderPanelContent = ({
 
       {/* Main Panel Box */}
       <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{
-      background: "#7575754D",
-      boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-    }}>
+        background: "#7575754D",
+        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+      }}>
         {/* Table Order Info - Row 1 */}
         <div className="px-3 py-2 border-b border-white/10">
           <div className="flex items-center justify-between">
@@ -1078,46 +539,67 @@ const OrderPanelContent = ({
           
         {/* Seat Buttons - Row 2 */}
         <div className="px-3 py-2 border-b border-white/10">
-          <div className="flex items-center gap-1.5">
+          <div className="flex gap-1.5">
             <button className="w-6 h-6 bg-neutral-600 rounded flex items-center justify-center hover:bg-neutral-500 transition-colors">
               <img src={chairWhiteIcon} alt="Chair" className="w-3.5 h-3.5" />
             </button>
-            <button onClick={() => toggleSeatFilter('all')} className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${seatFilter.includes('all') ? 'bg-white' : 'bg-neutral-600 hover:bg-neutral-500'}`}>
+            <button 
+              onClick={() => toggleSeatFilter('all')} 
+              className={`w-6 h-6 rounded flex items-center justify-center transition-colors ${seatFilter.includes('all') ? 'bg-white' : 'bg-neutral-600 hover:bg-neutral-500'}`}
+            >
               <Share2 className={`w-3.5 h-3.5 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
             </button>
-            {Array.from({
-            length: guestCount
-          }, (_, i) => i + 1).map(seat => <button key={seat} onClick={() => toggleSeatFilter(seat)} className={`w-6 h-6 rounded text-xs font-medium transition-colors ${seatFilter.includes(seat) ? "bg-white text-black" : "bg-neutral-600 text-white hover:bg-neutral-500"}`}>
+            {Array.from({ length: guestCount }, (_, i) => i + 1).map(seat => (
+              <button 
+                key={seat} 
+                onClick={() => toggleSeatFilter(seat)} 
+                className={`w-6 h-6 rounded text-xs font-medium transition-colors ${seatFilter.includes(seat) ? "bg-white text-black" : "bg-neutral-600 text-white hover:bg-neutral-500"}`}
+              >
                 {seat}
-              </button>)}
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Notes - with Autocomplete */}
         <div className="px-3 py-2 border-b border-white/10">
-          <OrderNotesAutocomplete value={orderNotes} onChange={setOrderNotes} placeholder="Order notes and Allergies" storageKey="dashboard-order-notes" />
+          <OrderNotesAutocomplete 
+            value={orderNotes} 
+            onChange={setOrderNotes} 
+            placeholder="Order notes and Allergies" 
+            storageKey="dashboard-order-notes" 
+          />
         </div>
 
         {/* Order Items */}
         <ScrollArea className="flex-1 px-3 max-h-[300px] md:max-h-none">
           <div className="py-2 space-y-1.5">
             {orderItems.filter(item => {
-            // If 'all' is selected, show all items
-            if (seatFilter.includes('all')) return true;
-            // If no filter selected, show all items
-            if (seatFilter.length === 0) return true;
-            // Show item if any of its seats match the filter
-            return item.seats.some(seat => seatFilter.includes(seat));
-          }).map((item, index) => {
-            const itemId = `item-${index}`;
-            const itemSeats = item.seats;
-            const isAllSeats = itemSeats.length === guestCount;
-            return <SwipeableCartItem key={item.id} onDelete={() => onDeleteItem(item.id)} onFire={() => onFireItem(item.id)} onNoTax={() => onToggleNoTax(item.id)} isNoTax={item.noTax} isFired={item.isFired} itemOrderType={item.itemOrderType} onOrderTypeChange={type => onOrderTypeChange(item.id, type)} isOpen={activeSwipedItemId === itemId} onSwipeStart={() => setActiveSwipedItemId(itemId)}>
-                  <div className="p-2 border border-sidebar-border rounded-lg cursor-pointer" style={{
-                background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
-              }}>
+              if (seatFilter.includes('all')) return true;
+              if (seatFilter.length === 0) return true;
+              return item.seats.some(seat => seatFilter.includes(seat));
+            }).map((item, index) => {
+              const itemId = `item-${index}`;
+              const itemSeats = item.seats;
+              const isAllSeats = itemSeats.length === guestCount;
+              return (
+                <SwipeableCartItem 
+                  key={item.id} 
+                  onDelete={() => onDeleteItem(item.id)} 
+                  onFire={() => onFireItem(item.id)} 
+                  onNoTax={() => onToggleNoTax(item.id)} 
+                  isNoTax={item.noTax} 
+                  isFired={item.isFired} 
+                  itemOrderType={item.itemOrderType} 
+                  onOrderTypeChange={type => onOrderTypeChange(item.id, type)} 
+                  isOpen={activeSwipedItemId === itemId} 
+                  onSwipeStart={() => setActiveSwipedItemId(itemId)}
+                >
+                  <div 
+                    className="p-2 border border-sidebar-border rounded-lg cursor-pointer" 
+                    style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                  >
                     <div className="flex flex-col">
-                      {/* Item header row */}
                       <div className="flex items-start gap-2">
                         <span className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
                           {item.qty}
@@ -1131,29 +613,37 @@ const OrderPanelContent = ({
                           </div>
                         </div>
                       </div>
-                      
-                      {/* Seat indicators */}
                       <div className="flex items-center gap-1.5 mt-1.5 ml-8">
                         <img src={chairWhiteIcon} alt="Seat" className="w-4 h-4 opacity-70" />
-                        {isAllSeats ? <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                        {isAllSeats ? (
+                          <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
                             <Share2 className="w-3 h-3" />
-                          </span> : itemSeats.map(seat => <span key={seat} className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center">
+                          </span>
+                        ) : (
+                          itemSeats.map(seat => (
+                            <span key={seat} className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center">
                               {seat}
-                            </span>)}
+                            </span>
+                          ))
+                        )}
                       </div>
                     </div>
                   </div>
-                </SwipeableCartItem>;
-          })}
+                </SwipeableCartItem>
+              );
+            })}
           </div>
         </ScrollArea>
 
         {/* Order Summary - Glass Effect */}
         <div className="p-2 border-t border-white/10 flex-shrink-0">
-          <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-          }}>
+          <div 
+            className="text-xs rounded px-2 py-1.5 space-y-0.5" 
+            style={{
+              background: '#7575754D',
+              boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+            }}
+          >
             <div className="flex justify-between gap-3">
               <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
               <span className="text-white">Discount: <span className="font-medium">${discount.toFixed(2)}</span></span>
@@ -1168,10 +658,8 @@ const OrderPanelContent = ({
         {/* Bottom Actions - Conditional based on order status */}
         <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
           {selectedOrder?.isPaid || selectedOrder?.status === "Completed" ? (
-            // Paid order actions: ADD TIP, CLOSE, or REFUND
             <>
               {showRefundMode ? (
-                // REFUND button after clicking CLOSE
                 <button 
                   onClick={() => setShowRefundDialog(true)}
                   className="flex-1 h-10 rounded-full flex items-center justify-center" 
@@ -1180,7 +668,6 @@ const OrderPanelContent = ({
                   <span className="text-white font-semibold text-sm">REFUND</span>
                 </button>
               ) : (
-                // ADD TIP and CLOSE buttons
                 <>
                   <button 
                     onClick={() => setShowTipDialog(true)}
@@ -1200,57 +687,28 @@ const OrderPanelContent = ({
               )}
             </>
           ) : (
-            // Unpaid order actions: CLEAR, SAVE, FIRE, CHARGE
             <>
               <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors flex-shrink-0">
                 <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
               </button>
-              <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
-                background: '#C9C9C9'
-              }}>
+              <button 
+                className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" 
+                style={{ background: '#C9C9C9' }}
+              >
                 <img src={saveIcon} alt="Save" className="w-4 h-4 brightness-0" />
               </button>
-              <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" style={{
-                background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
-              }}>
+              <button 
+                className="flex-1 h-8 rounded-full flex items-center justify-center gap-1 text-white text-sm font-medium" 
+                style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+              >
                 <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
                 <span>FIRE</span>
               </button>
-              <button onClick={() => {
-                // Reset payment states for new order
-                setAmountQuantities({});
-                setPaymentProcessed(false);
-                setShowKeypad(false);
-                setShowOtherPayments(false);
-                setPaymentAmount(finalTotal.toFixed(2));
-                // Reset gift card state for new payment
-                setGiftCardStep('amount');
-                setGiftCardNumber('');
-                // Reset pay by link state for new payment
-                setPayByLinkStep('amount');
-                setSelectedGuest(null);
-                setGuestSearchQuery('');
-                // Reset QR code state for new payment
-                setQrCodeStep('amount');
-                setQrPhoneNumber('');
-                setShowQrPhoneInput(false);
-                // Reset loyalty state for new payment
-                setLoyaltyStep('guest-list');
-                setLoyaltySelectedGuest(null);
-                setLoyaltyPointsToRedeem('');
-                setShowLoyaltyAddGuest(false);
-                setLoyaltyNewGuest({
-                  name: '',
-                  phone: '',
-                  email: ''
-                });
-                setLoyaltyOtp(['', '', '', '']);
-                setLoyaltySearchQuery('');
-                setShowLoyaltyKeypad(false);
-                setShowPaymentDialog(true);
-              }} className="flex-1 h-8 rounded-full text-black text-sm font-bold" style={{
-                background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-              }}>
+              <button 
+                onClick={onChargeClick}
+                className="flex-1 h-8 rounded-full text-black text-sm font-bold" 
+                style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+              >
                 CHARGE ${finalTotal.toFixed(2)}
               </button>
             </>
@@ -1259,34 +717,40 @@ const OrderPanelContent = ({
       </div>
 
       {/* Discount Dialog */}
-      {showDiscountDialog && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      {showDiscountDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
-            {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-neutral-700">
               <h2 className="text-white text-lg font-semibold">Select Discount</h2>
-              <button onClick={() => setShowDiscountDialog(false)} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
+              <button 
+                onClick={() => setShowDiscountDialog(false)} 
+                className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+              >
                 <X className="w-5 h-5 text-neutral-400" />
               </button>
             </div>
-
-            {/* Discount Options */}
             <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-hide space-y-1">
               {discountTypes.map(discountType => {
-            const discountValue = discountType.fixedAmount || subtotal * ((discountType.percentage || 0) / 100);
-            const isSelected = selectedDiscountId === discountType.id;
-            const IconComponent = {
-              briefcase: Briefcase,
-              heart: Heart,
-              graduation: GraduationCap,
-              shield: Shield,
-              star: Star,
-              clock: Clock,
-              cake: Cake,
-              mappin: MapPin,
-              dollar: BadgeDollarSign,
-              tag: Tag
-            }[discountType.icon];
-            return <button key={discountType.id} onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)} className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isSelected ? 'bg-orange-500/20 border border-orange-500' : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'}`}>
+                const discountValue = discountType.fixedAmount || subtotal * ((discountType.percentage || 0) / 100);
+                const isSelected = selectedDiscountId === discountType.id;
+                const IconComponent = {
+                  briefcase: Briefcase,
+                  heart: Heart,
+                  graduation: GraduationCap,
+                  shield: Shield,
+                  star: Star,
+                  clock: Clock,
+                  cake: Cake,
+                  mappin: MapPin,
+                  dollar: BadgeDollarSign,
+                  tag: Tag
+                }[discountType.icon];
+                return (
+                  <button 
+                    key={discountType.id} 
+                    onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)} 
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isSelected ? 'bg-orange-500/20 border border-orange-500' : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'}`}
+                  >
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'}`}>
                       {IconComponent && <IconComponent className="w-4 h-4 text-neutral-400" />}
                     </div>
@@ -1297,3224 +761,33 @@ const OrderPanelContent = ({
                     <div className="text-red-400 text-sm font-medium">
                       -${discountValue.toFixed(2)}
                     </div>
-                  </button>;
-          })}
+                  </button>
+                );
+              })}
             </div>
-
-            {/* Apply Button */}
             <div className="p-3 border-t border-neutral-700">
-              <button onClick={() => setShowDiscountDialog(false)} className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm">
+              <button 
+                onClick={() => setShowDiscountDialog(false)} 
+                className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
+              >
                 Apply
               </button>
             </div>
           </div>
-        </div>}
-
-      {/* Payment Dialog */}
-      {showPaymentDialog && <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => { setShowPaymentDialog(false); setPaymentHistory([]); }}>
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 flex overflow-hidden mx-4 animate-scale-in max-h-[90vh]" onClick={(e) => e.stopPropagation()}>
-            {/* Payment Options Panel OR Receipt View */}
-            <div className="w-[480px] flex flex-col bg-neutral-900 max-h-[90vh] overflow-hidden">
-              {paymentProcessed ? (/* Receipt View */
-          <>
-                  {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? <>
-                      {/* Success Header */}
-                      <div className="flex flex-col items-center py-8 px-6">
-                        <div className="w-16 h-16 rounded-full bg-green-100 flex items-center justify-center mb-4">
-                          <img src={tickSuccessIcon} alt="Success" className="w-10 h-10" />
-                        </div>
-                        <p className="text-neutral-300 text-sm">
-                          <span className="text-green-500 font-medium">${paymentHistory.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</span> has been successfully processed
-                        </p>
-                      </div>
-
-                      {/* Change Due / Due Amount Box */}
-                      {paymentHistory.reduce((sum, p) => sum + p.amount, 0) >= finalTotal ? <div className="mx-6 mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
-                          <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
-                          <p className="text-green-500 text-3xl font-bold text-center">
-                            ${(paymentHistory.reduce((sum, p) => sum + p.amount, 0) - finalTotal).toFixed(2)}
-                          </p>
-                        </div> : <div className="mx-6 mb-4 border-2 border-red-500 rounded-lg p-4 bg-red-500/10">
-                          <p className="text-red-500 text-sm text-center mb-1">Due Amount</p>
-                          <p className="text-red-500 text-3xl font-bold text-center">
-                            ${(finalTotal - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toFixed(2)}
-                          </p>
-                        </div>}
-
-                      {/* Pay Remaining Button - Show when there's still due amount */}
-                      {paymentHistory.reduce((sum, p) => sum + p.amount, 0) < finalTotal && (
-                        <div className="mx-6 mb-6">
-                          <button
-                            onClick={() => {
-                              const totalPaid = paymentHistory.reduce((sum, p) => sum + p.amount, 0);
-                              const remaining = finalTotal - totalPaid;
-                              setPaymentAmount(remaining.toFixed(2));
-                              setPaymentProcessed(false);
-                              setSelectedPaymentMethod('cash');
-                              setAmountQuantities({});
-                              setGiftCardStep('amount');
-                              setGiftCardNumber('');
-                              setPayByLinkStep('amount');
-                              setQrCodeStep('amount');
-                              setManualCCStep('amount');
-                              setExternalCCStep('amount');
-                              setManualCardStep('amount');
-                              setDoordashStep('amount');
-                              setBlizzfulStep('amount');
-                              setUbereatsStep('amount');
-                              setGrubhubStep('amount');
-                            }}
-                            className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
-                          >
-                            PAY REMAINING ${(finalTotal - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toFixed(2)}
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Receipt Section */}
-                      <div className="px-6 pb-6">
-                        <h3 className="text-white font-semibold text-center mb-4">Receipt</h3>
-                      <div className="flex gap-4 justify-center mb-4">
-                        <button className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
-                          <Printer className="w-6 h-6 text-neutral-400" />
-                          <span className="text-neutral-400 text-sm">Print</span>
-                        </button>
-                        <button onClick={() => {
-                    setTextReceiptPhone('');
-                    setTextReceiptNoMarketing(false);
-                    setTextReceiptStep('phone-input');
-                  }} className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
-                          <MessageSquare className="w-6 h-6 text-neutral-400" />
-                          <span className="text-neutral-400 text-sm">Text</span>
-                        </button>
-                        <button onClick={() => {
-                    setEmailReceiptEmail('');
-                    setEmailReceiptNoMarketing(false);
-                    setEmailReceiptStep('email-input');
-                  }} className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors">
-                          <Mail className="w-6 h-6 text-neutral-400" />
-                          <span className="text-neutral-400 text-sm">Email</span>
-                        </button>
-                      </div>
-                      <button onClick={() => {
-                  setPaymentProcessed(false);
-                  setShowPaymentDialog(false);
-                  setPaymentHistory([]);
-                }} className="w-full py-4 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-                        NO RECEIPT
-                      </button>
-                    </div>
-                    </> : textReceiptStep === 'phone-input' ? (/* Text Receipt Phone Input Screen */
-            <div className="flex flex-col h-[500px]">
-                      {/* Header with back button */}
-                      <div className="flex items-center p-3 border-b border-neutral-700">
-                        <button onClick={() => setTextReceiptStep('receipt')} className="w-7 h-7 rounded-full bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors">
-                          <ArrowLeft className="w-4 h-4 text-white" />
-                        </button>
-                      </div>
-
-                      {/* Title */}
-                      <div className="px-4 pt-3 pb-2 text-center">
-                        <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
-                      </div>
-
-                      {/* Phone Input */}
-                      <div className="px-4 mb-2">
-                        <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                          <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
-                            <span className="text-white text-xs font-medium">US +1</span>
-                            <ChevronDown className="w-3 h-3 text-neutral-400" />
-                          </div>
-                          <input type="text" placeholder="(000) 000-0000" value={textReceiptPhone} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
-                        </div>
-                      </div>
-
-                      {/* Marketing Checkbox */}
-                      <div className="px-4 mb-2">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <div onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${textReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
-                            {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
-                          </div>
-                          <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
-                        </label>
-                      </div>
-
-                      {/* Privacy Text */}
-                      <div className="px-4 mb-2 text-center">
-                        <p className="text-neutral-500 text-[10px] leading-relaxed">
-                          Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
-                        </p>
-                      </div>
-
-                      {/* Send Button */}
-                      <div className="px-4 mb-2">
-                        <button onClick={() => {
-                  setTextReceiptStep('receipt');
-                  setPaymentProcessed(false);
-                  setShowPaymentDialog(false);
-                }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                          SEND
-                        </button>
-                      </div>
-
-                      {/* Numeric Keypad - Dark Mode */}
-                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden">
-                        <div className="grid grid-cols-3 h-full">
-                          {[{
-                    num: '1',
-                    sub: ''
-                  }, {
-                    num: '2',
-                    sub: 'ABC'
-                  }, {
-                    num: '3',
-                    sub: 'DEF'
-                  }, {
-                    num: '4',
-                    sub: 'JKL'
-                  }, {
-                    num: '5',
-                    sub: 'MNO'
-                  }, {
-                    num: '6',
-                    sub: 'PQRS'
-                  }, {
-                    num: '7',
-                    sub: 'TUV'
-                  }, {
-                    num: '8',
-                    sub: 'WXYZ'
-                  }, {
-                    num: '9',
-                    sub: ''
-                  }].map(key => <button key={key.num} onClick={() => {
-                    const digits = textReceiptPhone.replace(/\D/g, '');
-                    if (digits.length < 10) {
-                      const newDigits = digits + key.num;
-                      let formatted = '';
-                      if (newDigits.length > 0) {
-                        formatted = '(' + newDigits.slice(0, 3);
-                        if (newDigits.length >= 3) {
-                          formatted += ') ' + newDigits.slice(3, 6);
-                          if (newDigits.length >= 6) {
-                            formatted += '-' + newDigits.slice(6, 10);
-                          }
-                        }
-                      }
-                      setTextReceiptPhone(formatted);
-                    }
-                  }} className="py-2 flex flex-col items-center justify-center hover:bg-neutral-700 transition-colors border-b border-r border-neutral-700 active:bg-neutral-600">
-                              <span className="text-white text-xl font-light">{key.num}</span>
-                              {key.sub && <span className="text-neutral-500 text-[8px] tracking-wider">{key.sub}</span>}
-                            </button>)}
-                          <div className="py-2 border-b border-r border-neutral-700"></div>
-                          <button onClick={() => {
-                    const digits = textReceiptPhone.replace(/\D/g, '');
-                    if (digits.length < 10) {
-                      const newDigits = digits + '0';
-                      let formatted = '';
-                      if (newDigits.length > 0) {
-                        formatted = '(' + newDigits.slice(0, 3);
-                        if (newDigits.length >= 3) {
-                          formatted += ') ' + newDigits.slice(3, 6);
-                          if (newDigits.length >= 6) {
-                            formatted += '-' + newDigits.slice(6, 10);
-                          }
-                        }
-                      }
-                      setTextReceiptPhone(formatted);
-                    }
-                  }} className="py-2 flex items-center justify-center hover:bg-neutral-700 transition-colors border-b border-r border-neutral-700 active:bg-neutral-600">
-                            <span className="text-white text-xl font-light">0</span>
-                          </button>
-                          <button onClick={() => {
-                    const digits = textReceiptPhone.replace(/\D/g, '');
-                    if (digits.length > 0) {
-                      const newDigits = digits.slice(0, -1);
-                      let formatted = '';
-                      if (newDigits.length > 0) {
-                        formatted = '(' + newDigits.slice(0, 3);
-                        if (newDigits.length >= 3) {
-                          formatted += ') ' + newDigits.slice(3, 6);
-                          if (newDigits.length >= 6) {
-                            formatted += '-' + newDigits.slice(6, 10);
-                          }
-                        }
-                      }
-                      setTextReceiptPhone(formatted);
-                    }
-                  }} className="py-2 flex items-center justify-center hover:bg-neutral-700 transition-colors border-b border-neutral-700 active:bg-neutral-600">
-                            <Delete className="w-5 h-5 text-neutral-400" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>) : (/* Email Receipt Input Screen */
-            <div className="flex flex-col h-[500px]">
-                      {/* Header with back button */}
-                      <div className="flex items-center p-3 border-b border-neutral-700">
-                        <button onClick={() => setEmailReceiptStep('receipt')} className="w-7 h-7 rounded-full bg-neutral-700 flex items-center justify-center hover:bg-neutral-600 transition-colors">
-                          <ArrowLeft className="w-4 h-4 text-white" />
-                        </button>
-                      </div>
-
-                      {/* Title */}
-                      <div className="px-4 pt-3 pb-2 text-center">
-                        <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
-                      </div>
-
-                      {/* Email Input */}
-                      <div className="px-4 mb-2">
-                        <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                          <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600">
-                            <Mail className="w-4 h-4 text-neutral-400" />
-                          </div>
-                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
-                        </div>
-                      </div>
-
-                      {/* Marketing Checkbox */}
-                      <div className="px-4 mb-2">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <div onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${emailReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
-                            {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
-                          </div>
-                          <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
-                        </label>
-                      </div>
-
-                      {/* Privacy Text */}
-                      <div className="px-4 mb-2 text-center">
-                        <p className="text-neutral-500 text-[10px] leading-relaxed">
-                          Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
-                        </p>
-                      </div>
-
-                      {/* Send Button */}
-                      <div className="px-4 mb-4">
-                        <button onClick={() => {
-                  setEmailReceiptStep('receipt');
-                  setPaymentProcessed(false);
-                  setShowPaymentDialog(false);
-                }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                          SEND
-                        </button>
-                      </div>
-
-                      {/* Email Keyboard */}
-                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
-                        {/* Number Row */}
-                        <div className="flex flex-1">
-                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                              <span className="text-white text-lg font-medium">{key}</span>
-                            </button>)}
-                        </div>
-                        {/* Row 1 */}
-                        <div className="flex flex-1">
-                          {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                              <span className="text-white text-lg font-medium">{key}</span>
-                            </button>)}
-                        </div>
-                        {/* Row 2 */}
-                        <div className="flex flex-1 px-2">
-                          {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                              <span className="text-white text-lg font-medium">{key}</span>
-                            </button>)}
-                        </div>
-                        {/* Row 3 */}
-                        <div className="flex flex-1">
-                          <div className="w-10"></div>
-                          {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                              <span className="text-white text-lg font-medium">{key}</span>
-                            </button>)}
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                            <Delete className="w-5 h-5 text-neutral-400" />
-                          </button>
-                        </div>
-                        {/* Row 4 - Special chars */}
-                        <div className="flex flex-1 gap-1 px-1">
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-lg font-medium">@</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-lg font-medium">.</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-lg font-medium">_</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-lg font-medium">-</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-sm font-medium">.com</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-sm font-medium">.net</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-xs font-medium">@gmail</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>)}
-                </>) : selectedPaymentMethod === 'pay-link' && payByLinkStep !== 'amount' ? (/* Pay by Link Screens */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => {
-                  if (payByLinkStep === 'select-guest') {
-                    setPayByLinkStep('amount');
-                  } else if (payByLinkStep === 'guest-confirmed') {
-                    setPayByLinkStep('select-guest');
-                    setSelectedGuest(null);
-                  } else if (payByLinkStep === 'pending' || payByLinkStep === 'expired') {
-                    setPayByLinkStep('guest-confirmed');
-                  } else if (payByLinkStep === 'complete') {
-                    setPayByLinkStep('amount');
-                    setSelectedGuest(null);
-                  }
-                }} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-lg font-medium">Pay by Link</span>
-                    </div>
-                    <span className="text-red-500 text-lg font-bold">${paymentAmount}</span>
-                  </div>
-
-                  {/* Guest Selection Screen */}
-                  {payByLinkStep === 'select-guest' && <div className="flex flex-col overflow-hidden h-[400px]">
-                      {/* Info Text */}
-                      <div className="px-4 py-2 flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 text-neutral-400 text-xs flex-1 min-w-0">
-                          <div className="w-4 h-4 rounded-full border border-neutral-400 flex items-center justify-center flex-shrink-0">
-                            <span className="text-[10px]">i</span>
-                          </div>
-                          <span className="truncate">Search guest to share link or add details.</span>
-                        </div>
-                        <button onClick={() => {
-                  setNewGuestForLink({
-                    name: '',
-                    phone: '',
-                    email: ''
-                  });
-                  setPayByLinkStep('add-guest');
-                }} className="flex items-center gap-1 px-2 py-1 bg-neutral-700 rounded-lg hover:bg-neutral-600 transition-colors flex-shrink-0 whitespace-nowrap">
-                          <UserPlus className="w-3 h-3 text-white" />
-                          <span className="text-white text-xs">Add</span>
-                        </button>
-                      </div>
-
-                      {/* Send Link Toggle Buttons */}
-                      <div className="px-4 pb-3 flex gap-2">
-                        <button onClick={() => setSendLinkMethod('text')} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${sendLinkMethod === 'text' ? 'bg-white text-black' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'}`}>
-                          Send Link by Text
-                        </button>
-                        <button onClick={() => setSendLinkMethod('email')} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${sendLinkMethod === 'email' ? 'bg-white text-black' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'}`}>
-                          Send Link by Email
-                        </button>
-                      </div>
-
-                      {/* Search Input */}
-                      <div className="px-4 pb-3">
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
-                          <Input type="text" placeholder="Search Guest" value={guestSearchQuery} onChange={e => setGuestSearchQuery(e.target.value)} className="w-full pl-10 py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" />
-                        </div>
-                      </div>
-
-                      {/* Guest List Table */}
-                      <div className="flex-1 overflow-auto px-4 min-h-0 pb-4" style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none'
-              }}>
-                        {/* Table Header */}
-                        <div className="grid grid-cols-3 gap-4 py-2 text-xs text-neutral-400 border-b border-neutral-700">
-                          <span>Name</span>
-                          <span>Phone Number</span>
-                          <span>Email</span>
-                        </div>
-                        {/* Guest Rows */}
-                        {mockGuests.filter(guest => guestSearchQuery === '' || guest.name.toLowerCase().includes(guestSearchQuery.toLowerCase()) || guest.phone.includes(guestSearchQuery) || guest.email.toLowerCase().includes(guestSearchQuery.toLowerCase())).map((guest, index) => <div key={index} onClick={() => {
-                  setSelectedGuest(guest);
-                  setPayByLinkStep('guest-confirmed');
-                }} className="grid grid-cols-3 gap-4 py-3 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors">
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs text-white font-medium">
-                                {guest.avatar}
-                              </div>
-                              <span className="text-white text-sm">{guest.name}</span>
-                            </div>
-                            <span className="text-neutral-300 text-sm flex items-center">{guest.phone}</span>
-                            <span className="text-neutral-300 text-sm flex items-center">{guest.email}</span>
-                          </div>)}
-                      </div>
-                    </div>}
-
-                  {/* Add Guest Screen */}
-                  {payByLinkStep === 'add-guest' && <div className="flex flex-col overflow-hidden h-[400px]">
-                      {/* Info Text */}
-                      <div className="px-4 py-2 flex items-center gap-2 text-neutral-400 text-xs">
-                        <div className="w-4 h-4 rounded-full border border-neutral-400 flex items-center justify-center flex-shrink-0">
-                          <span className="text-[10px]">i</span>
-                        </div>
-                        <span>Enter guest details to send payment link.</span>
-                      </div>
-
-                      {/* Send Link Toggle Buttons */}
-                      <div className="px-4 pb-3 flex gap-2">
-                        <button onClick={() => setSendLinkMethod('text')} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${sendLinkMethod === 'text' ? 'bg-white text-black' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'}`}>
-                          Send Link by Text
-                        </button>
-                        <button onClick={() => setSendLinkMethod('email')} className={`flex-1 py-2 rounded-lg text-sm font-medium transition-colors ${sendLinkMethod === 'email' ? 'bg-white text-black' : 'bg-neutral-700 text-neutral-300 hover:bg-neutral-600'}`}>
-                          Send Link by Email
-                        </button>
-                      </div>
-
-                      {/* Form Fields */}
-                      <div className="flex-1 overflow-auto px-4 space-y-4" style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none'
-              }}>
-                        {/* Guest Name */}
-                        <div>
-                          <label className="text-neutral-400 text-xs mb-1.5 block">
-                            Guest Name <span className="text-red-500">*</span>
-                          </label>
-                          <Input type="text" placeholder="Enter full name" value={newGuestForLink.name} onChange={e => setNewGuestForLink({
-                    ...newGuestForLink,
-                    name: e.target.value
-                  })} className="w-full py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" />
-                        </div>
-
-                        {/* Phone Number */}
-                        <div>
-                          <label className="text-neutral-400 text-xs mb-1.5 block">
-                            Phone Number {sendLinkMethod === 'text' && <span className="text-red-500">*</span>}
-                          </label>
-                          <Input type="tel" placeholder="(555) 123-4567" value={newGuestForLink.phone} onChange={e => {
-                    // Format phone number
-                    const value = e.target.value.replace(/\D/g, '');
-                    let formatted = value;
-                    if (value.length >= 3 && value.length < 6) {
-                      formatted = `(${value.slice(0, 3)}) ${value.slice(3)}`;
-                    } else if (value.length >= 6) {
-                      formatted = `(${value.slice(0, 3)}) ${value.slice(3, 6)}-${value.slice(6, 10)}`;
-                    }
-                    setNewGuestForLink({
-                      ...newGuestForLink,
-                      phone: formatted
-                    });
-                  }} className="w-full py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" />
-                        </div>
-
-                        {/* Email */}
-                        <div>
-                          <label className="text-neutral-400 text-xs mb-1.5 block">
-                            Email Address {sendLinkMethod === 'email' && <span className="text-red-500">*</span>}
-                          </label>
-                          <Input type="email" placeholder="guest@email.com" value={newGuestForLink.email} onChange={e => setNewGuestForLink({
-                    ...newGuestForLink,
-                    email: e.target.value
-                  })} className="w-full py-2 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" />
-                        </div>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div className="p-4 flex gap-3 border-t border-neutral-700">
-                        <button onClick={() => setPayByLinkStep('select-guest')} className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-neutral-700 text-white hover:bg-neutral-600 transition-colors">
-                          Cancel
-                        </button>
-                        <button onClick={() => {
-                  // Validate required fields
-                  if (!newGuestForLink.name.trim()) return;
-                  if (sendLinkMethod === 'text' && !newGuestForLink.phone.trim()) return;
-                  if (sendLinkMethod === 'email' && !newGuestForLink.email.trim()) return;
-
-                  // Create guest object and proceed
-                  const newGuest: GuestType = {
-                    name: newGuestForLink.name,
-                    phone: newGuestForLink.phone,
-                    email: newGuestForLink.email,
-                    avatar: newGuestForLink.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
-                    loyaltyPoints: 0
-                  };
-                  setSelectedGuest(newGuest);
-                  setPayByLinkStep('pending');
-                }} disabled={!newGuestForLink.name.trim() || sendLinkMethod === 'text' && !newGuestForLink.phone.trim() || sendLinkMethod === 'email' && !newGuestForLink.email.trim()} className="flex-1 py-2.5 rounded-lg text-sm font-medium bg-green-600 text-white hover:bg-green-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
-                          Send Link
-                        </button>
-                      </div>
-                    </div>}
-
-                  {/* Guest Confirmed Screen */}
-                  {payByLinkStep === 'guest-confirmed' && selectedGuest && <div className="flex flex-col overflow-hidden h-[400px]">
-                      {/* Selected Guest Card */}
-                      <div className="p-4">
-                        <div className="bg-neutral-800 rounded-xl p-4">
-                          <div className="flex items-start gap-4">
-                            <div className="w-14 h-14 rounded-full bg-neutral-600 flex items-center justify-center text-lg text-white font-medium">
-                              {selectedGuest.avatar}
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="text-white font-semibold text-lg">{selectedGuest.name}</h3>
-                              <div className="flex items-center gap-2 mt-1 text-neutral-400 text-sm">
-                                <Phone className="w-4 h-4" />
-                                <span>{selectedGuest.phone}</span>
-                              </div>
-                              <div className="flex items-center gap-2 mt-1 text-neutral-400 text-sm">
-                                <Mail className="w-4 h-4" />
-                                <span>{selectedGuest.email}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button onClick={() => {
-                        setSendLinkMethod('text');
-                        setPayByLinkStep('pending');
-                      }} className="w-9 h-9 rounded-full bg-green-600 flex items-center justify-center hover:bg-green-500 transition-colors">
-                                <MessageSquare className="w-4 h-4 text-white" />
-                              </button>
-                              <button onClick={() => {
-                        setSendLinkMethod('text');
-                        setPayByLinkStep('pending');
-                      }} className="w-9 h-9 rounded-full bg-green-500 flex items-center justify-center hover:bg-green-400 transition-colors">
-                                <Phone className="w-4 h-4 text-white" />
-                              </button>
-                              <button onClick={() => {
-                        setSendLinkMethod('email');
-                        setPayByLinkStep('pending');
-                      }} className="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center hover:bg-blue-400 transition-colors">
-                                <Mail className="w-4 h-4 text-white" />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Send Link Buttons */}
-                      <div className="px-4 pb-4 flex gap-3">
-                        <button onClick={() => {
-                  setSendLinkMethod('text');
-                  setPayByLinkStep('pending');
-                }} className="flex-1 py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors">
-                          Send Link by Text
-                        </button>
-                        <button onClick={() => {
-                  setSendLinkMethod('email');
-                  setPayByLinkStep('pending');
-                }} className="flex-1 py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors">
-                          Send Link by Email
-                        </button>
-                      </div>
-
-                      {/* Remaining Guest List */}
-                      <div className="flex-1 overflow-auto px-4 min-h-0 pb-4" style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none'
-              }}>
-                        <div className="grid grid-cols-3 gap-4 py-2 text-xs text-neutral-400 border-b border-neutral-700">
-                          <span>Name</span>
-                          <span>Phone Number</span>
-                          <span>Email</span>
-                        </div>
-                        {mockGuests.filter(g => g.name !== selectedGuest.name).map((guest, index) => <div key={index} onClick={() => setSelectedGuest(guest)} className="grid grid-cols-3 gap-4 py-3 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors">
-                            <div className="flex items-center gap-2">
-                              <div className="w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center text-xs text-white font-medium">
-                                {guest.avatar}
-                              </div>
-                              <span className="text-white text-sm">{guest.name}</span>
-                            </div>
-                            <span className="text-neutral-300 text-sm flex items-center">{guest.phone}</span>
-                            <span className="text-neutral-300 text-sm flex items-center">{guest.email}</span>
-                          </div>)}
-                      </div>
-                    </div>}
-
-                  {/* Payment Pending Screen */}
-                  {payByLinkStep === 'pending' && selectedGuest && <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      <div className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center mb-6">
-                        <Clock className="w-10 h-10 text-orange-500" />
-                      </div>
-                      <h2 className="text-white text-2xl font-semibold mb-2">Payment Pending</h2>
-                      <p className="text-neutral-400 text-sm mb-8">Waiting for customer to complete payment</p>
-                      
-                      <div className="w-full space-y-3 mb-8">
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Amount Requested</span>
-                          <span className="text-white font-medium">${paymentAmount}</span>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Recipient</span>
-                          <span className="text-white font-medium">{selectedGuest.phone}</span>
-                        </div>
-                      </div>
-
-                      <button onClick={() => {
-                // Simulate: randomly go to expired or complete
-                const random = Math.random();
-                if (random < 0.5) {
-                  setPayByLinkStep('expired');
-                } else {
-                  setPaidAmount(parseFloat(paymentAmount) || 0);
-                  setPayByLinkStep('complete');
-                }
-              }} className="w-full py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-                        REFRESH STATUS
-                      </button>
-                    </div>}
-
-                  {/* Payment Expired Screen */}
-                  {payByLinkStep === 'expired' && selectedGuest && <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      <div className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center mb-6">
-                        <AlertTriangle className="w-10 h-10 text-orange-500" />
-                      </div>
-                      <h2 className="text-white text-2xl font-semibold mb-2">Payment Link Expired</h2>
-                      <p className="text-neutral-400 text-sm mb-8">The payment link has expired</p>
-                      
-                      <div className="w-full space-y-3 mb-8">
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Amount Requested</span>
-                          <span className="text-white font-medium">${paymentAmount}</span>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Recipient</span>
-                          <span className="text-white font-medium">{selectedGuest.phone}</span>
-                        </div>
-                      </div>
-
-                      <button onClick={() => setPayByLinkStep('pending')} className="w-full py-3 bg-orange-500 text-white font-medium rounded-lg hover:bg-orange-400 transition-colors">
-                        RESEND LINK
-                      </button>
-                    </div>}
-
-                  {/* Payment Complete Screen */}
-                  {payByLinkStep === 'complete' && selectedGuest && <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
-                      <h2 className="text-white text-2xl font-semibold mb-2">Payment Complete</h2>
-                      <p className="text-neutral-400 text-sm mb-8">The guest has complete their payment</p>
-                      
-                      <div className="w-full space-y-3 mb-8">
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Amount Requested</span>
-                          <span className="text-white font-medium">${paymentAmount}</span>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Amount Paid</span>
-                          <span className="text-green-500 font-medium">${paidAmount.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Recipient</span>
-                          <span className="text-white font-medium">{selectedGuest.phone}</span>
-                        </div>
-                      </div>
-
-                      <button onClick={() => setPaymentProcessed(true)} className="w-full py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors">
-                        CONTINUE
-                      </button>
-                    </div>}
-                </>) : selectedPaymentMethod === 'qr-code' && qrCodeStep !== 'amount' ? (/* QR Code Payment Screens */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => {
-                  if (qrCodeStep === 'qr-display') {
-                    setQrCodeStep('amount');
-                    setShowQrPhoneInput(false);
-                    setQrPhoneNumber('');
-                  } else if (qrCodeStep === 'pending') {
-                    setQrCodeStep('qr-display');
-                  } else if (qrCodeStep === 'complete') {
-                    setQrCodeStep('amount');
-                    setShowQrPhoneInput(false);
-                    setQrPhoneNumber('');
-                  }
-                }} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-lg font-medium">Pay by QR</span>
-                    </div>
-                    <span className="text-red-500 text-lg font-bold">${paymentAmount}</span>
-                  </div>
-
-                  {/* QR Display Screen */}
-                  {qrCodeStep === 'qr-display' && <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-                      {/* Scan to Pay */}
-                      <div className="flex-1 flex flex-col items-center justify-center px-6 py-4">
-                        <p className="text-neutral-400 text-sm mb-2">Scan to Pay</p>
-                        <p className="text-white text-3xl font-bold mb-6">${paymentAmount}</p>
-                        
-                        {/* QR Code Placeholder */}
-                        <div className="w-48 h-48 bg-white rounded-xl p-3 mb-6 relative">
-                          {/* QR Pattern placeholder */}
-                          <div className="w-full h-full bg-white relative overflow-hidden">
-                            {/* Create a grid pattern to simulate QR code */}
-                            <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 gap-0.5">
-                              {Array.from({
-                        length: 64
-                      }).map((_, i) => <div key={i} className={`${
-                      // Corner patterns
-                      i < 3 || i >= 8 && i < 11 || i >= 16 && i < 19 || i >= 5 && i < 8 || i >= 13 && i < 16 || i >= 21 && i < 24 || i >= 40 && i < 43 || i >= 48 && i < 51 || i >= 56 && i < 59 || Math.random() > 0.6 ? 'bg-black' : 'bg-white'}`} />)}
-                            </div>
-                            {/* Center logo */}
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 bg-white rounded-full flex items-center justify-center border-2 border-neutral-200">
-                              <QrCode className="w-5 h-5 text-neutral-700" />
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-3 w-full max-w-xs">
-                          <button onClick={() => {
-                    // Simulate share QR
-                  }} className="flex-1 py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2">
-                            <ExternalLink className="w-4 h-4" />
-                            SHARE QR
-                          </button>
-                          <button onClick={() => setShowQrPhoneInput(!showQrPhoneInput)} className={`flex-1 py-3 font-medium rounded-lg transition-colors flex items-center justify-center gap-2 ${showQrPhoneInput ? 'bg-neutral-700 text-white border border-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}>
-                            <MessageSquare className="w-4 h-4" />
-                            SHARE VIA TEXT
-                          </button>
-                        </div>
-
-                        {/* Phone Input */}
-                        {showQrPhoneInput && <div className="flex gap-2 w-full max-w-xs mt-4">
-                            <div className="flex items-center gap-2 bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2">
-                              <span className="text-lg">🇺🇸</span>
-                              <ChevronDown className="w-4 h-4 text-neutral-400" />
-                            </div>
-                            <div className="flex-1 relative">
-                              <input type="tel" value={qrPhoneNumber} onChange={e => setQrPhoneNumber(e.target.value)} placeholder="Phone Number*" className="w-full bg-neutral-800 border border-neutral-700 rounded-lg px-3 py-2 text-white placeholder-neutral-500 focus:outline-none focus:border-neutral-500" />
-                            </div>
-                            <button onClick={() => {
-                    if (qrPhoneNumber.length >= 10) {
-                      setQrCodeStep('pending');
-                    }
-                  }} disabled={qrPhoneNumber.length < 10} className={`px-4 py-2 font-medium rounded-lg transition-colors ${qrPhoneNumber.length >= 10 ? 'bg-orange-500 text-white hover:bg-orange-400' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'}`}>
-                              <Send className="w-4 h-4" />
-                            </button>
-                          </div>}
-                      </div>
-                    </div>}
-
-                  {/* Payment Pending Screen */}
-                  {qrCodeStep === 'pending' && <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      <div className="w-20 h-20 rounded-full bg-orange-500/20 flex items-center justify-center mb-6">
-                        <Clock className="w-10 h-10 text-orange-500" />
-                      </div>
-                      <h2 className="text-white text-2xl font-semibold mb-2">Payment Pending</h2>
-                      <p className="text-neutral-400 text-sm mb-8">Waiting for customer to complete payment</p>
-                      
-                      <div className="w-full space-y-3 mb-8">
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Amount Requested</span>
-                          <span className="text-white font-medium">${paymentAmount}</span>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Recipient</span>
-                          <span className="text-white font-medium">{qrPhoneNumber || 'QR Scan'}</span>
-                        </div>
-                      </div>
-
-                      <button onClick={() => {
-                // Simulate: complete the payment
-                const paid = parseFloat(paymentAmount) || 0;
-                setPaidAmount(paid);
-                setQrCodeStep('complete');
-              }} className="w-full py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-                        REFRESH STATUS
-                      </button>
-                    </div>}
-
-                  {/* Payment Complete Screen */}
-                  {qrCodeStep === 'complete' && <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-6">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
-                      <h2 className="text-white text-2xl font-semibold mb-2">Payment Complete</h2>
-                      <p className="text-neutral-400 text-sm mb-8">The guest has completed their payment</p>
-                      
-                      <div className="w-full space-y-3 mb-8">
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Amount Requested</span>
-                          <span className="text-white font-medium">${paymentAmount}</span>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Amount Paid</span>
-                          <span className="text-green-500 font-medium">${paidAmount.toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between py-2 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-sm">Recipient</span>
-                          <span className="text-white font-medium">{qrPhoneNumber || 'QR Scan'}</span>
-                        </div>
-                      </div>
-
-                      <button onClick={() => setPaymentProcessed(true)} className="w-full py-3 bg-white text-black font-medium rounded-lg hover:bg-neutral-200 transition-colors">
-                        CONTINUE
-                      </button>
-                    </div>}
-                </>) : selectedPaymentMethod === 'loyalty' && loyaltyStep !== 'guest-list' ? (/* Loyalty Screens - After Guest Selection */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-3 border-b border-neutral-700">
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => {
-                  if (loyaltyStep === 'guest-selected') {
-                    setLoyaltyStep('guest-list');
-                    setLoyaltySelectedGuest(null);
-                  } else if (loyaltyStep === 'points-input') {
-                    setLoyaltyStep('guest-selected');
-                    setLoyaltyPointsToRedeem('');
-                    setShowLoyaltyKeypad(false);
-                  } else if (loyaltyStep === 'otp') {
-                    setLoyaltyStep('points-input');
-                    setLoyaltyOtp(['', '', '', '']);
-                  } else if (loyaltyStep === 'complete') {
-                    setLoyaltyStep('guest-list');
-                    setLoyaltySelectedGuest(null);
-                    setLoyaltyPointsToRedeem('');
-                  }
-                }} className="w-7 h-7 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-4 h-4 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-sm font-medium">Pay by Loyalty</span>
-                    </div>
-                  </div>
-
-                  {/* Guest Selected with Points Screen */}
-                  {loyaltyStep === 'guest-selected' && loyaltySelectedGuest && <div className="flex flex-col overflow-hidden flex-1">
-                      {/* Selected Guest Card with Points */}
-                      <div className="p-3">
-                        <div className="bg-neutral-800 rounded-xl p-3">
-                          <div className="flex items-start gap-3">
-                            <div className="w-10 h-10 rounded-full bg-neutral-600 flex items-center justify-center text-sm text-white font-medium overflow-hidden">
-                              {loyaltySelectedGuest.avatar}
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="text-white font-semibold text-sm">{loyaltySelectedGuest.name}</h3>
-                              <div className="flex items-center gap-3 mt-0.5">
-                                <div className="flex items-center gap-1 text-neutral-400 text-xs">
-                                  <Phone className="w-3 h-3" />
-                                  <span>{loyaltySelectedGuest.phone}</span>
-                                </div>
-                                <div className="flex items-center gap-1 text-neutral-400 text-xs">
-                                  <Mail className="w-3 h-3" />
-                                  <span>{loyaltySelectedGuest.email}</span>
-                                </div>
-                              </div>
-                              <div className="flex items-center justify-between mt-1.5">
-                                <div className="flex items-center gap-1">
-                                  <Tag className="w-3 h-3 text-neutral-400" />
-                                  <span className="text-white text-xs font-medium">{(loyaltySelectedGuest.loyaltyPoints || 1250).toLocaleString()} Points</span>
-                                </div>
-                                <span className="text-green-500 text-xs">Value £{(loyaltySelectedGuest.loyaltyPoints || 1250).toFixed(2)}</span>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* REDEEM Button */}
-                      <div className="px-3 pb-3">
-                        <button onClick={() => {
-                  const suggestedPoints = Math.ceil(parseFloat(paymentAmount));
-                  setLoyaltyPointsToRedeem(suggestedPoints.toString());
-                  setLoyaltyStep('points-input');
-                }} className="w-full py-2.5 bg-neutral-800 text-white text-sm font-medium rounded-lg hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2">
-                          <Tag className="w-3.5 h-3.5" />
-                          REDEEM
-                        </button>
-                      </div>
-
-                      {/* Remaining Guest List */}
-                      <div className="flex-1 overflow-auto px-3 min-h-0 pb-3" style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none'
-              }}>
-                        {/* Search Input */}
-                        <div className="mb-2">
-                          <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
-                            <Input type="text" placeholder="Search Guest" value={loyaltySearchQuery} onChange={e => setLoyaltySearchQuery(e.target.value)} className="w-full pl-9 py-1.5 text-sm bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" />
-                          </div>
-                        </div>
-                        {/* Table Header */}
-                        <div className="grid grid-cols-3 gap-3 py-1.5 text-[10px] text-neutral-400 border-b border-neutral-700">
-                          <span>Name</span>
-                          <span>Phone Number</span>
-                          <span>Email</span>
-                        </div>
-                        {/* Guest Rows */}
-                        {mockGuests.filter(g => g.name !== loyaltySelectedGuest.name).filter(guest => loyaltySearchQuery === '' || guest.name.toLowerCase().includes(loyaltySearchQuery.toLowerCase()) || guest.phone.includes(loyaltySearchQuery) || guest.email.toLowerCase().includes(loyaltySearchQuery.toLowerCase())).map((guest, index) => <div key={index} onClick={() => setLoyaltySelectedGuest(guest)} className="grid grid-cols-3 gap-3 py-2 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors">
-                            <div className="flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-neutral-700 flex items-center justify-center text-[10px] text-white font-medium">
-                                {guest.avatar}
-                              </div>
-                              <span className="text-white text-xs">{guest.name}</span>
-                            </div>
-                            <span className="text-neutral-300 text-xs flex items-center">{guest.phone}</span>
-                            <span className="text-neutral-300 text-xs flex items-center truncate">{guest.email}</span>
-                          </div>)}
-                      </div>
-                    </div>}
-
-                  {/* Points Input Screen */}
-                  {loyaltyStep === 'points-input' && loyaltySelectedGuest && <div className="flex flex-col overflow-hidden flex-1">
-                      {/* Selected Guest Card */}
-                      <div className="p-3 border-b border-neutral-700">
-                        <div className="flex items-center gap-3">
-                          <div className="w-8 h-8 rounded-full bg-neutral-600 flex items-center justify-center text-xs text-white font-medium overflow-hidden">
-                            {loyaltySelectedGuest.avatar}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-3">
-                              <h3 className="text-white font-semibold text-sm">{loyaltySelectedGuest.name}</h3>
-                              <div className="flex items-center gap-1 text-neutral-400 text-[10px]">
-                                <Phone className="w-2.5 h-2.5" />
-                                <span>{loyaltySelectedGuest.phone}</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between mt-0.5">
-                              <div className="flex items-center gap-1">
-                                <Tag className="w-2.5 h-2.5 text-neutral-400" />
-                                <span className="text-white text-xs">{(loyaltySelectedGuest.loyaltyPoints || 1250).toLocaleString()} Points</span>
-                              </div>
-                              <span className="text-green-500 text-[10px]">Value £{(loyaltySelectedGuest.loyaltyPoints || 1250).toFixed(2)}</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Points to Redeem */}
-                      <div className="p-3 flex-1 flex flex-col">
-                        <div className="mb-1.5">
-                          <h4 className="text-white font-semibold text-sm">Points to Redeem</h4>
-                          <p className="text-neutral-400 text-xs">Due: £{paymentAmount} (Suggested: {Math.ceil(parseFloat(paymentAmount))} pts)</p>
-                        </div>
-
-                        {/* Points Input Box */}
-                        <div onClick={() => setShowLoyaltyKeypad(!showLoyaltyKeypad)} className="w-full py-2.5 px-3 bg-neutral-800 border border-neutral-600 rounded-lg text-center text-xl text-white font-medium cursor-pointer mb-1">
-                          {loyaltyPointsToRedeem || '0'}
-                        </div>
-                        <p className="text-neutral-400 text-[10px] mb-2">Maximum: {(loyaltySelectedGuest.loyaltyPoints || 1250).toLocaleString()} points</p>
-
-                        {/* Keypad */}
-                        {showLoyaltyKeypad && <div className="grid grid-cols-3 gap-1.5 mb-2">
-                            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => <button key={num} onClick={() => setLoyaltyPointsToRedeem((loyaltyPointsToRedeem + num.toString()).slice(0, 6))} className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-white border border-neutral-600 hover:bg-neutral-700 transition-colors">
-                                {num}
-                              </button>)}
-                            <button onClick={() => setLoyaltyPointsToRedeem(loyaltyPointsToRedeem + '.')} className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-white border border-neutral-600 hover:bg-neutral-700 transition-colors">
-                              .
-                            </button>
-                            <button onClick={() => setLoyaltyPointsToRedeem((loyaltyPointsToRedeem + '0').slice(0, 6))} className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-white border border-neutral-600 hover:bg-neutral-700 transition-colors">
-                              0
-                            </button>
-                            <button onClick={() => setLoyaltyPointsToRedeem('')} className="py-2 rounded-lg text-sm font-medium bg-neutral-800 text-red-400 border border-neutral-600 hover:bg-neutral-700 transition-colors">
-                              C
-                            </button>
-                          </div>}
-
-                        {/* REDEEM Button */}
-                        <button onClick={() => {
-                  const points = parseInt(loyaltyPointsToRedeem) || 0;
-                  if (points > 0 && points <= (loyaltySelectedGuest.loyaltyPoints || 1250)) {
-                    setLoyaltyStep('otp');
-                  }
-                }} disabled={!loyaltyPointsToRedeem || parseInt(loyaltyPointsToRedeem) <= 0 || parseInt(loyaltyPointsToRedeem) > (loyaltySelectedGuest.loyaltyPoints || 1250)} className={`w-full py-2.5 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2 mt-auto ${loyaltyPointsToRedeem && parseInt(loyaltyPointsToRedeem) > 0 && parseInt(loyaltyPointsToRedeem) <= (loyaltySelectedGuest.loyaltyPoints || 1250) ? 'bg-neutral-800 text-white hover:bg-neutral-700' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'}`}>
-                          <Tag className="w-3.5 h-3.5" />
-                          REDEEM
-                        </button>
-                      </div>
-                    </div>}
-
-                  {/* OTP Verification Screen */}
-                  {loyaltyStep === 'otp' && loyaltySelectedGuest && <div className="flex flex-col overflow-hidden flex-1 p-3">
-                      {/* Points Summary */}
-                      <div className="flex items-center justify-between py-2 border-b border-neutral-700 mb-3">
-                        <div className="flex items-center gap-1.5">
-                          <Tag className="w-3 h-3 text-neutral-400" />
-                          <span className="text-white text-xs">{((loyaltySelectedGuest.loyaltyPoints || 1250) - parseInt(loyaltyPointsToRedeem || '0')).toLocaleString()} Points Available</span>
-                        </div>
-                        <span className="text-white text-xs">Deduct <span className="font-bold">{loyaltyPointsToRedeem}</span></span>
-                      </div>
-
-                      {/* Instructions */}
-                      <p className="text-neutral-400 text-xs text-center mb-3">
-                        Scan QR or enter OTP from {loyaltySelectedGuest.phone}
-                      </p>
-
-                      {/* QR Code */}
-                      <div className="flex justify-center mb-4">
-                        <div className="w-40 h-40 bg-white rounded-xl p-2 relative">
-                          <div className="w-full h-full bg-white relative overflow-hidden">
-                            <div className="absolute inset-0 grid grid-cols-8 grid-rows-8 gap-0.5">
-                              {Array.from({
-                        length: 64
-                      }).map((_, i) => <div key={i} className={`${i < 3 || i >= 8 && i < 11 || i >= 16 && i < 19 || i >= 5 && i < 8 || i >= 13 && i < 16 || i >= 21 && i < 24 || i >= 40 && i < 43 || i >= 48 && i < 51 || i >= 56 && i < 59 || Math.random() > 0.6 ? 'bg-black' : 'bg-white'}`} />)}
-                            </div>
-                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 bg-white rounded-full flex items-center justify-center border border-neutral-200">
-                              <span className="text-black font-bold text-sm">e</span>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* OTP Label */}
-                      <p className="text-white text-center text-base font-medium mb-3">OTP</p>
-
-                      {/* OTP Input Boxes */}
-                      <div className="flex justify-center gap-3 mb-4">
-                        {[0, 1, 2, 3].map(index => <input key={index} type="text" maxLength={1} value={loyaltyOtp[index]} onChange={e => {
-                  const newOtp = [...loyaltyOtp];
-                  newOtp[index] = e.target.value;
-                  setLoyaltyOtp(newOtp);
-                  // Auto-focus next input
-                  if (e.target.value && index < 3) {
-                    const nextInput = e.target.parentElement?.children[index + 1] as HTMLInputElement;
-                    nextInput?.focus();
-                  }
-                }} className="w-14 h-14 bg-neutral-800 border border-neutral-600 rounded-xl text-center text-white text-2xl font-medium focus:outline-none focus:border-white" />)}
-                      </div>
-
-                      {/* REDEEM Button */}
-                      <button onClick={() => {
-                // Simulate OTP verification and complete payment
-                const points = parseInt(loyaltyPointsToRedeem) || 0;
-                setPaidAmount(points);
-                setLoyaltyStep('complete');
-              }} className="w-full py-2.5 bg-neutral-800 text-white text-sm font-medium rounded-lg hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2 mt-auto">
-                        <Tag className="w-3.5 h-3.5" />
-                        REDEEM
-                      </button>
-                    </div>}
-
-                  {/* Payment Complete Screen */}
-                  {loyaltyStep === 'complete' && loyaltySelectedGuest && <div className="flex flex-col items-center justify-center flex-1 px-4 py-4">
-                      <div className="w-14 h-14 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-8 h-8" />
-                      </div>
-                      <h2 className="text-white text-lg font-semibold mb-1">Payment Complete</h2>
-                      <p className="text-neutral-400 text-xs mb-4">Your Payment has been Processed Successfully</p>
-                      
-                      <div className="w-full space-y-2 mb-4">
-                        <div className="flex items-center justify-between py-1.5 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-xs">Point Used</span>
-                          <span className="text-red-500 text-sm font-medium">-{loyaltyPointsToRedeem} points</span>
-                        </div>
-                        <div className="flex items-center justify-between py-1.5 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-xs">Available point balance</span>
-                          <span className="text-green-500 text-sm font-medium">{((loyaltySelectedGuest.loyaltyPoints || 1250) - parseInt(loyaltyPointsToRedeem || '0')).toLocaleString()} points</span>
-                        </div>
-                        <div className="flex items-center justify-between py-1.5 border-b border-neutral-700">
-                          <span className="text-neutral-400 text-xs">Equivalent Value</span>
-                          <span className="text-white text-sm font-medium">£{((loyaltySelectedGuest.loyaltyPoints || 1250) - parseInt(loyaltyPointsToRedeem || '0')).toFixed(2)}</span>
-                        </div>
-                      </div>
-
-                      <button onClick={() => setPaymentProcessed(true)} className="w-full py-2.5 bg-white text-black text-sm font-medium rounded-lg hover:bg-neutral-200 transition-colors">
-                        CONTINUE
-                      </button>
-                    </div>}
-                </>) : selectedPaymentMethod === 'loyalty' && loyaltyStep === 'guest-list' ? (/* Loyalty Guest List Screen */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-3 border-b border-neutral-700">
-                    <div className="flex items-center gap-2">
-                      <button onClick={() => {
-                  setSelectedPaymentMethod('cash');
-                  setLoyaltyStep('guest-list');
-                }} className="w-7 h-7 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-4 h-4 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-sm font-medium">Pay by Loyalty</span>
-                    </div>
-                  </div>
-
-                  <div className="flex flex-col overflow-hidden h-[400px]">
-                    {/* Info Text */}
-                    <div className="px-3 py-2 flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-neutral-400 text-xs">
-                        <div className="w-4 h-4 rounded-full border border-neutral-400 flex items-center justify-center">
-                          <span className="text-[10px]">i</span>
-                        </div>
-                        <span>Search guest to redeem points or add details</span>
-                      </div>
-                      <button onClick={() => setShowLoyaltyAddGuest(true)} className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-500 rounded-lg hover:bg-emerald-600 transition-colors">
-                        <UserPlus className="w-3.5 h-3.5 text-white" />
-                        <span className="text-white text-xs font-medium">Add Guest</span>
-                      </button>
-                    </div>
-
-                    {/* Search Input */}
-                    <div className="px-3 pb-2">
-                      <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-400" />
-                        <Input type="text" placeholder="Search Guest" value={loyaltySearchQuery} onChange={e => setLoyaltySearchQuery(e.target.value)} className="w-full pl-9 py-1.5 text-sm bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg" />
-                      </div>
-                    </div>
-
-                    {/* Guest List Table */}
-                    <div className="flex-1 overflow-auto px-3 min-h-0 pb-3" style={{
-                scrollbarWidth: 'none',
-                msOverflowStyle: 'none'
-              }}>
-                      {/* Table Header */}
-                      <div className="grid grid-cols-3 gap-3 py-1.5 text-[10px] text-neutral-400 border-b border-neutral-700">
-                        <span>Name</span>
-                        <span>Phone Number</span>
-                        <span>Email</span>
-                      </div>
-                      {/* Guest Rows */}
-                      {mockGuests.filter(guest => loyaltySearchQuery === '' || guest.name.toLowerCase().includes(loyaltySearchQuery.toLowerCase()) || guest.phone.includes(loyaltySearchQuery) || guest.email.toLowerCase().includes(loyaltySearchQuery.toLowerCase())).map((guest, index) => <div key={index} onClick={() => {
-                  setLoyaltySelectedGuest(guest);
-                  setLoyaltyStep('guest-selected');
-                }} className="grid grid-cols-3 gap-3 py-2 border-b border-neutral-700/50 hover:bg-neutral-800 cursor-pointer transition-colors">
-                          <div className="flex items-center gap-2">
-                            <div className="w-6 h-6 rounded-full bg-neutral-700 flex items-center justify-center text-[10px] text-white font-medium">
-                              {guest.avatar}
-                            </div>
-                            <span className="text-white text-xs">{guest.name}</span>
-                          </div>
-                          <span className="text-neutral-300 text-xs flex items-center">{guest.phone}</span>
-                          <span className="text-neutral-300 text-xs flex items-center truncate">{guest.email}</span>
-                        </div>)}
-                    </div>
-                  </div>
-
-                  {/* Add Guest Modal */}
-                  {showLoyaltyAddGuest && <div className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50">
-                      <div className="bg-white rounded-xl w-[400px] overflow-hidden">
-                        {/* Modal Header */}
-                        <div className="relative p-4 pb-2">
-                          <button onClick={() => setShowLoyaltyAddGuest(false)} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-neutral-800 flex items-center justify-center hover:bg-neutral-700 transition-colors">
-                            <X className="w-4 h-4 text-white" />
-                          </button>
-                          <h3 className="text-black text-xl font-semibold text-center">Add Guest</h3>
-                          <p className="text-neutral-500 text-sm text-center mt-1">Search for existing or add new guest information to continue with the order</p>
-                        </div>
-
-                        {/* Form Fields */}
-                        <div className="p-4 space-y-3">
-                          <input type="text" placeholder="Guest Name*" value={loyaltyNewGuest.name} onChange={e => setLoyaltyNewGuest({
-                    ...loyaltyNewGuest,
-                    name: e.target.value
-                  })} className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" />
-                          <div className="flex gap-2">
-                            <div className="flex items-center gap-2 bg-white border border-neutral-300 rounded-lg px-3 py-2">
-                              <span className="text-lg">🇺🇸</span>
-                              <span className="text-black text-sm">+1</span>
-                              <ChevronDown className="w-4 h-4 text-neutral-400" />
-                            </div>
-                            <input type="tel" placeholder="Phone Number*" value={loyaltyNewGuest.phone} onChange={e => setLoyaltyNewGuest({
-                      ...loyaltyNewGuest,
-                      phone: e.target.value
-                    })} className="flex-1 px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" />
-                          </div>
-                          <input type="email" placeholder="name@example.com" value={loyaltyNewGuest.email} onChange={e => setLoyaltyNewGuest({
-                    ...loyaltyNewGuest,
-                    email: e.target.value
-                  })} className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" />
-                        </div>
-
-                        {/* ADD Button */}
-                        <div className="p-4 pt-2">
-                          <button onClick={() => {
-                    if (loyaltyNewGuest.name && loyaltyNewGuest.phone) {
-                      const newGuest: GuestType = {
-                        name: loyaltyNewGuest.name,
-                        phone: loyaltyNewGuest.phone,
-                        email: loyaltyNewGuest.email || 'guest@example.com',
-                        avatar: loyaltyNewGuest.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
-                        loyaltyPoints: 1250
-                      };
-                      setLoyaltySelectedGuest(newGuest);
-                      setShowLoyaltyAddGuest(false);
-                      setLoyaltyStep('guest-selected');
-                      setLoyaltyNewGuest({
-                        name: '',
-                        phone: '',
-                        email: ''
-                      });
-                    }
-                  }} disabled={!loyaltyNewGuest.name || !loyaltyNewGuest.phone} className={`w-full py-3 font-medium rounded-lg transition-colors ${loyaltyNewGuest.name && loyaltyNewGuest.phone ? 'bg-neutral-900 text-white hover:bg-neutral-800' : 'bg-neutral-300 text-neutral-500 cursor-not-allowed'}`}>
-                            ADD
-                          </button>
-                        </div>
-                      </div>
-                    </div>}
-                </>) : selectedPaymentMethod === 'manual-cc' && manualCCStep !== 'amount' ? (/* Manual CC Payment Screens */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => {
-                  if (textReceiptStep === 'phone-input') {
-                    setTextReceiptStep('receipt');
-                  } else if (emailReceiptStep === 'email-input') {
-                    setEmailReceiptStep('receipt');
-                  } else if (manualCCStep === 'tap-card') {
-                    setManualCCStep('amount');
-                  } else if (manualCCStep === 'processing') {
-                    setManualCCStep('tap-card');
-                  } else if (manualCCStep === 'complete') {
-                    setManualCCStep('amount');
-                  }
-                }} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-lg font-medium">Pay by Manual CC</span>
-                    </div>
-                  </div>
-
-                  {/* Card Tap Screen */}
-                  {manualCCStep === 'tap-card' && <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      {/* Contactless Icon */}
-                      <div className="w-24 h-24 rounded-full bg-neutral-800 border border-neutral-600 flex items-center justify-center mb-8">
-                        <svg className="w-12 h-12 text-neutral-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M6 18c0-6 6-6 6-12" />
-                          <path d="M10 18c0-4.5 4-4.5 4-9" />
-                          <path d="M14 18c0-3 2-3 2-6" />
-                        </svg>
-                      </div>
-                      
-                      <p className="text-neutral-400 text-sm mb-2">Please tap credit card on reader</p>
-                      <p className="text-white text-2xl font-bold mb-8">Total Amount  £{paymentAmount}</p>
-                      
-                      <button onClick={() => {
-                setManualCCStep('processing');
-                // Simulate processing delay
-                setTimeout(() => {
-                  const paid = parseFloat(paymentAmount) || 0;
-                  setPaidAmount(paid);
-                  setManualCCStep('complete');
-                }, 2000);
-              }} className="w-full max-w-xs py-3 bg-neutral-800 text-white font-medium rounded-lg hover:bg-neutral-700 transition-colors">
-                        SIMULATE CARD TAP
-                      </button>
-                    </div>}
-
-                  {/* Processing Screen */}
-                  {manualCCStep === 'processing' && <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      {/* Contactless Icon */}
-                      <div className="w-24 h-24 rounded-full bg-neutral-800 border border-neutral-600 flex items-center justify-center mb-8">
-                        <svg className="w-12 h-12 text-neutral-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                          <path d="M6 18c0-6 6-6 6-12" />
-                          <path d="M10 18c0-4.5 4-4.5 4-9" />
-                          <path d="M14 18c0-3 2-3 2-6" />
-                        </svg>
-                      </div>
-                      
-                      <p className="text-neutral-400 text-sm mb-2">Please tap credit card on reader</p>
-                      <p className="text-white text-2xl font-bold mb-8">Total Amount  £{paymentAmount}</p>
-                      
-                      <button disabled className="w-full max-w-xs py-3 bg-neutral-800 text-white font-medium rounded-lg cursor-not-allowed flex items-center justify-center">
-                        <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
-                        PROCESSING...
-                      </button>
-                    </div>}
-
-                  {/* Complete/Receipt Screen */}
-                  {manualCCStep === 'complete' && <>
-                      {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                          {/* Success Icon */}
-                          <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                            <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                          </div>
-                          
-                          <p className="text-center mb-2">
-                            <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
-                            <span className="text-neutral-400 text-sm"> has been successfully processed</span>
-                          </p>
-                          
-                          <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
-                          
-                          {/* Receipt Options */}
-                          <div className="flex gap-4 mb-6">
-                            <button onClick={() => {
-                    // Print action
-                    setPaymentProcessed(true);
-                    setShowPaymentDialog(false);
-                    setManualCCStep('amount');
-                  }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                              <Printer className="w-6 h-6 text-neutral-300" />
-                              <span className="text-neutral-300 text-xs">Print</span>
-                            </button>
-                            <button onClick={() => {
-                    setTextReceiptPhone('');
-                    setTextReceiptNoMarketing(false);
-                    setTextReceiptStep('phone-input');
-                  }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                              <MessageSquare className="w-6 h-6 text-neutral-300" />
-                              <span className="text-neutral-300 text-xs">Text</span>
-                            </button>
-                            <button onClick={() => {
-                    setEmailReceiptEmail('');
-                    setEmailReceiptNoMarketing(false);
-                    setEmailReceiptStep('email-input');
-                  }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                              <Mail className="w-6 h-6 text-neutral-300" />
-                              <span className="text-neutral-300 text-xs">Email</span>
-                            </button>
-                          </div>
-                          
-                          <button onClick={() => {
-                  setPaymentProcessed(true);
-                  setShowPaymentDialog(false);
-                  setManualCCStep('amount');
-                }} className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-                            NO RECEIPT
-                          </button>
-                        </div> : textReceiptStep === 'phone-input' ? (/* Text Receipt Phone Input Screen for Manual CC */
-              <div className="flex flex-col h-[500px]">
-                          {/* Title */}
-                          <div className="px-4 pt-4 pb-2 text-center">
-                            <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
-                          </div>
-
-                          {/* Phone Input */}
-                          <div className="px-4 mb-2">
-                            <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                              <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
-                                <span className="text-white text-xs font-medium">US +1</span>
-                                <ChevronDown className="w-3 h-3 text-neutral-400" />
-                              </div>
-                              <input type="text" placeholder="(000) 000-0000" value={textReceiptPhone} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
-                            </div>
-                          </div>
-
-                          {/* Marketing Checkbox */}
-                          <div className="px-4 mb-2">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <div onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${textReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
-                                {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
-                              </div>
-                              <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
-                            </label>
-                          </div>
-
-                          {/* Privacy Text */}
-                          <div className="px-4 mb-2 text-center">
-                            <p className="text-neutral-500 text-[10px] leading-relaxed">
-                              Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
-                            </p>
-                          </div>
-
-                          {/* Send Button */}
-                          <div className="px-4 mb-2">
-                            <button onClick={() => {
-                    setTextReceiptStep('receipt');
-                    setPaymentProcessed(true);
-                    setShowPaymentDialog(false);
-                    setManualCCStep('amount');
-                  }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                              SEND
-                            </button>
-                          </div>
-
-                          {/* Number Keypad */}
-                          <div className="flex-1 flex flex-col justify-end px-4 pb-4">
-                            <div className="grid grid-cols-3 gap-2">
-                              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => <button key={key} onClick={() => {
-                      if (key === 'delete') {
-                        const digits = textReceiptPhone.replace(/\D/g, '');
-                        const newDigits = digits.slice(0, -1);
-                        // Format phone number
-                        if (newDigits.length === 0) {
-                          setTextReceiptPhone('');
-                        } else if (newDigits.length <= 3) {
-                          setTextReceiptPhone(`(${newDigits}`);
-                        } else if (newDigits.length <= 6) {
-                          setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
-                        } else {
-                          setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
-                        }
-                      } else if (key !== '') {
-                        const digits = textReceiptPhone.replace(/\D/g, '');
-                        if (digits.length < 10) {
-                          const newDigits = digits + key;
-                          // Format phone number
-                          if (newDigits.length <= 3) {
-                            setTextReceiptPhone(`(${newDigits}`);
-                          } else if (newDigits.length <= 6) {
-                            setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
-                          } else {
-                            setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
-                          }
-                        }
-                      }
-                    }} className={`h-12 rounded-lg text-lg font-medium transition-colors ${key === '' ? 'invisible' : key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}>
-                                  {key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}
-                                </button>)}
-                            </div>
-                          </div>
-                        </div>) : emailReceiptStep === 'email-input' ? (/* Email Receipt Input Screen for Manual CC */
-              <div className="flex flex-col h-[500px]">
-                          {/* Title */}
-                          <div className="px-4 pt-4 pb-2 text-center">
-                            <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
-                          </div>
-
-                          {/* Email Input */}
-                          <div className="px-4 mb-2">
-                            <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                              <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600">
-                                <Mail className="w-4 h-4 text-neutral-400" />
-                              </div>
-                              <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
-                            </div>
-                          </div>
-
-                          {/* Marketing Checkbox */}
-                          <div className="px-4 mb-2">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <div onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${emailReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
-                                {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
-                              </div>
-                              <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
-                            </label>
-                          </div>
-
-                          {/* Privacy Text */}
-                          <div className="px-4 mb-2 text-center">
-                            <p className="text-neutral-500 text-[10px] leading-relaxed">
-                              Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
-                            </p>
-                          </div>
-
-                          {/* Send Button */}
-                          <div className="px-4 mb-4">
-                            <button onClick={() => {
-                    setEmailReceiptStep('receipt');
-                    setPaymentProcessed(true);
-                    setShowPaymentDialog(false);
-                    setManualCCStep('amount');
-                  }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                              SEND
-                            </button>
-                          </div>
-
-                          {/* Email Keyboard */}
-                          <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
-                            {/* Number Row */}
-                            <div className="flex flex-1">
-                              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                            </div>
-                            {/* Row 1 */}
-                            <div className="flex flex-1">
-                              {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                            </div>
-                            {/* Row 2 */}
-                            <div className="flex flex-1 px-2">
-                              {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                            </div>
-                            {/* Row 3 */}
-                            <div className="flex flex-1">
-                              <div className="w-10"></div>
-                              {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                <Delete className="w-5 h-5 text-neutral-400" />
-                              </button>
-                            </div>
-                            {/* Row 4 - Special chars */}
-                            <div className="flex flex-1 gap-1 px-1">
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">@</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">.</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">_</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">-</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-sm font-medium">.com</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-sm font-medium">.net</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-xs font-medium">@gmail</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>) : null}
-                    </>}
-                </>) : selectedPaymentMethod === 'external-cc' && externalCCStep === 'complete' ? (/* External CC Complete/Receipt Screen */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => {
-                  if (textReceiptStep === 'phone-input') {
-                    setTextReceiptStep('receipt');
-                  } else if (emailReceiptStep === 'email-input') {
-                    setEmailReceiptStep('receipt');
-                  } else {
-                    setExternalCCStep('amount');
-                  }
-                }} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-lg font-medium">External CC</span>
-                    </div>
-                  </div>
-
-                  {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      {/* Success Icon */}
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
-                      
-                      <p className="text-center mb-2">
-                        <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
-                        <span className="text-neutral-400 text-sm"> has been successfully processed</span>
-                      </p>
-                      
-                      <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
-                      
-                      {/* Receipt Options */}
-                      <div className="flex gap-4 mb-6">
-                        <button onClick={() => {
-                  setPaymentProcessed(true);
-                  setShowPaymentDialog(false);
-                  setExternalCCStep('amount');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <Printer className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Print</span>
-                        </button>
-                        <button onClick={() => {
-                  setTextReceiptPhone('');
-                  setTextReceiptNoMarketing(false);
-                  setTextReceiptStep('phone-input');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <MessageSquare className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Text</span>
-                        </button>
-                        <button onClick={() => {
-                  setEmailReceiptEmail('');
-                  setEmailReceiptNoMarketing(false);
-                  setEmailReceiptStep('email-input');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <Mail className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Email</span>
-                        </button>
-                      </div>
-                      
-                      <button onClick={() => {
-                setPaymentProcessed(true);
-                setShowPaymentDialog(false);
-                setExternalCCStep('amount');
-              }} className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-                        NO RECEIPT
-                      </button>
-                    </div> : textReceiptStep === 'phone-input' ? (/* Text Receipt Phone Input Screen for External CC */
-            <div className="flex flex-col h-[500px]">
-                      {/* Title */}
-                      <div className="px-4 pt-4 pb-2 text-center">
-                        <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
-                      </div>
-
-                      {/* Phone Input */}
-                      <div className="px-4 mb-2">
-                        <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                          <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
-                            <span className="text-white text-xs font-medium">US +1</span>
-                            <ChevronDown className="w-3 h-3 text-neutral-400" />
-                          </div>
-                          <input type="text" placeholder="(000) 000-0000" value={textReceiptPhone} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
-                        </div>
-                      </div>
-
-                      {/* Marketing Checkbox */}
-                      <div className="px-4 mb-2">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <div onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${textReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
-                            {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
-                          </div>
-                          <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
-                        </label>
-                      </div>
-
-                      {/* Privacy Text */}
-                      <div className="px-4 mb-2 text-center">
-                        <p className="text-neutral-500 text-[10px] leading-relaxed">
-                          Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
-                        </p>
-                      </div>
-
-                      {/* Send Button */}
-                      <div className="px-4 mb-2">
-                        <button onClick={() => {
-                  setTextReceiptStep('receipt');
-                  setPaymentProcessed(true);
-                  setShowPaymentDialog(false);
-                  setExternalCCStep('amount');
-                }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                          SEND
-                        </button>
-                      </div>
-
-                      {/* Number Keypad */}
-                      <div className="flex-1 flex flex-col justify-end px-4 pb-4">
-                        <div className="grid grid-cols-3 gap-2">
-                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => <button key={key} onClick={() => {
-                    if (key === 'delete') {
-                      const digits = textReceiptPhone.replace(/\D/g, '');
-                      const newDigits = digits.slice(0, -1);
-                      if (newDigits.length === 0) {
-                        setTextReceiptPhone('');
-                      } else if (newDigits.length <= 3) {
-                        setTextReceiptPhone(`(${newDigits}`);
-                      } else if (newDigits.length <= 6) {
-                        setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
-                      } else {
-                        setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
-                      }
-                    } else if (key !== '') {
-                      const digits = textReceiptPhone.replace(/\D/g, '');
-                      if (digits.length < 10) {
-                        const newDigits = digits + key;
-                        if (newDigits.length <= 3) {
-                          setTextReceiptPhone(`(${newDigits}`);
-                        } else if (newDigits.length <= 6) {
-                          setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
-                        } else {
-                          setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
-                        }
-                      }
-                    }
-                  }} className={`h-12 rounded-lg text-lg font-medium transition-colors ${key === '' ? 'invisible' : key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}>
-                              {key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}
-                            </button>)}
-                        </div>
-                      </div>
-                    </div>) : emailReceiptStep === 'email-input' ? (/* Email Receipt Input Screen for External CC */
-            <div className="flex flex-col h-[500px]">
-                      {/* Title */}
-                      <div className="px-4 pt-4 pb-2 text-center">
-                        <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
-                      </div>
-
-                      {/* Email Input */}
-                      <div className="px-4 mb-2">
-                        <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                          <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600">
-                            <Mail className="w-4 h-4 text-neutral-400" />
-                          </div>
-                          <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
-                        </div>
-                      </div>
-
-                      {/* Marketing Checkbox */}
-                      <div className="px-4 mb-2">
-                        <label className="flex items-center gap-2 cursor-pointer">
-                          <div onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${emailReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
-                            {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
-                          </div>
-                          <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
-                        </label>
-                      </div>
-
-                      {/* Privacy Text */}
-                      <div className="px-4 mb-2 text-center">
-                        <p className="text-neutral-500 text-[10px] leading-relaxed">
-                          Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
-                        </p>
-                      </div>
-
-                      {/* Send Button */}
-                      <div className="px-4 mb-4">
-                        <button onClick={() => {
-                  setEmailReceiptStep('receipt');
-                  setPaymentProcessed(true);
-                  setShowPaymentDialog(false);
-                  setExternalCCStep('amount');
-                }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                          SEND
-                        </button>
-                      </div>
-
-                      {/* Email Keyboard */}
-                      <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
-                        {/* Number Row */}
-                        <div className="flex flex-1">
-                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                              <span className="text-white text-lg font-medium">{key}</span>
-                            </button>)}
-                        </div>
-                        {/* Row 1 */}
-                        <div className="flex flex-1">
-                          {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                              <span className="text-white text-lg font-medium">{key}</span>
-                            </button>)}
-                        </div>
-                        {/* Row 2 */}
-                        <div className="flex flex-1 px-2">
-                          {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                              <span className="text-white text-lg font-medium">{key}</span>
-                            </button>)}
-                        </div>
-                        {/* Row 3 */}
-                        <div className="flex flex-1">
-                          <div className="w-10"></div>
-                          {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                              <span className="text-white text-lg font-medium">{key}</span>
-                            </button>)}
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                            <Delete className="w-5 h-5 text-neutral-400" />
-                          </button>
-                        </div>
-                        {/* Row 4 - Special chars */}
-                        <div className="flex flex-1 gap-1 px-1">
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-lg font-medium">@</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-lg font-medium">.</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-lg font-medium">_</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-lg font-medium">-</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-sm font-medium">.com</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-sm font-medium">.net</span>
-                          </button>
-                          <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                            <span className="text-white text-xs font-medium">@gmail</span>
-                          </button>
-                        </div>
-                      </div>
-                    </div>) : null}
-                </>) : selectedPaymentMethod === 'manual-card' && manualCardStep !== 'amount' ? (/* Manual Card Payment Screens */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => {
-                  if (textReceiptStep === 'phone-input') {
-                    setTextReceiptStep('receipt');
-                  } else if (emailReceiptStep === 'email-input') {
-                    setEmailReceiptStep('receipt');
-                  } else if (manualCardStep === 'card-details') {
-                    setManualCardStep('amount');
-                  } else if (manualCardStep === 'complete') {
-                    setManualCardStep('amount');
-                  }
-                }} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-lg font-medium">Pay by Manual Card</span>
-                    </div>
-                  </div>
-
-                  {/* Card Details Screen */}
-                  {manualCardStep === 'card-details' && <div className="flex-1 flex flex-col px-6 py-4">
-                      {/* Amount Display */}
-                      <div className="bg-neutral-800 rounded-xl p-4 mb-6">
-                        <p className="text-center text-green-500 text-3xl font-bold">£{paymentAmount}</p>
-                      </div>
-
-                      {/* Card Number */}
-                      <div className="mb-4">
-                        <label className="text-white text-sm mb-2 block">Card Number</label>
-                        <input type="text" placeholder="1234 5678 9101 1121" value={manualCardDetails.cardNumber} onChange={e => {
-                  const value = e.target.value.replace(/\D/g, '').slice(0, 16);
-                  const formatted = value.replace(/(.{4})/g, '$1 ').trim();
-                  setManualCardDetails({
-                    ...manualCardDetails,
-                    cardNumber: formatted
-                  });
-                }} className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" />
-                      </div>
-
-                      {/* Card Holder Name */}
-                      <div className="mb-4">
-                        <label className="text-white text-sm mb-2 block">Card Holder Name</label>
-                        <input type="text" placeholder="John Smith" value={manualCardDetails.cardHolder} onChange={e => setManualCardDetails({
-                  ...manualCardDetails,
-                  cardHolder: e.target.value
-                })} className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" />
-                      </div>
-
-                      {/* Expiry and CVV */}
-                      <div className="flex gap-4 mb-6">
-                        <div className="flex-1">
-                          <label className="text-white text-sm mb-2 block">Expiry Date</label>
-                          <input type="text" placeholder="MM/YY" value={manualCardDetails.expiry} onChange={e => {
-                    let value = e.target.value.replace(/\D/g, '').slice(0, 4);
-                    if (value.length > 2) {
-                      value = value.slice(0, 2) + '/' + value.slice(2);
-                    }
-                    setManualCardDetails({
-                      ...manualCardDetails,
-                      expiry: value
-                    });
-                  }} className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" />
-                        </div>
-                        <div className="flex-1">
-                          <label className="text-white text-sm mb-2 block">CVV</label>
-                          <input type="text" placeholder="123" value={manualCardDetails.cvv} onChange={e => {
-                    const value = e.target.value.replace(/\D/g, '').slice(0, 4);
-                    setManualCardDetails({
-                      ...manualCardDetails,
-                      cvv: value
-                    });
-                  }} className="w-full px-4 py-3 bg-white border border-neutral-300 rounded-lg text-black placeholder-neutral-400 focus:outline-none focus:border-neutral-500" />
-                        </div>
-                      </div>
-
-                      {/* Spacer */}
-                      <div className="flex-1" />
-
-                      {/* Charge Button */}
-                      <button onClick={() => {
-                const paid = parseFloat(paymentAmount) || 0;
-                setPaidAmount(paid);
-                setManualCardStep('complete');
-              }} className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors">
-                        CHARGE £{paymentAmount}
-                      </button>
-                    </div>}
-
-                  {/* Complete/Receipt Screen */}
-                  {manualCardStep === 'complete' && <>
-                      {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                          {/* Success Icon */}
-                          <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                            <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                          </div>
-                          
-                          <p className="text-center mb-2">
-                            <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
-                            <span className="text-neutral-400 text-sm"> has been successfully processed</span>
-                          </p>
-                          
-                          <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
-                          
-                          {/* Receipt Options */}
-                          <div className="flex gap-4 mb-6">
-                            <button onClick={() => {
-                    setPaymentProcessed(true);
-                    setShowPaymentDialog(false);
-                    setManualCardStep('amount');
-                  }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                              <Printer className="w-6 h-6 text-neutral-300" />
-                              <span className="text-neutral-300 text-xs">Print</span>
-                            </button>
-                            <button onClick={() => {
-                    setTextReceiptPhone('');
-                    setTextReceiptNoMarketing(false);
-                    setTextReceiptStep('phone-input');
-                  }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                              <MessageSquare className="w-6 h-6 text-neutral-300" />
-                              <span className="text-neutral-300 text-xs">Text</span>
-                            </button>
-                            <button onClick={() => {
-                    setEmailReceiptEmail('');
-                    setEmailReceiptNoMarketing(false);
-                    setEmailReceiptStep('email-input');
-                  }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                              <Mail className="w-6 h-6 text-neutral-300" />
-                              <span className="text-neutral-300 text-xs">Email</span>
-                            </button>
-                          </div>
-                          
-                          <button onClick={() => {
-                  setPaymentProcessed(true);
-                  setShowPaymentDialog(false);
-                  setManualCardStep('amount');
-                }} className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-                            NO RECEIPT
-                          </button>
-                        </div> : textReceiptStep === 'phone-input' ? (/* Text Receipt Phone Input Screen for Manual Card */
-              <div className="flex flex-col h-[500px]">
-                          {/* Title */}
-                          <div className="px-4 pt-4 pb-2 text-center">
-                            <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
-                          </div>
-
-                          {/* Phone Input */}
-                          <div className="px-4 mb-2">
-                            <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                              <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
-                                <span className="text-white text-xs font-medium">US +1</span>
-                                <ChevronDown className="w-3 h-3 text-neutral-400" />
-                              </div>
-                              <input type="text" placeholder="(000) 000-0000" value={textReceiptPhone} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
-                            </div>
-                          </div>
-
-                          {/* Marketing Checkbox */}
-                          <div className="px-4 mb-2">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <div onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${textReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
-                                {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
-                              </div>
-                              <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
-                            </label>
-                          </div>
-
-                          {/* Privacy Text */}
-                          <div className="px-4 mb-2 text-center">
-                            <p className="text-neutral-500 text-[10px] leading-relaxed">
-                              Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
-                            </p>
-                          </div>
-
-                          {/* Send Button */}
-                          <div className="px-4 mb-2">
-                            <button onClick={() => {
-                    setTextReceiptStep('receipt');
-                    setPaymentProcessed(true);
-                    setShowPaymentDialog(false);
-                    setManualCardStep('amount');
-                  }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                              SEND
-                            </button>
-                          </div>
-
-                          {/* Number Keypad */}
-                          <div className="flex-1 flex flex-col justify-end px-4 pb-4">
-                            <div className="grid grid-cols-3 gap-2">
-                              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => <button key={key} onClick={() => {
-                      if (key === 'delete') {
-                        const digits = textReceiptPhone.replace(/\D/g, '');
-                        const newDigits = digits.slice(0, -1);
-                        if (newDigits.length === 0) {
-                          setTextReceiptPhone('');
-                        } else if (newDigits.length <= 3) {
-                          setTextReceiptPhone(`(${newDigits}`);
-                        } else if (newDigits.length <= 6) {
-                          setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
-                        } else {
-                          setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
-                        }
-                      } else if (key !== '') {
-                        const digits = textReceiptPhone.replace(/\D/g, '');
-                        if (digits.length < 10) {
-                          const newDigits = digits + key;
-                          if (newDigits.length <= 3) {
-                            setTextReceiptPhone(`(${newDigits}`);
-                          } else if (newDigits.length <= 6) {
-                            setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
-                          } else {
-                            setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
-                          }
-                        }
-                      }
-                    }} className={`h-12 rounded-lg text-lg font-medium transition-colors ${key === '' ? 'invisible' : key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}>
-                                  {key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}
-                                </button>)}
-                            </div>
-                          </div>
-                        </div>) : emailReceiptStep === 'email-input' ? (/* Email Receipt Input Screen for Manual Card */
-              <div className="flex flex-col h-[500px]">
-                          {/* Title */}
-                          <div className="px-4 pt-4 pb-2 text-center">
-                            <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
-                          </div>
-
-                          {/* Email Input */}
-                          <div className="px-4 mb-2">
-                            <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                              <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600">
-                                <Mail className="w-4 h-4 text-neutral-400" />
-                              </div>
-                              <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
-                            </div>
-                          </div>
-
-                          {/* Marketing Checkbox */}
-                          <div className="px-4 mb-2">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <div onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${emailReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
-                                {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
-                              </div>
-                              <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
-                            </label>
-                          </div>
-
-                          {/* Privacy Text */}
-                          <div className="px-4 mb-2 text-center">
-                            <p className="text-neutral-500 text-[10px] leading-relaxed">
-                              Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
-                            </p>
-                          </div>
-
-                          {/* Send Button */}
-                          <div className="px-4 mb-4">
-                            <button onClick={() => {
-                    setEmailReceiptStep('receipt');
-                    setPaymentProcessed(true);
-                    setShowPaymentDialog(false);
-                    setManualCardStep('amount');
-                  }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                              SEND
-                            </button>
-                          </div>
-
-                          {/* Email Keyboard */}
-                          <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
-                            {/* Number Row */}
-                            <div className="flex flex-1">
-                              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                            </div>
-                            {/* Row 1 */}
-                            <div className="flex flex-1">
-                              {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                            </div>
-                            {/* Row 2 */}
-                            <div className="flex flex-1 px-2">
-                              {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                            </div>
-                            {/* Row 3 */}
-                            <div className="flex flex-1">
-                              <div className="w-10"></div>
-                              {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                <Delete className="w-5 h-5 text-neutral-400" />
-                              </button>
-                            </div>
-                            {/* Row 4 - Special chars */}
-                            <div className="flex flex-1 gap-1 px-1">
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">@</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">.</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">_</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">-</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-sm font-medium">.com</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-sm font-medium">.net</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-xs font-medium">@gmail</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>) : null}
-                    </>}
-                </>) : selectedPaymentMethod === 'doordash' && doordashStep !== 'amount' ? (/* DoorDash Payment Screens */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => {
-                  if (textReceiptStep === 'phone-input') {
-                    setTextReceiptStep('receipt');
-                  } else if (emailReceiptStep === 'email-input') {
-                    setEmailReceiptStep('receipt');
-                  } else if (doordashStep === 'reference') {
-                    setDoordashStep('amount');
-                  } else if (doordashStep === 'complete') {
-                    setDoordashStep('amount');
-                  }
-                }} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-lg font-medium">Pay by DoorDash</span>
-                    </div>
-                  </div>
-
-                  {/* Reference Number Entry Screen */}
-                  {doordashStep === 'reference' && <div className="flex-1 flex flex-col">
-                      {/* DoorDash Logo */}
-                      <div className="flex justify-center py-6">
-                        <div className="w-16 h-16 rounded-full bg-red-500 flex items-center justify-center">
-                          <Truck className="w-8 h-8 text-white" />
-                        </div>
-                      </div>
-
-                      {/* Reference Number Label */}
-                      <div className="px-4 mb-1">
-                        <span className="text-muted-foreground text-xs">Reference number</span>
-                      </div>
-
-                      {/* Reference Number Input */}
-                      <div className="px-4 mb-3">
-                        <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
-                          <span className="text-foreground text-base font-medium">
-                            {doordashReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Keypad */}
-                      <div className="flex-1 px-4">
-                        <div className="grid grid-cols-3 gap-2">
-                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map(key => <button key={key} onClick={() => {
-                    if (key === 'C') {
-                      setDoordashReference('');
-                    } else {
-                      setDoordashReference(doordashReference + key);
-                    }
-                  }} className={`h-12 rounded-xl text-lg font-medium transition-colors ${key === 'C' ? 'bg-neutral-800 border border-neutral-700 text-destructive hover:bg-neutral-700' : 'bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600'}`}>
-                              {key}
-                            </button>)}
-                        </div>
-                      </div>
-
-                      {/* Continue Button */}
-                      <div className="p-4">
-                        <button onClick={() => {
-                  const paid = parseFloat(paymentAmount) || 0;
-                  setPaidAmount(paid);
-                  setDoordashStep('complete');
-                }} disabled={!doordashReference} className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${doordashReference ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'}`}>
-                          CONTINUE
-                        </button>
-                      </div>
-                    </div>}
-
-                  {/* Complete/Receipt Screen */}
-                  {doordashStep === 'complete' && <>
-                      {textReceiptStep === 'receipt' && emailReceiptStep === 'receipt' ? <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                          {/* Success Icon */}
-                          <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                            <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                          </div>
-                          
-                          <p className="text-center mb-2">
-                            <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
-                            <span className="text-neutral-400 text-sm"> has been successfully processed</span>
-                          </p>
-                          
-                          <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
-                          
-                          {/* Receipt Options */}
-                          <div className="flex gap-4 mb-6">
-                            <button onClick={() => {
-                    setPaymentProcessed(true);
-                    setShowPaymentDialog(false);
-                    setDoordashStep('amount');
-                  }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                              <Printer className="w-6 h-6 text-neutral-300" />
-                              <span className="text-neutral-300 text-xs">Print</span>
-                            </button>
-                            <button onClick={() => {
-                    setTextReceiptPhone('');
-                    setTextReceiptNoMarketing(false);
-                    setTextReceiptStep('phone-input');
-                  }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                              <MessageSquare className="w-6 h-6 text-neutral-300" />
-                              <span className="text-neutral-300 text-xs">Text</span>
-                            </button>
-                            <button onClick={() => {
-                    setEmailReceiptEmail('');
-                    setEmailReceiptNoMarketing(false);
-                    setEmailReceiptStep('email-input');
-                  }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                              <Mail className="w-6 h-6 text-neutral-300" />
-                              <span className="text-neutral-300 text-xs">Email</span>
-                            </button>
-                          </div>
-                          
-                          <button onClick={() => {
-                  setPaymentProcessed(true);
-                  setShowPaymentDialog(false);
-                  setDoordashStep('amount');
-                }} className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-                            NO RECEIPT
-                          </button>
-                        </div> : textReceiptStep === 'phone-input' ? (/* Text Receipt Phone Input Screen for DoorDash */
-              <div className="flex flex-col h-[500px]">
-                          {/* Title */}
-                          <div className="px-4 pt-4 pb-2 text-center">
-                            <h2 className="text-white text-base font-semibold">Where should we text your receipt?</h2>
-                          </div>
-
-                          {/* Phone Input */}
-                          <div className="px-4 mb-2">
-                            <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                              <div className="flex items-center gap-1 px-2 py-2 border-r border-neutral-600">
-                                <span className="text-white text-xs font-medium">US +1</span>
-                                <ChevronDown className="w-3 h-3 text-neutral-400" />
-                              </div>
-                              <input type="text" placeholder="(000) 000-0000" value={textReceiptPhone} readOnly className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
-                            </div>
-                          </div>
-
-                          {/* Marketing Checkbox */}
-                          <div className="px-4 mb-2">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <div onClick={() => setTextReceiptNoMarketing(!textReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${textReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
-                                {textReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
-                              </div>
-                              <span className="text-neutral-300 text-xs">Do not use my phone number for marketing</span>
-                            </label>
-                          </div>
-
-                          {/* Privacy Text */}
-                          <div className="px-4 mb-2 text-center">
-                            <p className="text-neutral-500 text-[10px] leading-relaxed">
-                              Your phone number will be used only to send SMS receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
-                            </p>
-                          </div>
-
-                          {/* Send Button */}
-                          <div className="px-4 mb-2">
-                            <button onClick={() => {
-                    setTextReceiptStep('receipt');
-                    setPaymentProcessed(true);
-                    setShowPaymentDialog(false);
-                    setDoordashStep('amount');
-                  }} disabled={textReceiptPhone.replace(/\D/g, '').length < 10} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                              SEND
-                            </button>
-                          </div>
-
-                          {/* Number Keypad */}
-                          <div className="flex-1 flex flex-col justify-end px-4 pb-4">
-                            <div className="grid grid-cols-3 gap-2">
-                              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '', '0', 'delete'].map(key => <button key={key} onClick={() => {
-                      if (key === 'delete') {
-                        const digits = textReceiptPhone.replace(/\D/g, '');
-                        const newDigits = digits.slice(0, -1);
-                        if (newDigits.length === 0) {
-                          setTextReceiptPhone('');
-                        } else if (newDigits.length <= 3) {
-                          setTextReceiptPhone(`(${newDigits}`);
-                        } else if (newDigits.length <= 6) {
-                          setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
-                        } else {
-                          setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
-                        }
-                      } else if (key !== '') {
-                        const digits = textReceiptPhone.replace(/\D/g, '');
-                        if (digits.length < 10) {
-                          const newDigits = digits + key;
-                          if (newDigits.length <= 3) {
-                            setTextReceiptPhone(`(${newDigits}`);
-                          } else if (newDigits.length <= 6) {
-                            setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3)}`);
-                          } else {
-                            setTextReceiptPhone(`(${newDigits.slice(0, 3)}) ${newDigits.slice(3, 6)}-${newDigits.slice(6, 10)}`);
-                          }
-                        }
-                      }
-                    }} className={`h-12 rounded-lg text-lg font-medium transition-colors ${key === '' ? 'invisible' : key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800 text-white hover:bg-neutral-700'}`}>
-                                  {key === 'delete' ? <Delete className="w-5 h-5 mx-auto" /> : key}
-                                </button>)}
-                            </div>
-                          </div>
-                        </div>) : emailReceiptStep === 'email-input' ? (/* Email Receipt Input Screen for DoorDash */
-              <div className="flex flex-col h-[500px]">
-                          {/* Title */}
-                          <div className="px-4 pt-4 pb-2 text-center">
-                            <h2 className="text-white text-base font-semibold">Where should we email your receipt?</h2>
-                          </div>
-
-                          {/* Email Input */}
-                          <div className="px-4 mb-2">
-                            <div className="flex items-center bg-neutral-700 rounded-lg overflow-hidden">
-                              <div className="flex items-center gap-1 px-3 py-2 border-r border-neutral-600">
-                                <Mail className="w-4 h-4 text-neutral-400" />
-                              </div>
-                              <input type="email" placeholder="email@example.com" value={emailReceiptEmail} onChange={e => setEmailReceiptEmail(e.target.value)} className="flex-1 bg-transparent text-white px-2 py-2 text-sm placeholder:text-neutral-500 outline-none" />
-                            </div>
-                          </div>
-
-                          {/* Marketing Checkbox */}
-                          <div className="px-4 mb-2">
-                            <label className="flex items-center gap-2 cursor-pointer">
-                              <div onClick={() => setEmailReceiptNoMarketing(!emailReceiptNoMarketing)} className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${emailReceiptNoMarketing ? 'bg-white border-white' : 'border-neutral-500 bg-transparent'}`}>
-                                {emailReceiptNoMarketing && <Check className="w-2.5 h-2.5 text-black" />}
-                              </div>
-                              <span className="text-neutral-300 text-xs">Do not use my email for marketing</span>
-                            </label>
-                          </div>
-
-                          {/* Privacy Text */}
-                          <div className="px-4 mb-2 text-center">
-                            <p className="text-neutral-500 text-[10px] leading-relaxed">
-                              Your email will be used only to send receipts. <span className="text-purple-400">Terms</span> and <span className="text-purple-400">Privacy Policy</span> apply.
-                            </p>
-                          </div>
-
-                          {/* Send Button */}
-                          <div className="px-4 mb-4">
-                            <button onClick={() => {
-                    setEmailReceiptStep('receipt');
-                    setPaymentProcessed(true);
-                    setShowPaymentDialog(false);
-                    setDoordashStep('amount');
-                  }} disabled={!emailReceiptEmail.includes('@') || !emailReceiptEmail.includes('.')} className="w-full py-2.5 bg-neutral-600 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-500 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm">
-                              SEND
-                            </button>
-                          </div>
-
-                          {/* Email Keyboard */}
-                          <div className="bg-neutral-800 flex-1 rounded-t-xl overflow-hidden flex flex-col">
-                            {/* Number Row */}
-                            <div className="flex flex-1">
-                              {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                            </div>
-                            {/* Row 1 */}
-                            <div className="flex flex-1">
-                              {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                            </div>
-                            {/* Row 2 */}
-                            <div className="flex flex-1 px-2">
-                              {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                            </div>
-                            {/* Row 3 */}
-                            <div className="flex flex-1">
-                              <div className="w-10"></div>
-                              {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map(key => <button key={key} onClick={() => setEmailReceiptEmail(emailReceiptEmail + key)} className="flex-1 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                  <span className="text-white text-lg font-medium">{key}</span>
-                                </button>)}
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail.slice(0, -1))} className="w-10 flex items-center justify-center hover:bg-neutral-700 transition-colors active:bg-neutral-600">
-                                <Delete className="w-5 h-5 text-neutral-400" />
-                              </button>
-                            </div>
-                            {/* Row 4 - Special chars */}
-                            <div className="flex flex-1 gap-1 px-1">
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">@</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">.</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '_')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">_</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '-')} className="px-3 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-lg font-medium">-</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-sm font-medium">.com</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '.net')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-sm font-medium">.net</span>
-                              </button>
-                              <button onClick={() => setEmailReceiptEmail(emailReceiptEmail + '@gmail.com')} className="flex-1 flex items-center justify-center bg-neutral-700 rounded hover:bg-neutral-600 transition-colors active:bg-neutral-500">
-                                <span className="text-white text-xs font-medium">@gmail</span>
-                              </button>
-                            </div>
-                          </div>
-                        </div>) : null}
-                    </>}
-                </>) : selectedPaymentMethod === 'blizzful' && blizzfulStep !== 'amount' ? (/* Blizzful Payment Screens */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => {
-                  if (textReceiptStep === 'phone-input') {
-                    setTextReceiptStep('receipt');
-                  } else if (emailReceiptStep === 'email-input') {
-                    setEmailReceiptStep('receipt');
-                  } else if (blizzfulStep === 'reference') {
-                    setBlizzfulStep('amount');
-                  } else if (blizzfulStep === 'complete') {
-                    setBlizzfulStep('amount');
-                  }
-                }} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-lg font-medium">Pay by Blizzful</span>
-                    </div>
-                  </div>
-
-                  {/* Reference Number Entry Screen */}
-                  {blizzfulStep === 'reference' && <div className="flex-1 flex flex-col">
-                      {/* Blizzful Logo */}
-                      <div className="flex justify-center py-6">
-                        <div className="w-16 h-16 rounded-full bg-blue-500 flex items-center justify-center">
-                          <Utensils className="w-8 h-8 text-white" />
-                        </div>
-                      </div>
-
-                      {/* Reference Number Label */}
-                      <div className="px-4 mb-1">
-                        <span className="text-muted-foreground text-xs">Reference number</span>
-                      </div>
-
-                      {/* Reference Number Input */}
-                      <div className="px-4 mb-3">
-                        <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
-                          <span className="text-foreground text-base font-medium">
-                            {blizzfulReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Keypad */}
-                      <div className="flex-1 px-4">
-                        <div className="grid grid-cols-3 gap-2">
-                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map(key => <button key={key} onClick={() => {
-                    if (key === 'C') {
-                      setBlizzfulReference('');
-                    } else {
-                      setBlizzfulReference(blizzfulReference + key);
-                    }
-                  }} className={`h-12 rounded-xl text-lg font-medium transition-colors ${key === 'C' ? 'bg-neutral-800 border border-neutral-700 text-destructive hover:bg-neutral-700' : 'bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600'}`}>
-                              {key}
-                            </button>)}
-                        </div>
-                      </div>
-
-                      {/* Continue Button */}
-                      <div className="p-4">
-                        <button onClick={() => {
-                  const paid = parseFloat(paymentAmount) || 0;
-                  setPaidAmount(paid);
-                  setBlizzfulStep('complete');
-                }} disabled={!blizzfulReference} className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${blizzfulReference ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'}`}>
-                          CONTINUE
-                        </button>
-                      </div>
-                    </div>}
-
-                  {/* Complete/Receipt Screen */}
-                  {blizzfulStep === 'complete' && <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      {/* Success Icon */}
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
-                      
-                      <p className="text-center mb-2">
-                        <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
-                        <span className="text-neutral-400 text-sm"> has been successfully processed</span>
-                      </p>
-                      
-                      <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
-                      
-                      {/* Receipt Options */}
-                      <div className="flex gap-4 mb-6">
-                        <button onClick={() => {
-                  setPaymentProcessed(true);
-                  setShowPaymentDialog(false);
-                  setBlizzfulStep('amount');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <Printer className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Print</span>
-                        </button>
-                        <button onClick={() => {
-                  setTextReceiptPhone('');
-                  setTextReceiptNoMarketing(false);
-                  setTextReceiptStep('phone-input');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <MessageSquare className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Text</span>
-                        </button>
-                        <button onClick={() => {
-                  setEmailReceiptEmail('');
-                  setEmailReceiptNoMarketing(false);
-                  setEmailReceiptStep('email-input');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <Mail className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Email</span>
-                        </button>
-                      </div>
-                      
-                      <button onClick={() => {
-                setPaymentProcessed(true);
-                setShowPaymentDialog(false);
-                setBlizzfulStep('amount');
-              }} className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-                        NO RECEIPT
-                      </button>
-                    </div>}
-                </>) : selectedPaymentMethod === 'ubereats' && ubereatsStep !== 'amount' ? (/* UberEats Payment Screens */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => {
-                  if (textReceiptStep === 'phone-input') {
-                    setTextReceiptStep('receipt');
-                  } else if (emailReceiptStep === 'email-input') {
-                    setEmailReceiptStep('receipt');
-                  } else if (ubereatsStep === 'reference') {
-                    setUbereatsStep('amount');
-                  } else if (ubereatsStep === 'complete') {
-                    setUbereatsStep('amount');
-                  }
-                }} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-lg font-medium">Pay by UberEats</span>
-                    </div>
-                  </div>
-
-                  {/* Reference Number Entry Screen */}
-                  {ubereatsStep === 'reference' && <div className="flex-1 flex flex-col">
-                      {/* UberEats Logo */}
-                      <div className="flex justify-center py-6">
-                        <div className="w-16 h-16 rounded-full bg-green-500 flex items-center justify-center">
-                          <ShoppingBag className="w-8 h-8 text-white" />
-                        </div>
-                      </div>
-
-                      {/* Reference Number Label */}
-                      <div className="px-4 mb-1">
-                        <span className="text-muted-foreground text-xs">Reference number</span>
-                      </div>
-
-                      {/* Reference Number Input */}
-                      <div className="px-4 mb-3">
-                        <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
-                          <span className="text-foreground text-base font-medium">
-                            {ubereatsReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Keypad */}
-                      <div className="flex-1 px-4">
-                        <div className="grid grid-cols-3 gap-2">
-                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map(key => <button key={key} onClick={() => {
-                    if (key === 'C') {
-                      setUbereatsReference('');
-                    } else {
-                      setUbereatsReference(ubereatsReference + key);
-                    }
-                  }} className={`h-12 rounded-xl text-lg font-medium transition-colors ${key === 'C' ? 'bg-neutral-800 border border-neutral-700 text-destructive hover:bg-neutral-700' : 'bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600'}`}>
-                              {key}
-                            </button>)}
-                        </div>
-                      </div>
-
-                      {/* Continue Button */}
-                      <div className="p-4">
-                        <button onClick={() => {
-                  const paid = parseFloat(paymentAmount) || 0;
-                  setPaidAmount(paid);
-                  setUbereatsStep('complete');
-                }} disabled={!ubereatsReference} className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${ubereatsReference ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'}`}>
-                          CONTINUE
-                        </button>
-                      </div>
-                    </div>}
-
-                  {/* Complete/Receipt Screen */}
-                  {ubereatsStep === 'complete' && <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      {/* Success Icon */}
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
-                      
-                      <p className="text-center mb-2">
-                        <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
-                        <span className="text-neutral-400 text-sm"> has been successfully processed</span>
-                      </p>
-                      
-                      <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
-                      
-                      {/* Receipt Options */}
-                      <div className="flex gap-4 mb-6">
-                        <button onClick={() => {
-                  setPaymentProcessed(true);
-                  setShowPaymentDialog(false);
-                  setUbereatsStep('amount');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <Printer className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Print</span>
-                        </button>
-                        <button onClick={() => {
-                  setTextReceiptPhone('');
-                  setTextReceiptNoMarketing(false);
-                  setTextReceiptStep('phone-input');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <MessageSquare className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Text</span>
-                        </button>
-                        <button onClick={() => {
-                  setEmailReceiptEmail('');
-                  setEmailReceiptNoMarketing(false);
-                  setEmailReceiptStep('email-input');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <Mail className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Email</span>
-                        </button>
-                      </div>
-                      
-                      <button onClick={() => {
-                setPaymentProcessed(true);
-                setShowPaymentDialog(false);
-                setUbereatsStep('amount');
-              }} className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-                        NO RECEIPT
-                      </button>
-                    </div>}
-                </>) : selectedPaymentMethod === 'grubhub' && grubhubStep !== 'amount' ? (/* Grubhub Payment Screens */
-          <>
-                  {/* Header with Back Button */}
-                  <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                    <div className="flex items-center gap-3">
-                      <button onClick={() => {
-                  if (textReceiptStep === 'phone-input') {
-                    setTextReceiptStep('receipt');
-                  } else if (emailReceiptStep === 'email-input') {
-                    setEmailReceiptStep('receipt');
-                  } else if (grubhubStep === 'reference') {
-                    setGrubhubStep('amount');
-                  } else if (grubhubStep === 'complete') {
-                    setGrubhubStep('amount');
-                  }
-                }} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                        <ArrowLeft className="w-5 h-5 text-neutral-300" />
-                      </button>
-                      <span className="text-white text-lg font-medium">Pay by Grubhub</span>
-                    </div>
-                  </div>
-
-                  {/* Reference Number Entry Screen */}
-                  {grubhubStep === 'reference' && <div className="flex-1 flex flex-col">
-                      {/* Grubhub Logo */}
-                      <div className="flex justify-center py-6">
-                        <div className="w-16 h-16 rounded-full bg-orange-500 flex items-center justify-center">
-                          <UtensilsCrossed className="w-8 h-8 text-white" />
-                        </div>
-                      </div>
-
-                      {/* Reference Number Label */}
-                      <div className="px-4 mb-1">
-                        <span className="text-muted-foreground text-xs">Reference number</span>
-                      </div>
-
-                      {/* Reference Number Input */}
-                      <div className="px-4 mb-3">
-                        <div className="bg-neutral-800 rounded-lg px-3 py-2 border border-neutral-700">
-                          <span className="text-foreground text-base font-medium">
-                            {grubhubReference.replace(/(.{4})/g, '$1 ').trim() || 'Enter reference number'}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Keypad */}
-                      <div className="flex-1 px-4">
-                        <div className="grid grid-cols-3 gap-2">
-                          {['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '00', 'C'].map(key => <button key={key} onClick={() => {
-                    if (key === 'C') {
-                      setGrubhubReference('');
-                    } else {
-                      setGrubhubReference(grubhubReference + key);
-                    }
-                  }} className={`h-12 rounded-xl text-lg font-medium transition-colors ${key === 'C' ? 'bg-neutral-800 border border-neutral-700 text-destructive hover:bg-neutral-700' : 'bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600'}`}>
-                              {key}
-                            </button>)}
-                        </div>
-                      </div>
-
-                      {/* Continue Button */}
-                      <div className="p-4">
-                        <button onClick={() => {
-                  const paid = parseFloat(paymentAmount) || 0;
-                  setPaidAmount(paid);
-                  setGrubhubStep('complete');
-                }} disabled={!grubhubReference} className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${grubhubReference ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'}`}>
-                          CONTINUE
-                        </button>
-                      </div>
-                    </div>}
-
-                  {/* Complete/Receipt Screen */}
-                  {grubhubStep === 'complete' && <div className="flex-1 flex flex-col items-center justify-center px-6 py-6">
-                      {/* Success Icon */}
-                      <div className="w-20 h-20 rounded-full bg-green-500/20 flex items-center justify-center mb-4">
-                        <img src={tickSuccessIcon} alt="Success" className="w-12 h-12" />
-                      </div>
-                      
-                      <p className="text-center mb-2">
-                        <span className="text-green-500 font-bold text-lg">£{paidAmount.toFixed(2)}</span>
-                        <span className="text-neutral-400 text-sm"> has been successfully processed</span>
-                      </p>
-                      
-                      <h3 className="text-white text-xl font-semibold mb-6">Receipt</h3>
-                      
-                      {/* Receipt Options */}
-                      <div className="flex gap-4 mb-6">
-                        <button onClick={() => {
-                  setPaymentProcessed(true);
-                  setShowPaymentDialog(false);
-                  setGrubhubStep('amount');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <Printer className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Print</span>
-                        </button>
-                        <button onClick={() => {
-                  setTextReceiptPhone('');
-                  setTextReceiptNoMarketing(false);
-                  setTextReceiptStep('phone-input');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <MessageSquare className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Text</span>
-                        </button>
-                        <button onClick={() => {
-                  setEmailReceiptEmail('');
-                  setEmailReceiptNoMarketing(false);
-                  setEmailReceiptStep('email-input');
-                }} className="flex flex-col items-center gap-2 p-4 bg-neutral-800 rounded-xl hover:bg-neutral-700 transition-colors min-w-[80px]">
-                          <Mail className="w-6 h-6 text-neutral-300" />
-                          <span className="text-neutral-300 text-xs">Email</span>
-                        </button>
-                      </div>
-                      
-                      <button onClick={() => {
-                setPaymentProcessed(true);
-                setShowPaymentDialog(false);
-                setGrubhubStep('amount');
-              }} className="w-full max-w-xs py-3 border border-neutral-600 text-neutral-300 font-medium rounded-lg hover:bg-neutral-800 transition-colors">
-                        NO RECEIPT
-                      </button>
-                    </div>}
-                </>) : (/* Payment Entry View */
-          <>
-                  {/* Header */}
-                  <div className="flex items-center justify-center py-6 border-b border-neutral-700">
-                    <span className="text-white text-lg font-medium">Total Due</span>
-                    <span className="text-red-500 text-lg font-bold ml-2">${finalTotal.toFixed(2)}</span>
-                  </div>
-
-                  {/* Payment Methods */}
-                  <div className="p-6 border-b border-neutral-700">
-                    <div className="flex justify-center gap-4">
-                      {/* Visible payment methods */}
-                      {visiblePaymentMethods.map(method => {
-                  const IconComponent = method.icon;
-                  const isSelected = selectedPaymentMethod === method.id;
-                  return <button key={method.id} onClick={() => {
-                    setSelectedPaymentMethod(method.id);
-                    setShowOtherPayments(false);
-                    // Auto-show keypad for Card, Gift Card, and Pay by Link payment
-                    if (method.id === 'card' || method.id === 'gift-card' || method.id === 'pay-link') {
-                      setShowKeypad(true);
-                    }
-                    // Reset gift card step when selecting gift card
-                    if (method.id === 'gift-card') {
-                      setGiftCardStep('amount');
-                      setGiftCardNumber('');
-                    }
-                    // Reset pay by link step when selecting pay by link
-                    if (method.id === 'pay-link') {
-                      setPayByLinkStep('amount');
-                      setSelectedGuest(null);
-                      setGuestSearchQuery('');
-                    }
-                  }} className="flex flex-col items-center gap-1.5">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${isSelected ? 'bg-white border-white' : 'bg-neutral-800 border-neutral-600 hover:border-neutral-500'}`}>
-                              <IconComponent className={`w-5 h-5 ${isSelected ? 'text-neutral-900' : 'text-neutral-300'}`} />
-                            </div>
-                            <span className={`text-[11px] ${isSelected ? 'text-white font-medium' : 'text-neutral-400'}`}>
-                              {method.name}
-                            </span>
-                          </button>;
-                })}
-                      
-                      {/* "Other" button - always at the end */}
-                      <div className="relative">
-                        <button onClick={() => setShowOtherPayments(!showOtherPayments)} className="flex flex-col items-center gap-1.5">
-                          <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-colors border ${showOtherPayments ? 'bg-white border-white' : 'bg-neutral-800 border-neutral-600 hover:border-neutral-500'}`}>
-                            <ArrowRightCircle className={`w-5 h-5 ${showOtherPayments ? 'text-neutral-900' : 'text-neutral-300'}`} />
-                          </div>
-                          <span className={`text-[11px] ${showOtherPayments ? 'text-white font-medium' : 'text-neutral-400'}`}>
-                            Other
-                          </span>
-                        </button>
-                        
-                        {/* Other Payment Methods Dropdown */}
-                        {showOtherPayments && <>
-                            {/* Backdrop to close dropdown when clicking outside */}
-                            <div className="fixed inset-0 z-[100]" onClick={() => setShowOtherPayments(false)} />
-                            
-                            {/* Dropdown Panel - right edge aligned with button */}
-                            <div className="absolute top-full right-0 mt-2 z-[101] bg-neutral-800 rounded-lg border border-neutral-600 p-4 shadow-xl min-w-[420px]">
-                              {/* Header */}
-                              <div className="flex items-center justify-between mb-4">
-                                <span className="text-white font-medium">Other Payment Methods</span>
-                                <button onClick={() => setShowOtherPayments(false)} className="w-6 h-6 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                                  <X className="w-4 h-4 text-neutral-400" />
-                                </button>
-                              </div>
-                              
-                              {/* Payment Options Grid - First Row (6 items) */}
-                              <div className="grid grid-cols-6 gap-3 mb-3">
-                                {dropdownPaymentMethods.slice(0, 6).map(otherMethod => {
-                          const OtherIcon = otherMethod.icon;
-                          return <button key={otherMethod.id} onClick={() => handleSelectFromDropdown(otherMethod)} className="flex flex-col items-center gap-1">
-                                      <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
-                                        <OtherIcon className="w-5 h-5 text-neutral-300" />
-                                      </div>
-                                      <span className="text-[10px] text-neutral-400 text-center leading-tight">{otherMethod.name}</span>
-                                    </button>;
-                        })}
-                              </div>
-                              
-                              {/* Second Row (remaining items) - Centered */}
-                              {dropdownPaymentMethods.length > 6 && <div className="flex justify-center gap-3">
-                                  {dropdownPaymentMethods.slice(6).map(otherMethod => {
-                          const OtherIcon = otherMethod.icon;
-                          return <button key={otherMethod.id} onClick={() => handleSelectFromDropdown(otherMethod)} className="flex flex-col items-center gap-1">
-                                        <div className="w-12 h-12 rounded-full bg-neutral-700 border border-neutral-600 hover:border-neutral-500 flex items-center justify-center transition-colors">
-                                          <OtherIcon className="w-5 h-5 text-neutral-300" />
-                                        </div>
-                                        <span className="text-[10px] text-neutral-400 text-center leading-tight">{otherMethod.name}</span>
-                                      </button>;
-                        })}
-                                </div>}
-                            </div>
-                          </>}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Amount Display / Gift Card Number Display */}
-                  <div className="px-6 py-4 border-b border-neutral-700">
-                    {selectedPaymentMethod === 'gift-card' && giftCardStep === 'enter-card' ? (/* Gift Card Number Entry */
-              <div className="flex flex-col items-center">
-                        <span className="text-neutral-400 text-xs mb-2">Gift Card Number</span>
-                        <div className="flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 py-4 w-full">
-                          <span className="text-white text-2xl font-bold tracking-widest text-center">
-                            {giftCardNumber.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim() || 'XXXX XXXX XXXX XXXX'}
-                          </span>
-                        </div>
-                      </div>) : (/* Regular Amount Display */
-              <div className="flex items-center justify-center gap-2 bg-neutral-800 rounded-lg px-4 py-4">
-                        <span className="flex-1 text-green-500 text-2xl font-bold text-center">${paymentAmount}</span>
-                        {/* Hide keypad toggle for Card, Gift Card, Pay by Link, Manual CC, External CC, Manual Card, DoorDash, Blizzful, UberEats, Grubhub, Loyalty - they always show keypad */}
-                        {selectedPaymentMethod !== 'card' && selectedPaymentMethod !== 'gift-card' && selectedPaymentMethod !== 'pay-link' && selectedPaymentMethod !== 'manual-cc' && selectedPaymentMethod !== 'external-cc' && selectedPaymentMethod !== 'manual-card' && selectedPaymentMethod !== 'doordash' && selectedPaymentMethod !== 'blizzful' && selectedPaymentMethod !== 'ubereats' && selectedPaymentMethod !== 'grubhub' && selectedPaymentMethod !== 'loyalty' && <button onClick={() => setShowKeypad(!showKeypad)} className={`w-10 h-10 rounded-lg border flex items-center justify-center transition-colors ${showKeypad ? 'bg-white border-white' : 'bg-neutral-700 border-neutral-600 hover:bg-neutral-600'}`}>
-                            <Grid3X3 className={`w-5 h-5 ${showKeypad ? 'text-neutral-900' : 'text-neutral-300'}`} />
-                          </button>}
-                      </div>)}
-                  </div>
-
-                  {/* Quick Amount Buttons OR Keypad */}
-                  <div className="p-3 space-y-1.5 flex-1">
-                    {showKeypad || selectedPaymentMethod === 'card' || selectedPaymentMethod === 'gift-card' || selectedPaymentMethod === 'pay-link' || selectedPaymentMethod === 'manual-cc' || selectedPaymentMethod === 'external-cc' || selectedPaymentMethod === 'manual-card' || selectedPaymentMethod === 'doordash' || selectedPaymentMethod === 'blizzful' || selectedPaymentMethod === 'ubereats' || selectedPaymentMethod === 'grubhub' || selectedPaymentMethod === 'loyalty' ? (/* Numeric Keypad - Compact */
-              <div className="flex flex-col gap-1.5">
-                        {[['7', '8', '9'], ['4', '5', '6'], ['1', '2', '3']].map((row, rowIndex) => <div key={rowIndex} className="flex gap-1.5">
-                            {row.map(key => <button key={key} onClick={() => {
-                    if (selectedPaymentMethod === 'gift-card' && giftCardStep === 'enter-card') {
-                      handleGiftCardKeypadPress(key);
-                    } else {
-                      handleKeypadPress(key);
-                    }
-                  }} className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors">
-                                {key}
-                              </button>)}
-                          </div>)}
-                        <div className="flex gap-1.5">
-                          {selectedPaymentMethod === 'gift-card' && giftCardStep === 'enter-card' ? (/* Gift Card keypad last row: 0, 00, C */
-                  <>
-                              <button onClick={() => handleGiftCardKeypadPress('0')} className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors">
-                                0
-                              </button>
-                              <button onClick={() => handleGiftCardKeypadPress('00')} className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors">
-                                00
-                              </button>
-                              <button onClick={() => handleGiftCardKeypadPress('C')} className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors">
-                                C
-                              </button>
-                            </>) : (/* Regular keypad last row: ., 0, backspace */
-                  <>
-                              <button onClick={() => handleKeypadPress('.')} className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors">
-                                .
-                              </button>
-                              <button onClick={() => handleKeypadPress('0')} className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors">
-                                0
-                              </button>
-                              <button onClick={() => handleKeypadPress('backspace')} className="flex-1 py-2 rounded-lg text-sm font-medium bg-neutral-800 text-neutral-300 border border-neutral-600 hover:bg-neutral-700 transition-colors flex items-center justify-center">
-                                <Delete className="w-4 h-4" />
-                              </button>
-                            </>)}
-                        </div>
-                      </div>) : (/* Quick Amount Buttons with quantity tracking */
-              <>
-                        <div className="flex gap-4 px-2">
-                          <div className="flex-1 relative py-1">
-                            <button onClick={() => {
-                      setAmountQuantities({});
-                      setPaymentAmount(finalTotal.toFixed(2));
-                    }} className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${paymentAmount === finalTotal.toFixed(2) && Object.keys(amountQuantities).length === 0 ? 'bg-neutral-900 text-white border border-neutral-600' : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'}`}>
-                              ${finalTotal.toFixed(2)}
-                            </button>
-                          </div>
-                          {quickAmounts.slice(0, 3).map(amount => {
-                    const qty = amountQuantities[amount] || 0;
-                    return <div key={amount} className="flex-1 relative py-1">
-                                <button onClick={() => handleAddAmount(amount)} className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${qty > 0 ? 'bg-neutral-900 text-white border border-neutral-600' : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'}`}>
-                                  ${amount}
-                                </button>
-                                {qty > 0 && <>
-                                    <button onClick={e => {
-                          e.stopPropagation();
-                          handleRemoveAmount(amount);
-                        }} className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center leading-none text-xs hover:bg-red-600 transition-colors z-10">
-                                      ×
-                                    </button>
-                                    <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
-                                      x{qty}
-                                    </span>
-                                  </>}
-                              </div>;
-                  })}
-                        </div>
-                        <div className="flex gap-4 px-2">
-                          {quickAmounts.slice(3).map(amount => {
-                    const qty = amountQuantities[amount] || 0;
-                    return <div key={amount} className="flex-1 relative py-1">
-                                <button onClick={() => handleAddAmount(amount)} className={`w-full py-3 rounded-lg text-sm font-medium transition-colors ${qty > 0 ? 'bg-neutral-900 text-white border border-neutral-600' : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'}`}>
-                                  ${amount}
-                                </button>
-                                {qty > 0 && <>
-                                    <button onClick={e => {
-                          e.stopPropagation();
-                          handleRemoveAmount(amount);
-                        }} className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10">
-                                      ×
-                                    </button>
-                                    <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
-                                      x{qty}
-                                    </span>
-                                  </>}
-                              </div>;
-                  })}
-                        </div>
-                      </>)}
-                  </div>
-
-                  {/* Charge Button / Continue Button */}
-                  <div className="p-3 pt-0">
-                    {selectedPaymentMethod === 'gift-card' && giftCardStep === 'enter-card' ? (/* Continue button for gift card entry */
-              <button onClick={() => {
-                const digits = giftCardNumber.replace(/\s/g, '');
-                if (digits.length === 16) {
-                  const paid = parseFloat(paymentAmount) || 0;
-                  setPaidAmount(paid);
-                  setPaymentProcessed(true);
-                }
-              }} disabled={giftCardNumber.replace(/\s/g, '').length !== 16} className={`w-full py-3 font-bold rounded-xl transition-colors text-sm ${giftCardNumber.replace(/\s/g, '').length === 16 ? 'bg-neutral-800 hover:bg-neutral-700 text-white' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'}`}>
-                        Continue
-                      </button>) : (/* Regular CHARGE button */
-              <button onClick={() => {
-                if (selectedPaymentMethod === 'gift-card' && giftCardStep === 'amount') {
-                  setGiftCardStep('enter-card');
-                  return;
-                }
-                if (selectedPaymentMethod === 'pay-link' && payByLinkStep === 'amount') {
-                  setPayByLinkStep('select-guest');
-                  return;
-                }
-                if (selectedPaymentMethod === 'qr-code' && qrCodeStep === 'amount') {
-                  setQrCodeStep('qr-display');
-                  return;
-                }
-                if (selectedPaymentMethod === 'manual-cc' && manualCCStep === 'amount') {
-                  setManualCCStep('tap-card');
-                  return;
-                }
-                if (selectedPaymentMethod === 'external-cc' && externalCCStep === 'amount') {
-                  const paid = parseFloat(paymentAmount) || 0;
-                  setPaidAmount(paid);
-                  setExternalCCStep('complete');
-                  return;
-                }
-                if (selectedPaymentMethod === 'manual-card' && manualCardStep === 'amount') {
-                  setManualCardStep('card-details');
-                  return;
-                }
-                if (selectedPaymentMethod === 'doordash' && doordashStep === 'amount') {
-                  setDoordashStep('reference');
-                  return;
-                }
-                if (selectedPaymentMethod === 'blizzful' && blizzfulStep === 'amount') {
-                  setBlizzfulStep('reference');
-                  return;
-                }
-                if (selectedPaymentMethod === 'ubereats' && ubereatsStep === 'amount') {
-                  setUbereatsStep('reference');
-                  return;
-                }
-                if (selectedPaymentMethod === 'grubhub' && grubhubStep === 'amount') {
-                  setGrubhubStep('reference');
-                  return;
-                }
-                const paid = parseFloat(paymentAmount) || 0;
-                const methodLabel = selectedPaymentMethod === 'qr-code' ? 'Pay by QR' : selectedPaymentMethod === 'pay-link' ? 'Pay By Link' : selectedPaymentMethod === 'gift-card' ? 'Gift Card' : selectedPaymentMethod === 'manual-cc' ? 'Pay By Manual CC' : selectedPaymentMethod === 'external-cc' ? 'External CC' : selectedPaymentMethod === 'manual-card' ? 'Manual Card' : selectedPaymentMethod === 'doordash' ? 'Doordash' : selectedPaymentMethod === 'blizzful' ? 'Blizzful' : selectedPaymentMethod === 'ubereats' ? 'UberEats' : selectedPaymentMethod === 'grubhub' ? 'Grubhub' : selectedPaymentMethod === 'card' ? 'Card' : 'Cash';
-                setPaymentHistory(prev => [...prev, { method: selectedPaymentMethod, amount: paid, methodLabel }]);
-                setPaidAmount(paid);
-                setPaymentProcessed(true);
-              }} className="w-full py-3 bg-neutral-800 hover:bg-neutral-700 text-white font-bold rounded-xl transition-colors text-sm">
-                        CHARGE ${paymentAmount}
-                      </button>)}
-                  </div>
-                </>)}
-            </div>
-
-            {/* Order Details Panel */}
-            <div className="w-[280px] border-l border-neutral-700 flex flex-col rounded-xl" style={{
-          background: "#7575754D",
-          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-        }}>
-              {/* Guest Info Header - Matching Order Panel Style */}
-              <div className="p-3 border-b border-neutral-600" style={{
-            background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
-          }}>
-                {/* Row 1: Name, Phone, Time */}
-                <div className="flex items-center justify-between">
-                  <h3 className="text-white font-semibold text-sm">{selectedOrder?.guest || "John Doe"}</h3>
-                  <div className="flex items-center gap-1.5 text-neutral-300">
-                    <Phone className="w-3 h-3" />
-                    <span className="text-xs">(555) 123-4567</span>
-                  </div>
-                  <div className="flex items-center gap-1.5">
-                    <Zap className="w-3 h-3 text-yellow-400" />
-                    <span className="text-neutral-300 text-xs">{new Date().toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                  })}</span>
-                  </div>
-                </div>
-                
-                {/* Row 3: Table, Guests, Server */}
-                <div className="flex items-center justify-between mt-3">
-                  <span className="text-white text-[10px] font-medium px-2 py-1 rounded" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>TABLE {selectedOrder?.table || "T2"}</span>
-                  <div className="flex items-center gap-2 text-neutral-300">
-                    <Users className="w-3 h-3" />
-                    <span className="text-xs">4</span>
-                    <span className="text-white font-medium text-xs ml-1">10</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 text-neutral-300">
-                    <User className="w-3 h-3" />
-                    <span className="text-xs">MIA JONES</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Check Info with PAID stamp when processed */}
-              <div className="mx-3 mt-3 bg-neutral-800 rounded-lg p-3 relative overflow-hidden">
-                <div className="flex items-center justify-between">
-                  <span className="text-white font-medium text-sm">Check {selectedOrder?.check || "62"} a</span>
-                  <span className="text-white font-bold">${finalTotal.toFixed(2)}</span>
-                </div>
-                {paymentHistory.length > 0 && paymentHistory.reduce((sum, p) => sum + p.amount, 0) >= finalTotal && <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-green-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
-                    PAID
-                  </span>}
-                {paymentHistory.length > 0 && paymentHistory.reduce((sum, p) => sum + p.amount, 0) < finalTotal && <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-yellow-500/30 text-4xl font-bold rotate-[-15deg] pointer-events-none">
-                    PARTIAL
-                  </span>}
-                
-              </div>
-
-              {/* Order Items - Without seat indicators */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-2" style={{
-            scrollbarWidth: 'none',
-            msOverflowStyle: 'none'
-          }}>
-                {orderItems.map(item => <div key={item.id} className="p-2 border border-sidebar-border rounded-lg" style={{
-              background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
-            }}>
-                    <div className="flex items-center gap-2">
-                      <span className="w-5 h-5 rounded bg-neutral-700 border border-neutral-600 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
-                        {item.qty}
-                      </span>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-medium text-foreground">{item.name}</span>
-                          <span className="text-xs font-medium text-foreground ml-2">
-                            ${item.price.toFixed(2)}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>)}
-              </div>
-
-              {/* Payment History - Show all payments */}
-              {paymentHistory.length > 0 && <div className="p-3 border-t border-neutral-700">
-                  <h4 className="text-white text-sm font-medium mb-2">Payment History</h4>
-                  <div className="space-y-2">
-                    {paymentHistory.map((payment, index) => (
-                      <div key={index} className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                          {payment.method === 'qr-code' ? <QrCode className="w-4 h-4 text-neutral-400" /> : payment.method === 'pay-link' ? <Link className="w-4 h-4 text-neutral-400" /> : payment.method === 'gift-card' ? <Gift className="w-4 h-4 text-neutral-400" /> : payment.method === 'card' || payment.method === 'manual-cc' || payment.method === 'external-cc' || payment.method === 'manual-card' ? <CreditCard className="w-4 h-4 text-neutral-400" /> : payment.method === 'doordash' ? <Truck className="w-4 h-4 text-red-500" /> : payment.method === 'blizzful' ? <Utensils className="w-4 h-4 text-blue-500" /> : payment.method === 'ubereats' ? <ShoppingBag className="w-4 h-4 text-green-500" /> : payment.method === 'grubhub' ? <UtensilsCrossed className="w-4 h-4 text-orange-500" /> : <Banknote className="w-4 h-4 text-neutral-400" />}
-                          <span className="text-neutral-300 text-xs">{payment.methodLabel}</span>
-                        </div>
-                        <span className="text-green-500 text-xs font-medium">${payment.amount.toFixed(2)}</span>
-                      </div>
-                    ))}
-                  </div>
-                  {/* Total Paid */}
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-neutral-600">
-                    <span className="text-neutral-400 text-xs">Total Paid</span>
-                    <span className="text-green-500 text-xs font-medium">${paymentHistory.reduce((sum, p) => sum + p.amount, 0).toFixed(2)}</span>
-                  </div>
-                  {/* Remaining Due */}
-                  {paymentHistory.reduce((sum, p) => sum + p.amount, 0) < finalTotal && (
-                    <div className="flex items-center justify-between mt-1">
-                      <span className="text-neutral-400 text-xs">Remaining Due</span>
-                      <span className="text-red-500 text-xs font-medium">${(finalTotal - paymentHistory.reduce((sum, p) => sum + p.amount, 0)).toFixed(2)}</span>
-                    </div>
-                  )}
-                </div>}
-
-              {/* Order Summary - Hide when processed */}
-              {!paymentProcessed && <div className="p-3 border-t border-neutral-700 space-y-1.5">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-neutral-400">Sub Total</span>
-                    <span className="text-white">${subtotal.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-neutral-400">Tax</span>
-                    <span className="text-white">${tax.toFixed(2)}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm font-medium pt-1">
-                    <span className="text-white">Total Due</span>
-                    <span className="text-red-500 font-bold">${finalTotal.toFixed(2)}</span>
-                  </div>
-                </div>}
-            </div>
-          </div>
-        </div>}
-    </>;
+        </div>
+      )}
+    </>
+  );
 };
 
 // Table filter labels (matching /tableorder screen)
 const tableFilterLabels = ["All", "Available", "Ordering", "Ordered", "Reserved", "Seated", "Served", "Paid"];
+
 const Dashboard = () => {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  
+  // Core state
   const [activeFilter, setActiveFilter] = useState("All");
   const [activeTableFilter, setActiveTableFilter] = useState("All");
   const [selectedOrder, setSelectedOrder] = useState<typeof mockOrders[0] | null>(mockOrders[0]);
@@ -4532,233 +805,46 @@ const Dashboard = () => {
   const [selectedFloor, setSelectedFloor] = useState("first");
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+  
+  // Payment Dialog state (using shared component)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('cash');
-  const [paymentAmount, setPaymentAmount] = useState('');
-  const [showKeypad, setShowKeypad] = useState(false);
-  const [amountQuantities, setAmountQuantities] = useState<Record<number, number>>({});
-  const [paymentProcessed, setPaymentProcessed] = useState(false);
-  const [paidAmount, setPaidAmount] = useState(0);
-  const [showOtherPayments, setShowOtherPayments] = useState(false);
-  const [giftCardStep, setGiftCardStep] = useState<'amount' | 'enter-card' | 'processing'>('amount');
-  const [giftCardNumber, setGiftCardNumber] = useState('');
-  // Pay by Link state
-  const [payByLinkStep, setPayByLinkStep] = useState<'amount' | 'select-guest' | 'add-guest' | 'guest-confirmed' | 'pending' | 'expired' | 'complete'>('amount');
-  const [selectedGuest, setSelectedGuest] = useState<GuestType | null>(null);
-  const [guestSearchQuery, setGuestSearchQuery] = useState('');
-  const [hoveredGuestIndex, setHoveredGuestIndex] = useState<number | null>(null);
-  const [sendLinkMethod, setSendLinkMethod] = useState<'text' | 'email'>('text');
-  const [newGuestForLink, setNewGuestForLink] = useState({
-    name: '',
-    phone: '',
-    email: ''
-  });
-  // QR Code state
-  const [qrCodeStep, setQrCodeStep] = useState<'amount' | 'qr-display' | 'pending' | 'complete'>('amount');
-  const [qrPhoneNumber, setQrPhoneNumber] = useState('');
-  const [showQrPhoneInput, setShowQrPhoneInput] = useState(false);
-  // Loyalty state
-  const [loyaltyStep, setLoyaltyStep] = useState<'guest-list' | 'guest-selected' | 'points-input' | 'otp' | 'complete'>('guest-list');
-  const [loyaltySelectedGuest, setLoyaltySelectedGuest] = useState<GuestType | null>(null);
-  const [loyaltyPointsToRedeem, setLoyaltyPointsToRedeem] = useState('');
-  const [showLoyaltyAddGuest, setShowLoyaltyAddGuest] = useState(false);
-  const [loyaltyNewGuest, setLoyaltyNewGuest] = useState({
-    name: '',
-    phone: '',
-    email: ''
-  });
-  const [loyaltyOtp, setLoyaltyOtp] = useState<string[]>(['', '', '', '']);
-  const [loyaltySearchQuery, setLoyaltySearchQuery] = useState('');
-  const [showLoyaltyKeypad, setShowLoyaltyKeypad] = useState(false);
-  // Manual CC state
-  const [manualCCStep, setManualCCStep] = useState<'amount' | 'tap-card' | 'processing' | 'complete'>('amount');
-  // External CC state
-  const [externalCCStep, setExternalCCStep] = useState<'amount' | 'complete'>('amount');
-  // Manual Card state
-  const [manualCardStep, setManualCardStep] = useState<'amount' | 'card-details' | 'complete'>('amount');
-  const [manualCardDetails, setManualCardDetails] = useState({
-    cardNumber: '',
-    cardHolder: '',
-    expiry: '',
-    cvv: ''
-  });
-  // DoorDash state
-  const [doordashStep, setDoordashStep] = useState<'amount' | 'reference' | 'complete'>('amount');
-  const [doordashReference, setDoordashReference] = useState('');
-  // Blizzful state
-  const [blizzfulStep, setBlizzfulStep] = useState<'amount' | 'reference' | 'complete'>('amount');
-  const [blizzfulReference, setBlizzfulReference] = useState('');
-  // UberEats state
-  const [ubereatsStep, setUbereatsStep] = useState<'amount' | 'reference' | 'complete'>('amount');
-  const [ubereatsReference, setUbereatsReference] = useState('');
-  // Grubhub state
-  const [grubhubStep, setGrubhubStep] = useState<'amount' | 'reference' | 'complete'>('amount');
-  const [grubhubReference, setGrubhubReference] = useState('');
-  // Multi-payment history state
-  const [paymentHistory, setPaymentHistory] = useState<Array<{ method: string; amount: number; methodLabel: string }>>([]);
-  // Dynamic payment methods state
-  const [visiblePaymentMethods, setVisiblePaymentMethods] = useState<PaymentMethodType[]>(initialPaymentMethods);
-  const [dropdownPaymentMethods, setDropdownPaymentMethods] = useState<PaymentMethodType[]>(initialOtherPaymentMethods);
-  // Text receipt state
-  const [textReceiptStep, setTextReceiptStep] = useState<'receipt' | 'phone-input'>('receipt');
-  const [textReceiptPhone, setTextReceiptPhone] = useState('');
-  const [textReceiptNoMarketing, setTextReceiptNoMarketing] = useState(false);
-  // Email receipt state
-  const [emailReceiptStep, setEmailReceiptStep] = useState<'receipt' | 'email-input'>('receipt');
-  const [emailReceiptEmail, setEmailReceiptEmail] = useState('');
-  const [emailReceiptNoMarketing, setEmailReceiptNoMarketing] = useState(false);
-  // Table card selection state (matching TableOrder page behavior)
+  
+  // Table card selection state
   const [selectedTableCard, setSelectedTableCard] = useState<string | null>(null);
   const [guestDropdownTableCard, setGuestDropdownTableCard] = useState<string | null>(null);
+  
   // Receipt dialog state
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
+  const [receiptOrder, setReceiptOrder] = useState<DashboardOrder | null>(null);
+  
   // Tip and Refund state for paid orders
   const [showTipDialog, setShowTipDialog] = useState(false);
   const [showRefundMode, setShowRefundMode] = useState(false);
   const [showRefundDialog, setShowRefundDialog] = useState(false);
-  const [receiptOrder, setReceiptOrder] = useState<DashboardOrder | null>(null);
-
-  // Handle selecting a payment method from the dropdown - swap with last visible method
-  const handleSelectFromDropdown = (selectedMethod: PaymentMethodType) => {
-    // Get the last visible method
-    const lastVisibleMethod = visiblePaymentMethods[visiblePaymentMethods.length - 1];
-
-    // Remove selected method from dropdown
-    const newDropdownMethods = dropdownPaymentMethods.filter(m => m.id !== selectedMethod.id);
-
-    // Add the last visible method to the beginning of dropdown
-    newDropdownMethods.unshift(lastVisibleMethod);
-
-    // Remove last visible method and add selected method at first position
-    const newVisibleMethods = [selectedMethod, ...visiblePaymentMethods.slice(0, -1)];
-
-    // Update states
-    setVisiblePaymentMethods(newVisibleMethods);
-    setDropdownPaymentMethods(newDropdownMethods);
-    setSelectedPaymentMethod(selectedMethod.id);
-    setShowOtherPayments(false);
-    // Reset manual CC step when selecting it
-    if (selectedMethod.id === 'manual-cc') {
-      setManualCCStep('amount');
-    }
-    // Reset external CC step when selecting it
-    if (selectedMethod.id === 'external-cc') {
-      setExternalCCStep('amount');
-    }
-    // Reset manual card step when selecting it
-    if (selectedMethod.id === 'manual-card') {
-      setManualCardStep('amount');
-      setManualCardDetails({
-        cardNumber: '',
-        cardHolder: '',
-        expiry: '',
-        cvv: ''
-      });
-    }
-    // Reset DoorDash step when selecting it
-    if (selectedMethod.id === 'doordash') {
-      setDoordashStep('amount');
-      setDoordashReference('');
-    }
-  };
-
-  // Calculate payment amount from quantities
-  useEffect(() => {
-    const total = Object.entries(amountQuantities).reduce((sum, [amount, qty]) => {
-      return sum + parseFloat(amount) * qty;
-    }, 0);
-    if (total > 0) {
-      setPaymentAmount(total.toFixed(2));
-    }
-  }, [amountQuantities]);
-
-  // Handle adding an amount (increases quantity)
-  const handleAddAmount = (amount: number) => {
-    setAmountQuantities(prev => ({
-      ...prev,
-      [amount]: (prev[amount] || 0) + 1
-    }));
-  };
-
-  // Handle removing an amount (decreases quantity)
-  const handleRemoveAmount = (amount: number) => {
-    setAmountQuantities(prev => {
-      const current = prev[amount] || 0;
-      if (current <= 1) {
-        const {
-          [amount]: _,
-          ...rest
-        } = prev;
-        return rest;
-      }
-      return {
-        ...prev,
-        [amount]: current - 1
-      };
-    });
-  };
-
-  // Keypad handler functions
-  const handleKeypadPress = (key: string) => {
-    // Reset quantities when using keypad
-    setAmountQuantities({});
-    if (key === 'backspace') {
-      setPaymentAmount(prev => prev.slice(0, -1) || '0.00');
-    } else if (key === '.') {
-      if (!paymentAmount.includes('.')) {
-        setPaymentAmount(prev => prev + '.');
-      }
-    } else {
-      setPaymentAmount(prev => {
-        if (prev === '0.00' || prev === '') return key;
-        return prev + key;
-      });
-    }
-  };
-
-  // Gift card keypad handler
-  const handleGiftCardKeypadPress = (key: string) => {
-    if (key === 'C') {
-      setGiftCardNumber('');
-    } else if (giftCardNumber.replace(/\s/g, '').length < 16) {
-      setGiftCardNumber(prev => prev.replace(/\s/g, '') + key);
-    }
-  };
-  const isMobile = useIsMobile();
 
   // Reset refund mode when selected order changes
   useEffect(() => {
     setShowRefundMode(false);
   }, [selectedOrder?.id]);
+
+  // Order item handlers
   const handleToggleNoTax = (itemId: number) => {
-    setOrderItems(prev => prev.map(item => item.id === itemId ? {
-      ...item,
-      noTax: !item.noTax
-    } : item));
+    setOrderItems(prev => prev.map(item => item.id === itemId ? { ...item, noTax: !item.noTax } : item));
   };
 
-  // Update order type for an item
   const handleOrderTypeChange = (itemId: number, orderType: string) => {
-    setOrderItems(prev => prev.map(item => item.id === itemId ? {
-      ...item,
-      itemOrderType: orderType
-    } : item));
+    setOrderItems(prev => prev.map(item => item.id === itemId ? { ...item, itemOrderType: orderType } : item));
   };
 
-  // Delete an item from the order
   const handleDeleteItem = (itemId: number) => {
     setOrderItems(prev => prev.filter(item => item.id !== itemId));
   };
 
-  // Toggle fire status for an item
   const handleFireItem = (itemId: number) => {
-    setOrderItems(prev => prev.map(item => item.id === itemId ? {
-      ...item,
-      isFired: !item.isFired
-    } : item));
+    setOrderItems(prev => prev.map(item => item.id === itemId ? { ...item, isFired: !item.isFired } : item));
   };
 
-  // Table card click handler (matching TableOrder page behavior)
+  // Table card click handler
   const handleTableCardClick = (table: typeof mockTables[0]) => {
     if (table.status === "Available") {
       setGuestDropdownTableCard(guestDropdownTableCard === table.id ? null : table.id);
@@ -4773,18 +859,21 @@ const Dashboard = () => {
     setSelectedTableCard(tableId);
     navigate(`/orders?tableId=${tableId}&seats=${seats}&guests=${guestCount}`);
   };
+
   const handleDateFilterChange = (value: string) => {
     setDateFilter(value);
     if (value === "Custom") {
       setIsCustomCalendarOpen(true);
     }
   };
+
   const handleCompareDateChange = (value: string) => {
     setCompareDate(value);
     if (value === "Custom") {
       setIsCompareCustomCalendarOpen(true);
     }
   };
+
   const getDateFilterDisplay = () => {
     if (dateFilter === "Custom" && customDateRange?.from) {
       if (customDateRange.to) {
@@ -4794,6 +883,7 @@ const Dashboard = () => {
     }
     return dateFilter;
   };
+
   const getCompareDateDisplay = () => {
     if (compareDate === "Custom" && compareCustomDateRange?.from) {
       if (compareCustomDateRange.to) {
@@ -4808,8 +898,10 @@ const Dashboard = () => {
   const stats = useMemo(() => {
     return statsData[dateFilter] || statsData["Today"];
   }, [dateFilter]);
+
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
   const total = subtotal;
+
   const toggleSeatFilter = (seat: number | 'all') => {
     setSeatFilter(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
   };
@@ -4841,6 +933,7 @@ const Dashboard = () => {
       count: label === "All" ? mockTables.length : mockTables.filter(table => table.status === label).length
     }));
   }, []);
+
   const handleOrderClick = (order: typeof mockOrders[0]) => {
     setSelectedOrder(order);
     setOrderItems(order.items || []);
@@ -4850,97 +943,156 @@ const Dashboard = () => {
       setIsDrawerOpen(true);
     }
   };
-  return <div className="h-full flex flex-col bg-black text-white overflow-hidden px-3 pt-2 pb-3 gap-3">
+
+  // Prepare order details for PaymentDialog
+  const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
+  const discount = selectedDiscount ? selectedDiscount.fixedAmount || subtotal * ((selectedDiscount.percentage || 0) / 100) : 0;
+  const tax = subtotal * 0.02;
+  const serviceCharge = subtotal * 0.1;
+  const tip = selectedOrder?.tip ? parseFloat(selectedOrder.tip.replace('$', '')) || 0 : 0;
+  const finalTotal = subtotal - discount + tax + serviceCharge + tip;
+
+  const paymentOrderDetails: PaymentDialogOrderDetails = {
+    guest: selectedOrder?.guest || "Guest",
+    phone: selectedOrder?.phone,
+    table: selectedOrder?.table,
+    check: selectedOrder?.check || selectedOrder?.id,
+    partySize: selectedOrder?.seats || 4,
+    orderType: "DINE IN",
+    orderNumber: selectedOrder?.id,
+    serverName: selectedOrder?.server,
+    orderTime: selectedOrder?.arrivedAt,
+    items: orderItems.map(item => ({
+      id: item.id,
+      name: item.name,
+      price: item.price,
+      qty: item.qty,
+      assignedSeats: item.seats,
+      isShared: item.seats.length === (selectedOrder?.seats || 4),
+    })),
+  };
+
+  return (
+    <div className="h-full flex flex-col bg-black text-white overflow-hidden px-3 pt-2 pb-3 gap-3">
       {/* ROW 1: Date Filters (Vertical) + Stats/Insights */}
       <div className="flex gap-3 flex-shrink-0 items-stretch">
         {/* Date Filters - Vertical */}
         <div className="flex flex-col gap-2 p-3 rounded-xl items-center justify-center" style={{
-        background: "#7575754D",
-        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-      }}>
+          background: "#7575754D",
+          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+        }}>
           {/* Main Date Filter */}
-          {dateFilter === "Custom" ? <Popover open={isCustomCalendarOpen} onOpenChange={setIsCustomCalendarOpen}>
+          {dateFilter === "Custom" ? (
+            <Popover open={isCustomCalendarOpen} onOpenChange={setIsCustomCalendarOpen}>
               <PopoverTrigger asChild>
-                <button className="h-7 px-2 border-0 text-xs text-white w-[90px] rounded-md flex items-center justify-between gap-1" style={{
-              background: "#5555554D"
-            }}>
+                <button className="h-7 px-2 border-0 text-xs text-white w-[90px] rounded-md flex items-center justify-between gap-1" style={{ background: "#5555554D" }}>
                   <CalendarIcon className="w-3 h-3" />
                   <span className="truncate">{getDateFilterDisplay()}</span>
                   <X className="w-3 h-3 hover:text-red-400" onClick={e => {
-                e.stopPropagation();
-                setDateFilter("Today");
-                setCustomDateRange(undefined);
-              }} />
+                    e.stopPropagation();
+                    setDateFilter("Today");
+                    setCustomDateRange(undefined);
+                  }} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700" align="start">
-                <Calendar mode="range" selected={customDateRange} onSelect={range => {
-              setCustomDateRange(range);
-              if (range?.to) {
-                setIsCustomCalendarOpen(false);
-              }
-            }} initialFocus className="p-3 pointer-events-auto text-white" />
+                <Calendar 
+                  mode="range" 
+                  selected={customDateRange} 
+                  onSelect={range => {
+                    setCustomDateRange(range);
+                    if (range?.to) {
+                      setIsCustomCalendarOpen(false);
+                    }
+                  }} 
+                  initialFocus 
+                  className="p-3 pointer-events-auto text-white" 
+                />
               </PopoverContent>
-            </Popover> : <Select value={dateFilter} onValueChange={handleDateFilterChange}>
-              <SelectTrigger className="h-7 px-2 border-0 text-xs text-white w-[90px]" style={{
-            background: "#5555554D"
-          }}>
+            </Popover>
+          ) : (
+            <Select value={dateFilter} onValueChange={handleDateFilterChange}>
+              <SelectTrigger className="h-7 px-2 border-0 text-xs text-white w-[90px]" style={{ background: "#5555554D" }}>
                 <SelectValue>{dateFilter}</SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-neutral-800 border-neutral-700">
-                {dateFilters.map(filter => <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
+                {dateFilters.map(filter => (
+                  <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
                     {filter}
-                  </SelectItem>)}
+                  </SelectItem>
+                ))}
               </SelectContent>
-            </Select>}
+            </Select>
+          )}
           <span className="text-white/40 text-xs">vs</span>
           {/* Compare Date Filter */}
-          {compareDate === "Custom" ? <Popover open={isCompareCustomCalendarOpen} onOpenChange={setIsCompareCustomCalendarOpen}>
+          {compareDate === "Custom" ? (
+            <Popover open={isCompareCustomCalendarOpen} onOpenChange={setIsCompareCustomCalendarOpen}>
               <PopoverTrigger asChild>
-                <button className="h-7 px-2 border-0 text-xs text-white w-[90px] rounded-md flex items-center justify-between gap-1" style={{
-              background: "#5555554D"
-            }}>
+                <button className="h-7 px-2 border-0 text-xs text-white w-[90px] rounded-md flex items-center justify-between gap-1" style={{ background: "#5555554D" }}>
                   <CalendarIcon className="w-3 h-3" />
                   <span className="truncate">{getCompareDateDisplay()}</span>
                   <X className="w-3 h-3 hover:text-red-400" onClick={e => {
-                e.stopPropagation();
-                setCompareDate("Yesterday");
-                setCompareCustomDateRange(undefined);
-              }} />
+                    e.stopPropagation();
+                    setCompareDate("Yesterday");
+                    setCompareCustomDateRange(undefined);
+                  }} />
                 </button>
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700" align="start">
-                <Calendar mode="range" selected={compareCustomDateRange} onSelect={range => {
-              setCompareCustomDateRange(range);
-              if (range?.to) {
-                setIsCompareCustomCalendarOpen(false);
-              }
-            }} initialFocus className="p-3 pointer-events-auto text-white" />
+                <Calendar 
+                  mode="range" 
+                  selected={compareCustomDateRange} 
+                  onSelect={range => {
+                    setCompareCustomDateRange(range);
+                    if (range?.to) {
+                      setIsCompareCustomCalendarOpen(false);
+                    }
+                  }} 
+                  initialFocus 
+                  className="p-3 pointer-events-auto text-white" 
+                />
               </PopoverContent>
-            </Popover> : <Select value={compareDate} onValueChange={handleCompareDateChange}>
-              <SelectTrigger className="h-7 px-2 border-0 text-xs text-white w-[90px]" style={{
-            background: "#5555554D"
-          }}>
+            </Popover>
+          ) : (
+            <Select value={compareDate} onValueChange={handleCompareDateChange}>
+              <SelectTrigger className="h-7 px-2 border-0 text-xs text-white w-[90px]" style={{ background: "#5555554D" }}>
                 <SelectValue>{compareDate}</SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-neutral-800 border-neutral-700">
-                {dateFilters.map(filter => <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
+                {dateFilters.map(filter => (
+                  <SelectItem key={filter} value={filter} className="text-white hover:bg-neutral-700">
                     {filter}
-                  </SelectItem>)}
+                  </SelectItem>
+                ))}
               </SelectContent>
-            </Select>}
+            </Select>
+          )}
         </div>
 
         {/* Stats/Insights Row */}
         <div className="flex-1 flex gap-2 overflow-x-auto scrollbar-hide">
-          {stats.map((stat, index) => <div key={index} className="flex-shrink-0 rounded-xl px-4 py-3 min-w-[160px] flex-1" style={{
-          background: "#7575754D",
-          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-        }}>
+          {stats.map((stat, index) => (
+            <div 
+              key={index} 
+              className="flex-shrink-0 rounded-xl px-4 py-3 min-w-[160px] flex-1" 
+              style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}
+            >
               <div className="flex items-center gap-2 text-xs text-white/60 mb-2">
-                {stat.hasCheckbox ? <div className="w-4 h-4 rounded border border-white/40 flex items-center justify-center">
+                {stat.hasCheckbox ? (
+                  <div className="w-4 h-4 rounded border border-white/40 flex items-center justify-center">
                     <Check className="w-3 h-3" />
-                  </div> : stat.icon === "clock" ? <Clock className="w-4 h-4 text-white/60" /> : stat.icon === "Check" ? <Check className="w-4 h-4 text-white/60" /> : <span className="text-sm">{stat.icon}</span>}
+                  </div>
+                ) : stat.icon === "clock" ? (
+                  <Clock className="w-4 h-4 text-white/60" />
+                ) : stat.icon === "Check" ? (
+                  <Check className="w-4 h-4 text-white/60" />
+                ) : (
+                  <span className="text-sm">{stat.icon}</span>
+                )}
                 <span>{stat.label}</span>
               </div>
               <div className="text-xl font-semibold mb-1">{stat.value}</div>
@@ -4949,7 +1101,8 @@ const Dashboard = () => {
                 <span>{stat.change}</span>
                 <span className="text-white/40">from {compareDate.toLowerCase()}</span>
               </div>
-            </div>)}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -4959,86 +1112,82 @@ const Dashboard = () => {
         <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
           {/* Order Filters */}
           <div className="flex gap-1.5 mb-2 overflow-x-auto scrollbar-hide flex-shrink-0">
-            {orderFilters.map(filter => <button key={filter.label} onClick={() => setActiveFilter(filter.label)} className={`flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium transition-all ${activeFilter === filter.label ? "text-black" : "text-white"}`} style={activeFilter === filter.label ? {
-            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-          } : {
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}>
+            {orderFilters.map(filter => (
+              <button 
+                key={filter.label} 
+                onClick={() => setActiveFilter(filter.label)} 
+                className={`flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium transition-all ${activeFilter === filter.label ? "text-black" : "text-white"}`} 
+                style={activeFilter === filter.label ? {
+                  background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+                } : {
+                  background: "#7575754D",
+                  boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+                }}
+              >
                 {filter.label} <span className="font-bold ml-0.5">{filter.count}</span>
-              </button>)}
+              </button>
+            ))}
           </div>
 
           {/* Orders List with Scroll */}
           <ScrollArea className="flex-1 min-h-0">
             <div className="space-y-2 pr-2">
-              {filteredOrders.map(order => <div key={order.id} onClick={() => handleOrderClick(order)} className={`rounded-xl cursor-pointer transition-all overflow-hidden border ${selectedOrder?.id === order.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
-              backgroundColor: "#1B1C20"
-            }}>
-                {/* Mobile Layout */}
-                <div className="flex items-stretch w-full md:hidden p-3">
-                  {/* Order Number - Mobile compact style */}
-                  <div className="flex-shrink-0 px-2 py-2 flex items-center">
-                    <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                      <span className="text-lg font-bold text-white">{order.id}</span>
-                      <span className="text-[9px] text-gray-500">000</span>
+              {filteredOrders.map(order => (
+                <div 
+                  key={order.id} 
+                  onClick={() => handleOrderClick(order)} 
+                  className={`rounded-xl cursor-pointer transition-all overflow-hidden border ${selectedOrder?.id === order.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} 
+                  style={{ backgroundColor: "#1B1C20" }}
+                >
+                  {/* Mobile Layout */}
+                  <div className="flex items-stretch w-full md:hidden p-3">
+                    <div className="flex-shrink-0 px-2 py-2 flex items-center">
+                      <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+                        <span className="text-lg font-bold text-white">{order.id}</span>
+                        <span className="text-[9px] text-gray-500">000</span>
+                      </div>
+                    </div>
+                    <div className="flex-1 min-w-0 py-2 pr-2">
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center justify-between">
+                          <span className="text-white font-medium text-sm">{order.guest} · {formatTableName(order.table)}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
+                            <span className="text-sm font-medium" style={{ color: order.statusColor }}>
+                              {order.status === 'Completed' ? 'PAID' : order.status}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                            <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
+                            <span>Party of {order.seats}, {order.arrivedAt}</span>
+                            <span className="text-gray-500">|</span>
+                            <span>{order.timer}</span>
+                          </div>
+                          <span className="text-white font-semibold text-sm">${calculateOrderTotal(order.items).toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.revenueCenter}</span>
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm" style={{ color: '#B5B6BB' }}>
+                              {order.isPaid ? "Paid" : "Pending Payment"}
+                            </span>
+                            <span className="text-white text-sm">{order.tip}</span>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
 
-                  {/* Guest Info - Mobile compact layout */}
-                  <div className="flex-1 min-w-0 py-2 pr-2">
-                    <div className="flex flex-col gap-1">
-                      {/* Row 1: Name - Table, Server, Status */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-white font-medium text-sm">{order.guest} · {formatTableName(order.table)}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
-                          <span className="text-sm font-medium" style={{ color: order.statusColor }}>
-                            {order.status === 'Completed' ? 'PAID' : order.status}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      {/* Row 2: Party info, Timer, Total */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
-                          <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
-                          <span>Party of {order.seats}, {order.arrivedAt}</span>
-                          <span className="text-gray-500">|</span>
-                          <span>{order.timer}</span>
-                        </div>
-                        <span className="text-white font-semibold text-sm">${calculateOrderTotal(order.items).toFixed(2)}</span>
-                      </div>
-                      
-                      {/* Row 3: Revenue Center | Payment Status | Tip */}
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.revenueCenter}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm" style={{ color: '#B5B6BB' }}>
-                            {order.isPaid ? "Paid" : "Pending Payment"}
-                          </span>
-                          <span className="text-white text-sm">{order.tip}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Tablet/Desktop Layout */}
-                <div className="hidden md:flex items-stretch">
-                    {/* Left Content with padding */}
+                  {/* Tablet/Desktop Layout */}
+                  <div className="hidden md:flex items-stretch">
                     <div className="flex-1 flex items-stretch gap-3 p-3">
-                      {/* Order Number Box */}
-                      <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{
-                    background: '#1A1A1A'
-                  }}>
+                      <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
                         <span className="text-lg font-bold text-white">{order.id}</span>
                         <span className="text-xs text-white/40">000</span>
                       </div>
-
-                      {/* Main Content - 3 rows with 45%/35%/20% ratio */}
                       <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                        {/* Row 1: Name - Table | Server | Status - 45% | 35% | 20% */}
                         <div className="flex items-center text-xs lg:text-sm">
                           <div className="w-[45%] text-left">
                             <span className="text-white font-medium truncate">{order.guest} · {formatTableName(order.table)}</span>
@@ -5052,30 +1201,30 @@ const Dashboard = () => {
                             </span>
                           </div>
                         </div>
-                        
-                        {/* Row 2: Party info + Timer | empty | Total - 45% | 35% | 20% */}
                         <div className="flex items-center text-xs lg:text-sm">
                           <div className="w-[45%] text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
                             <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
                             <span className="truncate">Party of {order.seats}, {order.arrivedAt}</span>
-                            <span className="text-white/40">|</span>
+                            <span className="text-white/40 mx-1">|</span>
                             <span>{order.timer}</span>
                           </div>
-                          <div className="w-[35%]"></div>
-                          <div className="w-[20%] text-right">
+                          <div className="w-[35%] text-left pl-4">
                             <span className="text-white font-semibold">${calculateOrderTotal(order.items).toFixed(2)}</span>
                           </div>
+                          <div className="w-[20%] text-right">
+                            <span className="text-white">{order.tip}</span>
+                          </div>
                         </div>
-                        
-                        {/* Row 3: Revenue Center | Payment Status | Tip - 45% | 35% | 20% */}
                         <div className="flex items-center text-xs lg:text-sm">
                           <div className="w-[45%] text-left">
-                            <span className="text-white/60 truncate">{order.revenueCenter}</span>
+                            <span className="text-white/60">{order.revenueCenter}</span>
                           </div>
                           <div className="w-[35%] text-left pl-4">
-                            {order.isPaid 
-                              ? <MultiPaymentDisplay paymentMethods={order.paymentMethods} paymentType={order.paymentType} />
-                              : <span className="text-white/60 truncate">Pending Payment</span>}
+                            {order.isPaid || order.status === "Completed" ? (
+                              <MultiPaymentDisplay paymentMethods={order.paymentMethods} paymentType={order.paymentType} />
+                            ) : (
+                              <span className="text-white/60">Pending Payment</span>
+                            )}
                           </div>
                           <div className="w-[20%] text-right">
                             <span className="text-white">{order.tip}</span>
@@ -5083,10 +1232,7 @@ const Dashboard = () => {
                         </div>
                       </div>
                     </div>
-
-                    {/* Right Action Buttons - Edge to edge */}
                     {order.isPaid || order.status === "Completed" ? (
-                      /* Receipt and Register buttons for paid orders */
                       <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
                         <button 
                           className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600 rounded-tr-xl"
@@ -5100,16 +1246,12 @@ const Dashboard = () => {
                         </button>
                         <button 
                           className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            // Handle register action
-                          }}
+                          onClick={(e) => { e.stopPropagation(); }}
                         >
                           <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
                         </button>
                       </div>
                     ) : (
-                      /* Merge and Transfer buttons for unpaid orders */
                       <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
                         <button 
                           className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-tr-xl"
@@ -5134,19 +1276,19 @@ const Dashboard = () => {
                       </div>
                     )}
                   </div>
-                </div>)}
+                </div>
+              ))}
             </div>
           </ScrollArea>
 
           {/* Table Status - Below Orders */}
           <div className="flex-shrink-0 mt-2 pt-2 border-t border-white/10">
-            {/* Table Filters */}
             <div className="flex gap-1.5 mb-2 overflow-x-auto scrollbar-hide">
               <Select value={selectedFloor} onValueChange={setSelectedFloor}>
                 <SelectTrigger className="flex-shrink-0 h-auto px-2 py-1 rounded-full text-xs font-medium text-white border-0 w-auto gap-1" style={{
-                background: "#7575754D",
-                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-              }}>
+                  background: "#7575754D",
+                  boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+                }}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-white/10">
@@ -5156,53 +1298,101 @@ const Dashboard = () => {
                   <SelectItem value="rooftop" className="text-white text-xs hover:bg-white/10 focus:bg-white/10 focus:text-white">Rooftop Bar</SelectItem>
                 </SelectContent>
               </Select>
-              {tableFilters.map(filter => <button key={filter.label} onClick={() => setActiveTableFilter(filter.label)} className={`flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium transition-all ${activeTableFilter === filter.label ? "text-black" : "text-white"}`} style={activeTableFilter === filter.label ? {
-              background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-            } : {
-              background: "#7575754D",
-              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-            }}>
+              {tableFilters.map(filter => (
+                <button 
+                  key={filter.label} 
+                  onClick={() => setActiveTableFilter(filter.label)} 
+                  className={`flex-shrink-0 px-2 py-1 rounded-full text-xs font-medium transition-all ${activeTableFilter === filter.label ? "text-black" : "text-white"}`} 
+                  style={activeTableFilter === filter.label ? {
+                    background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+                  } : {
+                    background: "#7575754D",
+                    boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+                  }}
+                >
                   {filter.label} <span className="font-bold ml-0.5">{filter.count}</span>
-                </button>)}
+                </button>
+              ))}
             </div>
-
             <div className="flex gap-2 overflow-x-auto scrollbar-hide pb-1">
               {filteredTables.map((table, index) => {
-              const statusStyle = tableStatusConfig[table.status] || tableStatusConfig["Available"];
-              const isGuestDropdownOpen = guestDropdownTableCard === table.id && table.status === "Available";
-              return <div key={index} onClick={() => handleTableCardClick(table)} className={`flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5 cursor-pointer hover:bg-neutral-800 transition-all bg-neutral-900 border-2 ${selectedTableCard === table.id ? "border-orange-500" : "border-transparent"}`}>
+                const statusStyle = tableStatusConfig[table.status] || tableStatusConfig["Available"];
+                const isGuestDropdownOpen = guestDropdownTableCard === table.id && table.status === "Available";
+                return (
+                  <div 
+                    key={index} 
+                    onClick={() => handleTableCardClick(table)} 
+                    className={`flex-shrink-0 rounded-xl p-2.5 w-[90px] flex flex-col gap-1.5 cursor-pointer hover:bg-neutral-800 transition-all bg-neutral-900 border-2 ${selectedTableCard === table.id ? "border-orange-500" : "border-transparent"}`}
+                  >
                     <div className="flex items-center justify-between">
                       <span className="text-base font-bold">{table.id}</span>
                       <span className="text-[10px] text-white/50">{table.seats}S</span>
                     </div>
-                    
-                    {isGuestDropdownOpen ? <div className="flex gap-1 overflow-x-auto scrollbar-hide">
-                        {Array.from({
-                    length: table.seats
-                  }).map((_, i) => <button key={i} onClick={e => {
-                    e.stopPropagation();
-                    handleGuestSelectCard(table.id, table.seats, i + 1);
-                  }} className="w-5 h-5 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors">
+                    {isGuestDropdownOpen ? (
+                      <div className="flex gap-1 overflow-x-auto scrollbar-hide">
+                        {Array.from({ length: table.seats }).map((_, i) => (
+                          <button 
+                            key={i} 
+                            onClick={e => {
+                              e.stopPropagation();
+                              handleGuestSelectCard(table.id, table.seats, i + 1);
+                            }} 
+                            className="w-5 h-5 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                          >
                             {i + 1}
-                          </button>)}
-                      </div> : <div className="text-[10px] font-medium py-1 rounded-md text-center w-full" style={{
-                  backgroundColor: statusStyle.bgColor,
-                  color: statusStyle.textColor
-                }}>
+                          </button>
+                        ))}
+                      </div>
+                    ) : (
+                      <div 
+                        className="text-[10px] font-medium py-1 rounded-md text-center w-full" 
+                        style={{
+                          backgroundColor: statusStyle.bgColor,
+                          color: statusStyle.textColor
+                        }}
+                      >
                         {table.status}
-                      </div>}
-                  </div>;
-            })}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
 
         {/* Right Column: Order Panel - Full height */}
         <div className="hidden md:flex w-[240px] lg:w-[345px] flex-shrink-0 rounded-xl flex-col" style={{
-        background: "#7575754D",
-        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-      }}>
-          <OrderPanelContent selectedOrder={selectedOrder} orderItems={orderItems} subtotal={subtotal} total={total} phoneIcon={phoneIcon} timeIcon={timeIcon} itemNotesIcon={itemNotesIcon} fireIcon={fireIcon} seatFilter={seatFilter} toggleSeatFilter={toggleSeatFilter} orderNotes={orderNotes} setOrderNotes={setOrderNotes} activeSwipedItemId={activeSwipedItemId} setActiveSwipedItemId={setActiveSwipedItemId} onToggleNoTax={handleToggleNoTax} onOrderTypeChange={handleOrderTypeChange} onDeleteItem={handleDeleteItem} onFireItem={handleFireItem} showDiscountDialog={showDiscountDialog} setShowDiscountDialog={setShowDiscountDialog} selectedDiscountId={selectedDiscountId} setSelectedDiscountId={setSelectedDiscountId} showPaymentDialog={showPaymentDialog} setShowPaymentDialog={setShowPaymentDialog} selectedPaymentMethod={selectedPaymentMethod} setSelectedPaymentMethod={setSelectedPaymentMethod} paymentAmount={paymentAmount} setPaymentAmount={setPaymentAmount} showKeypad={showKeypad} setShowKeypad={setShowKeypad} handleKeypadPress={handleKeypadPress} amountQuantities={amountQuantities} setAmountQuantities={setAmountQuantities} handleAddAmount={handleAddAmount} handleRemoveAmount={handleRemoveAmount} paymentProcessed={paymentProcessed} setPaymentProcessed={setPaymentProcessed} paidAmount={paidAmount} setPaidAmount={setPaidAmount} showOtherPayments={showOtherPayments} setShowOtherPayments={setShowOtherPayments} giftCardStep={giftCardStep} setGiftCardStep={setGiftCardStep} giftCardNumber={giftCardNumber} setGiftCardNumber={setGiftCardNumber} handleGiftCardKeypadPress={handleGiftCardKeypadPress} payByLinkStep={payByLinkStep} setPayByLinkStep={setPayByLinkStep} selectedGuest={selectedGuest} setSelectedGuest={setSelectedGuest} guestSearchQuery={guestSearchQuery} setGuestSearchQuery={setGuestSearchQuery} hoveredGuestIndex={hoveredGuestIndex} setHoveredGuestIndex={setHoveredGuestIndex} sendLinkMethod={sendLinkMethod} setSendLinkMethod={setSendLinkMethod} newGuestForLink={newGuestForLink} setNewGuestForLink={setNewGuestForLink} qrCodeStep={qrCodeStep} setQrCodeStep={setQrCodeStep} qrPhoneNumber={qrPhoneNumber} setQrPhoneNumber={setQrPhoneNumber} showQrPhoneInput={showQrPhoneInput} setShowQrPhoneInput={setShowQrPhoneInput} loyaltyStep={loyaltyStep} setLoyaltyStep={setLoyaltyStep} loyaltySelectedGuest={loyaltySelectedGuest} setLoyaltySelectedGuest={setLoyaltySelectedGuest} loyaltyPointsToRedeem={loyaltyPointsToRedeem} setLoyaltyPointsToRedeem={setLoyaltyPointsToRedeem} showLoyaltyAddGuest={showLoyaltyAddGuest} setShowLoyaltyAddGuest={setShowLoyaltyAddGuest} loyaltyNewGuest={loyaltyNewGuest} setLoyaltyNewGuest={setLoyaltyNewGuest} loyaltyOtp={loyaltyOtp} setLoyaltyOtp={setLoyaltyOtp} loyaltySearchQuery={loyaltySearchQuery} setLoyaltySearchQuery={setLoyaltySearchQuery} showLoyaltyKeypad={showLoyaltyKeypad} setShowLoyaltyKeypad={setShowLoyaltyKeypad} manualCCStep={manualCCStep} setManualCCStep={setManualCCStep} externalCCStep={externalCCStep} setExternalCCStep={setExternalCCStep} manualCardStep={manualCardStep} setManualCardStep={setManualCardStep} manualCardDetails={manualCardDetails} setManualCardDetails={setManualCardDetails} doordashStep={doordashStep} setDoordashStep={setDoordashStep} doordashReference={doordashReference} setDoordashReference={setDoordashReference} blizzfulStep={blizzfulStep} setBlizzfulStep={setBlizzfulStep} blizzfulReference={blizzfulReference} setBlizzfulReference={setBlizzfulReference} ubereatsStep={ubereatsStep} setUbereatsStep={setUbereatsStep} ubereatsReference={ubereatsReference} setUbereatsReference={setUbereatsReference} grubhubStep={grubhubStep} setGrubhubStep={setGrubhubStep} grubhubReference={grubhubReference} setGrubhubReference={setGrubhubReference} visiblePaymentMethods={visiblePaymentMethods} dropdownPaymentMethods={dropdownPaymentMethods} handleSelectFromDropdown={handleSelectFromDropdown} textReceiptStep={textReceiptStep} setTextReceiptStep={setTextReceiptStep} textReceiptPhone={textReceiptPhone} setTextReceiptPhone={setTextReceiptPhone} textReceiptNoMarketing={textReceiptNoMarketing} setTextReceiptNoMarketing={setTextReceiptNoMarketing} emailReceiptStep={emailReceiptStep} setEmailReceiptStep={setEmailReceiptStep} emailReceiptEmail={emailReceiptEmail} setEmailReceiptEmail={setEmailReceiptEmail} emailReceiptNoMarketing={emailReceiptNoMarketing} setEmailReceiptNoMarketing={setEmailReceiptNoMarketing} paymentHistory={paymentHistory} setPaymentHistory={setPaymentHistory} showTipDialog={showTipDialog} setShowTipDialog={setShowTipDialog} showRefundMode={showRefundMode} setShowRefundMode={setShowRefundMode} showRefundDialog={showRefundDialog} setShowRefundDialog={setShowRefundDialog} />
+          background: "#7575754D",
+          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+        }}>
+          <OrderPanelContent 
+            selectedOrder={selectedOrder} 
+            orderItems={orderItems} 
+            subtotal={subtotal} 
+            total={total} 
+            seatFilter={seatFilter} 
+            toggleSeatFilter={toggleSeatFilter} 
+            orderNotes={orderNotes} 
+            setOrderNotes={setOrderNotes} 
+            activeSwipedItemId={activeSwipedItemId} 
+            setActiveSwipedItemId={setActiveSwipedItemId} 
+            onToggleNoTax={handleToggleNoTax} 
+            onOrderTypeChange={handleOrderTypeChange} 
+            onDeleteItem={handleDeleteItem} 
+            onFireItem={handleFireItem} 
+            showDiscountDialog={showDiscountDialog} 
+            setShowDiscountDialog={setShowDiscountDialog} 
+            selectedDiscountId={selectedDiscountId} 
+            setSelectedDiscountId={setSelectedDiscountId}
+            onChargeClick={() => setShowPaymentDialog(true)}
+            showTipDialog={showTipDialog} 
+            setShowTipDialog={setShowTipDialog} 
+            showRefundMode={showRefundMode} 
+            setShowRefundMode={setShowRefundMode} 
+            showRefundDialog={showRefundDialog} 
+            setShowRefundDialog={setShowRefundDialog} 
+          />
         </div>
       </div>
 
@@ -5215,10 +1405,53 @@ const Dashboard = () => {
             </DrawerClose>
           </div>
           <div className="flex flex-col h-full overflow-hidden">
-            <OrderPanelContent selectedOrder={selectedOrder} orderItems={orderItems} subtotal={subtotal} total={total} phoneIcon={phoneIcon} timeIcon={timeIcon} itemNotesIcon={itemNotesIcon} fireIcon={fireIcon} seatFilter={seatFilter} toggleSeatFilter={toggleSeatFilter} orderNotes={orderNotes} setOrderNotes={setOrderNotes} activeSwipedItemId={activeSwipedItemId} setActiveSwipedItemId={setActiveSwipedItemId} onToggleNoTax={handleToggleNoTax} onOrderTypeChange={handleOrderTypeChange} onDeleteItem={handleDeleteItem} onFireItem={handleFireItem} showDiscountDialog={showDiscountDialog} setShowDiscountDialog={setShowDiscountDialog} selectedDiscountId={selectedDiscountId} setSelectedDiscountId={setSelectedDiscountId} showPaymentDialog={showPaymentDialog} setShowPaymentDialog={setShowPaymentDialog} selectedPaymentMethod={selectedPaymentMethod} setSelectedPaymentMethod={setSelectedPaymentMethod} paymentAmount={paymentAmount} setPaymentAmount={setPaymentAmount} showKeypad={showKeypad} setShowKeypad={setShowKeypad} handleKeypadPress={handleKeypadPress} amountQuantities={amountQuantities} setAmountQuantities={setAmountQuantities} handleAddAmount={handleAddAmount} handleRemoveAmount={handleRemoveAmount} paymentProcessed={paymentProcessed} setPaymentProcessed={setPaymentProcessed} paidAmount={paidAmount} setPaidAmount={setPaidAmount} showOtherPayments={showOtherPayments} setShowOtherPayments={setShowOtherPayments} giftCardStep={giftCardStep} setGiftCardStep={setGiftCardStep} giftCardNumber={giftCardNumber} setGiftCardNumber={setGiftCardNumber} handleGiftCardKeypadPress={handleGiftCardKeypadPress} payByLinkStep={payByLinkStep} setPayByLinkStep={setPayByLinkStep} selectedGuest={selectedGuest} setSelectedGuest={setSelectedGuest} guestSearchQuery={guestSearchQuery} setGuestSearchQuery={setGuestSearchQuery} hoveredGuestIndex={hoveredGuestIndex} setHoveredGuestIndex={setHoveredGuestIndex} sendLinkMethod={sendLinkMethod} setSendLinkMethod={setSendLinkMethod} newGuestForLink={newGuestForLink} setNewGuestForLink={setNewGuestForLink} qrCodeStep={qrCodeStep} setQrCodeStep={setQrCodeStep} qrPhoneNumber={qrPhoneNumber} setQrPhoneNumber={setQrPhoneNumber} showQrPhoneInput={showQrPhoneInput} setShowQrPhoneInput={setShowQrPhoneInput} loyaltyStep={loyaltyStep} setLoyaltyStep={setLoyaltyStep} loyaltySelectedGuest={loyaltySelectedGuest} setLoyaltySelectedGuest={setLoyaltySelectedGuest} loyaltyPointsToRedeem={loyaltyPointsToRedeem} setLoyaltyPointsToRedeem={setLoyaltyPointsToRedeem} showLoyaltyAddGuest={showLoyaltyAddGuest} setShowLoyaltyAddGuest={setShowLoyaltyAddGuest} loyaltyNewGuest={loyaltyNewGuest} setLoyaltyNewGuest={setLoyaltyNewGuest} loyaltyOtp={loyaltyOtp} setLoyaltyOtp={setLoyaltyOtp} loyaltySearchQuery={loyaltySearchQuery} setLoyaltySearchQuery={setLoyaltySearchQuery} showLoyaltyKeypad={showLoyaltyKeypad} setShowLoyaltyKeypad={setShowLoyaltyKeypad} manualCCStep={manualCCStep} setManualCCStep={setManualCCStep} externalCCStep={externalCCStep} setExternalCCStep={setExternalCCStep} manualCardStep={manualCardStep} setManualCardStep={setManualCardStep} manualCardDetails={manualCardDetails} setManualCardDetails={setManualCardDetails} doordashStep={doordashStep} setDoordashStep={setDoordashStep} doordashReference={doordashReference} setDoordashReference={setDoordashReference} blizzfulStep={blizzfulStep} setBlizzfulStep={setBlizzfulStep} blizzfulReference={blizzfulReference} setBlizzfulReference={setBlizzfulReference} ubereatsStep={ubereatsStep} setUbereatsStep={setUbereatsStep} ubereatsReference={ubereatsReference} setUbereatsReference={setUbereatsReference} grubhubStep={grubhubStep} setGrubhubStep={setGrubhubStep} grubhubReference={grubhubReference} setGrubhubReference={setGrubhubReference} visiblePaymentMethods={visiblePaymentMethods} dropdownPaymentMethods={dropdownPaymentMethods} handleSelectFromDropdown={handleSelectFromDropdown} textReceiptStep={textReceiptStep} setTextReceiptStep={setTextReceiptStep} textReceiptPhone={textReceiptPhone} setTextReceiptPhone={setTextReceiptPhone} textReceiptNoMarketing={textReceiptNoMarketing} setTextReceiptNoMarketing={setTextReceiptNoMarketing} emailReceiptStep={emailReceiptStep} setEmailReceiptStep={setEmailReceiptStep} emailReceiptEmail={emailReceiptEmail} setEmailReceiptEmail={setEmailReceiptEmail} emailReceiptNoMarketing={emailReceiptNoMarketing} setEmailReceiptNoMarketing={setEmailReceiptNoMarketing} paymentHistory={paymentHistory} setPaymentHistory={setPaymentHistory} showTipDialog={showTipDialog} setShowTipDialog={setShowTipDialog} showRefundMode={showRefundMode} setShowRefundMode={setShowRefundMode} showRefundDialog={showRefundDialog} setShowRefundDialog={setShowRefundDialog} />
+            <OrderPanelContent 
+              selectedOrder={selectedOrder} 
+              orderItems={orderItems} 
+              subtotal={subtotal} 
+              total={total} 
+              seatFilter={seatFilter} 
+              toggleSeatFilter={toggleSeatFilter} 
+              orderNotes={orderNotes} 
+              setOrderNotes={setOrderNotes} 
+              activeSwipedItemId={activeSwipedItemId} 
+              setActiveSwipedItemId={setActiveSwipedItemId} 
+              onToggleNoTax={handleToggleNoTax} 
+              onOrderTypeChange={handleOrderTypeChange} 
+              onDeleteItem={handleDeleteItem} 
+              onFireItem={handleFireItem} 
+              showDiscountDialog={showDiscountDialog} 
+              setShowDiscountDialog={setShowDiscountDialog} 
+              selectedDiscountId={selectedDiscountId} 
+              setSelectedDiscountId={setSelectedDiscountId}
+              onChargeClick={() => setShowPaymentDialog(true)}
+              showTipDialog={showTipDialog} 
+              setShowTipDialog={setShowTipDialog} 
+              showRefundMode={showRefundMode} 
+              setShowRefundMode={setShowRefundMode} 
+              showRefundDialog={showRefundDialog} 
+              setShowRefundDialog={setShowRefundDialog} 
+            />
           </div>
         </DrawerContent>
       </Drawer>
+
+      {/* Payment Dialog - Using shared component */}
+      <PaymentDialog
+        open={showPaymentDialog}
+        onOpenChange={setShowPaymentDialog}
+        orderDetails={paymentOrderDetails}
+        subtotal={subtotal - discount}
+        tax={tax + serviceCharge}
+        total={finalTotal}
+        onPaymentComplete={(paymentHistory) => {
+          console.log("Payment completed:", paymentHistory);
+          setShowPaymentDialog(false);
+        }}
+        onSaveSplit={(config) => {
+          console.log("Split saved:", config);
+        }}
+      />
 
       {/* Receipt Dialog */}
       <ReceiptDialog
@@ -5235,7 +1468,6 @@ const Dashboard = () => {
         orderTotal={selectedOrder?.total || 0}
         onTipSelected={(tip) => {
           console.log("Tip selected:", tip);
-          // Handle tip logic here
         }}
       />
 
@@ -5255,9 +1487,10 @@ const Dashboard = () => {
         }))}
         onRefundComplete={(amount, reason) => {
           console.log("Refund completed:", amount, reason);
-          setShowRefundMode(false);
         }}
       />
-    </div>;
+    </div>
+  );
 };
+
 export default Dashboard;

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown, Circle, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X, Settings, Plus, Trash2, GripVertical, Pencil, FolderOpen, Save, Check, FileText } from "lucide-react";
+import { Users, Grid, List, ChevronDown, Circle, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X, Settings, Plus, Trash2, GripVertical, Pencil, FolderOpen, Save, Check, FileText, Bell } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -732,18 +732,42 @@ const MapCircularTable = ({
           />
         ))}
 
+        {/* Ready status notification badge */}
+        {config.isReady && (
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+            <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-1 rounded-full shadow-lg shadow-emerald-500/50">
+              <Bell className="w-3 h-3" />
+              <span className="text-[10px] font-bold whitespace-nowrap">ORDER READY</span>
+            </div>
+          </div>
+        )}
+
+        {/* Ready ring animation */}
+        {config.isReady && (
+          <div 
+            className="absolute ready-ring rounded-full border-2 border-emerald-400 z-0"
+            style={{
+              width: tableRadius * 2 + 16,
+              height: tableRadius * 2 + 16,
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)'
+            }}
+          />
+        )}
+
         <div 
           className={`rounded-full flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-110 ${
             isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
-          } ${isMerged ? "ring-2 ring-cyan-400/60 shadow-lg shadow-cyan-500/20" : ""}`}
+          } ${isMerged ? "ring-2 ring-cyan-400/60 shadow-lg shadow-cyan-500/20" : ""} ${config.isReady ? "ready-glow" : ""}`}
           style={{ 
             width: tableRadius * 2, 
             height: tableRadius * 2,
             backgroundColor: config.hexBgColor,
-            border: `2px solid ${isMerged ? "#22d3ee" : config.hexColor}`,
+            border: `${config.isReady ? "3px" : "2px"} solid ${isMerged ? "#22d3ee" : config.hexColor}`,
             boxShadow: isMerged 
               ? `0 4px 20px rgba(34, 211, 238, 0.4)` 
-              : `0 4px 20px ${config.hexColor}40`
+              : config.isReady ? undefined : `0 4px 20px ${config.hexColor}40`
           }}
         >
           <span className="text-white font-bold text-sm leading-none">{table.id}</span>
@@ -872,18 +896,42 @@ const MapSquareTable = ({
           />
         ))}
 
+        {/* Ready status notification badge */}
+        {config.isReady && (
+          <div className="absolute -top-8 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+            <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-1 rounded-full shadow-lg shadow-emerald-500/50">
+              <Bell className="w-3 h-3" />
+              <span className="text-[10px] font-bold whitespace-nowrap">ORDER READY</span>
+            </div>
+          </div>
+        )}
+
+        {/* Ready ring animation */}
+        {config.isReady && (
+          <div 
+            className="absolute ready-ring rounded-lg border-2 border-emerald-400 z-0"
+            style={{
+              width: tableSize + 16,
+              height: tableSize + 16,
+              left: '50%',
+              top: '50%',
+              transform: 'translate(-50%, -50%)'
+            }}
+          />
+        )}
+
         <div 
           className={`rounded-lg flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-110 ${
             isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
-          } ${isMerged ? "ring-2 ring-cyan-400/60 shadow-lg shadow-cyan-500/20" : ""}`}
+          } ${isMerged ? "ring-2 ring-cyan-400/60 shadow-lg shadow-cyan-500/20" : ""} ${config.isReady ? "ready-glow" : ""}`}
           style={{ 
             width: tableSize, 
             height: tableSize,
             backgroundColor: config.hexBgColor,
-            border: `2px solid ${isMerged ? "#22d3ee" : config.hexColor}`,
+            border: `${config.isReady ? "3px" : "2px"} solid ${isMerged ? "#22d3ee" : config.hexColor}`,
             boxShadow: isMerged 
               ? `0 4px 20px rgba(34, 211, 238, 0.4)` 
-              : `0 4px 20px ${config.hexColor}40`
+              : config.isReady ? undefined : `0 4px 20px ${config.hexColor}40`
           }}
         >
           <span className="text-white font-bold text-sm leading-none">{table.id}</span>

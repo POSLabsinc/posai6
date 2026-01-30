@@ -178,6 +178,21 @@ const loadSavedPositions = (): TableType[] => {
       const parsed = JSON.parse(saved);
       return defaultTables.map(table => {
         const savedTable = parsed.find((t: TableType) => t.id === table.id);
+        // For T8, always use "Ready" status for demo purposes
+        if (table.id === "T8") {
+          return savedTable ? { 
+            ...table, 
+            x: savedTable.x, 
+            y: savedTable.y,
+            mergedWith: savedTable.mergedWith || null,
+            isMergeSource: savedTable.isMergeSource || false,
+            mergeGroupId: savedTable.mergeGroupId || undefined,
+            guests: 4,
+            occupiedSeats: [1, 2, 3, 4],
+            status: "Ready",
+            time: "13M",
+          } : table;
+        }
         return savedTable ? { 
           ...table, 
           x: savedTable.x, 

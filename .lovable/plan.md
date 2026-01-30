@@ -1,124 +1,153 @@
 
-# Update Dashboard Payment Module
+# Skip Amount Keypad for Non-Cash Payment Methods
 
 ## Overview
-Update the Dashboard page's payment module to match the new order screen's implementation. This includes:
-1. Consolidating the four delivery methods (Blizzful, UberEats, DoorDash, Grubhub) into a single "Third Party Delivery" option
-2. Adding the Split Check payment method
+Modify the payment method selection behavior so that when a user clicks on any payment method (except Cash), it immediately proceeds to that method's specific flow instead of showing the keypad to enter an amount and requiring another click on the CHARGE button.
 
-## Current State
-- Dashboard.tsx (5263 lines) has its **own inline payment dialog implementation** (~2000+ lines of payment UI code)
-- Still uses the old four separate delivery methods
-- Missing the Split Check payment method
-- Missing the consolidated "Third Party Delivery" flow
+---
 
-## Recommended Approach: Use Shared PaymentDialog Component
+## Current Behavior vs Desired Behavior
 
-Instead of duplicating the complex payment logic, the Dashboard should use the shared `PaymentDialog` component (`src/components/PaymentDialog.tsx`) which already has:
-- Third Party Delivery with partner selection
-- Split Check support
-- All 13+ payment methods
-- Mobile responsive design
-- Multi-payment history tracking
+```text
+CURRENT FLOW (for Gift Card, Pay Link, Card, QR Code, etc.):
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Step 1: Click on "Gift Card" icon                                       │
+│                           ↓                                              │
+│  Step 2: See Amount Keypad (enter amount + click CHARGE)                │
+│                           ↓                                              │
+│  Step 3: Enter Gift Card Number                                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+DESIRED FLOW (matching Loyalty behavior):
+┌─────────────────────────────────────────────────────────────────────────┐
+│  Step 1: Click on "Gift Card" icon                                       │
+│                           ↓                                              │
+│  Step 2: Enter Gift Card Number (skip keypad)                            │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Payment Methods to Update
+
+| Method | Current First Step | New First Step |
+|--------|-------------------|----------------|
+| **Cash** | Amount Keypad | Amount Keypad (NO CHANGE) |
+| **Loyalty** | Guest List | Guest List (already correct) |
+| **Card** | Amount Keypad | Tap Card screen |
+| **Gift Card** | Amount Keypad | Card Entry screen |
+| **Pay by Link** | Amount Keypad | Guest Selection screen |
+| **QR Code** | Amount Keypad | QR Display screen |
+| **Manual CC** | Amount Keypad | Tap Card screen |
+| **External CC** | Amount Keypad | Complete/Receipt screen |
+| **Manual Card** | Amount Keypad | Card Details screen |
+| **Third Party Delivery** | Amount Keypad | Partner Selection screen |
+| **Account** | Amount Keypad | (Keep as-is for now) |
+| **Split Check** | Split Config | Split Config (already correct) |
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Import PaymentDialog Component
-Add import for the shared PaymentDialog component at the top of Dashboard.tsx.
+### Step 1: Update Payment Method Grid onClick Handler
 
-**File:** `src/pages/Dashboard.tsx`
-```typescript
-import { PaymentDialog, PaymentDialogOrderDetails, PaymentHistoryItem } from "@/components/PaymentDialog";
-```
+Modify the onClick handler for the payment method buttons in the grid to immediately transition to the appropriate step based on the selected method.
 
-### Step 2: Add PaymentDialog State
-Add state to track payment dialog open/close and prepare order details.
+**File:** `src/components/PaymentDialog.tsx` (lines 3775-3786)
 
-**File:** `src/pages/Dashboard.tsx`
-```typescript
-const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-```
-
-### Step 3: Prepare Order Details for PaymentDialog
-Create a function or computed value to format the selected order data for the PaymentDialog interface.
-
-```typescript
-const paymentOrderDetails: PaymentDialogOrderDetails = {
-  guestName: selectedOrder?.guest || "Guest",
-  orderType: selectedOrder?.type || "Dine In",
-  orderNumber: selectedOrder?.id || "--",
-  serverName: selectedOrder?.server || "Server",
-  orderTime: selectedOrder?.arrivedAt || "12:00 PM",
-  tableId: selectedOrder?.table,
-  partySize: selectedOrder?.seats || 4,
-  items: orderItems.map(item => ({
-    id: item.id,
-    name: item.name,
-    price: item.price,
-    qty: item.qty,
-    assignedSeats: item.seats,
-    isShared: item.seats.length === (selectedOrder?.seats || 4),
-  })),
-};
-```
-
-### Step 4: Replace Inline Payment Dialog with PaymentDialog Component
-Replace the inline payment dialog code in the OrderPanelContent component with the shared PaymentDialog.
-
-**In the OrderPanelContent props interface**, remove all the individual payment method props (gift card, pay link, manual CC, delivery methods, etc.) and replace with simpler state management.
-
-**In the CHARGE button onClick handler:**
+**Current:**
 ```typescript
 onClick={() => {
-  setShowPaymentDialog(true);
+  setSelectedPaymentMethod(method.id);
+  // Reset loyalty step when switching to loyalty
+  if (method.id === 'loyalty') {
+    setLoyaltyStep('guest-list');
+    setLoyaltySelectedGuest(null);
+    setLoyaltyPointsToRedeem('');
+    setLoyaltyOtp(['', '', '', '']);
+  }
 }}
 ```
 
-### Step 5: Render PaymentDialog in Dashboard Component
-Add the PaymentDialog component at the end of the Dashboard render.
-
+**Updated:**
 ```typescript
-<PaymentDialog
-  open={showPaymentDialog}
-  onOpenChange={setShowPaymentDialog}
-  orderDetails={paymentOrderDetails}
-  subtotal={subtotal}
-  tax={tax}
-  total={total}
-  onPaymentComplete={(paymentHistory) => {
-    console.log("Payment completed:", paymentHistory);
-    // Handle order completion logic
-  }}
-  onSaveSplit={(config) => {
-    // Handle split and save logic if needed
-    console.log("Split saved:", config);
-  }}
-/>
+onClick={() => {
+  setSelectedPaymentMethod(method.id);
+  
+  // Direct flow for each payment method (skip keypad except for Cash)
+  if (method.id === 'loyalty') {
+    setLoyaltyStep('guest-list');
+    setLoyaltySelectedGuest(null);
+    setLoyaltyPointsToRedeem('');
+    setLoyaltyOtp(['', '', '', '']);
+  } else if (method.id === 'gift-card') {
+    setGiftCardStep('enter-card');
+    setGiftCardNumber('');
+  } else if (method.id === 'pay-link') {
+    setPayByLinkStep('select-guest');
+    setSelectedGuest(null);
+    setGuestSearchQuery('');
+  } else if (method.id === 'card') {
+    // Card goes directly to tap card screen
+    setManualCCStep('tap-card');
+  } else if (method.id === 'qr-code') {
+    setQrCodeStep('qr-display');
+    setQrPhoneNumber('');
+    setShowQrPhoneInput(false);
+  }
+  // Cash stays on amount keypad (no action needed)
+}}
 ```
 
-### Step 6: Clean Up Unused State Variables
-Remove the following state variables and props that are no longer needed (handled by PaymentDialog internally):
-- giftCardStep, giftCardNumber
-- payByLinkStep, selectedGuest, guestSearchQuery
-- qrCodeStep, qrPhoneNumber, showQrPhoneInput
-- loyaltyStep, loyaltySelectedGuest, loyaltyPointsToRedeem
-- manualCCStep, externalCCStep, manualCardStep
-- doordashStep, doordashReference
-- blizzfulStep, blizzfulReference
-- ubereatsStep, ubereatsReference
-- grubhubStep, grubhubReference
-- textReceiptStep, textReceiptPhone
-- emailReceiptStep, emailReceiptEmail
-- visiblePaymentMethods, dropdownPaymentMethods
-- paymentAmount, amountQuantities, showKeypad
+### Step 2: Update handleSelectFromDropdown Function
 
-### Step 7: Simplify OrderPanelContent Props
-Update the OrderPanelContentProps interface to remove all payment-specific props and keep only essential order management props.
+Modify the dropdown selection handler to also immediately transition to the appropriate step for methods selected from the "Other" dropdown.
 
-### Step 8: Remove Inline Payment Dialog UI
-Delete the large inline payment dialog JSX code block (approximately lines 1313-4200 in the current OrderPanelContent) that handles all the payment flows.
+**File:** `src/components/PaymentDialog.tsx` (lines 554-578)
+
+**Updated:**
+```typescript
+const handleSelectFromDropdown = (selectedMethod: PaymentMethodType) => {
+  const lastVisibleMethod = visiblePaymentMethods[visiblePaymentMethods.length - 1];
+  const newDropdownMethods = dropdownPaymentMethods.filter(m => m.id !== selectedMethod.id);
+  newDropdownMethods.unshift(lastVisibleMethod);
+  const newVisibleMethods = [selectedMethod, ...visiblePaymentMethods.slice(0, -1)];
+  
+  setVisiblePaymentMethods(newVisibleMethods);
+  setDropdownPaymentMethods(newDropdownMethods);
+  setSelectedPaymentMethod(selectedMethod.id);
+  setShowOtherPayments(false);
+  
+  // Direct flow for each payment method (skip keypad)
+  if (selectedMethod.id === 'manual-cc') {
+    setManualCCStep('tap-card');
+  } else if (selectedMethod.id === 'external-cc') {
+    // External CC goes directly to complete/receipt
+    const paid = parseFloat(paymentAmount) || total;
+    setPaidAmount(prev => prev + paid);
+    setExternalCCStep('complete');
+  } else if (selectedMethod.id === 'manual-card') {
+    setManualCardStep('card-details');
+    setManualCardDetails({ cardNumber: '', cardHolder: '', expiry: '', cvv: '' });
+  } else if (selectedMethod.id === 'third-party-delivery') {
+    setThirdPartyDeliveryStep('select-partner');
+    setSelectedDeliveryPartner(null);
+    setDeliveryReference('');
+  } else if (selectedMethod.id === 'qr-code') {
+    setQrCodeStep('qr-display');
+    setQrPhoneNumber('');
+    setShowQrPhoneInput(false);
+  } else if (selectedMethod.id === 'account') {
+    // Account can stay on amount for now or add specific flow
+  }
+};
+```
+
+### Step 3: Ensure Card Method Works Correctly
+
+The "Card" payment method in the main grid should directly transition to the tap-card screen. Need to verify if "card" and "manual-cc" share the same state or are separate.
+
+**Check:** Looking at the code, `card` method doesn't have its own step state. It should use `manualCCStep` to transition to tap-card screen when clicked.
 
 ---
 
@@ -126,28 +155,30 @@ Delete the large inline payment dialog JSX code block (approximately lines 1313-
 
 | File | Changes |
 |------|---------|
-| `src/pages/Dashboard.tsx` | Import and use PaymentDialog component, remove inline payment dialog implementation, clean up unused state |
+| `src/components/PaymentDialog.tsx` | Update onClick handlers for payment method grid and dropdown to immediately transition to method-specific flows |
 
 ---
 
 ## Technical Notes
 
-1. **Code Reduction**: This refactor will remove approximately 2500+ lines of duplicated payment code from Dashboard.tsx
-2. **Consistency**: Using the shared PaymentDialog ensures Dashboard and Orders pages have identical payment behavior
-3. **Maintenance**: Future payment method updates only need to be made in PaymentDialog.tsx
-4. **Split Check**: Automatically available through the shared component
-5. **Third Party Delivery**: Automatically uses the consolidated partner selection flow
+1. **Cash Exception:** Cash payment should continue to show the keypad since it requires entering the exact cash amount received
+2. **Amount Defaulting:** When skipping the keypad, the payment amount should default to the total due (or remaining due in multi-payment scenarios)
+3. **State Reset:** Each method should reset its specific states when selected to ensure a clean flow
+4. **External CC Special Case:** This method completes immediately since it's processed on an external device
+5. **Account Method:** May need to define a specific flow if not already implemented
 
 ---
 
 ## Testing Checklist
 
-- Navigate to Dashboard page
-- Select an order from the list
-- Click CHARGE button to open payment dialog
-- Verify all payment methods are available including Split Check
-- Click "Other" dropdown and verify "3rd Party Delivery" appears (not individual delivery apps)
-- Select "3rd Party Delivery" and verify partner selection screen shows
-- Test payment completion flow
-- Verify receipt options work correctly
-- Test on mobile viewport
+- Click on Loyalty - should go directly to guest list (already works)
+- Click on Cash - should show amount keypad (no change)
+- Click on Card - should go directly to tap card screen
+- Click on Gift Card - should go directly to card entry screen
+- Click on Pay by Link - should go directly to guest selection
+- Select QR Code from Other dropdown - should go directly to QR display
+- Select Manual CC from Other dropdown - should go directly to tap card
+- Select External CC from Other dropdown - should go directly to complete/receipt
+- Select Manual Card from Other dropdown - should go directly to card details entry
+- Select Third Party Delivery from Other dropdown - should go directly to partner selection
+- Test all flows complete successfully without requiring the keypad first

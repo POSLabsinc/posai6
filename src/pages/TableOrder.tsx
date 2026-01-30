@@ -44,7 +44,7 @@ const tableOrdersMap: Record<string, { id: string; name: string; table: string; 
   "T5": { id: "5", name: "Williams", table: "T5", amount: "$120.75", partySize: 4, time: "7:30 PM", status: "ORDERED", timer: "2:10 Hrs", server: "Dustin H", check: "1236", revenueCenter: "Patio", paymentType: "--", phone: "" },
   "T6": { id: "6", name: "Brown", table: "T6", amount: "$65.50", partySize: 2, time: "7:15 PM", status: "PREPARING", timer: "2:30 Hrs", server: "Mia J", check: "1237", revenueCenter: "Main", paymentType: "Card", phone: "" },
   "T7": { id: "7", name: "James Brown", table: "T7", amount: "$62.00", partySize: 4, time: "7:45 PM", status: "1ST COURSE", timer: "0:35 Hrs", server: "Dustin H", check: "123489", revenueCenter: "Online", paymentType: "--", phone: "(415) 555-3456" },
-  "T8": { id: "8", name: "Lisa Garcia", table: "T8", amount: "$54.00", partySize: 3, time: "7:50 PM", status: "2ND COURSE", timer: "0:50 Hrs", server: "Mia Jones", check: "123490", revenueCenter: "Main Dining", paymentType: "--", phone: "(415) 555-4567" },
+  "T8": { id: "8", name: "Lisa Garcia", table: "T8", amount: "$54.00", partySize: 3, time: "7:50 PM", status: "READY", timer: "0:50 Hrs", server: "Mia Jones", check: "123490", revenueCenter: "Main Dining", paymentType: "--", phone: "(415) 555-4567" },
 };
 
 // Helper to get order for a table
@@ -68,7 +68,7 @@ const toOrderTemplateData = (order: typeof tableOrdersMap[string]) => ({
 });
 
 // Table status configurations - includes both Tailwind classes and hex values for visual view
-const statusConfig: Record<string, { color: string; bgColor: string; hexColor: string; hexBgColor: string; label: string }> = {
+const statusConfig: Record<string, { color: string; bgColor: string; hexColor: string; hexBgColor: string; label: string; isReady?: boolean }> = {
   "Available": { color: "text-white", bgColor: "bg-neutral-700", hexColor: "#22c55e", hexBgColor: "rgba(34, 197, 94, 0.15)", label: "Available" },
   "Ordering": { color: "text-yellow-400", bgColor: "bg-neutral-800", hexColor: "#a855f7", hexBgColor: "rgba(168, 85, 247, 0.2)", label: "Ordering" },
   "Ordered": { color: "text-orange-500", bgColor: "bg-neutral-800", hexColor: "#f97316", hexBgColor: "rgba(249, 115, 22, 0.2)", label: "Ordered" },
@@ -82,6 +82,7 @@ const statusConfig: Record<string, { color: string; bgColor: string; hexColor: s
   "Partially Seated": { color: "text-green-400", bgColor: "bg-neutral-800", hexColor: "#22c55e", hexBgColor: "rgba(34, 197, 94, 0.2)", label: "Partial" },
   "Served": { color: "text-blue-400", bgColor: "bg-neutral-800", hexColor: "#0ea5e9", hexBgColor: "rgba(14, 165, 233, 0.25)", label: "Served" },
   "Paid": { color: "text-emerald-400", bgColor: "bg-neutral-800", hexColor: "#10b981", hexBgColor: "rgba(16, 185, 129, 0.2)", label: "Paid" },
+  "Ready": { color: "text-emerald-400", bgColor: "bg-neutral-800", hexColor: "#10b981", hexBgColor: "rgba(16, 185, 129, 0.25)", label: "Ready", isReady: true },
 };
 
 // Extended table type with merge properties
@@ -116,6 +117,7 @@ const getSeatDotColor = (status: string): string => {
     case "Partially Seated": return "bg-green-500";
     case "Served": return "bg-blue-500";
     case "Paid": return "bg-emerald-500";
+    case "Ready": return "bg-emerald-500";
     default: return "bg-gray-500";
   }
 };
@@ -129,7 +131,7 @@ const defaultTables: TableType[] = [
   { id: "T5", seats: 4, status: "Seated", time: "25M", shape: "circle", occupiedSeats: [1, 3], guests: 2, x: 120, y: 220 },
   { id: "T6", seats: 2, status: "Running Late", time: "45M", shape: "square", occupiedSeats: [], guests: 0, x: 320, y: 200 },
   { id: "T7", seats: 5, status: "1st Course", time: "12M", shape: "circle", occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 520, y: 240 },
-  { id: "T8", seats: 4, status: "2nd Course", time: "13M", shape: "square", occupiedSeats: [1, 2, 3, 4], guests: 4, x: 720, y: 220 },
+  { id: "T8", seats: 4, status: "Ready", time: "13M", shape: "square", occupiedSeats: [1, 2, 3, 4], guests: 4, x: 720, y: 220 },
   { id: "T9", seats: 3, status: "3rd Course", time: "14M", shape: "circle", occupiedSeats: [1, 2, 3], guests: 3, x: 80, y: 380 },
   { id: "T10", seats: 4, status: "Dessert", time: "16M", shape: "square", occupiedSeats: [1, 2], guests: 2, x: 280, y: 360 },
   { id: "T11", seats: 5, status: "Partially Seated", time: "18M", shape: "circle", occupiedSeats: [1, 3, 5], guests: 3, x: 480, y: 400 },
@@ -439,16 +441,28 @@ const CircularTableVisual = ({
           />
         ))}
 
+        {/* Ready status ring animation */}
+        {config.isReady && (
+          <div 
+            className="absolute rounded-full ready-ring"
+            style={{ 
+              width: tableRadius * 2 + 8, 
+              height: tableRadius * 2 + 8,
+              border: `3px solid ${config.hexColor}`,
+            }}
+          />
+        )}
+
         <div 
           className={`rounded-full flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 ${
             isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
-          }`}
+          } ${config.isReady ? "ready-glow" : ""}`}
           style={{ 
             width: tableRadius * 2, 
             height: tableRadius * 2,
             backgroundColor: config.hexBgColor,
             border: `2px solid ${config.hexColor}`,
-            boxShadow: `0 4px 20px ${config.hexColor}20`
+            boxShadow: config.isReady ? undefined : `0 4px 20px ${config.hexColor}20`
           }}
         >
           <span className="text-white font-bold text-lg leading-none">{table.id}</span>
@@ -575,16 +589,28 @@ const SquareTableVisual = ({
           />
         ))}
 
+        {/* Ready status ring animation */}
+        {config.isReady && (
+          <div 
+            className="absolute rounded-xl ready-ring"
+            style={{ 
+              width: tableSize + 8, 
+              height: tableSize + 8,
+              border: `3px solid ${config.hexColor}`,
+            }}
+          />
+        )}
+
         <div 
           className={`rounded-xl flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 ${
             isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
-          }`}
+          } ${config.isReady ? "ready-glow" : ""}`}
           style={{ 
             width: tableSize, 
             height: tableSize,
             backgroundColor: config.hexBgColor,
             border: `2px solid ${config.hexColor}`,
-            boxShadow: `0 4px 20px ${config.hexColor}20`
+            boxShadow: config.isReady ? undefined : `0 4px 20px ${config.hexColor}20`
           }}
         >
           <span className="text-white font-bold text-lg leading-none">{table.id}</span>

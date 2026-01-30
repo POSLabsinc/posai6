@@ -165,6 +165,41 @@ All colors MUST be HSL.
     }
   }
 
+  /* Ready status glowing effect for KDS notification */
+  .ready-glow {
+    animation: readyPulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes readyPulse {
+    0%, 100% {
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.4), 
+                  0 0 20px rgba(16, 185, 129, 0.3), 
+                  0 0 40px rgba(16, 185, 129, 0.2);
+    }
+    50% {
+      box-shadow: 0 0 15px rgba(16, 185, 129, 0.6), 
+                  0 0 35px rgba(16, 185, 129, 0.5), 
+                  0 0 60px rgba(16, 185, 129, 0.3),
+                  0 0 80px rgba(16, 185, 129, 0.15);
+    }
+  }
+
+  /* Ready ring animation */
+  .ready-ring {
+    animation: readyRing 2s ease-out infinite;
+  }
+
+  @keyframes readyRing {
+    0% {
+      transform: scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(1.8);
+      opacity: 0;
+    }
+  }
+
   /* Hide scrollbar for iOS time picker */
   .ios-picker-scroll {
     scrollbar-width: none; /* Firefox */

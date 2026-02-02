@@ -6486,6 +6486,12 @@ const Orders = () => {
     name: string;
     price: number;
   }, imageIndex: number) => {
+    // Block opening customization if order is split
+    if (isOrderSplit) {
+      setShowSplitOrderAlert(true);
+      return;
+    }
+    
     setSelectedItemForCustomization(item);
     setSelectedItemImage(foodImages[imageIndex % foodImages.length]);
 

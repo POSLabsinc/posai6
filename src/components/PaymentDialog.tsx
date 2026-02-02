@@ -4248,7 +4248,7 @@ export function PaymentDialog({
                         
                         {/* Row 3: Remaining quick amounts for mobile ($50, $100) */}
                         {isMobile && (
-                          <div className="flex gap-2 px-1">
+                          <div className="grid grid-cols-3 gap-2 px-1">
                             {quickAmounts.slice(5).map(amount => {
                               const qty = amountQuantities[amount] || 0;
                               return (

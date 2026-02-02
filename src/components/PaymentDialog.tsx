@@ -4176,10 +4176,10 @@ export function PaymentDialog({
                           {quickAmounts.slice(0, isMobile ? 3 : 3).map(amount => {
                             const qty = amountQuantities[amount] || 0;
                             return (
-                              <div key={amount} className={`flex-1 relative ${isMobile ? 'py-0.5' : 'py-1'}`}>
+                              <div key={amount} className={`flex-1 relative ${isMobile ? 'py-1' : 'py-1'}`}>
                                 <button 
                                   onClick={() => handleAddAmount(amount)} 
-                                  className={`w-full ${isMobile ? 'py-2 text-xs' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
+                                  className={`w-full ${isMobile ? 'py-4 text-base' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
                                     qty > 0 
                                       ? 'bg-neutral-900 text-white border border-neutral-600' 
                                       : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
@@ -4211,10 +4211,10 @@ export function PaymentDialog({
                           {quickAmounts.slice(3).map(amount => {
                             const qty = amountQuantities[amount] || 0;
                             return (
-                              <div key={amount} className={`flex-1 relative ${isMobile ? 'py-0.5' : 'py-1'}`}>
+                              <div key={amount} className={`flex-1 relative ${isMobile ? 'py-1' : 'py-1'}`}>
                                 <button 
                                   onClick={() => handleAddAmount(amount)} 
-                                  className={`w-full ${isMobile ? 'py-2 text-xs' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
+                                  className={`w-full ${isMobile ? 'py-4 text-base' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
                                     qty > 0 
                                       ? 'bg-neutral-900 text-white border border-neutral-600' 
                                       : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'

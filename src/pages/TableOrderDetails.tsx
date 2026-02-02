@@ -274,6 +274,25 @@ const TableOrderDetails = () => {
     const sessionOrder = sessionOrdersForTable.find(so => so.id === orderId);
     return sessionOrder?.sessionId;
   };
+
+  // Static split configs for non-session orders (persisted in localStorage)
+  const STATIC_SPLITS_KEY = 'pos-tableorder-static-splits';
+  const [staticSplitConfigs, setStaticSplitConfigs] = useState<Record<string, SplitConfiguration>>(() => {
+    try {
+      const stored = localStorage.getItem(STATIC_SPLITS_KEY);
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // Persist static split configs to localStorage
+  useEffect(() => {
+    localStorage.setItem(STATIC_SPLITS_KEY, JSON.stringify(staticSplitConfigs));
+  }, [staticSplitConfigs]);
+
+  // Helper to get static split config key
+  const getStaticSplitKey = (orderId: string) => `${tableId}:${orderId}`;
   
   // Convert session orders to GuestOrder format
   const convertSessionToGuestOrder = (sessionOrder: SessionOrder): GuestOrder => {
@@ -307,6 +326,12 @@ const TableOrderDetails = () => {
   // Get orders for this table with calculated totals (static + session orders)
   const staticGuestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
     const orderWithTotals = getOrderWithTotals(order) as GuestOrder;
+    
+    // Attach split configuration from localStorage for static orders
+    const splitKey = getStaticSplitKey(order.id);
+    if (staticSplitConfigs[splitKey]) {
+      orderWithTotals.splitConfiguration = staticSplitConfigs[splitKey];
+    }
     
     // If this order is the destination of a merge, add merged order data
     if (destOrderId === order.id && mergedOrderId) {
@@ -2514,7 +2539,7 @@ const TableOrderDetails = () => {
             id: index + 1,
             qty: item.qty,
             name: item.name,
-            price: item.price * item.qty,
+            price: item.price, // Pass unit price, not line total - PaymentDialog handles qty internally
             assignedSeats: item.seats || [],
             isShared: item.isShared || false
           })) || []
@@ -2526,37 +2551,81 @@ const TableOrderDetails = () => {
           console.log("Payment completed:", history);
         }}
         onSaveSplit={(config) => {
-          const sessionId = getSessionIdForOrder(currentSelectedGuest?.id || '');
+          if (!currentSelectedGuest) return;
           
-          if (sessionId && currentSelectedGuest) {
-            const orderItems = currentSelectedGuest.items;
-            const checks = Array.from({ length: config.numberOfChecks }, (_, i) => {
-              const checkLetter = String.fromCharCode(97 + i);
-              const itemsForCheck = orderItems.filter((_, itemIdx) => 
+          const orderId = currentSelectedGuest.id;
+          const orderItems = currentSelectedGuest.items;
+          const partySize = currentSelectedGuest.partySize;
+          const orderTotal = currentSelectedGuest.total;
+          
+          // Build checks based on split mode
+          const checks: SplitCheck[] = Array.from({ length: config.numberOfChecks }, (_, i) => {
+            const checkLetter = String.fromCharCode(97 + i);
+            let itemsForCheck: typeof orderItems = [];
+            let checkTotal = 0;
+            
+            if (config.mode === 'custom') {
+              // Custom mode: use checkAssignments (1-indexed keys and values)
+              itemsForCheck = orderItems.filter((_, itemIdx) => 
                 config.checkAssignments[itemIdx + 1] === i + 1
               );
-              const checkTotal = itemsForCheck.reduce((sum, item) => 
-                sum + (item.price * item.qty), 0
-              );
-              
-              return {
-                checkId: checkLetter,
-                items: itemsForCheck.map(item => ({
-                  qty: item.qty,
-                  name: item.name,
-                  price: item.price,
-                  seats: item.seats || [],
-                  modifiers: item.modifiers || []
-                })),
-                status: 'unpaid' as const,
-                total: checkTotal
-              };
-            });
+              checkTotal = itemsForCheck.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            } else if (config.mode === 'evenly') {
+              // Evenly mode: split total equally, include all items for display
+              itemsForCheck = orderItems;
+              checkTotal = orderTotal / config.numberOfChecks;
+            } else if (config.mode === 'seat') {
+              // Seat mode: assign items based on seat assignments
+              const seatNumber = i + 1;
+              itemsForCheck = orderItems.filter(item => {
+                if (item.isShared || !item.seats || item.seats.length === 0) return true;
+                return item.seats.includes(seatNumber);
+              });
+              // Calculate check total accounting for shared items split across party
+              checkTotal = itemsForCheck.reduce((sum, item) => {
+                const itemTotal = item.price * item.qty;
+                if (item.isShared || !item.seats || item.seats.length === 0) {
+                  return sum + (itemTotal / partySize);
+                }
+                return sum + itemTotal;
+              }, 0);
+            }
             
-            saveSplitConfiguration(sessionId, {
-              ...config,
-              checks
-            });
+            return {
+              checkId: checkLetter,
+              items: itemsForCheck.map(item => ({
+                qty: item.qty,
+                name: item.name,
+                price: item.price,
+                seats: item.seats || [],
+                modifiers: item.modifiers || []
+              })),
+              status: 'unpaid' as const,
+              total: checkTotal
+            };
+          });
+          
+          const fullConfig: SplitConfiguration = {
+            ...config,
+            checks
+          };
+          
+          // Try session order first (dynamic orders)
+          const sessionId = getSessionIdForOrder(orderId);
+          if (sessionId) {
+            saveSplitConfiguration(sessionId, fullConfig);
+          } else {
+            // Static order - save to localStorage
+            const splitKey = getStaticSplitKey(orderId);
+            setStaticSplitConfigs(prev => ({
+              ...prev,
+              [splitKey]: fullConfig
+            }));
+          }
+          
+          // Update selectedGuest to reflect split state immediately
+          if (selectedGuest?.id === orderId) {
+            setSelectedGuest(prev => prev ? { ...prev, splitConfiguration: fullConfig } : null);
           }
         }}
       />

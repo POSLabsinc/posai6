@@ -1,66 +1,51 @@
 
+## Goal
+Fix the PaymentDialog so its buttons work reliably when the payment screen is opened from the Dashboard page (especially on mobile).
 
-# Standardize Mobile Quick Amount Buttons Layout
+## What’s happening (root cause)
+On **mobile**, the Dashboard uses a **Vaul Drawer** (`<Drawer ...>`) for the order panel. Vaul/Drawer behavior typically *blocks pointer events to everything outside the drawer* while it’s open (to prevent clicking the background).
 
-## Overview
-Update the mobile quick amount buttons to have consistent styling and display 3 buttons per row.
+Right now, when you tap **CHARGE** inside the Dashboard drawer, you open `PaymentDialog` but the **drawer often remains open**. Since `PaymentDialog` is rendered outside the drawer, the drawer’s “background interaction lock” can make the PaymentDialog *look open* but **its buttons won’t receive taps/clicks**.
 
----
+This explains why the same PaymentDialog works fine from other pages, but not from Dashboard (where Drawer is involved).
 
-## Current vs. Proposed Layout
+## Implementation approach (minimal + robust)
+### A) Dashboard: close the drawer before opening PaymentDialog
+**File:** `src/pages/Dashboard.tsx`
 
-```text
-CURRENT MOBILE LAYOUT:
-┌─────────────────────────────────┐
-│  $23.44   $1   $2   $5         │  ← 4 buttons, first button has different styling
-│                                 │     (py-2 text-xs vs py-4 text-base)
-│  $10   $20   $50   $100        │  ← 4 buttons in second row
-└─────────────────────────────────┘
+1. Create a single handler like `openPaymentFromDashboard()` that:
+   - Closes the mobile drawer (`setIsDrawerOpen(false)`) if it’s open / if on mobile
+   - Optionally closes any Dashboard overlays that might also be open (discount dialog, etc.)
+   - Then opens the PaymentDialog (`setShowPaymentDialog(true)`)
 
-PROPOSED MOBILE LAYOUT:
-┌─────────────────────────────────┐
-│  $23.44     $1      $2         │  ← 3 buttons, all same styling (py-4 text-base)
-│                                 │
-│    $5      $10     $20         │  ← 3 buttons
-│                                 │
-│   $50     $100                 │  ← 2 buttons (remaining)
-└─────────────────────────────────┘
-```
+2. Add a tiny delay (one of these) to avoid race conditions during Drawer closing animation:
+   - `requestAnimationFrame(() => setShowPaymentDialog(true))`, or
+   - `setTimeout(() => setShowPaymentDialog(true), 50-150)`
 
----
+3. Replace both occurrences of:
+   - `onChargeClick={() => setShowPaymentDialog(true)}`
+   with:
+   - `onChargeClick={openPaymentFromDashboard}`
 
-## Changes to Make
+This ensures PaymentDialog always opens in a “clickable state”.
 
-**File:** `src/components/PaymentDialog.tsx` (lines 4160-4244)
+### B) Optional defensive improvement (if needed)
+If there are still edge cases, we can additionally ensure the PaymentDialog is rendered at the top level (portal), but in most cases **closing the drawer first** will solve it cleanly with minimal risk.
 
-### 1. Fix First Button (Total Amount) Styling
-- Change from `py-2 text-xs` to `py-4 text-base` on mobile to match other quick amount buttons
+## Files to change
+- `src/pages/Dashboard.tsx`
+  - Add `openPaymentFromDashboard` helper
+  - Use it in both the desktop order panel and the mobile drawer order panel (`OrderPanelContent` props)
 
-### 2. Reorganize Grid Layout for Mobile
-- Row 1: Total amount, $1, $2 (3 buttons)
-- Row 2: $5, $10, $20 (3 buttons)  
-- Row 3: $50, $100 (2 buttons)
+## Testing checklist (must do)
+1. Desktop:
+   - Dashboard → select an order → CHARGE → verify all payment method buttons and keypad work.
+2. Mobile:
+   - Dashboard → tap an order (drawer opens) → CHARGE → verify PaymentDialog buttons work.
+   - Confirm the drawer is closed (or no longer blocks interaction) once payment opens.
+3. Regression:
+   - Orders page → open payment → verify still works.
+   - TableOrderDetails → open payment → verify still works.
 
-### 3. Slice Logic Update
-- First row: `quickAmounts.slice(0, 2)` with total = 3 buttons
-- Second row: `quickAmounts.slice(2, 5)` = 3 buttons
-- Third row: `quickAmounts.slice(5)` = 2 buttons
-
----
-
-## Code Changes Summary
-
-| Line | Current | Proposed |
-|------|---------|----------|
-| 4167 | `py-2 text-xs` (mobile) | `py-4 text-base` (mobile) |
-| 4176 | `slice(0, 3)` | `slice(0, 2)` for mobile |
-| 4211 | `slice(3)` | Split into 2 rows for mobile |
-
----
-
-## Files to Modify
-
-| File | Lines | Changes |
-|------|-------|---------|
-| `src/components/PaymentDialog.tsx` | 4160-4244 | Update first button styling and reorganize grid to 3 columns |
-
+## Notes / constraints
+- We will keep scrollbars hidden (project requirement). If the PaymentDialog becomes scrollable in some mobile flows, we’ll ensure `scrollbar-hide` stays applied where needed.

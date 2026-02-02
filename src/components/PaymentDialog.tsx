@@ -801,7 +801,7 @@ export function PaymentDialog({
                       {method.id === 'split-check' ? (
                         <img src={splitCheckIcon} alt="Split Check" className="w-8 h-8" />
                       ) : (
-                        <IconComponent className="w-8 h-8 text-red-400" />
+                        <IconComponent className="w-8 h-8 text-white" />
                       )}
                     </div>
                     <span className="text-white text-sm text-center">{method.name}</span>

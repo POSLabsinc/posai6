@@ -1,85 +1,82 @@
 
+# Fix Table Grid Spacing and Ready Glow Effect
 
-# Add Order for Table T8 with Ready Status
+## Problems Identified
 
-## Objective
-Add a new order entry to the centralized orders database (`src/data/orders.ts`) for table T8 with status "READY" to demonstrate the Kitchen Display System (KDS) ready notification feature.
-
----
-
-## New Order Details
-
-| Field | Value |
-|-------|-------|
-| **ID** | 11 |
-| **Guest Name** | James Rodriguez |
-| **Phone** | (415) 555-7890 |
-| **Party Size** | 4 |
-| **Time** | 7:25 PM |
-| **Timer** | 0:50 Hrs |
-| **Server** | Mia Jones |
-| **Check** | 123500 |
-| **Revenue Center** | Main Dining |
-| **Status** | READY |
-| **Table** | T8 |
-| **Order Type** | Dine-In |
-| **Notes** | Food ready for delivery - KDS marked complete |
+1. **Tables Too Close Together**: The grid currently uses `gap-2` (8px) which is too tight
+2. **Glowing Effect Overlapping**: The `ready-glow` CSS animation uses large box-shadow values (up to 80px spread) that bleed over onto adjacent tables
 
 ---
 
-## Order Items
+## Visual Comparison
 
 ```text
-+-----+---------------------------+--------+-------+------------------+
-| Qty | Item                      | Price  | Seats | Modifiers        |
-+-----+---------------------------+--------+-------+------------------+
-| 2   | Herb Crusted Salmon       | $26.00 | 1, 2  | Lemon Butter     |
-| 1   | Grilled Ribeye Steak      | $34.00 | 3     | Medium, Mushrooms|
-| 1   | Chicken Marsala           | $22.00 | 4     | Extra Sauce      |
-| 1   | Garlic Mashed Potatoes    | $8.00  | -     | (Shared)         |
-| 1   | Sauteed Vegetables        | $7.00  | -     | (Shared)         |
-| 4   | House Lemonade            | $4.00  | -     | (Shared)         |
-+-----+---------------------------+--------+-------+------------------+
+CURRENT (gap-2, large glow):
+┌────┐ ┌────┐ ┌────┐
+│ T7 │░░░T8░░░│ T9 │   <- Glow from T8 covers T7 and T9
+└────┘ └────┘ └────┘
+
+PROPOSED (gap-4, contained glow):
+┌────┐    ┌────┐    ┌────┐
+│ T7 │    │░T8░│    │ T9 │   <- Glow stays within T8's space
+└────┘    └────┘    └────┘
 ```
 
 ---
 
-## Implementation
+## Implementation Steps
 
-### Step 1: Add New Order to allOrders Array
+### Step 1: Increase Grid Gap
+**File:** `src/pages/TableOrder.tsx` (line 2484)
 
-**File:** `src/data/orders.ts` (after line 350, before the closing bracket)
+Change the grid gap from `gap-2` to `gap-4` to increase spacing between table cards from 8px to 16px.
 
-Add the following order entry:
+**Before:**
+```tsx
+<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+```
 
-```typescript
-// Order 11 - James Rodriguez (T8) - READY - Dine-In (KDS marked ready)
-{
-  id: "11",
-  name: "James Rodriguez",
-  phone: "(415) 555-7890",
-  partySize: 4,
-  time: "7:25 PM",
-  timer: "0:50 Hrs",
-  server: "Mia Jones",
-  check: "123500",
-  paymentType: "--",
-  revenueCenter: "Main Dining",
-  status: "READY",
-  notes: "Food ready for delivery - KDS marked complete",
-  table: "T8",
-  orderType: "Dine-In",
-  paidAmount: "$0.00",
-  paymentStatus: "Un Paid",
-  tipAmount: 20.00,
-  items: [
-    { qty: 2, name: "Herb Crusted Salmon", price: 26.00, seats: [1, 2], modifiers: ["Lemon Butter"] },
-    { qty: 1, name: "Grilled Ribeye Steak", price: 34.00, seats: [3], modifiers: ["Medium", "Mushroom Sauce"] },
-    { qty: 1, name: "Chicken Marsala", price: 22.00, seats: [4], modifiers: ["Extra Sauce"] },
-    { qty: 1, name: "Garlic Mashed Potatoes", price: 8.00, seats: [], modifiers: [], isShared: true },
-    { qty: 1, name: "Sauteed Vegetables", price: 7.00, seats: [], modifiers: [], isShared: true },
-    { qty: 4, name: "House Lemonade", price: 4.00, seats: [], modifiers: [], isShared: true }
-  ]
+**After:**
+```tsx
+<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+```
+
+### Step 2: Reduce Glow Effect Spread
+**File:** `src/index.css` (lines 173-185)
+
+Reduce the box-shadow spread values in the `readyPulse` animation to keep the glow contained within the card boundaries:
+- Reduce maximum spread from 80px to 20px
+- Keep the effect visible but more focused on the card itself
+
+**Before:**
+```css
+@keyframes readyPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4), 
+                0 0 20px rgba(16, 185, 129, 0.3), 
+                0 0 40px rgba(16, 185, 129, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.6), 
+                0 0 35px rgba(16, 185, 129, 0.5), 
+                0 0 60px rgba(16, 185, 129, 0.3),
+                0 0 80px rgba(16, 185, 129, 0.15);
+  }
+}
+```
+
+**After:**
+```css
+@keyframes readyPulse {
+  0%, 100% {
+    box-shadow: 0 0 4px rgba(16, 185, 129, 0.5), 
+                0 0 8px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.7), 
+                0 0 15px rgba(16, 185, 129, 0.4),
+                0 0 20px rgba(16, 185, 129, 0.2);
+  }
 }
 ```
 
@@ -89,26 +86,23 @@ Add the following order entry:
 
 | File | Changes |
 |------|---------|
-| `src/data/orders.ts` | Add Order #11 for table T8 with status "READY" |
+| `src/pages/TableOrder.tsx` | Change grid gap from `gap-2` to `gap-4` |
+| `src/index.css` | Reduce box-shadow spread values in `readyPulse` animation |
 
 ---
 
 ## Result
 
-After this change:
-- Table T8 will have an active order with "READY" status
-- The floorplan will display the emerald green pulsing glow effect
-- The expanding ring animation will be visible
-- The "ORDER READY" bell notification badge will bounce above T8
-- This simulates a real KDS workflow where kitchen marks an order as ready for delivery
+- Tables will have more breathing room with 16px gaps instead of 8px
+- The ready glow effect will be more focused and contained within the card area
+- Adjacent tables will no longer be visually affected by the glow
+- The pulsing animation will still be noticeable but more elegant
 
 ---
 
 ## Testing Checklist
 
-- Navigate to `/tableorder` page
-- Verify table T8 shows "Ready" status with all visual effects
-- Click on T8 to view the order details
-- Verify all 6 items are displayed correctly with modifiers
-- Confirm the order total calculates correctly
-
+- Verify increased spacing between all table cards in grid view
+- Confirm T8's glow effect no longer bleeds onto T7 or T9
+- Ensure the glow is still visible and attention-grabbing on T8
+- Check that the ORDER READY badge remains properly positioned

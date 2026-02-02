@@ -1,96 +1,102 @@
 
-# Fix Split Check Display in TableOrderDetails
+## What’s happening (root cause)
+On **/tableorder/:tableId (TableOrderDetails)** you have two kinds of tickets:
 
-## Problem Identified
-When splitting an order from TableOrderDetails, the split check sub-tickets are not appearing under the main order ticket. The root cause is an indexing mismatch in the `onSaveSplit` handler.
+1) **Session orders** (created through the table flow and stored in `SessionOrderContext` / localStorage)  
+2) **Static “seed” orders** (coming from `src/data/orders.ts` via `getOrdersByTable()`)
 
----
+The Split Save on TableOrderDetails currently persists only when it can find a **sessionId**:
+- If the user splits a **static** order (very common on `/tableorder/T2`), `getSessionIdForOrder(orderId)` returns `undefined`, so `saveSplitConfiguration()` never runs → **no splitConfiguration exists on that ticket** → **no sub-tickets render under the main ticket**.
 
-## Root Cause Analysis
+There’s also a correctness issue in TableOrderDetails’ `PaymentDialog` props: it passes `price: item.price * item.qty` (line-total) instead of unit price, which can break split calculations and totals.
 
-The PaymentDialog's `checkAssignments` structure:
-- **Keys**: `item.id` (1-indexed, since items are created with `id: index + 1`)
-- **Values**: `checkNumber` (1-indexed, 1 = first check, 2 = second check, etc.)
+## Goal
+When the user hits **Save** in Split Check from **TableOrderDetails**, sub-tickets must appear immediately under the main ticket **for both**:
+- session-based tickets
+- static/seed tickets
 
-The `onSaveSplit` handler in TableOrderDetails uses:
-```typescript
-const itemsForCheck = orderItems.filter((_, itemIdx) => 
-  config.checkAssignments[itemIdx] === i
-);
+## Implementation plan
+
+### 1) Add persistence for split configs for “static” orders (TableOrderDetails-only)
+**File:** `src/pages/TableOrderDetails.tsx`
+
+Add a small local persistence layer specifically for static orders:
+- Create state like:
+  - `staticSplitConfigsByKey: Record<string, SplitConfiguration>`
+- Use a stable storage key such as:
+  - `pos-tableorder-static-splits`
+- Store configs by a composite key:
+  - `${tableId}:${orderId}`
+  - (prevents collisions and allows multiple tables)
+
+Add:
+- `loadStaticSplitConfigs()` (from localStorage)
+- `saveStaticSplitConfigs()` (to localStorage, inside a `useEffect`)
+
+### 2) Attach splitConfiguration onto staticGuestOrders during construction
+**File:** `src/pages/TableOrderDetails.tsx`
+
+When building:
+```ts
+const staticGuestOrders: GuestOrder[] = getOrdersByTable(...).map(...)
 ```
+attach:
+- `splitConfiguration: staticSplitConfigsByKey[`${tableId}:${order.id}`]`
 
-Problems:
-1. `itemIdx` is 0-indexed, but `checkAssignments` keys are 1-indexed (`item.id`)
-2. `i` is 0-indexed (loop counter), but `checkAssignments` values are 1-indexed (check numbers)
+This is the critical step that makes the left-side list capable of rendering sub-tickets for static orders.
 
-**Result**: No items match, so all split checks have empty item arrays and $0 totals.
+### 3) Make `onSaveSplit` persist for both session + static orders
+**File:** `src/pages/TableOrderDetails.tsx`
 
----
+Update the `PaymentDialog` `onSaveSplit` handler:
 
-## Solution
+- Always build `checks` (SplitCheck[]) using a shared helper (next step)
+- Then:
+  - If `sessionId` exists → `saveSplitConfiguration(sessionId, { ...config, checks })` (current behavior)
+  - Else (static order) → write to `staticSplitConfigsByKey[`${tableId}:${orderId}`]`
 
-Update the `onSaveSplit` handler in TableOrderDetails.tsx to use correct indexing:
+Also: update `selectedGuest` after saving so the right panel reflects the new split state immediately (avoids stale selected object issues).
 
-```typescript
-// Current (BROKEN):
-const itemsForCheck = orderItems.filter((_, itemIdx) => 
-  config.checkAssignments[itemIdx] === i
-);
+### 4) Build checks correctly for all split modes (not just “custom”)
+**File:** `src/pages/TableOrderDetails.tsx`
 
-// Fixed:
-const itemsForCheck = orderItems.filter((_, itemIdx) => 
-  config.checkAssignments[itemIdx + 1] === i + 1
-);
-```
+Create a helper in the component (or small local util inside the file) like:
 
-This change:
-- Uses `itemIdx + 1` to match 1-indexed item IDs in checkAssignments keys
-- Compares against `i + 1` to match 1-indexed check numbers in checkAssignments values
+- `buildSplitChecks({ mode, numberOfChecks, checkAssignments }, orderItems, partySize, orderTotals)`
 
----
+Rules:
+- **custom**: use `checkAssignments` (1-indexed keys and values) and filter via `itemIdx + 1 === key` and `checkIndex + 1 === value`
+- **evenly**: create `numberOfChecks` checks with totals derived from `total / numberOfChecks`
+  - items: either keep all items for display, or keep empty items but show correct total (choose whichever best matches your UI expectations; recommendation: keep items count meaningful)
+- **seat**: mirror PaymentDialog logic (shared items appear on all checks; totals allocate shared cost by party size)
 
-## Files to Modify
+This ensures “Save” works no matter which split tab the user used.
 
-| File | Changes |
-|------|---------|
-| `src/pages/TableOrderDetails.tsx` | Fix indexing in onSaveSplit handler (line ~2535-2536) |
-| `src/pages/Orders.tsx` | Same fix needed (line ~9080-9081) - same bug exists there |
+### 5) Fix TableOrderDetails → PaymentDialog item price mapping
+**File:** `src/pages/TableOrderDetails.tsx`
 
----
+In `orderDetails.items` mapping, change:
+- `price: item.price * item.qty`
+to
+- `price: item.price`
 
-## Code Changes
+Because PaymentDialog already multiplies by qty internally in some calculations; passing the line-total can double-count and cause incorrect check totals/behavior.
 
-### TableOrderDetails.tsx (lines 2535-2536)
-```typescript
-// Before:
-const itemsForCheck = orderItems.filter((_, itemIdx) => 
-  config.checkAssignments[itemIdx] === i
-);
+### 6) QA checklist (end-to-end)
+1. Go to `/tableorder/T2`
+2. Pick a seeded/static ticket (e.g., “Martin Alex”)
+3. CHARGE → Split Check → Custom → assign items → Save
+4. Confirm:
+   - dialog closes
+   - **sub-tickets appear under the main ticket immediately**
+   - refresh page → sub-tickets still remain (localStorage persistence)
+5. Repeat with a **session-created ticket** (new table order flow) and confirm persistence still works
+6. Test **Evenly** and **Seat** modes saving (not just Custom)
+7. Ensure no scrollbars appear (keep `scrollbar-hide` usage intact)
 
-// After:
-const itemsForCheck = orderItems.filter((_, itemIdx) => 
-  config.checkAssignments[itemIdx + 1] === i + 1
-);
-```
+## Files involved
+- `src/pages/TableOrderDetails.tsx` (all changes contained here)
 
-### Orders.tsx (lines 9080-9081)
-```typescript
-// Before:
-const itemsForCheck = orderItems.filter((_, itemIdx) => 
-  config.checkAssignments[itemIdx] === i
-);
-
-// After:
-const itemsForCheck = orderItems.filter((_, itemIdx) => 
-  config.checkAssignments[itemIdx + 1] === i + 1
-);
-```
-
----
-
-## Expected Result
-After this fix:
-1. User splits an order from TableOrderDetails → clicks Save
-2. Split configuration is correctly saved with items assigned to each check
-3. Sub-ticket cards appear immediately below the main order card
-4. Each sub-ticket shows the correct items and calculated total for that check
+## Notes / non-goals (for now)
+- This plan focuses on “Save split → show sub-tickets” reliability.
+- If you want “split lock / merge to unlock / disable adding items” behavior in TableOrderDetails too (like Orders page), we can add it after this is stable.

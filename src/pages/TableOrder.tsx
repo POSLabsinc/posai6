@@ -2518,17 +2518,6 @@ const TableOrder = () => {
                     </div>
                   )}
                   
-                  {/* Ready ring animation */}
-                  {isReady && (
-                    <div 
-                      className="absolute ready-ring rounded-xl z-0"
-                      style={{
-                        inset: -4,
-                        border: '2px solid rgb(52, 211, 153)'
-                      }}
-                    />
-                  )}
-                  
                   <div
                     onClick={handleTableClick}
                     className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-all border-2 ${

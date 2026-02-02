@@ -219,6 +219,71 @@ export function PaymentDialog({
   // Mobile detection
   const isMobile = useIsMobile();
 
+  // Mobile payment selection state - shows 3-column grid on mobile
+  const [mobilePaymentSelectionActive, setMobilePaymentSelectionActive] = useState(true);
+
+  // All mobile payment methods for the selection grid
+  const allMobilePaymentMethods: PaymentMethodType[] = [
+    { id: 'card', name: 'Card', icon: CreditCard },
+    { id: 'cash', name: 'Cash', icon: Banknote },
+    { id: 'gift-card', name: 'Gift Card', icon: Gift },
+    { id: 'split-check', name: 'Split Check', icon: () => <img src={splitCheckIcon} alt="Split Check" className="w-6 h-6" /> },
+    { id: 'pay-link', name: 'Pay By Link', icon: Link },
+    { id: 'qr-code', name: 'QR Code', icon: QrCode },
+    { id: 'account', name: 'Account', icon: User },
+    { id: 'loyalty', name: 'Loyalty', icon: Tag },
+    { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
+    { id: 'manual-card', name: 'Manual Card', icon: Clipboard },
+    { id: 'external-cc', name: 'External CC', icon: ExternalLink },
+    { id: 'third-party-delivery', name: '3rd Party', icon: Truck },
+  ];
+
+  // Handler for mobile payment method selection
+  const handleMobilePaymentMethodSelect = (methodId: string) => {
+    setSelectedPaymentMethod(methodId);
+    setMobilePaymentSelectionActive(false);
+    
+    // Trigger appropriate flow based on method
+    if (methodId === 'card') {
+      setManualCCStep('tap-card');
+    } else if (methodId === 'cash') {
+      // Cash shows keypad - no special action needed
+    } else if (methodId === 'gift-card') {
+      setGiftCardStep('enter-card');
+      setGiftCardNumber('');
+    } else if (methodId === 'split-check') {
+      // Split check flow uses the existing panel
+    } else if (methodId === 'pay-link') {
+      setPayByLinkStep('select-guest');
+      setSelectedGuest(null);
+      setGuestSearchQuery('');
+    } else if (methodId === 'qr-code') {
+      setQrCodeStep('qr-display');
+      setQrPhoneNumber('');
+      setShowQrPhoneInput(false);
+    } else if (methodId === 'account') {
+      // Account uses keypad - no special action needed
+    } else if (methodId === 'loyalty') {
+      setLoyaltyStep('guest-list');
+      setLoyaltySelectedGuest(null);
+      setLoyaltyPointsToRedeem('');
+      setLoyaltyOtp(['', '', '', '']);
+    } else if (methodId === 'manual-cc') {
+      setManualCCStep('tap-card');
+    } else if (methodId === 'manual-card') {
+      setManualCardStep('card-details');
+      setManualCardDetails({ cardNumber: '', cardHolder: '', expiry: '', cvv: '' });
+    } else if (methodId === 'external-cc') {
+      const paid = parseFloat(paymentAmount) || total;
+      setPaidAmount(prev => prev + paid);
+      setExternalCCStep('complete');
+    } else if (methodId === 'third-party-delivery') {
+      setThirdPartyDeliveryStep('select-partner');
+      setSelectedDeliveryPartner(null);
+      setDeliveryReference('');
+    }
+  };
+
   // Reset states when dialog opens
   useEffect(() => {
     if (open) {
@@ -260,6 +325,8 @@ export function PaymentDialog({
       // Reset drag states
       setDraggingItemId(null);
       setDragOverCheckNum(null);
+      // Reset mobile payment selection
+      setMobilePaymentSelectionActive(true);
     }
   }, [open, total]);
 
@@ -692,8 +759,61 @@ export function PaymentDialog({
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Mobile Order Summary Header */}
-        {isMobile && !paymentProcessed && (
+        {/* Mobile Payment Selection Screen */}
+        {isMobile && mobilePaymentSelectionActive && !paymentProcessed && (
+          <div className="flex flex-col flex-1 bg-neutral-900">
+            {/* Header */}
+            <div className="flex items-center justify-between px-4 py-3 border-b border-neutral-700">
+              <button 
+                onClick={() => onOpenChange(false)}
+                className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+              >
+                <ArrowLeft className="w-5 h-5 text-neutral-300" />
+              </button>
+              <div className="flex items-center gap-2">
+                <span className="text-white text-base font-medium">Total Due</span>
+                <span className="text-red-500 text-base font-bold">${total.toFixed(2)}</span>
+              </div>
+              <button 
+                onClick={() => onOpenChange(false)}
+                className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-neutral-400" />
+              </button>
+            </div>
+            
+            {/* Label */}
+            <div className="text-center text-neutral-400 text-sm py-4">
+              Choose Payment Method
+            </div>
+            
+            {/* Payment Methods Grid - 3 columns */}
+            <div className="grid grid-cols-3 gap-4 px-6 pb-6 flex-1 content-start">
+              {allMobilePaymentMethods.map((method) => {
+                const IconComponent = method.icon;
+                return (
+                  <button
+                    key={method.id}
+                    onClick={() => handleMobilePaymentMethodSelect(method.id)}
+                    className="flex flex-col items-center gap-2"
+                  >
+                    <div className="w-14 h-14 rounded-full border border-neutral-600 bg-neutral-800 flex items-center justify-center hover:bg-neutral-700 hover:border-neutral-500 transition-colors">
+                      {method.id === 'split-check' ? (
+                        <img src={splitCheckIcon} alt="Split Check" className="w-6 h-6" />
+                      ) : (
+                        <IconComponent className="w-6 h-6 text-red-400" />
+                      )}
+                    </div>
+                    <span className="text-white text-xs text-center">{method.name}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Mobile Order Summary Header - only when not in selection mode */}
+        {isMobile && !mobilePaymentSelectionActive && !paymentProcessed && (
           <div className="px-4 py-2 border-b border-neutral-700 bg-neutral-800/50 flex-shrink-0">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -719,11 +839,13 @@ export function PaymentDialog({
           </div>
         )}
         
-        {/* Left Panel - Payment Methods & Keypad */}
+        {/* Left Panel - Payment Methods & Keypad - Hidden on mobile when selection is active */}
         <div className={`flex flex-col bg-neutral-900 overflow-hidden transition-all duration-300 ${
-          isMobile 
-            ? 'flex-1 w-full max-h-full overflow-y-auto' 
-            : `max-h-[90vh] ${selectedPaymentMethod === 'split-check' ? 'w-full' : 'w-[480px]'}`
+          isMobile && mobilePaymentSelectionActive && !paymentProcessed
+            ? 'hidden'
+            : isMobile 
+              ? 'flex-1 w-full max-h-full overflow-y-auto' 
+              : `max-h-[90vh] ${selectedPaymentMethod === 'split-check' ? 'w-full' : 'w-[480px]'}`
         }`}>
           {paymentProcessed ? (
             // Receipt Screen with Text/Email input handling
@@ -963,7 +1085,12 @@ export function PaymentDialog({
                   <div className="flex items-center justify-between p-3 border-b border-neutral-700">
                     <div className="flex items-center gap-2">
                       <button 
-                        onClick={() => setSelectedPaymentMethod('cash')} 
+                        onClick={() => {
+                          if (isMobile) {
+                            setMobilePaymentSelectionActive(true);
+                          }
+                          setSelectedPaymentMethod('cash');
+                        }} 
                         className="w-7 h-7 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
                       >
                         <ArrowLeft className="w-4 h-4 text-neutral-300" />
@@ -1526,6 +1653,9 @@ export function PaymentDialog({
                 <div className="flex items-center gap-3">
                   <button 
                     onClick={() => {
+                      if (isMobile) {
+                        setMobilePaymentSelectionActive(true);
+                      }
                       setGiftCardStep('amount');
                       setGiftCardNumber('');
                     }}
@@ -1619,6 +1749,9 @@ export function PaymentDialog({
                   <button 
                     onClick={() => {
                       if (payByLinkStep === 'select-guest') {
+                        if (isMobile) {
+                          setMobilePaymentSelectionActive(true);
+                        }
                         setPayByLinkStep('amount');
                       } else if (payByLinkStep === 'add-guest') {
                         setPayByLinkStep('select-guest');
@@ -1628,6 +1761,9 @@ export function PaymentDialog({
                       } else if (payByLinkStep === 'pending' || payByLinkStep === 'expired') {
                         setPayByLinkStep('guest-confirmed');
                       } else if (payByLinkStep === 'complete') {
+                        if (isMobile) {
+                          setMobilePaymentSelectionActive(true);
+                        }
                         setPayByLinkStep('amount');
                         setSelectedGuest(null);
                       }
@@ -2070,6 +2206,9 @@ export function PaymentDialog({
                   <button 
                     onClick={() => {
                       if (qrCodeStep === 'qr-display') {
+                        if (isMobile) {
+                          setMobilePaymentSelectionActive(true);
+                        }
                         setQrCodeStep('amount');
                         setQrPhoneNumber('');
                         setShowQrPhoneInput(false);
@@ -2277,6 +2416,9 @@ export function PaymentDialog({
                       } else if (emailReceiptStep === 'email-input') {
                         setEmailReceiptStep('receipt');
                       } else {
+                        if (isMobile) {
+                          setMobilePaymentSelectionActive(true);
+                        }
                         setManualCCStep('amount');
                       }
                     }}
@@ -2520,6 +2662,9 @@ export function PaymentDialog({
                       } else if (emailReceiptStep === 'email-input') {
                         setEmailReceiptStep('receipt');
                       } else {
+                        if (isMobile) {
+                          setMobilePaymentSelectionActive(true);
+                        }
                         setExternalCCStep('amount');
                       }
                     }}
@@ -2693,6 +2838,9 @@ export function PaymentDialog({
                       } else if (manualCardStep === 'complete') {
                         setManualCardStep('card-details');
                       } else {
+                        if (isMobile) {
+                          setMobilePaymentSelectionActive(true);
+                        }
                         setManualCardStep('amount');
                         setManualCardDetails({ cardNumber: '', cardHolder: '', expiry: '', cvv: '' });
                       }
@@ -2957,9 +3105,15 @@ export function PaymentDialog({
                       } else if (thirdPartyDeliveryStep === 'reference') {
                         setThirdPartyDeliveryStep('select-partner');
                       } else if (thirdPartyDeliveryStep === 'select-partner') {
+                        if (isMobile) {
+                          setMobilePaymentSelectionActive(true);
+                        }
                         setThirdPartyDeliveryStep('amount');
                         setSelectedDeliveryPartner(null);
                       } else if (thirdPartyDeliveryStep === 'complete') {
+                        if (isMobile) {
+                          setMobilePaymentSelectionActive(true);
+                        }
                         setThirdPartyDeliveryStep('amount');
                         setSelectedDeliveryPartner(null);
                       }
@@ -3417,7 +3571,12 @@ export function PaymentDialog({
               <div className={`flex items-center justify-between ${isMobile ? 'px-4 py-3' : 'px-6 py-4'} border-b border-neutral-700`}>
                 <div className="flex items-center gap-3">
                   <button 
-                    onClick={() => setSelectedPaymentMethod('cash')}
+                    onClick={() => {
+                      if (isMobile) {
+                        setMobilePaymentSelectionActive(true);
+                      }
+                      setSelectedPaymentMethod('cash');
+                    }}
                     className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
                   >
                     <ArrowLeft className="w-5 h-5 text-neutral-300" />
@@ -3739,6 +3898,16 @@ export function PaymentDialog({
               {/* Header Section */}
               <div className={`flex items-center justify-between ${isMobile ? 'px-4 py-3' : 'px-6 py-4'} border-b border-neutral-700`}>
                 <div className="flex-1 flex items-center">
+                  {/* Mobile: Back to payment selection */}
+                  {isMobile && activePayingCheck === null && (
+                    <button 
+                      onClick={() => setMobilePaymentSelectionActive(true)}
+                      className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors mr-2"
+                    >
+                      <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                    </button>
+                  )}
+                  {/* Split check: Back to tickets */}
                   {activePayingCheck !== null && (
                     <button 
                       onClick={handleBackToSplitCheck}
@@ -3777,7 +3946,8 @@ export function PaymentDialog({
                 </div>
               </div>
 
-              {/* Payment Methods - Row of icons */}
+              {/* Payment Methods - Row of icons - Hidden on mobile */}
+              {!isMobile && (
               <div className={`${isMobile ? 'px-3 py-3' : 'px-6 py-4'} border-b border-neutral-700`}>
                 <div className="relative">
                   <div className={`grid gap-2 ${
@@ -3929,6 +4099,7 @@ export function PaymentDialog({
                   )}
                 </div>
               </div>
+              )}
 
               {/* Amount Display */}
               <div className={`${isMobile ? 'px-3 py-3' : 'px-6 py-4'} border-b border-neutral-700`}>

@@ -28,7 +28,7 @@ import {
 } from "@/data/orders";
 import { formatTableName } from "@/lib/orderUtils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { useSessionOrders, SessionOrder } from "@/contexts/SessionOrderContext";
+import { useSessionOrders, SessionOrder, SplitConfiguration, SplitCheck } from "@/contexts/SessionOrderContext";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -98,6 +98,7 @@ interface GuestOrder extends Order {
   mergedFrom?: MergedOrderSource[];
   transferredFrom?: MergedOrderSource[];
   paymentMethods?: PaymentMethod[];
+  splitConfiguration?: SplitConfiguration;
 }
 
 // Helper component for multi-payment display
@@ -292,7 +293,8 @@ const TableOrderDetails = () => {
       serviceCharge: totals.serviceCharge,
       tax: totals.tax,
       tip: totals.tip,
-      total: totals.total
+      total: totals.total,
+      splitConfiguration: sessionOrder.splitConfiguration
     };
   };
   
@@ -558,6 +560,117 @@ const TableOrderDetails = () => {
   const handleMobileOrderClick = (guest: GuestOrder) => {
     setSelectedGuest(guest);
     setShowMobileOrderPanel(true);
+  };
+
+  // Helper function to render split check cards
+  const renderSplitCheckCard = (
+    parentOrder: GuestOrder,
+    checkIndex: number,
+    checkData: SplitCheck,
+    layout: 'mobile' | 'tablet' | 'desktop'
+  ) => {
+    const checkLetter = checkData.checkId.toUpperCase();
+    const checkTotal = checkData.total;
+    const isPaid = checkData.status === 'paid';
+    
+    return (
+      <div 
+        key={`${parentOrder.id}-check-${checkData.checkId}`}
+        className="ml-4 mt-1"
+      >
+        <div 
+          className={`rounded-xl border overflow-hidden ${isPaid ? 'border-green-500/50' : 'border-white/10'}`}
+          style={{ backgroundColor: '#1B1C20' }}
+        >
+          {layout === 'mobile' ? (
+            // Mobile Layout for split check
+            <div className="flex items-stretch w-full">
+              {/* Order Number - Mobile compact style */}
+              <div className="flex-shrink-0 px-2 py-2 flex items-center">
+                <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+                  <span className="text-lg font-bold text-white">{parentOrder.id}</span>
+                  <span className="text-[9px] text-gray-500">{checkLetter}</span>
+                </div>
+              </div>
+
+              {/* Guest Info - Mobile compact layout */}
+              <div className="flex-1 min-w-0 py-2 pr-2">
+                <div className="flex flex-col gap-1">
+                  {/* Row 1: Check identifier, Server, Status */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-white font-medium text-sm">Check {checkLetter}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm" style={{ color: '#B5B6BB' }}>{parentOrder.server}</span>
+                      <span className={`text-sm font-medium ${isPaid ? 'text-green-500' : getStatusColor(parentOrder.status)}`}>
+                        {isPaid ? 'PAID' : parentOrder.status}
+                      </span>
+                    </div>
+                  </div>
+                  
+                  {/* Row 2: Order info, Timer, Total */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                      <span>Order No {parentOrder.id} {checkLetter.toLowerCase()}</span>
+                    </div>
+                    <span className="text-white font-semibold text-sm">{formatPrice(checkTotal)}</span>
+                  </div>
+                  
+                  {/* Row 3: Items count, Payment status */}
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm" style={{ color: '#B5B6BB' }}>{checkData.items.length} items</span>
+                    <span className="text-sm" style={{ color: isPaid ? '#4ade80' : '#B5B6BB' }}>
+                      {isPaid ? 'Paid' : 'Un Paid'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Tablet/Desktop Layout for split check
+            <div className="flex items-stretch w-full">
+              {/* Left Content with padding */}
+              <div className="flex-1 flex items-stretch gap-2 p-2">
+                {/* Order Number Box */}
+                <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 rounded-lg border border-white/20 py-1.5 gap-0.5" style={{ background: '#1A1A1A' }}>
+                  <span className="text-base font-bold text-white">{parentOrder.id}</span>
+                  <span className="text-[10px] text-white/40">{checkLetter}</span>
+                </div>
+
+                {/* Main Content */}
+                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                  {/* Row 1: Check identifier | Server (center) | Status */}
+                  <div className="flex items-center text-xs">
+                    <div className="flex items-center gap-1 flex-shrink-0">
+                      <span className="text-white font-medium truncate">Check {checkLetter}</span>
+                    </div>
+                    <span className="text-white/60 flex-1 text-left truncate px-1">{parentOrder.server}</span>
+                    <span className={`font-semibold uppercase flex-shrink-0 ${isPaid ? 'text-green-500' : getStatusColor(parentOrder.status)}`}>
+                      {isPaid ? 'PAID' : parentOrder.status}
+                    </span>
+                  </div>
+                  
+                  {/* Row 2: Order No + check letter | empty | Total */}
+                  <div className="flex items-center text-xs">
+                    <div className="flex items-center gap-1 text-white/60 flex-shrink-0">
+                      <span className="truncate">Order No {parentOrder.id} {checkLetter.toLowerCase()}</span>
+                    </div>
+                    <div className="flex-1"></div>
+                    <span className="text-white font-semibold flex-shrink-0">{formatPrice(checkTotal)}</span>
+                  </div>
+                  
+                  {/* Row 3: Items count | Payment Status (center) | empty */}
+                  <div className="flex items-center text-xs">
+                    <span className="text-white/60 flex-shrink-0 truncate">{checkData.items.length} items</span>
+                    <span className="text-white/60 flex-1 text-left truncate px-1">{isPaid ? 'Paid' : 'Un Paid'}</span>
+                    <span className="text-white flex-shrink-0"></span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   // Mobile Order Panel - render function (not component) to prevent scroll reset
@@ -1062,6 +1175,15 @@ const TableOrderDetails = () => {
                   </div>}
               </div>
             </div>
+            
+            {/* Split Check Cards - rendered below main order */}
+            {guest.splitConfiguration?.checks && guest.splitConfiguration.checks.length > 0 && (
+              <div className="space-y-1 mt-1">
+                {guest.splitConfiguration.checks.map((check, checkIndex) => 
+                  renderSplitCheckCard(guest, checkIndex, check, 'mobile')
+                )}
+              </div>
+            )}
           </div>)}
         </div>
         <ScrollBar orientation="vertical" />
@@ -1346,6 +1468,15 @@ const TableOrderDetails = () => {
                   </div>
                 </div>
               </div>
+              
+              {/* Split Check Cards - rendered below main order */}
+              {guest.splitConfiguration?.checks && guest.splitConfiguration.checks.length > 0 && (
+                <div className="space-y-1">
+                  {guest.splitConfiguration.checks.map((check, checkIndex) => 
+                    renderSplitCheckCard(guest, checkIndex, check, 'desktop')
+                  )}
+                </div>
+              )}
             </div>)}
           </div>
           <ScrollBar orientation="vertical" />
@@ -1917,6 +2048,15 @@ const TableOrderDetails = () => {
                   ) : null}
                 </div>
               </div>
+              
+              {/* Split Check Cards - rendered below main order */}
+              {guest.splitConfiguration?.checks && guest.splitConfiguration.checks.length > 0 && (
+                <div className="space-y-1">
+                  {guest.splitConfiguration.checks.map((check, checkIndex) => 
+                    renderSplitCheckCard(guest, checkIndex, check, 'tablet')
+                  )}
+                </div>
+              )}
             </div>)}
           </div>
           <ScrollBar orientation="vertical" />

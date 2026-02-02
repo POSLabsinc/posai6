@@ -2031,9 +2031,10 @@ const TableOrder = () => {
               };
 
               const handleGuestSelectLocal = (guestCount: number) => {
-                console.log(`Selected ${guestCount} guests for table ${table.id}`);
                 setGuestDropdownTable(null);
                 setSelectedTable(table.id);
+                const newOrder = createOrder(table.id, guestCount, 'Staff', 'Guest');
+                navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}`);
               };
 
               return (
@@ -2103,10 +2104,10 @@ const TableOrder = () => {
                 };
 
                 const handleGuestSelectLocal = (guestCount: number) => {
-                  console.log(`Selected ${guestCount} guests for table ${table.id}`);
                   setGuestDropdownTable(null);
                   setSelectedTable(table.id);
-                  navigate(`/orders?tableId=${table.id}&seats=${table.seats}&guests=${guestCount}`);
+                  const newOrder = createOrder(table.id, guestCount, 'Staff', 'Guest');
+                  navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}`);
                 };
 
                 return table.shape === "circle" ? (
@@ -2504,10 +2505,10 @@ const TableOrder = () => {
               };
 
               const handleGuestSelectLocal = (guestCount: number) => {
-                console.log(`Selected ${guestCount} guests for table ${table.id}`);
                 setGuestDropdownTable(null);
                 setSelectedTable(table.id);
-                navigate(`/orders?tableId=${table.id}&seats=${table.seats}&guests=${guestCount}`);
+                const newOrder = createOrder(table.id, guestCount, 'Staff', 'Guest');
+                navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}`);
               };
 
               const isReady = table.status === "Ready";

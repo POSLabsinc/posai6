@@ -1,84 +1,187 @@
 
-# Fix Table Grid Spacing and Ready Glow Effect
 
-## Problems Identified
+# Mobile Payment Method Selection Screen
 
-1. **Tables Too Close Together**: The grid currently uses `gap-2` (8px) which is too tight
-2. **Glowing Effect Overlapping**: The `ready-glow` CSS animation uses large box-shadow values (up to 80px spread) that bleed over onto adjacent tables
+## Overview
+Add a new mobile-specific payment selection screen that displays all payment methods in a 3-column grid layout (matching the reference design). When the user taps a payment method, it proceeds to the corresponding payment flow just like on desktop.
 
 ---
 
-## Visual Comparison
+## Current State vs. Desired State
 
 ```text
-CURRENT (gap-2, large glow):
-┌────┐ ┌────┐ ┌────┐
-│ T7 │░░░T8░░░│ T9 │   <- Glow from T8 covers T7 and T9
-└────┘ └────┘ └────┘
+CURRENT MOBILE LAYOUT:
+┌─────────────────────────┐
+│ < Total Due   $6.00   X │  ← Header
+├─────────────────────────┤
+│ [●] [●] [●] [●] [▼]     │  ← 4-column icons + "Other" dropdown
+├─────────────────────────┤
+│     $6.00  [⌨]          │  ← Amount display
+├─────────────────────────┤
+│  $1  $2  $5  $10        │  ← Quick amounts / Keypad
+│     $20 $50 $100        │
+├─────────────────────────┤
+│   [ CHARGE $6.00 ]      │  ← Charge button
+└─────────────────────────┘
 
-PROPOSED (gap-4, contained glow):
-┌────┐    ┌────┐    ┌────┐
-│ T7 │    │░T8░│    │ T9 │   <- Glow stays within T8's space
-└────┘    └────┘    └────┘
+DESIRED MOBILE LAYOUT (Initial Screen):
+┌─────────────────────────┐
+│ < Total Due   $ 6.00    │  ← Header (red amount)
+├─────────────────────────┤
+│   Choose Payment Method │  ← Label
+├─────────────────────────┤
+│  Card    Cash   Gift    │  ← 3-column grid
+│  [●]     [●]    Card[●] │
+│                         │
+│  Split   Pay By  QR     │
+│  Check   Link   Code    │
+│  [●]     [●]    [●]     │
+│                         │
+│  Account Loyalty Manual │
+│  [●]     [●]    CC [●]  │
+│                         │
+│  Manual  External Blizzful │
+│  Card    CC      [●]    │
+│  [●]     [●]            │
+└─────────────────────────┘
 ```
+
+---
+
+## Payment Methods to Display
+
+Based on existing configuration, combined into a single grid:
+
+| Method | Icon | ID |
+|--------|------|----|
+| Card | CreditCard | card |
+| Cash | Banknote | cash |
+| Gift Card | Gift | gift-card |
+| Split Check | splitCheckIcon | split-check |
+| Pay By Link | Link | pay-link |
+| QR Code | QrCode | qr-code |
+| Account | User | account |
+| Loyalty | Tag | loyalty |
+| Manual CC | CreditCard | manual-cc |
+| Manual Card | Clipboard | manual-card |
+| External CC | ExternalLink | external-cc |
+| 3rd Party Delivery | Truck | third-party-delivery |
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Increase Grid Gap
-**File:** `src/pages/TableOrder.tsx` (line 2484)
+### Step 1: Add Mobile Payment Selection State
 
-Change the grid gap from `gap-2` to `gap-4` to increase spacing between table cards from 8px to 16px.
+Add a new state variable to track whether the user is in the mobile payment selection screen:
 
-**Before:**
+```typescript
+const [mobilePaymentSelectionActive, setMobilePaymentSelectionActive] = useState(true);
+```
+
+Reset this state when dialog opens.
+
+### Step 2: Create All Mobile Payment Methods Array
+
+Combine all payment methods for the mobile grid display:
+
+```typescript
+const allMobilePaymentMethods: PaymentMethodType[] = [
+  { id: 'card', name: 'Card', icon: CreditCard },
+  { id: 'cash', name: 'Cash', icon: Banknote },
+  { id: 'gift-card', name: 'Gift Card', icon: Gift },
+  { id: 'split-check', name: 'Split Check', icon: () => <img src={splitCheckIcon} ... /> },
+  { id: 'pay-link', name: 'Pay By Link', icon: Link },
+  { id: 'qr-code', name: 'QR Code', icon: QrCode },
+  { id: 'account', name: 'Account', icon: User },
+  { id: 'loyalty', name: 'Loyalty', icon: Tag },
+  { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
+  { id: 'manual-card', name: 'Manual Card', icon: Clipboard },
+  { id: 'external-cc', name: 'External CC', icon: ExternalLink },
+  { id: 'third-party-delivery', name: 'Blizzful', icon: Truck }, // or "3rd Party"
+];
+```
+
+### Step 3: Create Mobile Payment Selection Screen
+
+New conditional render for mobile when `mobilePaymentSelectionActive` is true:
+
 ```tsx
-<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-2">
+{isMobile && mobilePaymentSelectionActive && !paymentProcessed && (
+  <div className="flex-1 flex flex-col">
+    {/* Header */}
+    <div className="flex items-center p-4 border-b border-neutral-700">
+      <button onClick={() => onOpenChange(false)}>
+        <ChevronLeft />
+      </button>
+      <div className="flex-1 text-center">
+        <span className="text-white">Total Due</span>
+        <span className="text-red-500 font-bold ml-2">${total.toFixed(2)}</span>
+      </div>
+    </div>
+    
+    {/* Label */}
+    <div className="text-center text-neutral-400 py-4">
+      Choose Payment Method
+    </div>
+    
+    {/* Payment Methods Grid - 3 columns */}
+    <div className="grid grid-cols-3 gap-4 px-4 pb-4">
+      {allMobilePaymentMethods.map((method) => (
+        <button
+          onClick={() => handleMobilePaymentMethodSelect(method.id)}
+          className="flex flex-col items-center gap-2"
+        >
+          <div className="w-14 h-14 rounded-full border border-neutral-600 ...">
+            <method.icon />
+          </div>
+          <span className="text-white text-xs">{method.name}</span>
+        </button>
+      ))}
+    </div>
+  </div>
+)}
 ```
 
-**After:**
-```tsx
-<div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+### Step 4: Handle Mobile Payment Method Selection
+
+Create handler that transitions to appropriate screen:
+
+```typescript
+const handleMobilePaymentMethodSelect = (methodId: string) => {
+  setSelectedPaymentMethod(methodId);
+  setMobilePaymentSelectionActive(false);
+  
+  // Trigger appropriate flow based on method
+  if (methodId === 'card') {
+    setManualCCStep('tap-card');
+  } else if (methodId === 'cash') {
+    // Show keypad for cash entry
+  } else if (methodId === 'gift-card') {
+    setGiftCardStep('enter-card');
+  } else if (methodId === 'split-check') {
+    // Split check flow
+  } else if (methodId === 'pay-link') {
+    setPayByLinkStep('select-guest');
+  }
+  // ... etc for all methods
+};
 ```
 
-### Step 2: Reduce Glow Effect Spread
-**File:** `src/index.css` (lines 173-185)
+### Step 5: Add Back Navigation
 
-Reduce the box-shadow spread values in the `readyPulse` animation to keep the glow contained within the card boundaries:
-- Reduce maximum spread from 80px to 20px
-- Keep the effect visible but more focused on the card itself
+When user is in a payment flow (not selection screen), add back button to return to the payment selection grid:
 
-**Before:**
-```css
-@keyframes readyPulse {
-  0%, 100% {
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.4), 
-                0 0 20px rgba(16, 185, 129, 0.3), 
-                0 0 40px rgba(16, 185, 129, 0.2);
-  }
-  50% {
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.6), 
-                0 0 35px rgba(16, 185, 129, 0.5), 
-                0 0 60px rgba(16, 185, 129, 0.3),
-                0 0 80px rgba(16, 185, 129, 0.15);
-  }
-}
+```typescript
+// In method-specific screens, add back button:
+<button onClick={() => setMobilePaymentSelectionActive(true)}>
+  <ArrowLeft />
+</button>
 ```
 
-**After:**
-```css
-@keyframes readyPulse {
-  0%, 100% {
-    box-shadow: 0 0 4px rgba(16, 185, 129, 0.5), 
-                0 0 8px rgba(16, 185, 129, 0.3);
-  }
-  50% {
-    box-shadow: 0 0 8px rgba(16, 185, 129, 0.7), 
-                0 0 15px rgba(16, 185, 129, 0.4),
-                0 0 20px rgba(16, 185, 129, 0.2);
-  }
-}
-```
+### Step 6: Update Existing Mobile Flow Logic
+
+Modify existing conditionals to check `!mobilePaymentSelectionActive` before showing current mobile payment UI (keypad, quick amounts, etc).
 
 ---
 
@@ -86,23 +189,40 @@ Reduce the box-shadow spread values in the `readyPulse` animation to keep the gl
 
 | File | Changes |
 |------|---------|
-| `src/pages/TableOrder.tsx` | Change grid gap from `gap-2` to `gap-4` |
-| `src/index.css` | Reduce box-shadow spread values in `readyPulse` animation |
+| `src/components/PaymentDialog.tsx` | Add mobile payment selection screen, new state, and flow logic |
 
 ---
 
-## Result
+## Visual Styling Details
 
-- Tables will have more breathing room with 16px gaps instead of 8px
-- The ready glow effect will be more focused and contained within the card area
-- Adjacent tables will no longer be visually affected by the glow
-- The pulsing animation will still be noticeable but more elegant
+From the reference image:
+- Dark background (neutral-900)
+- Red header stripe at top (matching current)
+- Back button (chevron-left) on left
+- "Total Due" in white, amount in red
+- "Choose Payment Method" label centered in neutral-400
+- Payment icons in rounded circles with neutral-600 border
+- Icon color: red/coral outline style (matching reference)
+- Label below each icon in white text
+
+---
+
+## Flow Preservation
+
+All existing payment flows remain unchanged:
+- Selecting a method triggers the same logic as desktop
+- Screen-by-screen progression is preserved
+- Only the initial method selection screen is different on mobile
+- Desktop and tablet views are NOT affected
 
 ---
 
 ## Testing Checklist
 
-- Verify increased spacing between all table cards in grid view
-- Confirm T8's glow effect no longer bleeds onto T7 or T9
-- Ensure the glow is still visible and attention-grabbing on T8
-- Check that the ORDER READY badge remains properly positioned
+- Verify payment method grid displays correctly on mobile
+- Tap each method and confirm it navigates to correct flow
+- Confirm back button returns to payment selection grid
+- Verify desktop/tablet views remain unchanged
+- Test completing a payment end-to-end on mobile
+- Verify Split Check flow works on mobile
+

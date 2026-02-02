@@ -1,80 +1,87 @@
 
-# Enhance Ready Status Visibility on Table T8
 
-## Problem
-The "Ready" status on table T8 is showing but lacks the noticeable visual effects. The ready-glow animation and ready-ring effects are only implemented in `DraggableRoundTable` and `DraggableSquareTable` components but not in `MapRoundTable` and `MapSquareTable` components which are used in the floorplan view.
+# Add Order for Table T8 with Ready Status
+
+## Objective
+Add a new order entry to the centralized orders database (`src/data/orders.ts`) for table T8 with status "READY" to demonstrate the Kitchen Display System (KDS) ready notification feature.
 
 ---
 
-## Current vs Proposed Visual
+## New Order Details
+
+| Field | Value |
+|-------|-------|
+| **ID** | 11 |
+| **Guest Name** | James Rodriguez |
+| **Phone** | (415) 555-7890 |
+| **Party Size** | 4 |
+| **Time** | 7:25 PM |
+| **Timer** | 0:50 Hrs |
+| **Server** | Mia Jones |
+| **Check** | 123500 |
+| **Revenue Center** | Main Dining |
+| **Status** | READY |
+| **Table** | T8 |
+| **Order Type** | Dine-In |
+| **Notes** | Food ready for delivery - KDS marked complete |
+
+---
+
+## Order Items
 
 ```text
-CURRENT (T8 - barely visible):
-┌─────────────────────────────────────────────────────────────────────────┐
-│                                                                         │
-│               ┌─────────┐                                               │
-│               │   T8    │  <- Just emerald color, no animation          │
-│               │  Ready  │                                               │
-│               └─────────┘                                               │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
-
-PROPOSED (T8 - highly visible):
-┌─────────────────────────────────────────────────────────────────────────┐
-│                                                                         │
-│           🔔 ORDER READY                                                │
-│          (( ┌─────────┐ ))   <- Expanding ring animation                │
-│          (  │   T8    │  )   <- Pulsing emerald glow                    │
-│             │  Ready  │                                                 │
-│             └─────────┘                                                 │
-│               13M                                                       │
-│                                                                         │
-└─────────────────────────────────────────────────────────────────────────┘
++-----+---------------------------+--------+-------+------------------+
+| Qty | Item                      | Price  | Seats | Modifiers        |
++-----+---------------------------+--------+-------+------------------+
+| 2   | Herb Crusted Salmon       | $26.00 | 1, 2  | Lemon Butter     |
+| 1   | Grilled Ribeye Steak      | $34.00 | 3     | Medium, Mushrooms|
+| 1   | Chicken Marsala           | $22.00 | 4     | Extra Sauce      |
+| 1   | Garlic Mashed Potatoes    | $8.00  | -     | (Shared)         |
+| 1   | Sauteed Vegetables        | $7.00  | -     | (Shared)         |
+| 4   | House Lemonade            | $4.00  | -     | (Shared)         |
++-----+---------------------------+--------+-------+------------------+
 ```
 
 ---
 
-## Implementation Steps
+## Implementation
 
-### Step 1: Add Bell Icon Import
-Add the `Bell` icon from lucide-react to use for the ready notification badge.
+### Step 1: Add New Order to allOrders Array
 
-**File:** `src/pages/TableOrder.tsx` (line 4)
+**File:** `src/data/orders.ts` (after line 350, before the closing bracket)
 
-Add `Bell` to the lucide-react imports.
+Add the following order entry:
 
-### Step 2: Update MapRoundTable Component
-Add the ready-glow, ready-ring animation, and notification bell badge to the MapRoundTable component.
-
-**File:** `src/pages/TableOrder.tsx` (lines 735-766)
-
-Changes:
-- Add ready-ring expanding animation element when `config.isReady` is true
-- Add `ready-glow` class to the table div when `config.isReady` is true
-- Add a floating bell notification badge above the table for ready status
-- Update boxShadow to use the glow animation instead of static shadow
-
-### Step 3: Update MapSquareTable Component
-Apply the same ready effects to the MapSquareTable component (which is what T8 uses since it's a square table).
-
-**File:** `src/pages/TableOrder.tsx` (lines 875-906)
-
-Changes:
-- Add ready-ring expanding animation element when `config.isReady` is true
-- Add `ready-glow` class to the table div when `config.isReady` is true
-- Add a floating bell notification badge above the table for ready status
-- Update boxShadow to use the glow animation instead of static shadow
-
----
-
-## Visual Effects Applied
-
-| Effect | Description |
-|--------|-------------|
-| **Pulsing Glow** | Emerald green shadow that pulses from subtle to bright using the `ready-glow` CSS class |
-| **Expanding Ring** | An outer ring that continuously expands and fades out using the `ready-ring` CSS class |
-| **Bell Notification Badge** | A floating badge above the table with a bell icon and "ORDER READY" text that bounces to grab attention |
-| **Enhanced Border** | Slightly thicker border with enhanced glow effect |
+```typescript
+// Order 11 - James Rodriguez (T8) - READY - Dine-In (KDS marked ready)
+{
+  id: "11",
+  name: "James Rodriguez",
+  phone: "(415) 555-7890",
+  partySize: 4,
+  time: "7:25 PM",
+  timer: "0:50 Hrs",
+  server: "Mia Jones",
+  check: "123500",
+  paymentType: "--",
+  revenueCenter: "Main Dining",
+  status: "READY",
+  notes: "Food ready for delivery - KDS marked complete",
+  table: "T8",
+  orderType: "Dine-In",
+  paidAmount: "$0.00",
+  paymentStatus: "Un Paid",
+  tipAmount: 20.00,
+  items: [
+    { qty: 2, name: "Herb Crusted Salmon", price: 26.00, seats: [1, 2], modifiers: ["Lemon Butter"] },
+    { qty: 1, name: "Grilled Ribeye Steak", price: 34.00, seats: [3], modifiers: ["Medium", "Mushroom Sauce"] },
+    { qty: 1, name: "Chicken Marsala", price: 22.00, seats: [4], modifiers: ["Extra Sauce"] },
+    { qty: 1, name: "Garlic Mashed Potatoes", price: 8.00, seats: [], modifiers: [], isShared: true },
+    { qty: 1, name: "Sauteed Vegetables", price: 7.00, seats: [], modifiers: [], isShared: true },
+    { qty: 4, name: "House Lemonade", price: 4.00, seats: [], modifiers: [], isShared: true }
+  ]
+}
+```
 
 ---
 
@@ -82,24 +89,26 @@ Changes:
 
 | File | Changes |
 |------|---------|
-| `src/pages/TableOrder.tsx` | Add Bell import, update MapRoundTable and MapSquareTable components with ready effects and notification badge |
+| `src/data/orders.ts` | Add Order #11 for table T8 with status "READY" |
 
 ---
 
-## CSS Classes Used (Already Exist)
+## Result
 
-From `src/index.css`:
-- `.ready-glow` - Pulsing emerald box-shadow animation
-- `.ready-ring` - Expanding ring that fades out
+After this change:
+- Table T8 will have an active order with "READY" status
+- The floorplan will display the emerald green pulsing glow effect
+- The expanding ring animation will be visible
+- The "ORDER READY" bell notification badge will bounce above T8
+- This simulates a real KDS workflow where kitchen marks an order as ready for delivery
 
 ---
 
 ## Testing Checklist
 
-- Navigate to /tableorder page
-- Look at table T8 in the floorplan view
-- Verify the pulsing emerald glow effect is visible
-- Verify the expanding ring animation is visible
-- Verify the bell notification badge with "ORDER READY" is displayed above the table
-- Verify the effect is highly noticeable and attention-grabbing
-- Test that other tables without Ready status don't show these effects
+- Navigate to `/tableorder` page
+- Verify table T8 shows "Ready" status with all visual effects
+- Click on T8 to view the order details
+- Verify all 6 items are displayed correctly with modifiers
+- Confirm the order total calculates correctly
+

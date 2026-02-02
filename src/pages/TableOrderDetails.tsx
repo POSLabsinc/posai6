@@ -666,9 +666,9 @@ const TableOrderDetails = () => {
               {/* Guest Info - Mobile compact layout matching main ticket */}
               <div className="flex-1 min-w-0 py-2 pr-2">
                 <div className="flex flex-col gap-1">
-                  {/* Row 1: Check Name · Table, Server, Status */}
+                  {/* Row 1: Customer Name · Check Letter · Table, Server, Status */}
                   <div className="flex items-center justify-between">
-                    <span className="text-white font-medium text-sm">Check {checkLetter} · {tableId}</span>
+                    <span className="text-white font-medium text-sm">{parentOrder.name} · Check {checkLetter} · {tableId}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-sm" style={{ color: '#B5B6BB' }}>{parentOrder.server}</span>
                       <span className={`text-sm font-medium ${isPaid ? 'text-green-500' : getStatusColor(parentOrder.status)}`}>
@@ -714,10 +714,10 @@ const TableOrderDetails = () => {
 
                 {/* Main Content - 3 rows with 45%/35%/20% ratio */}
                 <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                  {/* Row 1: Check Name | Server | Status - 45% | 35% | 20% */}
+                  {/* Row 1: Customer Name · Check Letter | Server | Status - 45% | 35% | 20% */}
                   <div className="flex items-center text-xs lg:text-sm">
                     <div className="w-[45%] text-left">
-                      <span className="text-white font-medium truncate">Check {checkLetter}</span>
+                      <span className="text-white font-medium truncate">{parentOrder.name} · Check {checkLetter}</span>
                     </div>
                     <div className="w-[35%] text-left">
                       <span className="text-white/60 truncate">{parentOrder.server}</span>
@@ -780,7 +780,7 @@ const TableOrderDetails = () => {
                       setShowPaymentDialog(true);
                     }}
                   >
-                    <img src={arrowRightIcon} alt="Pay" className="w-4 h-4 object-contain brightness-0" />
+                    <BadgeDollarSign className="w-4 h-4 text-black" />
                   </button>
                 )}
               </div>

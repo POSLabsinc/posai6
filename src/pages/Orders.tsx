@@ -9077,7 +9077,14 @@ const Orders = () => {
       {/* Split Order Alert Dialog */}
       {showSplitOrderAlert && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 overflow-hidden animate-scale-in">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 overflow-hidden animate-scale-in relative">
+            {/* Close X button */}
+            <button
+              onClick={() => setShowSplitOrderAlert(false)}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors z-10"
+            >
+              <X className="w-4 h-4 text-neutral-400" />
+            </button>
             <div className="p-6 text-center">
               <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-6 h-6 text-amber-400" />
@@ -9087,10 +9094,15 @@ const Orders = () => {
                 You cannot add more items to a split order. If you want to add items, please merge the order first.
               </p>
               <button
-                onClick={() => setShowSplitOrderAlert(false)}
-                className="w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity"
+                onClick={() => {
+                  setShowSplitOrderAlert(false);
+                  setIsOrderSplit(false);
+                  setSplitConfiguration(null);
+                }}
+                className="w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
               >
-                OK
+                <img src={mergeIcon} alt="Merge" className="w-4 h-4" />
+                Merge
               </button>
             </div>
           </div>

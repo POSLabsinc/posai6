@@ -266,8 +266,14 @@ const TableOrderDetails = () => {
   const transferDestArea = getOrderArea(transferredToOrderId);
   
   // Get session orders for this table
-  const { getOrdersByTable: getSessionOrdersByTable } = useSessionOrders();
+  const { getOrdersByTable: getSessionOrdersByTable, saveSplitConfiguration } = useSessionOrders();
   const sessionOrdersForTable = tableId ? getSessionOrdersByTable(tableId) : [];
+
+  // Get session ID for the current order (for persisting split config)
+  const getSessionIdForOrder = (orderId: string): string | undefined => {
+    const sessionOrder = sessionOrdersForTable.find(so => so.id === orderId);
+    return sessionOrder?.sessionId;
+  };
   
   // Convert session orders to GuestOrder format
   const convertSessionToGuestOrder = (sessionOrder: SessionOrder): GuestOrder => {
@@ -2518,6 +2524,40 @@ const TableOrderDetails = () => {
         total={currentSelectedGuest?.total || 0}
         onPaymentComplete={(history) => {
           console.log("Payment completed:", history);
+        }}
+        onSaveSplit={(config) => {
+          const sessionId = getSessionIdForOrder(currentSelectedGuest?.id || '');
+          
+          if (sessionId && currentSelectedGuest) {
+            const orderItems = currentSelectedGuest.items;
+            const checks = Array.from({ length: config.numberOfChecks }, (_, i) => {
+              const checkLetter = String.fromCharCode(97 + i);
+              const itemsForCheck = orderItems.filter((_, itemIdx) => 
+                config.checkAssignments[itemIdx] === i
+              );
+              const checkTotal = itemsForCheck.reduce((sum, item) => 
+                sum + (item.price * item.qty), 0
+              );
+              
+              return {
+                checkId: checkLetter,
+                items: itemsForCheck.map(item => ({
+                  qty: item.qty,
+                  name: item.name,
+                  price: item.price,
+                  seats: item.seats || [],
+                  modifiers: item.modifiers || []
+                })),
+                status: 'unpaid' as const,
+                total: checkTotal
+              };
+            });
+            
+            saveSplitConfiguration(sessionId, {
+              ...config,
+              checks
+            });
+          }
         }}
       />
 

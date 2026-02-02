@@ -2533,7 +2533,7 @@ const TableOrderDetails = () => {
             const checks = Array.from({ length: config.numberOfChecks }, (_, i) => {
               const checkLetter = String.fromCharCode(97 + i);
               const itemsForCheck = orderItems.filter((_, itemIdx) => 
-                config.checkAssignments[itemIdx] === i
+                config.checkAssignments[itemIdx + 1] === i + 1
               );
               const checkTotal = itemsForCheck.reduce((sum, item) => 
                 sum + (item.price * item.qty), 0

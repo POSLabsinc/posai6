@@ -788,23 +788,23 @@ export function PaymentDialog({
             </div>
             
             {/* Payment Methods Grid - 3 columns */}
-            <div className="grid grid-cols-3 gap-4 px-6 pb-6 flex-1 content-start">
+            <div className="grid grid-cols-3 gap-6 px-4 pb-8 flex-1 content-start">
               {allMobilePaymentMethods.map((method) => {
                 const IconComponent = method.icon;
                 return (
                   <button
                     key={method.id}
                     onClick={() => handleMobilePaymentMethodSelect(method.id)}
-                    className="flex flex-col items-center gap-2"
+                    className="flex flex-col items-center gap-3"
                   >
-                    <div className="w-14 h-14 rounded-full border border-neutral-600 bg-neutral-800 flex items-center justify-center hover:bg-neutral-700 hover:border-neutral-500 transition-colors">
+                    <div className="w-[72px] h-[72px] rounded-full border border-neutral-600 bg-neutral-800 flex items-center justify-center hover:bg-neutral-700 hover:border-neutral-500 transition-colors">
                       {method.id === 'split-check' ? (
-                        <img src={splitCheckIcon} alt="Split Check" className="w-6 h-6" />
+                        <img src={splitCheckIcon} alt="Split Check" className="w-8 h-8" />
                       ) : (
-                        <IconComponent className="w-6 h-6 text-red-400" />
+                        <IconComponent className="w-8 h-8 text-red-400" />
                       )}
                     </div>
-                    <span className="text-white text-xs text-center">{method.name}</span>
+                    <span className="text-white text-sm text-center">{method.name}</span>
                   </button>
                 );
               })}

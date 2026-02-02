@@ -2501,18 +2501,43 @@ const TableOrder = () => {
                 navigate(`/orders?tableId=${table.id}&seats=${table.seats}&guests=${guestCount}`);
               };
 
+              const isReady = table.status === "Ready";
+              
               return (
                 <div
                   key={`${table.id}-${index}`}
                   className="relative"
                 >
+                  {/* Ready status notification badge */}
+                  {isReady && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+                      <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-1 rounded-full shadow-lg shadow-emerald-500/50">
+                        <Bell className="w-3 h-3" />
+                        <span className="text-[10px] font-bold whitespace-nowrap">ORDER READY</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Ready ring animation */}
+                  {isReady && (
+                    <div 
+                      className="absolute ready-ring rounded-xl z-0"
+                      style={{
+                        inset: -4,
+                        border: '2px solid rgb(52, 211, 153)'
+                      }}
+                    />
+                  )}
+                  
                   <div
                     onClick={handleTableClick}
                     className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
                       selectedTable === table.id 
                         ? "border-orange-500 ring-2 ring-orange-500/30" 
-                        : "border-neutral-800"
-                    }`}
+                        : isReady 
+                          ? "border-emerald-500" 
+                          : "border-neutral-800"
+                    } ${isReady ? "ready-glow" : ""}`}
                   >
                     {/* Table Number */}
                     <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
@@ -2558,8 +2583,8 @@ const TableOrder = () => {
                           </div>
                         </div>
                       ) : (
-                        <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
-                          <span className={`text-xs font-medium ${config.color}`}>
+                        <div className={`w-full text-center py-1 rounded-md border ${isReady ? "border-emerald-500 bg-emerald-500/20" : `border-neutral-600 ${config.bgColor}`}`}>
+                          <span className={`text-xs font-medium ${isReady ? "text-emerald-400" : config.color}`}>
                             {table.status}
                           </span>
                         </div>

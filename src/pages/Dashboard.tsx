@@ -809,6 +809,20 @@ const Dashboard = () => {
   // Payment Dialog state (using shared component)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   
+  // Handler to safely open payment dialog (closes drawer first to prevent pointer event blocking)
+  const handleOpenPaymentFromDashboard = () => {
+    // Close the mobile drawer first if it's open
+    if (isDrawerOpen) {
+      setIsDrawerOpen(false);
+      // Small delay to let drawer close animation complete before opening payment dialog
+      setTimeout(() => {
+        setShowPaymentDialog(true);
+      }, 100);
+    } else {
+      setShowPaymentDialog(true);
+    }
+  };
+  
   // Table card selection state
   const [selectedTableCard, setSelectedTableCard] = useState<string | null>(null);
   const [guestDropdownTableCard, setGuestDropdownTableCard] = useState<string | null>(null);
@@ -1385,7 +1399,7 @@ const Dashboard = () => {
             setShowDiscountDialog={setShowDiscountDialog} 
             selectedDiscountId={selectedDiscountId} 
             setSelectedDiscountId={setSelectedDiscountId}
-            onChargeClick={() => setShowPaymentDialog(true)}
+            onChargeClick={handleOpenPaymentFromDashboard}
             showTipDialog={showTipDialog} 
             setShowTipDialog={setShowTipDialog} 
             showRefundMode={showRefundMode} 
@@ -1424,7 +1438,7 @@ const Dashboard = () => {
               setShowDiscountDialog={setShowDiscountDialog} 
               selectedDiscountId={selectedDiscountId} 
               setSelectedDiscountId={setSelectedDiscountId}
-              onChargeClick={() => setShowPaymentDialog(true)}
+              onChargeClick={handleOpenPaymentFromDashboard}
               showTipDialog={showTipDialog} 
               setShowTipDialog={setShowTipDialog} 
               showRefundMode={showRefundMode} 

@@ -6027,7 +6027,7 @@ const Orders = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { panelLayout } = usePanelPosition();
-  const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus } = useSessionOrders();
+  const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
   
   const addItemMode = searchParams.get('mode') === 'addItem';
   const existingOrderId = searchParams.get('orderId');
@@ -9071,6 +9071,36 @@ const Orders = () => {
         onSaveSplit={(config) => {
           setIsOrderSplit(true);
           setSplitConfiguration(config);
+          
+          // Persist to session context if this is a session order
+          if (sessionIdFromParams && isSessionOrderMode) {
+            // Build split checks from the configuration
+            const checks = Array.from({ length: config.numberOfChecks }, (_, i) => {
+              const checkLetter = String.fromCharCode(97 + i); // a, b, c...
+              const itemsForCheck = orderItems.filter((_, itemIdx) => 
+                config.checkAssignments[itemIdx] === i
+              );
+              const checkTotal = itemsForCheck.reduce((sum, item) => sum + (item.price * item.qty), 0);
+              
+              return {
+                checkId: checkLetter,
+                items: itemsForCheck.map(item => ({
+                  qty: item.qty,
+                  name: item.name,
+                  price: item.price,
+                  seats: [],
+                  modifiers: []
+                })),
+                status: 'unpaid' as const,
+                total: checkTotal
+              };
+            });
+            
+            saveContextSplitConfig(sessionIdFromParams, {
+              ...config,
+              checks
+            });
+          }
         }}
       />
 

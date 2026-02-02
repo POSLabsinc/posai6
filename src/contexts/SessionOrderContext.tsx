@@ -1,10 +1,27 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { Order, OrderItem } from '@/data/orders';
 
+// Split check interface for individual checks within a split order
+export interface SplitCheck {
+  checkId: string;           // "a", "b", "c", etc.
+  items: OrderItem[];        // Items assigned to this check
+  status: 'unpaid' | 'paid';
+  total: number;
+}
+
+// Split configuration interface
+export interface SplitConfiguration {
+  mode: 'seat' | 'evenly' | 'custom';
+  numberOfChecks: number;
+  checkAssignments: Record<number, number>;
+  checks: SplitCheck[];
+}
+
 // Session order with cart items
 export interface SessionOrder extends Order {
   sessionId: string;
   createdAt: number;
+  splitConfiguration?: SplitConfiguration;
 }
 
 interface SessionOrderContextType {
@@ -17,6 +34,9 @@ interface SessionOrderContextType {
   getOrderBySessionId: (sessionId: string) => SessionOrder | undefined;
   deleteOrder: (sessionId: string) => void;
   clearSessionOrders: () => void;
+  saveSplitConfiguration: (sessionId: string, config: SplitConfiguration) => void;
+  updateSplitCheckStatus: (sessionId: string, checkId: string, status: 'unpaid' | 'paid') => void;
+  clearSplitConfiguration: (sessionId: string) => void;
 }
 
 const SessionOrderContext = createContext<SessionOrderContextType | undefined>(undefined);
@@ -128,6 +148,46 @@ export function SessionOrderProvider({ children }: { children: ReactNode }) {
     localStorage.removeItem(SESSION_STORAGE_KEY);
   };
 
+  const saveSplitConfiguration = (sessionId: string, config: SplitConfiguration) => {
+    setSessionOrders(prev => 
+      prev.map(order => 
+        order.sessionId === sessionId 
+          ? { ...order, splitConfiguration: config } 
+          : order
+      )
+    );
+  };
+
+  const updateSplitCheckStatus = (sessionId: string, checkId: string, status: 'unpaid' | 'paid') => {
+    setSessionOrders(prev => 
+      prev.map(order => {
+        if (order.sessionId === sessionId && order.splitConfiguration) {
+          const updatedChecks = order.splitConfiguration.checks.map(check =>
+            check.checkId === checkId ? { ...check, status } : check
+          );
+          return {
+            ...order,
+            splitConfiguration: {
+              ...order.splitConfiguration,
+              checks: updatedChecks
+            }
+          };
+        }
+        return order;
+      })
+    );
+  };
+
+  const clearSplitConfiguration = (sessionId: string) => {
+    setSessionOrders(prev => 
+      prev.map(order => 
+        order.sessionId === sessionId 
+          ? { ...order, splitConfiguration: undefined } 
+          : order
+      )
+    );
+  };
+
   return (
     <SessionOrderContext.Provider value={{
       sessionOrders,
@@ -138,7 +198,10 @@ export function SessionOrderProvider({ children }: { children: ReactNode }) {
       getOrdersByTable,
       getOrderBySessionId,
       deleteOrder,
-      clearSessionOrders
+      clearSessionOrders,
+      saveSplitConfiguration,
+      updateSplitCheckStatus,
+      clearSplitConfiguration
     }}>
       {children}
     </SessionOrderContext.Provider>

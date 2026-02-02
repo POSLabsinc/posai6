@@ -1296,7 +1296,7 @@ const TableOrderDetails = () => {
             
             {/* Split Check Cards - rendered below main order */}
             {guest.splitConfiguration?.checks && guest.splitConfiguration.checks.length > 0 && (
-              <div className="space-y-3 mt-3">
+              <div className="space-y-2 mt-2">
                 {guest.splitConfiguration.checks.map((check, checkIndex) => 
                   renderSplitCheckCard(guest, checkIndex, check, 'mobile')
                 )}
@@ -1589,7 +1589,7 @@ const TableOrderDetails = () => {
               
               {/* Split Check Cards - rendered below main order */}
               {guest.splitConfiguration?.checks && guest.splitConfiguration.checks.length > 0 && (
-                <div className="space-y-3">
+                <div className="space-y-2 mt-2">
                   {guest.splitConfiguration.checks.map((check, checkIndex) => 
                     renderSplitCheckCard(guest, checkIndex, check, 'desktop')
                   )}
@@ -2205,7 +2205,7 @@ const TableOrderDetails = () => {
               
               {/* Split Check Cards - rendered below main order */}
               {guest.splitConfiguration?.checks && guest.splitConfiguration.checks.length > 0 && (
-                <div className="space-y-3">
+                <div className="space-y-2 mt-2">
                   {guest.splitConfiguration.checks.map((check, checkIndex) => 
                     renderSplitCheckCard(guest, checkIndex, check, 'tablet')
                   )}

@@ -4155,16 +4155,17 @@ export function PaymentDialog({
                         </div>
                       </div>
                     ) : (
-                      // Quick Amount Buttons with quantity tracking - 2 row layout
+                      // Quick Amount Buttons with quantity tracking - 3 column layout for mobile
                       <>
+                        {/* Row 1: Total amount + first 2 quick amounts (mobile) or 3 quick amounts (desktop) */}
                         <div className={`flex ${isMobile ? 'gap-2 px-1' : 'gap-4 px-2'}`}>
-                          <div className={`flex-1 relative ${isMobile ? 'py-0.5' : 'py-1'}`}>
+                          <div className={`flex-1 relative ${isMobile ? 'py-1' : 'py-1'}`}>
                             <button 
                               onClick={() => {
                                 setAmountQuantities({});
                                 setPaymentAmount(total.toFixed(2));
                               }} 
-                              className={`w-full ${isMobile ? 'py-2 text-xs' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
+                              className={`w-full ${isMobile ? 'py-4 text-base' : 'py-3 text-sm'} rounded-lg font-medium transition-colors ${
                                 paymentAmount === total.toFixed(2) && Object.keys(amountQuantities).length === 0 
                                   ? 'bg-neutral-900 text-white border border-neutral-600' 
                                   : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
@@ -4173,7 +4174,7 @@ export function PaymentDialog({
                               ${total.toFixed(2)}
                             </button>
                           </div>
-                          {quickAmounts.slice(0, isMobile ? 3 : 3).map(amount => {
+                          {quickAmounts.slice(0, isMobile ? 2 : 3).map(amount => {
                             const qty = amountQuantities[amount] || 0;
                             return (
                               <div key={amount} className={`flex-1 relative ${isMobile ? 'py-1' : 'py-1'}`}>
@@ -4207,8 +4208,10 @@ export function PaymentDialog({
                             );
                           })}
                         </div>
+                        
+                        {/* Row 2: Next 3 quick amounts for mobile, remaining 4 for desktop */}
                         <div className={`flex ${isMobile ? 'gap-2 px-1' : 'gap-4 px-2'}`}>
-                          {quickAmounts.slice(3).map(amount => {
+                          {quickAmounts.slice(isMobile ? 2 : 3, isMobile ? 5 : 7).map(amount => {
                             const qty = amountQuantities[amount] || 0;
                             return (
                               <div key={amount} className={`flex-1 relative ${isMobile ? 'py-1' : 'py-1'}`}>
@@ -4242,6 +4245,45 @@ export function PaymentDialog({
                             );
                           })}
                         </div>
+                        
+                        {/* Row 3: Remaining quick amounts for mobile ($50, $100) */}
+                        {isMobile && (
+                          <div className="flex gap-2 px-1">
+                            {quickAmounts.slice(5).map(amount => {
+                              const qty = amountQuantities[amount] || 0;
+                              return (
+                                <div key={amount} className="flex-1 relative py-1">
+                                  <button 
+                                    onClick={() => handleAddAmount(amount)} 
+                                    className={`w-full py-4 text-base rounded-lg font-medium transition-colors ${
+                                      qty > 0 
+                                        ? 'bg-neutral-900 text-white border border-neutral-600' 
+                                        : 'bg-neutral-800 text-neutral-300 border border-neutral-600 hover:border-neutral-500'
+                                    }`}
+                                  >
+                                    ${amount}
+                                  </button>
+                                  {qty > 0 && (
+                                    <>
+                                      <button 
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleRemoveAmount(amount);
+                                        }} 
+                                        className="absolute -top-0.5 -left-1.5 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:bg-red-600 transition-colors z-10"
+                                      >
+                                        ×
+                                      </button>
+                                      <span className="absolute -top-0.5 -right-1.5 w-5 h-5 rounded-full bg-green-500 text-white flex items-center justify-center text-[10px] font-medium z-10">
+                                        x{qty}
+                                      </span>
+                                    </>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )}
                       </>
                     )}
                   </div>

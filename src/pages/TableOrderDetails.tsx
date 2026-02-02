@@ -593,6 +593,37 @@ const TableOrderDetails = () => {
     setShowMobileOrderPanel(true);
   };
 
+  // State for selected split check (for payment)
+  const [selectedSplitCheck, setSelectedSplitCheck] = useState<{ orderId: string; checkId: string } | null>(null);
+
+  // Handle split check click - select it for payment
+  const handleSplitCheckClick = (parentOrder: GuestOrder, checkData: SplitCheck) => {
+    if (checkData.status === 'paid') return; // Don't allow clicking on paid checks
+    
+    // Create a virtual guest order for the split check
+    const splitCheckOrder: GuestOrder = {
+      ...parentOrder,
+      id: `${parentOrder.id}${checkData.checkId}`,
+      name: `Check ${checkData.checkId.toUpperCase()}`,
+      items: checkData.items,
+      subtotal: checkData.total * 0.85, // Approximate breakdown
+      discount: 0,
+      serviceCharge: checkData.total * 0.05,
+      tax: checkData.total * 0.0735,
+      tip: 0,
+      total: checkData.total,
+      splitConfiguration: undefined, // Individual checks don't have further splits
+    };
+    
+    setSelectedGuest(splitCheckOrder);
+    setSelectedSplitCheck({ orderId: parentOrder.id, checkId: checkData.checkId });
+    
+    // On mobile, show the order panel
+    if (window.innerWidth < 768) {
+      setShowMobileOrderPanel(true);
+    }
+  };
+
   // Helper function to render split check cards
   const renderSplitCheckCard = (
     parentOrder: GuestOrder,
@@ -603,6 +634,7 @@ const TableOrderDetails = () => {
     const checkLetter = checkData.checkId.toUpperCase();
     const checkTotal = checkData.total;
     const isPaid = checkData.status === 'paid';
+    const isSelected = selectedSplitCheck?.orderId === parentOrder.id && selectedSplitCheck?.checkId === checkData.checkId;
     
     return (
       <div 
@@ -610,11 +642,18 @@ const TableOrderDetails = () => {
         className="ml-4 mt-1"
       >
         <div 
-          className={`rounded-xl border overflow-hidden ${isPaid ? 'border-green-500/50' : 'border-white/10'}`}
+          onClick={() => handleSplitCheckClick(parentOrder, checkData)}
+          className={`rounded-xl border overflow-hidden cursor-pointer transition-all ${
+            isSelected 
+              ? 'border-white' 
+              : isPaid 
+                ? 'border-green-500/50 hover:border-green-500' 
+                : 'border-neutral-700 hover:border-neutral-600'
+          }`}
           style={{ backgroundColor: '#1B1C20' }}
         >
           {layout === 'mobile' ? (
-            // Mobile Layout for split check
+            // Mobile Layout for split check - matching main ticket layout
             <div className="flex items-stretch w-full">
               {/* Order Number - Mobile compact style */}
               <div className="flex-shrink-0 px-2 py-2 flex items-center">
@@ -624,12 +663,12 @@ const TableOrderDetails = () => {
                 </div>
               </div>
 
-              {/* Guest Info - Mobile compact layout */}
+              {/* Guest Info - Mobile compact layout matching main ticket */}
               <div className="flex-1 min-w-0 py-2 pr-2">
                 <div className="flex flex-col gap-1">
-                  {/* Row 1: Check identifier, Server, Status */}
+                  {/* Row 1: Check Name · Table, Server, Status */}
                   <div className="flex items-center justify-between">
-                    <span className="text-white font-medium text-sm">Check {checkLetter}</span>
+                    <span className="text-white font-medium text-sm">Check {checkLetter} · {tableId}</span>
                     <div className="flex items-center gap-2">
                       <span className="text-sm" style={{ color: '#B5B6BB' }}>{parentOrder.server}</span>
                       <span className={`text-sm font-medium ${isPaid ? 'text-green-500' : getStatusColor(parentOrder.status)}`}>
@@ -638,64 +677,112 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
                   
-                  {/* Row 2: Order info, Timer, Total */}
+                  {/* Row 2: Party info, Timer, Total */}
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
-                      <span>Order No {parentOrder.id} {checkLetter.toLowerCase()}</span>
+                      <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
+                      <span>Party of {parentOrder.partySize}, {parentOrder.time}</span>
+                      <span className="text-gray-500">|</span>
+                      <span>{orderTimers[parentOrder.id] || parentOrder.timer}</span>
                     </div>
                     <span className="text-white font-semibold text-sm">{formatPrice(checkTotal)}</span>
                   </div>
                   
-                  {/* Row 3: Items count, Payment status */}
+                  {/* Row 3: Revenue Center, Payment status, Tip */}
                   <div className="flex items-center justify-between">
-                    <span className="text-sm" style={{ color: '#B5B6BB' }}>{checkData.items.length} items</span>
-                    <span className="text-sm" style={{ color: isPaid ? '#4ade80' : '#B5B6BB' }}>
-                      {isPaid ? 'Paid' : 'Un Paid'}
-                    </span>
+                    <span className="text-sm" style={{ color: '#B5B6BB' }}>{parentOrder.revenueCenter}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm" style={{ color: isPaid ? '#4ade80' : '#B5B6BB' }}>
+                        {isPaid ? 'Paid' : 'Un Paid'}
+                      </span>
+                      <span className="text-white text-sm">$0.00</span>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
           ) : (
-            // Tablet/Desktop Layout for split check
-            <div className="flex items-stretch w-full">
+            // Tablet/Desktop Layout for split check - matching main ticket 45%/35%/20% layout
+            <div className="hidden md:flex items-stretch">
               {/* Left Content with padding */}
-              <div className="flex-1 flex items-stretch gap-2 p-2">
+              <div className="flex-1 flex items-stretch gap-3 p-3">
                 {/* Order Number Box */}
-                <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 rounded-lg border border-white/20 py-1.5 gap-0.5" style={{ background: '#1A1A1A' }}>
-                  <span className="text-base font-bold text-white">{parentOrder.id}</span>
-                  <span className="text-[10px] text-white/40">{checkLetter}</span>
+                <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
+                  <span className="text-lg font-bold text-white">{parentOrder.id}</span>
+                  <span className="text-xs text-white/40">{checkLetter}</span>
                 </div>
 
-                {/* Main Content */}
-                <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
-                  {/* Row 1: Check identifier | Server (center) | Status */}
-                  <div className="flex items-center text-xs">
-                    <div className="flex items-center gap-1 flex-shrink-0">
+                {/* Main Content - 3 rows with 45%/35%/20% ratio */}
+                <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+                  {/* Row 1: Check Name | Server | Status - 45% | 35% | 20% */}
+                  <div className="flex items-center text-xs lg:text-sm">
+                    <div className="w-[45%] text-left">
                       <span className="text-white font-medium truncate">Check {checkLetter}</span>
                     </div>
-                    <span className="text-white/60 flex-1 text-left truncate px-1">{parentOrder.server}</span>
-                    <span className={`font-semibold uppercase flex-shrink-0 ${isPaid ? 'text-green-500' : getStatusColor(parentOrder.status)}`}>
-                      {isPaid ? 'PAID' : parentOrder.status}
-                    </span>
-                  </div>
-                  
-                  {/* Row 2: Order No + check letter | empty | Total */}
-                  <div className="flex items-center text-xs">
-                    <div className="flex items-center gap-1 text-white/60 flex-shrink-0">
-                      <span className="truncate">Order No {parentOrder.id} {checkLetter.toLowerCase()}</span>
+                    <div className="w-[35%] text-left">
+                      <span className="text-white/60 truncate">{parentOrder.server}</span>
                     </div>
-                    <div className="flex-1"></div>
-                    <span className="text-white font-semibold flex-shrink-0">{formatPrice(checkTotal)}</span>
+                    <div className="w-[20%] text-right">
+                      <span className={`font-semibold uppercase ${isPaid ? 'text-green-500' : getStatusColor(parentOrder.status)}`}>
+                        {isPaid ? 'PAID' : parentOrder.status}
+                      </span>
+                    </div>
                   </div>
                   
-                  {/* Row 3: Items count | Payment Status (center) | empty */}
-                  <div className="flex items-center text-xs">
-                    <span className="text-white/60 flex-shrink-0 truncate">{checkData.items.length} items</span>
-                    <span className="text-white/60 flex-1 text-left truncate px-1">{isPaid ? 'Paid' : 'Un Paid'}</span>
-                    <span className="text-white flex-shrink-0"></span>
+                  {/* Row 2: Party info + Timer | empty | Total - 45% | 35% | 20% */}
+                  <div className="flex items-center text-xs lg:text-sm">
+                    <div className="w-[45%] text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
+                      <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
+                      <span>Party of {parentOrder.partySize}, {parentOrder.time}</span>
+                      <span className="text-white/40">|</span>
+                      <span>{orderTimers[parentOrder.id] || parentOrder.timer}</span>
+                    </div>
+                    <div className="w-[35%]"></div>
+                    <div className="w-[20%] text-right">
+                      <span className="text-white font-semibold">{formatPrice(checkTotal)}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Row 3: Revenue Center | Payment Status | Tip - 45% | 35% | 20% */}
+                  <div className="flex items-center text-xs lg:text-sm">
+                    <div className="w-[45%] text-left">
+                      <span className="text-white/60 truncate">{parentOrder.revenueCenter}</span>
+                    </div>
+                    <div className="w-[35%] text-left">
+                      <span className="text-white/60 truncate">{isPaid ? 'Paid' : 'Un Paid'}</span>
+                    </div>
+                    <div className="w-[20%] text-right">
+                      <span className="text-white">$0.00</span>
+                    </div>
                   </div>
                 </div>
+              </div>
+
+              {/* Right Action Button - Pay/Receipt */}
+              <div className="flex-shrink-0 flex flex-col w-10 overflow-hidden rounded-r-xl">
+                {isPaid ? (
+                  <button 
+                    className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Handle receipt for individual check
+                    }}
+                  >
+                    <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
+                  </button>
+                ) : (
+                  <button 
+                    className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
+                    style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSplitCheckClick(parentOrder, checkData);
+                      setShowPaymentDialog(true);
+                    }}
+                  >
+                    <img src={arrowRightIcon} alt="Pay" className="w-4 h-4 object-contain brightness-0" />
+                  </button>
+                )}
               </div>
             </div>
           )}

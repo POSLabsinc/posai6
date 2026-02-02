@@ -1062,7 +1062,7 @@ const TableOrderDetails = () => {
       {/* Guest Orders List */}
       <ScrollArea className="flex-1 px-3">
         <div className="space-y-2 pb-3">
-          {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-0">
+          {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-2">
               {/* Merged Order Indicator - Destination */}
               {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
                   <span className="text-xs font-medium">
@@ -1296,7 +1296,7 @@ const TableOrderDetails = () => {
             
             {/* Split Check Cards - rendered below main order */}
             {guest.splitConfiguration?.checks && guest.splitConfiguration.checks.length > 0 && (
-              <div className="space-y-2 mt-2">
+              <div className="space-y-2">
                 {guest.splitConfiguration.checks.map((check, checkIndex) => 
                   renderSplitCheckCard(guest, checkIndex, check, 'mobile')
                 )}
@@ -1374,7 +1374,7 @@ const TableOrderDetails = () => {
         {/* Guest Orders List */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
-            {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-0">
+            {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-2">
                 {/* Merged Order Indicator - Destination */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
                     <span className="text-sm font-medium">
@@ -1589,7 +1589,7 @@ const TableOrderDetails = () => {
               
               {/* Split Check Cards - rendered below main order */}
               {guest.splitConfiguration?.checks && guest.splitConfiguration.checks.length > 0 && (
-                <div className="space-y-2 mt-2">
+                <div className="space-y-2">
                   {guest.splitConfiguration.checks.map((check, checkIndex) => 
                     renderSplitCheckCard(guest, checkIndex, check, 'desktop')
                   )}
@@ -2119,7 +2119,7 @@ const TableOrderDetails = () => {
         {/* Guest Orders List - Mobile-style cards */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
-            {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-0">
+            {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-2">
                 {/* Merged Order Indicator */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 bg-neutral-900 rounded-t-lg border-l-2 border-orange-500 flex items-center gap-1">
                     <span className="text-orange-500 text-xs font-medium">Merged #{mergedOrderId} from {formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
@@ -2205,7 +2205,7 @@ const TableOrderDetails = () => {
               
               {/* Split Check Cards - rendered below main order */}
               {guest.splitConfiguration?.checks && guest.splitConfiguration.checks.length > 0 && (
-                <div className="space-y-2 mt-2">
+                <div className="space-y-2">
                   {guest.splitConfiguration.checks.map((check, checkIndex) => 
                     renderSplitCheckCard(guest, checkIndex, check, 'tablet')
                   )}

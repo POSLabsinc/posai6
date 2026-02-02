@@ -347,6 +347,35 @@ export const allOrders: Order[] = [
       { qty: 5, name: "Sparkling Water", price: 4.00, seats: [], modifiers: [], isShared: true },
       { qty: 2, name: "Crème Brûlée", price: 10.00, seats: [], modifiers: [], isShared: true }
     ]
+  },
+  
+  // Order 11 - James Rodriguez (T8) - READY - Dine-In (KDS marked ready)
+  {
+    id: "11",
+    name: "James Rodriguez",
+    phone: "(415) 555-7890",
+    partySize: 4,
+    time: "7:25 PM",
+    timer: "0:50 Hrs",
+    server: "Mia Jones",
+    check: "123500",
+    paymentType: "--",
+    revenueCenter: "Main Dining",
+    status: "READY",
+    notes: "Food ready for delivery - KDS marked complete",
+    table: "T8",
+    orderType: "Dine-In",
+    paidAmount: "$0.00",
+    paymentStatus: "Un Paid",
+    tipAmount: 20.00,
+    items: [
+      { qty: 2, name: "Herb Crusted Salmon", price: 26.00, seats: [1, 2], modifiers: ["Lemon Butter"] },
+      { qty: 1, name: "Grilled Ribeye Steak", price: 34.00, seats: [3], modifiers: ["Medium", "Mushroom Sauce"] },
+      { qty: 1, name: "Chicken Marsala", price: 22.00, seats: [4], modifiers: ["Extra Sauce"] },
+      { qty: 1, name: "Garlic Mashed Potatoes", price: 8.00, seats: [], modifiers: [], isShared: true },
+      { qty: 1, name: "Sauteed Vegetables", price: 7.00, seats: [], modifiers: [], isShared: true },
+      { qty: 4, name: "House Lemonade", price: 4.00, seats: [], modifiers: [], isShared: true }
+    ]
   }
 ];
 

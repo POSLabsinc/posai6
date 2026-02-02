@@ -3681,11 +3681,26 @@ export function PaymentDialog({
                   </div>
                 )}
                 
-                {/* Party Size Indicator - show only in seat mode */}
+                {/* Party Size Indicator + Save Button - show only in seat mode */}
                 {splitMode === 'seat' && (
-                  <div className={`flex items-center gap-2 text-neutral-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
-                    <Users className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
-                    <span>{orderDetails.partySize || numberOfChecks} Guests</span>
+                  <div className="flex items-center gap-2">
+                    <div className={`flex items-center gap-2 text-neutral-400 ${isMobile ? 'text-xs' : 'text-sm'}`}>
+                      <Users className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                      <span>{orderDetails.partySize || numberOfChecks} Guests</span>
+                    </div>
+                    <button
+                      onClick={() => {
+                        onSaveSplit?.({
+                          mode: splitMode,
+                          numberOfChecks: orderDetails.partySize || numberOfChecks,
+                          checkAssignments
+                        });
+                        onOpenChange(false);
+                      }}
+                      className={`${isMobile ? 'w-6 h-6' : 'w-8 h-8'} rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-neutral-700 transition-colors ml-1`}
+                    >
+                      <Save className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'}`} />
+                    </button>
                   </div>
                 )}
               </div>

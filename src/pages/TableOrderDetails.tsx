@@ -1658,13 +1658,49 @@ const TableOrderDetails = () => {
           <div className="flex items-center gap-2">
             {currentSelectedGuest?.status?.toUpperCase() !== 'PAID' && currentSelectedGuest?.status?.toUpperCase() !== 'COMPLETED' && (
               <>
-                <button 
-                  className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
-                  onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
-                >
-                  <img src={receiptIcon} alt="" className="w-3 h-3" />
-                  Add Item
-                </button>
+                {selectedSplitCheck ? (
+                  // Show Merge button for split check tickets
+                  <button 
+                    className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
+                    onClick={() => {
+                      // Find the parent order and clear its split configuration
+                      const parentOrderId = selectedSplitCheck.orderId;
+                      const sessionId = getSessionIdForOrder(parentOrderId);
+                      
+                      if (sessionId) {
+                        // Clear split config from session order
+                        saveSplitConfiguration(sessionId, undefined as any);
+                      } else {
+                        // Clear from static splits
+                        const splitKey = `${tableId}:${parentOrderId}`;
+                        setStaticSplitConfigs(prev => {
+                          const newConfigs = { ...prev };
+                          delete newConfigs[splitKey];
+                          return newConfigs;
+                        });
+                      }
+                      
+                      // Find and select the parent order
+                      const parentOrder = guestOrders.find(g => g.id === parentOrderId);
+                      if (parentOrder) {
+                        setSelectedGuest(parentOrder);
+                      }
+                      setSelectedSplitCheck(null);
+                    }}
+                  >
+                    <img src={linkMergeIcon} alt="" className="w-3 h-3" />
+                    Merge
+                  </button>
+                ) : (
+                  // Show Add Item button for regular orders
+                  <button 
+                    className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
+                    onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
+                  >
+                    <img src={receiptIcon} alt="" className="w-3 h-3" />
+                    Add Item
+                  </button>
+                )}
                 <button 
                   className={`text-[10px] rounded-[10px] ${selectedDiscountId ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors`}
                   onClick={() => {

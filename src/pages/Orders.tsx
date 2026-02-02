@@ -1,8 +1,10 @@
 import { useState, useRef, useEffect, useMemo } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
+import { useSessionOrders } from "@/contexts/SessionOrderContext";
+import { toast } from "sonner";
 import searchIcon from "@/assets/icons/search.png";
 import ItemCustomizationDialog from "@/components/ItemCustomizationDialog";
 import GiftCardDialog from "@/components/GiftCardDialog";
@@ -6023,15 +6025,26 @@ const getCategoryHoverTextColor = (category: string) => {
 const Orders = () => {
   // Read URL params for add-item mode
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const { panelLayout } = usePanelPosition();
+  const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus } = useSessionOrders();
+  
   const addItemMode = searchParams.get('mode') === 'addItem';
   const existingOrderId = searchParams.get('orderId');
   const tableIdFromParams = searchParams.get('tableId');
+  const sessionIdFromParams = searchParams.get('sessionId');
+  const partySizeFromParams = searchParams.get('partySize');
   const seatsFromParams = searchParams.get('seats');
   const guestsFromParams = searchParams.get('guests');
+  
+  // Session order mode - coming from TableOrder seat selection
+  const isSessionOrderMode = !!sessionIdFromParams && !!tableIdFromParams;
+  const sessionOrder = isSessionOrderMode ? getOrderBySessionId(sessionIdFromParams) : null;
+  const sessionPartySize = partySizeFromParams ? parseInt(partySizeFromParams) : (sessionOrder?.partySize || 0);
+  
   const isTableOrder = !!tableIdFromParams && !!seatsFromParams && !!guestsFromParams;
-  const totalSeats = seatsFromParams ? parseInt(seatsFromParams) : 0;
-  const guestCount = guestsFromParams ? parseInt(guestsFromParams) : 0;
+  const totalSeats = seatsFromParams ? parseInt(seatsFromParams) : (sessionPartySize || 0);
+  const guestCount = guestsFromParams ? parseInt(guestsFromParams) : (sessionPartySize || 0);
   
   // Get existing order data if in add-item mode
   const existingOrder = addItemMode && existingOrderId ? getOrderById(existingOrderId) : null;
@@ -6660,6 +6673,45 @@ const Orders = () => {
         : item
     ));
   };
+
+  // Handler to fire the entire order (session orders)
+  const handleFireOrder = () => {
+    if (!isSessionOrderMode || !sessionIdFromParams) {
+      // Not a session order, just toggle all items to fired
+      setOrderItems(prev => prev.map(item => ({ ...item, isFired: true })));
+      toast.success("Order items marked as fired!");
+      return;
+    }
+    
+    if (orderItems.length === 0) {
+      toast.error("Please add items to the order before firing");
+      return;
+    }
+    
+    // Convert cart items to the format expected by session orders
+    const sessionOrderItems = orderItems.map(item => ({
+      qty: item.qty,
+      name: item.name,
+      price: item.price,
+      seats: item.assignedSeats || [],
+      modifiers: item.modifiers || [],
+      isShared: item.assignedSeats?.length === guestCount
+    }));
+    
+    // Update session order items
+    updateOrderItems(sessionIdFromParams, sessionOrderItems);
+    
+    // Fire the order - changes status to ORDERED
+    fireSessionOrder(sessionIdFromParams);
+    
+    toast.success("Order fired to kitchen!");
+    
+    // Navigate to TableOrderDetails
+    if (tableIdFromParams) {
+      navigate(`/tableorder/${tableIdFromParams}`);
+    }
+  };
+
   const total = subtotal - discount + serviceCharge + tax;
   
   // Calculate new items total for add-item mode when existing order is paid
@@ -7412,9 +7464,14 @@ const Orders = () => {
             }}>
                 <img src={saveIcon} alt="Save" className="w-4 h-4" />
               </button>
-              <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
-              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-            }}>
+              <button 
+                onClick={handleFireOrder}
+                disabled={orderItems.length === 0}
+                className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                style={{
+                  background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                }}
+              >
                 <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                 <span className="text-white font-semibold text-sm">FIRE</span>
               </button>
@@ -8607,9 +8664,10 @@ const Orders = () => {
                     <img src={saveIcon} alt="Save" className="w-4 h-4" />
                   </button>
                   <button 
-                    disabled={isOrderSplit}
+                    onClick={handleFireOrder}
+                    disabled={isOrderSplit || orderItems.length === 0}
                     className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${
-                      isOrderSplit ? 'opacity-50 cursor-not-allowed' : ''
+                      isOrderSplit || orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
                     }`}
                     style={{
                       background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'

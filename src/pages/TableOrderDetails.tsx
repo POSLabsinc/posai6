@@ -23,10 +23,12 @@ import {
   getMergedOrderDisplay,
   calculateCombinedTotals,
   hasMergedOrTransferredItems,
-  MergedOrderSource
+  MergedOrderSource,
+  calculateOrderTotals
 } from "@/data/orders";
 import { formatTableName } from "@/lib/orderUtils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useSessionOrders, SessionOrder } from "@/contexts/SessionOrderContext";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -262,8 +264,40 @@ const TableOrderDetails = () => {
   const transferSourceArea = getOrderArea(transferredOrderId);
   const transferDestArea = getOrderArea(transferredToOrderId);
   
-  // Get orders for this table with calculated totals
-  const guestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
+  // Get session orders for this table
+  const { getOrdersByTable: getSessionOrdersByTable } = useSessionOrders();
+  const sessionOrdersForTable = tableId ? getSessionOrdersByTable(tableId) : [];
+  
+  // Convert session orders to GuestOrder format
+  const convertSessionToGuestOrder = (sessionOrder: SessionOrder): GuestOrder => {
+    const totals = calculateOrderTotals(sessionOrder.items, 0);
+    return {
+      id: sessionOrder.id,
+      name: sessionOrder.name,
+      phone: sessionOrder.phone,
+      partySize: sessionOrder.partySize,
+      time: sessionOrder.time,
+      timer: sessionOrder.timer,
+      server: sessionOrder.server,
+      check: sessionOrder.check,
+      paymentType: sessionOrder.paymentType,
+      revenueCenter: sessionOrder.revenueCenter,
+      status: sessionOrder.status,
+      notes: sessionOrder.notes,
+      table: sessionOrder.table,
+      orderType: sessionOrder.orderType,
+      items: sessionOrder.items,
+      subtotal: totals.subtotal,
+      discount: totals.discount,
+      serviceCharge: totals.serviceCharge,
+      tax: totals.tax,
+      tip: totals.tip,
+      total: totals.total
+    };
+  };
+  
+  // Get orders for this table with calculated totals (static + session orders)
+  const staticGuestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
     const orderWithTotals = getOrderWithTotals(order) as GuestOrder;
     
     // If this order is the destination of a merge, add merged order data
@@ -312,6 +346,10 @@ const TableOrderDetails = () => {
     
     return orderWithTotals;
   });
+  
+  // Merge static and session orders - session orders shown first
+  const sessionGuestOrders: GuestOrder[] = sessionOrdersForTable.map(convertSessionToGuestOrder);
+  const guestOrders: GuestOrder[] = [...sessionGuestOrders, ...staticGuestOrders];
   
 
   // Memoize order timer data to avoid recreating array on every render

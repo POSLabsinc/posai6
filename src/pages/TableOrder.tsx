@@ -29,6 +29,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
+import { useSessionOrders } from "@/contexts/SessionOrderContext";
 
 // Import icons
 import burgerOpenIcon from "@/assets/icons/burger-open.png";
@@ -1579,11 +1580,19 @@ const TableOrder = () => {
     setGuestDropdownTable(null);
   };
 
+  const { createOrder } = useSessionOrders();
+
   const handleGuestSelect = (tableId: string, guestCount: number) => {
     console.log(`Selected ${guestCount} guests for table ${tableId}`);
     setGuestDropdownTable(null);
     setSelectedTable(tableId);
-    navigate(`/orders`);
+    
+    // Create a new session order for this table
+    const newOrder = createOrder(tableId, guestCount, 'Staff', 'Guest');
+    console.log('Created session order:', newOrder);
+    
+    // Navigate to orders page with the session ID
+    navigate(`/orders?tableId=${tableId}&sessionId=${newOrder.sessionId}&partySize=${guestCount}`);
   };
   
   const mergedPairs = getMergedPairs();

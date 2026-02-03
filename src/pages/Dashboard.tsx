@@ -446,6 +446,7 @@ interface OrderPanelContentProps {
   setShowRefundDialog: (show: boolean) => void;
   // Split check props
   isSplitCheckSelected: boolean;
+  hasSplitConfiguration: boolean;
   onMergeClick: () => void;
 }
 
@@ -476,6 +477,7 @@ const OrderPanelContent = ({
   showRefundDialog,
   setShowRefundDialog,
   isSplitCheckSelected,
+  hasSplitConfiguration,
   onMergeClick
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
@@ -503,7 +505,7 @@ const OrderPanelContent = ({
           </div>
         </div>
         <div className="flex gap-2">
-          {isSplitCheckSelected ? (
+          {(isSplitCheckSelected || hasSplitConfiguration) ? (
             <button 
               className="text-[10px] rounded-[10px] bg-amber-600 hover:bg-amber-500 border border-amber-500 h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
               onClick={onMergeClick}
@@ -1247,10 +1249,19 @@ const Dashboard = () => {
 
   // Handle merge click - clears split configuration
   const handleMergeClick = () => {
-    if (!selectedSplitCheck || !selectedOrder) return;
+    if (!selectedOrder) return;
     
-    // Find the parent order's table from the original order
-    const parentOrder = allOrders.find(o => o.id === selectedSplitCheck.orderId);
+    // Determine the parent order - either from selectedSplitCheck or directly from selectedOrder
+    let parentOrder: DashboardOrder | undefined;
+    
+    if (selectedSplitCheck) {
+      // Sub-ticket selected - find parent from allOrders
+      parentOrder = allOrders.find(o => o.id === selectedSplitCheck.orderId);
+    } else if (selectedOrder?.splitConfiguration && selectedOrder.splitConfiguration.checks.length > 0) {
+      // Main ticket with split configuration selected
+      parentOrder = selectedOrder;
+    }
+    
     if (!parentOrder) return;
     
     // Clear split configuration from localStorage for static orders
@@ -1261,10 +1272,15 @@ const Dashboard = () => {
       return updated;
     });
     
-    // Clear the selected split check and select the parent order
+    // Clear the selected split check and update selected order without split
     setSelectedSplitCheck(null);
-    setSelectedOrder(parentOrder);
-    setOrderItems(parentOrder.items);
+    
+    // Find the original order without split configuration
+    const originalOrder = allOrders.find(o => o.id === parentOrder!.id);
+    if (originalOrder) {
+      setSelectedOrder(originalOrder);
+      setOrderItems(originalOrder.items);
+    }
   };
 
   // Prepare order details for PaymentDialog
@@ -1743,6 +1759,7 @@ const Dashboard = () => {
             showRefundDialog={showRefundDialog} 
             setShowRefundDialog={setShowRefundDialog}
             isSplitCheckSelected={!!selectedSplitCheck}
+            hasSplitConfiguration={!!(selectedOrder?.splitConfiguration && selectedOrder.splitConfiguration.checks.length > 0)}
             onMergeClick={handleMergeClick}
           />
         </div>
@@ -1784,6 +1801,7 @@ const Dashboard = () => {
               showRefundDialog={showRefundDialog} 
               setShowRefundDialog={setShowRefundDialog}
               isSplitCheckSelected={!!selectedSplitCheck}
+              hasSplitConfiguration={!!(selectedOrder?.splitConfiguration && selectedOrder.splitConfiguration.checks.length > 0)}
               onMergeClick={handleMergeClick}
             />
           </div>

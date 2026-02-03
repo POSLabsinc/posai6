@@ -28,7 +28,9 @@ import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 import { getDashboardOrders, DashboardOrder, DashboardOrderItem, PaymentMethod, formatTableName, calculateOrderTotals } from "@/data/orders";
 import receiptIcon from "@/assets/icons/receipt-icon.svg";
-import registerIcon from "@/assets/icons/register-icon.svg";
+import registerIcon from "@/assets/icons/register.svg";
+import discountBtnIcon from "@/assets/icons/discount-icon.svg";
+import linkMergeIcon from "@/assets/icons/link-merge.png";
 import { useSessionOrders, SplitConfiguration, SplitCheck, SessionOrder } from "@/contexts/SessionOrderContext";
 
 // Helper component for multi-payment display (matching TableOrderDetails)
@@ -503,29 +505,34 @@ const OrderPanelContent = ({
         <div className="flex gap-2">
           {isSplitCheckSelected ? (
             <button 
-              className="px-3 py-1.5 bg-amber-600 text-white text-xs rounded-full hover:bg-amber-500 transition-colors"
+              className="text-[10px] rounded-[10px] bg-amber-600 hover:bg-amber-500 border border-amber-500 h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
               onClick={onMergeClick}
             >
+              <img src={linkMergeIcon} alt="" className="w-3 h-3" />
               Merge
             </button>
           ) : (
-            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+            <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
+              <img src={receiptIcon} alt="" className="w-3 h-3" />
               Add Item
             </button>
           )}
           {!isOrderDisabled && (
             <button 
-              className="px-3 py-1.5 text-xs rounded-full transition-colors bg-neutral-700 text-white hover:bg-neutral-600" 
+              className={`text-[10px] rounded-[10px] ${selectedDiscountId ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors`}
               onClick={() => setShowDiscountDialog(true)}
             >
+              <img src={discountBtnIcon} alt="" className="w-3 h-3" />
               Discount
             </button>
           )}
-          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+          <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
+            <img src={receiptIcon} alt="" className="w-3 h-3" />
             Receipt
           </button>
-          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
-            Cash Register
+          <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
+            <img src={registerIcon} alt="" className="w-3 h-3" />
+            Register
           </button>
         </div>
       </div>

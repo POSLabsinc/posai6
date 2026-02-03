@@ -1821,7 +1821,75 @@ const Dashboard = () => {
           setShowPaymentDialog(false);
         }}
         onSaveSplit={(config) => {
-          console.log("Split saved:", config);
+          if (!selectedOrder) return;
+          
+          const orderId = selectedOrder.id;
+          const orderItemsForSplit = selectedOrder.items;
+          const partySize = selectedOrder.seats || 4;
+          const orderTotal = selectedOrder.total || 0;
+          
+          // Build checks based on split mode
+          const checks: SplitCheck[] = Array.from({ length: config.numberOfChecks }, (_, i) => {
+            const checkLetter = String.fromCharCode(97 + i);
+            let itemsForCheck: typeof orderItemsForSplit = [];
+            let checkTotal = 0;
+            
+            if (config.mode === 'custom') {
+              // Custom mode: use checkAssignments (1-indexed keys and values)
+              itemsForCheck = orderItemsForSplit.filter((_, itemIdx) => 
+                config.checkAssignments[itemIdx + 1] === i + 1
+              );
+              checkTotal = itemsForCheck.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            } else if (config.mode === 'evenly') {
+              // Evenly mode: split total equally, include all items for display
+              itemsForCheck = orderItemsForSplit;
+              checkTotal = orderTotal / config.numberOfChecks;
+            } else if (config.mode === 'seat') {
+              // Seat mode: assign items based on seat assignments
+              const seatNumber = i + 1;
+              itemsForCheck = orderItemsForSplit.filter(item => {
+                if (!item.seats || item.seats.length === 0) return true;
+                return item.seats.includes(seatNumber);
+              });
+              // Calculate check total accounting for shared items split across party
+              checkTotal = itemsForCheck.reduce((sum, item) => {
+                const itemTotal = item.price * item.qty;
+                if (!item.seats || item.seats.length === 0) {
+                  return sum + (itemTotal / partySize);
+                }
+                return sum + itemTotal;
+              }, 0);
+            }
+            
+            return {
+              checkId: checkLetter,
+              items: itemsForCheck.map(item => ({
+                qty: item.qty,
+                name: item.name,
+                price: item.price,
+                seats: item.seats || [],
+                modifiers: []
+              })),
+              status: 'unpaid' as const,
+              total: checkTotal
+            };
+          });
+          
+          const fullConfig: SplitConfiguration = {
+            ...config,
+            checks
+          };
+          
+          // Save to localStorage for static orders
+          const splitKey = `${selectedOrder.table}:${orderId}`;
+          setStaticSplitConfigs(prev => {
+            const updated = { ...prev, [splitKey]: fullConfig };
+            localStorage.setItem(STATIC_SPLITS_KEY, JSON.stringify(updated));
+            return updated;
+          });
+          
+          // Update selectedOrder to reflect split state immediately
+          setSelectedOrder(prev => prev ? { ...prev, splitConfiguration: fullConfig } : null);
         }}
       />
 

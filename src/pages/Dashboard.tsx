@@ -442,6 +442,9 @@ interface OrderPanelContentProps {
   setShowRefundMode: (show: boolean) => void;
   showRefundDialog: boolean;
   setShowRefundDialog: (show: boolean) => void;
+  // Split check props
+  isSplitCheckSelected: boolean;
+  onMergeClick: () => void;
 }
 
 const OrderPanelContent = ({
@@ -469,7 +472,9 @@ const OrderPanelContent = ({
   showRefundMode,
   setShowRefundMode,
   showRefundDialog,
-  setShowRefundDialog
+  setShowRefundDialog,
+  isSplitCheckSelected,
+  onMergeClick
 }: OrderPanelContentProps) => {
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount ? selectedDiscount.fixedAmount || subtotal * ((selectedDiscount.percentage || 0) / 100) : 0;
@@ -496,9 +501,18 @@ const OrderPanelContent = ({
           </div>
         </div>
         <div className="flex gap-2">
-          <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
-            Add Item
-          </button>
+          {isSplitCheckSelected ? (
+            <button 
+              className="px-3 py-1.5 bg-amber-600 text-white text-xs rounded-full hover:bg-amber-500 transition-colors"
+              onClick={onMergeClick}
+            >
+              Merge
+            </button>
+          ) : (
+            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
+              Add Item
+            </button>
+          )}
           {!isOrderDisabled && (
             <button 
               className="px-3 py-1.5 text-xs rounded-full transition-colors bg-neutral-700 text-white hover:bg-neutral-600" 
@@ -1224,6 +1238,28 @@ const Dashboard = () => {
     );
   };
 
+  // Handle merge click - clears split configuration
+  const handleMergeClick = () => {
+    if (!selectedSplitCheck || !selectedOrder) return;
+    
+    // Find the parent order's table from the original order
+    const parentOrder = allOrders.find(o => o.id === selectedSplitCheck.orderId);
+    if (!parentOrder) return;
+    
+    // Clear split configuration from localStorage for static orders
+    const splitKey = `${parentOrder.table}:${parentOrder.id}`;
+    setStaticSplitConfigs(prev => {
+      const updated = { ...prev };
+      delete updated[splitKey];
+      return updated;
+    });
+    
+    // Clear the selected split check and select the parent order
+    setSelectedSplitCheck(null);
+    setSelectedOrder(parentOrder);
+    setOrderItems(parentOrder.items);
+  };
+
   // Prepare order details for PaymentDialog
   const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
   const discount = selectedDiscount ? selectedDiscount.fixedAmount || subtotal * ((selectedDiscount.percentage || 0) / 100) : 0;
@@ -1698,7 +1734,9 @@ const Dashboard = () => {
             showRefundMode={showRefundMode} 
             setShowRefundMode={setShowRefundMode} 
             showRefundDialog={showRefundDialog} 
-            setShowRefundDialog={setShowRefundDialog} 
+            setShowRefundDialog={setShowRefundDialog}
+            isSplitCheckSelected={!!selectedSplitCheck}
+            onMergeClick={handleMergeClick}
           />
         </div>
       </div>
@@ -1737,7 +1775,9 @@ const Dashboard = () => {
               showRefundMode={showRefundMode} 
               setShowRefundMode={setShowRefundMode} 
               showRefundDialog={showRefundDialog} 
-              setShowRefundDialog={setShowRefundDialog} 
+              setShowRefundDialog={setShowRefundDialog}
+              isSplitCheckSelected={!!selectedSplitCheck}
+              onMergeClick={handleMergeClick}
             />
           </div>
         </DrawerContent>

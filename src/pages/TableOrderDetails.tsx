@@ -410,6 +410,10 @@ const TableOrderDetails = () => {
   const [showRefundDialog, setShowRefundDialog] = useState(false);
   const [expandedCartItems, setExpandedCartItems] = useState<Set<string>>(new Set());
   
+  // Transfer intent dialog state
+  const [showTransferIntentDialog, setShowTransferIntentDialog] = useState(false);
+  const [transferIntentOrderId, setTransferIntentOrderId] = useState<string | null>(null);
+  
   // Discount state
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
@@ -1279,7 +1283,8 @@ const TableOrderDetails = () => {
                     background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
                   }} onClick={e => {
                     e.stopPropagation();
-                    navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                    setTransferIntentOrderId(guest.id);
+                    setShowTransferIntentDialog(true);
                   }}>
                         <img src={transferIcon} alt="Transfer" className="w-4 h-4 object-contain" style={{
                       filter: 'brightness(0)'
@@ -2185,7 +2190,8 @@ const TableOrderDetails = () => {
                         style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                          setTransferIntentOrderId(guest.id);
+                          setShowTransferIntentDialog(true);
                         }}
                       >
                         <img src={shareOrderIcon} alt="Transfer" className="w-3.5 h-3.5 object-contain brightness-0" />
@@ -2910,6 +2916,62 @@ const TableOrderDetails = () => {
                 </div>
               </>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Transfer Intent Dialog */}
+      {showTransferIntentDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
+          <div className="absolute inset-0 bg-black/80" onClick={() => setShowTransferIntentDialog(false)} />
+          <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[340px] max-w-[90vw] overflow-hidden">
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-white/10">
+              <h2 className="text-white text-lg font-semibold">Transfer Order</h2>
+              <button 
+                onClick={() => setShowTransferIntentDialog(false)}
+                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+
+            {/* Content */}
+            <div className="p-4">
+              <p className="text-white/60 text-sm mb-4">What would you like to transfer?</p>
+              
+              <div className="space-y-3">
+                {/* Transfer Items Option */}
+                <button 
+                  onClick={() => {
+                    setShowTransferIntentDialog(false);
+                    navigate(`/tableorder/${tableId}/transfer?orderId=${transferIntentOrderId}`);
+                  }}
+                  className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3 mb-1">
+                    <img src={transferIcon} alt="Transfer Items" className="w-5 h-5 object-contain opacity-80" />
+                    <span className="text-white font-medium">Transfer Items</span>
+                  </div>
+                  <p className="text-white/50 text-xs ml-8">Move selected items to another order or table</p>
+                </button>
+
+                {/* Transfer Entire Order Option */}
+                <button 
+                  onClick={() => {
+                    setShowTransferIntentDialog(false);
+                    navigate(`/tableorder/${tableId}/transfer?orderId=${transferIntentOrderId}&transferType=entire`);
+                  }}
+                  className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3 mb-1">
+                    <Share2 className="w-5 h-5 text-white/80" />
+                    <span className="text-white font-medium">Transfer Entire Order</span>
+                  </div>
+                  <p className="text-white/50 text-xs ml-8">Move this full order to another table</p>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronDown, ArrowUpDown, ArrowDown, SlidersHorizontal, Search, Phone, Info, Check, Users, Share2, X } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
@@ -32,31 +32,55 @@ const TransferOrders = () => {
   } = useParams();
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get("orderId");
-  const [step, setStep] = useState<TransferStep>("select-items");
+  const transferType = searchParams.get("transferType"); // 'entire' for full order transfer
+  const isEntireOrderTransfer = transferType === "entire";
+  
+  const [step, setStep] = useState<TransferStep>(isEntireOrderTransfer ? "select-target" : "select-items");
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [itemQuantities, setItemQuantities] = useState<Record<number, number>>({});
   const [itemSeats, setItemSeats] = useState<Record<number, number[]>>({});
-  const [selectAll, setSelectAll] = useState(false);
+  const [selectAll, setSelectAll] = useState(isEntireOrderTransfer);
   const [targetOrder, setTargetOrder] = useState<Order | null>(null);
   const [fromOrder, setFromOrder] = useState<Order | null>(null);
   const [toOrder, setToOrder] = useState<Order | null>(null);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [showTargetSheet, setShowTargetSheet] = useState(false);
+  const [showTargetSheet, setShowTargetSheet] = useState(isEntireOrderTransfer); // Auto-show target sheet for entire order transfer
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [displayedOrder, setDisplayedOrder] = useState<Order | null>(null);
-  const [desktopStep, setDesktopStep] = useState<"select-items" | "select-target">("select-items");
+  const [desktopStep, setDesktopStep] = useState<"select-items" | "select-target">(isEntireOrderTransfer ? "select-target" : "select-items");
   const [orderNotes, setOrderNotes] = useState("");
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
+  const [isEntireOrderConfirmOpen, setIsEntireOrderConfirmOpen] = useState(false);
 
   // Get the current order being transferred from
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
   const panelOrder = displayedOrder || currentOrder;
 
-  // Get all active orders from all tables (excluding current order and completed/paid orders)
-  const availableOrders = allOrders.filter(o => o.id !== currentOrder.id && o.status !== "PAID" && o.status !== "Completed");
+  // Auto-select all items for entire order transfer
+  useEffect(() => {
+    if (isEntireOrderTransfer && currentOrder.items.length > 0 && selectedItems.length === 0) {
+      const allIndexes = currentOrder.items.map((_, i) => i);
+      setSelectedItems(allIndexes);
+      // Set quantities for all items
+      const quantities: Record<number, number> = {};
+      currentOrder.items.forEach((item, i) => {
+        quantities[i] = item.qty;
+      });
+      setItemQuantities(quantities);
+    }
+  }, [isEntireOrderTransfer, currentOrder.items]);
+
+  // Get all active orders from all tables (excluding current order, completed/paid orders, and same table for entire order)
+  const availableOrders = allOrders.filter(o => {
+    if (o.id === currentOrder.id) return false;
+    if (o.status === "PAID" || o.status === "Completed") return false;
+    // For entire order transfer, exclude orders on the same table
+    if (isEntireOrderTransfer && o.table === currentOrder.table) return false;
+    return true;
+  });
   const filteredOrders = activeFilter === "All" ? availableOrders : availableOrders.filter(o => o.status === activeFilter.toUpperCase());
   const getStatusColor = getOrderStatusColor;
   const getFilterCount = (filter: string) => {
@@ -104,7 +128,12 @@ const TransferOrders = () => {
     setShowTargetSheet(false);
     setFromOrder(currentOrder);
     setToOrder(order);
-    setStep("confirm-direction");
+    // For entire order transfer, show special confirmation dialog
+    if (isEntireOrderTransfer) {
+      setIsEntireOrderConfirmOpen(true);
+    } else {
+      setStep("confirm-direction");
+    }
   };
   const handleSwapDirection = () => {
     const temp = fromOrder;
@@ -117,11 +146,21 @@ const TransferOrders = () => {
   };
   const handleBack = () => {
     if (step === "confirm-direction") {
-      setStep("select-items");
+      if (isEntireOrderTransfer) {
+        // For entire order, go back to target selection
+        setShowTargetSheet(true);
+      } else {
+        setStep("select-items");
+      }
       setTargetOrder(null);
     } else {
       navigate(`/tableorder/${tableId}`);
     }
+  };
+  
+  const handleEntireOrderConfirm = () => {
+    setIsEntireOrderConfirmOpen(false);
+    setIsSuccessDialogOpen(true);
   };
 
   // Calculate order totals using centralized function
@@ -1304,6 +1343,75 @@ const TransferOrders = () => {
             <p className="text-white/40 text-xs mt-3 text-center">
               {selectedItems.length} item{selectedItems.length > 1 ? 's' : ''} transferred successfully
             </p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Entire Order Transfer Confirmation Dialog */}
+      <Dialog open={isEntireOrderConfirmOpen} onOpenChange={setIsEntireOrderConfirmOpen}>
+        <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-md overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between px-4 pt-4 pb-2">
+            <h2 className="text-white text-lg font-semibold">Transfer Entire Order</h2>
+            <button 
+              onClick={() => setIsEntireOrderConfirmOpen(false)}
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              <X className="w-4 h-4 text-white" />
+            </button>
+          </div>
+          
+          {/* Content */}
+          <div className="px-4 pb-4">
+            {/* From/To Summary */}
+            <div className="mb-4">
+              <p className="text-white/60 text-sm">
+                From <span className="text-amber-400">Order #{currentOrder.id} · {formatTableName(currentOrder.table)}</span>
+              </p>
+              <p className="text-white/60 text-sm mt-1">
+                To <span className="text-emerald-400">Order #{toOrder?.id} · {formatTableName(toOrder?.table || '')}</span>
+              </p>
+            </div>
+            
+            {/* Warning/Info */}
+            <div className="bg-white/5 rounded-xl p-3 mb-4">
+              <p className="text-white/80 text-sm leading-relaxed">
+                All items, modifiers, notes, discounts, and charges will be transferred together.
+              </p>
+            </div>
+            
+            {/* Items Preview */}
+            <div className="bg-white/5 rounded-xl p-3 mb-4 max-h-[120px] overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+              <p className="text-white/50 text-xs mb-2">{currentOrder.items.length} items</p>
+              <div className="space-y-1">
+                {currentOrder.items.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/40">{item.qty}x</span>
+                      <span className="text-white truncate">{item.name}</span>
+                    </div>
+                    <span className="text-white/60">${(item.price * item.qty).toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          {/* Bottom Buttons */}
+          <div className="px-4 pb-4 flex gap-3">
+            <button 
+              onClick={() => setIsEntireOrderConfirmOpen(false)} 
+              className="px-6 py-2.5 rounded-full text-white font-medium text-sm bg-neutral-800 hover:bg-neutral-700 transition-colors"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={handleEntireOrderConfirm} 
+              className="flex-1 py-2.5 rounded-full text-black font-medium text-sm" 
+              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+            >
+              Confirm Transfer
+            </button>
           </div>
         </DialogContent>
       </Dialog>

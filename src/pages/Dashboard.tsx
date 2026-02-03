@@ -26,9 +26,10 @@ import clearIcon from "@/assets/icons/clear-c.png";
 import saveIcon from "@/assets/icons/save.png";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
-import { getDashboardOrders, DashboardOrder, DashboardOrderItem, PaymentMethod, formatTableName } from "@/data/orders";
+import { getDashboardOrders, DashboardOrder, DashboardOrderItem, PaymentMethod, formatTableName, calculateOrderTotals } from "@/data/orders";
 import receiptIcon from "@/assets/icons/receipt-icon.svg";
 import registerIcon from "@/assets/icons/register-icon.svg";
+import { useSessionOrders, SplitConfiguration, SplitCheck, SessionOrder } from "@/contexts/SessionOrderContext";
 
 // Helper component for multi-payment display (matching TableOrderDetails)
 const MultiPaymentDisplay = ({ paymentMethods, paymentType }: { paymentMethods?: PaymentMethod[], paymentType: string }) => {
@@ -340,11 +341,14 @@ const calculateOrderTotal = (items: OrderItemType[]): number => {
   return subtotal + tax + serviceCharge;
 };
 
+// Static split configs storage key (same as TableOrderDetails)
+const STATIC_SPLITS_KEY = 'pos-tableorder-static-splits';
+
 // Get orders from centralized data store
-const mockOrders: DashboardOrder[] = getDashboardOrders();
+const getStaticDashboardOrders = (): DashboardOrder[] => getDashboardOrders();
 
 // Default order items (used as fallback)
-const defaultOrderItems: OrderItemType[] = mockOrders[0]?.items || [];
+const getDefaultOrderItems = (orders: DashboardOrder[]): OrderItemType[] => orders[0]?.items || [];
 
 // Table status configurations (matching /tableorder screen)
 const tableStatusConfig: Record<string, {
@@ -412,7 +416,7 @@ const discountTypes: DiscountType[] = [
 
 // Simplified Order Panel Content Component Props (payment handled by PaymentDialog)
 interface OrderPanelContentProps {
-  selectedOrder: typeof mockOrders[0] | null;
+  selectedOrder: DashboardOrder | null;
   orderItems: OrderItemType[];
   subtotal: number;
   total: number;
@@ -787,10 +791,81 @@ const Dashboard = () => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   
+  // Get session orders context
+  const { sessionOrders } = useSessionOrders();
+  
+  // Static split configs for non-session orders (persisted in localStorage)
+  const [staticSplitConfigs, setStaticSplitConfigs] = useState<Record<string, SplitConfiguration>>(() => {
+    try {
+      const stored = localStorage.getItem(STATIC_SPLITS_KEY);
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
+  
+  // Convert session orders to Dashboard format with split configs
+  const convertSessionToDashboardOrder = (sessionOrder: SessionOrder): DashboardOrder => {
+    const totals = calculateOrderTotals(sessionOrder.items, 0);
+    return {
+      id: Number(sessionOrder.id.replace(/\D/g, '')) || Date.now() % 10000,
+      status: sessionOrder.status,
+      statusColor: sessionOrder.status === 'PAID' || sessionOrder.status === 'Completed' ? '#22C55E' : '#FACC15',
+      filterCategory: sessionOrder.status === 'PAID' || sessionOrder.status === 'Completed' ? 'Paid' : 'In Progress',
+      guest: sessionOrder.name,
+      orderNo: `Order No ${sessionOrder.id}`,
+      seats: sessionOrder.partySize,
+      date: new Date().toLocaleDateString(),
+      arrivedAt: sessionOrder.time,
+      timer: sessionOrder.timer,
+      type: 'Dine In',
+      check: sessionOrder.check !== '--' ? sessionOrder.check : '--',
+      revenueCenter: sessionOrder.revenueCenter,
+      tip: '$0.00',
+      paymentType: sessionOrder.paymentType,
+      isPaid: sessionOrder.status === 'PAID' || sessionOrder.status === 'Completed',
+      server: sessionOrder.server,
+      total: totals.total,
+      phone: sessionOrder.phone || '(555) 000-0000',
+      table: sessionOrder.table,
+      notes: sessionOrder.notes || '',
+      items: sessionOrder.items.map((item, idx) => ({
+        id: idx + 1,
+        qty: item.qty,
+        name: item.name,
+        price: item.price,
+        seats: item.seats,
+        noTax: false,
+        itemOrderType: 'Dine In',
+        isFired: false
+      })),
+      splitConfiguration: sessionOrder.splitConfiguration
+    };
+  };
+  
+  // Merge static orders with session orders (session orders first)
+  const allOrders = useMemo(() => {
+    const staticOrders = getStaticDashboardOrders();
+    
+    // Attach static split configs to static orders
+    const enrichedStaticOrders = staticOrders.map(order => {
+      const splitKey = `${order.table}:${order.id}`;
+      if (staticSplitConfigs[splitKey]) {
+        return { ...order, splitConfiguration: staticSplitConfigs[splitKey] };
+      }
+      return order;
+    });
+    
+    // Convert session orders to dashboard format
+    const dashboardSessionOrders = sessionOrders.map(convertSessionToDashboardOrder);
+    
+    return [...dashboardSessionOrders, ...enrichedStaticOrders];
+  }, [sessionOrders, staticSplitConfigs]);
+  
   // Core state
   const [activeFilter, setActiveFilter] = useState("All");
   const [activeTableFilter, setActiveTableFilter] = useState("All");
-  const [selectedOrder, setSelectedOrder] = useState<typeof mockOrders[0] | null>(mockOrders[0]);
+  const [selectedOrder, setSelectedOrder] = useState<DashboardOrder | null>(allOrders[0] || null);
   const [dateFilter, setDateFilter] = useState("Today");
   const [compareDate, setCompareDate] = useState("Yesterday");
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -801,10 +876,13 @@ const Dashboard = () => {
   const [isCustomCalendarOpen, setIsCustomCalendarOpen] = useState(false);
   const [compareCustomDateRange, setCompareCustomDateRange] = useState<DateRange | undefined>();
   const [isCompareCustomCalendarOpen, setIsCompareCustomCalendarOpen] = useState(false);
-  const [orderItems, setOrderItems] = useState<OrderItemType[]>(mockOrders[0]?.items || []);
+  const [orderItems, setOrderItems] = useState<OrderItemType[]>(allOrders[0]?.items || []);
   const [selectedFloor, setSelectedFloor] = useState("first");
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+  
+  // Split check selection state
+  const [selectedSplitCheck, setSelectedSplitCheck] = useState<{ orderId: number; checkId: string } | null>(null);
   
   // Payment Dialog state (using shared component)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -922,17 +1000,17 @@ const Dashboard = () => {
 
   // Filter orders based on active filter
   const filteredOrders = useMemo(() => {
-    if (activeFilter === "All") return mockOrders;
-    return mockOrders.filter(order => order.filterCategory === activeFilter);
-  }, [activeFilter]);
+    if (activeFilter === "All") return allOrders;
+    return allOrders.filter(order => order.filterCategory === activeFilter);
+  }, [activeFilter, allOrders]);
 
   // Calculate counts for each filter
   const orderFilters = useMemo(() => {
     return orderFilterLabels.map(label => ({
       label,
-      count: label === "All" ? mockOrders.length : mockOrders.filter(order => order.filterCategory === label).length
+      count: label === "All" ? allOrders.length : allOrders.filter(order => order.filterCategory === label).length
     }));
-  }, []);
+  }, [allOrders]);
 
   // Filter tables based on active table filter
   const filteredTables = useMemo(() => {
@@ -948,7 +1026,7 @@ const Dashboard = () => {
     }));
   }, []);
 
-  const handleOrderClick = (order: typeof mockOrders[0]) => {
+  const handleOrderClick = (order: DashboardOrder) => {
     setSelectedOrder(order);
     setOrderItems(order.items || []);
     setOrderNotes(order.notes || '');
@@ -956,6 +1034,194 @@ const Dashboard = () => {
     if (isMobile) {
       setIsDrawerOpen(true);
     }
+  };
+
+  // Handle split check click - select it for payment
+  const handleSplitCheckClick = (parentOrder: DashboardOrder, checkData: SplitCheck) => {
+    if (checkData.status === 'paid') return; // Don't allow clicking on paid checks
+    
+    // Create virtual order items for the split check
+    const splitItems = checkData.items.map((item, idx) => ({
+      id: idx + 1,
+      qty: item.qty,
+      name: item.name,
+      price: item.price,
+      seats: item.seats,
+      noTax: false,
+      itemOrderType: 'Dine In',
+      isFired: false
+    }));
+    
+    // Create a virtual dashboard order for the split check
+    const splitCheckOrder: DashboardOrder = {
+      ...parentOrder,
+      id: parentOrder.id,
+      guest: `${parentOrder.guest} · Check ${checkData.checkId.toUpperCase()}`,
+      items: splitItems,
+      total: checkData.total,
+      splitConfiguration: undefined, // Individual checks don't have further splits
+    };
+    
+    setSelectedOrder(splitCheckOrder);
+    setOrderItems(splitItems);
+    setSelectedSplitCheck({ orderId: parentOrder.id, checkId: checkData.checkId });
+    
+    // On mobile, open the drawer
+    if (isMobile) {
+      setIsDrawerOpen(true);
+    }
+  };
+
+  // Helper function to render split check cards
+  const renderSplitCheckCard = (
+    parentOrder: DashboardOrder,
+    checkIndex: number,
+    checkData: SplitCheck,
+    layout: 'mobile' | 'desktop'
+  ) => {
+    const checkLetter = checkData.checkId.toUpperCase();
+    const checkTotal = checkData.total;
+    const isPaid = checkData.status === 'paid';
+    const isSelected = selectedSplitCheck?.orderId === parentOrder.id && selectedSplitCheck?.checkId === checkData.checkId;
+    
+    return (
+      <div 
+        key={`${parentOrder.id}-check-${checkData.checkId}`}
+        className="ml-4 mt-2"
+      >
+        <div 
+          onClick={() => handleSplitCheckClick(parentOrder, checkData)}
+          className={`rounded-xl border overflow-hidden cursor-pointer transition-all ${
+            isSelected 
+              ? 'border-white' 
+              : isPaid 
+                ? 'border-green-500/50 hover:border-green-500' 
+                : 'border-neutral-700 hover:border-neutral-600'
+          }`}
+          style={{ backgroundColor: '#1B1C20' }}
+        >
+          {layout === 'mobile' ? (
+            // Mobile Layout for split check
+            <div className="flex items-stretch w-full p-3">
+              <div className="flex-shrink-0 px-2 py-2 flex items-center">
+                <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+                  <span className="text-lg font-bold text-white">{parentOrder.id}</span>
+                  <span className="text-[9px] text-gray-500">{checkLetter}</span>
+                </div>
+              </div>
+              <div className="flex-1 min-w-0 py-2 pr-2">
+                <div className="flex flex-col gap-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white font-medium text-sm">{parentOrder.guest} · Check {checkLetter}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm" style={{ color: '#B5B6BB' }}>{parentOrder.server}</span>
+                      <span className={`text-sm font-medium ${isPaid ? 'text-green-500' : ''}`} style={{ color: isPaid ? undefined : parentOrder.statusColor }}>
+                        {isPaid ? 'PAID' : parentOrder.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                      <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
+                      <span>Party of {parentOrder.seats}, {parentOrder.arrivedAt}</span>
+                      <span className="text-gray-500">|</span>
+                      <span>{parentOrder.timer}</span>
+                    </div>
+                    <span className="text-white font-semibold text-sm">${checkTotal.toFixed(2)}</span>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="text-sm" style={{ color: '#B5B6BB' }}>{parentOrder.revenueCenter}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm" style={{ color: isPaid ? '#4ade80' : '#B5B6BB' }}>
+                        {isPaid ? 'Paid' : 'Un Paid'}
+                      </span>
+                      <span className="text-white text-sm">$0.00</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            // Desktop Layout for split check - 45%/35%/20% layout
+            <div className="hidden md:flex items-stretch">
+              <div className="flex-1 flex items-stretch gap-3 p-3">
+                <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
+                  <span className="text-lg font-bold text-white">{parentOrder.id}</span>
+                  <span className="text-xs text-white/40">{checkLetter}</span>
+                </div>
+                <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+                  <div className="flex items-center text-xs lg:text-sm">
+                    <div className="w-[45%] text-left">
+                      <span className="text-white font-medium truncate">{parentOrder.guest} · Check {checkLetter}</span>
+                    </div>
+                    <div className="w-[35%] text-left pl-4">
+                      <span className="text-white/60 truncate">{parentOrder.server}</span>
+                    </div>
+                    <div className="w-[20%] text-right">
+                      <span className={`font-semibold uppercase ${isPaid ? 'text-green-500' : ''}`} style={{ color: isPaid ? undefined : parentOrder.statusColor }}>
+                        {isPaid ? 'PAID' : parentOrder.status}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-xs lg:text-sm">
+                    <div className="w-[45%] text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
+                      <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
+                      <span className="truncate">Party of {parentOrder.seats}, {parentOrder.arrivedAt}</span>
+                      <span className="text-white/40 mx-1">|</span>
+                      <span>{parentOrder.timer}</span>
+                    </div>
+                    <div className="w-[35%] text-left pl-4">
+                      <span className="text-white font-semibold">${checkTotal.toFixed(2)}</span>
+                    </div>
+                    <div className="w-[20%] text-right">
+                      <span className="text-white">$0.00</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center text-xs lg:text-sm">
+                    <div className="w-[45%] text-left">
+                      <span className="text-white/60">{parentOrder.revenueCenter}</span>
+                    </div>
+                    <div className="w-[35%] text-left pl-4">
+                      <span className="text-white/60">{isPaid ? 'Paid' : 'Un Paid'}</span>
+                    </div>
+                    <div className="w-[20%] text-right">
+                      <span className="text-white">$0.00</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              {/* Right Action Button - Pay/Receipt */}
+              <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
+                {isPaid ? (
+                  <button 
+                    className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setReceiptOrder(parentOrder);
+                      setShowReceiptDialog(true);
+                    }}
+                  >
+                    <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
+                  </button>
+                ) : (
+                  <button 
+                    className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity"
+                    style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleSplitCheckClick(parentOrder, checkData);
+                      handleOpenPaymentFromDashboard();
+                    }}
+                  >
+                    <BadgeDollarSign className="w-4 h-4 text-black" />
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    );
   };
 
   // Prepare order details for PaymentDialog
@@ -1147,149 +1413,176 @@ const Dashboard = () => {
           <ScrollArea className="flex-1 min-h-0">
             <div className="space-y-2 pr-2">
               {filteredOrders.map(order => (
-                <div 
-                  key={order.id} 
-                  onClick={() => handleOrderClick(order)} 
-                  className={`rounded-xl cursor-pointer transition-all overflow-hidden border ${selectedOrder?.id === order.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} 
-                  style={{ backgroundColor: "#1B1C20" }}
-                >
-                  {/* Mobile Layout */}
-                  <div className="flex items-stretch w-full md:hidden p-3">
-                    <div className="flex-shrink-0 px-2 py-2 flex items-center">
-                      <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-                        <span className="text-lg font-bold text-white">{order.id}</span>
-                        <span className="text-[9px] text-gray-500">000</span>
+                <div key={order.id} className="space-y-2">
+                  {/* Main Order Card */}
+                  <div 
+                    onClick={() => {
+                      setSelectedSplitCheck(null); // Clear split check selection
+                      handleOrderClick(order);
+                    }} 
+                    className={`rounded-xl cursor-pointer transition-all overflow-hidden border ${
+                      selectedOrder?.id === order.id && !selectedSplitCheck 
+                        ? "border-white" 
+                        : "border-neutral-700 hover:border-neutral-600"
+                    }`} 
+                    style={{ backgroundColor: "#1B1C20" }}
+                  >
+                    {/* Mobile Layout */}
+                    <div className="flex items-stretch w-full md:hidden p-3">
+                      <div className="flex-shrink-0 px-2 py-2 flex items-center">
+                        <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+                          <span className="text-lg font-bold text-white">{order.id}</span>
+                          <span className="text-[9px] text-gray-500">000</span>
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0 py-2 pr-2">
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center justify-between">
+                            <span className="text-white font-medium text-sm">{order.guest} · {formatTableName(order.table)}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
+                              <span className="text-sm font-medium" style={{ color: order.statusColor }}>
+                                {order.status === 'Completed' ? 'PAID' : order.status}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                              <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
+                              <span>Party of {order.seats}, {order.arrivedAt}</span>
+                              <span className="text-gray-500">|</span>
+                              <span>{order.timer}</span>
+                            </div>
+                            <span className="text-white font-semibold text-sm">${calculateOrderTotal(order.items).toFixed(2)}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.revenueCenter}</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm" style={{ color: '#B5B6BB' }}>
+                                {order.isPaid ? "Paid" : "Pending Payment"}
+                              </span>
+                              <span className="text-white text-sm">{order.tip}</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <div className="flex-1 min-w-0 py-2 pr-2">
-                      <div className="flex flex-col gap-1">
-                        <div className="flex items-center justify-between">
-                          <span className="text-white font-medium text-sm">{order.guest} · {formatTableName(order.table)}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.server}</span>
-                            <span className="text-sm font-medium" style={{ color: order.statusColor }}>
-                              {order.status === 'Completed' ? 'PAID' : order.status}
-                            </span>
-                          </div>
+
+                    {/* Tablet/Desktop Layout */}
+                    <div className="hidden md:flex items-stretch">
+                      <div className="flex-1 flex items-stretch gap-3 p-3">
+                        <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
+                          <span className="text-lg font-bold text-white">{order.id}</span>
+                          <span className="text-xs text-white/40">000</span>
                         </div>
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
-                            <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
-                            <span>Party of {order.seats}, {order.arrivedAt}</span>
-                            <span className="text-gray-500">|</span>
-                            <span>{order.timer}</span>
+                        <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
+                          <div className="flex items-center text-xs lg:text-sm">
+                            <div className="w-[45%] text-left">
+                              <span className="text-white font-medium truncate">{order.guest} · {formatTableName(order.table)}</span>
+                            </div>
+                            <div className="w-[35%] text-left pl-4">
+                              <span className="text-white/60 truncate">{order.server}</span>
+                            </div>
+                            <div className="w-[20%] text-right">
+                              <span className="font-semibold uppercase" style={{ color: order.statusColor }}>
+                                {order.status === 'Completed' ? 'PAID' : order.status}
+                              </span>
+                            </div>
                           </div>
-                          <span className="text-white font-semibold text-sm">${calculateOrderTotal(order.items).toFixed(2)}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="text-sm" style={{ color: '#B5B6BB' }}>{order.revenueCenter}</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm" style={{ color: '#B5B6BB' }}>
-                              {order.isPaid ? "Paid" : "Pending Payment"}
-                            </span>
-                            <span className="text-white text-sm">{order.tip}</span>
+                          <div className="flex items-center text-xs lg:text-sm">
+                            <div className="w-[45%] text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
+                              <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
+                              <span className="truncate">Party of {order.seats}, {order.arrivedAt}</span>
+                              <span className="text-white/40 mx-1">|</span>
+                              <span>{order.timer}</span>
+                            </div>
+                            <div className="w-[35%] text-left pl-4">
+                              <span className="text-white font-semibold">${calculateOrderTotal(order.items).toFixed(2)}</span>
+                            </div>
+                            <div className="w-[20%] text-right">
+                              <span className="text-white">{order.tip}</span>
+                            </div>
+                          </div>
+                          <div className="flex items-center text-xs lg:text-sm">
+                            <div className="w-[45%] text-left">
+                              <span className="text-white/60">{order.revenueCenter}</span>
+                            </div>
+                            <div className="w-[35%] text-left pl-4">
+                              {order.isPaid || order.status === "Completed" ? (
+                                <MultiPaymentDisplay paymentMethods={order.paymentMethods} paymentType={order.paymentType} />
+                              ) : (
+                                <span className="text-white/60">Pending Payment</span>
+                              )}
+                            </div>
+                            <div className="w-[20%] text-right">
+                              <span className="text-white">{order.tip}</span>
+                            </div>
                           </div>
                         </div>
                       </div>
+                      {order.isPaid || order.status === "Completed" ? (
+                        <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
+                          <button 
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600 rounded-tr-xl"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setReceiptOrder(order);
+                              setShowReceiptDialog(true);
+                            }}
+                          >
+                            <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
+                          </button>
+                          <button 
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
+                            onClick={(e) => { e.stopPropagation(); }}
+                          >
+                            <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
+                          <button 
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-tr-xl"
+                            style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              navigate(`/tableorder/${order.table}/merge?orderId=${order.id}`);
+                            }}
+                          >
+                            <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
+                          </button>
+                          <button 
+                            className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-br-xl"
+                            style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                            onClick={e => {
+                              e.stopPropagation();
+                              navigate(`/tableorder/${order.table}/transfer?orderId=${order.id}`);
+                            }}
+                          >
+                            <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
+                          </button>
+                        </div>
+                      )}
                     </div>
                   </div>
 
-                  {/* Tablet/Desktop Layout */}
-                  <div className="hidden md:flex items-stretch">
-                    <div className="flex-1 flex items-stretch gap-3 p-3">
-                      <div className="flex-shrink-0 flex flex-col items-center justify-center w-14 rounded-lg border border-white/20 py-2 gap-1" style={{ background: '#1A1A1A' }}>
-                        <span className="text-lg font-bold text-white">{order.id}</span>
-                        <span className="text-xs text-white/40">000</span>
-                      </div>
-                      <div className="flex-1 min-w-0 flex flex-col justify-between py-1">
-                        <div className="flex items-center text-xs lg:text-sm">
-                          <div className="w-[45%] text-left">
-                            <span className="text-white font-medium truncate">{order.guest} · {formatTableName(order.table)}</span>
+                  {/* Split Check Sub-tickets */}
+                  {order.splitConfiguration && order.splitConfiguration.checks && order.splitConfiguration.checks.length > 0 && (
+                    <div className="space-y-2">
+                      {order.splitConfiguration.checks.map((check, idx) => (
+                        <div key={`${order.id}-split-${check.checkId}`}>
+                          {/* Mobile split check card */}
+                          <div className="md:hidden">
+                            {renderSplitCheckCard(order, idx, check, 'mobile')}
                           </div>
-                          <div className="w-[35%] text-left pl-4">
-                            <span className="text-white/60 truncate">{order.server}</span>
-                          </div>
-                          <div className="w-[20%] text-right">
-                            <span className="font-semibold uppercase" style={{ color: order.statusColor }}>
-                              {order.status === 'Completed' ? 'PAID' : order.status}
-                            </span>
+                          {/* Desktop split check card */}
+                          <div className="hidden md:block">
+                            {renderSplitCheckCard(order, idx, check, 'desktop')}
                           </div>
                         </div>
-                        <div className="flex items-center text-xs lg:text-sm">
-                          <div className="w-[45%] text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
-                            <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
-                            <span className="truncate">Party of {order.seats}, {order.arrivedAt}</span>
-                            <span className="text-white/40 mx-1">|</span>
-                            <span>{order.timer}</span>
-                          </div>
-                          <div className="w-[35%] text-left pl-4">
-                            <span className="text-white font-semibold">${calculateOrderTotal(order.items).toFixed(2)}</span>
-                          </div>
-                          <div className="w-[20%] text-right">
-                            <span className="text-white">{order.tip}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center text-xs lg:text-sm">
-                          <div className="w-[45%] text-left">
-                            <span className="text-white/60">{order.revenueCenter}</span>
-                          </div>
-                          <div className="w-[35%] text-left pl-4">
-                            {order.isPaid || order.status === "Completed" ? (
-                              <MultiPaymentDisplay paymentMethods={order.paymentMethods} paymentType={order.paymentType} />
-                            ) : (
-                              <span className="text-white/60">Pending Payment</span>
-                            )}
-                          </div>
-                          <div className="w-[20%] text-right">
-                            <span className="text-white">{order.tip}</span>
-                          </div>
-                        </div>
-                      </div>
+                      ))}
                     </div>
-                    {order.isPaid || order.status === "Completed" ? (
-                      <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
-                        <button 
-                          className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-700 hover:bg-neutral-600 rounded-tr-xl"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setReceiptOrder(order);
-                            setShowReceiptDialog(true);
-                          }}
-                        >
-                          <img src={receiptIcon} alt="Receipt" className="w-4 h-4 object-contain" />
-                        </button>
-                        <button 
-                          className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity bg-neutral-600 hover:bg-neutral-500 rounded-br-xl"
-                          onClick={(e) => { e.stopPropagation(); }}
-                        >
-                          <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="flex-shrink-0 flex flex-col w-10 rounded-r-xl overflow-hidden">
-                        <button 
-                          className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-tr-xl"
-                          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-                          onClick={e => {
-                            e.stopPropagation();
-                            navigate(`/tableorder/${order.table}/merge?orderId=${order.id}`);
-                          }}
-                        >
-                          <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
-                        </button>
-                        <button 
-                          className="flex-1 flex items-center justify-center hover:opacity-80 transition-opacity rounded-br-xl"
-                          style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                          onClick={e => {
-                            e.stopPropagation();
-                            navigate(`/tableorder/${order.table}/transfer?orderId=${order.id}`);
-                          }}
-                        >
-                          <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               ))}
             </div>

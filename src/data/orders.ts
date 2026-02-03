@@ -535,6 +535,9 @@ export const toOrderTemplateData = (order: Order) => ({
   phone: order.phone,
 });
 
+// Import SplitConfiguration type for Dashboard orders
+import { SplitConfiguration } from '@/contexts/SessionOrderContext';
+
 // Dashboard-specific types and helpers
 
 // Dashboard order item interface
@@ -574,6 +577,7 @@ export interface DashboardOrder {
   notes: string;
   items: DashboardOrderItem[];
   paymentMethods?: PaymentMethod[];
+  splitConfiguration?: SplitConfiguration;
 }
 
 // Get filter category from order status

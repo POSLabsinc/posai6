@@ -1134,7 +1134,8 @@ const TableOrderDetails = () => {
                     onTouchStart={e => e.stopPropagation()}
                     onClick={e => {
                       e.stopPropagation();
-                      navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                      setTransferIntentOrderId(guest.id);
+                      setShowTransferIntentDialog(true);
                     }} 
                     className="w-10 h-10 flex items-center justify-center rounded-full transition-colors bg-muted-foreground/60 hover:bg-muted-foreground/80"
                   >
@@ -1548,7 +1549,8 @@ const TableOrderDetails = () => {
                             style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/tableorder/${tableId}/transfer?orderId=${guest.id}`);
+                              setTransferIntentOrderId(guest.id);
+                              setShowTransferIntentDialog(true);
                             }}
                           >
                             <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />

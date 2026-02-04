@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, ChevronLeft, ChevronRight, Phone, FileText, CreditCard, ArrowLeft, Armchair, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type Reservation = {
@@ -17,7 +17,11 @@ export type Reservation = {
   status: "upcoming" | "seated" | "late";
   phone?: string;
   notes?: string;
-  date: Date; // Required for multi-day support
+  date: Date;
+  email?: string;
+  specialRequests?: string;
+  depositPaid?: boolean;
+  depositAmount?: number;
 };
 
 // Helper to get dates
@@ -30,16 +34,16 @@ const twoDaysAgo = subDays(today, 2);
 // Mock reservations data with dates
 export const mockReservations: Reservation[] = [
   // Today's reservations
-  { id: "R1", guestName: "Johnson Family", time: "6:30 PM", partySize: 4, tableId: "T4", status: "upcoming", phone: "(415) 555-1234", date: today },
-  { id: "R2", guestName: "Maria Rodriguez", time: "7:00 PM", partySize: 2, tableId: null, status: "upcoming", phone: "(415) 555-2345", notes: "Anniversary dinner", date: today },
-  { id: "R3", guestName: "Corporate Event - TechCo", time: "7:30 PM", partySize: 8, tableId: "T1", status: "upcoming", date: today },
+  { id: "R1", guestName: "Johnson Family", time: "6:30 PM", partySize: 4, tableId: "T4", status: "upcoming", phone: "(415) 555-1234", email: "johnson@email.com", notes: "Birthday celebration", date: today, depositPaid: true, depositAmount: 50 },
+  { id: "R2", guestName: "Maria Rodriguez", time: "7:00 PM", partySize: 2, tableId: null, status: "upcoming", phone: "(415) 555-2345", notes: "Anniversary dinner", email: "maria.r@email.com", date: today, specialRequests: "Quiet table, window seat" },
+  { id: "R3", guestName: "Corporate Event - TechCo", time: "7:30 PM", partySize: 8, tableId: "T1", status: "upcoming", phone: "(415) 555-9999", notes: "Corporate dinner, separate checks", date: today, depositPaid: true, depositAmount: 200 },
   { id: "R4", guestName: "David Chen", time: "5:30 PM", partySize: 3, tableId: "T6", status: "late", phone: "(415) 555-3456", date: today },
-  { id: "R5", guestName: "Sarah Miller", time: "6:00 PM", partySize: 2, tableId: "T3", status: "seated", date: today },
-  { id: "R6", guestName: "Williams Party", time: "8:00 PM", partySize: 6, tableId: "T2", status: "upcoming", date: today },
+  { id: "R5", guestName: "Sarah Miller", time: "6:00 PM", partySize: 2, tableId: "T3", status: "seated", phone: "(415) 555-4567", date: today },
+  { id: "R6", guestName: "Williams Party", time: "8:00 PM", partySize: 6, tableId: "T2", status: "upcoming", date: today, notes: "Large group" },
   { id: "R7", guestName: "Emily Davis", time: "8:30 PM", partySize: 2, tableId: null, status: "upcoming", notes: "Window seat preferred", date: today },
   
   // Tomorrow's reservations
-  { id: "R8", guestName: "Thompson Wedding", time: "5:00 PM", partySize: 12, tableId: "T1", status: "upcoming", notes: "Rehearsal dinner", date: tomorrow },
+  { id: "R8", guestName: "Thompson Wedding", time: "5:00 PM", partySize: 12, tableId: "T1", status: "upcoming", notes: "Rehearsal dinner", date: tomorrow, depositPaid: true, depositAmount: 500, specialRequests: "Champagne toast, private room" },
   { id: "R9", guestName: "Mike & Lisa", time: "6:30 PM", partySize: 2, tableId: "T3", status: "upcoming", phone: "(415) 555-7890", date: tomorrow },
   { id: "R10", guestName: "Birthday - Alex", time: "7:00 PM", partySize: 6, tableId: null, status: "upcoming", notes: "Surprise party, need cake", date: tomorrow },
   { id: "R11", guestName: "Patel Family", time: "7:30 PM", partySize: 5, tableId: "T5", status: "upcoming", date: tomorrow },
@@ -48,7 +52,7 @@ export const mockReservations: Reservation[] = [
   // Day after tomorrow
   { id: "R13", guestName: "Garcia Anniversary", time: "6:00 PM", partySize: 2, tableId: "T4", status: "upcoming", notes: "25th anniversary", date: dayAfterTomorrow },
   { id: "R14", guestName: "Tech Startup Lunch", time: "12:00 PM", partySize: 8, tableId: null, status: "upcoming", date: dayAfterTomorrow },
-  { id: "R15", guestName: "Retirement Party", time: "7:00 PM", partySize: 15, tableId: "T1", status: "upcoming", notes: "Large group, decorations", date: dayAfterTomorrow },
+  { id: "R15", guestName: "Retirement Party", time: "7:00 PM", partySize: 15, tableId: "T1", status: "upcoming", notes: "Large group, decorations", date: dayAfterTomorrow, depositPaid: true, depositAmount: 300 },
   
   // Yesterday (historical)
   { id: "R16", guestName: "Smith Reunion", time: "6:00 PM", partySize: 10, tableId: "T1", status: "seated", date: yesterday },
@@ -70,9 +74,9 @@ interface ReservationsPanelProps {
 }
 
 const statusConfig = {
-  upcoming: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/30", label: "Upcoming" },
-  seated: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/30", label: "Seated" },
-  late: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/30", label: "Late" },
+  upcoming: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/30", label: "Upcoming", dot: "bg-blue-500" },
+  seated: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/30", label: "Seated", dot: "bg-emerald-500" },
+  late: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/30", label: "Late", dot: "bg-red-500" },
 };
 
 // Parse time string to get hour for grouping
@@ -130,6 +134,171 @@ const getDateLabel = (date: Date): string => {
   return format(date, "EEE, MMM d");
 };
 
+// Reservation Details Component
+const ReservationDetails = ({
+  reservation,
+  onBack,
+  onAssignTable,
+  availableTables,
+}: {
+  reservation: Reservation;
+  onBack: () => void;
+  onAssignTable: (reservationId: string, tableId: string) => void;
+  availableTables: { id: string; seats: number }[];
+}) => {
+  const config = statusConfig[reservation.status];
+  const isUnassigned = !reservation.tableId;
+
+  return (
+    <div className="flex flex-col h-full">
+      {/* Header with Back Button */}
+      <div className="flex items-center gap-3 px-4 py-3 border-b border-neutral-800">
+        <button
+          onClick={onBack}
+          className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4 text-neutral-400" />
+        </button>
+        <div className="flex-1">
+          <h3 className="text-white font-semibold">{reservation.guestName}</h3>
+          <p className="text-neutral-500 text-xs">{reservation.time} • {getDateLabel(reservation.date)}</p>
+        </div>
+        <Badge 
+          variant="outline" 
+          className={`${config.bg} ${config.text} border-0 text-xs`}
+        >
+          {config.label}
+        </Badge>
+      </div>
+
+      <ScrollArea className="flex-1">
+        <div className="p-4 space-y-4">
+          {/* Guest Info Section */}
+          <div className="space-y-3">
+            <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Guest Information</h4>
+            <div className="bg-neutral-800/50 rounded-lg p-3 space-y-3">
+              <div className="flex items-center gap-3">
+                <Users className="w-4 h-4 text-neutral-500" />
+                <span className="text-white text-sm">{reservation.partySize} Guests</span>
+              </div>
+              {reservation.phone && (
+                <div className="flex items-center gap-3">
+                  <Phone className="w-4 h-4 text-neutral-500" />
+                  <span className="text-white text-sm">{reservation.phone}</span>
+                </div>
+              )}
+              {reservation.email && (
+                <div className="flex items-center gap-3">
+                  <FileText className="w-4 h-4 text-neutral-500" />
+                  <span className="text-white text-sm">{reservation.email}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Seating Section */}
+          <div className="space-y-3">
+            <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Seating</h4>
+            <div className="bg-neutral-800/50 rounded-lg p-3">
+              {reservation.tableId ? (
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                    <Armchair className="w-5 h-5 text-blue-400" />
+                  </div>
+                  <div>
+                    <p className="text-white font-medium">Table {reservation.tableId}</p>
+                    <p className="text-neutral-500 text-xs">Assigned</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3 text-amber-400">
+                    <AlertCircle className="w-4 h-4" />
+                    <span className="text-sm font-medium">Unassigned – Tap a table to assign</span>
+                  </div>
+                  {availableTables.length > 0 && (
+                    <div className="flex flex-wrap gap-2 pt-2 border-t border-neutral-700">
+                      {availableTables.map((table) => (
+                        <button
+                          key={table.id}
+                          onClick={() => onAssignTable(reservation.id, table.id)}
+                          className="px-3 py-1.5 rounded-lg bg-neutral-700 hover:bg-amber-500 text-white text-sm font-medium transition-colors"
+                        >
+                          {table.id} ({table.seats})
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Payment Section */}
+          <div className="space-y-3">
+            <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Payment</h4>
+            <div className="bg-neutral-800/50 rounded-lg p-3">
+              {reservation.depositPaid ? (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CreditCard className="w-4 h-4 text-emerald-400" />
+                    <span className="text-white text-sm">Deposit Paid</span>
+                  </div>
+                  <span className="text-emerald-400 font-semibold">${reservation.depositAmount}</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-3 text-neutral-500">
+                  <CreditCard className="w-4 h-4" />
+                  <span className="text-sm">No deposit</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Notes Section */}
+          {(reservation.notes || reservation.specialRequests) && (
+            <div className="space-y-3">
+              <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Notes</h4>
+              <div className="bg-neutral-800/50 rounded-lg p-3 space-y-2">
+                {reservation.notes && (
+                  <p className="text-white text-sm">{reservation.notes}</p>
+                )}
+                {reservation.specialRequests && (
+                  <p className="text-amber-400/80 text-sm italic">{reservation.specialRequests}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Quick Actions */}
+          <div className="space-y-3 pt-2">
+            <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Actions</h4>
+            <div className="grid grid-cols-2 gap-2">
+              {reservation.status === "upcoming" && reservation.tableId && (
+                <button className="px-4 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors">
+                  Seat Guest
+                </button>
+              )}
+              {reservation.status === "late" && (
+                <button className="px-4 py-2.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium transition-colors">
+                  Call Guest
+                </button>
+              )}
+              <button className="px-4 py-2.5 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors">
+                Edit Reservation
+              </button>
+              <button className="px-4 py-2.5 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 text-sm font-medium transition-colors">
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      </ScrollArea>
+    </div>
+  );
+};
+
+// Compact Reservation Card for Timeline
 const ReservationCard = ({
   reservation,
   onReservationClick,
@@ -158,12 +327,8 @@ const ReservationCard = ({
       {/* Single Row Layout */}
       <div className="flex items-center gap-3">
         {/* Status Dot */}
-        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-          reservation.status === "late" 
-            ? "bg-red-500 animate-pulse" 
-            : reservation.status === "seated"
-              ? "bg-emerald-500"
-              : "bg-blue-500"
+        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${config.dot} ${
+          reservation.status === "late" ? "animate-pulse" : ""
         }`} />
         
         {/* Guest Name */}
@@ -236,6 +401,7 @@ const ReservationsPanel = ({
 }: ReservationsPanelProps) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
   const currentHour = getCurrentHour();
   const isTodaySelected = isToday(selectedDate);
   
@@ -256,152 +422,192 @@ const ReservationsPanel = ({
   const handleNextDay = () => setSelectedDate(prev => addDays(prev, 1));
   const handleToday = () => setSelectedDate(new Date());
 
+  const handleReservationSelect = (reservation: Reservation) => {
+    setSelectedReservation(reservation);
+    // Trigger table highlight callback
+    onReservationClick(reservation);
+  };
+
+  const handleBackToTimeline = () => {
+    setSelectedReservation(null);
+  };
+
+  // Reset selection when panel closes
+  const handleClose = () => {
+    setSelectedReservation(null);
+    onClose();
+  };
+
   return (
-    <Sheet open={isOpen} onOpenChange={onClose}>
+    <Sheet open={isOpen} onOpenChange={handleClose}>
       <SheetContent 
         side="right" 
         className="w-[380px] sm:w-[400px] bg-neutral-900 border-neutral-800 p-0"
       >
-        <SheetHeader className="px-4 pt-4 pb-3 border-b border-neutral-800">
-          {/* Date Navigation Row */}
-          <div className="flex items-center justify-between mb-3">
-            <button
-              onClick={handlePrevDay}
-              className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4 text-neutral-400" />
-            </button>
-            
-            <div className="flex items-center gap-2">
-              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors">
-                    <CalendarIcon className="w-4 h-4 text-orange-400" />
-                    <span className="text-white text-sm font-semibold">{getDateLabel(selectedDate)}</span>
-                    {!isTodaySelected && (
-                      <span className="text-neutral-500 text-xs">{format(selectedDate, "MMM d")}</span>
-                    )}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-neutral-900 border-neutral-700" align="center">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => {
-                      if (date) {
-                        setSelectedDate(date);
-                        setIsCalendarOpen(false);
-                      }
-                    }}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-              
-              {!isTodaySelected && (
-                <button
-                  onClick={handleToday}
-                  className="px-2 py-1 rounded bg-orange-500/20 text-orange-400 text-[10px] font-semibold uppercase tracking-wide hover:bg-orange-500/30 transition-colors"
-                >
-                  Today
-                </button>
-              )}
-            </div>
-            
-            <button
-              onClick={handleNextDay}
-              className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
-            >
-              <ChevronRight className="w-4 h-4 text-neutral-400" />
-            </button>
-          </div>
+        {selectedReservation ? (
+          // Reservation Details View
+          <ReservationDetails
+            reservation={selectedReservation}
+            onBack={handleBackToTimeline}
+            onAssignTable={(resId, tableId) => {
+              onAssignTable(resId, tableId);
+              setSelectedReservation(prev => prev ? { ...prev, tableId } : null);
+            }}
+            availableTables={availableTables}
+          />
+        ) : (
+          // Timeline View
+          <>
+            <SheetHeader className="px-4 pt-4 pb-3 border-b border-neutral-800">
+              {/* Close Button */}
+              <button
+                onClick={handleClose}
+                className="absolute right-4 top-4 w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors z-10"
+              >
+                <X className="w-4 h-4 text-neutral-400" />
+              </button>
 
-          {/* Title Row */}
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-orange-500/20 flex items-center justify-center">
-              <CalendarIcon className="w-4 h-4 text-orange-400" />
-            </div>
-            <div>
-              <SheetTitle className="text-white text-base font-semibold">Reservations</SheetTitle>
-              <p className="text-neutral-500 text-xs">{filteredReservations.length} {isTodaySelected ? "today" : "on this date"}</p>
-            </div>
-          </div>
-          
-          {/* Quick Stats - Compact */}
-          <div className="flex items-center gap-2 mt-3">
-            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10">
-              <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-              <span className="text-blue-400 text-[11px] font-medium">{upcomingCount}</span>
-            </div>
-            {lateCount > 0 && (
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/10 animate-pulse">
-                <AlertCircle className="w-3 h-3 text-red-400" />
-                <span className="text-red-400 text-[11px] font-medium">{lateCount} Late</span>
-              </div>
-            )}
-            {unassignedCount > 0 && (
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10">
-                <MapPin className="w-3 h-3 text-amber-400" />
-                <span className="text-amber-400 text-[11px] font-medium">{unassignedCount} Unassigned</span>
-              </div>
-            )}
-          </div>
-        </SheetHeader>
-        
-        <ScrollArea className="h-[calc(100vh-200px)]">
-          <div className="p-3 space-y-3">
-            {sortedHours.map((hour) => {
-              const hourReservations = groupedReservations.get(hour) || [];
-              const isCurrentHour = hour === currentHour && isTodaySelected;
-              
-              return (
-                <div key={hour} className="relative">
-                  {/* Time Block Header */}
-                  <div 
-                    className={`sticky top-0 z-10 flex items-center gap-2 px-2.5 py-1.5 rounded-md mb-1.5 ${
-                      isCurrentHour 
-                        ? "bg-orange-500/15 border border-orange-500/30" 
-                        : "bg-neutral-800/60"
-                    }`}
-                  >
-                    <Clock className={`w-3.5 h-3.5 ${isCurrentHour ? "text-orange-400" : "text-neutral-500"}`} />
-                    <span className={`text-xs font-semibold ${isCurrentHour ? "text-orange-400" : "text-neutral-300"}`}>
-                      {formatHourBlock(hour)}
-                    </span>
-                    {isCurrentHour && (
-                      <Badge className="bg-orange-500 text-white text-[9px] px-1.5 py-0 h-4 ml-1">
-                        NOW
-                      </Badge>
-                    )}
-                    <span className="text-neutral-500 text-[10px] ml-auto">{hourReservations.length}</span>
-                  </div>
-                  
-                  {/* Reservations in this time block */}
-                  <div className="space-y-1.5">
-                    {hourReservations.map((reservation) => (
-                      <ReservationCard
-                        key={reservation.id}
-                        reservation={reservation}
-                        onReservationClick={onReservationClick}
-                        onAssignTable={onAssignTable}
-                        availableTables={availableTables}
+              {/* Date Navigation Row */}
+              <div className="flex items-center justify-between mb-3 pr-10">
+                <button
+                  onClick={handlePrevDay}
+                  className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4 text-neutral-400" />
+                </button>
+                
+                <div className="flex items-center gap-2">
+                  <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                    <PopoverTrigger asChild>
+                      <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors">
+                        <CalendarIcon className="w-4 h-4 text-orange-400" />
+                        <span className="text-white text-sm font-semibold">{getDateLabel(selectedDate)}</span>
+                        {!isTodaySelected && (
+                          <span className="text-neutral-500 text-xs">{format(selectedDate, "MMM d")}</span>
+                        )}
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 bg-neutral-900 border-neutral-700" align="center">
+                      <Calendar
+                        mode="single"
+                        selected={selectedDate}
+                        onSelect={(date) => {
+                          if (date) {
+                            setSelectedDate(date);
+                            setIsCalendarOpen(false);
+                          }
+                        }}
+                        initialFocus
+                        className={cn("p-3 pointer-events-auto")}
                       />
-                    ))}
-                  </div>
+                    </PopoverContent>
+                  </Popover>
+                  
+                  {!isTodaySelected && (
+                    <button
+                      onClick={handleToday}
+                      className="px-2 py-1 rounded bg-orange-500/20 text-orange-400 text-[10px] font-semibold uppercase tracking-wide hover:bg-orange-500/30 transition-colors"
+                    >
+                      Today
+                    </button>
+                  )}
                 </div>
-              );
-            })}
-            
-            {reservations.length === 0 && (
-              <div className="flex flex-col items-center justify-center py-12 text-center">
-                <CalendarIcon className="w-10 h-10 text-neutral-700 mb-3" />
-                <h4 className="text-neutral-400 font-medium text-sm">No Reservations</h4>
-                <p className="text-neutral-600 text-xs mt-1">{getDateLabel(selectedDate)}</p>
+                
+                <button
+                  onClick={handleNextDay}
+                  className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4 text-neutral-400" />
+                </button>
               </div>
-            )}
-          </div>
-        </ScrollArea>
+
+              {/* Title Row */}
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-full bg-orange-500/20 flex items-center justify-center">
+                  <CalendarIcon className="w-4 h-4 text-orange-400" />
+                </div>
+                <div>
+                  <SheetTitle className="text-white text-base font-semibold">Reservations</SheetTitle>
+                  <p className="text-neutral-500 text-xs">{filteredReservations.length} {isTodaySelected ? "today" : "on this date"}</p>
+                </div>
+              </div>
+              
+              {/* Quick Stats - Compact */}
+              <div className="flex items-center gap-2 mt-3">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <span className="text-blue-400 text-[11px] font-medium">{upcomingCount}</span>
+                </div>
+                {lateCount > 0 && (
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/10 animate-pulse">
+                    <AlertCircle className="w-3 h-3 text-red-400" />
+                    <span className="text-red-400 text-[11px] font-medium">{lateCount} Late</span>
+                  </div>
+                )}
+                {unassignedCount > 0 && (
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10">
+                    <MapPin className="w-3 h-3 text-amber-400" />
+                    <span className="text-amber-400 text-[11px] font-medium">{unassignedCount} Unassigned</span>
+                  </div>
+                )}
+              </div>
+            </SheetHeader>
+            
+            <ScrollArea className="h-[calc(100vh-200px)]">
+              <div className="p-3 space-y-3">
+                {sortedHours.map((hour) => {
+                  const hourReservations = groupedReservations.get(hour) || [];
+                  const isCurrentHour = hour === currentHour && isTodaySelected;
+                  
+                  return (
+                    <div key={hour} className="relative">
+                      {/* Time Block Header */}
+                      <div 
+                        className={`sticky top-0 z-10 flex items-center gap-2 px-2.5 py-1.5 rounded-md mb-1.5 ${
+                          isCurrentHour 
+                            ? "bg-orange-500/15 border border-orange-500/30" 
+                            : "bg-neutral-800/60"
+                        }`}
+                      >
+                        <Clock className={`w-3.5 h-3.5 ${isCurrentHour ? "text-orange-400" : "text-neutral-500"}`} />
+                        <span className={`text-xs font-semibold ${isCurrentHour ? "text-orange-400" : "text-neutral-300"}`}>
+                          {formatHourBlock(hour)}
+                        </span>
+                        {isCurrentHour && (
+                          <Badge className="bg-orange-500 text-white text-[9px] px-1.5 py-0 h-4 ml-1">
+                            NOW
+                          </Badge>
+                        )}
+                        <span className="text-neutral-500 text-[10px] ml-auto">{hourReservations.length}</span>
+                      </div>
+                      
+                      {/* Reservations in this time block */}
+                      <div className="space-y-1.5">
+                        {hourReservations.map((reservation) => (
+                          <ReservationCard
+                            key={reservation.id}
+                            reservation={reservation}
+                            onReservationClick={handleReservationSelect}
+                            onAssignTable={onAssignTable}
+                            availableTables={availableTables}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {filteredReservations.length === 0 && (
+                  <div className="flex flex-col items-center justify-center py-12 text-center">
+                    <CalendarIcon className="w-10 h-10 text-neutral-700 mb-3" />
+                    <h4 className="text-neutral-400 font-medium text-sm">No Reservations</h4>
+                    <p className="text-neutral-600 text-xs mt-1">{getDateLabel(selectedDate)}</p>
+                  </div>
+                )}
+              </div>
+            </ScrollArea>
+          </>
+        )}
       </SheetContent>
     </Sheet>
   );

@@ -492,14 +492,52 @@ const ReservationDetailsPanel = ({
       {/* Quick Actions - Fixed at bottom */}
       <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/50">
         <div className="grid grid-cols-2 gap-3">
-          {reservation.status === "upcoming" && reservation.tableId && (
-            <button 
-              onClick={() => onSeatGuest(reservation)}
-              className="px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
-            >
-              Seat Guest
-            </button>
-          )}
+          {(() => {
+            // Only show Seat Guest for today's reservations within time window
+            if (reservation.status !== "upcoming" || !reservation.tableId) return null;
+            
+            const now = new Date();
+            const reservationDate = new Date(reservation.date);
+            
+            // Check if reservation is today
+            const isReservationToday = 
+              reservationDate.getFullYear() === now.getFullYear() &&
+              reservationDate.getMonth() === now.getMonth() &&
+              reservationDate.getDate() === now.getDate();
+            
+            if (!isReservationToday) return null;
+            
+            // Parse reservation time (e.g., "6:00 PM" or "18:00")
+            const timeParts = reservation.time.match(/(\d+):(\d+)\s*(AM|PM)?/i);
+            if (!timeParts) return null;
+            
+            let hours = parseInt(timeParts[1], 10);
+            const minutes = parseInt(timeParts[2], 10);
+            const period = timeParts[3]?.toUpperCase();
+            
+            if (period === "PM" && hours !== 12) hours += 12;
+            if (period === "AM" && hours === 12) hours = 0;
+            
+            const reservationTime = new Date(now);
+            reservationTime.setHours(hours, minutes, 0, 0);
+            
+            // Time window: 30 minutes before to 1 hour after
+            const windowStart = new Date(reservationTime.getTime() - 30 * 60 * 1000);
+            const windowEnd = new Date(reservationTime.getTime() + 60 * 60 * 1000);
+            
+            const isWithinWindow = now >= windowStart && now <= windowEnd;
+            
+            if (!isWithinWindow) return null;
+            
+            return (
+              <button 
+                onClick={() => onSeatGuest(reservation)}
+                className="px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+              >
+                Seat Guest
+              </button>
+            );
+          })()}
           <button 
             onClick={() => onEditReservation(reservation)}
             className="px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors"

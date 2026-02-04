@@ -1,157 +1,80 @@
 
-# Split Check Tickets for Dashboard Page
+# Fix Reservation Row Right-Edge Content Clipping
 
-## Overview
-This plan adds hierarchical split check ticket display to the Dashboard page, matching the functionality already implemented in TableOrderDetails. When an order has a split configuration, sub-tickets (individual checks) will appear below the main order card, allowing users to pay, view receipts, and manage individual checks.
+## Problem Analysis
 
-## Current State Analysis
+Looking at the screenshot and code, the reservation rows show clipped content on the right side:
+- Status badges display only "Up" instead of "Upcoming"  
+- Table numbers and icons are cramped against the edge
 
-### TableOrderDetails Implementation
-- Uses `renderSplitCheckCard()` function to render split check sub-tickets below main order cards
-- Supports mobile, tablet, and desktop layouts
-- Displays check letter (A, B, C...), individual totals, and payment status
-- Has interactive Pay/Receipt buttons on each sub-ticket
-- Tracks split configurations via:
-  1. `SessionOrderContext` for session-based orders
-  2. `staticSplitConfigs` in localStorage for static/seeded orders
+**Root Causes Identified:**
 
-### Dashboard Current State
-- Uses `DashboardOrder` interface which does NOT include `splitConfiguration`
-- Renders orders in a flat list without sub-ticket hierarchy
-- Does not access `SessionOrderContext` for session orders
-- Has separate order panel for viewing/editing selected order details
+1. **Sheet component has a default Close button** (line 60-63 in `sheet.tsx`) positioned at `right-4 top-4` that may interfere with the layout
+2. **Panel width constraint** (`w-[380px]`) combined with dense row content creates overflow
+3. **Status Badge takes ~65px** with "Upcoming" text, but competes with other fixed-width elements
+4. **The `flex-shrink-0` on all right-side elements** prevents any flexibility in layout
 
-## Implementation Tasks
+## Solution
 
-### 1. Extend DashboardOrder Interface
-**File:** `src/data/orders.ts`
+### Approach 1: Make Status Badge Abbreviated (Recommended)
 
-Add `splitConfiguration` field to the `DashboardOrder` interface:
-```typescript
-export interface DashboardOrder {
-  // ... existing fields ...
-  splitConfiguration?: SplitConfiguration;
-}
-```
+Shorten the status labels to save horizontal space:
+- "Upcoming" → "Up" or single dot only
+- "Seated" → "Seat" 
+- "Late" → "Late" (already short)
 
-Update `toDashboardOrder()` function to pass through split configuration when converting orders.
+Or remove the text badge entirely and rely only on the colored status dot (already present).
 
-### 2. Add SessionOrderContext to Dashboard
-**File:** `src/pages/Dashboard.tsx`
+### Approach 2: Increase Panel Width
 
-- Import `useSessionOrders` hook and `SplitConfiguration`, `SplitCheck` types
-- Merge session orders with static orders (similar to TableOrderDetails approach)
-- Access split configurations from both session orders and localStorage
+Expand the Sheet panel width from 380-400px to 420-450px to accommodate all elements.
 
-### 3. Create renderSplitCheckCard Function for Dashboard
-**File:** `src/pages/Dashboard.tsx`
+### Approach 3: Responsive Layout Adjustments
 
-Implement a `renderSplitCheckCard()` function similar to TableOrderDetails:
-- Accept parent order, check index, check data, and layout type
-- Render sub-tickets with:
-  - Order ID + check letter (e.g., "1A", "1B")
-  - Customer name + Check identifier
-  - Check total
-  - Payment status (Paid/Unpaid)
-  - Action buttons (Pay for unpaid, Receipt for paid)
-- Support mobile and desktop layouts
-- Use 45%/35%/20% column ratio for desktop
-- Apply indentation (`ml-4`) for visual hierarchy
+1. Remove the status text badge entirely (the colored dot already indicates status)
+2. Or use single-character abbreviations: U/S/L
+3. Reduce gap spacing between elements
+4. Make guest name truncate earlier
 
-### 4. Update Order List Rendering
-**File:** `src/pages/Dashboard.tsx`
+## Recommended Fix
 
-Modify the orders list rendering to:
-- Wrap each order in a container div with `space-y-2` for consistent gaps
-- After rendering main order card, check for `splitConfiguration`
-- If splits exist, map through `checks` array and render sub-tickets
-- Apply consistent 8px gap between main ticket and sub-tickets
+**Combine approaches for best results:**
 
-### 5. Add Split Check Selection State
-**File:** `src/pages/Dashboard.tsx`
+1. **Remove the default Sheet close button** - Pass a custom prop to hide it since we want panel dismissal to work differently
+2. **Remove the status text badge from card rows** - The colored status dot already provides this information visually; the text badge creates redundancy and horizontal pressure
+3. **Increase right padding on the ScrollArea container** to ensure content never touches the edge
+4. **Test panel width** - If still cramped, increase from 400px to 420px
 
-Add state management for split check interactions:
-```typescript
-const [selectedSplitCheck, setSelectedSplitCheck] = useState<{
-  orderId: number;
-  checkId: string;
-} | null>(null);
-```
+## Technical Implementation
 
-Add handler function:
-```typescript
-const handleSplitCheckClick = (order: DashboardOrder, check: SplitCheck) => {
-  setSelectedSplitCheck({ orderId: order.id, checkId: check.checkId });
-  // Construct virtual order for payment processing
-};
-```
+### File 1: `src/components/ui/sheet.tsx`
 
-### 6. Update Order Panel for Split Checks
-**File:** `src/pages/Dashboard.tsx`
+Remove or make optional the default close button in SheetContent.
 
-When a split check is selected:
-- Show only items belonging to that check in the order panel
-- Display check-specific total
-- Update Charge button to show check total
-- Enable payment dialog for individual check payment
+### File 2: `src/components/ReservationsPanel.tsx`
 
-### 7. Import Required Icons and Assets
-**File:** `src/pages/Dashboard.tsx`
+**ReservationCard component changes:**
+- Remove the status Badge entirely from the card row (the dot suffices for timeline scanning)
+- Alternatively, abbreviate to single letters (U/S/L)
+- Ensure the row has explicit `overflow-hidden` to prevent any spillover
 
-Add imports for:
-- `BadgeDollarSign` from lucide-react (for Pay button)
-- Any additional icons used in sub-ticket rendering
+**ScrollArea container:**
+- Increase right padding further if needed
 
----
+### File 3: `src/pages/FullReservationsView.tsx`
 
-## Technical Details
+Apply same card layout changes for consistency between panel and full view.
 
-### Split Check Card Structure (Desktop)
-```
-+--------------------------------------------------+
-| [1]    | Name · Check A | Server | UNPAID        |
-| [A]    | Party 4, 8PM | Timer  |        $45.00  |
-|        | Revenue Center | Pending | $0.00 | [PAY]|
-+--------------------------------------------------+
-```
+## Visual Outcome
 
-### Split Check Card Structure (Mobile)
-```
-+----------------------------------+
-| [1A] | Name · Check A · T2       |
-|      | Server           UNPAID   |
-|      | Party 4, 8PM     $45.00   |
-|      | Main             Unpaid   |
-+----------------------------------+
-```
-
-### Data Flow
-1. Dashboard loads orders from `getDashboardOrders()` + `SessionOrderContext`
-2. Each order is checked for `splitConfiguration`
-3. If present, sub-tickets are rendered using split check data
-4. Clicking sub-ticket opens payment for that specific check
-5. Payment completion updates check status to 'paid'
-
-### State Synchronization
-- Split configurations from session orders are already persisted via `SessionOrderContext`
-- Static order splits use localStorage key: `pos-tableorder-static-splits`
-- Dashboard reads from same localStorage key for consistency across pages
-
----
+After fix:
+- All content (time, party size, table ID) fully visible
+- Clear dark space between last element and panel edge
+- No clipping perception at any viewport size
+- Status communicated via color dot (fast, glanceable for POS)
 
 ## Files to Modify
 
-| File | Changes |
-|------|---------|
-| `src/data/orders.ts` | Add `splitConfiguration` to `DashboardOrder` interface and `toDashboardOrder()` function |
-| `src/pages/Dashboard.tsx` | Add SessionOrderContext, split check rendering, selection state, and order panel updates |
-
-## Testing Checklist
-- [ ] Split checks appear below parent orders on Dashboard
-- [ ] Clicking sub-ticket selects it and shows correct items in order panel
-- [ ] Pay button triggers payment dialog for individual check
-- [ ] Receipt button appears for paid checks
-- [ ] Mobile layout displays correctly
-- [ ] Desktop 45/35/20 layout matches TableOrderDetails
-- [ ] Consistent 8px spacing between tickets
-- [ ] Status colors match (green for paid, appropriate color for unpaid)
+1. `src/components/ui/sheet.tsx` - Hide default close button
+2. `src/components/ReservationsPanel.tsx` - Update ReservationCard layout
+3. `src/pages/FullReservationsView.tsx` - Match card layout changes

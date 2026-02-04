@@ -5,7 +5,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, ChevronLeft, ChevronRight, Phone, FileText, CreditCard, ArrowLeft, Armchair, X } from "lucide-react";
+import { Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, ChevronLeft, ChevronRight, Phone, FileText, CreditCard, ArrowLeft, Armchair } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type Reservation = {
@@ -459,16 +459,8 @@ const ReservationsPanel = ({
           // Timeline View
           <>
             <SheetHeader className="px-4 pt-4 pb-3 border-b border-neutral-800">
-              {/* Close Button */}
-              <button
-                onClick={handleClose}
-                className="absolute right-4 top-4 w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors z-10"
-              >
-                <X className="w-4 h-4 text-neutral-400" />
-              </button>
-
               {/* Date Navigation Row */}
-              <div className="flex items-center justify-between mb-3 pr-10">
+              <div className="flex items-center justify-between mb-3">
                 <button
                   onClick={handlePrevDay}
                   className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
@@ -554,7 +546,7 @@ const ReservationsPanel = ({
             </SheetHeader>
             
             <ScrollArea className="h-[calc(100vh-200px)]">
-              <div className="p-3 space-y-3">
+              <div className="p-3 pr-4 space-y-3">
                 {sortedHours.map((hour) => {
                   const hourReservations = groupedReservations.get(hour) || [];
                   const isCurrentHour = hour === currentHour && isTodaySelected;

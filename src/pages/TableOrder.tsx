@@ -1979,34 +1979,6 @@ const TableOrder = () => {
           </Button>
         )}
 
-        {/* Service Area Chip - Always visible outside hamburger */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button 
-              className="flex items-center gap-2 rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity"
-              style={{ background: "linear-gradient(180deg, #B8B8B8 0%, #616161 100%)" }}
-            >
-              <MapPin className="w-3 h-3 text-white" />
-              <span className="text-white text-xs font-medium">{selectedArea}</span>
-              <ChevronDown className="w-3 h-3 text-white" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
-            {currentServiceAreas.map((area) => (
-              <DropdownMenuItem
-                key={area}
-                onClick={() => setSelectedArea(area)}
-                className={`text-white hover:bg-neutral-700 cursor-pointer ${
-                  selectedArea === area ? "bg-neutral-700" : ""
-                }`}
-              >
-                {selectedArea === area && <Check className="w-3.5 h-3.5 mr-2 text-orange-400" />}
-                {selectedArea !== area && <div className="w-3.5 h-3.5 mr-2" />}
-                {area}
-              </DropdownMenuItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
 
         {/* Floorplan-specific controls */}
         {viewMode === "floorplan" && (

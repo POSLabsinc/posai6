@@ -5,10 +5,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { 
   Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, 
   ChevronLeft, ChevronRight, Phone, FileText, CreditCard, 
-  ArrowLeft, Armchair
+  ArrowLeft, Armchair, Mail, Timer, Gift, Building, Globe,
+  User, Hash, Utensils, Baby, Accessibility, Bell, StickyNote,
+  ExternalLink, CheckCircle2, XCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockReservations, type Reservation } from "@/components/ReservationsPanel";
@@ -139,7 +142,63 @@ const ReservationCard = ({
   );
 };
 
-// Reservation Details Panel
+// Field display helper - shows value or "Not specified"
+const FieldRow = ({ 
+  icon: Icon, 
+  label, 
+  value, 
+  valueClass = "text-white" 
+}: { 
+  icon: React.ElementType; 
+  label: string; 
+  value: string | number | undefined | null; 
+  valueClass?: string;
+}) => (
+  <div className="flex items-start gap-3 py-2">
+    <Icon className="w-4 h-4 text-neutral-500 mt-0.5 flex-shrink-0" />
+    <div className="flex-1 min-w-0">
+      <p className="text-neutral-500 text-xs uppercase tracking-wide mb-0.5">{label}</p>
+      <p className={cn("text-sm", value ? valueClass : "text-neutral-600 italic")}>
+        {value || "Not specified"}
+      </p>
+    </div>
+  </div>
+);
+
+// Boolean field display
+const BooleanFieldRow = ({ 
+  icon: Icon, 
+  label, 
+  value 
+}: { 
+  icon: React.ElementType; 
+  label: string; 
+  value: boolean | undefined; 
+}) => (
+  <div className="flex items-start gap-3 py-2">
+    <Icon className="w-4 h-4 text-neutral-500 mt-0.5 flex-shrink-0" />
+    <div className="flex-1 min-w-0">
+      <p className="text-neutral-500 text-xs uppercase tracking-wide mb-0.5">{label}</p>
+      <div className="flex items-center gap-1.5">
+        {value === true ? (
+          <>
+            <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+            <span className="text-emerald-400 text-sm">Enabled</span>
+          </>
+        ) : value === false ? (
+          <>
+            <XCircle className="w-4 h-4 text-neutral-600" />
+            <span className="text-neutral-600 text-sm">Disabled</span>
+          </>
+        ) : (
+          <span className="text-neutral-600 italic text-sm">Not specified</span>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
+// Reservation Details Panel with Tabs
 const ReservationDetailsPanel = ({
   reservation,
   availableTables,
@@ -150,6 +209,7 @@ const ReservationDetailsPanel = ({
   onAssignTable: (reservationId: string, tableId: string) => void;
 }) => {
   const config = statusConfig[reservation.status];
+  const formattedDate = format(reservation.date, "EEEE, MMMM d, yyyy");
 
   return (
     <div className="h-full flex flex-col">
@@ -169,129 +229,270 @@ const ReservationDetailsPanel = ({
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className="p-6 space-y-6">
-          {/* Guest Info Section */}
-          <div className="space-y-3">
-            <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Guest Information</h4>
-            <div className="bg-neutral-800/50 rounded-lg p-4 space-y-3">
-              <div className="flex items-center gap-3">
-                <Users className="w-4 h-4 text-neutral-500" />
-                <span className="text-white text-sm">{reservation.partySize} Guests</span>
+      {/* Tabs - Match old POS exactly */}
+      <Tabs defaultValue="guest-info" className="flex-1 flex flex-col overflow-hidden">
+        <TabsList className="w-full justify-start rounded-none border-b border-neutral-800 bg-neutral-900/50 h-auto p-0 px-4">
+          <TabsTrigger 
+            value="guest-info" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-3 text-sm"
+          >
+            Guest Info
+          </TabsTrigger>
+          <TabsTrigger 
+            value="sitting" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-3 text-sm"
+          >
+            Sitting
+          </TabsTrigger>
+          <TabsTrigger 
+            value="payment" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-3 text-sm"
+          >
+            Payment
+          </TabsTrigger>
+          <TabsTrigger 
+            value="other" 
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-3 text-sm"
+          >
+            Other
+          </TabsTrigger>
+        </TabsList>
+
+        <ScrollArea className="flex-1">
+          {/* Guest Info Tab */}
+          <TabsContent value="guest-info" className="mt-0 p-6 space-y-4">
+            <div className="bg-neutral-800/50 rounded-lg p-4 divide-y divide-neutral-700/50">
+              <FieldRow 
+                icon={User} 
+                label="Guest Name (First)" 
+                value={reservation.firstName} 
+              />
+              <FieldRow 
+                icon={User} 
+                label="Guest Name (Last)" 
+                value={reservation.lastName} 
+              />
+              <FieldRow 
+                icon={Mail} 
+                label="Email" 
+                value={reservation.email} 
+              />
+              <FieldRow 
+                icon={Phone} 
+                label="Phone Number" 
+                value={reservation.phone} 
+              />
+              <FieldRow 
+                icon={Users} 
+                label="Guest Count (Party Size)" 
+                value={reservation.partySize ? `${reservation.partySize} guests` : undefined} 
+              />
+              <FieldRow 
+                icon={CalendarIcon} 
+                label="Reservation Date & Time" 
+                value={`${formattedDate} at ${reservation.time}`} 
+              />
+              <FieldRow 
+                icon={Timer} 
+                label="Duration" 
+                value={reservation.duration} 
+              />
+              <FieldRow 
+                icon={Gift} 
+                label="Occasion" 
+                value={reservation.occasion} 
+              />
+              <FieldRow 
+                icon={StickyNote} 
+                label="Guest Notes" 
+                value={reservation.guestNotes} 
+              />
+            </div>
+          </TabsContent>
+
+          {/* Sitting Tab */}
+          <TabsContent value="sitting" className="mt-0 p-6 space-y-4">
+            <div className="bg-neutral-800/50 rounded-lg p-4 divide-y divide-neutral-700/50">
+              <FieldRow 
+                icon={Building} 
+                label="Floor" 
+                value={reservation.floor} 
+              />
+              <FieldRow 
+                icon={MapPin} 
+                label="Area / Service Area" 
+                value={reservation.area} 
+              />
+              <div className="py-2">
+                <div className="flex items-start gap-3">
+                  <Armchair className="w-4 h-4 text-neutral-500 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-neutral-500 text-xs uppercase tracking-wide mb-0.5">Assigned Table(s)</p>
+                    {reservation.tableId ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-white text-sm font-medium">Table {reservation.tableId}</span>
+                        <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-xs">Assigned</Badge>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-2">
+                          <AlertCircle className="w-4 h-4 text-amber-400" />
+                          <span className="text-amber-400 text-sm font-medium">Unassigned</span>
+                        </div>
+                        {availableTables.length > 0 && (
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-neutral-700">
+                            <span className="text-neutral-500 text-xs w-full mb-1">Quick Assign:</span>
+                            {availableTables.map((table) => (
+                              <button
+                                key={table.id}
+                                onClick={() => onAssignTable(reservation.id, table.id)}
+                                className="px-4 py-2 rounded-lg bg-neutral-700 hover:bg-amber-500 text-white text-sm font-medium transition-colors"
+                              >
+                                {table.id} ({table.seats} seats)
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                </div>
               </div>
-              {reservation.phone && (
-                <div className="flex items-center gap-3">
-                  <Phone className="w-4 h-4 text-neutral-500" />
-                  <span className="text-white text-sm">{reservation.phone}</span>
-                </div>
-              )}
-              {reservation.email && (
-                <div className="flex items-center gap-3">
-                  <FileText className="w-4 h-4 text-neutral-500" />
-                  <span className="text-white text-sm">{reservation.email}</span>
-                </div>
-              )}
             </div>
-          </div>
+          </TabsContent>
 
-          {/* Seating Section */}
-          <div className="space-y-3">
-            <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Seating</h4>
-            <div className="bg-neutral-800/50 rounded-lg p-4">
-              {reservation.tableId ? (
-                <div className="flex items-center gap-3">
-                  <div className="w-12 h-12 rounded-lg bg-blue-500/20 flex items-center justify-center">
-                    <Armchair className="w-6 h-6 text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="text-white font-medium text-lg">Table {reservation.tableId}</p>
-                    <p className="text-neutral-500 text-sm">Assigned</p>
+          {/* Payment Tab */}
+          <TabsContent value="payment" className="mt-0 p-6 space-y-4">
+            <div className="bg-neutral-800/50 rounded-lg p-4 divide-y divide-neutral-700/50">
+              <div className="py-2">
+                <div className="flex items-start gap-3">
+                  <CreditCard className="w-4 h-4 text-neutral-500 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1 min-w-0">
+                    <p className="text-neutral-500 text-xs uppercase tracking-wide mb-0.5">Advance Amount / Deposit</p>
+                    {reservation.depositPaid && reservation.depositAmount ? (
+                      <div className="flex items-center gap-2">
+                        <span className="text-emerald-400 text-lg font-semibold">${reservation.depositAmount}</span>
+                        <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-xs">Paid</Badge>
+                      </div>
+                    ) : (
+                      <span className="text-neutral-600 italic text-sm">No deposit</span>
+                    )}
                   </div>
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 text-amber-400">
-                    <AlertCircle className="w-4 h-4" />
-                    <span className="text-sm font-medium">Unassigned – Tap a table to assign</span>
-                  </div>
-                  {availableTables.length > 0 && (
-                    <div className="flex flex-wrap gap-2 pt-3 border-t border-neutral-700">
-                      {availableTables.map((table) => (
-                        <button
-                          key={table.id}
-                          onClick={() => onAssignTable(reservation.id, table.id)}
-                          className="px-4 py-2 rounded-lg bg-neutral-700 hover:bg-amber-500 text-white text-sm font-medium transition-colors"
-                        >
-                          {table.id} ({table.seats})
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
+              </div>
+              <FieldRow 
+                icon={FileText} 
+                label="Payment Status" 
+                value={reservation.paymentStatus} 
+                valueClass={reservation.paymentStatus === "Fully Paid" ? "text-emerald-400" : reservation.paymentStatus === "Partial Payment" ? "text-amber-400" : "text-white"}
+              />
             </div>
-          </div>
+          </TabsContent>
 
-          {/* Payment Section */}
-          <div className="space-y-3">
-            <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Payment</h4>
-            <div className="bg-neutral-800/50 rounded-lg p-4">
-              {reservation.depositPaid ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CreditCard className="w-4 h-4 text-emerald-400" />
-                    <span className="text-white text-sm">Deposit Paid</span>
-                  </div>
-                  <span className="text-emerald-400 font-semibold text-lg">${reservation.depositAmount}</span>
-                </div>
-              ) : (
-                <div className="flex items-center gap-3 text-neutral-500">
-                  <CreditCard className="w-4 h-4" />
-                  <span className="text-sm">No deposit</span>
-                </div>
-              )}
+          {/* Other Tab */}
+          <TabsContent value="other" className="mt-0 p-6 space-y-4">
+            <div className="bg-neutral-800/50 rounded-lg p-4 divide-y divide-neutral-700/50">
+              <FieldRow 
+                icon={Utensils} 
+                label="Service Type" 
+                value={reservation.serviceType} 
+              />
+              <FieldRow 
+                icon={Globe} 
+                label="Reservation Source" 
+                value={reservation.reservationSource} 
+              />
+              <FieldRow 
+                icon={User} 
+                label="Assigned Server" 
+                value={reservation.assignedServer} 
+              />
+              <FieldRow 
+                icon={ExternalLink} 
+                label="External Reference" 
+                value={reservation.externalReference} 
+              />
+              <FieldRow 
+                icon={Hash} 
+                label="Confirmation Number" 
+                value={reservation.confirmationNumber} 
+              />
+              <FieldRow 
+                icon={AlertCircle} 
+                label="Dietary Restrictions" 
+                value={reservation.dietaryRestrictions} 
+                valueClass="text-amber-400"
+              />
+              <FieldRow 
+                icon={Baby} 
+                label="High Chair Count" 
+                value={reservation.highChairCount !== undefined ? `${reservation.highChairCount}` : undefined} 
+              />
+              <FieldRow 
+                icon={Users} 
+                label="Kids Count" 
+                value={reservation.kidsCount !== undefined ? `${reservation.kidsCount}` : undefined} 
+              />
+              <FieldRow 
+                icon={Accessibility} 
+                label="Accessibility Requirements" 
+                value={reservation.accessibilityRequirements} 
+              />
+              <FieldRow 
+                icon={StickyNote} 
+                label="Visit Notes" 
+                value={reservation.visitNotes} 
+              />
+              <BooleanFieldRow 
+                icon={Bell} 
+                label="Reminders" 
+                value={reservation.remindersEnabled} 
+              />
             </div>
-          </div>
 
-          {/* Notes Section */}
-          {(reservation.notes || reservation.specialRequests) && (
-            <div className="space-y-3">
-              <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Notes</h4>
-              <div className="bg-neutral-800/50 rounded-lg p-4 space-y-2">
+            {/* Notes & Special Requests Section */}
+            {(reservation.notes || reservation.specialRequests) && (
+              <div className="bg-neutral-800/50 rounded-lg p-4 space-y-3">
+                <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Additional Notes</h4>
                 {reservation.notes && (
-                  <p className="text-white text-sm">{reservation.notes}</p>
+                  <div className="flex items-start gap-2">
+                    <FileText className="w-4 h-4 text-neutral-500 mt-0.5" />
+                    <p className="text-white text-sm">{reservation.notes}</p>
+                  </div>
                 )}
                 {reservation.specialRequests && (
-                  <p className="text-amber-400/80 text-sm italic">{reservation.specialRequests}</p>
+                  <div className="flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5" />
+                    <p className="text-amber-400/80 text-sm italic">{reservation.specialRequests}</p>
+                  </div>
                 )}
               </div>
-            </div>
-          )}
+            )}
+          </TabsContent>
+        </ScrollArea>
+      </Tabs>
 
-          {/* Quick Actions */}
-          <div className="space-y-3 pt-2">
-            <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Actions</h4>
-            <div className="grid grid-cols-2 gap-3">
-              {reservation.status === "upcoming" && reservation.tableId && (
-                <button className="px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors">
-                  Seat Guest
-                </button>
-              )}
-              {reservation.status === "late" && (
-                <button className="px-4 py-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium transition-colors">
-                  Call Guest
-                </button>
-              )}
-              <button className="px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors">
-                Edit Reservation
-              </button>
-              <button className="px-4 py-3 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 text-sm font-medium transition-colors">
-                Cancel
-              </button>
-            </div>
-          </div>
+      {/* Quick Actions - Fixed at bottom */}
+      <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/50">
+        <div className="grid grid-cols-2 gap-3">
+          {reservation.status === "upcoming" && reservation.tableId && (
+            <button className="px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors">
+              Seat Guest
+            </button>
+          )}
+          {reservation.status === "late" && (
+            <button className="px-4 py-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium transition-colors">
+              Call Guest
+            </button>
+          )}
+          <button className="px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors">
+            Edit Reservation
+          </button>
+          <button className="px-4 py-3 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 text-sm font-medium transition-colors">
+            Cancel
+          </button>
         </div>
-      </ScrollArea>
+      </div>
     </div>
   );
 };

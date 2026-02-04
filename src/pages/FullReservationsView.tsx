@@ -203,10 +203,12 @@ const ReservationDetailsPanel = ({
   reservation,
   availableTables,
   onAssignTable,
+  onSeatGuest,
 }: {
   reservation: Reservation;
   availableTables: { id: string; seats: number }[];
   onAssignTable: (reservationId: string, tableId: string) => void;
+  onSeatGuest: (reservation: Reservation) => void;
 }) => {
   const config = statusConfig[reservation.status];
   const formattedDate = format(reservation.date, "EEEE, MMMM d, yyyy");
@@ -476,7 +478,10 @@ const ReservationDetailsPanel = ({
       <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/50">
         <div className="grid grid-cols-2 gap-3">
           {reservation.status === "upcoming" && reservation.tableId && (
-            <button className="px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors">
+            <button 
+              onClick={() => onSeatGuest(reservation)}
+              className="px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+            >
               Seat Guest
             </button>
           )}
@@ -568,6 +573,20 @@ const FullReservationsView = () => {
     );
     if (selectedReservation?.id === reservationId) {
       setSelectedReservation(prev => prev ? { ...prev, tableId } : null);
+    }
+  };
+
+  const handleSeatGuest = (reservation: Reservation) => {
+    // Update reservation status to seated
+    setReservations(prev => 
+      prev.map(r => r.id === reservation.id ? { ...r, status: "seated" as const } : r)
+    );
+    // Update selected reservation state
+    setSelectedReservation(prev => prev ? { ...prev, status: "seated" as const } : null);
+    
+    // Navigate to table order details for the assigned table
+    if (reservation.tableId) {
+      navigate(`/tableorder/${reservation.tableId}`);
     }
   };
 
@@ -753,6 +772,7 @@ const FullReservationsView = () => {
               reservation={selectedReservation}
               availableTables={availableTables}
               onAssignTable={handleAssignTable}
+              onSeatGuest={handleSeatGuest}
             />
           ) : (
             <EmptyDetailsState />

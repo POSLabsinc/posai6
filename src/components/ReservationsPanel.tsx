@@ -1,7 +1,12 @@
+import { useState } from "react";
+import { format, addDays, subDays, isToday, isTomorrow, isYesterday } from "date-fns";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, MapPin, Calendar, AlertCircle } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, ChevronLeft, ChevronRight } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export type Reservation = {
   id: string;
@@ -12,6 +17,7 @@ export type Reservation = {
   status: "upcoming" | "seated" | "late";
   phone?: string;
   notes?: string;
+  date?: string; // Added for multi-day support
 };
 
 // Mock reservations data
@@ -85,6 +91,14 @@ const groupByHour = (reservations: Reservation[]): Map<number, Reservation[]> =>
   });
   
   return groups;
+};
+
+// Format date label
+const getDateLabel = (date: Date): string => {
+  if (isToday(date)) return "Today";
+  if (isTomorrow(date)) return "Tomorrow";
+  if (isYesterday(date)) return "Yesterday";
+  return format(date, "EEE, MMM d");
 };
 
 const ReservationCard = ({
@@ -191,7 +205,10 @@ const ReservationsPanel = ({
   onAssignTable,
   availableTables,
 }: ReservationsPanelProps) => {
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const currentHour = getCurrentHour();
+  const isTodaySelected = isToday(selectedDate);
   
   // Group by hour for timeline view
   const groupedReservations = groupByHour(reservations);
@@ -201,6 +218,10 @@ const ReservationsPanel = ({
   const lateCount = reservations.filter(r => r.status === "late").length;
   const unassignedCount = reservations.filter(r => !r.tableId).length;
 
+  const handlePrevDay = () => setSelectedDate(prev => subDays(prev, 1));
+  const handleNextDay = () => setSelectedDate(prev => addDays(prev, 1));
+  const handleToday = () => setSelectedDate(new Date());
+
   return (
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent 
@@ -208,13 +229,68 @@ const ReservationsPanel = ({
         className="w-[380px] sm:w-[400px] bg-neutral-900 border-neutral-800 p-0"
       >
         <SheetHeader className="px-4 pt-4 pb-3 border-b border-neutral-800">
+          {/* Date Navigation Row */}
+          <div className="flex items-center justify-between mb-3">
+            <button
+              onClick={handlePrevDay}
+              className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+            >
+              <ChevronLeft className="w-4 h-4 text-neutral-400" />
+            </button>
+            
+            <div className="flex items-center gap-2">
+              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+                <PopoverTrigger asChild>
+                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors">
+                    <CalendarIcon className="w-4 h-4 text-orange-400" />
+                    <span className="text-white text-sm font-semibold">{getDateLabel(selectedDate)}</span>
+                    {!isTodaySelected && (
+                      <span className="text-neutral-500 text-xs">{format(selectedDate, "MMM d")}</span>
+                    )}
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-neutral-900 border-neutral-700" align="center">
+                  <Calendar
+                    mode="single"
+                    selected={selectedDate}
+                    onSelect={(date) => {
+                      if (date) {
+                        setSelectedDate(date);
+                        setIsCalendarOpen(false);
+                      }
+                    }}
+                    initialFocus
+                    className={cn("p-3 pointer-events-auto")}
+                  />
+                </PopoverContent>
+              </Popover>
+              
+              {!isTodaySelected && (
+                <button
+                  onClick={handleToday}
+                  className="px-2 py-1 rounded bg-orange-500/20 text-orange-400 text-[10px] font-semibold uppercase tracking-wide hover:bg-orange-500/30 transition-colors"
+                >
+                  Today
+                </button>
+              )}
+            </div>
+            
+            <button
+              onClick={handleNextDay}
+              className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+            >
+              <ChevronRight className="w-4 h-4 text-neutral-400" />
+            </button>
+          </div>
+
+          {/* Title Row */}
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-full bg-orange-500/20 flex items-center justify-center">
-              <Calendar className="w-4 h-4 text-orange-400" />
+              <CalendarIcon className="w-4 h-4 text-orange-400" />
             </div>
             <div>
               <SheetTitle className="text-white text-base font-semibold">Reservations</SheetTitle>
-              <p className="text-neutral-500 text-xs">{reservations.length} today</p>
+              <p className="text-neutral-500 text-xs">{reservations.length} {isTodaySelected ? "today" : "on this date"}</p>
             </div>
           </div>
           
@@ -239,11 +315,11 @@ const ReservationsPanel = ({
           </div>
         </SheetHeader>
         
-        <ScrollArea className="h-[calc(100vh-160px)]">
+        <ScrollArea className="h-[calc(100vh-200px)]">
           <div className="p-3 space-y-3">
             {sortedHours.map((hour) => {
               const hourReservations = groupedReservations.get(hour) || [];
-              const isCurrentHour = hour === currentHour;
+              const isCurrentHour = hour === currentHour && isTodaySelected;
               
               return (
                 <div key={hour} className="relative">
@@ -285,8 +361,9 @@ const ReservationsPanel = ({
             
             {reservations.length === 0 && (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <Calendar className="w-10 h-10 text-neutral-700 mb-3" />
+                <CalendarIcon className="w-10 h-10 text-neutral-700 mb-3" />
                 <h4 className="text-neutral-400 font-medium text-sm">No Reservations</h4>
+                <p className="text-neutral-600 text-xs mt-1">{getDateLabel(selectedDate)}</p>
               </div>
             )}
           </div>

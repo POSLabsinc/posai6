@@ -7,7 +7,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
 import { format, addDays } from "date-fns";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
 import { customers, checkPhoneConflict, Customer } from "@/data/customers";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
@@ -146,8 +146,12 @@ const ScheduledGuestForm: React.FC<ScheduledGuestFormProps> = ({
     }));
   };
 
+  const phoneError = getPhoneValidationError(formData.phoneNumber);
+  
   const handleSave = () => {
-    if (formData.guestName && formData.scheduledDate && formData.scheduledTime) {
+    // Phone is optional for scheduled, but if provided must be valid
+    const phoneValid = !formData.phoneNumber || isValidPhoneNumber(formData.phoneNumber);
+    if (formData.guestName && formData.scheduledDate && formData.scheduledTime && phoneValid) {
       const cleanedData = {
         ...formData,
         phoneNumber: formData.phoneNumber.replace(/\D/g, ""),

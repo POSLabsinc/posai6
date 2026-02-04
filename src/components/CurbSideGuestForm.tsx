@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
 import { customers, checkPhoneConflict, Customer } from "@/data/customers";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
@@ -182,7 +182,9 @@ const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideG
   };
 
   const handleSave = () => {
-    if (formData.guestName) {
+    // Phone is optional for curbside, but if provided must be valid
+    const phoneValid = !formData.phoneNumber || isValidPhoneNumber(formData.phoneNumber);
+    if (formData.guestName && phoneValid) {
       const cleanPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
       onSave({
         ...formData,
@@ -190,6 +192,8 @@ const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideG
       });
     }
   };
+
+  const phoneError = getPhoneValidationError(formData.phoneNumber);
 
   const countWords = (text: string) => {
     return text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -227,7 +231,7 @@ const CurbSideGuestForm = ({ onSave, onCancel, onClose, initialData }: CurbSideG
     setConflictCustomer(null);
   };
 
-  const isFormValid = formData.guestName;
+  const isFormValid = formData.guestName && (!formData.phoneNumber || isValidPhoneNumber(formData.phoneNumber));
 
   return (
     <div className="flex flex-col h-full rounded-b-lg overflow-hidden bg-neutral-900">

@@ -1,7 +1,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { Search, X } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
 import { customers, checkPhoneConflict, Customer } from "@/data/customers";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
@@ -77,14 +77,18 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
   };
 
   const handleSave = () => {
-    if (formData.guestName && formData.tableNumber) {
-      const cleanPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
+    const cleanPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
+    // Phone is optional for dine-in, but if provided must be valid
+    const phoneValid = !formData.phoneNumber || isValidPhoneNumber(formData.phoneNumber);
+    if (formData.guestName && formData.tableNumber && phoneValid) {
       onSave({
         ...formData,
         phoneNumber: cleanPhoneNumber,
       });
     }
   };
+
+  const phoneError = getPhoneValidationError(formData.phoneNumber);
 
   const countWords = (text: string) => {
     return text.trim() ? text.trim().split(/\s+/).length : 0;
@@ -122,7 +126,7 @@ const DineInGuestForm = ({ onSave, onCancel, onClose, initialData }: DineInGuest
     setConflictCustomer(null);
   };
 
-  const isFormValid = formData.guestName && formData.tableNumber;
+  const isFormValid = formData.guestName && formData.tableNumber && (!formData.phoneNumber || isValidPhoneNumber(formData.phoneNumber));
 
   return (
     <div className="flex flex-col h-full rounded-b-lg overflow-hidden bg-neutral-900">

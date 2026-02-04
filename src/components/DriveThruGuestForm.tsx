@@ -9,7 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
 import { customers, checkPhoneConflict, Customer } from "@/data/customers";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
@@ -180,7 +180,9 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
   };
 
   const handleSave = () => {
-    if (formData.guestName) {
+    // Phone is optional for drive-thru, but if provided must be valid
+    const phoneValid = !formData.phoneNumber || isValidPhoneNumber(formData.phoneNumber);
+    if (formData.guestName && phoneValid) {
       const cleanPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
       onSave({
         ...formData,
@@ -188,6 +190,8 @@ const DriveThruGuestForm = ({ onSave, onCancel, onClose, initialData }: DriveThr
       });
     }
   };
+
+  const phoneError = getPhoneValidationError(formData.phoneNumber);
 
   const countWords = (text: string) => {
     return text.trim() ? text.trim().split(/\s+/).length : 0;

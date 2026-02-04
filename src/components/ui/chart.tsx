@@ -58,6 +58,32 @@ const ChartContainer = React.forwardRef<
 });
 ChartContainer.displayName = "Chart";
 
+// Validate CSS color value to prevent injection
+const isValidCSSColor = (value: string): boolean => {
+  if (!value || typeof value !== 'string') return false;
+  
+  const trimmed = value.trim();
+  
+  // Named colors (letters only)
+  const namedColorRegex = /^[a-zA-Z]+$/;
+  // Hex colors
+  const hexRegex = /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/;
+  // HSL/HSLA
+  const hslRegex = /^hsla?\(\s*\d+(\.\d+)?\s*,\s*\d+(\.\d+)?%\s*,\s*\d+(\.\d+)?%\s*(,\s*(0|1|0?\.\d+))?\s*\)$/;
+  // RGB/RGBA
+  const rgbRegex = /^rgba?\(\s*\d+(\.\d+)?\s*,\s*\d+(\.\d+)?\s*,\s*\d+(\.\d+)?\s*(,\s*(0|1|0?\.\d+))?\s*\)$/;
+  // CSS variables
+  const cssVarRegex = /^var\(--[a-zA-Z0-9-]+\)$/;
+  
+  return (
+    namedColorRegex.test(trimmed) ||
+    hexRegex.test(trimmed) ||
+    hslRegex.test(trimmed) ||
+    rgbRegex.test(trimmed) ||
+    cssVarRegex.test(trimmed)
+  );
+};
+
 const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
   const colorConfig = Object.entries(config).filter(([_, config]) => config.theme || config.color);
 
@@ -75,8 +101,13 @@ ${prefix} [data-chart=${id}] {
 ${colorConfig
   .map(([key, itemConfig]) => {
     const color = itemConfig.theme?.[theme as keyof typeof itemConfig.theme] || itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
+    // Validate color before including in CSS to prevent injection
+    if (color && isValidCSSColor(color)) {
+      return `  --color-${key}: ${color};`;
+    }
+    return null;
   })
+  .filter(Boolean)
   .join("\n")}
 }
 `,

@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
 import { customers, checkPhoneConflict, Customer } from "@/data/customers";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
@@ -113,14 +113,15 @@ const CustomOrderGuestForm = ({ onSave, onClose, initialData }: CustomOrderGuest
     }
   };
 
-  const isFormValid = guestName.trim() !== "" && phoneNumber.trim() !== "" && orderDescription.trim() !== "";
+  const phoneError = getPhoneValidationError(phoneNumber);
+  const isFormValid = guestName.trim() !== "" && isValidPhoneNumber(phoneNumber) && orderDescription.trim() !== "";
 
   const handleSave = () => {
     if (!isFormValid) return;
     
     onSave({
       guestName,
-      phoneNumber,
+      phoneNumber: phoneNumber.replace(/\D/g, ""),
       email,
       notes,
       orderType,

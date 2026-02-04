@@ -39,6 +39,7 @@ import Tickets from "./pages/Tickets";
 import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
+import FullReservationsView from "./pages/FullReservationsView";
 
 const queryClient = new QueryClient();
 
@@ -81,6 +82,7 @@ const App = () => (
                 <Route path="/tableorder/:tableId" element={<TableOrderDetails />} />
                 <Route path="/tableorder/:tableId/merge" element={<MergeOrders />} />
                 <Route path="/tableorder/:tableId/transfer" element={<TransferOrders />} />
+                <Route path="/reservations" element={<FullReservationsView />} />
                 <Route path="/tickets" element={<Tickets />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/reports" element={<Reports />} />

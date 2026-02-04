@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockReservations, type Reservation } from "@/components/ReservationsPanel";
+import { EditReservationDialog } from "@/components/EditReservationDialog";
 
 // Status configurations
 const statusConfig = {
@@ -204,11 +205,13 @@ const ReservationDetailsPanel = ({
   availableTables,
   onAssignTable,
   onSeatGuest,
+  onEditReservation,
 }: {
   reservation: Reservation;
   availableTables: { id: string; seats: number }[];
   onAssignTable: (reservationId: string, tableId: string) => void;
   onSeatGuest: (reservation: Reservation) => void;
+  onEditReservation: (reservation: Reservation) => void;
 }) => {
   const config = statusConfig[reservation.status];
   const formattedDate = format(reservation.date, "EEEE, MMMM d, yyyy");
@@ -485,7 +488,10 @@ const ReservationDetailsPanel = ({
               Seat Guest
             </button>
           )}
-          <button className="px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors">
+          <button 
+            onClick={() => onEditReservation(reservation)}
+            className="px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors"
+          >
             Edit Reservation
           </button>
           <button className="px-4 py-3 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 text-sm font-medium transition-colors">
@@ -542,6 +548,8 @@ const FullReservationsView = () => {
     return null;
   });
   const [reservations, setReservations] = useState<Reservation[]>(mockReservations);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [reservationToEdit, setReservationToEdit] = useState<Reservation | null>(null);
   
   const currentHour = getCurrentHour();
   const isTodaySelected = isToday(selectedDate);
@@ -593,6 +601,21 @@ const FullReservationsView = () => {
   const handleBackToTables = () => {
     // Navigate back to TableOrder without opening reservations panel
     navigate("/tableorder");
+  };
+
+  const handleEditReservation = (reservation: Reservation) => {
+    setReservationToEdit(reservation);
+    setEditDialogOpen(true);
+  };
+
+  const handleSaveReservation = (updatedReservation: Reservation) => {
+    setReservations(prev => 
+      prev.map(r => r.id === updatedReservation.id ? updatedReservation : r)
+    );
+    // Update selected reservation if it's the one being edited
+    if (selectedReservation?.id === updatedReservation.id) {
+      setSelectedReservation(updatedReservation);
+    }
   };
 
   // Auto-scroll to selected reservation's hour block
@@ -773,12 +796,24 @@ const FullReservationsView = () => {
               availableTables={availableTables}
               onAssignTable={handleAssignTable}
               onSeatGuest={handleSeatGuest}
+              onEditReservation={handleEditReservation}
             />
           ) : (
             <EmptyDetailsState />
           )}
         </div>
       </div>
+
+      {/* Edit Reservation Dialog */}
+      {reservationToEdit && (
+        <EditReservationDialog
+          reservation={reservationToEdit}
+          open={editDialogOpen}
+          onOpenChange={setEditDialogOpen}
+          onSave={handleSaveReservation}
+          availableTables={availableTables}
+        />
+      )}
     </div>
   );
 };

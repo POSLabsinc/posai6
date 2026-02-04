@@ -8,7 +8,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { 
   Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, 
   ChevronLeft, ChevronRight, Phone, FileText, CreditCard, 
-  ArrowLeft, Armchair, Minimize2
+  ArrowLeft, Armchair
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { mockReservations, type Reservation } from "@/components/ReservationsPanel";
@@ -399,31 +399,40 @@ const FullReservationsView = () => {
 
   return (
     <div className="h-screen bg-neutral-950 flex flex-col overflow-hidden">
-      {/* Header */}
+      {/* Header - Navigation only */}
       <div className="flex-shrink-0 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-sm">
-        <div className="flex items-center justify-between px-6 py-4">
-          {/* Left: Back to Tables */}
-          <button
-            onClick={handleBackToTables}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white transition-colors"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="text-sm font-medium">Back to Tables</span>
-          </button>
-          
-          {/* Center: Title + Date Navigation */}
+        <div className="flex items-center px-6 py-3">
+          {/* Left: Back to Tables + Reservations Title (navigation cluster) */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-orange-500/20 flex items-center justify-center">
+            <button
+              onClick={handleBackToTables}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="text-sm font-medium">Back to Tables</span>
+            </button>
+            
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
                 <CalendarIcon className="w-4 h-4 text-orange-400" />
               </div>
               <h1 className="text-white text-lg font-semibold">Reservations</h1>
             </div>
-            
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content - Two Column Layout */}
+      <div className="flex-1 flex overflow-hidden">
+        {/* Left Column: Timeline */}
+        <div className="w-[420px] border-r border-neutral-800 bg-neutral-900/50 flex flex-col">
+          {/* List Header: Date Filter + Status Indicators */}
+          <div className="px-4 py-3 border-b border-neutral-800 space-y-3">
+            {/* Date Navigation Row */}
             <div className="flex items-center gap-2">
               <button
                 onClick={handlePrevDay}
-                className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
               >
                 <ChevronLeft className="w-4 h-4 text-neutral-400" />
               </button>
@@ -438,7 +447,7 @@ const FullReservationsView = () => {
                     )}
                   </button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-neutral-900 border-neutral-700" align="center">
+                <PopoverContent className="w-auto p-0 bg-neutral-900 border-neutral-700" align="start">
                   <Calendar
                     mode="single"
                     selected={selectedDate}
@@ -465,17 +474,17 @@ const FullReservationsView = () => {
               
               <button
                 onClick={handleNextDay}
-                className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                className="w-7 h-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
               >
                 <ChevronRight className="w-4 h-4 text-neutral-400" />
               </button>
             </div>
             
-            {/* Quick Stats */}
-            <div className="flex items-center gap-2 ml-4">
+            {/* Status Indicators Row */}
+            <div className="flex items-center gap-2">
               <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                <span className="text-blue-400 text-[11px] font-medium">{upcomingCount}</span>
+                <span className="text-blue-400 text-[11px] font-medium">{filteredReservations.length}</span>
               </div>
               {lateCount > 0 && (
                 <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/10 animate-pulse">
@@ -489,29 +498,8 @@ const FullReservationsView = () => {
                   <span className="text-amber-400 text-[11px] font-medium">{unassignedCount} Unassigned</span>
                 </div>
               )}
+              <span className="text-neutral-500 text-xs ml-auto uppercase tracking-wide">Timeline</span>
             </div>
-          </div>
-          
-          {/* Right: Collapse button */}
-          <button
-            onClick={handleBackToTables}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white transition-colors"
-            title="Collapse to panel view"
-          >
-            <Minimize2 className="w-4 h-4" />
-            <span className="text-sm font-medium">Collapse</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content - Two Column Layout */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Column: Timeline */}
-        <div className="w-[420px] border-r border-neutral-800 bg-neutral-900/50 flex flex-col">
-          <div className="px-4 py-3 border-b border-neutral-800">
-            <p className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">
-              Timeline • {filteredReservations.length} reservations
-            </p>
           </div>
           
           <ScrollArea className="flex-1">

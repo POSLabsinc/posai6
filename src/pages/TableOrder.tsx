@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Users, Grid, List, ChevronDown, Circle, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X, Settings, Plus, Trash2, GripVertical, Pencil, FolderOpen, Save, Check, FileText, Bell } from "lucide-react";
+import { Users, Grid, List, ChevronDown, ChevronRight, Circle, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X, Settings, Plus, Trash2, GripVertical, Pencil, FolderOpen, Save, Check, FileText, Bell, Calendar, Building2, Layers } from "lucide-react";
+import ReservationsPanel, { mockReservations, type Reservation } from "@/components/ReservationsPanel";
 import { Input } from "@/components/ui/input";
 import {
   Popover,
@@ -223,7 +224,21 @@ const getFilterCounts = (tables: TableType[]) => {
   return counts;
 };
 
-// Dining areas
+// Floors configuration
+const floors = [
+  { id: "floor-1", name: "Floor 1" },
+  { id: "floor-2", name: "Floor 2" },
+  { id: "floor-3", name: "Floor 3" },
+];
+
+// Service Areas per floor
+const serviceAreasByFloor: Record<string, string[]> = {
+  "floor-1": ["Main Dining Room", "Patio", "Bar Area"],
+  "floor-2": ["Private Dining", "Lounge", "Rooftop"],
+  "floor-3": ["Banquet Hall", "VIP Section"],
+};
+
+// Legacy dining areas for backward compatibility
 const diningAreas = [
   "Main Dining Room",
   "Patio",
@@ -1143,10 +1158,19 @@ const TableOrder = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "list" | "visual" | "floorplan">("grid");
+  const [selectedFloor, setSelectedFloor] = useState("floor-1");
   const [selectedArea, setSelectedArea] = useState("Main Dining Room");
   const [isControlsOpen, setIsControlsOpen] = useState(false);
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [guestDropdownTable, setGuestDropdownTable] = useState<string | null>(null);
+  
+  // Reservations panel state
+  const [isReservationsPanelOpen, setIsReservationsPanelOpen] = useState(false);
+  const [reservations, setReservations] = useState<Reservation[]>(mockReservations);
+  const [highlightedTableId, setHighlightedTableId] = useState<string | null>(null);
+  
+  // Hamburger submenu state
+  const [expandedMenuSection, setExpandedMenuSection] = useState<"layout" | "floor" | "area" | null>(null);
   
   // Floorplan-specific state
   const [tablePositions, setTablePositions] = useState<TableType[]>(loadSavedPositions);
@@ -1193,6 +1217,17 @@ const TableOrder = () => {
   
   const MERGE_THRESHOLD = 120;
   const SNAP_OFFSET = 160;
+  
+  // Get service areas for selected floor
+  const currentServiceAreas = serviceAreasByFloor[selectedFloor] || serviceAreasByFloor["floor-1"];
+  
+  // Reservations count for today
+  const todayReservationsCount = reservations.filter(r => r.status !== "seated").length;
+  
+  // Available tables for reservation assignment
+  const availableTables = tablePositions
+    .filter(t => t.status === "Available")
+    .map(t => ({ id: t.id, seats: t.seats }));
   
   const filterCounts = getFilterCounts(tablePositions);
 
@@ -1784,66 +1819,155 @@ const TableOrder = () => {
     <div className="flex flex-col h-full bg-black p-2 pb-2">
       {/* Filter Bar */}
       <div className="flex items-center gap-2 mb-3">
-        {/* Collapsible Controls */}
+        {/* Collapsible Controls - Hierarchical Menu */}
         {isControlsOpen ? (
-          <div className="flex items-center gap-1.5 bg-sidebar-accent rounded-full pl-1.5 pr-1 py-1">
-            {/* Close Button */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="h-7 w-7 p-0" 
-              onClick={() => setIsControlsOpen(false)}
+          <DropdownMenu open={isControlsOpen} onOpenChange={setIsControlsOpen}>
+            <DropdownMenuTrigger asChild>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                className="h-7 w-7 p-0 bg-sidebar-accent rounded-full"
+              >
+                <img src={burgerCloseIcon} alt="Close" className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent 
+              className="bg-neutral-900 border-neutral-700 w-64 p-0" 
+              align="start"
+              sideOffset={8}
             >
-              <img src={burgerCloseIcon} alt="Close" className="w-5 h-5" />
-            </Button>
-
-            {/* View Button */}
-            <button
-              onClick={() => setViewMode(
-                viewMode === "grid" ? "list" : 
-                viewMode === "list" ? "visual" : 
-                viewMode === "visual" ? "floorplan" : "grid"
-              )}
-              className="flex items-center justify-center rounded-full p-1.5 hover:opacity-90 transition-opacity"
-              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-            >
-              {viewMode === "grid" ? (
-                <Grid className="w-4 h-4 text-black" />
-              ) : viewMode === "list" ? (
-                <List className="w-4 h-4 text-black" />
-              ) : viewMode === "visual" ? (
-                <Circle className="w-4 h-4 text-black" />
-              ) : (
-                <MapPin className="w-4 h-4 text-black" />
-              )}
-            </button>
-
-            {/* Dining Area Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <button 
-                  className="flex items-center gap-2 rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity"
-                  style={{ background: "linear-gradient(180deg, #B8B8B8 0%, #616161 100%)" }}
+              {/* 1. Layout Switcher */}
+              <div className="p-2 border-b border-neutral-800">
+                <button
+                  onClick={() => setExpandedMenuSection(expandedMenuSection === "layout" ? null : "layout")}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-neutral-800 transition-colors"
                 >
-                  <span className="text-white text-xs font-medium">{selectedArea}</span>
-                  <ChevronDown className="w-3 h-3 text-white" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                      <Layers className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white text-sm font-medium">Layout</p>
+                      <p className="text-neutral-400 text-xs">
+                        {viewMode === "grid" ? "Grid View" : viewMode === "list" ? "List View" : viewMode === "visual" ? "Visual View" : "Floor Map"}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 text-neutral-500 transition-transform ${expandedMenuSection === "layout" ? "rotate-90" : ""}`} />
                 </button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
-                {diningAreas.map((area) => (
-                  <DropdownMenuItem
-                    key={area}
-                    onClick={() => setSelectedArea(area)}
-                    className={`text-white hover:bg-neutral-700 cursor-pointer ${
-                      selectedArea === area ? "bg-neutral-700" : ""
-                    }`}
-                  >
-                    {area}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
+                
+                {expandedMenuSection === "layout" && (
+                  <div className="mt-1 ml-11 space-y-0.5">
+                    {[
+                      { mode: "grid" as const, label: "Grid View", icon: Grid },
+                      { mode: "floorplan" as const, label: "Floor Map View", icon: MapPin },
+                    ].map(({ mode, label, icon: Icon }) => (
+                      <button
+                        key={mode}
+                        onClick={() => {
+                          setViewMode(mode);
+                          setExpandedMenuSection(null);
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
+                          viewMode === mode ? "bg-blue-500/20 text-blue-400" : "hover:bg-neutral-800 text-neutral-300"
+                        }`}
+                      >
+                        <Icon className="w-4 h-4" />
+                        <span className="text-sm">{label}</span>
+                        {viewMode === mode && <Check className="w-3.5 h-3.5 ml-auto" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* 2. Floor Dropdown */}
+              <div className="p-2 border-b border-neutral-800">
+                <button
+                  onClick={() => setExpandedMenuSection(expandedMenuSection === "floor" ? null : "floor")}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-neutral-800 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-purple-500/20 flex items-center justify-center">
+                      <Building2 className="w-4 h-4 text-purple-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white text-sm font-medium">Floor</p>
+                      <p className="text-neutral-400 text-xs">
+                        {floors.find(f => f.id === selectedFloor)?.name || "Floor 1"}
+                      </p>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 text-neutral-500 transition-transform ${expandedMenuSection === "floor" ? "rotate-90" : ""}`} />
+                </button>
+                
+                {expandedMenuSection === "floor" && (
+                  <div className="mt-1 ml-11 space-y-0.5">
+                    {floors.map((floor) => (
+                      <button
+                        key={floor.id}
+                        onClick={() => {
+                          setSelectedFloor(floor.id);
+                          // Reset service area to first of new floor
+                          const newAreas = serviceAreasByFloor[floor.id];
+                          if (newAreas && newAreas.length > 0) {
+                            setSelectedArea(newAreas[0]);
+                          }
+                          setExpandedMenuSection(null);
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
+                          selectedFloor === floor.id ? "bg-purple-500/20 text-purple-400" : "hover:bg-neutral-800 text-neutral-300"
+                        }`}
+                      >
+                        <span className="text-sm">{floor.name}</span>
+                        {selectedFloor === floor.id && <Check className="w-3.5 h-3.5 ml-auto" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
+              {/* 3. Service Areas */}
+              <div className="p-2">
+                <button
+                  onClick={() => setExpandedMenuSection(expandedMenuSection === "area" ? null : "area")}
+                  className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-neutral-800 transition-colors"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-orange-500/20 flex items-center justify-center">
+                      <MapPin className="w-4 h-4 text-orange-400" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-white text-sm font-medium">Service Area</p>
+                      <p className="text-neutral-400 text-xs">{selectedArea}</p>
+                    </div>
+                  </div>
+                  <ChevronRight className={`w-4 h-4 text-neutral-500 transition-transform ${expandedMenuSection === "area" ? "rotate-90" : ""}`} />
+                </button>
+                
+                {expandedMenuSection === "area" && (
+                  <div className="mt-1 ml-11 space-y-0.5">
+                    {currentServiceAreas.map((area) => (
+                      <button
+                        key={area}
+                        onClick={() => {
+                          setSelectedArea(area);
+                          setExpandedMenuSection(null);
+                          setIsControlsOpen(false);
+                        }}
+                        className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-left transition-colors ${
+                          selectedArea === area ? "bg-orange-500/20 text-orange-400" : "hover:bg-neutral-800 text-neutral-300"
+                        }`}
+                      >
+                        <span className="text-sm">{area}</span>
+                        {selectedArea === area && <Check className="w-3.5 h-3.5 ml-auto" />}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </DropdownMenuContent>
+          </DropdownMenu>
         ) : (
           <Button 
             variant="ghost" 
@@ -1854,6 +1978,35 @@ const TableOrder = () => {
             <img src={burgerOpenIcon} alt="Open controls" className="w-8 h-8" />
           </Button>
         )}
+
+        {/* Service Area Chip - Always visible outside hamburger */}
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button 
+              className="flex items-center gap-2 rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity"
+              style={{ background: "linear-gradient(180deg, #B8B8B8 0%, #616161 100%)" }}
+            >
+              <MapPin className="w-3 h-3 text-white" />
+              <span className="text-white text-xs font-medium">{selectedArea}</span>
+              <ChevronDown className="w-3 h-3 text-white" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
+            {currentServiceAreas.map((area) => (
+              <DropdownMenuItem
+                key={area}
+                onClick={() => setSelectedArea(area)}
+                className={`text-white hover:bg-neutral-700 cursor-pointer ${
+                  selectedArea === area ? "bg-neutral-700" : ""
+                }`}
+              >
+                {selectedArea === area && <Check className="w-3.5 h-3.5 mr-2 text-orange-400" />}
+                {selectedArea !== area && <div className="w-3.5 h-3.5 mr-2" />}
+                {area}
+              </DropdownMenuItem>
+            ))}
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         {/* Floorplan-specific controls */}
         {viewMode === "floorplan" && (
@@ -1978,6 +2131,21 @@ const TableOrder = () => {
             )}
           </>
         )}
+
+        {/* Reservations Button - Before Filter Tabs */}
+        <button
+          onClick={() => setIsReservationsPanelOpen(true)}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all border-r border-neutral-700 pr-4 mr-2"
+          style={{ 
+            background: "linear-gradient(180deg, #f97316 0%, #ea580c 100%)",
+          }}
+        >
+          <Calendar className="w-4 h-4 text-white" />
+          <span className="text-white font-medium">Reservations</span>
+          <span className="px-1.5 py-0.5 rounded bg-white/20 text-white text-xs font-bold">
+            {todayReservationsCount}
+          </span>
+        </button>
 
         {/* Filter Tabs */}
         <ScrollArea className="flex-1">
@@ -2513,10 +2681,14 @@ const TableOrder = () => {
 
               const isReady = table.status === "Ready";
               
+              // Get reservation time for this table
+              const tableReservation = reservations.find(r => r.tableId === table.id && r.status !== "seated");
+              const isHighlighted = highlightedTableId === table.id;
+              
               return (
                 <div
                   key={`${table.id}-${index}`}
-                  className="relative"
+                  className={`relative ${isHighlighted ? "animate-pulse" : ""}`}
                 >
                   {/* Ready status notification badge */}
                   {isReady && (
@@ -2524,6 +2696,16 @@ const TableOrder = () => {
                       <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-1 rounded-full shadow-lg shadow-emerald-500/50">
                         <Bell className="w-3 h-3" />
                         <span className="text-[10px] font-bold whitespace-nowrap">ORDER READY</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Reservation time badge for Reserved tables */}
+                  {table.status === "Reserved" && tableReservation && (
+                    <div className="absolute -top-2 right-1 z-20">
+                      <div className="flex items-center gap-1 bg-gray-700 text-white px-2 py-0.5 rounded-full border border-gray-500">
+                        <Clock className="w-2.5 h-2.5 text-gray-400" />
+                        <span className="text-[10px] font-medium">{tableReservation.time}</span>
                       </div>
                     </div>
                   )}
@@ -3025,6 +3207,30 @@ const TableOrder = () => {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Reservations Side Panel */}
+      <ReservationsPanel
+        isOpen={isReservationsPanelOpen}
+        onClose={() => setIsReservationsPanelOpen(false)}
+        reservations={reservations}
+        onReservationClick={(reservation) => {
+          if (reservation.tableId) {
+            setHighlightedTableId(reservation.tableId);
+            // Clear highlight after 3 seconds
+            setTimeout(() => setHighlightedTableId(null), 3000);
+          }
+        }}
+        onAssignTable={(reservationId, tableId) => {
+          setReservations(prev => prev.map(r => 
+            r.id === reservationId ? { ...r, tableId, status: "upcoming" as const } : r
+          ));
+          // Update table status to Reserved
+          setTablePositions(prev => prev.map(t => 
+            t.id === tableId ? { ...t, status: "Reserved" } : t
+          ));
+        }}
+        availableTables={availableTables}
+      />
     </div>
   );
 };

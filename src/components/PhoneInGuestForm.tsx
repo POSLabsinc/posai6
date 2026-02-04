@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
 import { customers, checkPhoneConflict, Customer } from "@/data/customers";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
@@ -110,7 +110,9 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
     return `${displayHour}:${minutes} ${ampm}`;
   };
 
-  const isFormValid = guestName.trim() !== "" && phoneNumber.trim() !== "";
+  const phoneError = getPhoneValidationError(phoneNumber);
+  const callbackPhoneError = getPhoneValidationError(callbackNumber);
+  const isFormValid = guestName.trim() !== "" && isValidPhoneNumber(phoneNumber);
 
   const handleSave = () => {
     if (!isFormValid) return;
@@ -121,8 +123,8 @@ const PhoneInGuestForm = ({ onSave, onClose, initialData }: PhoneInGuestFormProp
 
     onSave({
       guestName,
-      phoneNumber,
-      callbackNumber,
+      phoneNumber: phoneNumber.replace(/\D/g, ""),
+      callbackNumber: callbackNumber.replace(/\D/g, ""),
       email,
       notes,
       orderFulfillmentType,

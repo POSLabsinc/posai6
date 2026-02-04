@@ -2,7 +2,7 @@ import { useState, useMemo, useEffect } from "react";
 import { Search, X, Home, MapPin, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
-import { formatPhoneNumber } from "@/lib/utils";
+import { formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
 import { customers, checkPhoneConflict, Customer } from "@/data/customers";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
@@ -143,8 +143,8 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
   };
 
   const handleSave = () => {
-    if (formData.guestName && formData.phoneNumber && formData.address) {
-      const cleanPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
+    const cleanPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
+    if (formData.guestName && isValidPhoneNumber(formData.phoneNumber) && formData.address) {
       onSave({
         ...formData,
         phoneNumber: cleanPhoneNumber,
@@ -152,6 +152,8 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
       });
     }
   };
+
+  const phoneError = getPhoneValidationError(formData.phoneNumber);
 
   const handleGetCurrentLocation = () => {
     if (!navigator.geolocation) {
@@ -308,7 +310,7 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
     setConflictCustomer(null);
   };
 
-  const isFormValid = formData.guestName && formData.phoneNumber && formData.address?.address1;
+  const isFormValid = formData.guestName && isValidPhoneNumber(formData.phoneNumber) && formData.address?.address1;
 
   return (
     <div className="flex flex-col h-full rounded-b-lg overflow-hidden bg-neutral-900">
@@ -382,9 +384,12 @@ const DeliveryGuestForm = ({ onSave, onCancel, onClose, initialData }: DeliveryG
               placeholder="(XXX) XXX-XXXX"
               value={formData.phoneNumber}
               onChange={(e) => handleInputChange("phoneNumber", e.target.value)}
-              className="flex-1 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500"
+              className={`flex-1 bg-neutral-800 border-neutral-700 text-white placeholder:text-neutral-500 ${phoneError ? 'border-red-500' : ''}`}
             />
           </div>
+          {phoneError && (
+            <p className="text-xs text-red-400 mt-1">{phoneError}</p>
+          )}
         </div>
 
         {/* Email */}

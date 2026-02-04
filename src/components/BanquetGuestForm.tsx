@@ -6,7 +6,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
 import { IOSTimePicker } from "@/components/ui/ios-time-picker";
 import { format } from "date-fns";
-import { cn, formatPhoneNumber } from "@/lib/utils";
+import { cn, formatPhoneNumber, isValidPhoneNumber, getPhoneValidationError } from "@/lib/utils";
 import { customers, checkPhoneConflict, Customer } from "@/data/customers";
 import PhoneConflictDialog from "@/components/PhoneConflictDialog";
 
@@ -137,7 +137,9 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
   };
 
   const handleSave = () => {
-    if (formData.guestName && formData.eventType) {
+    // Phone is optional for banquet, but if provided must be valid
+    const phoneValid = !formData.phoneNumber || isValidPhoneNumber(formData.phoneNumber);
+    if (formData.guestName && formData.eventType && phoneValid) {
       const cleanPhoneNumber = formData.phoneNumber.replace(/\D/g, "");
       onSave({
         ...formData,
@@ -145,6 +147,8 @@ const BanquetGuestForm = ({ onSave, onCancel, onClose, initialData }: BanquetGue
       });
     }
   };
+
+  const phoneError = getPhoneValidationError(formData.phoneNumber);
 
   const countWords = (text: string) => {
     return text.trim() ? text.trim().split(/\s+/).length : 0;

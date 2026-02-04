@@ -11,18 +11,41 @@ import { cn } from "@/lib/utils";
 
 export type Reservation = {
   id: string;
+  // Guest Info
   guestName: string;
-  time: string;
-  partySize: number;
-  tableId: string | null;
-  status: "upcoming" | "seated" | "late";
-  phone?: string;
-  notes?: string;
-  date: Date;
+  firstName?: string;
+  lastName?: string;
   email?: string;
-  specialRequests?: string;
+  phone?: string;
+  partySize: number;
+  time: string;
+  date: Date;
+  duration?: string;
+  occasion?: string;
+  guestNotes?: string;
+  // Sitting
+  floor?: string;
+  area?: string;
+  tableId: string | null;
+  // Payment
   depositPaid?: boolean;
   depositAmount?: number;
+  paymentStatus?: string;
+  // Other
+  status: "upcoming" | "seated" | "late";
+  serviceType?: string;
+  reservationSource?: string;
+  assignedServer?: string;
+  externalReference?: string;
+  confirmationNumber?: string;
+  dietaryRestrictions?: string;
+  highChairCount?: number;
+  kidsCount?: number;
+  accessibilityRequirements?: string;
+  visitNotes?: string;
+  remindersEnabled?: boolean;
+  notes?: string;
+  specialRequests?: string;
 };
 
 // Helper to get dates
@@ -32,37 +55,207 @@ const tomorrow = addDays(today, 1);
 const dayAfterTomorrow = addDays(today, 2);
 const twoDaysAgo = subDays(today, 2);
 
-// Mock reservations data with dates
+// Mock reservations data with dates - includes ALL old POS fields
 export const mockReservations: Reservation[] = [
   // Today's reservations
-  { id: "R1", guestName: "Johnson Family", time: "6:30 PM", partySize: 4, tableId: "T4", status: "upcoming", phone: "(415) 555-1234", email: "johnson@email.com", notes: "Birthday celebration", date: today, depositPaid: true, depositAmount: 50 },
-  { id: "R2", guestName: "Maria Rodriguez", time: "7:00 PM", partySize: 2, tableId: null, status: "upcoming", phone: "(415) 555-2345", notes: "Anniversary dinner", email: "maria.r@email.com", date: today, specialRequests: "Quiet table, window seat" },
-  { id: "R3", guestName: "Corporate Event - TechCo", time: "7:30 PM", partySize: 8, tableId: "T1", status: "upcoming", phone: "(415) 555-9999", notes: "Corporate dinner, separate checks", date: today, depositPaid: true, depositAmount: 200 },
-  { id: "R4", guestName: "David Chen", time: "5:30 PM", partySize: 3, tableId: "T6", status: "late", phone: "(415) 555-3456", date: today },
-  { id: "R5", guestName: "Sarah Miller", time: "6:00 PM", partySize: 2, tableId: "T3", status: "seated", phone: "(415) 555-4567", date: today },
-  { id: "R6", guestName: "Williams Party", time: "8:00 PM", partySize: 6, tableId: "T2", status: "upcoming", date: today, notes: "Large group" },
-  { id: "R7", guestName: "Emily Davis", time: "8:30 PM", partySize: 2, tableId: null, status: "upcoming", notes: "Window seat preferred", date: today },
+  { 
+    id: "R1", 
+    guestName: "Johnson Family", 
+    firstName: "Robert",
+    lastName: "Johnson",
+    time: "6:30 PM", 
+    partySize: 4, 
+    tableId: "T4", 
+    status: "upcoming", 
+    phone: "(415) 555-1234", 
+    email: "johnson@email.com", 
+    notes: "Birthday celebration", 
+    date: today, 
+    depositPaid: true, 
+    depositAmount: 50,
+    duration: "2 hours",
+    occasion: "Birthday",
+    floor: "Main Floor",
+    area: "Dining Room",
+    serviceType: "Dine-In",
+    reservationSource: "OpenTable",
+    assignedServer: "Jessica M.",
+    confirmationNumber: "OT-2024-78901",
+    dietaryRestrictions: "Gluten-free (1 guest)",
+    highChairCount: 0,
+    kidsCount: 1,
+    remindersEnabled: true,
+    guestNotes: "VIP customer - 5th visit this month",
+    paymentStatus: "Deposit Received"
+  },
+  { 
+    id: "R2", 
+    guestName: "Maria Rodriguez", 
+    firstName: "Maria",
+    lastName: "Rodriguez",
+    time: "7:00 PM", 
+    partySize: 2, 
+    tableId: null, 
+    status: "upcoming", 
+    phone: "(415) 555-2345", 
+    notes: "Anniversary dinner", 
+    email: "maria.r@email.com", 
+    date: today, 
+    specialRequests: "Quiet table, window seat",
+    duration: "1.5 hours",
+    occasion: "Anniversary",
+    serviceType: "Dine-In",
+    reservationSource: "Phone",
+    confirmationNumber: "PH-2024-12345",
+    accessibilityRequirements: "Wheelchair accessible seating",
+    remindersEnabled: true,
+    visitNotes: "Celebrating 10 year anniversary"
+  },
+  { 
+    id: "R3", 
+    guestName: "Corporate Event - TechCo", 
+    firstName: "James",
+    lastName: "Wilson",
+    time: "7:30 PM", 
+    partySize: 8, 
+    tableId: "T1", 
+    status: "upcoming", 
+    phone: "(415) 555-9999", 
+    notes: "Corporate dinner, separate checks", 
+    date: today, 
+    depositPaid: true, 
+    depositAmount: 200,
+    duration: "3 hours",
+    floor: "Main Floor",
+    area: "Private Room",
+    serviceType: "Private Event",
+    reservationSource: "Direct Booking",
+    assignedServer: "Michael T.",
+    externalReference: "CORP-TECHCO-2024",
+    confirmationNumber: "DB-2024-99887",
+    dietaryRestrictions: "2 Vegetarian, 1 Vegan",
+    remindersEnabled: true,
+    paymentStatus: "Partial Payment"
+  },
+  { 
+    id: "R4", 
+    guestName: "David Chen", 
+    firstName: "David",
+    lastName: "Chen",
+    time: "5:30 PM", 
+    partySize: 3, 
+    tableId: "T6", 
+    status: "late", 
+    phone: "(415) 555-3456", 
+    date: today,
+    duration: "1.5 hours",
+    floor: "Main Floor",
+    area: "Bar Area",
+    serviceType: "Dine-In",
+    reservationSource: "Yelp",
+    confirmationNumber: "YP-2024-33445"
+  },
+  { 
+    id: "R5", 
+    guestName: "Sarah Miller", 
+    firstName: "Sarah",
+    lastName: "Miller",
+    time: "6:00 PM", 
+    partySize: 2, 
+    tableId: "T3", 
+    status: "seated", 
+    phone: "(415) 555-4567", 
+    date: today,
+    duration: "2 hours",
+    floor: "Main Floor",
+    area: "Patio",
+    serviceType: "Dine-In",
+    reservationSource: "Walk-In",
+    assignedServer: "Amanda K."
+  },
+  { 
+    id: "R6", 
+    guestName: "Williams Party", 
+    firstName: "Thomas",
+    lastName: "Williams",
+    time: "8:00 PM", 
+    partySize: 6, 
+    tableId: "T2", 
+    status: "upcoming", 
+    date: today, 
+    notes: "Large group",
+    duration: "2.5 hours",
+    floor: "Upper Floor",
+    area: "Lounge",
+    serviceType: "Dine-In",
+    reservationSource: "OpenTable",
+    confirmationNumber: "OT-2024-55667",
+    kidsCount: 2,
+    highChairCount: 1
+  },
+  { 
+    id: "R7", 
+    guestName: "Emily Davis", 
+    firstName: "Emily",
+    lastName: "Davis",
+    time: "8:30 PM", 
+    partySize: 2, 
+    tableId: null, 
+    status: "upcoming", 
+    notes: "Window seat preferred", 
+    date: today,
+    duration: "1.5 hours",
+    serviceType: "Dine-In",
+    reservationSource: "Website"
+  },
   
   // Tomorrow's reservations
-  { id: "R8", guestName: "Thompson Wedding", time: "5:00 PM", partySize: 12, tableId: "T1", status: "upcoming", notes: "Rehearsal dinner", date: tomorrow, depositPaid: true, depositAmount: 500, specialRequests: "Champagne toast, private room" },
-  { id: "R9", guestName: "Mike & Lisa", time: "6:30 PM", partySize: 2, tableId: "T3", status: "upcoming", phone: "(415) 555-7890", date: tomorrow },
-  { id: "R10", guestName: "Birthday - Alex", time: "7:00 PM", partySize: 6, tableId: null, status: "upcoming", notes: "Surprise party, need cake", date: tomorrow },
-  { id: "R11", guestName: "Patel Family", time: "7:30 PM", partySize: 5, tableId: "T5", status: "upcoming", date: tomorrow },
-  { id: "R12", guestName: "Business Dinner", time: "8:00 PM", partySize: 4, tableId: "T2", status: "upcoming", notes: "Private room preferred", date: tomorrow },
+  { 
+    id: "R8", 
+    guestName: "Thompson Wedding", 
+    firstName: "Jennifer",
+    lastName: "Thompson",
+    time: "5:00 PM", 
+    partySize: 12, 
+    tableId: "T1", 
+    status: "upcoming", 
+    notes: "Rehearsal dinner", 
+    date: tomorrow, 
+    depositPaid: true, 
+    depositAmount: 500, 
+    specialRequests: "Champagne toast, private room",
+    duration: "4 hours",
+    occasion: "Wedding Rehearsal",
+    floor: "Upper Floor",
+    area: "Private Dining",
+    serviceType: "Private Event",
+    reservationSource: "Direct Booking",
+    assignedServer: "Jessica M.",
+    externalReference: "WED-THOMPSON-2024",
+    confirmationNumber: "DB-2024-11223",
+    dietaryRestrictions: "3 Vegetarian, 1 Nut Allergy",
+    remindersEnabled: true,
+    paymentStatus: "Fully Paid",
+    visitNotes: "Bride's family - coordinate with kitchen for surprise dessert"
+  },
+  { id: "R9", guestName: "Mike & Lisa", firstName: "Mike", lastName: "Johnson", time: "6:30 PM", partySize: 2, tableId: "T3", status: "upcoming", phone: "(415) 555-7890", date: tomorrow, duration: "2 hours", serviceType: "Dine-In", reservationSource: "OpenTable" },
+  { id: "R10", guestName: "Birthday - Alex", firstName: "Alex", lastName: "Brown", time: "7:00 PM", partySize: 6, tableId: null, status: "upcoming", notes: "Surprise party, need cake", date: tomorrow, occasion: "Birthday", duration: "2.5 hours", serviceType: "Dine-In", reservationSource: "Phone", kidsCount: 3 },
+  { id: "R11", guestName: "Patel Family", firstName: "Raj", lastName: "Patel", time: "7:30 PM", partySize: 5, tableId: "T5", status: "upcoming", date: tomorrow, duration: "2 hours", serviceType: "Dine-In", reservationSource: "Website", dietaryRestrictions: "Vegetarian (all guests)" },
+  { id: "R12", guestName: "Business Dinner", firstName: "Catherine", lastName: "Lee", time: "8:00 PM", partySize: 4, tableId: "T2", status: "upcoming", notes: "Private room preferred", date: tomorrow, duration: "2 hours", serviceType: "Business Dinner", reservationSource: "Direct Booking", assignedServer: "Michael T." },
   
   // Day after tomorrow
-  { id: "R13", guestName: "Garcia Anniversary", time: "6:00 PM", partySize: 2, tableId: "T4", status: "upcoming", notes: "25th anniversary", date: dayAfterTomorrow },
-  { id: "R14", guestName: "Tech Startup Lunch", time: "12:00 PM", partySize: 8, tableId: null, status: "upcoming", date: dayAfterTomorrow },
-  { id: "R15", guestName: "Retirement Party", time: "7:00 PM", partySize: 15, tableId: "T1", status: "upcoming", notes: "Large group, decorations", date: dayAfterTomorrow, depositPaid: true, depositAmount: 300 },
+  { id: "R13", guestName: "Garcia Anniversary", firstName: "Carlos", lastName: "Garcia", time: "6:00 PM", partySize: 2, tableId: "T4", status: "upcoming", notes: "25th anniversary", date: dayAfterTomorrow, occasion: "Anniversary", duration: "2.5 hours", serviceType: "Dine-In", reservationSource: "Phone", depositPaid: true, depositAmount: 100 },
+  { id: "R14", guestName: "Tech Startup Lunch", firstName: "Steve", lastName: "Morris", time: "12:00 PM", partySize: 8, tableId: null, status: "upcoming", date: dayAfterTomorrow, duration: "1.5 hours", serviceType: "Business Lunch", reservationSource: "OpenTable" },
+  { id: "R15", guestName: "Retirement Party", firstName: "William", lastName: "Baker", time: "7:00 PM", partySize: 15, tableId: "T1", status: "upcoming", notes: "Large group, decorations", date: dayAfterTomorrow, depositPaid: true, depositAmount: 300, occasion: "Retirement", duration: "3 hours", floor: "Upper Floor", area: "Private Dining", serviceType: "Private Event", reservationSource: "Direct Booking" },
   
   // Yesterday (historical)
-  { id: "R16", guestName: "Smith Reunion", time: "6:00 PM", partySize: 10, tableId: "T1", status: "seated", date: yesterday },
-  { id: "R17", guestName: "Date Night - Couple", time: "7:30 PM", partySize: 2, tableId: "T3", status: "seated", date: yesterday },
-  { id: "R18", guestName: "Late Guest", time: "8:00 PM", partySize: 4, tableId: "T5", status: "late", date: yesterday },
+  { id: "R16", guestName: "Smith Reunion", firstName: "John", lastName: "Smith", time: "6:00 PM", partySize: 10, tableId: "T1", status: "seated", date: yesterday, duration: "3 hours", serviceType: "Private Event" },
+  { id: "R17", guestName: "Date Night - Couple", firstName: "Amanda", lastName: "White", time: "7:30 PM", partySize: 2, tableId: "T3", status: "seated", date: yesterday, duration: "2 hours", serviceType: "Dine-In" },
+  { id: "R18", guestName: "Late Guest", firstName: "Richard", lastName: "Moore", time: "8:00 PM", partySize: 4, tableId: "T5", status: "late", date: yesterday, duration: "1.5 hours", serviceType: "Dine-In" },
   
   // Two days ago
-  { id: "R19", guestName: "Book Club", time: "5:30 PM", partySize: 6, tableId: "T2", status: "seated", date: twoDaysAgo },
-  { id: "R20", guestName: "Wine Tasting Group", time: "7:00 PM", partySize: 8, tableId: "T1", status: "seated", date: twoDaysAgo },
+  { id: "R19", guestName: "Book Club", firstName: "Patricia", lastName: "Taylor", time: "5:30 PM", partySize: 6, tableId: "T2", status: "seated", date: twoDaysAgo, duration: "2 hours", serviceType: "Group Event" },
+  { id: "R20", guestName: "Wine Tasting Group", firstName: "Daniel", lastName: "Anderson", time: "7:00 PM", partySize: 8, tableId: "T1", status: "seated", date: twoDaysAgo, duration: "2.5 hours", serviceType: "Wine Tasting Event" },
 ];
 
 interface ReservationsPanelProps {

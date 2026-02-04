@@ -480,11 +480,6 @@ const ReservationDetailsPanel = ({
               Seat Guest
             </button>
           )}
-          {reservation.status === "late" && (
-            <button className="px-4 py-3 rounded-lg bg-amber-600 hover:bg-amber-500 text-white text-sm font-medium transition-colors">
-              Call Guest
-            </button>
-          )}
           <button className="px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors">
             Edit Reservation
           </button>

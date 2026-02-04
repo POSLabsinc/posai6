@@ -1,11 +1,12 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { format, addDays, subDays, isToday, isTomorrow, isYesterday, isSameDay } from "date-fns";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, ChevronLeft, ChevronRight, Phone, FileText, CreditCard, ArrowLeft, Armchair } from "lucide-react";
+import { Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, ChevronLeft, ChevronRight, Phone, FileText, CreditCard, ArrowLeft, Armchair, Maximize2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export type Reservation = {
@@ -71,6 +72,8 @@ interface ReservationsPanelProps {
   onReservationClick: (reservation: Reservation) => void;
   onAssignTable: (reservationId: string, tableId: string) => void;
   availableTables: { id: string; seats: number }[];
+  initialDate?: Date;
+  initialReservationId?: string;
 }
 
 const statusConfig = {
@@ -398,12 +401,37 @@ const ReservationsPanel = ({
   onReservationClick,
   onAssignTable,
   availableTables,
+  initialDate,
+  initialReservationId,
 }: ReservationsPanelProps) => {
-  const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const navigate = useNavigate();
+  const [selectedDate, setSelectedDate] = useState<Date>(() => initialDate || new Date());
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
-  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(() => {
+    if (initialReservationId) {
+      return reservations.find(r => r.id === initialReservationId) || null;
+    }
+    return null;
+  });
   const currentHour = getCurrentHour();
   const isTodaySelected = isToday(selectedDate);
+
+  // Update state if initial values change (coming back from full view)
+  useEffect(() => {
+    if (initialDate) {
+      setSelectedDate(initialDate);
+    }
+  }, [initialDate]);
+
+  useEffect(() => {
+    if (initialReservationId) {
+      const res = reservations.find(r => r.id === initialReservationId);
+      if (res) {
+        setSelectedReservation(res);
+        onReservationClick(res);
+      }
+    }
+  }, [initialReservationId, reservations, onReservationClick]);
   
   // Filter reservations by selected date
   const filteredReservations = useMemo(() => {
@@ -436,6 +464,16 @@ const ReservationsPanel = ({
   const handleClose = () => {
     setSelectedReservation(null);
     onClose();
+  };
+
+  // Navigate to full reservations view with state preservation
+  const handleExpandToFullView = () => {
+    navigate("/reservations", {
+      state: {
+        selectedDate: selectedDate.toISOString(),
+        selectedReservationId: selectedReservation?.id,
+      }
+    });
   };
 
   return (
@@ -513,15 +551,23 @@ const ReservationsPanel = ({
                 </button>
               </div>
 
-              {/* Title Row */}
+              {/* Title Row with Expand Button */}
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 rounded-full bg-orange-500/20 flex items-center justify-center">
                   <CalendarIcon className="w-4 h-4 text-orange-400" />
                 </div>
-                <div>
+                <div className="flex-1">
                   <SheetTitle className="text-white text-base font-semibold">Reservations</SheetTitle>
                   <p className="text-neutral-500 text-xs">{filteredReservations.length} {isTodaySelected ? "today" : "on this date"}</p>
                 </div>
+                {/* Expand to Full View Button */}
+                <button
+                  onClick={handleExpandToFullView}
+                  className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  title="Open full view"
+                >
+                  <Maximize2 className="w-4 h-4 text-neutral-400" />
+                </button>
               </div>
               
               {/* Quick Stats - Compact */}

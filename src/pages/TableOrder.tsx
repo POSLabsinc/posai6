@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Users, Grid, List, ChevronDown, ChevronRight, Circle, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X, Settings, Plus, Trash2, GripVertical, Pencil, FolderOpen, Save, Check, FileText, Bell, Calendar, Building2, Layers } from "lucide-react";
 import ReservationsPanel, { mockReservations, type Reservation } from "@/components/ReservationsPanel";
@@ -1156,6 +1156,15 @@ const MergeConnectorLine = ({
 
 const TableOrder = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Get state from Full Reservations View (when coming back)
+  const passedState = location.state as {
+    openReservationsPanel?: boolean;
+    selectedDate?: string;
+    selectedReservationId?: string;
+  } | null;
+  
   const [activeFilter, setActiveFilter] = useState("All");
   const [viewMode, setViewMode] = useState<"grid" | "list" | "visual" | "floorplan">("grid");
   const [selectedFloor, setSelectedFloor] = useState("floor-1");
@@ -1164,10 +1173,28 @@ const TableOrder = () => {
   const [selectedTable, setSelectedTable] = useState<string | null>(null);
   const [guestDropdownTable, setGuestDropdownTable] = useState<string | null>(null);
   
-  // Reservations panel state
-  const [isReservationsPanelOpen, setIsReservationsPanelOpen] = useState(false);
+  // Reservations panel state - initialize based on passed state
+  const [isReservationsPanelOpen, setIsReservationsPanelOpen] = useState(() => 
+    passedState?.openReservationsPanel || false
+  );
   const [reservations, setReservations] = useState<Reservation[]>(mockReservations);
   const [highlightedTableId, setHighlightedTableId] = useState<string | null>(null);
+  
+  // State to pass to ReservationsPanel for preservation
+  const [initialReservationDate, setInitialReservationDate] = useState<Date | undefined>(() => 
+    passedState?.selectedDate ? new Date(passedState.selectedDate) : undefined
+  );
+  const [initialReservationId, setInitialReservationId] = useState<string | undefined>(() => 
+    passedState?.selectedReservationId
+  );
+  
+  // Clear the location state after reading it (to avoid stale state on refresh)
+  useEffect(() => {
+    if (passedState?.openReservationsPanel) {
+      // Clear the state from history
+      window.history.replaceState({}, document.title);
+    }
+  }, [passedState]);
   
   // Hamburger submenu state
   const [expandedMenuSection, setExpandedMenuSection] = useState<"layout" | "floor" | "area" | null>(null);
@@ -3214,7 +3241,12 @@ const TableOrder = () => {
       {/* Reservations Side Panel */}
       <ReservationsPanel
         isOpen={isReservationsPanelOpen}
-        onClose={() => setIsReservationsPanelOpen(false)}
+        onClose={() => {
+          setIsReservationsPanelOpen(false);
+          // Clear the initial state when panel is manually closed
+          setInitialReservationDate(undefined);
+          setInitialReservationId(undefined);
+        }}
         reservations={reservations}
         onReservationClick={(reservation) => {
           if (reservation.tableId) {
@@ -3233,6 +3265,8 @@ const TableOrder = () => {
           ));
         }}
         availableTables={availableTables}
+        initialDate={initialReservationDate}
+        initialReservationId={initialReservationId}
       />
     </div>
   );

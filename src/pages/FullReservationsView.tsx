@@ -6,6 +6,16 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, 
   ChevronLeft, ChevronRight, Phone, FileText, CreditCard, 
@@ -206,12 +216,14 @@ const ReservationDetailsPanel = ({
   onAssignTable,
   onSeatGuest,
   onEditReservation,
+  onCancelReservation,
 }: {
   reservation: Reservation;
   availableTables: { id: string; seats: number }[];
   onAssignTable: (reservationId: string, tableId: string) => void;
   onSeatGuest: (reservation: Reservation) => void;
   onEditReservation: (reservation: Reservation) => void;
+  onCancelReservation: (reservation: Reservation) => void;
 }) => {
   const config = statusConfig[reservation.status];
   const formattedDate = format(reservation.date, "EEEE, MMMM d, yyyy");
@@ -494,7 +506,10 @@ const ReservationDetailsPanel = ({
           >
             Edit Reservation
           </button>
-          <button className="px-4 py-3 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 text-sm font-medium transition-colors">
+          <button 
+            onClick={() => onCancelReservation(reservation)}
+            className="px-4 py-3 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 text-sm font-medium transition-colors"
+          >
             Cancel
           </button>
         </div>
@@ -550,6 +565,8 @@ const FullReservationsView = () => {
   const [reservations, setReservations] = useState<Reservation[]>(mockReservations);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [reservationToEdit, setReservationToEdit] = useState<Reservation | null>(null);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
   
   const currentHour = getCurrentHour();
   const isTodaySelected = isToday(selectedDate);
@@ -615,6 +632,24 @@ const FullReservationsView = () => {
     // Update selected reservation if it's the one being edited
     if (selectedReservation?.id === updatedReservation.id) {
       setSelectedReservation(updatedReservation);
+    }
+  };
+
+  const handleCancelReservation = (reservation: Reservation) => {
+    setReservationToCancel(reservation);
+    setCancelDialogOpen(true);
+  };
+
+  const confirmCancelReservation = () => {
+    if (reservationToCancel) {
+      // Remove the reservation from the list
+      setReservations(prev => prev.filter(r => r.id !== reservationToCancel.id));
+      // Clear selection if the cancelled reservation was selected
+      if (selectedReservation?.id === reservationToCancel.id) {
+        setSelectedReservation(null);
+      }
+      setCancelDialogOpen(false);
+      setReservationToCancel(null);
     }
   };
 
@@ -797,6 +832,7 @@ const FullReservationsView = () => {
               onAssignTable={handleAssignTable}
               onSeatGuest={handleSeatGuest}
               onEditReservation={handleEditReservation}
+              onCancelReservation={handleCancelReservation}
             />
           ) : (
             <EmptyDetailsState />
@@ -814,6 +850,37 @@ const FullReservationsView = () => {
           availableTables={availableTables}
         />
       )}
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <AlertDialogContent className="bg-neutral-900 border-neutral-800 text-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Cancel Reservation?</AlertDialogTitle>
+            <AlertDialogDescription className="text-neutral-400">
+              {reservationToCancel && (
+                <>
+                  Are you sure you want to cancel the reservation for{" "}
+                  <span className="font-semibold text-white">{reservationToCancel.guestName}</span>{" "}
+                  at <span className="font-semibold text-white">{reservationToCancel.time}</span>?
+                  <br /><br />
+                  This action cannot be undone.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-neutral-800 border-neutral-700 text-white hover:bg-neutral-700 hover:text-white">
+              Keep Reservation
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmCancelReservation}
+              className="bg-red-600 text-white hover:bg-red-500"
+            >
+              Cancel Reservation
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

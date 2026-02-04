@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { format, addDays, subDays, isToday, isTomorrow, isYesterday } from "date-fns";
+import { useState, useMemo } from "react";
+import { format, addDays, subDays, isToday, isTomorrow, isYesterday, isSameDay } from "date-fns";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
@@ -17,18 +17,47 @@ export type Reservation = {
   status: "upcoming" | "seated" | "late";
   phone?: string;
   notes?: string;
-  date?: string; // Added for multi-day support
+  date: Date; // Required for multi-day support
 };
 
-// Mock reservations data
+// Helper to get dates
+const today = new Date();
+const yesterday = subDays(today, 1);
+const tomorrow = addDays(today, 1);
+const dayAfterTomorrow = addDays(today, 2);
+const twoDaysAgo = subDays(today, 2);
+
+// Mock reservations data with dates
 export const mockReservations: Reservation[] = [
-  { id: "R1", guestName: "Johnson Family", time: "6:30 PM", partySize: 4, tableId: "T4", status: "upcoming", phone: "(415) 555-1234" },
-  { id: "R2", guestName: "Maria Rodriguez", time: "7:00 PM", partySize: 2, tableId: null, status: "upcoming", phone: "(415) 555-2345", notes: "Anniversary dinner" },
-  { id: "R3", guestName: "Corporate Event - TechCo", time: "7:30 PM", partySize: 8, tableId: "T1", status: "upcoming" },
-  { id: "R4", guestName: "David Chen", time: "5:30 PM", partySize: 3, tableId: "T6", status: "late", phone: "(415) 555-3456" },
-  { id: "R5", guestName: "Sarah Miller", time: "6:00 PM", partySize: 2, tableId: "T3", status: "seated" },
-  { id: "R6", guestName: "Williams Party", time: "8:00 PM", partySize: 6, tableId: "T2", status: "upcoming" },
-  { id: "R7", guestName: "Emily Davis", time: "8:30 PM", partySize: 2, tableId: null, status: "upcoming", notes: "Window seat preferred" },
+  // Today's reservations
+  { id: "R1", guestName: "Johnson Family", time: "6:30 PM", partySize: 4, tableId: "T4", status: "upcoming", phone: "(415) 555-1234", date: today },
+  { id: "R2", guestName: "Maria Rodriguez", time: "7:00 PM", partySize: 2, tableId: null, status: "upcoming", phone: "(415) 555-2345", notes: "Anniversary dinner", date: today },
+  { id: "R3", guestName: "Corporate Event - TechCo", time: "7:30 PM", partySize: 8, tableId: "T1", status: "upcoming", date: today },
+  { id: "R4", guestName: "David Chen", time: "5:30 PM", partySize: 3, tableId: "T6", status: "late", phone: "(415) 555-3456", date: today },
+  { id: "R5", guestName: "Sarah Miller", time: "6:00 PM", partySize: 2, tableId: "T3", status: "seated", date: today },
+  { id: "R6", guestName: "Williams Party", time: "8:00 PM", partySize: 6, tableId: "T2", status: "upcoming", date: today },
+  { id: "R7", guestName: "Emily Davis", time: "8:30 PM", partySize: 2, tableId: null, status: "upcoming", notes: "Window seat preferred", date: today },
+  
+  // Tomorrow's reservations
+  { id: "R8", guestName: "Thompson Wedding", time: "5:00 PM", partySize: 12, tableId: "T1", status: "upcoming", notes: "Rehearsal dinner", date: tomorrow },
+  { id: "R9", guestName: "Mike & Lisa", time: "6:30 PM", partySize: 2, tableId: "T3", status: "upcoming", phone: "(415) 555-7890", date: tomorrow },
+  { id: "R10", guestName: "Birthday - Alex", time: "7:00 PM", partySize: 6, tableId: null, status: "upcoming", notes: "Surprise party, need cake", date: tomorrow },
+  { id: "R11", guestName: "Patel Family", time: "7:30 PM", partySize: 5, tableId: "T5", status: "upcoming", date: tomorrow },
+  { id: "R12", guestName: "Business Dinner", time: "8:00 PM", partySize: 4, tableId: "T2", status: "upcoming", notes: "Private room preferred", date: tomorrow },
+  
+  // Day after tomorrow
+  { id: "R13", guestName: "Garcia Anniversary", time: "6:00 PM", partySize: 2, tableId: "T4", status: "upcoming", notes: "25th anniversary", date: dayAfterTomorrow },
+  { id: "R14", guestName: "Tech Startup Lunch", time: "12:00 PM", partySize: 8, tableId: null, status: "upcoming", date: dayAfterTomorrow },
+  { id: "R15", guestName: "Retirement Party", time: "7:00 PM", partySize: 15, tableId: "T1", status: "upcoming", notes: "Large group, decorations", date: dayAfterTomorrow },
+  
+  // Yesterday (historical)
+  { id: "R16", guestName: "Smith Reunion", time: "6:00 PM", partySize: 10, tableId: "T1", status: "seated", date: yesterday },
+  { id: "R17", guestName: "Date Night - Couple", time: "7:30 PM", partySize: 2, tableId: "T3", status: "seated", date: yesterday },
+  { id: "R18", guestName: "Late Guest", time: "8:00 PM", partySize: 4, tableId: "T5", status: "late", date: yesterday },
+  
+  // Two days ago
+  { id: "R19", guestName: "Book Club", time: "5:30 PM", partySize: 6, tableId: "T2", status: "seated", date: twoDaysAgo },
+  { id: "R20", guestName: "Wine Tasting Group", time: "7:00 PM", partySize: 8, tableId: "T1", status: "seated", date: twoDaysAgo },
 ];
 
 interface ReservationsPanelProps {
@@ -210,13 +239,18 @@ const ReservationsPanel = ({
   const currentHour = getCurrentHour();
   const isTodaySelected = isToday(selectedDate);
   
+  // Filter reservations by selected date
+  const filteredReservations = useMemo(() => {
+    return reservations.filter(r => isSameDay(r.date, selectedDate));
+  }, [reservations, selectedDate]);
+  
   // Group by hour for timeline view
-  const groupedReservations = groupByHour(reservations);
+  const groupedReservations = groupByHour(filteredReservations);
   const sortedHours = Array.from(groupedReservations.keys()).sort((a, b) => a - b);
 
-  const upcomingCount = reservations.filter(r => r.status === "upcoming").length;
-  const lateCount = reservations.filter(r => r.status === "late").length;
-  const unassignedCount = reservations.filter(r => !r.tableId).length;
+  const upcomingCount = filteredReservations.filter(r => r.status === "upcoming").length;
+  const lateCount = filteredReservations.filter(r => r.status === "late").length;
+  const unassignedCount = filteredReservations.filter(r => !r.tableId).length;
 
   const handlePrevDay = () => setSelectedDate(prev => subDays(prev, 1));
   const handleNextDay = () => setSelectedDate(prev => addDays(prev, 1));
@@ -290,7 +324,7 @@ const ReservationsPanel = ({
             </div>
             <div>
               <SheetTitle className="text-white text-base font-semibold">Reservations</SheetTitle>
-              <p className="text-neutral-500 text-xs">{reservations.length} {isTodaySelected ? "today" : "on this date"}</p>
+              <p className="text-neutral-500 text-xs">{filteredReservations.length} {isTodaySelected ? "today" : "on this date"}</p>
             </div>
           </div>
           

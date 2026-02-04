@@ -91,7 +91,7 @@ const ReservationCard = ({
   return (
     <div
       onClick={() => onReservationClick(reservation)}
-      className={`px-3 py-2.5 rounded-lg border cursor-pointer transition-all hover:bg-white/5 ${
+      className={`pl-3 pr-4 py-2.5 rounded-lg border cursor-pointer transition-all hover:bg-white/5 ${
         isSelected 
           ? "border-orange-500 bg-orange-500/10 ring-1 ring-orange-500/30"
           : reservation.status === "late" 
@@ -523,7 +523,7 @@ const FullReservationsView = () => {
           </div>
           
           <ScrollArea className="flex-1">
-            <div className="p-4 space-y-3">
+            <div className="pl-4 pr-5 py-4 space-y-3">
               {sortedHours.map((hour) => {
                 const hourReservations = groupedReservations.get(hour) || [];
                 const isCurrentHour = hour === currentHour && isTodaySelected;

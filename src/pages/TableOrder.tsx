@@ -2389,12 +2389,13 @@ const TableOrder = () => {
 
               {/* Tables positioned absolutely on the map */}
               <div className="relative w-[1200px] h-[700px]">
-                {filteredTables.map((table) => {
+              {filteredTables.map((table) => {
                   const isMergeTarget = mergeTarget === table.id;
                   const isInvalidMergeTarget = invalidMergeTarget?.tableId === table.id;
                   const isBeingDragged = draggedTableId === table.id;
                   const isMerged = !!table.mergedWith;
                   const config = statusConfig[table.status] || statusConfig["Available"];
+                  const isHighlighted = highlightedTableId === table.id;
                   
                   return (
                     <Popover 
@@ -2411,29 +2412,44 @@ const TableOrder = () => {
                       <PopoverTrigger asChild>
                         <div
                           className={`absolute transition-all select-none cursor-grab active:cursor-grabbing ${
-                            isBeingDragged 
-                              ? "z-50 scale-105 duration-0" 
-                              : isMergeTarget
-                                ? "z-40 scale-110 duration-200"
-                                : tableOptionsOpen === table.id
-                                  ? "z-50 duration-200"
-                                  : "z-30 duration-300"
+                            isHighlighted
+                              ? "z-50 scale-110 duration-200"
+                              : isBeingDragged 
+                                ? "z-50 scale-105 duration-0" 
+                                : isMergeTarget
+                                  ? "z-40 scale-110 duration-200"
+                                  : tableOptionsOpen === table.id
+                                    ? "z-50 duration-200"
+                                    : "z-30 duration-300"
                           }`}
                           style={{ 
                             left: table.x, 
                             top: table.y,
-                            boxShadow: isBeingDragged 
-                              ? "0 20px 40px rgba(0,0,0,0.5)" 
-                              : isMergeTarget 
-                                ? "0 0 30px rgba(34, 211, 238, 0.6)"
-                                : isInvalidMergeTarget
-                                  ? "0 0 30px rgba(239, 68, 68, 0.6)"
-                                  : undefined,
+                            boxShadow: isHighlighted
+                              ? "0 0 40px rgba(249, 115, 22, 0.7)"
+                              : isBeingDragged 
+                                ? "0 20px 40px rgba(0,0,0,0.5)" 
+                                : isMergeTarget 
+                                  ? "0 0 30px rgba(34, 211, 238, 0.6)"
+                                  : isInvalidMergeTarget
+                                    ? "0 0 30px rgba(239, 68, 68, 0.6)"
+                                    : undefined,
                           }}
                           onMouseDown={(e) => handleDragStart(e, table.id)}
                           onTouchStart={(e) => handleDragStart(e, table.id)}
                           onClick={(e) => handleFloorplanTableClick(table, e)}
                         >
+                          {/* Reservation highlight ring */}
+                          {isHighlighted && (
+                            <div className="absolute inset-0 -m-4 rounded-full animate-pulse pointer-events-none">
+                              <div className="absolute inset-0 rounded-full border-4 border-orange-500/70" />
+                              <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-3 py-1.5 rounded-full bg-orange-500 text-white text-xs font-bold whitespace-nowrap shadow-lg shadow-orange-500/50 flex items-center gap-1.5">
+                                <Calendar className="w-3.5 h-3.5" />
+                                Reservation
+                              </div>
+                            </div>
+                          )}
+                          
                           {/* Merge target glow ring */}
                           {isMergeTarget && (
                             <div className="absolute inset-0 -m-3 rounded-full animate-pulse pointer-events-none">
@@ -2661,9 +2677,22 @@ const TableOrder = () => {
                 <div
                   key={`${table.id}-${index}`}
                   className={`relative ${isHighlighted ? "animate-pulse" : ""}`}
+                  style={isHighlighted ? { 
+                    filter: "drop-shadow(0 0 20px rgba(249, 115, 22, 0.5))" 
+                  } : undefined}
                 >
+                  {/* Reservation highlight badge */}
+                  {isHighlighted && (
+                    <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-30">
+                      <div className="flex items-center gap-1 bg-orange-500 text-white px-2 py-1 rounded-full shadow-lg shadow-orange-500/50">
+                        <Calendar className="w-3 h-3" />
+                        <span className="text-[10px] font-bold whitespace-nowrap">RESERVATION</span>
+                      </div>
+                    </div>
+                  )}
+                  
                   {/* Ready status notification badge */}
-                  {isReady && (
+                  {isReady && !isHighlighted && (
                     <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 animate-bounce">
                       <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-1 rounded-full shadow-lg shadow-emerald-500/50">
                         <Bell className="w-3 h-3" />
@@ -2673,7 +2702,7 @@ const TableOrder = () => {
                   )}
                   
                   {/* Reservation time badge for Reserved tables */}
-                  {table.status === "Reserved" && tableReservation && (
+                  {table.status === "Reserved" && tableReservation && !isHighlighted && (
                     <div className="absolute -top-2 right-1 z-20">
                       <div className="flex items-center gap-1 bg-gray-700 text-white px-2 py-0.5 rounded-full border border-gray-500">
                         <Clock className="w-2.5 h-2.5 text-gray-400" />
@@ -2685,11 +2714,13 @@ const TableOrder = () => {
                   <div
                     onClick={handleTableClick}
                     className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
-                      selectedTable === table.id 
-                        ? "border-orange-500 ring-2 ring-orange-500/30" 
-                        : isReady 
-                          ? "border-emerald-500" 
-                          : "border-neutral-800"
+                      isHighlighted
+                        ? "border-orange-500 ring-2 ring-orange-500/50"
+                        : selectedTable === table.id 
+                          ? "border-orange-500 ring-2 ring-orange-500/30" 
+                          : isReady 
+                            ? "border-emerald-500" 
+                            : "border-neutral-800"
                     } ${isReady ? "ready-glow" : ""}`}
                   >
                     {/* Table Number */}

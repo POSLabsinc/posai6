@@ -319,7 +319,7 @@ const ReservationCard = ({
   return (
     <div
       onClick={() => onReservationClick(reservation)}
-      className={`pl-3 pr-4 py-2 rounded-lg border cursor-pointer transition-all hover:bg-white/5 ${
+      className={`pl-3 pr-5 py-2 rounded-lg border cursor-pointer transition-all hover:bg-white/5 ${
         reservation.status === "late" 
           ? "border-red-500/40 bg-red-500/5 ring-1 ring-red-500/30" 
           : isUnassigned
@@ -327,8 +327,8 @@ const ReservationCard = ({
             : "border-neutral-700/50 bg-neutral-800/30"
       }`}
     >
-      {/* Single Row Layout */}
-      <div className="flex items-center gap-3">
+      {/* Single Row Layout - with explicit right margin for breathing room */}
+      <div className="flex items-center gap-2.5 mr-1">
         {/* Status Dot */}
         <div className={`w-2 h-2 rounded-full flex-shrink-0 ${config.dot} ${
           reservation.status === "late" ? "animate-pulse" : ""
@@ -592,7 +592,7 @@ const ReservationsPanel = ({
             </SheetHeader>
             
             <ScrollArea className="h-[calc(100vh-200px)]">
-              <div className="pl-3 pr-5 py-3 space-y-3">
+              <div className="pl-3 pr-6 py-3 space-y-3">
                 {sortedHours.map((hour) => {
                   const hourReservations = groupedReservations.get(hour) || [];
                   const isCurrentHour = hour === currentHour && isTodaySelected;

@@ -509,28 +509,8 @@ const ReservationsPanel = ({
                 </button>
               </div>
               
-              {/* Quick Stats - Below Title */}
-              <div className="flex items-center gap-2 mb-3">
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10">
-                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                  <span className="text-blue-400 text-[11px] font-medium">{upcomingCount}</span>
-                </div>
-                {lateCount > 0 && (
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/10 animate-pulse">
-                    <AlertCircle className="w-3 h-3 text-red-400" />
-                    <span className="text-red-400 text-[11px] font-medium">{lateCount} Late</span>
-                  </div>
-                )}
-                {unassignedCount > 0 && (
-                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10">
-                    <MapPin className="w-3 h-3 text-amber-400" />
-                    <span className="text-amber-400 text-[11px] font-medium">{unassignedCount} Unassigned</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Date Navigation Row - Below Stats */}
-              <div className="flex items-center justify-between">
+              {/* Date Navigation Row - Below Title */}
+              <div className="flex items-center justify-between mb-3">
                 <button
                   onClick={handlePrevDay}
                   className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
@@ -581,6 +561,26 @@ const ReservationsPanel = ({
                 >
                   <ChevronRight className="w-4 h-4 text-neutral-400" />
                 </button>
+              </div>
+
+              {/* Quick Stats - Below Date Filter */}
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10">
+                  <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                  <span className="text-blue-400 text-[11px] font-medium">{upcomingCount}</span>
+                </div>
+                {lateCount > 0 && (
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/10 animate-pulse">
+                    <AlertCircle className="w-3 h-3 text-red-400" />
+                    <span className="text-red-400 text-[11px] font-medium">{lateCount} Late</span>
+                  </div>
+                )}
+                {unassignedCount > 0 && (
+                  <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10">
+                    <MapPin className="w-3 h-3 text-amber-400" />
+                    <span className="text-amber-400 text-[11px] font-medium">{unassignedCount} Unassigned</span>
+                  </div>
+                )}
               </div>
             </SheetHeader>
             

@@ -319,7 +319,7 @@ const ReservationCard = ({
   return (
     <div
       onClick={() => onReservationClick(reservation)}
-      className={`pl-3 pr-5 py-2 rounded-lg border cursor-pointer transition-all hover:bg-white/5 ${
+      className={`pl-3 pr-4 py-2 rounded-lg border cursor-pointer transition-all hover:bg-white/5 overflow-hidden ${
         reservation.status === "late" 
           ? "border-red-500/40 bg-red-500/5 ring-1 ring-red-500/30" 
           : isUnassigned
@@ -327,10 +327,10 @@ const ReservationCard = ({
             : "border-neutral-700/50 bg-neutral-800/30"
       }`}
     >
-      {/* Single Row Layout - with explicit right margin for breathing room */}
-      <div className="flex items-center gap-2.5 mr-1">
-        {/* Status Dot */}
-        <div className={`w-2 h-2 rounded-full flex-shrink-0 ${config.dot} ${
+      {/* Single Row Layout */}
+      <div className="flex items-center gap-2">
+        {/* Status Dot - color communicates status */}
+        <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${config.dot} ${
           reservation.status === "late" ? "animate-pulse" : ""
         }`} />
         
@@ -352,22 +352,14 @@ const ReservationCard = ({
         </div>
         
         {/* Table */}
-        <div className="flex items-center gap-1 flex-shrink-0 min-w-[48px]">
+        <div className="flex items-center gap-1 flex-shrink-0">
           <MapPin className="w-3 h-3 text-neutral-500" />
           {reservation.tableId ? (
-            <span className="text-neutral-300 text-xs">{reservation.tableId}</span>
+            <span className="text-neutral-300 text-xs font-medium">{reservation.tableId}</span>
           ) : (
             <span className="text-amber-400 text-xs font-semibold">—</span>
           )}
         </div>
-        
-        {/* Status Badge */}
-        <Badge 
-          variant="outline" 
-          className={`${config.bg} ${config.text} border-0 text-[10px] px-1.5 py-0 h-5 flex-shrink-0`}
-        >
-          {config.label}
-        </Badge>
       </div>
       
       {/* Quick Assign Row (for unassigned only) */}
@@ -480,7 +472,8 @@ const ReservationsPanel = ({
     <Sheet open={isOpen} onOpenChange={handleClose}>
       <SheetContent 
         side="right" 
-        className="w-[380px] sm:w-[400px] bg-neutral-900 border-neutral-800 p-0"
+        hideCloseButton
+        className="w-[400px] sm:w-[420px] bg-neutral-900 border-neutral-800 p-0"
       >
         {selectedReservation ? (
           // Reservation Details View

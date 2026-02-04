@@ -24,6 +24,7 @@ import {
   ExternalLink, CheckCircle2, XCircle
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import { mockReservations, type Reservation } from "@/components/ReservationsPanel";
 import { EditReservationDialog } from "@/components/EditReservationDialog";
 
@@ -639,6 +640,8 @@ const FullReservationsView = () => {
     }
   };
 
+  const { toast } = useToast();
+
   const handleSeatGuest = (reservation: Reservation) => {
     // Update reservation status to seated
     setReservations(prev => 
@@ -646,6 +649,11 @@ const FullReservationsView = () => {
     );
     // Update selected reservation state
     setSelectedReservation(prev => prev ? { ...prev, status: "seated" as const } : null);
+    
+    toast({
+      title: "Guest Seated",
+      description: `${reservation.guestName} has been seated at Table ${reservation.tableId}`,
+    });
     
     // Navigate to table order details for the assigned table
     if (reservation.tableId) {
@@ -671,6 +679,11 @@ const FullReservationsView = () => {
     if (selectedReservation?.id === updatedReservation.id) {
       setSelectedReservation(updatedReservation);
     }
+    
+    toast({
+      title: "Reservation Updated",
+      description: `Changes saved for ${updatedReservation.guestName}'s reservation`,
+    });
   };
 
   const handleCancelReservation = (reservation: Reservation) => {
@@ -680,6 +693,7 @@ const FullReservationsView = () => {
 
   const confirmCancelReservation = () => {
     if (reservationToCancel) {
+      const guestName = reservationToCancel.guestName;
       // Remove the reservation from the list
       setReservations(prev => prev.filter(r => r.id !== reservationToCancel.id));
       // Clear selection if the cancelled reservation was selected
@@ -688,6 +702,12 @@ const FullReservationsView = () => {
       }
       setCancelDialogOpen(false);
       setReservationToCancel(null);
+      
+      toast({
+        title: "Reservation Cancelled",
+        description: `${guestName}'s reservation has been cancelled`,
+        variant: "destructive",
+      });
     }
   };
 

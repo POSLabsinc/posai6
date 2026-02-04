@@ -21,12 +21,13 @@ import {
   ChevronLeft, ChevronRight, Phone, FileText, CreditCard, 
   ArrowLeft, Armchair, Mail, Timer, Gift, Building, Globe,
   User, Hash, Utensils, Baby, Accessibility, Bell, StickyNote,
-  ExternalLink, CheckCircle2, XCircle
+  ExternalLink, CheckCircle2, XCircle, Map as MapIcon, Grid
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { mockReservations, type Reservation } from "@/components/ReservationsPanel";
 import { EditReservationDialog } from "@/components/EditReservationDialog";
+import TableMapPanel from "@/components/TableMapPanel";
 
 // Status configurations
 const statusConfig = {
@@ -606,6 +607,7 @@ const FullReservationsView = () => {
   const [reservationToEdit, setReservationToEdit] = useState<Reservation | null>(null);
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
+  const [mapViewMode, setMapViewMode] = useState<"floorplan" | "grid">("floorplan");
   
   const currentHour = getCurrentHour();
   const isTodaySelected = isToday(selectedDate);
@@ -724,9 +726,9 @@ const FullReservationsView = () => {
 
   return (
     <div className="h-screen bg-neutral-950 flex flex-col overflow-hidden">
-      {/* Header - Navigation only */}
+      {/* Header - Navigation + Layout Toggle */}
       <div className="flex-shrink-0 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-sm">
-        <div className="flex items-center px-6 py-3">
+        <div className="flex items-center justify-between px-6 py-3">
           {/* Left: Back to Tables + Reservations Title (navigation cluster) */}
           <div className="flex items-center gap-4">
             <button
@@ -742,6 +744,34 @@ const FullReservationsView = () => {
                 <CalendarIcon className="w-4 h-4 text-orange-400" />
               </div>
               <h1 className="text-white text-lg font-semibold">Reservations</h1>
+            </div>
+          </div>
+          
+          {/* Right: Layout Toggle */}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center bg-neutral-800 rounded-lg p-1">
+              <button
+                onClick={() => setMapViewMode("floorplan")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  mapViewMode === "floorplan" 
+                    ? "bg-neutral-700 text-white" 
+                    : "text-neutral-400 hover:text-white"
+                }`}
+              >
+                <MapIcon className="w-4 h-4" />
+                <span className="hidden sm:inline">Floor Plan</span>
+              </button>
+              <button
+                onClick={() => setMapViewMode("grid")}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                  mapViewMode === "grid" 
+                    ? "bg-neutral-700 text-white" 
+                    : "text-neutral-400 hover:text-white"
+                }`}
+              >
+                <Grid className="w-4 h-4" />
+                <span className="hidden sm:inline">Grid</span>
+              </button>
             </div>
           </div>
         </div>
@@ -881,20 +911,16 @@ const FullReservationsView = () => {
           </ScrollArea>
         </div>
 
-        {/* Right Column: Details */}
+        {/* Right Column: Table Map */}
         <div className="flex-1 bg-neutral-950">
-          {selectedReservation ? (
-            <ReservationDetailsPanel
-              reservation={selectedReservation}
-              availableTables={availableTables}
-              onAssignTable={handleAssignTable}
-              onSeatGuest={handleSeatGuest}
-              onEditReservation={handleEditReservation}
-              onCancelReservation={handleCancelReservation}
-            />
-          ) : (
-            <EmptyDetailsState />
-          )}
+          <TableMapPanel 
+            viewMode={mapViewMode}
+            selectedReservation={selectedReservation}
+            onTableSelect={(tableId) => {
+              // When table is selected from map, could sync with reservation if needed
+              console.log("Table selected:", tableId);
+            }}
+          />
         </div>
       </div>
 

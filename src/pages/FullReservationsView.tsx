@@ -376,14 +376,8 @@ const FullReservationsView = () => {
   };
 
   const handleBackToTables = () => {
-    // Navigate back to TableOrder with state preservation
-    navigate("/tableorder", {
-      state: {
-        openReservationsPanel: true,
-        selectedDate: selectedDate.toISOString(),
-        selectedReservationId: selectedReservation?.id,
-      }
-    });
+    // Navigate back to TableOrder without opening reservations panel
+    navigate("/tableorder");
   };
 
   // Auto-scroll to selected reservation's hour block

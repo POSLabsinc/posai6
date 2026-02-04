@@ -21,7 +21,7 @@ import {
   ChevronLeft, ChevronRight, Phone, FileText, CreditCard, 
   ArrowLeft, Armchair, Mail, Timer, Gift, Building, Globe,
   User, Hash, Utensils, Baby, Accessibility, Bell, StickyNote,
-  ExternalLink, CheckCircle2, XCircle, Map as MapIcon, Grid
+  ExternalLink, CheckCircle2, XCircle, Map as MapIcon, Grid, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
@@ -219,6 +219,7 @@ const ReservationDetailsPanel = ({
   onSeatGuest,
   onEditReservation,
   onCancelReservation,
+  onClose,
 }: {
   reservation: Reservation;
   availableTables: { id: string; seats: number }[];
@@ -226,12 +227,13 @@ const ReservationDetailsPanel = ({
   onSeatGuest: (reservation: Reservation) => void;
   onEditReservation: (reservation: Reservation) => void;
   onCancelReservation: (reservation: Reservation) => void;
+  onClose: () => void;
 }) => {
   const config = statusConfig[reservation.status];
   const formattedDate = format(reservation.date, "EEEE, MMMM d, yyyy");
 
   return (
-    <div className="h-full flex flex-col">
+    <div className="h-full flex flex-col bg-neutral-900">
       {/* Header */}
       <div className="px-6 py-4 border-b border-neutral-800">
         <div className="flex items-center gap-3">
@@ -245,6 +247,12 @@ const ReservationDetailsPanel = ({
           >
             {config.label}
           </Badge>
+          <button
+            onClick={onClose}
+            className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+          >
+            <X className="w-4 h-4 text-neutral-400" />
+          </button>
         </div>
       </div>
 
@@ -911,16 +919,27 @@ const FullReservationsView = () => {
           </ScrollArea>
         </div>
 
-        {/* Right Column: Table Map */}
+        {/* Right Column: Table Map or Reservation Details */}
         <div className="flex-1 bg-neutral-950">
-          <TableMapPanel 
-            viewMode={mapViewMode}
-            selectedReservation={selectedReservation}
-            onTableSelect={(tableId) => {
-              // When table is selected from map, could sync with reservation if needed
-              console.log("Table selected:", tableId);
-            }}
-          />
+          {selectedReservation ? (
+            <ReservationDetailsPanel
+              reservation={selectedReservation}
+              availableTables={availableTables}
+              onAssignTable={handleAssignTable}
+              onSeatGuest={handleSeatGuest}
+              onEditReservation={handleEditReservation}
+              onCancelReservation={handleCancelReservation}
+              onClose={() => setSelectedReservation(null)}
+            />
+          ) : (
+            <TableMapPanel 
+              viewMode={mapViewMode}
+              selectedReservation={selectedReservation}
+              onTableSelect={(tableId) => {
+                console.log("Table selected:", tableId);
+              }}
+            />
+          )}
         </div>
       </div>
 

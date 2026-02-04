@@ -636,9 +636,13 @@ const ReservationsPanel = ({
   const handleToday = () => setSelectedDate(new Date());
 
   const handleReservationSelect = (reservation: Reservation) => {
-    setSelectedReservation(reservation);
-    // Trigger table highlight callback
-    onReservationClick(reservation);
+    // Navigate to full reservations view with this reservation selected
+    navigate("/reservations", {
+      state: {
+        selectedDate: reservation.date.toISOString(),
+        selectedReservationId: reservation.id,
+      }
+    });
   };
 
   const handleBackToTimeline = () => {

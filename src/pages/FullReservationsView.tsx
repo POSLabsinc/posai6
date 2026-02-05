@@ -234,8 +234,8 @@ const ReservationDetailsPanel = ({
 
   return (
     <div className="h-full flex flex-col bg-neutral-900">
-      {/* Header */}
-      <div className="px-6 py-4">
+      {/* Header - Row 1: Guest Name (matches left panel Date Navigation Row height) */}
+      <div className="px-6 py-3">
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <h3 className="text-white text-lg font-semibold">{reservation.guestName}</h3>
@@ -256,32 +256,30 @@ const ReservationDetailsPanel = ({
         </div>
       </div>
 
-      {/* Separator + Tabs */}
-      <div className="border-b border-neutral-800" />
-      
+      {/* Tabs - Row 2: matches left panel Status Indicators Row, with border-b to align */}
       <Tabs defaultValue="guest-info" className="flex-1 flex flex-col overflow-hidden">
         <TabsList className="w-full justify-start rounded-none border-b border-neutral-800 bg-transparent h-auto p-0 px-6">
           <TabsTrigger 
             value="guest-info" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-3 text-sm"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-2 text-sm"
           >
             Guest Info
           </TabsTrigger>
           <TabsTrigger 
             value="sitting" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-3 text-sm"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-2 text-sm"
           >
             Sitting
           </TabsTrigger>
           <TabsTrigger 
             value="payment" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-3 text-sm"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-2 text-sm"
           >
             Payment
           </TabsTrigger>
           <TabsTrigger 
             value="other" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-3 text-sm"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-2 text-sm"
           >
             Other
           </TabsTrigger>

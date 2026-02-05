@@ -235,7 +235,7 @@ const ReservationDetailsPanel = ({
   return (
     <div className="h-full flex flex-col bg-neutral-900">
       {/* Header */}
-      <div className="px-6 py-4 border-b border-neutral-800">
+      <div className="px-6 py-4">
         <div className="flex items-center gap-3">
           <div className="flex-1">
             <h3 className="text-white text-lg font-semibold">{reservation.guestName}</h3>
@@ -256,9 +256,11 @@ const ReservationDetailsPanel = ({
         </div>
       </div>
 
-      {/* Tabs - Match old POS exactly */}
+      {/* Separator + Tabs */}
+      <div className="border-b border-neutral-800" />
+      
       <Tabs defaultValue="guest-info" className="flex-1 flex flex-col overflow-hidden">
-        <TabsList className="w-full justify-start rounded-none border-b border-neutral-800 bg-neutral-900/50 h-auto p-0 px-4">
+        <TabsList className="w-full justify-start rounded-none border-b border-neutral-800 bg-transparent h-auto p-0 px-6">
           <TabsTrigger 
             value="guest-info" 
             className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-3 text-sm"

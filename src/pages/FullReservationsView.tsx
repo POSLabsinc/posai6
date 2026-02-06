@@ -22,7 +22,8 @@ import {
   ArrowLeft, Armchair, Mail, Timer, Gift, Building, Globe,
   User, Hash, Utensils, Baby, Accessibility, Bell, StickyNote, MessageSquare,
   ExternalLink, CheckCircle2, XCircle, Map as MapIcon, Grid, X,
-  List, ListFilter, ClipboardList, Flag, PauseCircle, PlayCircle, Send
+  List, ListFilter, ClipboardList, Flag, PauseCircle, PlayCircle, Send,
+  Cake, Heart, Wallet
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -720,6 +721,7 @@ const FullReservationsView = () => {
   // Utility bar state
   const [listViewMode, setListViewMode] = useState<"grouped" | "flat">("grouped");
   const [reservationsPaused, setReservationsPaused] = useState(false);
+  const [activeQuickFilter, setActiveQuickFilter] = useState<string | null>(null);
   
   // Mock waitlist count (would come from real data)
   const waitlistCount = 3;
@@ -728,17 +730,41 @@ const FullReservationsView = () => {
   const isTodaySelected = isToday(selectedDate);
   
   // Filter reservations by selected date
-  const filteredReservations = useMemo(() => {
+  const dateFilteredReservations = useMemo(() => {
     return reservations.filter(r => isSameDay(r.date, selectedDate));
   }, [reservations, selectedDate]);
+  
+  // Quick filter counts
+  const birthdayCount = dateFilteredReservations.filter(r => r.occasion?.toLowerCase().includes("birthday")).length;
+  const anniversaryCount = dateFilteredReservations.filter(r => r.occasion?.toLowerCase().includes("anniversary")).length;
+  const messageCount = dateFilteredReservations.filter(r => !!r.guestMessage).length;
+  const depositPendingCount = dateFilteredReservations.filter(r => r.depositRequested && !r.depositPaid).length;
+  
+  // Apply quick filter
+  const filteredReservations = useMemo(() => {
+    if (!activeQuickFilter) return dateFilteredReservations;
+    
+    switch (activeQuickFilter) {
+      case "birthday":
+        return dateFilteredReservations.filter(r => r.occasion?.toLowerCase().includes("birthday"));
+      case "anniversary":
+        return dateFilteredReservations.filter(r => r.occasion?.toLowerCase().includes("anniversary"));
+      case "message":
+        return dateFilteredReservations.filter(r => !!r.guestMessage);
+      case "deposit":
+        return dateFilteredReservations.filter(r => r.depositRequested && !r.depositPaid);
+      default:
+        return dateFilteredReservations;
+    }
+  }, [dateFilteredReservations, activeQuickFilter]);
   
   // Group by hour for timeline view
   const groupedReservations = groupByHour(filteredReservations);
   const sortedHours = Array.from(groupedReservations.keys()).sort((a, b) => a - b);
 
-  const upcomingCount = filteredReservations.filter(r => r.status === "upcoming").length;
-  const lateCount = filteredReservations.filter(r => r.status === "late").length;
-  const unassignedCount = filteredReservations.filter(r => !r.tableId).length;
+  const upcomingCount = dateFilteredReservations.filter(r => r.status === "upcoming").length;
+  const lateCount = dateFilteredReservations.filter(r => r.status === "late").length;
+  const unassignedCount = dateFilteredReservations.filter(r => !r.tableId).length;
 
   const handlePrevDay = () => setSelectedDate(prev => subDays(prev, 1));
   const handleNextDay = () => setSelectedDate(prev => addDays(prev, 1));
@@ -968,8 +994,267 @@ const FullReservationsView = () => {
                   <span className="text-amber-400 text-[11px] font-medium">{unassignedCount} Unassigned</span>
                 </div>
               )}
-              <span className="text-neutral-500 text-xs ml-auto uppercase tracking-wide">Timeline</span>
+              <span className="text-neutral-500 text-xs ml-auto uppercase tracking-wide">
+                {activeQuickFilter ? activeQuickFilter.charAt(0).toUpperCase() + activeQuickFilter.slice(1) : "Timeline"}
+              </span>
             </div>
+            
+            {/* Utility Bar - Below Status Indicators */}
+            <TooltipProvider delayDuration={200}>
+              <div className="flex items-center justify-between gap-2 pt-2">
+                {/* Left: View Controls + Quick Filters */}
+                <div className="flex items-center gap-1">
+                  {/* View / Group Toggle */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setListViewMode(listViewMode === "grouped" ? "flat" : "grouped")}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          listViewMode === "grouped" 
+                            ? "bg-neutral-800 text-white" 
+                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                        }`}
+                      >
+                        {listViewMode === "grouped" ? (
+                          <ListFilter className="w-4 h-4" />
+                        ) : (
+                          <List className="w-4 h-4" />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>{listViewMode === "grouped" ? "Switch to Flat List" : "Switch to Time-Grouped"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Waitlist Access */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="relative w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
+                        <ClipboardList className="w-4 h-4 text-neutral-400 group-hover:text-white" />
+                        {waitlistCount > 0 && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-[10px] font-bold text-black flex items-center justify-center">
+                            {waitlistCount}
+                          </span>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>Waitlist ({waitlistCount} guests)</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Alerts / Flags */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="relative w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
+                        <Flag className={`w-4 h-4 ${lateCount > 0 ? "text-red-400" : "text-neutral-400 group-hover:text-white"}`} />
+                        {(lateCount > 0 || unassignedCount > 0) && (
+                          <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                            lateCount > 0 ? "bg-red-500 text-white" : "bg-amber-500 text-black"
+                          }`}>
+                            {lateCount + unassignedCount}
+                          </span>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
+                      <div className="space-y-1">
+                        <p className="font-medium">Alerts</p>
+                        {lateCount > 0 && <p className="text-red-400 text-xs">{lateCount} Late guests</p>}
+                        {unassignedCount > 0 && <p className="text-amber-400 text-xs">{unassignedCount} Unassigned</p>}
+                        {lateCount === 0 && unassignedCount === 0 && <p className="text-neutral-400 text-xs">No alerts</p>}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Divider */}
+                  <div className="w-px h-5 bg-neutral-700 mx-1" />
+                  
+                  {/* Quick Filter: Birthday */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => setActiveQuickFilter(activeQuickFilter === "birthday" ? null : "birthday")}
+                        className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          activeQuickFilter === "birthday"
+                            ? "bg-pink-500/20 text-pink-400"
+                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                        }`}
+                      >
+                        <Cake className="w-4 h-4" />
+                        {birthdayCount > 0 && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-pink-500 text-[10px] font-bold text-white flex items-center justify-center">
+                            {birthdayCount}
+                          </span>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>Birthdays ({birthdayCount})</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Quick Filter: Anniversary */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => setActiveQuickFilter(activeQuickFilter === "anniversary" ? null : "anniversary")}
+                        className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          activeQuickFilter === "anniversary"
+                            ? "bg-rose-500/20 text-rose-400"
+                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                        }`}
+                      >
+                        <Heart className="w-4 h-4" />
+                        {anniversaryCount > 0 && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center">
+                            {anniversaryCount}
+                          </span>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>Anniversaries ({anniversaryCount})</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Quick Filter: Guest Message */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => setActiveQuickFilter(activeQuickFilter === "message" ? null : "message")}
+                        className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          activeQuickFilter === "message"
+                            ? "bg-blue-500/20 text-blue-400"
+                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                        }`}
+                      >
+                        <MessageSquare className="w-4 h-4" />
+                        {messageCount > 0 && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-500 text-[10px] font-bold text-white flex items-center justify-center">
+                            {messageCount}
+                          </span>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>Guest Messages ({messageCount})</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Quick Filter: Deposit Pending */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => setActiveQuickFilter(activeQuickFilter === "deposit" ? null : "deposit")}
+                        className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          activeQuickFilter === "deposit"
+                            ? "bg-amber-500/20 text-amber-400"
+                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                        }`}
+                      >
+                        <Wallet className="w-4 h-4" />
+                        {depositPendingCount > 0 && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-[10px] font-bold text-black flex items-center justify-center">
+                            {depositPendingCount}
+                          </span>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>Deposit Pending ({depositPendingCount})</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                
+                {/* Right: Quick Actions + Manager Controls */}
+                <div className="flex items-center gap-1">
+                  {/* Jump to Floor */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => setSelectedReservation(null)}
+                        className="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group"
+                      >
+                        <MapIcon className="w-4 h-4 text-neutral-400 group-hover:text-white" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>Jump to Floor Map</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Guest Communication */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
+                        <Send className="w-4 h-4 text-neutral-400 group-hover:text-white" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>Message Guests</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Reservation Control - Pause/Resume */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => {
+                          setReservationsPaused(!reservationsPaused);
+                          toast({
+                            title: reservationsPaused ? "Reservations Resumed" : "Reservations Paused",
+                            description: reservationsPaused 
+                              ? "New reservations are now being accepted" 
+                              : "New reservations are temporarily disabled",
+                          });
+                        }}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          reservationsPaused 
+                            ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" 
+                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                        }`}
+                      >
+                        {reservationsPaused ? (
+                          <PlayCircle className="w-4 h-4" />
+                        ) : (
+                          <PauseCircle className="w-4 h-4" />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>{reservationsPaused ? "Resume Reservations" : "Pause New Reservations"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
+              
+              {/* Active Filter Indicator + Clear */}
+              {activeQuickFilter && (
+                <div className="flex items-center justify-between mt-2 px-2 py-1.5 rounded-md bg-neutral-800/50">
+                  <span className="text-neutral-300 text-xs">
+                    Showing: <span className="font-medium text-white">{activeQuickFilter.charAt(0).toUpperCase() + activeQuickFilter.slice(1)}</span>
+                    <span className="text-neutral-500 ml-1">({filteredReservations.length})</span>
+                  </span>
+                  <button 
+                    onClick={() => setActiveQuickFilter(null)}
+                    className="text-neutral-400 hover:text-white text-xs flex items-center gap-1"
+                  >
+                    <X className="w-3 h-3" />
+                    Clear
+                  </button>
+                </div>
+              )}
+              
+              {/* Paused Banner */}
+              {reservationsPaused && (
+                <div className="mt-2 px-3 py-1.5 rounded-md bg-red-500/15 border border-red-500/30 flex items-center justify-center gap-2">
+                  <PauseCircle className="w-3.5 h-3.5 text-red-400" />
+                  <span className="text-red-400 text-xs font-medium">New reservations paused</span>
+                </div>
+              )}
+            </TooltipProvider>
           </div>
           
           <ScrollArea className="flex-1">
@@ -1025,152 +1310,6 @@ const FullReservationsView = () => {
               )}
             </div>
           </ScrollArea>
-          
-          {/* Reservation Utility Bar - Sticky Bottom */}
-          <TooltipProvider delayDuration={200}>
-            <div className="flex-shrink-0 border-t border-neutral-800 bg-neutral-900/95 backdrop-blur-sm px-3 py-2">
-              <div className="flex items-center justify-between gap-1">
-                {/* Left: View Controls */}
-                <div className="flex items-center gap-1">
-                  {/* View / Group Toggle */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => setListViewMode(listViewMode === "grouped" ? "flat" : "grouped")}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                          listViewMode === "grouped" 
-                            ? "bg-neutral-800 text-white" 
-                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                        }`}
-                      >
-                        {listViewMode === "grouped" ? (
-                          <ListFilter className="w-4 h-4" />
-                        ) : (
-                          <List className="w-4 h-4" />
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>{listViewMode === "grouped" ? "Switch to Flat List" : "Switch to Time-Grouped"}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Waitlist Access */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="relative w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
-                        <ClipboardList className="w-4 h-4 text-neutral-400 group-hover:text-white" />
-                        {waitlistCount > 0 && (
-                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-[10px] font-bold text-black flex items-center justify-center">
-                            {waitlistCount}
-                          </span>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>Waitlist ({waitlistCount} guests)</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Alerts / Flags */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="relative w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
-                        <Flag className={`w-4 h-4 ${lateCount > 0 ? "text-red-400" : "text-neutral-400 group-hover:text-white"}`} />
-                        {(lateCount > 0 || unassignedCount > 0) && (
-                          <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center ${
-                            lateCount > 0 ? "bg-red-500 text-white" : "bg-amber-500 text-black"
-                          }`}>
-                            {lateCount + unassignedCount}
-                          </span>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
-                      <div className="space-y-1">
-                        <p className="font-medium">Alerts</p>
-                        {lateCount > 0 && <p className="text-red-400 text-xs">{lateCount} Late guests</p>}
-                        {unassignedCount > 0 && <p className="text-amber-400 text-xs">{unassignedCount} Unassigned</p>}
-                        {lateCount === 0 && unassignedCount === 0 && <p className="text-neutral-400 text-xs">No alerts</p>}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                
-                {/* Center: Quick Actions */}
-                <div className="flex items-center gap-1">
-                  {/* Jump to Floor */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => setSelectedReservation(null)}
-                        className="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group"
-                      >
-                        <MapIcon className="w-4 h-4 text-neutral-400 group-hover:text-white" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>Jump to Floor Map</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Guest Communication */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
-                        <Send className="w-4 h-4 text-neutral-400 group-hover:text-white" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>Message Guests</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                
-                {/* Right: Manager Controls */}
-                <div className="flex items-center gap-1">
-                  {/* Reservation Control - Pause/Resume */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => {
-                          setReservationsPaused(!reservationsPaused);
-                          toast({
-                            title: reservationsPaused ? "Reservations Resumed" : "Reservations Paused",
-                            description: reservationsPaused 
-                              ? "New reservations are now being accepted" 
-                              : "New reservations are temporarily disabled",
-                          });
-                        }}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                          reservationsPaused 
-                            ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" 
-                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                        }`}
-                      >
-                        {reservationsPaused ? (
-                          <PlayCircle className="w-4 h-4" />
-                        ) : (
-                          <PauseCircle className="w-4 h-4" />
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>{reservationsPaused ? "Resume Reservations" : "Pause New Reservations"}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </div>
-              
-              {/* Paused Banner */}
-              {reservationsPaused && (
-                <div className="mt-2 px-3 py-1.5 rounded-md bg-red-500/15 border border-red-500/30 flex items-center justify-center gap-2">
-                  <PauseCircle className="w-3.5 h-3.5 text-red-400" />
-                  <span className="text-red-400 text-xs font-medium">New reservations paused</span>
-                </div>
-              )}
-            </div>
-          </TooltipProvider>
         </div>
 
         {/* Right Column: Table Map or Reservation Details */}

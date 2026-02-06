@@ -1068,7 +1068,7 @@ const TableOrderDetails = () => {
       {/* Guest Orders List */}
       <ScrollArea className="flex-1 px-3">
         <div className="space-y-2 pb-3">
-          {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-2">
+          {filteredGuestOrders.map((guest, guestIndex) => <div key={guest.id} className="space-y-2">
               {/* Merged Order Indicator - Destination */}
               {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
                   <span className="text-xs font-medium">
@@ -1082,7 +1082,26 @@ const TableOrderDetails = () => {
                   </span>
                 </div>}
               
-              <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
+              {/* Transferred Items Indicator (Destination - receiving items) */}
+              {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
+                (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable && transferredOrderId)) && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
+                  <span className="text-xs font-medium">
+                    {transferType === 'full' ? (
+                      <>
+                        <span style={{ color: '#8AC4FF' }}>Order transferred from</span>{" "}
+                        <span className="text-white">{formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                      </>
+                    ) : (
+                      <>
+                        <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
+                        <span className="text-white">{transferredItemNames.length} item(s)</span>{" "}
+                        <span style={{ color: '#8AC4FF' }}>from</span>{" "}
+                        <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                      </>
+                    )}
+                  </span>
+                </div>}
+              <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable)) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
               {/* Swipe Action Buttons (revealed on swipe left) */}
               {(guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed') ? (
                 /* Receipt and Register buttons for paid orders */
@@ -1382,7 +1401,7 @@ const TableOrderDetails = () => {
         {/* Guest Orders List */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
-            {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-2">
+            {filteredGuestOrders.map((guest, guestIndex) => <div key={guest.id} className="space-y-2">
                 {/* Merged Order Indicator - Destination */}
                 {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#392514]">
                     <span className="text-sm font-medium">
@@ -1395,8 +1414,11 @@ const TableOrderDetails = () => {
                       <span className="text-neutral-400">Merged</span> <span className="text-neutral-300">to Order {destOrderId}</span> <span className="text-neutral-400">on</span> <span className="text-neutral-300">{formatTableName(tableId || "")}{destOrderArea ? ` (${destOrderArea})` : ''}</span>
                     </span>
                   </div>}
-                {/* Transferred Items Indicator (Destination - receiving items) */}
-                {transferDestOrderId === guest.id && transferredFromTable && transferredOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
+{/* Transferred Items Indicator (Destination - receiving items) */}
+                {/* For full order transfer: show on first order when transferType is 'full' */}
+                {/* For partial transfer: show when transferDestOrderId matches */}
+                {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
+                  (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable && transferredOrderId)) && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
                       {transferType === 'full' ? (
                         <>
@@ -1422,7 +1444,7 @@ const TableOrderDetails = () => {
                       <span className="text-white">{formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || (transferDestOrderId === guest.id && transferredFromTable) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable)) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="hidden md:flex items-stretch">
@@ -2140,12 +2162,33 @@ const TableOrderDetails = () => {
         {/* Guest Orders List - Mobile-style cards */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
-            {filteredGuestOrders.map(guest => <div key={guest.id} className="space-y-2">
+            {filteredGuestOrders.map((guest, guestIndex) => <div key={guest.id} className="space-y-2">
                 {/* Merged Order Indicator */}
-                {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 bg-neutral-900 rounded-t-lg border-l-2 border-orange-500 flex items-center gap-1">
-                    <span className="text-orange-500 text-xs font-medium">Merged #{mergedOrderId} from {formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 bg-[#392514] rounded-t-xl">
+                    <span className="text-xs font-medium">
+                      <span style={{ color: '#FFC48A' }}>Merged</span> <span className="text-white">order {mergedOrderId}</span> <span style={{ color: '#FFC48A' }}>from</span> <span className="text-white">{formatTableName(mergedFromTable)}{mergedSourceArea ? ` (${mergedSourceArea})` : ''}</span>
+                    </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`${destOrderId === guest.id && mergedFromTable ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
+                {/* Transferred Items Indicator (Destination - receiving items) */}
+                {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
+                  (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable && transferredOrderId)) && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
+                    <span className="text-xs font-medium">
+                      {transferType === 'full' ? (
+                        <>
+                          <span style={{ color: '#8AC4FF' }}>Order transferred from</span>{" "}
+                          <span className="text-white">{formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
+                          <span className="text-white">{transferredItemNames.length} item(s)</span>{" "}
+                          <span style={{ color: '#8AC4FF' }}>from</span>{" "}
+                          <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                        </>
+                      )}
+                    </span>
+                  </div>}
+                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable)) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
                 <div className="flex items-stretch w-full bg-neutral-900">
                   {/* Left Content with padding */}
                   <div className="flex-1 flex items-stretch gap-2 p-2">

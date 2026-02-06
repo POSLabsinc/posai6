@@ -21,8 +21,10 @@ import {
   ChevronLeft, ChevronRight, Phone, FileText, CreditCard, 
   ArrowLeft, Armchair, Mail, Timer, Gift, Building, Globe,
   User, Hash, Utensils, Baby, Accessibility, Bell, StickyNote, MessageSquare,
-  ExternalLink, CheckCircle2, XCircle, Map as MapIcon, Grid, X
+  ExternalLink, CheckCircle2, XCircle, Map as MapIcon, Grid, X,
+  List, ListFilter, ClipboardList, Flag, PauseCircle, PlayCircle, Send
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { mockReservations, type Reservation } from "@/components/ReservationsPanel";
@@ -715,6 +717,13 @@ const FullReservationsView = () => {
   const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
   const [mapViewMode, setMapViewMode] = useState<"floorplan" | "grid">("floorplan");
   
+  // Utility bar state
+  const [listViewMode, setListViewMode] = useState<"grouped" | "flat">("grouped");
+  const [reservationsPaused, setReservationsPaused] = useState(false);
+  
+  // Mock waitlist count (would come from real data)
+  const waitlistCount = 3;
+  
   const currentHour = getCurrentHour();
   const isTodaySelected = isToday(selectedDate);
   
@@ -1016,6 +1025,152 @@ const FullReservationsView = () => {
               )}
             </div>
           </ScrollArea>
+          
+          {/* Reservation Utility Bar - Sticky Bottom */}
+          <TooltipProvider delayDuration={200}>
+            <div className="flex-shrink-0 border-t border-neutral-800 bg-neutral-900/95 backdrop-blur-sm px-3 py-2">
+              <div className="flex items-center justify-between gap-1">
+                {/* Left: View Controls */}
+                <div className="flex items-center gap-1">
+                  {/* View / Group Toggle */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => setListViewMode(listViewMode === "grouped" ? "flat" : "grouped")}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          listViewMode === "grouped" 
+                            ? "bg-neutral-800 text-white" 
+                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                        }`}
+                      >
+                        {listViewMode === "grouped" ? (
+                          <ListFilter className="w-4 h-4" />
+                        ) : (
+                          <List className="w-4 h-4" />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>{listViewMode === "grouped" ? "Switch to Flat List" : "Switch to Time-Grouped"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Waitlist Access */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="relative w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
+                        <ClipboardList className="w-4 h-4 text-neutral-400 group-hover:text-white" />
+                        {waitlistCount > 0 && (
+                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-[10px] font-bold text-black flex items-center justify-center">
+                            {waitlistCount}
+                          </span>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>Waitlist ({waitlistCount} guests)</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Alerts / Flags */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="relative w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
+                        <Flag className={`w-4 h-4 ${lateCount > 0 ? "text-red-400" : "text-neutral-400 group-hover:text-white"}`} />
+                        {(lateCount > 0 || unassignedCount > 0) && (
+                          <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                            lateCount > 0 ? "bg-red-500 text-white" : "bg-amber-500 text-black"
+                          }`}>
+                            {lateCount + unassignedCount}
+                          </span>
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
+                      <div className="space-y-1">
+                        <p className="font-medium">Alerts</p>
+                        {lateCount > 0 && <p className="text-red-400 text-xs">{lateCount} Late guests</p>}
+                        {unassignedCount > 0 && <p className="text-amber-400 text-xs">{unassignedCount} Unassigned</p>}
+                        {lateCount === 0 && unassignedCount === 0 && <p className="text-neutral-400 text-xs">No alerts</p>}
+                      </div>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                
+                {/* Center: Quick Actions */}
+                <div className="flex items-center gap-1">
+                  {/* Jump to Floor */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button 
+                        onClick={() => setSelectedReservation(null)}
+                        className="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group"
+                      >
+                        <MapIcon className="w-4 h-4 text-neutral-400 group-hover:text-white" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>Jump to Floor Map</p>
+                    </TooltipContent>
+                  </Tooltip>
+                  
+                  {/* Guest Communication */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button className="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
+                        <Send className="w-4 h-4 text-neutral-400 group-hover:text-white" />
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>Message Guests</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                
+                {/* Right: Manager Controls */}
+                <div className="flex items-center gap-1">
+                  {/* Reservation Control - Pause/Resume */}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button
+                        onClick={() => {
+                          setReservationsPaused(!reservationsPaused);
+                          toast({
+                            title: reservationsPaused ? "Reservations Resumed" : "Reservations Paused",
+                            description: reservationsPaused 
+                              ? "New reservations are now being accepted" 
+                              : "New reservations are temporarily disabled",
+                          });
+                        }}
+                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                          reservationsPaused 
+                            ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" 
+                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                        }`}
+                      >
+                        {reservationsPaused ? (
+                          <PlayCircle className="w-4 h-4" />
+                        ) : (
+                          <PauseCircle className="w-4 h-4" />
+                        )}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top" className="bg-neutral-800 text-white border-neutral-700">
+                      <p>{reservationsPaused ? "Resume Reservations" : "Pause New Reservations"}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              </div>
+              
+              {/* Paused Banner */}
+              {reservationsPaused && (
+                <div className="mt-2 px-3 py-1.5 rounded-md bg-red-500/15 border border-red-500/30 flex items-center justify-center gap-2">
+                  <PauseCircle className="w-3.5 h-3.5 text-red-400" />
+                  <span className="text-red-400 text-xs font-medium">New reservations paused</span>
+                </div>
+              )}
+            </div>
+          </TooltipProvider>
         </div>
 
         {/* Right Column: Table Map or Reservation Details */}

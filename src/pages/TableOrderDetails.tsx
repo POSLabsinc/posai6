@@ -1398,7 +1398,19 @@ const TableOrderDetails = () => {
                 {/* Transferred Items Indicator (Destination - receiving items) */}
                 {transferDestOrderId === guest.id && transferredFromTable && transferredOrderId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#8AC4FF' }}>Transferred</span> <span className="text-white">{transferredItemNames.length} item(s)</span> <span style={{ color: '#8AC4FF' }}>from</span> <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                      {transferType === 'full' ? (
+                        <>
+                          <span style={{ color: '#8AC4FF' }}>Order transferred from</span>{" "}
+                          <span className="text-white">{formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
+                          <span className="text-white">{transferredItemNames.length} item(s)</span>{" "}
+                          <span style={{ color: '#8AC4FF' }}>from</span>{" "}
+                          <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                        </>
+                      )}
                     </span>
                   </div>}
                 {/* Transferred OUT Indicator (Source - sending items out) */}

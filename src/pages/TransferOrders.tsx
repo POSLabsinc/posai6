@@ -5,12 +5,14 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import OrderSummary from "@/components/OrderSummary";
 import { getOrderStatusColor, formatPrice, formatTableName } from "@/lib/orderUtils";
 import { Order, allOrders, getOrderById, getAvailableOrdersForTransfer, calculateOrderTotals, getOrderAmount, toOrderTemplateData } from "@/data/orders";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
+import { toast } from "sonner";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -23,8 +25,72 @@ import dineInIcon from "@/assets/icons/dine-in.png";
 import runnerIcon from "@/assets/icons/runner.png";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import saveIcon from "@/assets/icons/save.png";
+
+// Table status configurations (reusing from TableOrder)
+const statusConfig: Record<string, { color: string; bgColor: string; label: string }> = {
+  "Available": { color: "text-white", bgColor: "bg-neutral-700", label: "Available" },
+  "Ordering": { color: "text-yellow-400", bgColor: "bg-neutral-800", label: "Ordering" },
+  "Ordered": { color: "text-orange-500", bgColor: "bg-neutral-800", label: "Ordered" },
+  "Reserved": { color: "text-gray-400", bgColor: "bg-neutral-800", label: "Reserved" },
+  "Seated": { color: "text-gray-300", bgColor: "bg-neutral-800", label: "Seated" },
+  "Running Late": { color: "text-red-400", bgColor: "bg-neutral-800", label: "Late" },
+  "1st Course": { color: "text-purple-400", bgColor: "bg-neutral-800", label: "1st Course" },
+  "2nd Course": { color: "text-yellow-400", bgColor: "bg-neutral-800", label: "2nd Course" },
+  "3rd Course": { color: "text-orange-500", bgColor: "bg-neutral-800", label: "3rd Course" },
+  "Dessert": { color: "text-pink-400", bgColor: "bg-neutral-800", label: "Dessert" },
+  "Partially Seated": { color: "text-green-400", bgColor: "bg-neutral-800", label: "Partial" },
+  "Served": { color: "text-blue-400", bgColor: "bg-neutral-800", label: "Served" },
+  "Paid": { color: "text-emerald-400", bgColor: "bg-neutral-800", label: "Paid" },
+  "Ready": { color: "text-emerald-400", bgColor: "bg-neutral-800", label: "Ready" },
+};
+
+// Seat dot colors based on status
+const getSeatDotColor = (status: string): string => {
+  switch (status) {
+    case "Available": return "bg-green-500";
+    case "Ordering": return "bg-red-500";
+    case "Ordered": return "bg-orange-500";
+    case "Reserved": return "bg-gray-500";
+    case "Seated": return "bg-gray-400";
+    case "Running Late": return "bg-red-500";
+    case "1st Course": return "bg-purple-500";
+    case "2nd Course": return "bg-yellow-500";
+    case "3rd Course": return "bg-orange-500";
+    case "Dessert": return "bg-pink-500";
+    case "Partially Seated": return "bg-green-500";
+    case "Served": return "bg-blue-500";
+    case "Paid": return "bg-emerald-500";
+    case "Ready": return "bg-emerald-500";
+    default: return "bg-gray-500";
+  }
+};
+
+// Table type for grid display
+type TableType = {
+  id: string;
+  seats: number;
+  status: string;
+  time: string;
+};
+
+// Default table data for selection grid
+const defaultTables: TableType[] = [
+  { id: "T1", seats: 8, status: "Available", time: "" },
+  { id: "T2", seats: 5, status: "Ordering", time: "25M" },
+  { id: "T3", seats: 4, status: "Ordered", time: "2H 25M" },
+  { id: "T4", seats: 3, status: "Reserved", time: "2H 25M" },
+  { id: "T5", seats: 4, status: "Seated", time: "25M" },
+  { id: "T6", seats: 2, status: "Running Late", time: "45M" },
+  { id: "T7", seats: 5, status: "1st Course", time: "12M" },
+  { id: "T8", seats: 4, status: "Ready", time: "13M" },
+  { id: "T9", seats: 3, status: "3rd Course", time: "14M" },
+  { id: "T10", seats: 4, status: "Dessert", time: "16M" },
+  { id: "T11", seats: 5, status: "Partially Seated", time: "18M" },
+  { id: "T12", seats: 5, status: "Served", time: "36M" },
+];
+
 const transferFilters = ["All", "Ordering", "Ordered", "Preparing"];
-type TransferStep = "select-items" | "select-target" | "confirm-direction";
+type TransferStep = "select-items" | "select-target" | "confirm-direction" | "select-table";
 const TransferOrders = () => {
   const navigate = useNavigate();
   const {
@@ -35,7 +101,8 @@ const TransferOrders = () => {
   const transferType = searchParams.get("transferType"); // 'entire' for full order transfer
   const isEntireOrderTransfer = transferType === "entire";
   
-  const [step, setStep] = useState<TransferStep>(isEntireOrderTransfer ? "select-target" : "select-items");
+  // For entire order transfer, start with table selection step
+  const [step, setStep] = useState<TransferStep>(isEntireOrderTransfer ? "select-table" : "select-items");
   const [activeFilter, setActiveFilter] = useState("All");
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [itemQuantities, setItemQuantities] = useState<Record<number, number>>({});
@@ -47,13 +114,17 @@ const TransferOrders = () => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isConfirmDialogOpen, setIsConfirmDialogOpen] = useState(false);
-  const [showTargetSheet, setShowTargetSheet] = useState(isEntireOrderTransfer); // Auto-show target sheet for entire order transfer
+  const [showTargetSheet, setShowTargetSheet] = useState(false);
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [displayedOrder, setDisplayedOrder] = useState<Order | null>(null);
-  const [desktopStep, setDesktopStep] = useState<"select-items" | "select-target">(isEntireOrderTransfer ? "select-target" : "select-items");
+  const [desktopStep, setDesktopStep] = useState<"select-items" | "select-target" | "select-table">(isEntireOrderTransfer ? "select-table" : "select-items");
   const [orderNotes, setOrderNotes] = useState("");
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
   const [isEntireOrderConfirmOpen, setIsEntireOrderConfirmOpen] = useState(false);
+  
+  // New state for table selection
+  const [selectedTargetTable, setSelectedTargetTable] = useState<string | null>(null);
+  const [showTableConfirmDialog, setShowTableConfirmDialog] = useState(false);
 
   // Get the current order being transferred from
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
@@ -147,12 +218,15 @@ const TransferOrders = () => {
   const handleBack = () => {
     if (step === "confirm-direction") {
       if (isEntireOrderTransfer) {
-        // For entire order, go back to target selection
-        setShowTargetSheet(true);
+        // For entire order, go back to table selection
+        setStep("select-table");
+        setSelectedTargetTable(null);
       } else {
         setStep("select-items");
       }
       setTargetOrder(null);
+    } else if (step === "select-table") {
+      navigate(`/tableorder/${tableId}`);
     } else {
       navigate(`/tableorder/${tableId}`);
     }
@@ -161,6 +235,48 @@ const TransferOrders = () => {
   const handleEntireOrderConfirm = () => {
     setIsEntireOrderConfirmOpen(false);
     setIsSuccessDialogOpen(true);
+  };
+
+  // Handle table selection for entire order transfer
+  const handleTableSelect = (selectedTable: string) => {
+    setSelectedTargetTable(selectedTable);
+  };
+
+  // Handle confirm transfer to table
+  const handleConfirmTableTransfer = () => {
+    if (!selectedTargetTable) return;
+    setShowTableConfirmDialog(true);
+  };
+
+  // Execute the actual transfer to table
+  const executeTableTransfer = () => {
+    if (!selectedTargetTable) return;
+    
+    setShowTableConfirmDialog(false);
+    
+    // Show success toast
+    toast.success(`Order transferred successfully to ${formatTableName(selectedTargetTable)}`);
+    
+    // Navigate to destination table after a short delay
+    setTimeout(() => {
+      const itemNames = currentOrder.items.map(item => item.name).join(',');
+      const transferParams = new URLSearchParams({
+        transferred: currentOrder.id,
+        transferFrom: currentOrder.table,
+        transferDest: currentOrder.id,
+        items: itemNames,
+        transferSource: currentOrder.id,
+        transferType: 'full',
+        transferredTo: currentOrder.id,
+        transferToTable: selectedTargetTable.replace('T', '')
+      });
+      navigate(`/tableorder/${selectedTargetTable}?${transferParams.toString()}`);
+    }, 1500);
+  };
+
+  // Get tables for selection (exclude current table)
+  const getAvailableTables = () => {
+    return defaultTables.filter(table => table.id !== tableId);
   };
 
   // Calculate order totals using centralized function
@@ -661,6 +777,97 @@ const TransferOrders = () => {
       <div className="flex-1" />
     </div>;
 
+  // Mobile Table Selection View for entire order transfer
+  const MobileTableSelectionView = () => {
+    const availableTables = getAvailableTables();
+    
+    return (
+      <div className="flex flex-col h-full">
+        {/* Header */}
+        <div className="relative flex items-center justify-between p-4">
+          <button onClick={handleBack} className="w-10 h-10 rounded-full flex items-center justify-center z-10" style={{
+            background: "#7575754D",
+            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+          }}>
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+          
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-medium">Select Table</h1>
+          
+          <div className="w-10" />
+        </div>
+
+        {/* Current Order Summary */}
+        <div className="px-4 pb-3">
+          <div className="px-3 py-2 rounded-lg bg-neutral-800 border border-white/10">
+            <p className="text-white/60 text-xs mb-1">Transferring from</p>
+            <div className="flex items-center justify-between">
+              <span className="text-white font-medium">Order #{currentOrder.id} · {formatTableName(currentOrder.table)}</span>
+              <span className="text-white/60 text-sm">{currentOrder.items.length} items</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Table Grid */}
+        <ScrollArea className="flex-1 px-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 pb-24 pt-2">
+            {availableTables.map((table) => {
+              const config = statusConfig[table.status] || statusConfig["Available"];
+              const dotColor = getSeatDotColor(table.status);
+              const isSelected = selectedTargetTable === table.id;
+              const isCurrentTable = table.id === tableId;
+              
+              return (
+                <div
+                  key={table.id}
+                  onClick={() => !isCurrentTable && handleTableSelect(table.id)}
+                  className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer transition-all border-2 ${
+                    isCurrentTable
+                      ? "opacity-40 cursor-not-allowed border-neutral-800"
+                      : isSelected 
+                        ? "border-orange-500 ring-2 ring-orange-500/30" 
+                        : "border-neutral-800 hover:bg-neutral-800"
+                  }`}
+                >
+                  {/* Table Number */}
+                  <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
+                  
+                  {/* Seats */}
+                  <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
+                  
+                  {/* Seat Dots */}
+                  <div className="flex gap-1 mb-2">
+                    {Array.from({ length: Math.min(table.seats, 6) }).map((_, i) => (
+                      <div key={i} className={`w-2 h-2 flex-shrink-0 rounded-full ${dotColor}`} />
+                    ))}
+                    {table.seats > 6 && <span className="text-xs text-gray-500">+{table.seats - 6}</span>}
+                  </div>
+                  
+                  <div className="mt-auto w-full">
+                    {/* Time */}
+                    <div className="flex justify-end mb-1 min-h-[1rem] px-1">
+                      {table.time && (
+                        <span className="text-gray-500 text-xs">{table.time}</span>
+                      )}
+                    </div>
+                    
+                    {/* Status Label */}
+                    <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
+                      <span className={`text-xs font-medium ${config.color}`}>
+                        {isCurrentTable ? "Current" : table.status}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+      </div>
+    );
+  };
+
   // Right panel - Order details (Desktop)
   const OrderDetailsPanel = () => <div className="w-[345px] flex flex-col mb-2 mr-2">
       {/* Guest Header - Outside the box */}
@@ -974,30 +1181,36 @@ const TransferOrders = () => {
     </div>;
 
   // Desktop layout
-  const DesktopLayout = () => <div className="h-full w-full flex bg-black">
-      {/* Left Panel */}
-      <div className="flex-1 flex flex-col mx-2 mb-2 rounded-[20px] overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
-          <div className="flex items-center gap-3">
-            <button onClick={() => {
-            if (desktopStep === "select-target") {
-              setDesktopStep("select-items");
-              setTargetOrder(null);
-            } else {
-              handleBack();
-            }
-          }} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}>
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
-            <h1 className="text-white text-lg font-semibold">
-              {desktopStep === "select-items" ? "Transfer Check" : "Select Target Check"}
-            </h1>
+  const DesktopLayout = () => {
+    const availableTables = getAvailableTables();
+    
+    return (
+      <div className="h-full w-full flex bg-black">
+        {/* Left Panel */}
+        <div className="flex-1 flex flex-col mx-2 mb-2 rounded-[20px] overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
+            <div className="flex items-center gap-3">
+              <button onClick={() => {
+                if (desktopStep === "select-target") {
+                  setDesktopStep("select-items");
+                  setTargetOrder(null);
+                } else if (desktopStep === "select-table") {
+                  handleBack();
+                } else {
+                  handleBack();
+                }
+              }} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+                background: "#7575754D",
+                boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+              }}>
+                <ChevronLeft className="w-5 h-5 text-white" />
+              </button>
+              <h1 className="text-white text-lg font-semibold">
+                {desktopStep === "select-items" ? "Transfer Check" : desktopStep === "select-table" ? "Select Table" : "Select Target Check"}
+              </h1>
+            </div>
           </div>
-        </div>
 
         {/* Step 1: Select Items */}
         {desktopStep === "select-items" && <>
@@ -1155,11 +1368,106 @@ const TransferOrders = () => {
                 </button>
               </div>}
           </>}
+
+        {/* Step 3: Select Table (for entire order transfer) */}
+        {desktopStep === "select-table" && <>
+            {/* Current Order Summary */}
+            <div className="px-3 py-3">
+              <div className="px-3 py-2 rounded-lg bg-neutral-800 border border-white/10">
+                <p className="text-white/60 text-xs mb-1">Transferring from</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-white font-medium">Order #{currentOrder.id} · {formatTableName(currentOrder.table)}</span>
+                  <span className="text-white/60 text-sm">{currentOrder.items.length} items</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Table Grid */}
+            <ScrollArea className="flex-1 px-3">
+              <div className="grid grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 pb-3 pt-2">
+                {availableTables.map((table) => {
+                  const config = statusConfig[table.status] || statusConfig["Available"];
+                  const dotColor = getSeatDotColor(table.status);
+                  const isSelected = selectedTargetTable === table.id;
+                  const isCurrentTable = table.id === tableId;
+                  
+                  return (
+                    <div
+                      key={table.id}
+                      onClick={() => !isCurrentTable && handleTableSelect(table.id)}
+                      className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer transition-all border-2 ${
+                        isCurrentTable
+                          ? "opacity-40 cursor-not-allowed border-neutral-800"
+                          : isSelected 
+                            ? "border-orange-500 ring-2 ring-orange-500/30" 
+                            : "border-neutral-800 hover:bg-neutral-800"
+                      }`}
+                    >
+                      {/* Table Number */}
+                      <span className="text-2xl font-bold text-white mb-1">{table.id}</span>
+                      
+                      {/* Seats */}
+                      <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
+                      
+                      {/* Seat Dots */}
+                      <div className="flex gap-1 mb-2">
+                        {Array.from({ length: Math.min(table.seats, 6) }).map((_, i) => (
+                          <div key={i} className={`w-2 h-2 flex-shrink-0 rounded-full ${dotColor}`} />
+                        ))}
+                        {table.seats > 6 && <span className="text-xs text-gray-500">+{table.seats - 6}</span>}
+                      </div>
+                      
+                      <div className="mt-auto w-full">
+                        {/* Time */}
+                        <div className="flex justify-end mb-1 min-h-[1rem] px-1">
+                          {table.time && (
+                            <span className="text-gray-500 text-xs">{table.time}</span>
+                          )}
+                        </div>
+                        
+                        {/* Status Label */}
+                        <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
+                          <span className={`text-xs font-medium ${config.color}`}>
+                            {isCurrentTable ? "Current" : table.status}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <ScrollBar orientation="vertical" />
+            </ScrollArea>
+
+            {/* Confirm Button */}
+            <div className="p-3 border-t border-white/10 flex gap-3">
+              <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
+                CANCEL
+              </button>
+              <button 
+                onClick={handleConfirmTableTransfer} 
+                disabled={!selectedTargetTable}
+                className={`flex-1 py-2 rounded-full font-medium text-sm ${
+                  selectedTargetTable 
+                    ? "text-black" 
+                    : "text-white/40 bg-white/10"
+                }`} 
+                style={selectedTargetTable ? {
+                  background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+                } : undefined}
+              >
+                CONFIRM TRANSFER TO {selectedTargetTable ? formatTableName(selectedTargetTable).toUpperCase() : 'TABLE'}
+              </button>
+            </div>
+          </>}
       </div>
 
       {/* Right Panel - Order Details */}
       <OrderDetailsPanel />
-    </div>;
+    </div>
+  );
+  };
+  
   return <div className="h-full flex flex-col bg-black">
       {/* Desktop Layout */}
       <div className="hidden lg:flex h-full w-full">
@@ -1170,6 +1478,7 @@ const TransferOrders = () => {
       <div className="flex flex-col flex-1 min-h-0 lg:hidden overflow-hidden">
         {step === "select-items" && <MobileSelectItemsView />}
         {step === "confirm-direction" && <ConfirmDirectionView />}
+        {step === "select-table" && <MobileTableSelectionView />}
       </div>
 
       {/* Select Check Button - Fixed above bottom nav (Mobile) */}
@@ -1195,6 +1504,53 @@ const TransferOrders = () => {
             CONFIRM TRANSFER
           </button>
         </div>}
+
+      {/* Table Selection CTAs - Fixed above bottom nav (Mobile) */}
+      {step === "select-table" && <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
+          <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
+            CANCEL
+          </button>
+          <button 
+            onClick={handleConfirmTableTransfer} 
+            disabled={!selectedTargetTable}
+            className={`flex-1 py-2 rounded-full font-medium text-sm ${
+              selectedTargetTable 
+                ? "text-black" 
+                : "text-white/40 bg-white/10"
+            }`} 
+            style={selectedTargetTable ? {
+              background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
+            } : undefined}
+          >
+            CONFIRM TRANSFER
+          </button>
+        </div>}
+
+      {/* Table Transfer Confirmation Dialog */}
+      <AlertDialog open={showTableConfirmDialog} onOpenChange={setShowTableConfirmDialog}>
+        <AlertDialogContent className="bg-neutral-900 border-white/10">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-white">Transfer Entire Order?</AlertDialogTitle>
+            <AlertDialogDescription className="text-white/60">
+              Are you sure you want to transfer this entire order to {formatTableName(selectedTargetTable || '')}?
+              <br /><br />
+              All items, modifiers, notes, discounts, and charges will be moved together.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-neutral-800 text-white border-none hover:bg-neutral-700">
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={executeTableTransfer}
+              className="text-black"
+              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+            >
+              Confirm
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Desktop Confirmation Dialog */}
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>

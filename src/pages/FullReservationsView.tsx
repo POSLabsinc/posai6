@@ -30,10 +30,12 @@ import { EditReservationDialog } from "@/components/EditReservationDialog";
 import TableMapPanel from "@/components/TableMapPanel";
 
 // Status configurations
-const statusConfig = {
+const statusConfig: Record<string, { bg: string; text: string; border: string; label: string; dot: string }> = {
   upcoming: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/30", label: "Upcoming", dot: "bg-blue-500" },
   seated: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/30", label: "Seated", dot: "bg-emerald-500" },
   late: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/30", label: "Late", dot: "bg-red-500" },
+  booked: { bg: "bg-teal-500/10", text: "text-teal-400", border: "border-teal-500/30", label: "Booked", dot: "bg-teal-500" },
+  completed: { bg: "bg-neutral-500/10", text: "text-neutral-400", border: "border-neutral-500/30", label: "Completed", dot: "bg-neutral-500" },
 };
 
 // Parse time string to get hour for grouping
@@ -91,7 +93,7 @@ const getDateLabel = (date: Date): string => {
   return format(date, "EEE, MMM d");
 };
 
-// Compact Reservation Card for Timeline
+// Compact Reservation Card for Timeline with At-a-Glance Icons
 const ReservationCard = ({
   reservation,
   isSelected,
@@ -101,8 +103,15 @@ const ReservationCard = ({
   isSelected: boolean;
   onReservationClick: (reservation: Reservation) => void;
 }) => {
-  const config = statusConfig[reservation.status];
+  const config = statusConfig[reservation.status] || statusConfig.upcoming;
   const isUnassigned = !reservation.tableId;
+  
+  // Determine which icons to show
+  const hasOccasion = !!reservation.occasion;
+  const isVIP = reservation.isVIP || reservation.relationshipTags?.includes("VIP");
+  const hasMessage = !!reservation.guestMessage;
+  const hasNotes = !!(reservation.notes || reservation.guestNotes || reservation.visitNotes);
+  const hasDeposit = reservation.depositPaid || reservation.depositRequested;
   
   return (
     <div
@@ -117,39 +126,83 @@ const ReservationCard = ({
               : "border-neutral-700/50 bg-neutral-800/30"
       }`}
     >
-      {/* Single Row Layout */}
-      <div className="flex items-center gap-2">
-        {/* Status Dot - color communicates status */}
-        <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${config.dot} ${
-          reservation.status === "late" ? "animate-pulse" : ""
-        }`} />
-        
-        {/* Guest Name */}
-        <span className="text-white text-sm font-medium truncate flex-1 min-w-0">
-          {reservation.guestName}
-        </span>
-        
-        {/* Time */}
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <Clock className="w-3 h-3 text-neutral-500" />
-          <span className="text-neutral-300 text-xs">{reservation.time}</span>
+      {/* Two Row Layout */}
+      <div className="flex flex-col gap-1.5">
+        {/* Row 1: Status, Name, Time, Party, Table */}
+        <div className="flex items-center gap-2">
+          {/* Status Dot - color communicates status */}
+          <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${config.dot} ${
+            reservation.status === "late" ? "animate-pulse" : ""
+          }`} />
+          
+          {/* Guest Name */}
+          <span className="text-white text-sm font-medium truncate flex-1 min-w-0">
+            {reservation.guestName}
+          </span>
+          
+          {/* Time */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Clock className="w-3 h-3 text-neutral-500" />
+            <span className="text-neutral-300 text-xs">{reservation.time}</span>
+          </div>
+          
+          {/* Party Size */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <Users className="w-3 h-3 text-neutral-500" />
+            <span className="text-neutral-300 text-xs">{reservation.partySize}</span>
+          </div>
+          
+          {/* Table */}
+          <div className="flex items-center gap-1 flex-shrink-0">
+            <MapPin className="w-3 h-3 text-neutral-500" />
+            {reservation.tableId ? (
+              <span className="text-neutral-300 text-xs font-medium">{reservation.tableId}</span>
+            ) : (
+              <span className="text-amber-400 text-xs font-semibold">—</span>
+            )}
+          </div>
         </div>
         
-        {/* Party Size */}
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <Users className="w-3 h-3 text-neutral-500" />
-          <span className="text-neutral-300 text-xs">{reservation.partySize}</span>
-        </div>
-        
-        {/* Table */}
-        <div className="flex items-center gap-1 flex-shrink-0">
-          <MapPin className="w-3 h-3 text-neutral-500" />
-          {reservation.tableId ? (
-            <span className="text-neutral-300 text-xs font-medium">{reservation.tableId}</span>
-          ) : (
-            <span className="text-amber-400 text-xs font-semibold">—</span>
-          )}
-        </div>
+        {/* Row 2: At-a-Glance Icons (only if any exist) */}
+        {(hasOccasion || isVIP || hasMessage || hasNotes || hasDeposit) && (
+          <div className="flex items-center gap-2 pl-4">
+            {/* Occasion Icon */}
+            {hasOccasion && (
+              <div className="flex items-center gap-1" title={reservation.occasion}>
+                <Gift className="w-3 h-3 text-pink-400" />
+                <span className="text-pink-400 text-[10px] font-medium">{reservation.occasion}</span>
+              </div>
+            )}
+            
+            {/* VIP / Relationship Icon */}
+            {isVIP && (
+              <div className="flex items-center" title="VIP Guest">
+                <span className="text-amber-400 text-sm">⭐</span>
+              </div>
+            )}
+            
+            {/* Guest Message Icon */}
+            {hasMessage && (
+              <div className="flex items-center" title="Guest message">
+                <FileText className="w-3 h-3 text-blue-400" />
+              </div>
+            )}
+            
+            {/* Notes Icon */}
+            {hasNotes && !hasMessage && (
+              <div className="flex items-center" title="Has notes">
+                <FileText className="w-3 h-3 text-neutral-400" />
+              </div>
+            )}
+            
+            {/* Deposit Icon */}
+            {hasDeposit && (
+              <div className="flex items-center" title={reservation.depositPaid ? `Deposit paid: $${reservation.depositAmount}` : "Deposit requested"}>
+                <CreditCard className={`w-3 h-3 ${reservation.depositPaid ? "text-emerald-400" : "text-amber-400"}`} />
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -211,7 +264,7 @@ const BooleanFieldRow = ({
   </div>
 );
 
-// Reservation Details Panel with Tabs
+// OpenTable-Parity Reservation Details Panel
 const ReservationDetailsPanel = ({
   reservation,
   availableTables,
@@ -229,330 +282,287 @@ const ReservationDetailsPanel = ({
   onCancelReservation: (reservation: Reservation) => void;
   onClose: () => void;
 }) => {
-  const config = statusConfig[reservation.status];
-  const formattedDate = format(reservation.date, "EEEE, MMMM d, yyyy");
-
+  const config = statusConfig[reservation.status] || statusConfig.upcoming;
+  const isVIP = reservation.isVIP || reservation.relationshipTags?.includes("VIP");
+  
   return (
     <div className="h-full flex flex-col bg-neutral-900">
-      {/* Header - Row 1: Guest Name (matches left panel Date Navigation Row height) */}
-      <div className="px-6 py-3">
-        <div className="flex items-center gap-3">
-          <div className="flex-1">
-            <h3 className="text-white text-lg font-semibold">{reservation.guestName}</h3>
-            <p className="text-neutral-500 text-sm">{reservation.time} • {getDateLabel(reservation.date)}</p>
+      {/* Top Section: Core Info Bar (Time, Party, Duration) */}
+      <div className="px-6 pt-4 pb-3 border-b border-neutral-800">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 text-white text-sm">
+            <Clock className="w-4 h-4 text-neutral-400" />
+            <span>{reservation.time}</span>
           </div>
-          <Badge 
-            variant="outline" 
-            className={`${config.bg} ${config.text} border-0 text-xs`}
-          >
-            {config.label}
-          </Badge>
-          <button
-            onClick={onClose}
-            className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
-          >
-            <X className="w-4 h-4 text-neutral-400" />
-          </button>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 text-white text-sm">
+            <Users className="w-4 h-4 text-neutral-400" />
+            <span>{reservation.partySize}</span>
+          </div>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 text-white text-sm">
+            <Timer className="w-4 h-4 text-neutral-400" />
+            <span>{reservation.duration || "2h 00m"}</span>
+          </div>
+          <div className="ml-auto">
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+            >
+              <X className="w-4 h-4 text-neutral-400" />
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Tabs - Row 2: matches left panel Status Indicators Row, with border-b to align */}
-      <Tabs defaultValue="guest-info" className="flex-1 flex flex-col overflow-hidden">
-        <TabsList className="w-full justify-start rounded-none border-b border-neutral-800 bg-transparent h-auto p-0 px-6">
-          <TabsTrigger 
-            value="guest-info" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-2 text-sm"
-          >
-            Guest Info
-          </TabsTrigger>
-          <TabsTrigger 
-            value="sitting" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-2 text-sm"
-          >
-            Sitting
-          </TabsTrigger>
-          <TabsTrigger 
-            value="payment" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-2 text-sm"
-          >
-            Payment
-          </TabsTrigger>
-          <TabsTrigger 
-            value="other" 
-            className="rounded-none border-b-2 border-transparent data-[state=active]:border-orange-500 data-[state=active]:bg-transparent data-[state=active]:text-white text-neutral-400 px-4 py-2 text-sm"
-          >
-            Other
-          </TabsTrigger>
-        </TabsList>
-
-        <ScrollArea className="flex-1">
-          {/* Guest Info Tab */}
-          <TabsContent value="guest-info" className="mt-0 p-6 space-y-4">
-            <div className="bg-neutral-800/50 rounded-lg p-4 divide-y divide-neutral-700/50">
-              <FieldRow 
-                icon={User} 
-                label="Guest Name (First)" 
-                value={reservation.firstName} 
-              />
-              <FieldRow 
-                icon={User} 
-                label="Guest Name (Last)" 
-                value={reservation.lastName} 
-              />
-              <FieldRow 
-                icon={Mail} 
-                label="Email" 
-                value={reservation.email} 
-              />
-              <FieldRow 
-                icon={Phone} 
-                label="Phone Number" 
-                value={reservation.phone} 
-              />
-              <FieldRow 
-                icon={Users} 
-                label="Guest Count (Party Size)" 
-                value={reservation.partySize ? `${reservation.partySize} guests` : undefined} 
-              />
-              <FieldRow 
-                icon={CalendarIcon} 
-                label="Reservation Date & Time" 
-                value={`${formattedDate} at ${reservation.time}`} 
-              />
-              <FieldRow 
-                icon={Timer} 
-                label="Duration" 
-                value={reservation.duration} 
-              />
-              <FieldRow 
-                icon={Gift} 
-                label="Occasion" 
-                value={reservation.occasion} 
-              />
-              <FieldRow 
-                icon={StickyNote} 
-                label="Guest Notes" 
-                value={reservation.guestNotes} 
-              />
+      <ScrollArea className="flex-1">
+        <div className="p-6 space-y-5">
+          {/* Guest Identity Section */}
+          <div className="flex items-start gap-4">
+            {/* Avatar */}
+            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-700 flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-xl font-semibold">
+                {reservation.guestName.charAt(0)}
+              </span>
             </div>
-          </TabsContent>
-
-          {/* Sitting Tab */}
-          <TabsContent value="sitting" className="mt-0 p-6 space-y-4">
-            <div className="bg-neutral-800/50 rounded-lg p-4 divide-y divide-neutral-700/50">
-              <FieldRow 
-                icon={Building} 
-                label="Floor" 
-                value={reservation.floor} 
-              />
-              <FieldRow 
-                icon={MapPin} 
-                label="Area / Service Area" 
-                value={reservation.area} 
-              />
-              <div className="py-2">
-                <div className="flex items-start gap-3">
-                  <Armchair className="w-4 h-4 text-neutral-500 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-neutral-500 text-xs uppercase tracking-wide mb-0.5">Assigned Table(s)</p>
-                    {reservation.tableId ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-white text-sm font-medium">Table {reservation.tableId}</span>
-                        <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-xs">Assigned</Badge>
-                      </div>
-                    ) : (
-                      <div className="space-y-3">
-                        <div className="flex items-center gap-2">
-                          <AlertCircle className="w-4 h-4 text-amber-400" />
-                          <span className="text-amber-400 text-sm font-medium">Unassigned</span>
-                        </div>
-                        {availableTables.length > 0 && (
-                          <div className="flex flex-wrap gap-2 pt-2 border-t border-neutral-700">
-                            <span className="text-neutral-500 text-xs w-full mb-1">Quick Assign:</span>
-                            {availableTables.map((table) => (
-                              <button
-                                key={table.id}
-                                onClick={() => onAssignTable(reservation.id, table.id)}
-                                className="px-4 py-2 rounded-lg bg-neutral-700 hover:bg-amber-500 text-white text-sm font-medium transition-colors"
-                              >
-                                {table.id} ({table.seats} seats)
-                              </button>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
+            
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-2">
+                {isVIP && <span className="text-amber-400 text-lg">⭐</span>}
+                <h3 className="text-white text-xl font-semibold truncate">
+                  {reservation.guestName}
+                </h3>
+                <button className="p-1 hover:bg-neutral-800 rounded transition-colors">
+                  <FileText className="w-4 h-4 text-neutral-500" />
+                </button>
               </div>
-            </div>
-          </TabsContent>
-
-          {/* Payment Tab */}
-          <TabsContent value="payment" className="mt-0 p-6 space-y-4">
-            <div className="bg-neutral-800/50 rounded-lg p-4 divide-y divide-neutral-700/50">
-              <div className="py-2">
-                <div className="flex items-start gap-3">
-                  <CreditCard className="w-4 h-4 text-neutral-500 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1 min-w-0">
-                    <p className="text-neutral-500 text-xs uppercase tracking-wide mb-0.5">Advance Amount / Deposit</p>
-                    {reservation.depositPaid && reservation.depositAmount ? (
-                      <div className="flex items-center gap-2">
-                        <span className="text-emerald-400 text-lg font-semibold">${reservation.depositAmount}</span>
-                        <Badge className="bg-emerald-500/20 text-emerald-400 border-0 text-xs">Paid</Badge>
-                      </div>
-                    ) : (
-                      <span className="text-neutral-600 italic text-sm">No deposit</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-              <FieldRow 
-                icon={FileText} 
-                label="Payment Status" 
-                value={reservation.paymentStatus} 
-                valueClass={reservation.paymentStatus === "Fully Paid" ? "text-emerald-400" : reservation.paymentStatus === "Partial Payment" ? "text-amber-400" : "text-white"}
-              />
-            </div>
-          </TabsContent>
-
-          {/* Other Tab */}
-          <TabsContent value="other" className="mt-0 p-6 space-y-4">
-            <div className="bg-neutral-800/50 rounded-lg p-4 divide-y divide-neutral-700/50">
-              <FieldRow 
-                icon={Utensils} 
-                label="Service Type" 
-                value={reservation.serviceType} 
-              />
-              <FieldRow 
-                icon={Globe} 
-                label="Reservation Source" 
-                value={reservation.reservationSource} 
-              />
-              <FieldRow 
-                icon={User} 
-                label="Assigned Server" 
-                value={reservation.assignedServer} 
-              />
-              <FieldRow 
-                icon={ExternalLink} 
-                label="External Reference" 
-                value={reservation.externalReference} 
-              />
-              <FieldRow 
-                icon={Hash} 
-                label="Confirmation Number" 
-                value={reservation.confirmationNumber} 
-              />
-              <FieldRow 
-                icon={AlertCircle} 
-                label="Dietary Restrictions" 
-                value={reservation.dietaryRestrictions} 
-                valueClass="text-amber-400"
-              />
-              <FieldRow 
-                icon={Baby} 
-                label="High Chair Count" 
-                value={reservation.highChairCount !== undefined ? `${reservation.highChairCount}` : undefined} 
-              />
-              <FieldRow 
-                icon={Users} 
-                label="Kids Count" 
-                value={reservation.kidsCount !== undefined ? `${reservation.kidsCount}` : undefined} 
-              />
-              <FieldRow 
-                icon={Accessibility} 
-                label="Accessibility Requirements" 
-                value={reservation.accessibilityRequirements} 
-              />
-              <FieldRow 
-                icon={StickyNote} 
-                label="Visit Notes" 
-                value={reservation.visitNotes} 
-              />
-              <BooleanFieldRow 
-                icon={Bell} 
-                label="Reminders" 
-                value={reservation.remindersEnabled} 
-              />
-            </div>
-
-            {/* Notes & Special Requests Section */}
-            {(reservation.notes || reservation.specialRequests) && (
-              <div className="bg-neutral-800/50 rounded-lg p-4 space-y-3">
-                <h4 className="text-neutral-400 text-xs font-semibold uppercase tracking-wide">Additional Notes</h4>
-                {reservation.notes && (
-                  <div className="flex items-start gap-2">
-                    <FileText className="w-4 h-4 text-neutral-500 mt-0.5" />
-                    <p className="text-white text-sm">{reservation.notes}</p>
+              
+              <div className="flex items-center gap-4 mt-1 text-neutral-400 text-sm">
+                {reservation.phone && (
+                  <div className="flex items-center gap-1">
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>{reservation.phone}</span>
                   </div>
                 )}
-                {reservation.specialRequests && (
-                  <div className="flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 text-amber-400 mt-0.5" />
-                    <p className="text-amber-400/80 text-sm italic">{reservation.specialRequests}</p>
+                {reservation.email && (
+                  <div className="flex items-center gap-1">
+                    <Mail className="w-3.5 h-3.5" />
+                    <span className="truncate">{reservation.email}</span>
                   </div>
                 )}
               </div>
-            )}
-          </TabsContent>
-        </ScrollArea>
-      </Tabs>
+              
+              {reservation.company && (
+                <div className="flex items-center gap-1 mt-1 text-neutral-400 text-sm">
+                  <Building className="w-3.5 h-3.5" />
+                  <span>{reservation.company}</span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right Side Actions Column (OpenTable style) */}
+          <div className="flex gap-6">
+            {/* Left: Tags and Notes */}
+            <div className="flex-1 space-y-4">
+              {/* Tags Section */}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-neutral-500 text-sm">Tags</span>
+                  <button className="p-1 hover:bg-neutral-800 rounded transition-colors">
+                    <FileText className="w-3.5 h-3.5 text-neutral-500" />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {reservation.tags?.map((tag, i) => (
+                    <span 
+                      key={i}
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        tag.toLowerCase().includes("birthday") || tag.toLowerCase().includes("anniversary")
+                          ? "bg-neutral-800 text-white border border-neutral-600"
+                          : "bg-neutral-800/50 text-neutral-300 border border-neutral-700"
+                      }`}
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                  {reservation.dietaryRestrictions && (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30">
+                      {reservation.dietaryRestrictions.split(",")[0]}
+                    </span>
+                  )}
+                  {reservation.highChairCount && reservation.highChairCount > 0 && (
+                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-neutral-800/50 text-neutral-300 border border-neutral-700">
+                      High Chair
+                    </span>
+                  )}
+                  <button className="px-3 py-1 rounded-full text-xs font-medium bg-neutral-800/50 text-neutral-500 border border-neutral-700 border-dashed hover:border-neutral-500 transition-colors">
+                    + Add a tag...
+                  </button>
+                </div>
+              </div>
+
+              {/* Guest Message (First-Class Display) */}
+              {reservation.guestMessage && (
+                <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                      <FileText className="w-4 h-4 text-blue-400" />
+                    </div>
+                    <p className="text-white text-sm leading-relaxed">
+                      {reservation.guestMessage}
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* Visit Note */}
+              <div className="flex items-start gap-3 py-2 border-b border-neutral-800">
+                <FileText className="w-4 h-4 text-neutral-500 mt-0.5" />
+                <div className="flex-1">
+                  <span className="text-neutral-500 text-xs uppercase tracking-wide">Add a visit note</span>
+                  {reservation.visitNotes && (
+                    <p className="text-white text-sm mt-1">{reservation.visitNotes}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* General Note */}
+              <div className="flex items-start gap-3 py-2 border-b border-neutral-800">
+                <FileText className="w-4 h-4 text-neutral-500 mt-0.5" />
+                <div className="flex-1">
+                  <span className="text-neutral-500 text-xs uppercase tracking-wide">Add a general note</span>
+                  {reservation.generalNote && (
+                    <p className="text-white text-sm mt-1">{reservation.generalNote}</p>
+                  )}
+                </div>
+              </div>
+
+              {/* Friends / Linked Guests */}
+              {reservation.friendsLinkedGuests && (
+                <div className="flex items-center gap-2 py-2">
+                  <span className="text-amber-400">⭐</span>
+                  <span className="text-white text-sm">Friends with {reservation.friendsLinkedGuests}</span>
+                </div>
+              )}
+
+              {/* Loyalty Tier */}
+              {reservation.loyaltyTier && (
+                <div className="flex items-center gap-2 py-2 text-sm text-neutral-400">
+                  <span>🏆</span>
+                  <span>BHG Property Rewards {reservation.visitCount || 1} • {reservation.loyaltyTier} tier</span>
+                </div>
+              )}
+            </div>
+
+            {/* Right: Actions & Status */}
+            <div className="w-[200px] space-y-3 flex-shrink-0">
+              {/* Status Dropdown */}
+              <div className={`px-4 py-2.5 rounded-lg ${config.bg} ${config.text} flex items-center justify-between cursor-pointer hover:opacity-90 transition-opacity`}>
+                <span className="font-medium">{config.label}</span>
+                <ChevronRight className="w-4 h-4" />
+              </div>
+
+              {/* Table Assignment */}
+              <div className="px-4 py-2.5 rounded-lg bg-neutral-800 text-white flex items-center gap-2">
+                <Armchair className="w-4 h-4 text-neutral-400" />
+                <div className="flex-1">
+                  {reservation.tableId ? (
+                    <span>Table {reservation.tableId}</span>
+                  ) : reservation.suggestedTables?.length ? (
+                    <span className="text-neutral-400 text-sm">Table {reservation.suggestedTables.join(", ")}<br/><span className="text-xs text-neutral-500">Suggested</span></span>
+                  ) : (
+                    <span className="text-amber-400">Unassigned</span>
+                  )}
+                </div>
+              </div>
+
+              {/* Deposit Status */}
+              {(reservation.depositRequested || reservation.depositPaid) && (
+                <div className={`px-4 py-2.5 rounded-lg flex items-center gap-2 ${
+                  reservation.depositPaid 
+                    ? "bg-emerald-500/10 text-emerald-400" 
+                    : "bg-red-500/10 text-red-400"
+                }`}>
+                  <CreditCard className="w-4 h-4" />
+                  <div className="flex-1">
+                    <span className={reservation.depositPaid ? "text-emerald-400" : "text-red-400"}>
+                      {reservation.depositPaid ? "Paid" : "Not paid"} • ${reservation.depositAmount || 0}
+                    </span>
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <button className="w-full px-4 py-2.5 rounded-lg bg-neutral-800 text-white text-sm flex items-center gap-2 hover:bg-neutral-700 transition-colors">
+                <CreditCard className="w-4 h-4 text-neutral-400" />
+                <span>Send Deposit request</span>
+              </button>
+
+              <button className="w-full px-4 py-2.5 rounded-lg bg-neutral-800 text-white text-sm flex items-center gap-2 hover:bg-neutral-700 transition-colors">
+                <Mail className="w-4 h-4 text-neutral-400" />
+                <span>Re-send Booking confirmation</span>
+              </button>
+
+              <button className="w-full px-4 py-2.5 rounded-lg bg-neutral-800 text-white text-sm flex items-center gap-2 hover:bg-neutral-700 transition-colors">
+                <FileText className="w-4 h-4 text-neutral-400" />
+                <span>Message guest</span>
+              </button>
+
+              {/* Pre-ordered Items */}
+              {reservation.preOrderedItems && reservation.preOrderedItems.length > 0 && (
+                <div className="px-4 py-3 rounded-lg bg-neutral-800 text-white">
+                  <div className="text-sm mb-2 text-neutral-400">Pre-ordered</div>
+                  {reservation.preOrderedItems.map((item, i) => (
+                    <div key={i} className="text-sm flex items-center gap-2">
+                      <span className="text-neutral-500">{item.quantity} x</span>
+                      <span className="text-white">{item.name}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Special Occasion Tab Icons (OpenTable bottom row) */}
+          <div className="flex items-center justify-center gap-4 pt-4 border-t border-neutral-800">
+            <button className="p-2 rounded-lg hover:bg-neutral-800 transition-colors" title="General Note">
+              <FileText className="w-5 h-5 text-neutral-500" />
+            </button>
+            <button className={`p-2 rounded-lg hover:bg-neutral-800 transition-colors ${isVIP ? "text-amber-400" : ""}`} title="VIP">
+              <span className="text-lg">⭐</span>
+            </button>
+            <button className={`p-2 rounded-lg hover:bg-neutral-800 transition-colors ${reservation.dietaryRestrictions ? "text-amber-400" : ""}`} title="Dietary">
+              <Utensils className="w-5 h-5 text-neutral-500" />
+            </button>
+            <button className="p-2 rounded-lg hover:bg-neutral-800 transition-colors" title="Mobile">
+              <Phone className="w-5 h-5 text-neutral-500" />
+            </button>
+            <button className={`p-2 rounded-lg hover:bg-neutral-800 transition-colors ${reservation.accessibilityRequirements ? "text-amber-400" : ""}`} title="Accessibility">
+              <Accessibility className="w-5 h-5 text-neutral-500" />
+            </button>
+            <button className="p-2 rounded-lg hover:bg-neutral-800 transition-colors" title="History">
+              <Clock className="w-5 h-5 text-neutral-500" />
+            </button>
+          </div>
+        </div>
+      </ScrollArea>
 
       {/* Quick Actions - Fixed at bottom */}
       <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/50">
-        <div className="grid grid-cols-2 gap-3">
-          {(() => {
-            // Only show Seat Guest for today's reservations within time window
-            if (reservation.status !== "upcoming" || !reservation.tableId) return null;
-            
-            const now = new Date();
-            const reservationDate = new Date(reservation.date);
-            
-            // Check if reservation is today
-            const isReservationToday = 
-              reservationDate.getFullYear() === now.getFullYear() &&
-              reservationDate.getMonth() === now.getMonth() &&
-              reservationDate.getDate() === now.getDate();
-            
-            if (!isReservationToday) return null;
-            
-            // Parse reservation time (e.g., "6:00 PM" or "18:00")
-            const timeParts = reservation.time.match(/(\d+):(\d+)\s*(AM|PM)?/i);
-            if (!timeParts) return null;
-            
-            let hours = parseInt(timeParts[1], 10);
-            const minutes = parseInt(timeParts[2], 10);
-            const period = timeParts[3]?.toUpperCase();
-            
-            if (period === "PM" && hours !== 12) hours += 12;
-            if (period === "AM" && hours === 12) hours = 0;
-            
-            const reservationTime = new Date(now);
-            reservationTime.setHours(hours, minutes, 0, 0);
-            
-            // Time window: 30 minutes before to 1 hour after
-            const windowStart = new Date(reservationTime.getTime() - 30 * 60 * 1000);
-            const windowEnd = new Date(reservationTime.getTime() + 60 * 60 * 1000);
-            
-            const isWithinWindow = now >= windowStart && now <= windowEnd;
-            
-            if (!isWithinWindow) return null;
-            
-            return (
-              <button 
-                onClick={() => onSeatGuest(reservation)}
-                className="px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
-              >
-                Seat Guest
-              </button>
-            );
-          })()}
+        <div className="grid grid-cols-3 gap-3">
+          {/* Seat Guest Button - only for eligible reservations */}
+          {reservation.status !== "seated" && reservation.tableId && (
+            <button 
+              onClick={() => onSeatGuest(reservation)}
+              className="px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+            >
+              Seat Guest
+            </button>
+          )}
           <button 
             onClick={() => onEditReservation(reservation)}
             className="px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors"
           >
-            Edit Reservation
+            Edit
           </button>
           <button 
             onClick={() => onCancelReservation(reservation)}
@@ -566,18 +576,6 @@ const ReservationDetailsPanel = ({
   );
 };
 
-// Empty state for details panel
-const EmptyDetailsState = () => (
-  <div className="h-full flex flex-col items-center justify-center text-center px-8">
-    <div className="w-16 h-16 rounded-full bg-neutral-800 flex items-center justify-center mb-4">
-      <CalendarIcon className="w-8 h-8 text-neutral-600" />
-    </div>
-    <h4 className="text-neutral-400 font-medium text-lg mb-2">Select a Reservation</h4>
-    <p className="text-neutral-600 text-sm">
-      Click on a reservation from the timeline to view details, manage seating, and take actions.
-    </p>
-  </div>
-);
 
 // Available tables (mock data - in real app would come from context/props)
 const availableTables = [

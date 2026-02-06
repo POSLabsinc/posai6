@@ -23,16 +23,34 @@ export type Reservation = {
   duration?: string;
   occasion?: string;
   guestNotes?: string;
+  // Guest Context & Relationship (OpenTable parity)
+  isVIP?: boolean;
+  loyaltyTier?: string; // e.g., "Silver", "Gold", "Platinum"
+  visitCount?: number;
+  company?: string;
+  friendsLinkedGuests?: string; // e.g., "Julia and Nathan"
+  relationshipTags?: string[]; // e.g., ["Friend of Owner", "Regular"]
+  // Tags & Preferences
+  tags?: string[]; // e.g., ["Birthday", "Smoker", "Vegetarian", "Patio Required"]
+  seatingPreference?: string;
+  foodDrinkPreference?: string;
+  // Notes & Messages
+  guestMessage?: string; // Message from the guest
+  generalNote?: string;
+  specialEvent?: string;
+  specialRelationship?: string;
   // Sitting
   floor?: string;
   area?: string;
   tableId: string | null;
+  suggestedTables?: string[]; // Suggested table assignments
   // Payment
   depositPaid?: boolean;
   depositAmount?: number;
   paymentStatus?: string;
+  depositRequested?: boolean;
   // Other
-  status: "upcoming" | "seated" | "late";
+  status: "upcoming" | "seated" | "late" | "completed" | "booked";
   serviceType?: string;
   reservationSource?: string;
   assignedServer?: string;
@@ -46,6 +64,8 @@ export type Reservation = {
   remindersEnabled?: boolean;
   notes?: string;
   specialRequests?: string;
+  // Pre-ordered items
+  preOrderedItems?: { name: string; quantity: number; details?: string }[];
 };
 
 // Helper to get dates
@@ -55,7 +75,7 @@ const tomorrow = addDays(today, 1);
 const dayAfterTomorrow = addDays(today, 2);
 const twoDaysAgo = subDays(today, 2);
 
-// Mock reservations data with dates - includes ALL old POS fields
+// Mock reservations data with dates - includes OpenTable-parity fields
 export const mockReservations: Reservation[] = [
   // Today's reservations
   { 
@@ -86,30 +106,60 @@ export const mockReservations: Reservation[] = [
     kidsCount: 1,
     remindersEnabled: true,
     guestNotes: "VIP customer - 5th visit this month",
-    paymentStatus: "Deposit Received"
+    paymentStatus: "Deposit Received",
+    // OpenTable-parity fields
+    isVIP: true,
+    loyaltyTier: "Gold",
+    visitCount: 12,
+    relationshipTags: ["Regular", "Friend of Owner"],
+    tags: ["Birthday", "Vegetarian", "Window Seat"],
+    seatingPreference: "Window booth preferred",
+    guestMessage: "Looking forward to celebrating my son's birthday! Can we have balloons at the table?",
+    suggestedTables: ["T4", "T5"]
   },
   { 
     id: "R2", 
-    guestName: "Maria Rodriguez", 
-    firstName: "Maria",
+    guestName: "Magdalena Rodriguez", 
+    firstName: "Magdalena",
     lastName: "Rodriguez",
     time: "7:00 PM", 
-    partySize: 2, 
+    partySize: 3, 
     tableId: null, 
-    status: "upcoming", 
-    phone: "(415) 555-2345", 
+    status: "booked", 
+    phone: "(555) 555-5555", 
     notes: "Anniversary dinner", 
-    email: "maria.r@email.com", 
+    email: "meg@proctorandgamble.com", 
     date: today, 
     specialRequests: "Quiet table, window seat",
-    duration: "1.5 hours",
+    duration: "2h 00m",
     occasion: "Anniversary",
     serviceType: "Dine-In",
     reservationSource: "Phone",
     confirmationNumber: "PH-2024-12345",
     accessibilityRequirements: "Wheelchair accessible seating",
     remindersEnabled: true,
-    visitNotes: "Celebrating 10 year anniversary"
+    visitNotes: "Celebrating 10 year anniversary",
+    // OpenTable-parity fields
+    isVIP: true,
+    loyaltyTier: "Silver",
+    visitCount: 5,
+    company: "Proctor & Gamble",
+    friendsLinkedGuests: "Julia and Nathan",
+    relationshipTags: ["VIP", "Corporate"],
+    tags: ["Anniversary", "Non Smoker", "Patio Required"],
+    seatingPreference: "Window seat",
+    guestMessage: "Hi! Can we please have a window seat? We'd like to have a large bottle of mineral water waiting on the table, no ice. Can you please include a bowl of lemon wedges? Thank you! It's also my guest's birthday.",
+    generalNote: "Always provides great feedback",
+    suggestedTables: ["T114", "T115"],
+    depositRequested: true,
+    depositPaid: false,
+    depositAmount: 20,
+    paymentStatus: "Not paid",
+    preOrderedItems: [
+      { name: "Mel's Mediterranean Meal", quantity: 1 },
+      { name: "Aloha Maid Juice", quantity: 1 },
+      { name: "Side of hot sauce", quantity: 1 }
+    ]
   },
   { 
     id: "R3", 
@@ -135,7 +185,12 @@ export const mockReservations: Reservation[] = [
     confirmationNumber: "DB-2024-99887",
     dietaryRestrictions: "2 Vegetarian, 1 Vegan",
     remindersEnabled: true,
-    paymentStatus: "Partial Payment"
+    paymentStatus: "Partial Payment",
+    // OpenTable-parity fields
+    company: "TechCo Inc.",
+    relationshipTags: ["Corporate"],
+    tags: ["Large Party", "Private Room"],
+    guestMessage: "Need AV setup for presentation"
   },
   { 
     id: "R4", 
@@ -269,10 +324,12 @@ interface ReservationsPanelProps {
   initialReservationId?: string;
 }
 
-const statusConfig = {
+const statusConfig: Record<string, { bg: string; text: string; border: string; label: string; dot: string }> = {
   upcoming: { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/30", label: "Upcoming", dot: "bg-blue-500" },
   seated: { bg: "bg-emerald-500/10", text: "text-emerald-400", border: "border-emerald-500/30", label: "Seated", dot: "bg-emerald-500" },
   late: { bg: "bg-red-500/10", text: "text-red-400", border: "border-red-500/30", label: "Late", dot: "bg-red-500" },
+  booked: { bg: "bg-teal-500/10", text: "text-teal-400", border: "border-teal-500/30", label: "Booked", dot: "bg-teal-500" },
+  completed: { bg: "bg-neutral-500/10", text: "text-neutral-400", border: "border-neutral-500/30", label: "Completed", dot: "bg-neutral-500" },
 };
 
 // Parse time string to get hour for grouping

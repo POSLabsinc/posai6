@@ -20,7 +20,7 @@ import {
   Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, 
   ChevronLeft, ChevronRight, Phone, FileText, CreditCard, 
   ArrowLeft, Armchair, Mail, Timer, Gift, Building, Globe,
-  User, Hash, Utensils, Baby, Accessibility, Bell, StickyNote,
+  User, Hash, Utensils, Baby, Accessibility, Bell, StickyNote, MessageSquare,
   ExternalLink, CheckCircle2, XCircle, Map as MapIcon, Grid, X
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -93,30 +93,109 @@ const getDateLabel = (date: Date): string => {
   return format(date, "EEE, MMM d");
 };
 
-// Compact Reservation Card for Timeline with At-a-Glance Icons
+// Helper to calculate time context (e.g., "In 30 min", "Overdue", etc.)
+const getTimeContext = (reservation: Reservation, selectedDate: Date): { label: string; className: string } | null => {
+  const now = new Date();
+  
+  // Only show time context for today
+  if (!isToday(selectedDate)) return null;
+  
+  // Parse reservation time
+  const match = reservation.time.match(/(\d+):(\d+)\s*(AM|PM)/i);
+  if (!match) return null;
+  
+  let hour = parseInt(match[1]);
+  const min = parseInt(match[2]);
+  const isPM = match[3].toUpperCase() === "PM";
+  if (isPM && hour !== 12) hour += 12;
+  if (!isPM && hour === 12) hour = 0;
+  
+  const resTime = new Date();
+  resTime.setHours(hour, min, 0, 0);
+  
+  const diffMs = resTime.getTime() - now.getTime();
+  const diffMins = Math.round(diffMs / 60000);
+  
+  if (reservation.status === "seated") {
+    // Calculate seated duration
+    const seatedMins = Math.abs(diffMins);
+    if (seatedMins >= 60) {
+      const hours = Math.floor(seatedMins / 60);
+      const mins = seatedMins % 60;
+      return { label: `Seated ${hours}h ${mins}m`, className: "text-emerald-400" };
+    }
+    return { label: `Seated ${seatedMins}m`, className: "text-emerald-400" };
+  }
+  
+  if (reservation.status === "late" || diffMins < -15) {
+    const overdueMins = Math.abs(diffMins);
+    return { label: `Overdue ${overdueMins}m`, className: "text-red-400 font-medium" };
+  }
+  
+  if (diffMins <= 0 && diffMins > -15) {
+    return { label: "Running Late", className: "text-amber-400" };
+  }
+  
+  if (diffMins > 0 && diffMins <= 30) {
+    return { label: `In ${diffMins} min`, className: "text-blue-400" };
+  }
+  
+  if (diffMins > 30 && diffMins <= 60) {
+    return { label: `In ${diffMins} min`, className: "text-neutral-400" };
+  }
+  
+  return null;
+};
+
+// Enhanced Reservation Card for Timeline with Host-Focused Signals
 const ReservationCard = ({
   reservation,
   isSelected,
   onReservationClick,
+  selectedDate,
 }: {
   reservation: Reservation;
   isSelected: boolean;
   onReservationClick: (reservation: Reservation) => void;
+  selectedDate: Date;
 }) => {
   const config = statusConfig[reservation.status] || statusConfig.upcoming;
   const isUnassigned = !reservation.tableId;
   
-  // Determine which icons to show
+  // Determine signals with clear hierarchy
   const hasOccasion = !!reservation.occasion;
   const isVIP = reservation.isVIP || reservation.relationshipTags?.includes("VIP");
+  const isRegular = reservation.relationshipTags?.includes("Regular") || reservation.relationshipTags?.includes("Friend of Owner");
+  const isCorporate = reservation.company || reservation.relationshipTags?.includes("Corporate");
   const hasMessage = !!reservation.guestMessage;
   const hasNotes = !!(reservation.notes || reservation.guestNotes || reservation.visitNotes);
   const hasDeposit = reservation.depositPaid || reservation.depositRequested;
+  const timeContext = getTimeContext(reservation, selectedDate);
+  
+  // Determine the single most important relationship indicator
+  const getRelationshipBadge = () => {
+    if (isVIP) return { label: "VIP", className: "bg-amber-500/20 text-amber-400 border-amber-500/30" };
+    if (reservation.relationshipTags?.includes("Friend of Owner")) return { label: "Friend of Owner", className: "bg-purple-500/20 text-purple-400 border-purple-500/30" };
+    if (isRegular) return { label: "Regular", className: "bg-blue-500/20 text-blue-400 border-blue-500/30" };
+    if (isCorporate) return { label: "Corporate", className: "bg-cyan-500/20 text-cyan-400 border-cyan-500/30" };
+    return null;
+  };
+  
+  // Get deposit status
+  const getDepositStatus = () => {
+    if (reservation.depositPaid) return { label: "Deposit Paid", className: "text-emerald-400" };
+    if (reservation.depositRequested) return { label: "Deposit Pending", className: "text-amber-400" };
+    if (reservation.paymentStatus === "Not paid") return { label: "Not Paid", className: "text-red-400" };
+    return null;
+  };
+  
+  const relationshipBadge = getRelationshipBadge();
+  const depositStatus = getDepositStatus();
   
   return (
     <div
       onClick={() => onReservationClick(reservation)}
-      className={`pl-3 pr-4 py-2.5 rounded-lg border cursor-pointer transition-all hover:bg-white/5 overflow-hidden ${
+      className={`pl-3 pr-3 py-2.5 rounded-lg border cursor-pointer transition-all hover:bg-white/5 overflow-hidden ${
         isSelected 
           ? "border-orange-500 bg-orange-500/10 ring-1 ring-orange-500/30"
           : reservation.status === "late" 
@@ -126,20 +205,31 @@ const ReservationCard = ({
               : "border-neutral-700/50 bg-neutral-800/30"
       }`}
     >
-      {/* Two Row Layout */}
+      {/* Three Row Layout for Information Hierarchy */}
       <div className="flex flex-col gap-1.5">
-        {/* Row 1: Status, Name, Time, Party, Table */}
+        
+        {/* Row 1: Primary - Status, Name, Relationship Badge */}
         <div className="flex items-center gap-2">
           {/* Status Dot - color communicates status */}
           <div className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${config.dot} ${
             reservation.status === "late" ? "animate-pulse" : ""
           }`} />
           
-          {/* Guest Name */}
+          {/* Guest Name - Primary Element */}
           <span className="text-white text-sm font-medium truncate flex-1 min-w-0">
             {reservation.guestName}
           </span>
           
+          {/* Single Relationship Badge (Most Important One Only) */}
+          {relationshipBadge && (
+            <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border flex-shrink-0 ${relationshipBadge.className}`}>
+              {relationshipBadge.label}
+            </span>
+          )}
+        </div>
+        
+        {/* Row 2: Time, Party, Table, Time Context */}
+        <div className="flex items-center gap-3 pl-4">
           {/* Time */}
           <div className="flex items-center gap-1 flex-shrink-0">
             <Clock className="w-3 h-3 text-neutral-500" />
@@ -158,47 +248,57 @@ const ReservationCard = ({
             {reservation.tableId ? (
               <span className="text-neutral-300 text-xs font-medium">{reservation.tableId}</span>
             ) : (
-              <span className="text-amber-400 text-xs font-semibold">—</span>
+              <span className="text-amber-400 text-xs font-semibold">Unassigned</span>
             )}
           </div>
+          
+          {/* Time Context (Spacer + Right Aligned) */}
+          {timeContext && (
+            <>
+              <div className="flex-1" />
+              <span className={`text-[10px] font-medium ${timeContext.className}`}>
+                {timeContext.label}
+              </span>
+            </>
+          )}
         </div>
         
-        {/* Row 2: At-a-Glance Icons (only if any exist) */}
-        {(hasOccasion || isVIP || hasMessage || hasNotes || hasDeposit) && (
-          <div className="flex items-center gap-2 pl-4">
-            {/* Occasion Icon */}
+        {/* Row 3: Signal Icons & Labels (Priority Ordered) */}
+        {(hasOccasion || hasMessage || hasDeposit || hasNotes) && (
+          <div className="flex items-center gap-2 pl-4 flex-wrap">
+            {/* 1. Special Occasion - Elevated Label (not just icon) */}
             {hasOccasion && (
-              <div className="flex items-center gap-1" title={reservation.occasion}>
+              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-pink-500/15 border border-pink-500/25">
                 <Gift className="w-3 h-3 text-pink-400" />
-                <span className="text-pink-400 text-[10px] font-medium">{reservation.occasion}</span>
+                <span className="text-pink-400 text-[10px] font-semibold">{reservation.occasion}</span>
               </div>
             )}
             
-            {/* VIP / Relationship Icon */}
-            {isVIP && (
-              <div className="flex items-center" title="VIP Guest">
-                <span className="text-amber-400 text-sm">⭐</span>
-              </div>
-            )}
-            
-            {/* Guest Message Icon */}
+            {/* 2. Guest Message - Highlighted (Guest took time to write) */}
             {hasMessage && (
-              <div className="flex items-center" title="Guest message">
+              <div className="flex items-center gap-1 px-1.5 py-0.5 rounded bg-blue-500/15 border border-blue-500/25" title={reservation.guestMessage}>
                 <FileText className="w-3 h-3 text-blue-400" />
+                <span className="text-blue-400 text-[10px] font-medium">Message</span>
               </div>
             )}
             
-            {/* Notes Icon */}
+            {/* 3. Payment/Deposit Status - Explicit Text */}
+            {depositStatus && (
+              <div className="flex items-center gap-1">
+                <CreditCard className={`w-3 h-3 ${
+                  reservation.depositPaid ? "text-emerald-400" : 
+                  reservation.depositRequested ? "text-amber-400" : "text-red-400"
+                }`} />
+                <span className={`text-[10px] font-medium ${depositStatus.className}`}>
+                  {depositStatus.label}
+                </span>
+              </div>
+            )}
+            
+            {/* 4. Internal Notes (Lower Priority than Guest Message) */}
             {hasNotes && !hasMessage && (
-              <div className="flex items-center" title="Has notes">
-                <FileText className="w-3 h-3 text-neutral-400" />
-              </div>
-            )}
-            
-            {/* Deposit Icon */}
-            {hasDeposit && (
-              <div className="flex items-center" title={reservation.depositPaid ? `Deposit paid: $${reservation.depositAmount}` : "Deposit requested"}>
-                <CreditCard className={`w-3 h-3 ${reservation.depositPaid ? "text-emerald-400" : "text-amber-400"}`} />
+              <div className="flex items-center gap-1" title="Has notes">
+                <StickyNote className="w-3 h-3 text-neutral-500" />
               </div>
             )}
           </div>
@@ -899,6 +999,7 @@ const FullReservationsView = () => {
                           reservation={reservation}
                           isSelected={selectedReservation?.id === reservation.id}
                           onReservationClick={handleReservationSelect}
+                          selectedDate={selectedDate}
                         />
                       ))}
                     </div>

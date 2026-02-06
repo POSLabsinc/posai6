@@ -2133,7 +2133,7 @@ const TableOrder = () => {
 
         {/* Reservations Button - Before Filter Tabs */}
         <button
-          onClick={() => setIsReservationsPanelOpen(true)}
+          onClick={() => navigate("/reservations")}
           className="flex items-center gap-2 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all border-r border-neutral-700 pr-4 mr-2"
           style={{ 
             background: "linear-gradient(180deg, #f97316 0%, #ea580c 100%)",

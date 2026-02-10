@@ -367,7 +367,7 @@ const BooleanFieldRow = ({
   </div>
 );
 
-// OpenTable-Parity Reservation Details Panel
+// Tabbed Reservation Details Panel (eatOS POS parity)
 const ReservationDetailsPanel = ({
   reservation,
   availableTables,
@@ -386,26 +386,34 @@ const ReservationDetailsPanel = ({
   onClose: () => void;
 }) => {
   const config = statusConfig[reservation.status] || statusConfig.upcoming;
-  const isVIP = reservation.isVIP || reservation.relationshipTags?.includes("VIP");
-  
+  const [activeTab, setActiveTab] = useState("guest");
+
+  const nameParts = reservation.guestName.split(" ");
+  const firstName = nameParts[0] || "";
+  const lastName = nameParts.slice(1).join(" ") || "";
+
+  const tabs = [
+    { id: "guest", label: "Guest Info" },
+    { id: "sitting", label: "Sitting" },
+    { id: "payment", label: "Payment" },
+    { id: "other", label: "Other" },
+  ];
+
   return (
     <div className="h-full flex flex-col bg-neutral-900">
-      {/* Top Section: Core Info Bar (Time, Party, Duration) */}
-      <div className="px-6 pt-4 pb-3 border-b border-neutral-800">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 text-white text-sm">
-            <Clock className="w-4 h-4 text-neutral-400" />
-            <span>{reservation.time}</span>
+      {/* Header: Name, Time, Status, Close */}
+      <div className="px-6 pt-5 pb-0 border-b border-neutral-800">
+        <div className="flex items-center justify-between mb-3">
+          <div>
+            <h2 className="text-white text-lg font-semibold">{reservation.guestName}</h2>
+            <p className="text-neutral-400 text-sm">
+              {reservation.time} • {isToday(reservation.date) ? "Today" : format(reservation.date, "MMM d, yyyy")}
+            </p>
           </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 text-white text-sm">
-            <Users className="w-4 h-4 text-neutral-400" />
-            <span>{reservation.partySize}</span>
-          </div>
-          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 text-white text-sm">
-            <Timer className="w-4 h-4 text-neutral-400" />
-            <span>{reservation.duration || "2h 00m"}</span>
-          </div>
-          <div className="ml-auto">
+          <div className="flex items-center gap-2">
+            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text} border ${config.border}`}>
+              {config.label}
+            </span>
             <button
               onClick={onClose}
               className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
@@ -414,262 +422,122 @@ const ReservationDetailsPanel = ({
             </button>
           </div>
         </div>
+
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-6">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`pb-2.5 text-sm font-medium transition-colors border-b-2 ${
+                activeTab === tab.id
+                  ? "text-white border-orange-500"
+                  : "text-neutral-500 border-transparent hover:text-neutral-300"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
+      {/* Tab Content */}
       <ScrollArea className="flex-1">
-        <div className="p-6 space-y-5">
-          {/* Guest Identity Section */}
-          <div className="flex items-start gap-4">
-            {/* Avatar */}
-            <div className="w-14 h-14 rounded-full bg-gradient-to-br from-neutral-600 to-neutral-700 flex items-center justify-center flex-shrink-0">
-              <span className="text-white text-xl font-semibold">
-                {reservation.guestName.charAt(0)}
-              </span>
+        <div className="px-6 py-4">
+          {activeTab === "guest" && (
+            <div className="space-y-0 divide-y divide-neutral-800">
+              <FieldRow icon={User} label="Guest Name (First)" value={firstName} />
+              <FieldRow icon={User} label="Guest Name (Last)" value={lastName} />
+              <FieldRow icon={Mail} label="Email" value={reservation.email} />
+              <FieldRow icon={Phone} label="Phone Number" value={reservation.phone} />
+              <FieldRow icon={Users} label="Guest Count (Party Size)" value={reservation.partySize ? `${reservation.partySize} guests` : undefined} />
+              <FieldRow
+                icon={CalendarIcon}
+                label="Reservation Date & Time"
+                value={`${format(reservation.date, "EEEE, MMMM d, yyyy")} at ${reservation.time}`}
+              />
+              <FieldRow icon={Timer} label="Duration" value={reservation.duration || "Not specified"} />
+              <FieldRow icon={Gift} label="Occasion" value={reservation.occasion} />
+              <FieldRow icon={StickyNote} label="Guest Notes" value={reservation.guestNotes || reservation.notes} />
             </div>
-            
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                {isVIP && <span className="text-amber-400 text-lg">⭐</span>}
-                <h3 className="text-white text-xl font-semibold truncate">
-                  {reservation.guestName}
-                </h3>
-                <button className="p-1 hover:bg-neutral-800 rounded transition-colors">
-                  <FileText className="w-4 h-4 text-neutral-500" />
-                </button>
-              </div>
-              
-              <div className="flex items-center gap-4 mt-1 text-neutral-400 text-sm">
-                {reservation.phone && (
-                  <div className="flex items-center gap-1">
-                    <Phone className="w-3.5 h-3.5" />
-                    <span>{reservation.phone}</span>
-                  </div>
-                )}
-                {reservation.email && (
-                  <div className="flex items-center gap-1">
-                    <Mail className="w-3.5 h-3.5" />
-                    <span className="truncate">{reservation.email}</span>
-                  </div>
-                )}
-              </div>
-              
-              {reservation.company && (
-                <div className="flex items-center gap-1 mt-1 text-neutral-400 text-sm">
-                  <Building className="w-3.5 h-3.5" />
-                  <span>{reservation.company}</span>
-                </div>
-              )}
+          )}
+
+          {activeTab === "sitting" && (
+            <div className="space-y-0 divide-y divide-neutral-800">
+              <FieldRow icon={Building} label="Floor" value={reservation.floor || "Main"} />
+              <FieldRow icon={MapPin} label="Area" value={reservation.area} />
+              <FieldRow icon={Armchair} label="Table" value={reservation.tableId ? `Table ${reservation.tableId}` : "Unassigned"} 
+                valueClass={reservation.tableId ? "text-white" : "text-amber-400"} />
             </div>
-          </div>
+          )}
 
-          {/* Right Side Actions Column (OpenTable style) */}
-          <div className="flex gap-6">
-            {/* Left: Tags and Notes */}
-            <div className="flex-1 space-y-4">
-              {/* Tags Section */}
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <span className="text-neutral-500 text-sm">Tags</span>
-                  <button className="p-1 hover:bg-neutral-800 rounded transition-colors">
-                    <FileText className="w-3.5 h-3.5 text-neutral-500" />
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {reservation.tags?.map((tag, i) => (
-                    <span 
-                      key={i}
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        tag.toLowerCase().includes("birthday") || tag.toLowerCase().includes("anniversary")
-                          ? "bg-neutral-800 text-white border border-neutral-600"
-                          : "bg-neutral-800/50 text-neutral-300 border border-neutral-700"
-                      }`}
-                    >
-                      {tag}
-                    </span>
-                  ))}
-                  {reservation.dietaryRestrictions && (
-                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-500/20 text-amber-400 border border-amber-500/30">
-                      {reservation.dietaryRestrictions.split(",")[0]}
-                    </span>
-                  )}
-                  {reservation.highChairCount && reservation.highChairCount > 0 && (
-                    <span className="px-3 py-1 rounded-full text-xs font-medium bg-neutral-800/50 text-neutral-300 border border-neutral-700">
-                      High Chair
-                    </span>
-                  )}
-                  <button className="px-3 py-1 rounded-full text-xs font-medium bg-neutral-800/50 text-neutral-500 border border-neutral-700 border-dashed hover:border-neutral-500 transition-colors">
-                    + Add a tag...
-                  </button>
-                </div>
-              </div>
-
-              {/* Guest Message (First-Class Display) */}
-              {reservation.guestMessage && (
-                <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/30">
-                  <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center flex-shrink-0">
-                      <FileText className="w-4 h-4 text-blue-400" />
-                    </div>
-                    <p className="text-white text-sm leading-relaxed">
-                      {reservation.guestMessage}
-                    </p>
-                  </div>
-                </div>
-              )}
-
-              {/* Visit Note */}
-              <div className="flex items-start gap-3 py-2 border-b border-neutral-800">
-                <FileText className="w-4 h-4 text-neutral-500 mt-0.5" />
-                <div className="flex-1">
-                  <span className="text-neutral-500 text-xs uppercase tracking-wide">Add a visit note</span>
-                  {reservation.visitNotes && (
-                    <p className="text-white text-sm mt-1">{reservation.visitNotes}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* General Note */}
-              <div className="flex items-start gap-3 py-2 border-b border-neutral-800">
-                <FileText className="w-4 h-4 text-neutral-500 mt-0.5" />
-                <div className="flex-1">
-                  <span className="text-neutral-500 text-xs uppercase tracking-wide">Add a general note</span>
-                  {reservation.generalNote && (
-                    <p className="text-white text-sm mt-1">{reservation.generalNote}</p>
-                  )}
-                </div>
-              </div>
-
-              {/* Friends / Linked Guests */}
-              {reservation.friendsLinkedGuests && (
-                <div className="flex items-center gap-2 py-2">
-                  <span className="text-amber-400">⭐</span>
-                  <span className="text-white text-sm">Friends with {reservation.friendsLinkedGuests}</span>
-                </div>
-              )}
-
-              {/* Loyalty Tier */}
-              {reservation.loyaltyTier && (
-                <div className="flex items-center gap-2 py-2 text-sm text-neutral-400">
-                  <span>🏆</span>
-                  <span>BHG Property Rewards {reservation.visitCount || 1} • {reservation.loyaltyTier} tier</span>
-                </div>
-              )}
+          {activeTab === "payment" && (
+            <div className="space-y-0 divide-y divide-neutral-800">
+              <FieldRow
+                icon={CreditCard}
+                label="Deposit"
+                value={
+                  reservation.depositRequested
+                    ? `$${reservation.depositAmount || 0}`
+                    : "No deposit required"
+                }
+              />
+              <FieldRow
+                icon={CreditCard}
+                label="Status"
+                value={
+                  reservation.depositPaid
+                    ? "Paid"
+                    : reservation.depositRequested
+                    ? "Pending"
+                    : "N/A"
+                }
+                valueClass={
+                  reservation.depositPaid
+                    ? "text-emerald-400"
+                    : reservation.depositRequested
+                    ? "text-amber-400"
+                    : "text-neutral-400"
+                }
+              />
             </div>
+          )}
 
-            {/* Right: Actions & Status */}
-            <div className="w-[200px] space-y-3 flex-shrink-0">
-              {/* Status Dropdown */}
-              <div className={`px-4 py-2.5 rounded-lg ${config.bg} ${config.text} flex items-center justify-between cursor-pointer hover:opacity-90 transition-opacity`}>
-                <span className="font-medium">{config.label}</span>
-                <ChevronRight className="w-4 h-4" />
-              </div>
-
-              {/* Table Assignment */}
-              <div className="px-4 py-2.5 rounded-lg bg-neutral-800 text-white flex items-center gap-2">
-                <Armchair className="w-4 h-4 text-neutral-400" />
-                <div className="flex-1">
-                  {reservation.tableId ? (
-                    <span>Table {reservation.tableId}</span>
-                  ) : reservation.suggestedTables?.length ? (
-                    <span className="text-neutral-400 text-sm">Table {reservation.suggestedTables.join(", ")}<br/><span className="text-xs text-neutral-500">Suggested</span></span>
-                  ) : (
-                    <span className="text-amber-400">Unassigned</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Deposit Status */}
-              {(reservation.depositRequested || reservation.depositPaid) && (
-                <div className={`px-4 py-2.5 rounded-lg flex items-center gap-2 ${
-                  reservation.depositPaid 
-                    ? "bg-emerald-500/10 text-emerald-400" 
-                    : "bg-red-500/10 text-red-400"
-                }`}>
-                  <CreditCard className="w-4 h-4" />
-                  <div className="flex-1">
-                    <span className={reservation.depositPaid ? "text-emerald-400" : "text-red-400"}>
-                      {reservation.depositPaid ? "Paid" : "Not paid"} • ${reservation.depositAmount || 0}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <button className="w-full px-4 py-2.5 rounded-lg bg-neutral-800 text-white text-sm flex items-center gap-2 hover:bg-neutral-700 transition-colors">
-                <CreditCard className="w-4 h-4 text-neutral-400" />
-                <span>Send Deposit request</span>
-              </button>
-
-              <button className="w-full px-4 py-2.5 rounded-lg bg-neutral-800 text-white text-sm flex items-center gap-2 hover:bg-neutral-700 transition-colors">
-                <Mail className="w-4 h-4 text-neutral-400" />
-                <span>Re-send Booking confirmation</span>
-              </button>
-
-              <button className="w-full px-4 py-2.5 rounded-lg bg-neutral-800 text-white text-sm flex items-center gap-2 hover:bg-neutral-700 transition-colors">
-                <FileText className="w-4 h-4 text-neutral-400" />
-                <span>Message guest</span>
-              </button>
-
-              {/* Pre-ordered Items */}
-              {reservation.preOrderedItems && reservation.preOrderedItems.length > 0 && (
-                <div className="px-4 py-3 rounded-lg bg-neutral-800 text-white">
-                  <div className="text-sm mb-2 text-neutral-400">Pre-ordered</div>
-                  {reservation.preOrderedItems.map((item, i) => (
-                    <div key={i} className="text-sm flex items-center gap-2">
-                      <span className="text-neutral-500">{item.quantity} x</span>
-                      <span className="text-white">{item.name}</span>
-                    </div>
-                  ))}
-                </div>
-              )}
+          {activeTab === "other" && (
+            <div className="space-y-0 divide-y divide-neutral-800">
+              <FieldRow icon={Utensils} label="Service Type" value={reservation.serviceType} />
+              <FieldRow icon={Globe} label="Source" value={(reservation as any).source} />
+              <FieldRow icon={User} label="Server" value={(reservation as any).server} />
+              <FieldRow icon={Hash} label="Reference" value={reservation.confirmationNumber} />
+              <FieldRow icon={Utensils} label="Dietary" value={reservation.dietaryRestrictions} />
+              <BooleanFieldRow icon={Baby} label="Kids / High Chair" value={reservation.highChairCount ? true : undefined} />
+              <BooleanFieldRow icon={Accessibility} label="Accessibility" value={!!reservation.accessibilityRequirements} />
+              <FieldRow icon={Bell} label="Reminders" value={(reservation as any).reminders?.join(", ")} />
             </div>
-          </div>
-
-          {/* Special Occasion Tab Icons (OpenTable bottom row) */}
-          <div className="flex items-center justify-center gap-4 pt-4 border-t border-neutral-800">
-            <button className="p-2 rounded-lg hover:bg-neutral-800 transition-colors" title="General Note">
-              <FileText className="w-5 h-5 text-neutral-500" />
-            </button>
-            <button className={`p-2 rounded-lg hover:bg-neutral-800 transition-colors ${isVIP ? "text-amber-400" : ""}`} title="VIP">
-              <span className="text-lg">⭐</span>
-            </button>
-            <button className={`p-2 rounded-lg hover:bg-neutral-800 transition-colors ${reservation.dietaryRestrictions ? "text-amber-400" : ""}`} title="Dietary">
-              <Utensils className="w-5 h-5 text-neutral-500" />
-            </button>
-            <button className="p-2 rounded-lg hover:bg-neutral-800 transition-colors" title="Mobile">
-              <Phone className="w-5 h-5 text-neutral-500" />
-            </button>
-            <button className={`p-2 rounded-lg hover:bg-neutral-800 transition-colors ${reservation.accessibilityRequirements ? "text-amber-400" : ""}`} title="Accessibility">
-              <Accessibility className="w-5 h-5 text-neutral-500" />
-            </button>
-            <button className="p-2 rounded-lg hover:bg-neutral-800 transition-colors" title="History">
-              <Clock className="w-5 h-5 text-neutral-500" />
-            </button>
-          </div>
+          )}
         </div>
       </ScrollArea>
 
-      {/* Quick Actions - Fixed at bottom */}
+      {/* Bottom Actions */}
       <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/50">
-        <div className="grid grid-cols-3 gap-3">
-          {/* Seat Guest Button - only for eligible reservations */}
+        <div className="flex gap-3">
           {reservation.status !== "seated" && reservation.tableId && (
-            <button 
+            <button
               onClick={() => onSeatGuest(reservation)}
-              className="px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+              className="flex-1 px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
             >
               Seat Guest
             </button>
           )}
-          <button 
+          <button
             onClick={() => onEditReservation(reservation)}
-            className="px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors"
+            className="flex-1 px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors"
           >
-            Edit
+            Edit Reservation
           </button>
-          <button 
+          <button
             onClick={() => onCancelReservation(reservation)}
-            className="px-4 py-3 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 text-sm font-medium transition-colors"
+            className="flex-1 px-4 py-3 rounded-lg bg-red-900/40 hover:bg-red-900/60 text-red-400 text-sm font-medium transition-colors"
           >
             Cancel
           </button>

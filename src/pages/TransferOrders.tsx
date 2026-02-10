@@ -117,7 +117,7 @@ const TransferOrders = () => {
   const [showTargetSheet, setShowTargetSheet] = useState(false);
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
   const [displayedOrder, setDisplayedOrder] = useState<Order | null>(null);
-  const [desktopStep, setDesktopStep] = useState<"select-items" | "select-target" | "select-table">(isEntireOrderTransfer ? "select-table" : "select-items");
+  const [desktopStep, setDesktopStep] = useState<"select-items" | "select-table">(isEntireOrderTransfer ? "select-table" : "select-items");
   const [orderNotes, setOrderNotes] = useState("");
   const [activeSwipedItemId, setActiveSwipedItemId] = useState<string | null>(null);
   const [isEntireOrderConfirmOpen, setIsEntireOrderConfirmOpen] = useState(false);
@@ -192,7 +192,7 @@ const TransferOrders = () => {
     }
   };
   const handleProceedToTargetSelection = () => {
-    setShowTargetSheet(true);
+    setStep("select-table");
   };
   const handleTargetSelect = (order: Order) => {
     setTargetOrder(order);
@@ -254,19 +254,24 @@ const TransferOrders = () => {
     
     setShowTableConfirmDialog(false);
     
+    const isPartialTransfer = !isEntireOrderTransfer;
+    const itemNames = isPartialTransfer 
+      ? selectedItems.map(index => currentOrder.items[index].name).join(',')
+      : currentOrder.items.map(item => item.name).join(',');
+    const isFullTransfer = isEntireOrderTransfer || selectedItems.length === currentOrder.items.length;
+    
     // Show success toast
-    toast.success(`Order transferred successfully to ${formatTableName(selectedTargetTable)}`);
+    toast.success(`${isPartialTransfer ? 'Items' : 'Order'} transferred successfully to ${formatTableName(selectedTargetTable)}`);
     
     // Navigate to destination table after a short delay
     setTimeout(() => {
-      const itemNames = currentOrder.items.map(item => item.name).join(',');
       const transferParams = new URLSearchParams({
         transferred: currentOrder.id,
         transferFrom: currentOrder.table,
         transferDest: currentOrder.id,
         items: itemNames,
         transferSource: currentOrder.id,
-        transferType: 'full',
+        transferType: isFullTransfer ? 'full' : 'partial',
         transferredTo: currentOrder.id,
         transferToTable: selectedTargetTable.replace('T', '')
       });
@@ -803,7 +808,7 @@ const TransferOrders = () => {
             <p className="text-white/60 text-xs mb-1">Transferring from</p>
             <div className="flex items-center justify-between">
               <span className="text-white font-medium">Order #{currentOrder.id} · {formatTableName(currentOrder.table)}</span>
-              <span className="text-white/60 text-sm">{currentOrder.items.length} items</span>
+              <span className="text-white/60 text-sm">{isEntireOrderTransfer ? currentOrder.items.length : selectedItems.length} item{(isEntireOrderTransfer ? currentOrder.items.length : selectedItems.length) > 1 ? 's' : ''}</span>
             </div>
           </div>
         </div>
@@ -1192,11 +1197,13 @@ const TransferOrders = () => {
           <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
             <div className="flex items-center gap-3">
               <button onClick={() => {
-                if (desktopStep === "select-target") {
-                  setDesktopStep("select-items");
-                  setTargetOrder(null);
-                } else if (desktopStep === "select-table") {
-                  handleBack();
+              if (desktopStep === "select-table") {
+                  if (!isEntireOrderTransfer) {
+                    setDesktopStep("select-items");
+                    setSelectedTargetTable(null);
+                  } else {
+                    handleBack();
+                  }
                 } else {
                   handleBack();
                 }
@@ -1207,7 +1214,7 @@ const TransferOrders = () => {
                 <ChevronLeft className="w-5 h-5 text-white" />
               </button>
               <h1 className="text-white text-lg font-semibold">
-                {desktopStep === "select-items" ? "Transfer Check" : desktopStep === "select-table" ? "Select Table" : "Select Target Check"}
+                {desktopStep === "select-items" ? "Transfer Check" : "Select Table"}
               </h1>
             </div>
           </div>
@@ -1306,68 +1313,15 @@ const TransferOrders = () => {
                 <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
                   CANCEL
                 </button>
-                <button onClick={() => setDesktopStep("select-target")} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
+                <button onClick={() => setDesktopStep("select-table")} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
             background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
           }}>
-                  SELECT TARGET CHECK
+                  SELECT TABLE
                 </button>
               </div>}
           </>}
 
-        {/* Step 2: Select Target Order */}
-        {desktopStep === "select-target" && <>
-            {/* Info */}
-            <div className="px-3 py-3">
-              <p className="text-white/80 text-sm">Select target check to transfer {selectedItems.length} item(s)</p>
-            </div>
 
-            {/* Filter Tabs */}
-            <div className="flex items-center gap-2 px-3 pb-3 overflow-x-auto">
-              {transferFilters.map(filter => {
-            const count = getFilterCount(filter);
-            const isActive = activeFilter === filter;
-            return <button key={filter} onClick={() => setActiveFilter(filter)} className={`px-3 py-1.5 rounded-full text-sm font-medium transition-colors flex items-center gap-1.5 ${isActive ? "text-black" : "text-white"}`} style={isActive ? {
-              background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-            } : {
-              background: "#7575754D",
-              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-            }}>
-                    {filter}
-                    <span className="font-bold">{count}</span>
-                  </button>;
-          })}
-            </div>
-
-            {/* Target Orders List */}
-            <ScrollArea className="flex-1 px-3">
-              <div className="space-y-2 pb-3">
-                {filteredOrders.map(order => <DesktopOrderListCard key={order.id} order={order} isSelected={targetOrder?.id === order.id} onClick={() => {
-              setDisplayedOrder(order);
-              setTargetOrder(order);
-            }} />)}
-              </div>
-              <ScrollBar orientation="vertical" />
-            </ScrollArea>
-
-            {/* Transfer Button */}
-            {targetOrder && <div className="p-3 border-t border-white/10 flex gap-3">
-                <button onClick={() => {
-            setDesktopStep("select-items");
-            setTargetOrder(null);
-          }} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
-                  CANCEL
-                </button>
-                <button onClick={() => {
-            setFromOrder(currentOrder);
-            setToOrder(targetOrder);
-            setIsConfirmDialogOpen(true);
-          }} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
-            background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-          }}>
-                  TRANSFER ITEMS TO ORDER {targetOrder.id} ON {formatTableName(targetOrder.table || '').toUpperCase()}
-                </button>
-              </div>}
-          </>}
 
         {/* Step 3: Select Table (for entire order transfer) */}
         {desktopStep === "select-table" && <>
@@ -1377,7 +1331,7 @@ const TransferOrders = () => {
                 <p className="text-white/60 text-xs mb-1">Transferring from</p>
                 <div className="flex items-center justify-between">
                   <span className="text-white font-medium">Order #{currentOrder.id} · {formatTableName(currentOrder.table)}</span>
-                  <span className="text-white/60 text-sm">{currentOrder.items.length} items</span>
+                  <span className="text-white/60 text-sm">{isEntireOrderTransfer ? currentOrder.items.length : selectedItems.length} item{(isEntireOrderTransfer ? currentOrder.items.length : selectedItems.length) > 1 ? 's' : ''}</span>
                 </div>
               </div>
             </div>
@@ -1476,8 +1430,7 @@ const TransferOrders = () => {
 
       {/* Mobile/Tablet Layout */}
       <div className="flex flex-col flex-1 min-h-0 lg:hidden overflow-hidden">
-        {step === "select-items" && <MobileSelectItemsView />}
-        {step === "confirm-direction" && <ConfirmDirectionView />}
+      {step === "select-items" && <MobileSelectItemsView />}
         {step === "select-table" && <MobileTableSelectionView />}
       </div>
 
@@ -1489,21 +1442,9 @@ const TransferOrders = () => {
           <button onClick={handleProceedToTargetSelection} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
         background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
       }}>
-            SELECT CHECK
-          </button>
-        </div>}
-
-      {/* Confirm Button - Fixed above bottom nav (Mobile) */}
-      {step === "confirm-direction" && <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
-          <button onClick={() => setStep("select-items")} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
-            CANCEL
-          </button>
-          <button onClick={handleFinalConfirm} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
-        background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
-      }}>
-            CONFIRM TRANSFER
-          </button>
-        </div>}
+             SELECT TABLE
+           </button>
+         </div>}
 
       {/* Table Selection CTAs - Fixed above bottom nav (Mobile) */}
       {step === "select-table" && <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
@@ -1530,11 +1471,14 @@ const TransferOrders = () => {
       <AlertDialog open={showTableConfirmDialog} onOpenChange={setShowTableConfirmDialog}>
         <AlertDialogContent className="bg-neutral-900 border-white/10">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">Transfer Entire Order?</AlertDialogTitle>
+            <AlertDialogTitle className="text-white">
+              {isEntireOrderTransfer ? 'Transfer Entire Order?' : 'Transfer Items?'}
+            </AlertDialogTitle>
             <AlertDialogDescription className="text-white/60">
-              Are you sure you want to transfer this entire order to {formatTableName(selectedTargetTable || '')}?
-              <br /><br />
-              All items, modifiers, notes, discounts, and charges will be moved together.
+              {isEntireOrderTransfer 
+                ? <>Are you sure you want to transfer this entire order to {formatTableName(selectedTargetTable || '')}?<br /><br />All items, modifiers, notes, discounts, and charges will be moved together.</>
+                : <>Are you sure you want to transfer {selectedItems.length} item{selectedItems.length > 1 ? 's' : ''} to {formatTableName(selectedTargetTable || '')}?</>
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

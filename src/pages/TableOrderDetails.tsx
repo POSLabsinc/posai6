@@ -1418,7 +1418,7 @@ const TableOrderDetails = () => {
                 {/* For full order transfer: show on first order when transferType is 'full' */}
                 {/* For partial transfer: show when transferDestOrderId matches */}
                 {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
-                  (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable && transferredOrderId)) && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
+                  (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
                       {transferType === 'full' ? (
                         <>
@@ -1444,7 +1444,7 @@ const TableOrderDetails = () => {
                       <span className="text-white">{formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable)) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="hidden md:flex items-stretch">
@@ -2171,7 +2171,7 @@ const TableOrderDetails = () => {
                   </div>}
                 {/* Transferred Items Indicator (Destination - receiving items) */}
                 {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
-                  (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable && transferredOrderId)) && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
+                  (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-xs font-medium">
                       {transferType === 'full' ? (
                         <>
@@ -2188,7 +2188,7 @@ const TableOrderDetails = () => {
                       )}
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable)) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
+                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
                 <div className="flex items-stretch w-full bg-neutral-900">
                   {/* Left Content with padding */}
                   <div className="flex-1 flex items-stretch gap-2 p-2">

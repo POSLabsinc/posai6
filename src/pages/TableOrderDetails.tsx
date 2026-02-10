@@ -1084,7 +1084,7 @@ const TableOrderDetails = () => {
               
               {/* Transferred Items Indicator (Destination - receiving items) */}
               {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
-                (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable && transferredOrderId)) && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
+                (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
                   <span className="text-xs font-medium">
                     {transferType === 'full' ? (
                       <>
@@ -1101,7 +1101,7 @@ const TableOrderDetails = () => {
                     )}
                   </span>
                 </div>}
-              <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType !== 'full' && transferDestOrderId === guest.id && transferredFromTable)) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
+              <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
               {/* Swipe Action Buttons (revealed on swipe left) */}
               {(guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed') ? (
                 /* Receipt and Register buttons for paid orders */

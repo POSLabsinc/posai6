@@ -399,14 +399,14 @@ const TableOrderDetails = () => {
     const totals = calculateOrderTotals(transferredItems, 0);
     
     return [{
-      id: `transfer-${transferredOrderId}-${Date.now()}`,
+      id: `new-order-${tableId}`,
       name: transferSource.name,
       phone: transferSource.phone,
-      partySize: transferSource.partySize,
+      partySize: transferredItems.length,
       time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
       timer: "0:00",
       server: transferSource.server,
-      check: `T${Math.floor(Math.random() * 90000) + 10000}`,
+      check: transferSource.check,
       paymentType: "--",
       revenueCenter: transferSource.revenueCenter,
       status: "ORDERING",

@@ -356,14 +356,10 @@ const TableOrderDetails = () => {
       }
     }
     
-    // If this order is the destination of a transfer, add transferred order data
-    // Match by order ID, or fallback to first order on the table for table-level transfers
-    const isTransferDest = transferredOrderId && transferredItemNames.length > 0 && 
-      (transferDestOrderId === order.id || (transferType === 'partial' && orderIndex === 0 && transferDestOrderId !== order.id));
-    if (isTransferDest) {
+    // If this order is the destination of a transfer (exact ID match only)
+    if (transferDestOrderId === order.id && transferredOrderId && transferredItemNames.length > 0) {
       const transferSource = allOrders.find(o => o.id === transferredOrderId);
       if (transferSource) {
-        // Get the transferred items from the source order
         const transferredItems = transferSource.items.filter(item => 
           transferredItemNames.includes(item.name)
         );
@@ -373,7 +369,6 @@ const TableOrderDetails = () => {
           table: transferredFromTable || transferSource.table,
           items: transferredItems
         }];
-        // Recalculate totals with transferred items
         const combinedTotals = calculateCombinedTotals(orderWithTotals);
         orderWithTotals.subtotal = combinedTotals.subtotal;
         orderWithTotals.discount = combinedTotals.discount;
@@ -386,9 +381,57 @@ const TableOrderDetails = () => {
     return orderWithTotals;
   });
   
-  // Merge static and session orders - session orders shown first
+  // For table-level partial transfers where no existing order matched, create a virtual new order
+  const virtualTransferOrder: GuestOrder[] = (() => {
+    if (transferType !== 'partial' || !transferredOrderId || transferredItemNames.length === 0) return [];
+    // Check if any existing order already has the transfer attached (exact ID match)
+    const alreadyAttached = staticGuestOrders.some(o => o.transferredFrom && o.transferredFrom.length > 0);
+    if (alreadyAttached) return [];
+    
+    const transferSource = allOrders.find(o => o.id === transferredOrderId);
+    if (!transferSource) return [];
+    
+    const transferredItems = transferSource.items.filter(item => 
+      transferredItemNames.includes(item.name)
+    );
+    if (transferredItems.length === 0) return [];
+    
+    const totals = calculateOrderTotals(transferredItems, 0);
+    
+    return [{
+      id: `transfer-${transferredOrderId}-${Date.now()}`,
+      name: transferSource.name,
+      phone: transferSource.phone,
+      partySize: transferSource.partySize,
+      time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+      timer: "0:00",
+      server: transferSource.server,
+      check: `T${Math.floor(Math.random() * 90000) + 10000}`,
+      paymentType: "--",
+      revenueCenter: transferSource.revenueCenter,
+      status: "ORDERING",
+      notes: "",
+      table: tableId || "",
+      orderType: transferSource.orderType,
+      items: transferredItems,
+      subtotal: totals.subtotal,
+      discount: totals.discount,
+      serviceCharge: totals.serviceCharge,
+      tax: totals.tax,
+      tip: totals.tip,
+      total: totals.total,
+      transferredFrom: [{
+        orderId: transferSource.id,
+        orderName: transferSource.name,
+        table: transferredFromTable || transferSource.table,
+        items: transferredItems
+      }]
+    }];
+  })();
+  
+  // Merge static and session orders - session orders shown first, virtual transfer orders on top
   const sessionGuestOrders: GuestOrder[] = sessionOrdersForTable.map(convertSessionToGuestOrder);
-  const guestOrders: GuestOrder[] = [...sessionGuestOrders, ...staticGuestOrders];
+  const guestOrders: GuestOrder[] = [...virtualTransferOrder, ...sessionGuestOrders, ...staticGuestOrders];
   
 
   // Memoize order timer data to avoid recreating array on every render

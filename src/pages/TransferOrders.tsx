@@ -989,6 +989,16 @@ const TransferOrders = () => {
           <OrderNotesAutocomplete value={orderNotes} onChange={setOrderNotes} placeholder="Order notes and Allergies" />
         </div>
 
+        {/* Transfer info banner */}
+        {selectedTargetTable && (step === 'select-table' || desktopStep === 'select-table') && (
+          <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0 flex items-center gap-2">
+            <img src={tableTargetIcon} alt="Transfer" className="w-4 h-4 opacity-70" />
+            <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+              Transferring to {formatTableName(selectedTargetTable)}
+            </span>
+          </div>
+        )}
+
         {/* Order Items */}
         <ScrollArea className="flex-1 min-h-0 px-2">
           <div className="py-1 space-y-1">

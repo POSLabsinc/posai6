@@ -992,14 +992,18 @@ const TransferOrders = () => {
         {/* Order Items */}
         <ScrollArea className="flex-1 min-h-0 px-2">
           <div className="py-1 space-y-1">
-            {panelOrder.items.map((item, index) => <SwipeableCartItem key={`${panelOrder.id}-${index}`} onDelete={() => {}} itemOrderType="Dine In" onOrderTypeChange={() => {}} isOpen={activeSwipedItemId === `${panelOrder.id}-${index}`} onSwipeStart={() => setActiveSwipedItemId(`${panelOrder.id}-${index}`)}>
-                <div className="p-2 border border-sidebar-border rounded-md cursor-pointer" style={{
-              background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
+            {panelOrder.items.map((item, index) => {
+              const isSelectedForTransfer = selectedItems.includes(index) && (step === 'select-table' || desktopStep === 'select-table');
+              return <SwipeableCartItem key={`${panelOrder.id}-${index}`} onDelete={() => {}} itemOrderType="Dine In" onOrderTypeChange={() => {}} isOpen={activeSwipedItemId === `${panelOrder.id}-${index}`} onSwipeStart={() => setActiveSwipedItemId(`${panelOrder.id}-${index}`)}>
+                <div className={`p-2 border rounded-md cursor-pointer ${isSelectedForTransfer ? 'border-[#3B6A9E]' : 'border-sidebar-border'}`} style={{
+              background: isSelectedForTransfer 
+                ? 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' 
+                : 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
             }}>
                   <div className="flex flex-col">
                     {/* Item header row */}
                     <div className="flex items-start gap-2">
-                      <span className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                      <span className={`w-6 h-6 rounded border text-white text-xs font-medium flex items-center justify-center flex-shrink-0 ${isSelectedForTransfer ? 'bg-[#3B6A9E] border-[#5A8ABF]' : 'bg-neutral-700 border-neutral-600'}`}>
                         {item.qty}
                       </span>
                       <div className="flex-1 min-w-0">
@@ -1051,7 +1055,7 @@ const TransferOrders = () => {
                     </div>
                   </div>
                 </div>
-              </SwipeableCartItem>)}
+              </SwipeableCartItem>})}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>

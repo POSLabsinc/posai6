@@ -2054,7 +2054,45 @@ const TableOrderDetails = () => {
               ));
             })()}
             
-            {/* Transferred items section removed - items already shown as regular cart items for new orders */}
+            {/* Transferred Items Section - only for existing orders receiving transferred items */}
+            {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && 
+             !virtualTransferOrder.some(v => v.id === currentSelectedGuest.id) && (
+              <div className="mt-3 pt-2 border-t border-white/10">
+                {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
+                  <div key={sourceIdx}>
+                    <div className="flex items-center gap-2 mb-2 px-1">
+                      <img src={transferIcon} alt="Transferred" className="w-4 h-4 opacity-70" />
+                      <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+                        Transferred from Order {source.orderId} · {formatTableName(source.table)}
+                      </span>
+                    </div>
+                    <div className="space-y-1">
+                      {source.items.map((item, index) => (
+                        <div 
+                          key={`transferred-${sourceIdx}-${index}`}
+                          className="p-2 border border-[#3B6A9E] rounded-md" 
+                          style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' }}
+                        >
+                          <div className="flex items-start gap-2">
+                            <span className="w-5 h-5 rounded bg-[#3B6A9E] text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                              {item.qty}
+                            </span>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center justify-between">
+                                <span className="text-sm font-medium text-white">{item.name}</span>
+                                <span className="text-sm font-medium text-white/80">
+                                  {formatPrice(item.price * item.qty)}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>

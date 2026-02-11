@@ -1886,8 +1886,7 @@ const TableOrderDetails = () => {
         </div>
 
         {/* Transfer info banner - below order notes */}
-        {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && 
-         !virtualTransferOrder.some(v => v.id === currentSelectedGuest.id) && (
+        {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && (
           <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
             {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
               <div key={sourceIdx} className="flex items-center gap-2">

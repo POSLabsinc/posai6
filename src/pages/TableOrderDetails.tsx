@@ -1904,25 +1904,33 @@ const TableOrderDetails = () => {
                     </div>
                     <div className="space-y-1">
                       {source.items.map((item, index) => (
-                        <div 
+                        <SwipeableCartItem
                           key={`transferred-${sourceIdx}-${index}`}
-                          className="p-2 border border-[#3B6A9E] rounded-md" 
-                          style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' }}
+                          onDelete={() => {}}
+                          itemOrderType="Dine In"
+                          onOrderTypeChange={() => {}}
+                          isOpen={activeSwipedItemId === `transferred-${sourceIdx}-${index}`}
+                          onSwipeStart={() => setActiveSwipedItemId(`transferred-${sourceIdx}-${index}`)}
                         >
-                          <div className="flex items-start gap-2">
-                            <span className="w-5 h-5 rounded bg-[#3B6A9E] text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
-                              {item.qty}
-                            </span>
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center justify-between">
-                                <span className="text-sm font-medium text-white">{item.name}</span>
-                                <span className="text-sm font-medium text-white/80">
-                                  {formatPrice(item.price * item.qty)}
-                                </span>
+                          <div 
+                            className="p-2 border border-[#3B6A9E] rounded-md cursor-pointer" 
+                            style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' }}
+                          >
+                            <div className="flex items-start gap-2">
+                              <span className="w-5 h-5 rounded bg-[#3B6A9E] text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
+                                {item.qty}
+                              </span>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-sm font-medium text-white">{item.name}</span>
+                                  <span className="text-sm font-medium text-white/80">
+                                    {formatPrice(item.price * item.qty)}
+                                  </span>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
+                        </SwipeableCartItem>
                       ))}
                     </div>
                   </div>

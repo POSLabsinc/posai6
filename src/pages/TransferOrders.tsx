@@ -1542,7 +1542,7 @@ const TransferOrders = () => {
 
       {/* Ticket Selection Dialog - for occupied tables */}
       <Dialog open={showTicketSelection} onOpenChange={setShowTicketSelection}>
-        <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-md overflow-hidden">
+        <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-lg overflow-hidden">
           <div className="p-4 border-b border-white/10">
             <h2 className="text-white text-lg font-semibold">
               Transfer to {formatTableName(selectedTargetTable || '')}
@@ -1552,8 +1552,8 @@ const TransferOrders = () => {
             </p>
           </div>
           
-          <ScrollArea className="max-h-[400px]">
-            <div className="p-4 space-y-2">
+          <ScrollArea className="max-h-[60vh]">
+            <div className="p-4 space-y-3">
               {/* Active tickets on the target table */}
               {selectedTargetTable && getOrdersByTable(selectedTargetTable)
                 .filter(o => o.status !== "PAID" && o.status !== "Completed")
@@ -1569,31 +1569,32 @@ const TransferOrders = () => {
                       }`}
                       style={{ backgroundColor: '#1B1C20' }}
                     >
-                      <div className="flex items-stretch w-full p-3 gap-3">
-                        {/* Order number box */}
-                        <div className="flex-shrink-0 w-12 h-14 rounded-lg flex flex-col items-center justify-center border border-white/20" style={{ background: '#1A1A1A' }}>
-                          <span className="text-lg font-bold text-white">{order.id}</span>
-                          <span className="text-[9px] text-white/40">000</span>
-                        </div>
-                        
-                        {/* Order info */}
-                        <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
-                          <div className="flex items-center justify-between">
-                            <span className="text-white font-medium text-sm truncate">{order.name}</span>
-                            <span className={`text-xs font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
+                      {/* Order header via OrderLayoutTemplate */}
+                      <div className="border-b border-white/10">
+                        <OrderLayoutTemplate order={toOrderTemplateData(order)} showBorder={false} />
+                      </div>
+                      
+                      {/* Full item list */}
+                      <div className="px-3 py-2 space-y-1">
+                        {order.items.map((item, idx) => (
+                          <div key={idx} className="flex items-center justify-between py-1">
+                            <div className="flex items-center gap-2 min-w-0 flex-1">
+                              <span className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
+                                {item.qty}
+                              </span>
+                              <span className="text-white text-xs truncate">{item.name}</span>
+                            </div>
+                            <span className="text-white/70 text-xs font-medium flex-shrink-0 ml-2">
+                              {formatPrice(item.price * item.qty)}
+                            </span>
                           </div>
-                          <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
-                            <span>Party of {order.partySize}</span>
-                            <span className="text-white/30">·</span>
-                            <span>{order.server}</span>
-                            <span className="text-white/30">·</span>
-                            <span>{order.timer}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs" style={{ color: '#B5B6BB' }}>{order.items.length} items</span>
-                            <span className="text-white font-semibold text-sm">${totals.total.toFixed(2)}</span>
-                          </div>
-                        </div>
+                        ))}
+                      </div>
+                      
+                      {/* Order total */}
+                      <div className="px-3 py-2 border-t border-white/10 flex items-center justify-between">
+                        <span className="text-white/50 text-xs">{order.items.length} items</span>
+                        <span className="text-white font-semibold text-sm">{formatPrice(totals.total)}</span>
                       </div>
                     </button>
                   );
@@ -1607,7 +1608,7 @@ const TransferOrders = () => {
                 }`}
                 style={{ backgroundColor: '#1B1C20' }}
               >
-                <div className="flex items-center gap-3 p-3">
+                <div className="flex items-center gap-3 p-4">
                   <div className="flex-shrink-0 w-12 h-14 rounded-lg flex items-center justify-center border border-dashed border-white/30" style={{ background: '#1A1A1A' }}>
                     <span className="text-2xl text-white/60">+</span>
                   </div>
@@ -1631,7 +1632,6 @@ const TransferOrders = () => {
             <button 
               onClick={() => {
                 if (selectedTicketOrderId === '__new__') {
-                  // Create new order - use same flow as available table
                   setShowTicketSelection(false);
                   setShowTableConfirmDialog(true);
                 } else if (selectedTicketOrderId) {

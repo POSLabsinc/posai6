@@ -56,7 +56,7 @@ const OrderLayoutTemplate = ({
 
   return (
     <div 
-      className={`rounded-xl border overflow-hidden ${borderClass} ${onClick ? 'cursor-pointer transition-all' : ''}`}
+      className={`rounded-xl ${showBorder ? `border ${borderClass}` : ''} overflow-hidden ${onClick ? 'cursor-pointer transition-all' : ''}`}
       style={{ backgroundColor: '#1B1C20' }}
       onClick={onClick}
     >

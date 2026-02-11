@@ -326,7 +326,8 @@ const TableOrderDetails = () => {
   };
   
   // Get orders for this table with calculated totals (static + session orders)
-  const staticGuestOrders: GuestOrder[] = getOrdersByTable(tableId || "T2").map(order => {
+  const tableOrders = getOrdersByTable(tableId || "T2");
+  const staticGuestOrders: GuestOrder[] = tableOrders.map((order, orderIndex) => {
     const orderWithTotals = getOrderWithTotals(order) as GuestOrder;
     
     // Attach split configuration from localStorage for static orders
@@ -356,7 +357,10 @@ const TableOrderDetails = () => {
     }
     
     // If this order is the destination of a transfer, add transferred order data
-    if (transferDestOrderId === order.id && transferredOrderId && transferredItemNames.length > 0) {
+    // Match by order ID, or fallback to first order on the table for table-level transfers
+    const isTransferDest = transferredOrderId && transferredItemNames.length > 0 && 
+      (transferDestOrderId === order.id || (transferType === 'partial' && orderIndex === 0 && transferDestOrderId !== order.id));
+    if (isTransferDest) {
       const transferSource = allOrders.find(o => o.id === transferredOrderId);
       if (transferSource) {
         // Get the transferred items from the source order

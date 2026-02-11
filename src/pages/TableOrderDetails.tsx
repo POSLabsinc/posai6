@@ -1885,22 +1885,30 @@ const TableOrderDetails = () => {
           />
         </div>
 
+        {/* Transfer info banner - below order notes */}
+        {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && 
+         !virtualTransferOrder.some(v => v.id === currentSelectedGuest.id) && (
+          <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
+            {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
+              <div key={sourceIdx} className="flex items-center gap-2">
+                <img src={transferIcon} alt="Transferred" className="w-4 h-4 opacity-70" />
+                <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+                  Transferred from Order {source.orderId} · {formatTableName(source.table)}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Order Items */}
         <ScrollArea className="flex-1 min-h-0 px-2">
           <div className="py-1 space-y-1">
-            {/* Transferred Items at top - only for existing orders receiving transferred items */}
+            {/* Transferred Items at top */}
             {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && 
              !virtualTransferOrder.some(v => v.id === currentSelectedGuest.id) && (
               <div className="mb-2 pb-2 border-b border-white/10">
                 {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
                   <div key={sourceIdx}>
-                    <div className="flex items-center gap-2 mb-2 px-1">
-                      <img src={transferIcon} alt="Transferred" className="w-4 h-4 opacity-70" />
-                      <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
-                        Transferred from Order {source.orderId} · {formatTableName(source.table)}
-                      </span>
-                    </div>
                     <div className="space-y-1">
                       {source.items.map((item, index) => (
                         <SwipeableCartItem

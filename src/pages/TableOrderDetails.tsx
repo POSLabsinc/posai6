@@ -430,8 +430,11 @@ const TableOrderDetails = () => {
   })();
   
   // Merge static and session orders - session orders shown first, virtual transfer orders on top
+  // When a virtual transfer order exists (transfer to available/empty table), hide existing static orders
   const sessionGuestOrders: GuestOrder[] = sessionOrdersForTable.map(convertSessionToGuestOrder);
-  const guestOrders: GuestOrder[] = [...virtualTransferOrder, ...sessionGuestOrders, ...staticGuestOrders];
+  const guestOrders: GuestOrder[] = virtualTransferOrder.length > 0 
+    ? [...virtualTransferOrder, ...sessionGuestOrders] 
+    : [...sessionGuestOrders, ...staticGuestOrders];
   
 
   // Memoize order timer data to avoid recreating array on every render

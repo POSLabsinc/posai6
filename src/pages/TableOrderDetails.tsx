@@ -566,6 +566,10 @@ const TableOrderDetails = () => {
     const guest = guestOverride ?? currentGuestRef.current;
     const cardId = currentCardId.current ?? guest?.id ?? null;
     const isInteractive = isInteractiveElement(e?.target ?? null);
+    
+    // Track if the card was already swiped open before this gesture
+    const wasSwipedOpen = cardId ? (swipeStatesRef.current[cardId] ?? 0) < -20 : false;
+    
     if (cardId && !isInteractive) {
       const currentX = swipeStatesRef.current[cardId] ?? 0;
       const snapTo = currentX < swipeWidth / 2 ? swipeWidth : 0;
@@ -576,7 +580,8 @@ const TableOrderDetails = () => {
     currentGuestRef.current = null;
 
     // On mobile, onClick can be cancelled; open on touch-end when it was really a tap.
-    if (triggerTap && !hasMoved.current && guest && !isInteractive) {
+    // Don't navigate if the card was swiped open (tap should just close it)
+    if (triggerTap && !hasMoved.current && guest && !isInteractive && !wasSwipedOpen) {
       suppressNextClickRef.current = true;
       handleMobileOrderClick(guest);
     }
@@ -891,9 +896,27 @@ const TableOrderDetails = () => {
             <div className="flex items-center gap-2">
               <img src={runnerIcon} alt="Runner" className="w-4 h-4 opacity-60" />
               <span className="text-white/50 text-sm">{currentSelectedGuest.server}</span>
-              <button onClick={() => setShowMobileOrderPanel(false)} className="ml-2 w-6 h-6 flex items-center justify-center text-white/50 hover:text-white">
-                ⋮
-              </button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button className="ml-2 w-6 h-6 flex items-center justify-center text-white/50 hover:text-white">
+                    ⋮
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-44 p-1 bg-neutral-800 border-white/10" sideOffset={4}>
+                  <button className="w-full text-left px-3 py-2 text-sm text-white hover:bg-white/10 rounded" onClick={() => {}}>
+                    Print Receipt
+                  </button>
+                  <button className="w-full text-left px-3 py-2 text-sm text-white hover:bg-white/10 rounded" onClick={() => {}}>
+                    Add Discount
+                  </button>
+                  <button className="w-full text-left px-3 py-2 text-sm text-white hover:bg-white/10 rounded" onClick={() => {}}>
+                    Transfer Check
+                  </button>
+                  <button className="w-full text-left px-3 py-2 text-sm text-white hover:bg-white/10 rounded" onClick={() => setShowMobileOrderPanel(false)}>
+                    Close Panel
+                  </button>
+                </PopoverContent>
+              </Popover>
             </div>
           </div>
           

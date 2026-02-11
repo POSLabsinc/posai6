@@ -398,15 +398,22 @@ const TableOrderDetails = () => {
     
     const totals = calculateOrderTotals(transferredItems, 0);
     
+    // Generate a new order number (next sequential after existing orders)
+    const maxOrderId = Math.max(...allOrders.map(o => parseInt(o.id) || 0));
+    const newOrderId = String(maxOrderId + 1);
+    // Generate a new check number
+    const maxCheck = Math.max(...allOrders.map(o => parseInt(o.check) || 0));
+    const newCheck = String(maxCheck + 1);
+    
     return [{
-      id: `new-order-${tableId}`,
+      id: newOrderId,
       name: transferSource.name,
       phone: transferSource.phone,
       partySize: transferredItems.length,
       time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
       timer: "0:00",
       server: transferSource.server,
-      check: transferSource.check,
+      check: newCheck,
       paymentType: "--",
       revenueCenter: transferSource.revenueCenter,
       status: "ORDERING",

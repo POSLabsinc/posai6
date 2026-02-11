@@ -570,6 +570,9 @@ const TableOrderDetails = () => {
     // Track if the card was already swiped open before this gesture
     const wasSwipedOpen = cardId ? (swipeStatesRef.current[cardId] ?? 0) < -20 : false;
     
+    // Track if this was a swipe gesture (card moved to a new position)
+    const didSwipe = hasMoved.current;
+    
     if (cardId && !isInteractive) {
       const currentX = swipeStatesRef.current[cardId] ?? 0;
       const snapTo = currentX < swipeWidth / 2 ? swipeWidth : 0;
@@ -579,11 +582,14 @@ const TableOrderDetails = () => {
     currentCardId.current = null;
     currentGuestRef.current = null;
 
-    // On mobile, onClick can be cancelled; open on touch-end when it was really a tap.
-    // Don't navigate if the card was swiped open (tap should just close it)
-    if (triggerTap && !hasMoved.current && guest && !isInteractive && !wasSwipedOpen) {
+    // On mobile, open on touch-end when it was really a tap (no movement, card wasn't swiped open).
+    if (triggerTap && !didSwipe && guest && !isInteractive && !wasSwipedOpen) {
+      // Suppress the subsequent onClick so we don't double-navigate
       suppressNextClickRef.current = true;
       handleMobileOrderClick(guest);
+    } else {
+      // For any swipe or swiped-open tap, suppress the onClick
+      suppressNextClickRef.current = true;
     }
     hasMoved.current = false;
   };
@@ -592,9 +598,8 @@ const TableOrderDetails = () => {
       suppressNextClickRef.current = false;
       return;
     }
-    if (!hasMoved.current) {
-      handleMobileOrderClick(guest);
-    }
+    // This is a fallback for mouse clicks that bypass touch handlers
+    handleMobileOrderClick(guest);
   };
   const getStatusColor = (status: string) => {
     const upperStatus = status?.toUpperCase();

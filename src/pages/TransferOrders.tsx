@@ -1565,7 +1565,7 @@ const TransferOrders = () => {
                       key={order.id}
                       onClick={() => setSelectedTicketOrderId(order.id)}
                       className={`w-full rounded-xl border overflow-hidden text-left transition-all ${
-                        isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/10 hover:border-white/30'
+                        isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'
                       }`}
                       style={{ backgroundColor: '#1B1C20' }}
                     >
@@ -1604,7 +1604,7 @@ const TransferOrders = () => {
               <button
                 onClick={() => setSelectedTicketOrderId('__new__')}
                 className={`w-full rounded-xl border overflow-hidden text-left transition-all ${
-                  selectedTicketOrderId === '__new__' ? 'border-white ring-1 ring-white/30' : 'border-white/10 hover:border-white/30'
+                  selectedTicketOrderId === '__new__' ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'
                 }`}
                 style={{ backgroundColor: '#1B1C20' }}
               >

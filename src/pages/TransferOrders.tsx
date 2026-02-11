@@ -9,7 +9,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 import OrderSummary from "@/components/OrderSummary";
 import { getOrderStatusColor, formatPrice, formatTableName } from "@/lib/orderUtils";
-import { Order, allOrders, getOrderById, getAvailableOrdersForTransfer, calculateOrderTotals, getOrderAmount, toOrderTemplateData } from "@/data/orders";
+import { Order, allOrders, getOrderById, getOrdersByTable, getAvailableOrdersForTransfer, calculateOrderTotals, getOrderAmount, toOrderTemplateData } from "@/data/orders";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 import { toast } from "sonner";
@@ -125,6 +125,8 @@ const TransferOrders = () => {
   // New state for table selection
   const [selectedTargetTable, setSelectedTargetTable] = useState<string | null>(null);
   const [showTableConfirmDialog, setShowTableConfirmDialog] = useState(false);
+  const [showTicketSelection, setShowTicketSelection] = useState(false);
+  const [selectedTicketOrderId, setSelectedTicketOrderId] = useState<string | null>(null);
 
   // Get the current order being transferred from
   const currentOrder = allOrders.find(o => o.id === orderId) || allOrders[0];
@@ -245,7 +247,49 @@ const TransferOrders = () => {
   // Handle confirm transfer to table
   const handleConfirmTableTransfer = () => {
     if (!selectedTargetTable) return;
-    setShowTableConfirmDialog(true);
+    
+    // Check if the target table has active orders
+    const targetTableOrders = getOrdersByTable(selectedTargetTable).filter(
+      o => o.status !== "PAID" && o.status !== "Completed"
+    );
+    
+    if (targetTableOrders.length > 0) {
+      // Show ticket selection for occupied tables
+      setShowTicketSelection(true);
+      setSelectedTicketOrderId(null);
+    } else {
+      // Available table - show direct confirmation
+      setShowTableConfirmDialog(true);
+    }
+  };
+
+  // Execute transfer to a specific existing order on the target table
+  const executeTransferToTicket = () => {
+    if (!selectedTargetTable) return;
+    
+    setShowTicketSelection(false);
+    
+    const isPartialTransfer = !isEntireOrderTransfer;
+    const itemNames = isPartialTransfer 
+      ? selectedItems.map(index => currentOrder.items[index].name).join(',')
+      : currentOrder.items.map(item => item.name).join(',');
+    const isFullTransfer = isEntireOrderTransfer || selectedItems.length === currentOrder.items.length;
+    
+    toast.success(`${isPartialTransfer ? 'Items' : 'Order'} transferred successfully to ${formatTableName(selectedTargetTable)}`);
+    
+    setTimeout(() => {
+      const transferParams = new URLSearchParams({
+        transferred: currentOrder.id,
+        transferFrom: currentOrder.table,
+        transferDest: selectedTicketOrderId || currentOrder.id,
+        items: itemNames,
+        transferSource: currentOrder.id,
+        transferType: isFullTransfer ? 'full' : 'partial',
+        transferredTo: selectedTicketOrderId || currentOrder.id,
+        transferToTable: selectedTargetTable.replace('T', '')
+      });
+      navigate(`/tableorder/${selectedTargetTable}?${transferParams.toString()}`);
+    }, 1500);
   };
 
   // Execute the actual transfer to table
@@ -1496,7 +1540,117 @@ const TransferOrders = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Desktop Confirmation Dialog */}
+      {/* Ticket Selection Dialog - for occupied tables */}
+      <Dialog open={showTicketSelection} onOpenChange={setShowTicketSelection}>
+        <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-md overflow-hidden">
+          <div className="p-4 border-b border-white/10">
+            <h2 className="text-white text-lg font-semibold">
+              Transfer to {formatTableName(selectedTargetTable || '')}
+            </h2>
+            <p className="text-white/50 text-sm mt-1">
+              Select an active ticket or create a new order
+            </p>
+          </div>
+          
+          <ScrollArea className="max-h-[400px]">
+            <div className="p-4 space-y-2">
+              {/* Active tickets on the target table */}
+              {selectedTargetTable && getOrdersByTable(selectedTargetTable)
+                .filter(o => o.status !== "PAID" && o.status !== "Completed")
+                .map((order) => {
+                  const totals = calculateOrderTotals(order.items, order.tipAmount || 0);
+                  const isSelected = selectedTicketOrderId === order.id;
+                  return (
+                    <button
+                      key={order.id}
+                      onClick={() => setSelectedTicketOrderId(order.id)}
+                      className={`w-full rounded-xl border overflow-hidden text-left transition-all ${
+                        isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/10 hover:border-white/30'
+                      }`}
+                      style={{ backgroundColor: '#1B1C20' }}
+                    >
+                      <div className="flex items-stretch w-full p-3 gap-3">
+                        {/* Order number box */}
+                        <div className="flex-shrink-0 w-12 h-14 rounded-lg flex flex-col items-center justify-center border border-white/20" style={{ background: '#1A1A1A' }}>
+                          <span className="text-lg font-bold text-white">{order.id}</span>
+                          <span className="text-[9px] text-white/40">000</span>
+                        </div>
+                        
+                        {/* Order info */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-center gap-0.5">
+                          <div className="flex items-center justify-between">
+                            <span className="text-white font-medium text-sm truncate">{order.name}</span>
+                            <span className={`text-xs font-medium ${getStatusColor(order.status)}`}>{order.status}</span>
+                          </div>
+                          <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                            <span>Party of {order.partySize}</span>
+                            <span className="text-white/30">·</span>
+                            <span>{order.server}</span>
+                            <span className="text-white/30">·</span>
+                            <span>{order.timer}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs" style={{ color: '#B5B6BB' }}>{order.items.length} items</span>
+                            <span className="text-white font-semibold text-sm">${totals.total.toFixed(2)}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
+              
+              {/* Create New Order option */}
+              <button
+                onClick={() => setSelectedTicketOrderId('__new__')}
+                className={`w-full rounded-xl border overflow-hidden text-left transition-all ${
+                  selectedTicketOrderId === '__new__' ? 'border-white ring-1 ring-white/30' : 'border-white/10 hover:border-white/30'
+                }`}
+                style={{ backgroundColor: '#1B1C20' }}
+              >
+                <div className="flex items-center gap-3 p-3">
+                  <div className="flex-shrink-0 w-12 h-14 rounded-lg flex items-center justify-center border border-dashed border-white/30" style={{ background: '#1A1A1A' }}>
+                    <span className="text-2xl text-white/60">+</span>
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-white font-medium text-sm">Create New Order</span>
+                    <p className="text-white/40 text-xs mt-0.5">Start a new ticket with transferred items</p>
+                  </div>
+                </div>
+              </button>
+            </div>
+          </ScrollArea>
+          
+          {/* Footer buttons */}
+          <div className="p-4 border-t border-white/10 flex gap-3">
+            <button 
+              onClick={() => setShowTicketSelection(false)}
+              className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700"
+            >
+              Cancel
+            </button>
+            <button 
+              onClick={() => {
+                if (selectedTicketOrderId === '__new__') {
+                  // Create new order - use same flow as available table
+                  setShowTicketSelection(false);
+                  setShowTableConfirmDialog(true);
+                } else if (selectedTicketOrderId) {
+                  executeTransferToTicket();
+                }
+              }}
+              disabled={!selectedTicketOrderId}
+              className={`flex-1 py-2.5 rounded-full font-medium text-sm ${
+                selectedTicketOrderId ? 'text-black' : 'text-black/50 opacity-50'
+              }`}
+              style={selectedTicketOrderId ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: '#555' }}
+            >
+              Confirm Transfer
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-2xl overflow-hidden">
           {/* Title */}

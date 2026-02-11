@@ -1600,7 +1600,7 @@ const TransferOrders = () => {
                   );
                 })}
               
-              {/* Create New Order option */}
+              {/* Transfer to New Order option */}
               <button
                 onClick={() => setSelectedTicketOrderId('__new__')}
                 className={`w-full rounded-xl border overflow-hidden text-left transition-all ${
@@ -1613,7 +1613,7 @@ const TransferOrders = () => {
                     <span className="text-2xl text-white/60">+</span>
                   </div>
                   <div className="flex-1">
-                    <span className="text-white font-medium text-sm">Create New Order</span>
+                    <span className="text-white font-medium text-sm">Transfer to New Order</span>
                     <p className="text-white/40 text-xs mt-0.5">Start a new ticket with transferred items</p>
                   </div>
                 </div>

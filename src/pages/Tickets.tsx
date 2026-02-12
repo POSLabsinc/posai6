@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight } from "lucide-react";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -18,8 +18,7 @@ import dineInIcon from "@/assets/icons/dine-in.png";
 
 // Order type icon component
 const OrderTypeIcon = ({ type, size = "default" }: { type: string; size?: "small" | "default" }) => {
-  const iconSize = size === "small" ? "w-4 h-4" : "w-5 h-5";
-  const lucideSize = size === "small" ? 16 : 20;
+  const iconSize = size === "small" ? "w-3.5 h-3.5" : "w-4 h-4";
   
   switch (type) {
     case "Dine-In":
@@ -292,6 +291,47 @@ const getOrderItems = (order: GuestOrder) => order.items.map(item => ({
   price: formatPrice(item.price * item.qty)
 }));
 
+// Format duration from timer string
+const formatDuration = (timer: string): string => {
+  if (timer.includes("Hrs")) return timer.replace("Hrs", "Hrs").trim();
+  // Parse MM:SS format
+  const parts = timer.split(":");
+  if (parts.length === 2) {
+    const mins = parseInt(parts[0]);
+    const secs = parseInt(parts[1]);
+    const totalMins = mins * 60 + secs; // This is actually mins:secs
+    if (totalMins === 0) return "01:26 Min";
+    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} Min`;
+  }
+  return timer;
+};
+
+// Format payment display
+const formatPaymentDisplay = (guest: GuestOrder): string => {
+  if (guest.paymentType === "--" || guest.paymentType === "") return "Un Paid";
+  if (guest.paymentType === "Cash") return "Cash";
+  if (guest.paymentType === "Credit Card") return "Visa •••• 1234";
+  return guest.paymentType;
+};
+
+// Get paid amount (secondary line)
+const getPaidAmount = (guest: GuestOrder): number => {
+  if (guest.status === "PAID" && guest.tip > 0) return guest.tip;
+  if (guest.status === "PAID") return guest.total * 0.1; // partial display
+  return 0;
+};
+
+// Status badge colors
+const getStatusBadgeStyle = (status: string): { color: string; bg: string } => {
+  switch (status) {
+    case "ORDERING": return { color: '#F97316', bg: 'rgba(249, 115, 22, 0.15)' };
+    case "PAID": return { color: '#22C55E', bg: 'rgba(34, 197, 94, 0.15)' };
+    case "UNPAID": return { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)' };
+    case "COMPLETED": return { color: '#22C55E', bg: 'rgba(34, 197, 94, 0.15)' };
+    default: return { color: '#fff', bg: 'rgba(255,255,255,0.1)' };
+  }
+};
+
 const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const Tickets = () => {
@@ -370,6 +410,9 @@ const Tickets = () => {
     const guest = guestOverride ?? currentGuest.current;
     const cardId = currentCardId.current ?? guest?.id ?? null;
     const isInteractive = isInteractiveElement(e?.target ?? null);
+    const wasSwipedOpen = cardId ? (swipeStatesRef.current[cardId] ?? 0) < -20 : false;
+    const didSwipe = hasMoved.current;
+
     if (cardId && !isInteractive) {
       const currentX = swipeStatesRef.current[cardId] ?? 0;
       const snapTo = currentX < swipeWidth / 2 ? swipeWidth : 0;
@@ -379,9 +422,11 @@ const Tickets = () => {
     currentCardId.current = null;
     currentGuest.current = null;
 
-    if (triggerTap && !hasMoved.current && guest && !isInteractive) {
+    if (triggerTap && !didSwipe && guest && !isInteractive && !wasSwipedOpen) {
       suppressNextClickRef.current = true;
       handleMobileOrderClick(guest);
+    } else {
+      suppressNextClickRef.current = true;
     }
     hasMoved.current = false;
   };
@@ -391,14 +436,12 @@ const Tickets = () => {
       suppressNextClickRef.current = false;
       return;
     }
-    if (!hasMoved.current) {
-      handleMobileOrderClick(guest);
-    }
+    handleMobileOrderClick(guest);
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "ORDERING": return "text-[#F87171]";
+      case "ORDERING": return "text-orange-400";
       case "PAID": return "text-green-500";
       case "UNPAID": return "text-red-400";
       case "COMPLETED": return "text-green-500";
@@ -432,6 +475,165 @@ const Tickets = () => {
   const handleMobileOrderClick = (guest: GuestOrder) => {
     setSelectedGuest(guest);
     setShowMobileOrderPanel(true);
+  };
+
+  // ===== TICKET CARD COMPONENT =====
+  const TicketCard = ({ 
+    guest, 
+    isSelected, 
+    onSelect, 
+    compact = false, 
+    showActions = true,
+    showSwipe = false
+  }: { 
+    guest: GuestOrder; 
+    isSelected: boolean; 
+    onSelect: () => void; 
+    compact?: boolean;
+    showActions?: boolean;
+    showSwipe?: boolean;
+  }) => {
+    const statusStyle = getStatusBadgeStyle(guest.status);
+    const checkId = guest.check !== "--" ? guest.check.slice(-3) : "000";
+    const displayTable = guest.table !== "--" ? guest.table : guest.orderType;
+    const duration = formatDuration(guest.timer);
+    const paymentDisplay = formatPaymentDisplay(guest);
+    const paidAmount = getPaidAmount(guest);
+
+    const cardContent = (
+      <div className={`flex items-stretch w-full ${compact ? 'gap-1.5' : 'gap-0'}`}>
+        {/* LEFT BADGE: Ticket Number + ID */}
+        <div className={`flex-shrink-0 flex items-center ${compact ? 'px-1.5 py-1.5' : 'px-2.5 py-2'}`}>
+          <div className={`flex flex-col items-center justify-center rounded-lg border border-neutral-600 bg-neutral-800/80 ${compact ? 'w-10 h-12 gap-0' : 'w-12 h-14 gap-0.5'}`}>
+            <span className={`font-bold text-white ${compact ? 'text-base' : 'text-lg'}`}>{guest.id}</span>
+            <span className="text-[10px] text-neutral-400 font-medium">{checkId}</span>
+          </div>
+        </div>
+
+        {/* MIDDLE CONTENT */}
+        <div className={`flex-1 min-w-0 ${compact ? 'py-1.5' : 'py-2'} flex flex-col justify-center`}>
+          {/* Row 1: Name · Table/Type */}
+          <div className="flex items-center gap-1.5 mb-0.5">
+            <span className={`text-white font-semibold truncate ${compact ? 'text-xs' : 'text-sm'}`}>{guest.name}</span>
+            <span className="text-neutral-500 text-xs">·</span>
+            <span className={`text-white/70 truncate ${compact ? 'text-xs' : 'text-sm'}`}>{displayTable}</span>
+          </div>
+
+          {/* Row 2: Order type icon + party + time + duration */}
+          <div className="flex items-center gap-1.5 text-neutral-400 mb-0.5">
+            <OrderTypeIcon type={guest.orderType} size="small" />
+            {guest.orderType !== "Bar" && (
+              <span className={`${compact ? 'text-[10px]' : 'text-xs'}`}>
+                {guest.partySize > 1 ? `Party of ${guest.partySize}, ` : ''}{guest.time} | {duration}
+              </span>
+            )}
+            {guest.orderType === "Bar" && (
+              <span className={`${compact ? 'text-[10px]' : 'text-xs'}`}>{guest.orderType}, {guest.time} | {duration}</span>
+            )}
+          </div>
+
+          {/* Row 3: Revenue Center */}
+          <span className={`text-neutral-500 ${compact ? 'text-[10px]' : 'text-xs'}`}>{guest.revenueCenter}</span>
+        </div>
+
+        {/* SERVER & PAYMENT INFO (desktop/tablet only) */}
+        {!compact && (
+          <div className="flex-shrink-0 w-[110px] py-2 flex flex-col justify-center text-right pr-2">
+            <span className="text-white text-xs font-medium truncate">{guest.server}</span>
+            <span className="text-neutral-400 text-[11px] truncate">{paymentDisplay}</span>
+          </div>
+        )}
+
+        {/* RIGHT: Status + Amount */}
+        <div className={`flex-shrink-0 flex flex-col items-end justify-center ${compact ? 'pr-1.5 py-1.5 w-[85px]' : 'pr-2 py-2 w-[100px]'}`}>
+          <span 
+            className={`font-bold uppercase tracking-wide ${compact ? 'text-[10px] mb-0.5' : 'text-xs mb-1'}`}
+            style={{ color: statusStyle.color }}
+          >
+            {guest.status}
+          </span>
+          <span className={`text-white font-bold ${compact ? 'text-sm' : 'text-base'}`}>
+            {formatPrice(guest.total)}
+          </span>
+          <span className={`text-neutral-500 ${compact ? 'text-[10px]' : 'text-xs'}`}>
+            {formatPrice(paidAmount)}
+          </span>
+        </div>
+
+        {/* FAR RIGHT: Action Strip */}
+        {showActions && (
+          <div className="flex-shrink-0 flex flex-col rounded-r-xl overflow-hidden border-l border-neutral-700/50">
+            <button 
+              className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-600/50 transition-colors"
+              style={{ background: 'rgba(255, 159, 101, 0.9)', backgroundImage: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+              onClick={e => {
+                e.stopPropagation();
+              }}
+            >
+              <ReceiptText className="w-4 h-4 text-white" />
+            </button>
+            <button 
+              className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors border-t border-neutral-600/50"
+              style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+              onClick={e => {
+                e.stopPropagation();
+                const tableNum = guest.table.replace('T', '');
+                if (tableNum && tableNum !== '-') {
+                  navigate(`/tableorder/${tableNum}/transfer?orderId=${guest.id}`);
+                }
+              }}
+            >
+              <ChevronRight className="w-4 h-4 text-neutral-800" />
+            </button>
+          </div>
+        )}
+      </div>
+    );
+
+    if (showSwipe) {
+      return (
+        <div className="relative rounded-xl cursor-pointer transition-all overflow-hidden bg-black">
+          {/* Swipe Action Buttons */}
+          <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+            <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ backgroundColor: '#666666' }}>
+              <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
+            </button>
+            <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+              <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
+            </button>
+          </div>
+
+          {/* Swipeable card content */}
+          <div 
+            className="relative transition-transform duration-200 ease-out md:transform-none bg-black rounded-xl select-none" 
+            style={{ transform: `translateX(${swipeStates[guest.id] || 0}px)`, transition: isDraggingRef.current && currentCardId.current === guest.id ? "none" : "transform 0.2s ease-out" }} 
+            onTouchStart={e => handleSwipeStart(e, guest)} 
+            onTouchMove={handleSwipeMove} 
+            onTouchEnd={e => handleSwipeEnd(true, e, guest)} 
+            onTouchCancel={e => handleSwipeEnd(false, e, guest)} 
+            onMouseDown={e => handleSwipeStart(e, guest)} 
+            onMouseMove={handleSwipeMove} 
+            onMouseUp={e => handleSwipeEnd(true, e, guest)} 
+            onMouseLeave={e => handleSwipeEnd(false, e, guest)} 
+            onClick={() => handleCardClick(guest)}
+          >
+            <div className={`border rounded-xl overflow-hidden transition-all ${isSelected ? 'border-white/40' : 'border-neutral-700/60 hover:border-neutral-500/60'}`} style={{ backgroundColor: '#1B1C20' }}>
+              {cardContent}
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div 
+        onClick={onSelect}
+        className={`rounded-xl border cursor-pointer transition-all overflow-hidden hover:shadow-lg hover:shadow-black/20 ${isSelected ? "border-white/40 shadow-md shadow-black/30" : "border-neutral-700/60 hover:border-neutral-500/60"}`} 
+        style={{ backgroundColor: '#1B1C20' }}
+      >
+        {cardContent}
+      </div>
+    );
   };
 
   // Mobile Order Panel Component
@@ -558,126 +760,228 @@ const Tickets = () => {
     </div>
   );
 
-  // Mobile Layout
-  const MobileLayout = () => (
-    <div className="flex flex-col h-full bg-black">
-      {/* Header - No back icon */}
-      <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
-        <span className="text-white font-semibold text-lg pl-2">Tickets</span>
-        
-        <div className="flex items-center gap-2 z-10">
-          <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-            <SlidersHorizontal className="w-4 h-4 text-white" />
+  // ===== FILTER TABS COMPONENT =====
+  const FilterTabs = ({ style = "default" }: { style?: "default" | "glass" }) => (
+    <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
+      {filters.map(filter => {
+        const count = getFilterCount(filter);
+        return (
+          <button 
+            key={filter} 
+            onClick={() => setActiveFilter(filter)} 
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`} 
+            style={activeFilter === filter 
+              ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } 
+              : style === "glass" 
+                ? { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
+                : { background: "#1B1C20" }
+            }
+          >
+            <span>{filter}</span>
+            {count > 0 && (
+              <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"}`}>
+                {count}
+              </span>
+            )}
           </button>
-          <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-            <Search className="w-4 h-4 text-white" />
-          </button>
+        );
+      })}
+    </div>
+  );
+
+  // ===== HEADER COMPONENT =====
+  const TicketHeader = () => (
+    <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+      <span className="text-white font-semibold text-lg pl-2">Tickets</span>
+      <div className="flex items-center gap-2 z-10">
+        <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+          <SlidersHorizontal className="w-4 h-4 text-white" />
+        </button>
+        <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+          <Search className="w-4 h-4 text-white" />
+        </button>
+      </div>
+    </div>
+  );
+
+  // ===== RIGHT PANEL (shared between desktop & tablet) =====
+  const RightPanel = ({ width, isTablet = false }: { width: string; isTablet?: boolean }) => (
+    <div className={`${width} flex flex-col m-2 ml-0`}>
+      {/* Guest Header */}
+      <div className={`px-2 ${isTablet ? 'py-2' : 'py-3'}`}>
+        <div className="flex items-center justify-between mb-2">
+          <span className={`text-white font-medium ${isTablet ? 'text-sm' : ''}`}>{selectedGuest.name}</span>
+          <div className={`flex items-center gap-${isTablet ? '2' : '3'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'}`}>
+            {!isTablet && (
+              <div className="flex items-center gap-1">
+                <Phone className="w-3 h-3" />
+                <span>{selectedGuest.phone || "N/A"}</span>
+              </div>
+            )}
+            {isTablet && <Phone className="w-3 h-3" />}
+            <div className="flex items-center gap-1">
+              <span>⚡</span>
+              <span>{selectedGuest.time}</span>
+            </div>
+          </div>
+        </div>
+        <div className={`flex gap-${isTablet ? '1' : '2'} ${isTablet ? 'flex-wrap' : ''}`}>
+          {["Add Item", "Discount", "Receipt", ...(isTablet ? [] : ["No Tax", "Register"])].map(label => (
+            <button key={label} className={`${isTablet ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-xs'} bg-neutral-700 text-white rounded-full hover:bg-neutral-600 transition-colors`}>
+              {label}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Filter Tabs */}
-      <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
-        {filters.map(filter => {
-          const count = getFilterCount(filter);
-          return (
-            <button 
-              key={filter} 
-              onClick={() => setActiveFilter(filter)} 
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`} 
-              style={activeFilter === filter ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: "#1B1C20" }}
-            >
-              <span>{filter}</span>
-              {count > 0 && (
-                <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"}`}>
-                  {count}
-                </span>
-              )}
+      {/* Main Panel Box */}
+      <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+        {/* Table Order Info */}
+        <div className={`${isTablet ? 'px-3 py-2' : 'px-4 py-3'} border-b border-white/10`}>
+          <div className={`flex items-center justify-between ${isTablet ? 'mb-1' : 'mb-2'}`}>
+            <div className="flex items-center gap-2">
+              <span className={`${isTablet ? 'px-1.5 py-0.5' : 'px-2 py-1'} bg-white/10 text-white text-xs rounded`}>{isTablet ? 'ORDER' : 'TABLE ORDER'}</span>
+              <span className={`text-white font-bold ${isTablet ? 'text-sm' : ''}`}>{selectedGuest.id}</span>
+            </div>
+            <div className="flex items-center gap-2">
+              {!isTablet && <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />}
+              <span className={`text-white/50 ${isTablet ? 'text-xs' : 'text-sm'}`}>{selectedGuest.server}</span>
+            </div>
+          </div>
+          
+          {/* Seat Buttons */}
+          <div className={`flex items-center gap-${isTablet ? '1' : '2'}`}>
+            <button className={`${isTablet ? 'p-1' : 'p-1.5'} bg-white/10 rounded hover:bg-white/20 transition-colors`}>
+              <img src={seatIcon} alt="Seat" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'}`} />
             </button>
-          );
-        })}
+            {!isTablet && (
+              <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+                <img src={splitIcon} alt="Split" className="w-4 h-4" />
+              </button>
+            )}
+            {[1, 2, 3, 4].map(seat => (
+              <button 
+                key={seat} 
+                onClick={() => toggleSeat(seat)} 
+                className={`${isTablet ? 'w-6 h-6 text-xs' : 'w-7 h-7 text-sm'} rounded font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}
+              >
+                {seat}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Notes */}
+        {(isTablet ? selectedGuest.notes : true) && (
+          <div className={`${isTablet ? 'px-3 py-2' : 'px-4 py-3'} border-b border-white/10`}>
+            <div className={`flex items-center gap-2 text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} bg-white/10 ${isTablet ? 'p-1.5' : 'p-2'} rounded-lg`}>
+              <span>📝</span>
+              <span className={isTablet ? 'truncate' : ''}>{selectedGuest.notes || "No notes"}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Order Items */}
+        <ScrollArea className={`flex-1 ${isTablet ? 'px-3' : 'px-4'}`}>
+          <div className={`py-2 space-y-${isTablet ? '1.5' : '2'}`}>
+            {getOrderItems(selectedGuest).map((item, index) => (
+              <div key={index} className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} bg-white/5 border border-white/10`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-2">
+                    <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} bg-white rounded flex items-center justify-center text-black font-bold`}>
+                      {item.qty}
+                    </span>
+                    <div>
+                      <span className={`text-white font-medium ${isTablet ? 'text-sm' : ''}`}>{item.name}</span>
+                      {item.modifiers.length > 0 && (
+                        <div className={`mt-${isTablet ? '0.5' : '1'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} space-y-0.5`}>
+                          {(isTablet ? item.modifiers.slice(0, 2) : item.modifiers).map((mod, i) => <div key={i}>{mod}</div>)}
+                          {isTablet && item.modifiers.length > 2 && <div>+{item.modifiers.length - 2} more</div>}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <span className={`text-white font-medium ${isTablet ? 'text-sm' : ''}`}>{item.price}</span>
+                </div>
+                {!isTablet && item.seats.length > 0 && (
+                  <div className="flex items-center gap-1 mt-2">
+                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                    {item.seats.map(seat => (
+                      <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                        {seat}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+
+        {/* Order Summary */}
+        <div className="p-2 border-t border-white/10 flex-shrink-0">
+          <div className={`text-xs rounded px-2 ${isTablet ? 'py-1' : 'py-1.5'} space-y-0.5`} style={{ background: '#7575754D', ...(isTablet ? {} : { boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }) }}>
+            <div className="flex justify-between gap-3">
+              <span className="text-white">Sub Total: <span className="font-medium">{formatPrice(selectedGuest.subtotal)}</span></span>
+              <span className="text-white">Discount: <span className="font-medium">{formatPrice(selectedGuest.discount)}</span></span>
+            </div>
+            {!isTablet && (
+              <div className="flex justify-between gap-3">
+                <span className="text-white">Service Charge: <span className="font-medium">{formatPrice(selectedGuest.serviceCharge)}</span></span>
+                <span className="text-white">Tax: <span className="font-medium">{formatPrice(selectedGuest.tax)}</span></span>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Actions */}
+        <div className={`${isTablet ? 'px-3 py-2' : 'px-4 py-3'} border-t border-white/10 flex items-center gap-2`}>
+          <button className={`${isTablet ? 'w-7 h-7' : 'w-8 h-8'} rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors`}>
+            <img src={clearIcon} alt="Clear" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
+          </button>
+          <button 
+            className={`${isTablet ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'} rounded-full flex items-center gap-1 text-white font-medium`}
+            style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+          >
+            <img src={fireIcon} alt="Fire" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
+            <span>FIRE</span>
+          </button>
+          <button 
+            className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
+            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+          >
+            CHARGE {formatPrice(selectedGuest.total)}
+          </button>
+        </div>
       </div>
+    </div>
+  );
+
+  // Mobile Layout
+  const MobileLayout = () => (
+    <div className="flex flex-col h-full bg-black">
+      <TicketHeader />
+      <FilterTabs />
 
       {/* Guest Orders List */}
       <ScrollArea className="flex-1 px-3">
         <div className="space-y-2 pb-3">
           {filteredOrders.map(guest => (
-            <div key={guest.id} className="space-y-0">
-              <div className="relative rounded-xl cursor-pointer transition-all overflow-hidden bg-black">
-                {/* Swipe Action Buttons */}
-                <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-                  <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ backgroundColor: '#666666' }}>
-                    <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
-                  </button>
-                  <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
-                    <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
-                  </button>
-                </div>
-
-                {/* Swipeable card content */}
-                <div 
-                  className="relative transition-transform duration-200 ease-out md:transform-none bg-black rounded-xl select-none" 
-                  style={{ transform: `translateX(${swipeStates[guest.id] || 0}px)`, transition: isDraggingRef.current && currentCardId.current === guest.id ? "none" : "transform 0.2s ease-out" }} 
-                  onTouchStart={e => handleSwipeStart(e, guest)} 
-                  onTouchMove={handleSwipeMove} 
-                  onTouchEnd={e => handleSwipeEnd(true, e, guest)} 
-                  onTouchCancel={e => handleSwipeEnd(false, e, guest)} 
-                  onMouseDown={e => handleSwipeStart(e, guest)} 
-                  onMouseMove={handleSwipeMove} 
-                  onMouseUp={e => handleSwipeEnd(true, e, guest)} 
-                  onMouseLeave={e => handleSwipeEnd(false, e, guest)} 
-                  onClick={() => handleCardClick(guest)}
-                >
-                  <div className={`flex items-stretch w-full gap-2 border rounded-xl bg-neutral-900 ${selectedGuest.id === guest.id ? 'border-white' : 'border-white/10'}`}>
-                    {/* Column 1: Order Number */}
-                    <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
-                      <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-                        <span className="text-base font-bold text-white">{guest.id}</span>
-                        <OrderTypeIcon type={guest.orderType} size="small" />
-                      </div>
-                    </div>
-
-                    {/* Column 2: Guest Info */}
-                    <div className="flex-1 min-w-0 py-2 pr-2 md:pr-0">
-                      <div className="flex flex-col">
-                        <div className="flex items-start justify-between">
-                          <span className="text-white font-medium text-sm">{guest.name}</span>
-                          <div className="flex flex-col items-end">
-                            <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
-                            {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}
-                          </div>
-                        </div>
-                        <div className="h-px bg-neutral-600 my-1.5"></div>
-                        <div className="flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-1 text-gray-400">
-                            <span>{guest.table},</span>
-                            <span>Party Of {guest.partySize},</span>
-                            <span>⚡ {guest.time}</span>
-                          </div>
-                          <span className={getStatusColor(guest.status)}>{guest.status}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Column 3: Action Button */}
-                    <div className="hidden md:flex flex-shrink-0">
-                      <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden">
-                        <button className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors">
-                          <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+            <TicketCard 
+              key={guest.id}
+              guest={guest} 
+              isSelected={selectedGuest.id === guest.id} 
+              onSelect={() => handleMobileOrderClick(guest)}
+              compact
+              showActions={false}
+              showSwipe
+            />
           ))}
         </div>
         <ScrollBar orientation="vertical" />
       </ScrollArea>
 
-      {/* No CTA button */}
-
-      {/* Mobile Order Panel */}
       {showMobileOrderPanel && <MobileOrderPanel />}
     </div>
   );
@@ -687,294 +991,26 @@ const Tickets = () => {
     <div className="flex h-full bg-black">
       {/* Left Panel - Order List */}
       <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-        {/* Header - No back icon */}
-        <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
-          <span className="text-white font-semibold text-lg pl-2">Tickets</span>
-          <div className="flex items-center gap-2">
-            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-              <SlidersHorizontal className="w-4 h-4 text-white" />
-            </button>
-            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-              <Search className="w-4 h-4 text-white" />
-            </button>
-          </div>
-        </div>
+        <TicketHeader />
+        <FilterTabs style="glass" />
 
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-2 p-3 overflow-x-auto">
-          {filters.map(filter => {
-            const count = getFilterCount(filter);
-            return (
-              <button 
-                key={filter} 
-                onClick={() => setActiveFilter(filter)} 
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`} 
-                style={activeFilter === filter ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-              >
-                <span>{filter}</span>
-                {count > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"}`}>
-                    {count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Guest Orders List */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
             {filteredOrders.map(guest => (
-              <div key={guest.id} className="space-y-0">
-                <div 
-                  onClick={() => setSelectedGuest(guest)} 
-                  className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} 
-                  style={{ backgroundColor: '#1B1C20' }}
-                >
-                  <div className="flex items-stretch w-full gap-4">
-                    {/* Column 1: Order Number - 8% */}
-                    <div className="w-[8%] flex-shrink-0 px-3 py-2 flex items-center">
-                      <div className="relative w-12 h-16 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-2 border border-neutral-600">
-                        <span className="text-lg font-bold text-white">{guest.id}</span>
-                        <OrderTypeIcon type={guest.orderType} />
-                      </div>
-                    </div>
-
-                    {/* Column 2: Guest Info - flex-1 */}
-                    <div className="flex-1 min-w-0 py-2">
-                      <div className="flex flex-col">
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-1">
-                            <span className="text-white font-medium text-sm">{guest.name}</span>
-                            <span className="text-white/60">·</span>
-                            <span className="text-white/60 text-sm truncate">{guest.revenueCenter}</span>
-                          </div>
-                          <div className="flex flex-col items-end">
-                            <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
-                            {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}
-                          </div>
-                        </div>
-                        <div className="h-px bg-neutral-600 my-1.5"></div>
-                        <div className="flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-1 text-gray-400">
-                            <span>{guest.table},</span>
-                            <span>Party Of {guest.partySize},</span>
-                            <span>⚡ {guest.time}</span>
-                          </div>
-                          <span className={getStatusColor(guest.status)}>{guest.status}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Column 3: Timer & Server - 12% */}
-                    <div className="w-[12%] flex-shrink-0 py-2">
-                      <div className="flex flex-col text-xs gap-1">
-                        <div className="text-left">
-                          <div className="text-white font-medium">{guest.timer}</div>
-                          <div className="text-gray-500">Timer</div>
-                        </div>
-                        <div className="text-left">
-                          <div className="text-white">{guest.server}</div>
-                          <div className="text-gray-500">Server</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Column 4: Check - 12% */}
-                    <div className="w-[12%] flex-shrink-0 py-2">
-                      <div className="flex flex-col text-xs gap-1">
-                        <div className="text-left">
-                          <div className="text-white font-medium">{guest.check}</div>
-                          <div className="text-gray-500">Check</div>
-                        </div>
-                        <div className="text-left">
-                          <div className="text-white">{guest.paymentType === '--' ? 'Un Paid' : 'Paid'}</div>
-                          <div className="text-gray-500">Payment</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Column 5: Payment Type - 12% */}
-                    <div className="w-[12%] flex-shrink-0 self-start py-2">
-                      <div className="flex flex-col text-xs">
-                        <div className="text-left">
-                          <div className="text-white font-medium">{guest.paymentType}</div>
-                          <div className="text-gray-500">Payment Type</div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Column 6: Action Buttons */}
-                    <div className="flex-shrink-0 flex">
-                      <div className="flex flex-col rounded-r-xl overflow-hidden">
-                        <button 
-                          className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600" 
-                          style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-                          onClick={e => {
-                            e.stopPropagation();
-                            navigate(`/tableorder/${guest.table.replace('T', '')}/merge?orderId=${guest.id}`);
-                          }}
-                        >
-                          <img src={arrowRightIcon} alt="Merge" className="w-4 h-4 object-contain" />
-                        </button>
-                        <button 
-                          className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity" 
-                          style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }} 
-                          onClick={e => {
-                            e.stopPropagation();
-                            navigate(`/tableorder/${guest.table.replace('T', '')}/transfer?orderId=${guest.id}`);
-                          }}
-                        >
-                          <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <TicketCard 
+                key={guest.id}
+                guest={guest} 
+                isSelected={selectedGuest.id === guest.id} 
+                onSelect={() => setSelectedGuest(guest)}
+                showActions
+              />
             ))}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
-
-        {/* No CTA button */}
       </div>
 
-      {/* Right Panel - Order Details */}
-      <div className="w-[345px] flex flex-col m-2 ml-0">
-        {/* Guest Header */}
-        <div className="px-2 py-3">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-white font-medium">{selectedGuest.name}</span>
-            <div className="flex items-center gap-3 text-white/50 text-sm">
-              <div className="flex items-center gap-1">
-                <Phone className="w-3 h-3" />
-                <span>{selectedGuest.phone || "N/A"}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span>⚡</span>
-                <span>{selectedGuest.time}</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-2">
-            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">Add Item</button>
-            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">Discount</button>
-            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">Receipt</button>
-            <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">Cash Register</button>
-          </div>
-        </div>
-
-        {/* Main Panel Box */}
-        <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-          {/* Table Order Info */}
-          <div className="px-4 py-3 border-b border-white/10">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
-                <span className="text-white font-bold">{selectedGuest.id}</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
-                <span className="text-white/50 text-sm">{selectedGuest.server}</span>
-              </div>
-            </div>
-            
-            {/* Seat Buttons */}
-            <div className="flex items-center gap-2">
-              <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-                <img src={seatIcon} alt="Seat" className="w-4 h-4" />
-              </button>
-              <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-                <img src={splitIcon} alt="Split" className="w-4 h-4" />
-              </button>
-              {[1, 2, 3, 4].map(seat => (
-                <button 
-                  key={seat} 
-                  onClick={() => toggleSeat(seat)} 
-                  className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}
-                >
-                  {seat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Notes */}
-          <div className="px-4 py-3 border-b border-white/10">
-            <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
-              <span>📝</span>
-              <span>{selectedGuest.notes || "No notes"}</span>
-            </div>
-          </div>
-
-          {/* Order Items */}
-          <ScrollArea className="flex-1 px-4">
-            <div className="py-2 space-y-2">
-              {getOrderItems(selectedGuest).map((item, index) => (
-                <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-2">
-                      <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
-                        {item.qty}
-                      </span>
-                      <div>
-                        <span className="text-white font-medium">{item.name}</span>
-                        {item.modifiers.length > 0 && (
-                          <div className="mt-1 text-white/50 text-sm space-y-0.5">
-                            {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <span className="text-white font-medium">{item.price}</span>
-                  </div>
-                  {item.seats.length > 0 && (
-                    <div className="flex items-center gap-1 mt-2">
-                      <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                      {item.seats.map(seat => (
-                        <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                          {seat}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
-            <ScrollBar orientation="vertical" />
-          </ScrollArea>
-
-          {/* Order Summary */}
-          <div className="p-2 border-t border-white/10 flex-shrink-0">
-            <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
-              <div className="flex justify-between gap-3">
-                <span className="text-white">Sub Total: <span className="font-medium">{formatPrice(selectedGuest.subtotal)}</span></span>
-                <span className="text-white">Discount: <span className="font-medium">{formatPrice(selectedGuest.discount)}</span></span>
-              </div>
-              <div className="flex justify-between gap-3">
-                <span className="text-white">Service Charge: <span className="font-medium">{formatPrice(selectedGuest.serviceCharge)}</span></span>
-                <span className="text-white">Tax: <span className="font-medium">{formatPrice(selectedGuest.tax)}</span></span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Actions */}
-          <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
-            <button className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
-              <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
-            </button>
-            <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}>
-              <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
-              <span>FIRE</span>
-            </button>
-            <button className="flex-1 py-2 rounded-full text-black text-sm font-bold" style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}>
-              CHARGE {formatPrice(selectedGuest.total)}
-            </button>
-          </div>
-        </div>
-      </div>
+      <RightPanel width="w-[345px]" />
     </div>
   );
 
@@ -983,208 +1019,27 @@ const Tickets = () => {
     <div className="flex h-full bg-black">
       {/* Left Panel - Order List */}
       <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-        {/* Header - No back icon */}
-        <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
-          <span className="text-white font-semibold text-lg pl-2">Tickets</span>
-          
-          <div className="flex items-center gap-2 z-10">
-            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-              <SlidersHorizontal className="w-4 h-4 text-white" />
-            </button>
-            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-              <Search className="w-4 h-4 text-white" />
-            </button>
-          </div>
-        </div>
+        <TicketHeader />
+        <FilterTabs />
 
-        {/* Filter Tabs */}
-        <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
-          {filters.map(filter => {
-            const count = getFilterCount(filter);
-            return (
-              <button 
-                key={filter} 
-                onClick={() => setActiveFilter(filter)} 
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`} 
-                style={activeFilter === filter ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: "#1B1C20" }}
-              >
-                <span>{filter}</span>
-                {count > 0 && (
-                  <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"}`}>
-                    {count}
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Guest Orders List - Mobile style cards */}
         <ScrollArea className="flex-1 px-3">
           <div className="space-y-2 pb-3">
             {filteredOrders.map(guest => (
-              <div key={guest.id} className="space-y-0">
-                <div onClick={() => setSelectedGuest(guest)} className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{ backgroundColor: '#1B1C20' }}>
-                  <div className="flex items-stretch w-full gap-2">
-                    {/* Column 1: Order Number */}
-                    <div className="w-[15%] flex-shrink-0 px-2 py-2 flex items-center">
-                      <div className="relative w-10 h-14 bg-neutral-800 rounded-lg flex flex-col items-center justify-center gap-1 border border-neutral-600">
-                        <span className="text-base font-bold text-white">{guest.id}</span>
-                        <OrderTypeIcon type={guest.orderType} size="small" />
-                      </div>
-                    </div>
-
-                    {/* Column 2: Guest Info */}
-                    <div className="flex-1 min-w-0 py-2 pr-2">
-                      <div className="flex flex-col">
-                        <div className="flex items-start justify-between">
-                          <span className="text-white font-medium text-sm">{guest.name}</span>
-                          <div className="flex flex-col items-end">
-                            <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
-                            {guest.tip > 0 && <span className="text-gray-400 text-xs">+ Tip {formatPrice(guest.tip)}</span>}
-                          </div>
-                        </div>
-                        <div className="h-px bg-neutral-600 my-1.5"></div>
-                        <div className="flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-1 text-gray-400">
-                            <span>{guest.table},</span>
-                            <span>Party Of {guest.partySize},</span>
-                            <span>⚡ {guest.time}</span>
-                          </div>
-                          <span className={getStatusColor(guest.status)}>{guest.status}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Column 3: Action Button */}
-                    <div className="flex-shrink-0">
-                      <div className="flex flex-col bg-neutral-700 rounded-r-xl overflow-hidden h-full">
-                        <button className="flex-1 px-3 py-3 flex items-center justify-center hover:bg-neutral-600 transition-colors">
-                          <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <TicketCard 
+                key={guest.id}
+                guest={guest} 
+                isSelected={selectedGuest.id === guest.id} 
+                onSelect={() => setSelectedGuest(guest)}
+                compact
+                showActions
+              />
             ))}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
-
-        {/* No CTA button */}
       </div>
 
-      {/* Right Panel - Order Details (condensed) */}
-      <div className="w-[280px] flex flex-col m-2 ml-0">
-        {/* Guest Header */}
-        <div className="px-2 py-2">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-white font-medium text-sm">{selectedGuest.name}</span>
-            <div className="flex items-center gap-2 text-white/50 text-xs">
-              <Phone className="w-3 h-3" />
-              <span>⚡ {selectedGuest.time}</span>
-            </div>
-          </div>
-          <div className="flex gap-1 flex-wrap">
-            <button className="px-2 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">Add Item</button>
-            <button className="px-2 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">Discount</button>
-            <button className="px-2 py-1 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">Receipt</button>
-          </div>
-        </div>
-
-        {/* Main Panel Box */}
-        <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-          {/* Table Order Info */}
-          <div className="px-3 py-2 border-b border-white/10">
-            <div className="flex items-center justify-between mb-1">
-              <div className="flex items-center gap-2">
-                <span className="px-1.5 py-0.5 bg-white/10 text-white text-xs rounded">ORDER</span>
-                <span className="text-white font-bold text-sm">{selectedGuest.id}</span>
-              </div>
-              <span className="text-white/50 text-xs">{selectedGuest.server}</span>
-            </div>
-            
-            {/* Seat Buttons */}
-            <div className="flex items-center gap-1">
-              <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
-                <img src={seatIcon} alt="Seat" className="w-3 h-3" />
-              </button>
-              {[1, 2, 3, 4].map(seat => (
-                <button 
-                  key={seat} 
-                  onClick={() => toggleSeat(seat)} 
-                  className={`w-6 h-6 rounded text-xs font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}
-                >
-                  {seat}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Notes */}
-          {selectedGuest.notes && (
-            <div className="px-3 py-2 border-b border-white/10">
-              <div className="flex items-center gap-2 text-white/50 text-xs bg-white/10 p-1.5 rounded-lg">
-                <span>📝</span>
-                <span className="truncate">{selectedGuest.notes}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Order Items */}
-          <ScrollArea className="flex-1 px-3">
-            <div className="py-2 space-y-1.5">
-              {getOrderItems(selectedGuest).map((item, index) => (
-                <div key={index} className="p-2 bg-white/5 rounded-lg border border-white/10">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-2">
-                      <span className="w-5 h-5 bg-white rounded flex items-center justify-center text-black text-xs font-bold">
-                        {item.qty}
-                      </span>
-                      <div>
-                        <span className="text-white font-medium text-sm">{item.name}</span>
-                        {item.modifiers.length > 0 && (
-                          <div className="mt-0.5 text-white/50 text-xs space-y-0.5">
-                            {item.modifiers.slice(0, 2).map((mod, i) => <div key={i}>{mod}</div>)}
-                            {item.modifiers.length > 2 && <div>+{item.modifiers.length - 2} more</div>}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <span className="text-white font-medium text-sm">{item.price}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <ScrollBar orientation="vertical" />
-          </ScrollArea>
-
-          {/* Order Summary */}
-          <div className="p-2 border-t border-white/10 flex-shrink-0">
-            <div className="text-xs rounded px-2 py-1 space-y-0.5" style={{ background: '#7575754D' }}>
-              <div className="flex justify-between">
-                <span className="text-white">Sub Total: {formatPrice(selectedGuest.subtotal)}</span>
-                <span className="text-white">Discount: {formatPrice(selectedGuest.discount)}</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Actions */}
-          <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
-            <button className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
-              <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
-            </button>
-            <button className="px-3 py-1.5 rounded-full flex items-center gap-1 text-white text-xs font-medium" style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}>
-              <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
-              <span>FIRE</span>
-            </button>
-            <button className="flex-1 py-1.5 rounded-full text-black text-xs font-bold" style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}>
-              CHARGE {formatPrice(selectedGuest.total)}
-            </button>
-          </div>
-        </div>
-      </div>
+      <RightPanel width="w-[280px]" isTablet />
     </div>
   );
 

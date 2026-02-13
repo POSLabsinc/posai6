@@ -779,7 +779,7 @@ const Tickets = () => {
   }) => {
     const statusStyle = getStatusBadgeStyle(guest.status);
     const checkId = guest.check !== "--" ? guest.check.slice(-3) : "000";
-    const displayTable = guest.table !== "--" ? guest.table : guest.orderType;
+    // Table display handled inline per order type
     const duration = formatDuration(guest.timer);
     const paymentDisplay = formatPaymentDisplay(guest);
     const paidAmount = getPaidAmount(guest);
@@ -796,23 +796,28 @@ const Tickets = () => {
 
         {/* MIDDLE CONTENT */}
         <div className={`flex-1 min-w-0 ${compact ? 'py-1.5' : 'py-2'} flex flex-col justify-center`}>
-          {/* Row 1: Name · Table/Type */}
+          {/* Row 1: Name (+ Table for Table Orders) */}
           <div className="flex items-center gap-1.5 mb-0.5">
             <span className={`text-white font-semibold truncate ${compact ? 'text-xs' : 'text-sm'}`}>{guest.name}</span>
-            <span className="text-neutral-500 text-xs">·</span>
-            <span className={`text-white/70 truncate ${compact ? 'text-xs' : 'text-sm'}`}>{displayTable}</span>
+            {guest.orderType === "Table Order" && guest.table !== "--" && (
+              <>
+                <span className="text-neutral-500 text-xs">·</span>
+                <span className={`text-white/70 truncate ${compact ? 'text-xs' : 'text-sm'}`}>{guest.table}</span>
+              </>
+            )}
           </div>
 
-          {/* Row 2: Order type icon + party + time + duration */}
+          {/* Row 2: Differs by order type */}
           <div className="flex items-center gap-1.5 text-neutral-400 mb-0.5">
             <OrderTypeIcon type={guest.orderType} size="small" />
-            {guest.orderType !== "Bar" && (
+            {guest.orderType === "Table Order" ? (
               <span className={`${compact ? 'text-[10px]' : 'text-xs'}`}>
                 {guest.partySize > 1 ? `Party of ${guest.partySize}, ` : ''}{guest.time} | {duration}
               </span>
-            )}
-            {guest.orderType === "Bar" && (
-              <span className={`${compact ? 'text-[10px]' : 'text-xs'}`}>{guest.orderType}, {guest.time} | {duration}</span>
+            ) : (
+              <span className={`${compact ? 'text-[10px]' : 'text-xs'}`}>
+                {guest.orderType}, {guest.time} | {duration}
+              </span>
             )}
           </div>
 

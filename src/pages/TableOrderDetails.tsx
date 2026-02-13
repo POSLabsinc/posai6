@@ -3232,19 +3232,19 @@ const TableOrderDetails = () => {
                       >
                         <div className="p-3">
                           <OrderLayoutTemplate order={toOrderTemplateData(order)} />
-                          <div className="mt-2 space-y-1">
+                          <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
                             {order.items.map((item, idx) => (
-                              <div key={idx} className="flex items-center justify-between py-0.5">
-                                <div className="flex items-center gap-2 min-w-0 flex-1">
-                                  <span className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">{item.qty}</span>
-                                  <span className="text-white text-xs truncate">{item.name}</span>
+                              <div key={idx} className="flex items-center justify-between py-1">
+                                <div className="flex items-center gap-3 min-w-0 flex-1">
+                                  <span className="w-7 h-7 rounded-md border border-white/20 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">{item.qty}</span>
+                                  <span className="text-white text-sm truncate">{item.name}</span>
                                 </div>
-                                <span className="text-white/70 text-xs font-medium flex-shrink-0 ml-2">{formatPrice(item.price * item.qty)}</span>
+                                <span className="text-white/70 text-sm font-medium flex-shrink-0 ml-2">{formatPrice(item.price * item.qty)}</span>
                               </div>
                             ))}
                           </div>
-                          <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between">
-                            <span className="text-white/50 text-xs">{order.items.length} items</span>
+                          <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
+                            <span className="text-white/50 text-sm">{order.items.length} items</span>
                             <span className="text-white font-semibold text-sm">{formatPrice(totals.total)}</span>
                           </div>
                         </div>

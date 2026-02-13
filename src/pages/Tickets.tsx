@@ -685,15 +685,15 @@ const Tickets = () => {
               </>
             ) : (
               <>
-                {/* Runner icon (orange) */}
+                {/* Merge icon (orange) */}
                 <button 
                   className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-600/50 transition-colors"
                   style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
                   onClick={e => { e.stopPropagation(); }}
                 >
-                  <img src={runnerIcon} alt="Runner" className="w-4 h-4 object-contain brightness-0 invert" />
+                  <img src={mergeIcon} alt="Merge" className="w-4 h-4 object-contain" />
                 </button>
-                {/* Transfer arrow */}
+                {/* Transfer icon */}
                 <button 
                   className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors border-t border-neutral-600/50"
                   style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
@@ -705,7 +705,7 @@ const Tickets = () => {
                     }
                   }}
                 >
-                  <ChevronRight className="w-4 h-4 text-neutral-800" />
+                  <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
                 </button>
               </>
             )}

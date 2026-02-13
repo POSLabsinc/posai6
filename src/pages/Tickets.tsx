@@ -970,7 +970,7 @@ const Tickets = () => {
                   <img src={transferToOrderIcon} alt="Transfer to Order" className="w-5 h-5 object-contain opacity-80" />
                   <span className="text-white font-medium">Transfer to Order</span>
                 </div>
-                <p className="text-white/50 text-xs ml-8">Move this full order to another order or create a new one.</p>
+                <p className="text-white/50 text-xs ml-8">Move this full order to another order.</p>
               </button>
             </div>
           </div>

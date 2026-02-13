@@ -743,21 +743,12 @@ const Tickets = () => {
   };
 
   const handleMobileOrderClick = (guest: GuestOrder) => {
-    // Navigate to TableOrderDetails for Table Order type tickets
-    if (guest.orderType === "Table Order" && guest.table !== "--") {
-      navigate(`/tableorder/${guest.table}`);
-      return;
-    }
     setSelectedGuest(guest);
     setShowMobileOrderPanel(true);
   };
 
-  // Desktop click handler that navigates for Table Orders
+  // Desktop click handler - always show details in right panel
   const handleDesktopOrderClick = (guest: GuestOrder) => {
-    if (guest.orderType === "Table Order" && guest.table !== "--") {
-      navigate(`/tableorder/${guest.table}`);
-      return;
-    }
     setSelectedGuest(guest);
   };
 

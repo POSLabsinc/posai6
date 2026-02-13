@@ -6030,6 +6030,8 @@ const Orders = () => {
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
   
   const addItemMode = searchParams.get('mode') === 'addItem';
+  const transferNewMode = searchParams.get('mode') === 'transferNew';
+  const transferItemsParam = searchParams.get('transferItems');
   const existingOrderId = searchParams.get('orderId');
   const tableIdFromParams = searchParams.get('tableId');
   const sessionIdFromParams = searchParams.get('sessionId');
@@ -6257,7 +6259,31 @@ const Orders = () => {
     }
   }, [addItemMode, existingOrderId]);
 
-  // Filter guests based on name input
+  // Handle Transfer to New Order mode - pre-fill cart with transferred items
+  useEffect(() => {
+    if (transferNewMode && transferItemsParam) {
+      try {
+        const items = JSON.parse(transferItemsParam) as Array<{
+          name: string;
+          price: number;
+          qty: number;
+          modifiers?: string[];
+        }>;
+        const convertedItems: OrderItem[] = items.map((item, index) => ({
+          id: Date.now() + index,
+          qty: item.qty,
+          name: item.name,
+          price: item.price,
+          modifiers: item.modifiers && item.modifiers.length > 0 ? item.modifiers : undefined,
+        }));
+        setOrderItems(convertedItems);
+      } catch (e) {
+        console.error('Failed to parse transfer items:', e);
+      }
+    }
+  }, [transferNewMode, transferItemsParam]);
+
+
   useEffect(() => {
     if (isGuestSelected) {
       setIsGuestSelected(false);

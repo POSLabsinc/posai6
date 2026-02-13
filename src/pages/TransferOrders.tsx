@@ -271,6 +271,37 @@ const TransferOrders = () => {
     
     setShowTicketSelection(false);
     
+    // Handle "Transfer to New Order" from ticket selection
+    if (selectedTicketOrderId === '__new__') {
+      const transferItems = isEntireOrderTransfer
+        ? currentOrder.items
+        : selectedItems.map(index => {
+            const item = currentOrder.items[index];
+            const qty = itemQuantities[index] || item.qty;
+            return { ...item, qty };
+          });
+      
+      const itemsData = transferItems.map(item => ({
+        name: item.name,
+        price: item.price,
+        qty: item.qty,
+        modifiers: item.modifiers || [],
+      }));
+      
+      toast.success('Items transferred to new order');
+      
+      setTimeout(() => {
+        const params = new URLSearchParams({
+          mode: 'transferNew',
+          transferItems: JSON.stringify(itemsData),
+          transferFrom: currentOrder.id,
+          transferFromTable: currentOrder.table,
+        });
+        navigate(`/orders?${params.toString()}`);
+      }, 800);
+      return;
+    }
+    
     const isPartialTransfer = !isEntireOrderTransfer;
     const itemNames = isPartialTransfer 
       ? selectedItems.map(index => currentOrder.items[index].name).join(',')
@@ -329,6 +360,38 @@ const TransferOrders = () => {
   const executeTransferToOrder = () => {
     if (!selectedTransferOrderId) return;
     setShowTransferToOrder(false);
+    
+    // Handle "Transfer to New Order" - navigate to Orders page with items pre-filled
+    if (selectedTransferOrderId === '__new__') {
+      const transferItems = isEntireOrderTransfer
+        ? currentOrder.items
+        : selectedItems.map(index => {
+            const item = currentOrder.items[index];
+            const qty = itemQuantities[index] || item.qty;
+            return { ...item, qty };
+          });
+      
+      // Encode items as JSON in URL params
+      const itemsData = transferItems.map(item => ({
+        name: item.name,
+        price: item.price,
+        qty: item.qty,
+        modifiers: item.modifiers || [],
+      }));
+      
+      toast.success('Items transferred to new order');
+      
+      setTimeout(() => {
+        const params = new URLSearchParams({
+          mode: 'transferNew',
+          transferItems: JSON.stringify(itemsData),
+          transferFrom: currentOrder.id,
+          transferFromTable: currentOrder.table,
+        });
+        navigate(`/orders?${params.toString()}`);
+      }, 800);
+      return;
+    }
     
     const targetOrder = allOrders.find(o => o.id === selectedTransferOrderId);
     const targetTable = targetOrder?.table || currentOrder.table;

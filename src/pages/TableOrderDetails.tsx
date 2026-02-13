@@ -484,6 +484,15 @@ const TableOrderDetails = () => {
   const [selectedTransferOrderId, setSelectedTransferOrderId] = useState<string | null>(null);
   const [transferToOrderSourceId, setTransferToOrderSourceId] = useState<string | null>(null);
   
+  // Local transfer result (stays on same page after confirm)
+  const [localTransferResult, setLocalTransferResult] = useState<{
+    sourceOrderId: string;
+    destinationOrderId: string;
+    destinationLabel: string;
+    transferredItemNames: string[];
+    transferType: 'full' | 'partial';
+  } | null>(null);
+  
   // Discount state
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
@@ -970,7 +979,21 @@ const TableOrderDetails = () => {
                         {item.qty}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <span className="text-white font-medium text-sm">{item.name}</span>
+                        {(() => {
+                          const isTransferredOut = localTransferResult?.sourceOrderId === currentSelectedGuest.id && 
+                            localTransferResult.transferredItemNames.includes(item.name);
+                          return (
+                            <>
+                              <span className={`text-white font-medium text-sm ${isTransferredOut ? 'line-through opacity-50' : ''}`}>{item.name}</span>
+                              {isTransferredOut && (
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  <ArrowRightLeft className="w-3 h-3 text-[#6EE7B7]" />
+                                  <span className="text-[10px] text-[#6EE7B7]">Transferred to {localTransferResult.destinationLabel}</span>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
                         {/* Modifiers with tree hierarchy */}
                         {item.modifiers.length > 0 && (() => {
                           const itemKey = `mobile-${currentSelectedGuest.id}-${index}`;
@@ -1037,7 +1060,11 @@ const TableOrderDetails = () => {
                         })()}
                       </div>
                     </div>
-                    <span className="text-white font-medium text-sm">{formatPrice(item.price * item.qty)}</span>
+                    {(() => {
+                      const isTransferredOut = localTransferResult?.sourceOrderId === currentSelectedGuest.id && 
+                        localTransferResult.transferredItemNames.includes(item.name);
+                      return <span className={`text-white font-medium text-sm ${isTransferredOut ? 'line-through opacity-50' : ''}`}>{formatPrice(item.price * item.qty)}</span>;
+                    })()}
                   </div>
                   {/* Show seat indicator for all items */}
                   <div className="flex items-center gap-1 mt-2">
@@ -1178,26 +1205,36 @@ const TableOrderDetails = () => {
                   </span>
                 </div>}
               
-              {/* Transferred Items Indicator (Destination - receiving items) */}
-              {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
-                (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
-                  <span className="text-xs font-medium">
-                    {transferType === 'full' ? (
-                      <>
-                        <span style={{ color: '#8AC4FF' }}>Order transferred from</span>{" "}
-                        <span className="text-white">{formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
-                      </>
-                    ) : (
-                      <>
-                        <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
-                        <span className="text-white">{transferredItemNames.length} item(s)</span>{" "}
-                        <span style={{ color: '#8AC4FF' }}>from</span>{" "}
-                        <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
-                      </>
-                    )}
-                  </span>
-                </div>}
-              <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
+               {/* Transferred Items Indicator (Destination - receiving items) */}
+               {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
+                 (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
+                   <span className="text-xs font-medium">
+                     {transferType === 'full' ? (
+                       <>
+                         <span style={{ color: '#8AC4FF' }}>Order transferred from</span>{" "}
+                         <span className="text-white">{formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                       </>
+                     ) : (
+                       <>
+                         <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
+                         <span className="text-white">{transferredItemNames.length} item(s)</span>{" "}
+                         <span style={{ color: '#8AC4FF' }}>from</span>{" "}
+                         <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
+                       </>
+                     )}
+                   </span>
+                 </div>}
+               
+               {/* Outgoing Transfer Indicator (Source - items sent out) */}
+               {localTransferResult && localTransferResult.sourceOrderId === guest.id && (
+                 <div className="px-2 py-0.5 rounded-t-xl bg-[#1A3A2A]">
+                   <span className="text-xs font-medium">
+                     <span style={{ color: '#6EE7B7' }}>Transferred to</span>{" "}
+                     <span className="text-white">{localTransferResult.destinationLabel}</span>
+                   </span>
+                 </div>
+               )}
+              <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (localTransferResult && localTransferResult.sourceOrderId === guest.id) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
               {/* Swipe Action Buttons (revealed on swipe left) */}
               {(guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed') ? (
                 /* Receipt and Register buttons for paid orders */
@@ -1540,7 +1577,16 @@ const TableOrderDetails = () => {
                       <span className="text-white">{formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
                     </span>
                   </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                {/* Local Transfer Result - Outgoing (stays on same page) */}
+                {localTransferResult && localTransferResult.sourceOrderId === guest.id && (
+                  <div className="px-3 py-1 rounded-t-xl bg-[#1A3A2A]">
+                    <span className="text-sm font-medium">
+                      <span style={{ color: '#6EE7B7' }}>Transferred to</span>{" "}
+                      <span className="text-white">{localTransferResult.destinationLabel}</span>
+                    </span>
+                  </div>
+                )}
+                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) || (localTransferResult && localTransferResult.sourceOrderId === guest.id) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="hidden md:flex items-stretch">
@@ -1938,6 +1984,18 @@ const TableOrderDetails = () => {
             ))}
           </div>
         )}
+        
+        {/* Local Transfer Result - Outgoing info banner */}
+        {localTransferResult && localTransferResult.sourceOrderId === currentSelectedGuest?.id && (
+          <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <ArrowRightLeft className="w-4 h-4 text-[#6EE7B7]" />
+              <span className="text-xs font-medium" style={{ color: '#6EE7B7' }}>
+                Transferred to {localTransferResult.destinationLabel}
+              </span>
+            </div>
+          </div>
+        )}
 
         {/* Order Items */}
         <ScrollArea className="flex-1 min-h-0 px-2">
@@ -2008,37 +2066,33 @@ const TableOrderDetails = () => {
                         </span>
                         <div className="flex-1 min-w-0">
                           {(() => {
-                            // Check if this item was transferred out
-                            const isTransferredOut = transferSourceOrderId === currentSelectedGuest.id && 
-                              transferredOutItemNames.includes(item.name);
+                            // Check if this item was transferred out (via URL params or local state)
+                            const isTransferredOut = (transferSourceOrderId === currentSelectedGuest.id && 
+                              transferredOutItemNames.includes(item.name)) ||
+                              (localTransferResult?.sourceOrderId === currentSelectedGuest.id && 
+                              localTransferResult.transferredItemNames.includes(item.name));
+                            const transferDestLabel = localTransferResult?.sourceOrderId === currentSelectedGuest.id
+                              ? localTransferResult.destinationLabel
+                              : (transferredToOrderId ? `Order #${transferredToOrderId} · ${formatTableName(transferToTable || '')}` : '');
                             return (
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-1">
+                              <>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1">
+                                    <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
+                                      {item.name}
+                                    </span>
+                                  </div>
                                   <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
-                                    {item.name}
+                                    {formatPrice(item.price * item.qty)}
                                   </span>
-                                  {isTransferredOut && (
-                                    <TooltipProvider>
-                                      <Tooltip delayDuration={0}>
-                                        <TooltipTrigger asChild>
-                                          <Info className="w-3.5 h-3.5 text-[#8AC4FF] cursor-help" />
-                                        </TooltipTrigger>
-                                        <TooltipContent side="top" className="bg-neutral-800 border-neutral-700 text-white text-xs z-[9999]">
-                                          <p>
-                                            <span className="text-[#8AC4FF]">Transferred to</span>{' '}
-                                            <span className="text-white">Order #{transferredToOrderId}</span>{' '}
-                                            <span className="text-[#8AC4FF]">·</span>{' '}
-                                            <span className="text-white">{formatTableName(transferToTable || "")}</span>
-                                          </p>
-                                        </TooltipContent>
-                                      </Tooltip>
-                                    </TooltipProvider>
-                                  )}
                                 </div>
-                                <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
-                                  {formatPrice(item.price * item.qty)}
-                                </span>
-                              </div>
+                                {isTransferredOut && (
+                                  <div className="flex items-center gap-1 mt-0.5">
+                                    <ArrowRightLeft className="w-3 h-3 text-[#6EE7B7]" />
+                                    <span className="text-[10px] text-[#6EE7B7]">Transferred to {transferDestLabel}</span>
+                                  </div>
+                                )}
+                              </>
                             );
                           })()}
                           
@@ -2498,6 +2552,18 @@ const TableOrderDetails = () => {
           </div>
         </div>
 
+        {/* Local Transfer Result - Outgoing info banner (tablet) */}
+        {localTransferResult && localTransferResult.sourceOrderId === currentSelectedGuest?.id && (
+          <div className="px-4 py-1.5 border-b border-white/10">
+            <div className="flex items-center gap-2">
+              <ArrowRightLeft className="w-4 h-4 text-[#6EE7B7]" />
+              <span className="text-xs font-medium" style={{ color: '#6EE7B7' }}>
+                Transferred to {localTransferResult.destinationLabel}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Order Items */}
         <ScrollArea className="flex-1 px-4">
           <div className="py-2 space-y-2">
@@ -2638,7 +2704,21 @@ const TableOrderDetails = () => {
                               {item.qty}
                             </span>
                             <div className="flex-1 min-w-0">
-                              <span className="text-white font-medium">{item.name}</span>
+                              {(() => {
+                                const isTransferredOut = localTransferResult?.sourceOrderId === currentSelectedGuest.id && 
+                                  localTransferResult.transferredItemNames.includes(item.name);
+                                return (
+                                  <>
+                                    <span className={`text-white font-medium ${isTransferredOut ? 'line-through opacity-50' : ''}`}>{item.name}</span>
+                                    {isTransferredOut && (
+                                      <div className="flex items-center gap-1 mt-0.5">
+                                        <ArrowRightLeft className="w-3 h-3 text-[#6EE7B7]" />
+                                        <span className="text-[10px] text-[#6EE7B7]">Transferred to {localTransferResult.destinationLabel}</span>
+                                      </div>
+                                    )}
+                                  </>
+                                );
+                              })()}
                               {/* Modifiers with tree hierarchy */}
                               {item.modifiers.length > 0 && (() => {
                                 const itemKey = `tablet-${currentSelectedGuest.id}-${index}`;
@@ -2705,7 +2785,11 @@ const TableOrderDetails = () => {
                               })()}
                             </div>
                           </div>
-                          <span className="text-white font-medium">{formatPrice(item.price * item.qty)}</span>
+                          {(() => {
+                            const isTransferredOut = localTransferResult?.sourceOrderId === currentSelectedGuest.id && 
+                              localTransferResult.transferredItemNames.includes(item.name);
+                            return <span className={`text-white font-medium ${isTransferredOut ? 'line-through opacity-50' : ''}`}>{formatPrice(item.price * item.qty)}</span>;
+                          })()}
                         </div>
                         {/* Show seat indicator for all items */}
                         <div className="flex items-center gap-1 mt-2">
@@ -3182,25 +3266,29 @@ const TableOrderDetails = () => {
         const executeTransfer = () => {
           if (!selectedTransferOrderId || !sourceOrder) return;
           setShowTransferToOrderDialog(false);
-          const targetOrder = allOrders.find(o => o.id === selectedTransferOrderId);
+          const targetOrder = ticketOrders.find(o => o.id === selectedTransferOrderId);
           const targetTable = targetOrder?.table || sourceOrder.table;
-          const itemNames = sourceOrder.items.map(item => item.name).join(',');
+          const itemNames = sourceOrder.items.map(item => item.name);
           
-          toast.success(`Order transferred successfully to Order #${selectedTransferOrderId}`);
+          const destinationLabel = targetTable && targetTable !== '--' && targetTable !== sourceOrder.table
+            ? `${formatTableName(targetTable)} (Order #${selectedTransferOrderId})`
+            : `Order #${selectedTransferOrderId}`;
           
-          setTimeout(() => {
-            const transferParams = new URLSearchParams({
-              transferred: sourceOrder.id,
-              transferFrom: sourceOrder.table,
-              transferDest: selectedTransferOrderId,
-              items: itemNames,
-              transferSource: sourceOrder.id,
-              transferType: 'full',
-              transferredTo: selectedTransferOrderId,
-              transferToTable: targetTable.replace('T', '')
-            });
-            navigate(`/tableorder/${targetTable}?${transferParams.toString()}`);
-          }, 1500);
+          setLocalTransferResult({
+            sourceOrderId: sourceOrder.id,
+            destinationOrderId: selectedTransferOrderId,
+            destinationLabel,
+            transferredItemNames: itemNames,
+            transferType: 'full',
+          });
+          
+          // Select the source order to show its details with strikethrough
+          const sourceGuest = guestOrders.find(g => g.id === sourceOrder.id);
+          if (sourceGuest) {
+            setSelectedGuest(sourceGuest);
+          }
+          
+          toast.success(`Order transferred successfully to ${destinationLabel}`);
         };
 
         return (

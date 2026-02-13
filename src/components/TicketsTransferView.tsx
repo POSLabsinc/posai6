@@ -211,14 +211,13 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
       return;
     }
 
-    // Transfer to existing order
+    // Transfer to existing order - stay on same screen
     const targetOrder = ticketOrders.find(o => o.id === selectedTransferOrderId);
     const isPartialTransfer = !isEntireOrderTransfer;
-    const itemNames = isPartialTransfer
-      ? selectedItems.map(index => currentOrder.items[index].name).join(',')
-      : currentOrder.items.map(item => item.name).join(',');
 
     toast.success(`${isPartialTransfer ? 'Items' : 'Order'} transferred to Order #${selectedTransferOrderId}`);
+    
+    // Stay on same screen - just close the transfer view
     onTransferComplete();
   };
 

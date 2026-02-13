@@ -1172,8 +1172,9 @@ const Tickets = () => {
 
   // Transfer Left Panel - embedded in layout
   const TransferLeftPanel = ({ isTablet = false }: { isTablet?: boolean }) => (
-    <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
+    <div className="flex flex-col flex-1 mx-2 mb-2 rounded-[20px] overflow-hidden">
       <TicketsTransferView
+        key={`${transferSource?.id}-${transferType}`}
         sourceOrder={transferSource as any}
         isEntireOrderTransfer={transferType === 'entire' || transferType === 'entireToOrder'}
         transferTarget={transferType === 'entireToOrder' ? 'order' : 'table'}

@@ -720,11 +720,11 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
 
   // ===== DESKTOP LAYOUT =====
   const DesktopLayout = () => (
-    <div className={`flex h-full gap-0 ${embedded ? 'flex-col' : ''}`}>
+    <div className="flex h-full">
       {/* Left Panel */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="relative flex items-center p-2 py-3">
+        <div className="relative flex items-center p-2 border-b border-neutral-700/50">
           <div className="flex items-center gap-3">
             <button onClick={() => {
               if (desktopStep === "select-table" && !isEntireOrderTransfer) {
@@ -748,7 +748,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
         {/* Step 1: Select Items */}
         {desktopStep === "select-items" && (
           <>
-            <div className="px-3 py-2">
+            <div className="px-3 py-3">
               <DesktopCurrentOrderCard />
             </div>
 
@@ -846,7 +846,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
         {/* Step 2: Select Table */}
         {desktopStep === "select-table" && (
           <>
-            <div className="px-3 py-2">
+            <div className="px-3 py-3">
               <div className="px-3 py-2 rounded-lg bg-neutral-800 border border-white/10">
                 <p className="text-white/60 text-xs mb-1">Transferring from</p>
                 <div className="flex items-center justify-between">

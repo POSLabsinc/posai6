@@ -1368,7 +1368,7 @@ const TransferOrders = () => {
 
             {/* Bottom Button - Select Check */}
             {selectedItems.length > 0 && <div className="p-3 border-t border-white/10 flex gap-3">
-                <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
+                <button onClick={handleBack} className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
                   TRANSFER TO ORDER
                 </button>
                 <button onClick={() => setDesktopStep("select-table")} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
@@ -1453,7 +1453,7 @@ const TransferOrders = () => {
 
             {/* Confirm Button */}
             <div className="p-3 border-t border-white/10 flex gap-3">
-              <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
+              <button onClick={handleBack} className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
                 TRANSFER TO ORDER
               </button>
               <button 
@@ -1494,7 +1494,7 @@ const TransferOrders = () => {
 
       {/* Select Check Button - Fixed above bottom nav (Mobile) */}
       {step === "select-items" && selectedItems.length > 0 && !showTargetSheet && <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
-          <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
+          <button onClick={handleBack} className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
             TRANSFER TO ORDER
           </button>
           <button onClick={handleProceedToTargetSelection} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
@@ -1506,7 +1506,7 @@ const TransferOrders = () => {
 
       {/* Table Selection CTAs - Fixed above bottom nav (Mobile) */}
       {step === "select-table" && <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
-          <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
+          <button onClick={handleBack} className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
             TRANSFER TO ORDER
           </button>
           <button 

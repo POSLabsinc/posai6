@@ -130,8 +130,15 @@ interface TicketsTransferViewProps {
 const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, orders, setOrders, onTransferComplete, embedded = false, transferTarget = 'table' }: TicketsTransferViewProps) => {
   const navigate = useNavigate();
   const isDirectToOrder = transferTarget === 'order' && isEntireOrderTransfer;
-  const [step, setStep] = useState<"select-items" | "select-table">(isEntireOrderTransfer && !isDirectToOrder ? "select-table" : "select-items");
-  const [desktopStep, setDesktopStep] = useState<"select-items" | "select-table">(isEntireOrderTransfer && !isDirectToOrder ? "select-table" : "select-items");
+
+  // Single unified step state for both mobile and desktop
+  const getInitialStep = (): "select-items" | "select-table" => {
+    if (isDirectToOrder) return "select-items"; // Will auto-open order dialog
+    if (isEntireOrderTransfer) return "select-table";
+    return "select-items";
+  };
+
+  const [currentStep, setCurrentStep] = useState<"select-items" | "select-table">(getInitialStep);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [itemQuantities, setItemQuantities] = useState<Record<number, number>>({});
   const [selectAll, setSelectAll] = useState(isEntireOrderTransfer);
@@ -259,12 +266,12 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
   };
 
   const handleProceedToTargetSelection = () => {
-    setStep("select-table");
+    setCurrentStep("select-table");
   };
 
   const handleBack = () => {
-    if (step === "select-table" && !isEntireOrderTransfer) {
-      setStep("select-items");
+    if (currentStep === "select-table" && !isEntireOrderTransfer) {
+      setCurrentStep("select-items");
       setSelectedTargetTable(null);
     } else {
       onBack();
@@ -550,7 +557,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
         </div>
 
         {/* Transfer info banner */}
-        {selectedTargetTable && (step === 'select-table' || desktopStep === 'select-table') && (
+        {selectedTargetTable && currentStep === 'select-table' && (
           <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0 flex items-center gap-2">
             <img src={tableTargetIcon} alt="Transfer" className="w-4 h-4 opacity-70" />
             <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
@@ -563,7 +570,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
         <ScrollArea className="flex-1 min-h-0 px-2">
           <div className="py-1 space-y-1">
             {currentOrder.items.map((item, index) => {
-              const isSelectedForTransfer = selectedItems.includes(index) && (step === 'select-table' || desktopStep === 'select-table');
+              const isSelectedForTransfer = selectedItems.includes(index) && currentStep === 'select-table';
               return (
                 <SwipeableCartItem
                   key={`${currentOrder.id}-${index}`}
@@ -727,8 +734,8 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
         <div className="relative flex items-center p-2 border-b border-neutral-700/50">
           <div className="flex items-center gap-3">
             <button onClick={() => {
-              if (desktopStep === "select-table" && !isEntireOrderTransfer) {
-                setDesktopStep("select-items");
+              if (currentStep === "select-table" && !isEntireOrderTransfer) {
+                setCurrentStep("select-items");
                 setSelectedTargetTable(null);
               } else {
                 onBack();
@@ -740,13 +747,13 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <h1 className="text-white text-lg font-semibold">
-              {isDirectToOrder ? "Transfer to Order" : desktopStep === "select-items" ? "Transfer Check" : "Select Table"}
+              {isDirectToOrder ? "Transfer to Order" : currentStep === "select-items" ? "Transfer Check" : "Select Table"}
             </h1>
           </div>
         </div>
 
         {/* Step 1: Select Items */}
-        {desktopStep === "select-items" && (
+        {currentStep === "select-items" && (
           <>
             <div className="px-3 py-3">
               <DesktopCurrentOrderCard />
@@ -835,7 +842,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
             {selectedItems.length > 0 && (
               <div className="p-3 border-t border-white/10 flex gap-3">
                 <button onClick={() => { setSelectedTransferOrderId(null); setShowTransferToOrder(true); }} className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">TRANSFER TO ORDER</button>
-                <button onClick={() => setDesktopStep("select-table")} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}>
+                <button onClick={() => setCurrentStep("select-table")} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}>
                   TRANSFER TO TABLE
                 </button>
               </div>
@@ -844,7 +851,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
         )}
 
         {/* Step 2: Select Table */}
-        {desktopStep === "select-table" && (
+        {currentStep === "select-table" && (
           <>
             <div className="px-3 py-3">
               <div className="px-3 py-2 rounded-lg bg-neutral-800 border border-white/10">
@@ -1006,12 +1013,12 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
 
       {/* Mobile/Tablet Layout */}
       <div className={`flex flex-col flex-1 min-h-0 ${embedded ? 'md:hidden' : 'lg:hidden'} overflow-hidden`}>
-        {step === "select-items" && <MobileSelectItemsView />}
-        {step === "select-table" && <MobileTableSelectionView />}
+        {currentStep === "select-items" && <MobileSelectItemsView />}
+        {currentStep === "select-table" && <MobileTableSelectionView />}
       </div>
 
       {/* Select Check Button - Fixed above bottom nav (Mobile) */}
-      {step === "select-items" && selectedItems.length > 0 && (
+      {currentStep === "select-items" && selectedItems.length > 0 && (
         <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
           <button onClick={() => { setSelectedTransferOrderId(null); setShowTransferToOrder(true); }} className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">TRANSFER TO ORDER</button>
           <button onClick={handleProceedToTargetSelection} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}>
@@ -1021,7 +1028,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
       )}
 
       {/* Table Selection CTAs - Fixed above bottom nav (Mobile) */}
-      {step === "select-table" && (
+      {currentStep === "select-table" && (
         <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
           <button onClick={() => { setSelectedTransferOrderId(null); setShowTransferToOrder(true); }} className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">TRANSFER TO ORDER</button>
           <button

@@ -1740,10 +1740,7 @@ const TransferOrders = () => {
             </button>
             <button 
               onClick={() => {
-                if (selectedTicketOrderId === '__new__') {
-                  setShowTicketSelection(false);
-                  setShowTableConfirmDialog(true);
-                } else if (selectedTicketOrderId) {
+                if (selectedTicketOrderId) {
                   executeTransferToTicket();
                 }
               }}
@@ -1844,28 +1841,7 @@ const TransferOrders = () => {
             </button>
             <button 
               onClick={() => {
-                if (selectedTransferOrderId === '__new__') {
-                  // For new order, just navigate back with transfer params
-                  setShowTransferToOrder(false);
-                  const itemNames = isEntireOrderTransfer 
-                    ? currentOrder.items.map(item => item.name).join(',')
-                    : selectedItems.map(index => currentOrder.items[index].name).join(',');
-                  const isFullTransfer = isEntireOrderTransfer || selectedItems.length === currentOrder.items.length;
-                  toast.success('Items transferred to a new order successfully');
-                  setTimeout(() => {
-                    const transferParams = new URLSearchParams({
-                      transferred: currentOrder.id,
-                      transferFrom: currentOrder.table,
-                      transferDest: currentOrder.id,
-                      items: itemNames,
-                      transferSource: currentOrder.id,
-                      transferType: isFullTransfer ? 'full' : 'partial',
-                      transferredTo: currentOrder.id,
-                      transferToTable: currentOrder.table.replace('T', '')
-                    });
-                    navigate(`/tableorder/${currentOrder.table}?${transferParams.toString()}`);
-                  }, 1500);
-                } else if (selectedTransferOrderId) {
+                if (selectedTransferOrderId) {
                   executeTransferToOrder();
                 }
               }}

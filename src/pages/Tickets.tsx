@@ -1176,6 +1176,7 @@ const Tickets = () => {
       <TicketsTransferView
         sourceOrder={transferSource as any}
         isEntireOrderTransfer={transferType === 'entire' || transferType === 'entireToOrder'}
+        transferTarget={transferType === 'entireToOrder' ? 'order' : 'table'}
         onBack={closeTransferFlow}
         orders={orders as any}
         setOrders={setOrders as any}
@@ -1282,6 +1283,7 @@ const Tickets = () => {
           <TicketsTransferView
             sourceOrder={transferSource as any}
             isEntireOrderTransfer={transferType === 'entire' || transferType === 'entireToOrder'}
+            transferTarget={transferType === 'entireToOrder' ? 'order' : 'table'}
             onBack={closeTransferFlow}
             orders={orders as any}
             setOrders={setOrders as any}

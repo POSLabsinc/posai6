@@ -124,12 +124,14 @@ interface TicketsTransferViewProps {
   setOrders: React.Dispatch<React.SetStateAction<TransferGuestOrder[]>>;
   onTransferComplete: () => void;
   embedded?: boolean;
+  transferTarget?: 'table' | 'order';
 }
 
-const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, orders, setOrders, onTransferComplete, embedded = false }: TicketsTransferViewProps) => {
+const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, orders, setOrders, onTransferComplete, embedded = false, transferTarget = 'table' }: TicketsTransferViewProps) => {
   const navigate = useNavigate();
-  const [step, setStep] = useState<"select-items" | "select-table">(isEntireOrderTransfer ? "select-table" : "select-items");
-  const [desktopStep, setDesktopStep] = useState<"select-items" | "select-table">(isEntireOrderTransfer ? "select-table" : "select-items");
+  const isDirectToOrder = transferTarget === 'order' && isEntireOrderTransfer;
+  const [step, setStep] = useState<"select-items" | "select-table">(isEntireOrderTransfer && !isDirectToOrder ? "select-table" : "select-items");
+  const [desktopStep, setDesktopStep] = useState<"select-items" | "select-table">(isEntireOrderTransfer && !isDirectToOrder ? "select-table" : "select-items");
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [itemQuantities, setItemQuantities] = useState<Record<number, number>>({});
   const [selectAll, setSelectAll] = useState(isEntireOrderTransfer);
@@ -166,6 +168,13 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
       setItemQuantities(quantities);
     }
   }, [isEntireOrderTransfer, currentOrder.items]);
+
+  // Auto-open Transfer to Order dialog for direct-to-order flow
+  useEffect(() => {
+    if (isDirectToOrder) {
+      setShowTransferToOrder(true);
+    }
+  }, [isDirectToOrder]);
 
   // Get orders on a specific table
   const getOrdersByTable = (tableId: string) => {
@@ -715,7 +724,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
       {/* Left Panel */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
-        <div className="relative flex items-center p-4 py-6">
+        <div className="relative flex items-center p-2 py-3">
           <div className="flex items-center gap-3">
             <button onClick={() => {
               if (desktopStep === "select-table" && !isEntireOrderTransfer) {
@@ -731,7 +740,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
               <ChevronLeft className="w-5 h-5 text-white" />
             </button>
             <h1 className="text-white text-lg font-semibold">
-              {desktopStep === "select-items" ? "Transfer Check" : "Select Table"}
+              {isDirectToOrder ? "Transfer to Order" : desktopStep === "select-items" ? "Transfer Check" : "Select Table"}
             </h1>
           </div>
         </div>
@@ -739,7 +748,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
         {/* Step 1: Select Items */}
         {desktopStep === "select-items" && (
           <>
-            <div className="px-3 py-3">
+            <div className="px-3 py-2">
               <DesktopCurrentOrderCard />
             </div>
 
@@ -837,7 +846,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
         {/* Step 2: Select Table */}
         {desktopStep === "select-table" && (
           <>
-            <div className="px-3 py-3">
+            <div className="px-3 py-2">
               <div className="px-3 py-2 rounded-lg bg-neutral-800 border border-white/10">
                 <p className="text-white/60 text-xs mb-1">Transferring from</p>
                 <div className="flex items-center justify-between">

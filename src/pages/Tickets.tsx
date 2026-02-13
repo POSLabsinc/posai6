@@ -936,8 +936,8 @@ const Tickets = () => {
               </button>
 
               {/* Transfer Entire Order Section Title */}
-              <div className="pt-0.5">
-                <div className="flex items-center gap-2 mb-1">
+              <div className="pt-0.5 -mb-1">
+                <div className="flex items-center gap-2">
                   <img src={transferEntireOrderIcon} alt="Transfer Entire Order" className="w-4 h-4 object-contain opacity-50" />
                   <p className="text-white/50 text-xs font-semibold uppercase tracking-wider">Transfer Entire Order</p>
                 </div>

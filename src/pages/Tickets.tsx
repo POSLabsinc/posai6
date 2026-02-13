@@ -20,22 +20,39 @@ import cashRegisterIcon from "@/assets/icons/cash-register.png";
 import printIcon from "@/assets/icons/print-icon.svg";
 import cashRegisterSvgIcon from "@/assets/icons/cash-register-icon.svg";
 
+// New order type icons
+import dineInSvg from "@/assets/icons/dine-in-2.svg";
+import takeOutSvg from "@/assets/icons/take-out-2.svg";
+import deliverySvg from "@/assets/icons/delivery-2.svg";
+import driveThruSvg from "@/assets/icons/drive-thru-2.svg";
+import phoneInSvg from "@/assets/icons/phone-in-2.svg";
+import scheduledSvg from "@/assets/icons/scheduled-2.svg";
+import banquetSvg from "@/assets/icons/banquet-2.svg";
+import curbSideSvg from "@/assets/icons/curb-side-2.svg";
+import customSvg from "@/assets/icons/custom-2.svg";
+import tableOrderSvg from "@/assets/icons/table-order-2.svg";
+
 // Order type icon component
 const OrderTypeIcon = ({ type, size = "default" }: { type: string; size?: "small" | "default" }) => {
   const iconSize = size === "small" ? "w-3.5 h-3.5" : "w-4 h-4";
   
-  switch (type) {
-    case "Dine-In":
-      return <img src={dineInIcon} alt="Dine-In" className={`${iconSize} object-contain`} />;
-    case "Takeout":
-      return <ShoppingBag className={iconSize} style={{ color: '#4ADE80' }} />;
-    case "Delivery":
-      return <Truck className={iconSize} style={{ color: '#60A5FA' }} />;
-    case "Bar":
-      return <Wine className={iconSize} style={{ color: '#F472B6' }} />;
-    default:
-      return <img src={tableTargetIcon} alt="Order" className={`${iconSize} object-cover`} />;
-  }
+  const iconMap: Record<string, string> = {
+    "Dine-In": dineInSvg,
+    "Takeout": takeOutSvg,
+    "Take Out": takeOutSvg,
+    "Delivery": deliverySvg,
+    "Drive Thru": driveThruSvg,
+    "Phone-In": phoneInSvg,
+    "Scheduled": scheduledSvg,
+    "Banquet": banquetSvg,
+    "Curb Side": curbSideSvg,
+    "Custom": customSvg,
+    "Table Order": tableOrderSvg,
+    "Bar": dineInSvg,
+  };
+
+  const src = iconMap[type] || tableOrderSvg;
+  return <img src={src} alt={type} className={`${iconSize} object-contain`} />;
 };
 
 // Order item interface
@@ -95,7 +112,7 @@ const allOrders: GuestOrder[] = [
     status: "ORDERING",
     notes: "Allergic to almonds, Don't add onion",
     table: "T2",
-    orderType: "Dine-In",
+    orderType: "Table Order",
     items: [
       { qty: 2, name: "Classic Crispy Burger", price: 12.00, seats: [1, 2], modifiers: [] },
       { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: ["Extra Sauce"] },
@@ -123,7 +140,7 @@ const allOrders: GuestOrder[] = [
     status: "PAID",
     notes: "Birthday celebration - bring candle",
     table: "T2",
-    orderType: "Takeout",
+    orderType: "Take Out",
     items: [
       { qty: 1, name: "New York Strip Steak", price: 28.00, seats: [1], modifiers: ["Medium Rare"] },
       { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [2], modifiers: ["No Lemon"] },
@@ -233,7 +250,7 @@ const allOrders: GuestOrder[] = [
     status: "ORDERING",
     notes: "Anniversary dinner",
     table: "T7",
-    orderType: "Dine-In",
+    orderType: "Table Order",
     items: [
       { qty: 2, name: "Champagne", price: 25.00, seats: [], modifiers: [] }
     ],
@@ -284,7 +301,7 @@ const allOrders: GuestOrder[] = [
     status: "ORDERING",
     notes: "Picking up in 15 mins",
     table: "--",
-    orderType: "Takeout",
+    orderType: "Take Out",
     items: [
       { qty: 2, name: "Fish Tacos", price: 14.00, seats: [], modifiers: ["Extra Lime"] },
       { qty: 2, name: "Churros", price: 7.00, seats: [], modifiers: [] }
@@ -295,6 +312,200 @@ const allOrders: GuestOrder[] = [
     tax: 3.09,
     tip: 0,
     total: 47.19
+  },
+  // Drive Thru ticket
+  {
+    id: "9",
+    name: "Carlos Martinez",
+    phone: "(415) 555-4321",
+    partySize: 1,
+    time: "8:10 PM",
+    timer: "00:08",
+    server: "Alex M",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "Drive Thru",
+    status: "ORDERING",
+    notes: "Extra napkins",
+    table: "--",
+    orderType: "Drive Thru",
+    items: [
+      { qty: 2, name: "Cheeseburger Combo", price: 11.00, seats: [], modifiers: ["No Onions"] },
+      { qty: 1, name: "Large Fries", price: 5.00, seats: [], modifiers: [] },
+      { qty: 2, name: "Soda", price: 3.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 33.00,
+    discount: 0,
+    serviceCharge: 1.65,
+    tax: 2.43,
+    tip: 0,
+    total: 37.08
+  },
+  // Phone-In ticket
+  {
+    id: "10",
+    name: "Rebecca Stone",
+    phone: "(415) 555-8765",
+    partySize: 3,
+    time: "7:20 PM",
+    timer: "0:40 Hrs",
+    server: "Dustin H",
+    check: "123500",
+    paymentType: "--",
+    revenueCenter: "Phone Orders",
+    status: "UNPAID",
+    notes: "Call when ready for pickup",
+    table: "--",
+    orderType: "Phone-In",
+    items: [
+      { qty: 1, name: "Family Pasta Bowl", price: 32.00, seats: [], modifiers: ["Alfredo Sauce"] },
+      { qty: 1, name: "Garlic Breadsticks", price: 8.00, seats: [], modifiers: [] },
+      { qty: 1, name: "Tiramisu", price: 10.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 50.00,
+    discount: 0,
+    serviceCharge: 2.50,
+    tax: 3.68,
+    tip: 0,
+    total: 56.18
+  },
+  // Scheduled ticket
+  {
+    id: "11",
+    name: "Amanda Lee",
+    phone: "(415) 555-6543",
+    partySize: 4,
+    time: "9:30 PM",
+    timer: "00:00",
+    server: "Mia Jone",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "Scheduled",
+    status: "ORDERING",
+    notes: "Scheduled for tomorrow 6 PM",
+    table: "--",
+    orderType: "Scheduled",
+    items: [
+      { qty: 4, name: "BBQ Ribs Half Rack", price: 18.00, seats: [], modifiers: [] },
+      { qty: 4, name: "Coleslaw", price: 5.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 92.00,
+    discount: 0,
+    serviceCharge: 4.60,
+    tax: 6.78,
+    tip: 0,
+    total: 103.38
+  },
+  // Banquet ticket
+  {
+    id: "12",
+    name: "Thompson Wedding",
+    phone: "(415) 555-1111",
+    partySize: 50,
+    time: "6:00 PM",
+    timer: "3:00 Hrs",
+    server: "Alex M",
+    check: "BQ-001",
+    paymentType: "Credit Card",
+    revenueCenter: "Banquet Hall",
+    status: "PAID",
+    notes: "Wedding reception - pre-paid package",
+    table: "BQ1",
+    orderType: "Banquet",
+    items: [
+      { qty: 50, name: "Prix Fixe Dinner", price: 65.00, seats: [], modifiers: ["Chicken or Fish"] },
+      { qty: 10, name: "Bottle of Wine", price: 45.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 3700.00,
+    discount: 200.00,
+    serviceCharge: 175.00,
+    tax: 257.25,
+    tip: 370.00,
+    total: 4302.25
+  },
+  // Curb Side ticket
+  {
+    id: "13",
+    name: "Tom Rodriguez",
+    phone: "(415) 555-2222",
+    partySize: 1,
+    time: "8:25 PM",
+    timer: "00:12",
+    server: "Dustin H",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "Curbside",
+    status: "ORDERING",
+    notes: "Blue Honda Civic - Spot 3",
+    table: "--",
+    orderType: "Curb Side",
+    items: [
+      { qty: 1, name: "Grilled Chicken Wrap", price: 13.00, seats: [], modifiers: ["No Tomato"] },
+      { qty: 1, name: "Sweet Potato Fries", price: 6.00, seats: [], modifiers: [] },
+      { qty: 1, name: "Iced Tea", price: 3.50, seats: [], modifiers: [] }
+    ],
+    subtotal: 22.50,
+    discount: 0,
+    serviceCharge: 1.13,
+    tax: 1.66,
+    tip: 0,
+    total: 25.29
+  },
+  // Custom Order ticket
+  {
+    id: "14",
+    name: "Chef's Special",
+    phone: "",
+    partySize: 2,
+    time: "7:00 PM",
+    timer: "1:00 Hrs",
+    server: "Mia Jone",
+    check: "CUST-01",
+    paymentType: "--",
+    revenueCenter: "Kitchen",
+    status: "UNPAID",
+    notes: "Custom tasting menu - VIP guest",
+    table: "T10",
+    orderType: "Custom",
+    items: [
+      { qty: 1, name: "Tasting Menu 7-Course", price: 120.00, seats: [1], modifiers: ["Wine Pairing"] },
+      { qty: 1, name: "Cheese Board", price: 28.00, seats: [2], modifiers: ["No Blue Cheese"] }
+    ],
+    subtotal: 148.00,
+    discount: 0,
+    serviceCharge: 7.40,
+    tax: 10.90,
+    tip: 0,
+    total: 166.30
+  },
+  // Another Table Order ticket
+  {
+    id: "15",
+    name: "Rachel Green",
+    phone: "(415) 555-3333",
+    partySize: 4,
+    time: "7:40 PM",
+    timer: "0:50 Hrs",
+    server: "Alex M",
+    check: "123510",
+    paymentType: "--",
+    revenueCenter: "Main Dining",
+    status: "ORDERING",
+    notes: "Window seat requested",
+    table: "T3",
+    orderType: "Table Order",
+    items: [
+      { qty: 2, name: "Shrimp Scampi", price: 22.00, seats: [1, 2], modifiers: ["Extra Garlic"] },
+      { qty: 1, name: "Bruschetta", price: 10.00, seats: [], modifiers: [] },
+      { qty: 1, name: "Mushroom Risotto", price: 18.00, seats: [3], modifiers: [] },
+      { qty: 1, name: "Lamb Chops", price: 34.00, seats: [4], modifiers: ["Medium Rare"] }
+    ],
+    subtotal: 128.00,
+    discount: 5.00,
+    serviceCharge: 6.15,
+    tax: 9.06,
+    tip: 0,
+    total: 138.21
   }
 ];
 
@@ -532,8 +743,22 @@ const Tickets = () => {
   };
 
   const handleMobileOrderClick = (guest: GuestOrder) => {
+    // Navigate to TableOrderDetails for Table Order type tickets
+    if (guest.orderType === "Table Order" && guest.table !== "--") {
+      navigate(`/tableorder/${guest.table}`);
+      return;
+    }
     setSelectedGuest(guest);
     setShowMobileOrderPanel(true);
+  };
+
+  // Desktop click handler that navigates for Table Orders
+  const handleDesktopOrderClick = (guest: GuestOrder) => {
+    if (guest.orderType === "Table Order" && guest.table !== "--") {
+      navigate(`/tableorder/${guest.table}`);
+      return;
+    }
+    setSelectedGuest(guest);
   };
 
   // ===== TICKET CARD COMPONENT =====
@@ -1187,7 +1412,7 @@ const Tickets = () => {
                 key={guest.id}
                 guest={guest} 
                 isSelected={selectedGuest.id === guest.id} 
-                onSelect={() => setSelectedGuest(guest)}
+                onSelect={() => handleDesktopOrderClick(guest)}
                 showActions
               />
             ))}
@@ -1215,7 +1440,7 @@ const Tickets = () => {
                 key={guest.id}
                 guest={guest} 
                 isSelected={selectedGuest.id === guest.id} 
-                onSelect={() => setSelectedGuest(guest)}
+                onSelect={() => handleDesktopOrderClick(guest)}
                 compact
                 showActions
               />

@@ -1568,6 +1568,25 @@ const TransferOrders = () => {
           
           <ScrollArea className="max-h-[60vh]">
             <div className="p-4 space-y-3">
+              {/* Transfer to New Order option - shown first */}
+              <button
+                onClick={() => setSelectedTicketOrderId('__new__')}
+                className={`w-full rounded-xl border overflow-hidden text-left transition-all ${
+                  selectedTicketOrderId === '__new__' ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'
+                }`}
+                style={{ backgroundColor: '#1B1C20' }}
+              >
+                <div className="flex items-center gap-3 p-4">
+                  <div className="flex-shrink-0 w-12 h-14 rounded-lg flex items-center justify-center border border-dashed border-white/30" style={{ background: '#1A1A1A' }}>
+                    <span className="text-2xl text-white/60">+</span>
+                  </div>
+                  <div className="flex-1">
+                    <span className="text-white font-medium text-sm">Transfer to New Order</span>
+                    <p className="text-white/40 text-xs mt-0.5">Start a new ticket with transferred items</p>
+                  </div>
+                </div>
+              </button>
+
               {/* Active tickets on the target table */}
               {selectedTargetTable && getOrdersByTable(selectedTargetTable)
                 .filter(o => o.status !== "PAID" && o.status !== "Completed")
@@ -1613,25 +1632,6 @@ const TransferOrders = () => {
                     </button>
                   );
                 })}
-              
-              {/* Transfer to New Order option */}
-              <button
-                onClick={() => setSelectedTicketOrderId('__new__')}
-                className={`w-full rounded-xl border overflow-hidden text-left transition-all ${
-                  selectedTicketOrderId === '__new__' ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'
-                }`}
-                style={{ backgroundColor: '#1B1C20' }}
-              >
-                <div className="flex items-center gap-3 p-4">
-                  <div className="flex-shrink-0 w-12 h-14 rounded-lg flex items-center justify-center border border-dashed border-white/30" style={{ background: '#1A1A1A' }}>
-                    <span className="text-2xl text-white/60">+</span>
-                  </div>
-                  <div className="flex-1">
-                    <span className="text-white font-medium text-sm">Transfer to New Order</span>
-                    <p className="text-white/40 text-xs mt-0.5">Start a new ticket with transferred items</p>
-                  </div>
-                </div>
-              </button>
             </div>
           </ScrollArea>
           

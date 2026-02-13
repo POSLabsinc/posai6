@@ -7,6 +7,7 @@ import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
 import RefundDialog from "@/components/RefundDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, X, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, ArrowRightLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
@@ -3206,28 +3207,22 @@ const TableOrderDetails = () => {
         };
 
         return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center">
-            <div className="absolute inset-0 bg-black/80" onClick={() => setShowTransferToOrderDialog(false)} />
-            <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[480px] max-w-[90vw] max-h-[85vh] overflow-hidden flex flex-col">
-              {/* Header */}
+          <Dialog open={showTransferToOrderDialog} onOpenChange={setShowTransferToOrderDialog}>
+            <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-lg overflow-hidden" aria-describedby={undefined}>
               <div className="p-4 border-b border-white/10">
                 <h2 className="text-white text-lg font-semibold">Transfer to Order</h2>
                 <p className="text-white/50 text-sm mt-1">Select an active order to transfer</p>
               </div>
 
-              {/* Order list */}
-              <div className="flex-1 overflow-y-auto max-h-[60vh] scrollbar-hide">
+              <ScrollArea className="max-h-[60vh]">
                 <div className="p-4 space-y-3">
                   {availableTransferOrders.map((order) => {
-                    const totals = getOrderWithTotals(order);
                     const isSelected = selectedTransferOrderId === order.id;
                     return (
                       <button
                         key={order.id}
                         onClick={() => setSelectedTransferOrderId(order.id)}
-                        className={`w-full rounded-xl border overflow-hidden text-left transition-all ${
-                          isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'
-                        }`}
+                        className={`w-full rounded-xl border overflow-hidden text-left transition-all ${isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'}`}
                         style={{ backgroundColor: '#1B1C20' }}
                       >
                         <div className="p-3">
@@ -3245,36 +3240,28 @@ const TableOrderDetails = () => {
                           </div>
                           <div className="mt-3 pt-3 border-t border-white/10 flex items-center justify-between">
                             <span className="text-white/50 text-sm">{order.items.length} items</span>
-                            <span className="text-white font-semibold text-sm">{formatPrice(totals.total)}</span>
+                            <span className="text-white font-semibold text-sm">{formatPrice(order.items.reduce((s, i) => s + i.price * i.qty, 0))}</span>
                           </div>
                         </div>
                       </button>
                     );
                   })}
                 </div>
-              </div>
+              </ScrollArea>
 
-              {/* Footer */}
               <div className="p-4 border-t border-white/10 flex gap-3">
-                <button
-                  onClick={() => setShowTransferToOrderDialog(false)}
-                  className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700"
-                >
-                  Cancel
-                </button>
+                <button onClick={() => setShowTransferToOrderDialog(false)} className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700">Cancel</button>
                 <button
                   onClick={executeTransfer}
                   disabled={!selectedTransferOrderId}
-                  className={`flex-1 py-2.5 rounded-full font-medium text-sm ${
-                    selectedTransferOrderId ? 'text-black' : 'text-black/50 opacity-50'
-                  }`}
+                  className={`flex-1 py-2.5 rounded-full font-medium text-sm ${selectedTransferOrderId ? 'text-black' : 'text-black/50 opacity-50'}`}
                   style={selectedTransferOrderId ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: '#555' }}
                 >
                   Confirm Transfer
                 </button>
               </div>
-            </div>
-          </div>
+            </DialogContent>
+          </Dialog>
         );
       })()}
     </>;

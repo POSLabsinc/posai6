@@ -54,6 +54,7 @@ import allergyIcon from "@/assets/icons/allergy.svg";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import reopenCheckIcon from "@/assets/icons/reopen-check.svg";
 import transferCheckIcon from "@/assets/icons/transfer-check.svg";
+import transferIconPng from "@/assets/icons/transfer-icon.png";
 import newOrderIcon from "@/assets/icons/new-order.png";
 import dineInIcon from "@/assets/icons/dine-in-icon.svg";
 import takeOutIcon from "@/assets/icons/take-out.svg";
@@ -5604,6 +5605,7 @@ interface OrderItem {
   discountAmount?: number;
   noTax?: boolean;
   isFired?: boolean;
+  isTransferred?: boolean;
 }
 const initialOrderItems: OrderItem[] = [];
 const orderTypes = [
@@ -6275,6 +6277,7 @@ const Orders = () => {
           name: item.name,
           price: item.price,
           modifiers: item.modifiers && item.modifiers.length > 0 ? item.modifiers : undefined,
+          isTransferred: true,
         }));
         setOrderItems(convertedItems);
       } catch (e) {
@@ -7144,9 +7147,11 @@ const Orders = () => {
             />
           </div>
           {transferNewMode && (
-            <div className="px-3 py-2 border-b border-sidebar-border flex items-center gap-2 text-xs" style={{ color: '#B5B6BB' }}>
-              <ArrowRightLeft size={12} className="text-orange-400 flex-shrink-0" />
-              <span>Transferred from Order #{searchParams.get('transferFrom')} · {searchParams.get('transferFromTable') ? `Table ${searchParams.get('transferFromTable')?.replace('T', '')}` : ''}</span>
+            <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2">
+              <img src={transferIconPng} alt="Transferred" className="w-4 h-4 opacity-70" />
+              <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+                Transferred from Order {searchParams.get('transferFrom')} · Table {searchParams.get('transferFromTable')?.replace('T', '')}
+              </span>
             </div>
           )}
 
@@ -7307,12 +7312,13 @@ const Orders = () => {
                 <div className="px-1.5 py-0.5 space-y-0.5">
                   {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
                       <div 
-                        className="bg-neutral-800 rounded px-1.5 py-1 cursor-pointer"
+                        className={`rounded px-1.5 py-1 cursor-pointer ${item.isTransferred ? 'border border-[#3B6A9E]' : 'bg-neutral-800'}`}
+                        style={item.isTransferred ? { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } : undefined}
                         onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
-                            <span className="w-4 h-4 rounded border border-white/50 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">
+                            <span className={`w-4 h-4 rounded text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0 ${item.isTransferred ? 'bg-[#3B6A9E]' : 'border border-white/50'}`}>
                               {item.qty}
                             </span>
                             <span className="text-[11px] font-medium text-foreground">{item.name}</span>
@@ -8422,9 +8428,11 @@ const Orders = () => {
                     />
                   </div>
                   {transferNewMode && (
-                    <div className="px-3 py-2 border-b border-sidebar-border flex items-center gap-2 text-xs flex-shrink-0" style={{ color: '#B5B6BB' }}>
-                      <ArrowRightLeft size={12} className="text-orange-400 flex-shrink-0" />
-                      <span>Transferred from Order #{searchParams.get('transferFrom')} · {searchParams.get('transferFromTable') ? `Table ${searchParams.get('transferFromTable')?.replace('T', '')}` : ''}</span>
+                    <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2 flex-shrink-0">
+                      <img src={transferIconPng} alt="Transferred" className="w-4 h-4 opacity-70" />
+                      <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+                        Transferred from Order {searchParams.get('transferFrom')} · Table {searchParams.get('transferFromTable')?.replace('T', '')}
+                      </span>
                     </div>
                   )}
 
@@ -8436,14 +8444,16 @@ const Orders = () => {
                       </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
                         {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
                             <div 
-                              className="p-2 md:p-1.5 lg:p-3 border border-sidebar-border rounded-md md:rounded lg:rounded-lg cursor-pointer" 
-                              style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                              className={`p-2 md:p-1.5 lg:p-3 border rounded-md md:rounded lg:rounded-lg cursor-pointer ${item.isTransferred ? 'border-[#3B6A9E]' : 'border-sidebar-border'}`}
+                              style={item.isTransferred 
+                                ? { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } 
+                                : { background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
                               onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}
                             >
                               <div className="flex flex-col">
                                 {/* Item header row */}
                                 <div className="flex items-start gap-2 md:gap-1.5 lg:gap-3">
-                                  <span className="w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0">
+                                  <span className={`w-6 h-6 md:w-5 md:h-5 lg:w-6 lg:h-6 rounded text-white text-xs md:text-[10px] lg:text-xs font-medium flex items-center justify-center flex-shrink-0 ${item.isTransferred ? 'bg-[#3B6A9E]' : 'bg-neutral-700 border border-neutral-600'}`}>
                                     {item.qty}
                                   </span>
                                   <div className="flex-1 min-w-0">

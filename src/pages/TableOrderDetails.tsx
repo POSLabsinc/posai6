@@ -3214,7 +3214,7 @@ const TableOrderDetails = () => {
               </div>
 
               {/* Order list */}
-              <ScrollArea className="flex-1 max-h-[60vh]">
+              <div className="flex-1 overflow-y-auto max-h-[60vh] scrollbar-hide">
                 <div className="p-4 space-y-3">
                   {availableTransferOrders.map((order) => {
                     const totals = getOrderWithTotals(order);
@@ -3274,7 +3274,7 @@ const TableOrderDetails = () => {
                     );
                   })}
                 </div>
-              </ScrollArea>
+              </div>
 
               {/* Footer */}
               <div className="p-4 border-t border-white/10 flex gap-3">

@@ -987,8 +987,8 @@ const TableOrderDetails = () => {
                               <span className={`text-white font-medium text-sm ${isTransferredOut ? 'line-through opacity-50' : ''}`}>{item.name}</span>
                               {isTransferredOut && (
                                 <div className="flex items-center gap-1 mt-0.5">
-                                  <ArrowRightLeft className="w-3 h-3 text-[#6EE7B7]" />
-                                  <span className="text-[10px] text-[#6EE7B7]">Transferred to {localTransferResult.destinationLabel}</span>
+                                  <ArrowRightLeft className="w-3 h-3 text-[#8AC4FF]" />
+                                  <span className="text-[10px] text-[#8AC4FF]">Transferred to {localTransferResult.destinationLabel}</span>
                                 </div>
                               )}
                             </>
@@ -1227,9 +1227,9 @@ const TableOrderDetails = () => {
                
                {/* Outgoing Transfer Indicator (Source - items sent out) */}
                {localTransferResult && localTransferResult.sourceOrderId === guest.id && (
-                 <div className="px-2 py-0.5 rounded-t-xl bg-[#1A3A2A]">
+                 <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
                    <span className="text-xs font-medium">
-                     <span style={{ color: '#6EE7B7' }}>Transferred to</span>{" "}
+                     <span style={{ color: '#8AC4FF' }}>Transferred to</span>{" "}
                      <span className="text-white">{localTransferResult.destinationLabel}</span>
                    </span>
                  </div>
@@ -1579,9 +1579,9 @@ const TableOrderDetails = () => {
                   </div>}
                 {/* Local Transfer Result - Outgoing (stays on same page) */}
                 {localTransferResult && localTransferResult.sourceOrderId === guest.id && (
-                  <div className="px-3 py-1 rounded-t-xl bg-[#1A3A2A]">
+                  <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#6EE7B7' }}>Transferred to</span>{" "}
+                      <span style={{ color: '#8AC4FF' }}>Transferred to</span>{" "}
                       <span className="text-white">{localTransferResult.destinationLabel}</span>
                     </span>
                   </div>
@@ -1989,8 +1989,8 @@ const TableOrderDetails = () => {
         {localTransferResult && localTransferResult.sourceOrderId === currentSelectedGuest?.id && (
           <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
             <div className="flex items-center gap-2">
-              <ArrowRightLeft className="w-4 h-4 text-[#6EE7B7]" />
-              <span className="text-xs font-medium" style={{ color: '#6EE7B7' }}>
+              <ArrowRightLeft className="w-4 h-4 text-[#8AC4FF]" />
+              <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
                 Transferred to {localTransferResult.destinationLabel}
               </span>
             </div>
@@ -2088,8 +2088,8 @@ const TableOrderDetails = () => {
                                 </div>
                                 {isTransferredOut && (
                                   <div className="flex items-center gap-1 mt-0.5">
-                                    <ArrowRightLeft className="w-3 h-3 text-[#6EE7B7]" />
-                                    <span className="text-[10px] text-[#6EE7B7]">Transferred to {transferDestLabel}</span>
+                                    <ArrowRightLeft className="w-3 h-3 text-[#8AC4FF]" />
+                                    <span className="text-[10px] text-[#8AC4FF]">Transferred to {transferDestLabel}</span>
                                   </div>
                                 )}
                               </>
@@ -2556,8 +2556,8 @@ const TableOrderDetails = () => {
         {localTransferResult && localTransferResult.sourceOrderId === currentSelectedGuest?.id && (
           <div className="px-4 py-1.5 border-b border-white/10">
             <div className="flex items-center gap-2">
-              <ArrowRightLeft className="w-4 h-4 text-[#6EE7B7]" />
-              <span className="text-xs font-medium" style={{ color: '#6EE7B7' }}>
+              <ArrowRightLeft className="w-4 h-4 text-[#8AC4FF]" />
+              <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
                 Transferred to {localTransferResult.destinationLabel}
               </span>
             </div>
@@ -2712,8 +2712,8 @@ const TableOrderDetails = () => {
                                     <span className={`text-white font-medium ${isTransferredOut ? 'line-through opacity-50' : ''}`}>{item.name}</span>
                                     {isTransferredOut && (
                                       <div className="flex items-center gap-1 mt-0.5">
-                                        <ArrowRightLeft className="w-3 h-3 text-[#6EE7B7]" />
-                                        <span className="text-[10px] text-[#6EE7B7]">Transferred to {localTransferResult.destinationLabel}</span>
+                                       <ArrowRightLeft className="w-3 h-3 text-[#8AC4FF]" />
+                                       <span className="text-[10px] text-[#8AC4FF]">Transferred to {localTransferResult.destinationLabel}</span>
                                       </div>
                                     )}
                                   </>

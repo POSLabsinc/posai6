@@ -322,7 +322,8 @@ const TransferOrders = () => {
         transferredTo: selectedTicketOrderId || currentOrder.id,
         transferToTable: selectedTargetTable.replace('T', '')
       });
-      navigate(`/tableorder/${selectedTargetTable}?${transferParams.toString()}`);
+      // Navigate back to the SOURCE table to maintain context
+      navigate(`/tableorder/${tableId}?${transferParams.toString()}`);
     }, 1500);
   };
 
@@ -353,7 +354,8 @@ const TransferOrders = () => {
         transferredTo: currentOrder.id,
         transferToTable: selectedTargetTable.replace('T', '')
       });
-      navigate(`/tableorder/${selectedTargetTable}?${transferParams.toString()}`);
+      // Navigate back to the SOURCE table to maintain context
+      navigate(`/tableorder/${tableId}?${transferParams.toString()}`);
     }, 1500);
   };
 
@@ -413,7 +415,8 @@ const TransferOrders = () => {
         transferredTo: selectedTransferOrderId,
         transferToTable: targetTable.replace('T', '')
       });
-      navigate(`/tableorder/${targetTable}?${transferParams.toString()}`);
+      // Navigate back to the SOURCE table to maintain context
+      navigate(`/tableorder/${tableId}?${transferParams.toString()}`);
     }, 1500);
   };
 

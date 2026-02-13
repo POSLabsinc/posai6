@@ -841,7 +841,7 @@ const TransferOrders = () => {
             <ChevronLeft className="w-5 h-5 text-white" />
           </button>
           
-          <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-medium">Select Table</h1>
+          <h1 className="absolute left-1/2 -translate-x-1/2 text-white text-xl font-medium">Transfer to Table</h1>
           
           <div className="w-10" />
         </div>
@@ -1272,7 +1272,7 @@ const TransferOrders = () => {
                 <ChevronLeft className="w-5 h-5 text-white" />
               </button>
               <h1 className="text-white text-lg font-semibold">
-                {desktopStep === "select-items" ? "Transfer Check" : "Select Table"}
+                {desktopStep === "select-items" ? "Transfer Check" : "Transfer to Table"}
               </h1>
             </div>
           </div>
@@ -1369,12 +1369,12 @@ const TransferOrders = () => {
             {/* Bottom Button - Select Check */}
             {selectedItems.length > 0 && <div className="p-3 border-t border-white/10 flex gap-3">
                 <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
-                  CANCEL
+                  TRANSFER TO ORDER
                 </button>
                 <button onClick={() => setDesktopStep("select-table")} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
             background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
           }}>
-                  SELECT TABLE
+                  TRANSFER TO TABLE
                 </button>
               </div>}
           </>}
@@ -1454,7 +1454,7 @@ const TransferOrders = () => {
             {/* Confirm Button */}
             <div className="p-3 border-t border-white/10 flex gap-3">
               <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
-                CANCEL
+                TRANSFER TO ORDER
               </button>
               <button 
                 onClick={handleConfirmTableTransfer} 
@@ -1495,19 +1495,19 @@ const TransferOrders = () => {
       {/* Select Check Button - Fixed above bottom nav (Mobile) */}
       {step === "select-items" && selectedItems.length > 0 && !showTargetSheet && <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
           <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
-            CANCEL
+            TRANSFER TO ORDER
           </button>
           <button onClick={handleProceedToTargetSelection} className="flex-1 py-2 rounded-full text-black font-medium text-sm" style={{
         background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)"
       }}>
-             SELECT TABLE
+             TRANSFER TO TABLE
            </button>
          </div>}
 
       {/* Table Selection CTAs - Fixed above bottom nav (Mobile) */}
       {step === "select-table" && <div className="fixed bottom-14 left-0 right-0 px-4 py-2 bg-black lg:hidden flex gap-3">
           <button onClick={handleBack} className="px-6 py-2 rounded-full text-white font-medium text-sm bg-neutral-800">
-            CANCEL
+            TRANSFER TO ORDER
           </button>
           <button 
             onClick={handleConfirmTableTransfer} 

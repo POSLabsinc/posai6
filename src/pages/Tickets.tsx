@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight } from "lucide-react";
 
 // Import icons
@@ -43,6 +44,12 @@ interface OrderItem {
   modifiers: string[];
 }
 
+interface PaymentEntry {
+  method: string; // "Visa", "Amex", "Cash", "Mastercard", etc.
+  last4?: string; // last 4 digits for cards
+  amount: number;
+}
+
 // Guest order interface with linked items
 interface GuestOrder {
   id: string;
@@ -54,6 +61,7 @@ interface GuestOrder {
   server: string;
   check: string;
   paymentType: string;
+  payments?: PaymentEntry[];
   revenueCenter: string;
   status: string;
   notes: string;
@@ -161,6 +169,11 @@ const allOrders: GuestOrder[] = [
     server: "Mia Jone",
     check: "123456",
     paymentType: "Credit Card",
+    payments: [
+      { method: "Visa", last4: "1234", amount: 300.00 },
+      { method: "Amex", last4: "9876", amount: 150.00 },
+      { method: "Cash", amount: 71.19 },
+    ],
     revenueCenter: "Main Dining",
     status: "PAID",
     notes: "Corporate dinner - split bill 3 ways",
@@ -308,10 +321,37 @@ const formatDuration = (timer: string): string => {
 
 // Format payment display
 const formatPaymentDisplay = (guest: GuestOrder): string => {
+  if (guest.payments && guest.payments.length > 0) {
+    const first = guest.payments[0];
+    const label = first.last4 ? `${first.method} •••• ${first.last4}` : first.method;
+    return label;
+  }
   if (guest.paymentType === "--" || guest.paymentType === "") return "Un Paid";
   if (guest.paymentType === "Cash") return "Cash";
   if (guest.paymentType === "Credit Card") return "Visa •••• 1234";
   return guest.paymentType;
+};
+
+// Get payment badge color
+const getPaymentBadgeColor = (method: string): string => {
+  switch (method.toLowerCase()) {
+    case "visa": return "#1A1F71";
+    case "amex": return "#006FCF";
+    case "mastercard": return "#EB001B";
+    case "cash": return "#22C55E";
+    default: return "#555";
+  }
+};
+
+// Payment method badge icon text
+const getPaymentBadgeText = (method: string): string => {
+  switch (method.toLowerCase()) {
+    case "visa": return "VISA";
+    case "amex": return "AMEX";
+    case "mastercard": return "MC";
+    case "cash": return "$";
+    default: return method.charAt(0).toUpperCase();
+  }
 };
 
 // Get paid amount (secondary line)
@@ -537,9 +577,55 @@ const Tickets = () => {
         </div>
 
         {/* SERVER & PAYMENT INFO */}
-        <div className={`flex-shrink-0 ${compact ? 'w-[90px] py-1.5' : 'w-[110px] py-2'} flex flex-col justify-center text-right pr-2`}>
+        <div className={`flex-shrink-0 ${compact ? 'w-[100px] py-1.5' : 'w-[140px] py-2'} flex flex-col justify-center text-right pr-2`}>
           <span className={`text-white font-medium truncate ${compact ? 'text-[11px]' : 'text-xs'}`}>{guest.server}</span>
-          <span className={`text-neutral-400 truncate ${compact ? 'text-[10px]' : 'text-[11px]'}`}>{paymentDisplay}</span>
+          {guest.payments && guest.payments.length > 1 ? (
+            <Popover>
+              <PopoverTrigger asChild>
+                <button 
+                  className={`flex items-center justify-end gap-1 ${compact ? 'text-[10px]' : 'text-[11px]'} text-neutral-400 hover:text-neutral-200 transition-colors`}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <span 
+                    className="inline-flex items-center justify-center rounded px-1 py-px text-[8px] font-bold text-white leading-none"
+                    style={{ backgroundColor: getPaymentBadgeColor(guest.payments[0].method) }}
+                  >
+                    {getPaymentBadgeText(guest.payments[0].method)}
+                  </span>
+                  <span className="truncate">{paymentDisplay}</span>
+                  <span className="text-blue-400 font-medium whitespace-nowrap">+{guest.payments.length - 1} more</span>
+                </button>
+              </PopoverTrigger>
+              <PopoverContent 
+                align="end" 
+                className="w-[260px] p-0 border border-neutral-700 rounded-xl shadow-xl"
+                style={{ backgroundColor: '#2A2A2E' }}
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="px-3 py-2 border-b border-neutral-700">
+                  <span className="text-white/80 text-xs font-semibold">Payment Methods</span>
+                </div>
+                <div className="flex flex-col py-1">
+                  {guest.payments.map((p, i) => (
+                    <div key={i} className="flex items-center gap-2.5 px-3 py-1.5">
+                      <span 
+                        className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-[9px] font-bold text-white leading-none min-w-[32px]"
+                        style={{ backgroundColor: getPaymentBadgeColor(p.method) }}
+                      >
+                        {getPaymentBadgeText(p.method)}
+                      </span>
+                      <span className="text-white text-sm flex-1">
+                        {p.last4 ? `${p.method}  ••••  ${p.last4}` : p.method}
+                      </span>
+                      <span className="text-white text-sm font-medium">{formatPrice(p.amount)}</span>
+                    </div>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+          ) : (
+            <span className={`text-neutral-400 truncate ${compact ? 'text-[10px]' : 'text-[11px]'}`}>{paymentDisplay}</span>
+          )}
         </div>
 
         {/* RIGHT: Status + Amount */}

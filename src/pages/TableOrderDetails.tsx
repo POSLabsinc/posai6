@@ -3114,10 +3114,15 @@ const TableOrderDetails = () => {
                     <img src={transferItemIcon} alt="Transfer Items" className="w-5 h-5 object-contain opacity-80" />
                     <span className="text-white font-medium">Transfer Items</span>
                   </div>
-                  <p className="text-white/50 text-xs ml-8">Move selected items to another order or table</p>
+                  <p className="text-white/50 text-xs ml-8">Move selected items to new order, another order or table.</p>
                 </button>
 
-                {/* Transfer Entire Order Option */}
+                {/* Transfer Entire Order Section Title */}
+                <div className="pt-1">
+                  <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3">Transfer Entire Order</p>
+                </div>
+
+                {/* Transfer to Table */}
                 <button 
                   onClick={() => {
                     setShowTransferIntentDialog(false);
@@ -3126,13 +3131,13 @@ const TableOrderDetails = () => {
                   className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
                 >
                   <div className="flex items-center gap-3 mb-1">
-                    <img src={transferEntireOrderIcon} alt="Transfer Entire Order" className="w-5 h-5 object-contain opacity-80" />
-                    <span className="text-white font-medium">Transfer Entire Order</span>
+                    <img src={transferEntireOrderIcon} alt="Transfer to Table" className="w-5 h-5 object-contain opacity-80" />
+                    <span className="text-white font-medium">Transfer to Table</span>
                   </div>
-                  <p className="text-white/50 text-xs ml-8">Move this full order to another table</p>
+                  <p className="text-white/50 text-xs ml-8">Move this full order to another table or a new table.</p>
                 </button>
 
-                {/* Transfer Entire Order to Other Orders Option */}
+                {/* Transfer to Order */}
                 <button 
                   onClick={() => {
                     setShowTransferIntentDialog(false);
@@ -3142,9 +3147,9 @@ const TableOrderDetails = () => {
                 >
                   <div className="flex items-center gap-3 mb-1">
                     <ArrowRightLeft className="w-5 h-5 text-white/80" />
-                    <span className="text-white font-medium">Transfer Entire Order to Other Orders</span>
+                    <span className="text-white font-medium">Transfer to Order</span>
                   </div>
-                  <p className="text-white/50 text-xs ml-8">Move this full order to another order or create a new order</p>
+                  <p className="text-white/50 text-xs ml-8">Move this full order to another order or create a new order.</p>
                 </button>
               </div>
             </div>

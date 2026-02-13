@@ -7143,6 +7143,12 @@ const Orders = () => {
               placeholder="Order notes and Allergies"
             />
           </div>
+          {transferNewMode && (
+            <div className="px-3 py-2 border-b border-sidebar-border flex items-center gap-2 text-xs" style={{ color: '#B5B6BB' }}>
+              <ArrowRightLeft size={12} className="text-orange-400 flex-shrink-0" />
+              <span>Transferred from Order #{searchParams.get('transferFrom')} · {searchParams.get('transferFromTable') ? `Table ${searchParams.get('transferFromTable')?.replace('T', '')}` : ''}</span>
+            </div>
+          )}
 
           {/* Mobile Guest Forms */}
           {orderType === "DINE IN" && showDineInForm && (
@@ -8415,6 +8421,12 @@ const Orders = () => {
                       placeholder="Order notes"
                     />
                   </div>
+                  {transferNewMode && (
+                    <div className="px-3 py-2 border-b border-sidebar-border flex items-center gap-2 text-xs flex-shrink-0" style={{ color: '#B5B6BB' }}>
+                      <ArrowRightLeft size={12} className="text-orange-400 flex-shrink-0" />
+                      <span>Transferred from Order #{searchParams.get('transferFrom')} · {searchParams.get('transferFromTable') ? `Table ${searchParams.get('transferFromTable')?.replace('T', '')}` : ''}</span>
+                    </div>
+                  )}
 
                   {/* Order Items */}
                   <ScrollArea className="flex-1 min-h-0 px-2">

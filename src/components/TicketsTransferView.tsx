@@ -727,7 +727,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
 
   // ===== DESKTOP LAYOUT =====
   const DesktopLayout = () => (
-    <div className="flex h-full">
+    <div className="flex h-full w-full">
       {/* Left Panel */}
       <div className="flex-1 flex flex-col">
         {/* Header */}

@@ -911,7 +911,7 @@ const Tickets = () => {
     return (
       <div className="fixed inset-0 z-[60] flex items-center justify-center">
         <div className="absolute inset-0 bg-black/80" onClick={closeTransferFlow} />
-        <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[340px] max-w-[90vw] overflow-hidden">
+        <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[380px] max-w-[90vw] overflow-hidden">
           <div className="flex items-center justify-between p-4 border-b border-white/10">
             <h2 className="text-white text-lg font-semibold">Transfer Order</h2>
             <button onClick={closeTransferFlow} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
@@ -919,25 +919,25 @@ const Tickets = () => {
             </button>
           </div>
           <div className="p-4">
-            <p className="text-white/60 text-sm mb-4">What would you like to transfer?</p>
-            <div className="space-y-3">
+            <p className="text-white/60 text-sm mb-3">What would you like to transfer?</p>
+            <div className="space-y-2">
               <button 
                 onClick={() => {
                   setTransferType('items');
                   setTransferStep('active');
                 }}
-                className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
               >
-                <div className="flex items-center gap-3 mb-1">
+                <div className="flex items-center gap-3 mb-0.5">
                   <img src={transferItemIcon} alt="Transfer Items" className="w-5 h-5 object-contain opacity-80" />
                   <span className="text-white font-medium">Transfer Items</span>
                 </div>
-                <p className="text-white/50 text-xs ml-8">Move selected items to new order, another order or table.</p>
+                <p className="text-white/50 text-xs ml-8">Move selected items to another table or order.</p>
               </button>
 
               {/* Transfer Entire Order Section Title */}
-              <div className="pt-1">
-                <div className="flex items-center gap-2 mb-1.5">
+              <div className="pt-0.5">
+                <div className="flex items-center gap-2 mb-1">
                   <img src={transferEntireOrderIcon} alt="Transfer Entire Order" className="w-4 h-4 object-contain opacity-50" />
                   <p className="text-white/50 text-xs font-semibold uppercase tracking-wider">Transfer Entire Order</p>
                 </div>
@@ -949,13 +949,13 @@ const Tickets = () => {
                   setTransferType('entire');
                   setTransferStep('active');
                 }}
-                className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
               >
-                <div className="flex items-center gap-3 mb-1">
+                <div className="flex items-center gap-3 mb-0.5">
                   <img src={transferToTableIcon} alt="Transfer to Table" className="w-5 h-5 object-contain opacity-80" />
                   <span className="text-white font-medium">Transfer to Table</span>
                 </div>
-                <p className="text-white/50 text-xs ml-8">Move this full order to another table or a new table.</p>
+                <p className="text-white/50 text-xs ml-8">Move this full order to another or new table.</p>
               </button>
 
               {/* Transfer to Order */}
@@ -964,13 +964,13 @@ const Tickets = () => {
                   setTransferType('entireToOrder');
                   setTransferStep('active');
                 }}
-                className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
               >
-                <div className="flex items-center gap-3 mb-1">
+                <div className="flex items-center gap-3 mb-0.5">
                   <img src={transferToOrderIcon} alt="Transfer to Order" className="w-5 h-5 object-contain opacity-80" />
                   <span className="text-white font-medium">Transfer to Order</span>
                 </div>
-                <p className="text-white/50 text-xs ml-8">Move this full order to another order or create a new order.</p>
+                <p className="text-white/50 text-xs ml-8">Move this full order to another order or create a new one.</p>
               </button>
             </div>
           </div>

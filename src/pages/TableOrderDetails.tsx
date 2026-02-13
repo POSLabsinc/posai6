@@ -1,4 +1,5 @@
 import { useState, useRef, useMemo, useEffect } from "react";
+import { toast } from "sonner";
 import { useOrderTimers } from "@/hooks/use-order-timer";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
@@ -473,6 +474,11 @@ const TableOrderDetails = () => {
   // Transfer intent dialog state
   const [showTransferIntentDialog, setShowTransferIntentDialog] = useState(false);
   const [transferIntentOrderId, setTransferIntentOrderId] = useState<string | null>(null);
+  
+  // Transfer to Order dialog state (inline, no navigation)
+  const [showTransferToOrderDialog, setShowTransferToOrderDialog] = useState(false);
+  const [selectedTransferOrderId, setSelectedTransferOrderId] = useState<string | null>(null);
+  const [transferToOrderSourceId, setTransferToOrderSourceId] = useState<string | null>(null);
   
   // Discount state
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
@@ -3146,7 +3152,9 @@ const TableOrderDetails = () => {
                 <button 
                   onClick={() => {
                     setShowTransferIntentDialog(false);
-                    navigate(`/tableorder/${tableId}/transfer?orderId=${transferIntentOrderId}&transferType=entire&targetMode=order`);
+                    setSelectedTransferOrderId(null);
+                    setTransferToOrderSourceId(transferIntentOrderId);
+                    setShowTransferToOrderDialog(true);
                   }}
                   className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
                 >
@@ -3161,6 +3169,136 @@ const TableOrderDetails = () => {
           </div>
         </div>
       )}
+
+      {/* Transfer to Order Dialog (inline - no navigation) */}
+      {showTransferToOrderDialog && (() => {
+        const sourceOrder = allOrders.find(o => o.id === transferToOrderSourceId);
+        const availableTransferOrders = allOrders.filter(o => {
+          if (o.id === transferToOrderSourceId) return false;
+          if (o.status === "PAID" || o.status === "Completed") return false;
+          return true;
+        });
+
+        const executeTransfer = () => {
+          if (!selectedTransferOrderId || !sourceOrder) return;
+          setShowTransferToOrderDialog(false);
+          const targetOrder = allOrders.find(o => o.id === selectedTransferOrderId);
+          const targetTable = targetOrder?.table || sourceOrder.table;
+          const itemNames = sourceOrder.items.map(item => item.name).join(',');
+          
+          toast.success(`Order transferred successfully to Order #${selectedTransferOrderId}`);
+          
+          setTimeout(() => {
+            const transferParams = new URLSearchParams({
+              transferred: sourceOrder.id,
+              transferFrom: sourceOrder.table,
+              transferDest: selectedTransferOrderId,
+              items: itemNames,
+              transferSource: sourceOrder.id,
+              transferType: 'full',
+              transferredTo: selectedTransferOrderId,
+              transferToTable: targetTable.replace('T', '')
+            });
+            navigate(`/tableorder/${targetTable}?${transferParams.toString()}`);
+          }, 1500);
+        };
+
+        return (
+          <div className="fixed inset-0 z-50 flex items-center justify-center">
+            <div className="absolute inset-0 bg-black/80" onClick={() => setShowTransferToOrderDialog(false)} />
+            <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[480px] max-w-[90vw] max-h-[85vh] overflow-hidden flex flex-col">
+              {/* Header */}
+              <div className="p-4 border-b border-white/10">
+                <h2 className="text-white text-lg font-semibold">Transfer to Order</h2>
+                <p className="text-white/50 text-sm mt-1">Select an active order to transfer</p>
+              </div>
+
+              {/* Order list */}
+              <ScrollArea className="flex-1 max-h-[60vh]">
+                <div className="p-4 space-y-3">
+                  {availableTransferOrders.map((order) => {
+                    const totals = getOrderWithTotals(order);
+                    const isSelected = selectedTransferOrderId === order.id;
+                    return (
+                      <button
+                        key={order.id}
+                        onClick={() => setSelectedTransferOrderId(order.id)}
+                        className={`w-full rounded-xl border overflow-hidden text-left transition-all ${
+                          isSelected ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'
+                        }`}
+                        style={{ backgroundColor: '#1B1C20' }}
+                      >
+                        <div className="p-3">
+                          {/* Order header */}
+                          <div className="flex items-stretch gap-3">
+                            <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 rounded-lg border border-white/20 py-1.5" style={{ background: '#1A1A1A' }}>
+                              <span className="text-base font-bold text-white">{order.id}</span>
+                              <span className="text-[9px] text-white/40">000</span>
+                            </div>
+                            <div className="flex-1 min-w-0 flex flex-col justify-between">
+                              <div className="flex items-center justify-between">
+                                <span className="text-white font-medium text-sm truncate">{order.name} · {formatTableName(order.table)}</span>
+                                <span className={`text-xs font-semibold uppercase ${getSharedStatusColor(order.status)}`}>{order.status}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-xs text-white/50">
+                                <span>{order.server}</span>
+                                <span className="text-white font-semibold">{formatPrice(totals.total)}</span>
+                              </div>
+                              <div className="flex items-center justify-between text-xs text-white/50">
+                                <span>{order.revenueCenter}</span>
+                                <span>$0.00</span>
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Items */}
+                          <div className="mt-2 space-y-1">
+                            {order.items.map((item, idx) => (
+                              <div key={idx} className="flex items-center justify-between py-0.5">
+                                <div className="flex items-center gap-2 min-w-0 flex-1">
+                                  <span className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">{item.qty}</span>
+                                  <span className="text-white text-xs truncate">{item.name}</span>
+                                </div>
+                                <span className="text-white/70 text-xs font-medium flex-shrink-0 ml-2">{formatPrice(item.price * item.qty)}</span>
+                              </div>
+                            ))}
+                          </div>
+
+                          {/* Total */}
+                          <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between">
+                            <span className="text-white/50 text-xs">{order.items.length} items</span>
+                            <span className="text-white font-semibold text-sm">{formatPrice(totals.total)}</span>
+                          </div>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </ScrollArea>
+
+              {/* Footer */}
+              <div className="p-4 border-t border-white/10 flex gap-3">
+                <button
+                  onClick={() => setShowTransferToOrderDialog(false)}
+                  className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={executeTransfer}
+                  disabled={!selectedTransferOrderId}
+                  className={`flex-1 py-2.5 rounded-full font-medium text-sm ${
+                    selectedTransferOrderId ? 'text-black' : 'text-black/50 opacity-50'
+                  }`}
+                  style={selectedTransferOrderId ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: '#555' }}
+                >
+                  Confirm Transfer
+                </button>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </>;
 };
 export default TableOrderDetails;

@@ -886,43 +886,43 @@ const Tickets = () => {
 
   // ===== HEADER COMPONENT =====
   const TicketHeader = () => (
-    <div className="relative flex flex-col border-b border-neutral-700/50">
-      <div className="flex items-center justify-between p-2">
-        <span className="text-white font-semibold text-lg pl-2">Tickets</span>
-        <div className="flex items-center gap-2 z-10">
+    <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+      <span className="text-white font-semibold text-lg pl-2">Tickets</span>
+      <div className="flex items-center gap-1.5 z-10">
+        {showFilterIcons && (
+          <>
+            {filterIconItems.map(item => (
+              <button 
+                key={item.label}
+                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-600 transition-colors border border-neutral-600/50"
+                style={{ backgroundColor: '#2A2A2E' }}
+                title={item.label}
+              >
+                <item.icon className="w-4 h-4 text-white/80" />
+              </button>
+            ))}
+            <button 
+              className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-600 transition-colors"
+              style={{ backgroundColor: '#2A2A2E' }}
+              onClick={() => setShowFilterIcons(false)}
+            >
+              <X className="w-4 h-4 text-white/80" />
+            </button>
+          </>
+        )}
+        {!showFilterIcons && (
           <button 
-            className={`p-2 rounded-full hover:opacity-80 transition-opacity ${showFilterIcons ? 'ring-1 ring-white/30' : ''}`}
+            className="p-2 rounded-full hover:opacity-80 transition-opacity"
             style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-            onClick={() => setShowFilterIcons(prev => !prev)}
+            onClick={() => setShowFilterIcons(true)}
           >
             <SlidersHorizontal className="w-4 h-4 text-white" />
           </button>
-          <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-            <Search className="w-4 h-4 text-white" />
-          </button>
-        </div>
+        )}
+        <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+          <Search className="w-4 h-4 text-white" />
+        </button>
       </div>
-      {showFilterIcons && (
-        <div className="flex items-center justify-center gap-2 px-3 pb-2.5 pt-0.5">
-          {filterIconItems.map(item => (
-            <button 
-              key={item.label}
-              className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-neutral-600 transition-colors border border-neutral-600/50"
-              style={{ backgroundColor: '#2A2A2E' }}
-              title={item.label}
-            >
-              <item.icon className="w-4.5 h-4.5 text-white/80" />
-            </button>
-          ))}
-          <button 
-            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-neutral-600 transition-colors"
-            style={{ backgroundColor: '#2A2A2E' }}
-            onClick={() => setShowFilterIcons(false)}
-          >
-            <X className="w-4.5 h-4.5 text-white/80" />
-          </button>
-        </div>
-      )}
     </div>
   );
 

@@ -787,22 +787,22 @@ const Tickets = () => {
     const cardContent = (
       <div className={`flex items-stretch w-full ${compact ? 'gap-1.5' : 'gap-0'}`}>
         {/* LEFT BADGE: Ticket Number + ID */}
-        <div className={`flex-shrink-0 flex items-center ${compact ? 'px-1.5 py-1.5' : 'px-2.5 py-2'}`}>
-          <div className={`flex flex-col items-center justify-center rounded-lg border border-neutral-600 bg-neutral-800/80 ${compact ? 'w-10 h-12 gap-0' : 'w-12 h-14 gap-0.5'}`}>
-            <span className={`font-bold text-white ${compact ? 'text-base' : 'text-lg'}`}>{guest.id}</span>
-            <span className="text-[10px] text-neutral-400 font-medium">{checkId}</span>
+        <div className={`flex-shrink-0 flex items-center ${compact ? 'px-2 py-2' : 'px-3 py-3'}`}>
+          <div className={`flex flex-col items-center justify-center rounded-lg border border-neutral-600 bg-neutral-800/80 ${compact ? 'w-12 h-14 gap-0' : 'w-14 h-16 gap-0.5'}`}>
+            <span className={`font-bold text-white ${compact ? 'text-lg' : 'text-xl'}`}>{guest.id}</span>
+            <span className="text-[11px] text-neutral-400 font-medium">{checkId}</span>
           </div>
         </div>
 
         {/* MIDDLE CONTENT */}
-        <div className={`flex-1 min-w-0 ${compact ? 'py-1.5' : 'py-2'} flex flex-col justify-center`}>
+        <div className={`flex-1 min-w-0 ${compact ? 'py-2' : 'py-3'} flex flex-col justify-center`}>
           {/* Row 1: Name (+ Table for Table Orders) */}
           <div className="flex items-center gap-1.5 mb-0.5">
-            <span className={`text-white font-semibold truncate ${compact ? 'text-xs' : 'text-sm'}`}>{guest.name}</span>
+            <span className={`text-white font-semibold truncate ${compact ? 'text-sm' : 'text-base'}`}>{guest.name}</span>
             {guest.orderType === "Table Order" && guest.table !== "--" && (
               <>
-                <span className="text-neutral-500 text-xs">·</span>
-                <span className={`text-white/70 truncate ${compact ? 'text-xs' : 'text-sm'}`}>{guest.table}</span>
+                <span className="text-neutral-500 text-sm">·</span>
+                <span className={`text-white/70 truncate ${compact ? 'text-sm' : 'text-base'}`}>{guest.table}</span>
               </>
             )}
           </div>
@@ -811,28 +811,28 @@ const Tickets = () => {
           <div className="flex items-center gap-1.5 text-neutral-400 mb-0.5">
             <OrderTypeIcon type={guest.orderType} size="small" />
             {guest.orderType === "Table Order" ? (
-              <span className={`${compact ? 'text-[10px]' : 'text-xs'}`}>
+              <span className={`${compact ? 'text-xs' : 'text-sm'}`}>
                 {guest.partySize > 1 ? `Party of ${guest.partySize}, ` : ''}{guest.time} | {duration}
               </span>
             ) : (
-              <span className={`${compact ? 'text-[10px]' : 'text-xs'}`}>
+              <span className={`${compact ? 'text-xs' : 'text-sm'}`}>
                 {guest.orderType}, {guest.time} | {duration}
               </span>
             )}
           </div>
 
           {/* Row 3: Revenue Center */}
-          <span className={`text-neutral-500 ${compact ? 'text-[10px]' : 'text-xs'}`}>{guest.revenueCenter}</span>
+          <span className={`text-neutral-500 ${compact ? 'text-xs' : 'text-sm'}`}>{guest.revenueCenter}</span>
         </div>
 
         {/* SERVER & PAYMENT INFO */}
-        <div className={`flex-shrink-0 ${compact ? 'w-[100px] py-1.5' : 'w-[140px] py-2'} flex flex-col justify-center text-right pr-2`}>
-          <span className={`text-white font-medium truncate ${compact ? 'text-[11px]' : 'text-xs'}`}>{guest.server}</span>
+        <div className={`flex-shrink-0 ${compact ? 'w-[110px] py-2' : 'w-[150px] py-3'} flex flex-col justify-center text-right pr-2`}>
+          <span className={`text-white font-medium truncate ${compact ? 'text-xs' : 'text-sm'}`}>{guest.server}</span>
           {guest.payments && guest.payments.length > 1 ? (
             <Popover>
               <PopoverTrigger asChild>
                 <button 
-                  className={`flex items-center justify-end gap-1 ${compact ? 'text-[10px]' : 'text-[11px]'} text-neutral-400 hover:text-neutral-200 transition-colors`}
+                  className={`flex items-center justify-end gap-1 ${compact ? 'text-[11px]' : 'text-xs'} text-neutral-400 hover:text-neutral-200 transition-colors`}
                   onClick={e => e.stopPropagation()}
                 >
                   <span 
@@ -873,19 +873,19 @@ const Tickets = () => {
               </PopoverContent>
             </Popover>
           ) : (
-            <span className={`text-neutral-400 truncate ${compact ? 'text-[10px]' : 'text-[11px]'}`}>{paymentDisplay}</span>
+            <span className={`text-neutral-400 truncate ${compact ? 'text-[11px]' : 'text-xs'}`}>{paymentDisplay}</span>
           )}
         </div>
 
         {/* RIGHT: Status + Amount */}
-        <div className={`flex-shrink-0 flex flex-col items-end justify-center ${compact ? 'pr-1.5 py-1.5 w-[85px]' : 'pr-2 py-2 w-[100px]'}`}>
+        <div className={`flex-shrink-0 flex flex-col items-end justify-center ${compact ? 'pr-2 py-2 w-[90px]' : 'pr-3 py-3 w-[110px]'}`}>
           <span 
-            className={`font-bold uppercase tracking-wide ${compact ? 'text-[10px] mb-0.5' : 'text-xs mb-1'}`}
+            className={`font-bold uppercase tracking-wide ${compact ? 'text-[11px] mb-0.5' : 'text-sm mb-1'}`}
             style={{ color: statusStyle.color }}
           >
             {guest.status}
           </span>
-          <span className={`text-white font-bold ${compact ? 'text-sm' : 'text-base'}`}>
+          <span className={`text-white font-bold ${compact ? 'text-base' : 'text-lg'}`}>
             {formatPrice(guest.total)}
           </span>
           <span className={`text-neutral-500 ${compact ? 'text-[10px]' : 'text-xs'}`}>

@@ -10,7 +10,7 @@ import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 import { toast } from "sonner";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
-import { allOrders, toOrderTemplateData } from "@/data/orders";
+import { ticketOrders, ticketToTemplateData, formatTicketPrice, getAvailableTicketOrdersForTransfer } from "@/data/ticketOrders";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -175,11 +175,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
   const availableTables = defaultTables.filter(table => table.id !== currentOrder.table);
 
   // Available orders for Transfer to Order (exclude current, paid, completed)
-  const availableTransferOrders = allOrders.filter(o => {
-    if (o.id === currentOrder.id) return false;
-    if (o.status === "PAID" || o.status === "Completed") return false;
-    return true;
-  });
+  const availableTransferOrders = getAvailableTicketOrdersForTransfer(currentOrder.id);
 
   // Execute Transfer to Order
   const executeTransferToOrder = () => {
@@ -216,7 +212,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
     }
 
     // Transfer to existing order
-    const targetOrder = allOrders.find(o => o.id === selectedTransferOrderId);
+    const targetOrder = ticketOrders.find(o => o.id === selectedTransferOrderId);
     const isPartialTransfer = !isEntireOrderTransfer;
     const itemNames = isPartialTransfer
       ? selectedItems.map(index => currentOrder.items[index].name).join(',')
@@ -1205,7 +1201,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
                     style={{ backgroundColor: '#1B1C20' }}
                   >
                     <div className="p-3">
-                      <OrderLayoutTemplate order={toOrderTemplateData(order)} showBorder={false} />
+                      <OrderLayoutTemplate order={ticketToTemplateData(order)} showBorder={false} />
                       <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
                         {order.items.map((item, idx) => (
                           <div key={idx} className="flex items-center justify-between py-1">

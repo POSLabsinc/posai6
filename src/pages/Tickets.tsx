@@ -381,6 +381,8 @@ const Tickets = () => {
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [showFilterIcons, setShowFilterIcons] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Swipe state for mobile cards
   const [swipeStates, setSwipeStates] = useState<Record<string, number>>({});
@@ -499,15 +501,28 @@ const Tickets = () => {
     return 0;
   };
 
-  const filteredOrders = activeFilter === "All" ? allOrders : allOrders.filter(guest => {
-    switch (activeFilter) {
-      case "Open": return guest.status === "ORDERING";
-      case "Completed": return guest.status === "COMPLETED";
-      case "Paid": return guest.status === "PAID" || guest.paymentType !== "--";
-      case "Unpaid": return guest.status === "UNPAID" || guest.paymentType === "--";
-      default: return true;
+  const filteredOrders = (() => {
+    let orders = activeFilter === "All" ? allOrders : allOrders.filter(guest => {
+      switch (activeFilter) {
+        case "Open": return guest.status === "ORDERING";
+        case "Completed": return guest.status === "COMPLETED";
+        case "Paid": return guest.status === "PAID" || guest.paymentType !== "--";
+        case "Unpaid": return guest.status === "UNPAID" || guest.paymentType === "--";
+        default: return true;
+      }
+    });
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      orders = orders.filter(g =>
+        g.name.toLowerCase().includes(q) ||
+        g.id.includes(q) ||
+        g.check.includes(q) ||
+        g.table.toLowerCase().includes(q) ||
+        g.server.toLowerCase().includes(q)
+      );
     }
-  });
+    return orders;
+  })();
 
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
@@ -887,42 +902,71 @@ const Tickets = () => {
   // ===== HEADER COMPONENT =====
   const TicketHeader = () => (
     <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
-      <span className="text-white font-semibold text-lg pl-2">Tickets</span>
-      <div className="flex items-center gap-1.5 z-10">
-        {showFilterIcons && (
-          <>
-            {filterIconItems.map(item => (
-              <button 
-                key={item.label}
-                className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-600 transition-colors border border-neutral-600/50"
-                style={{ backgroundColor: '#2A2A2E' }}
-                title={item.label}
-              >
-                <item.icon className="w-4 h-4 text-white/80" />
-              </button>
-            ))}
-            <button 
-              className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-600 transition-colors"
-              style={{ backgroundColor: '#2A2A2E' }}
-              onClick={() => setShowFilterIcons(false)}
-            >
-              <X className="w-4 h-4 text-white/80" />
-            </button>
-          </>
-        )}
-        {!showFilterIcons && (
+      {showSearch ? (
+        <>
+          <div className="flex items-center gap-2 flex-1 mr-2">
+            <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+            <input
+              autoFocus
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search by name, order ID, or check..."
+              className="bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none w-full"
+            />
+          </div>
           <button 
-            className="p-2 rounded-full hover:opacity-80 transition-opacity"
+            className="p-2 rounded-full hover:opacity-80 transition-opacity flex-shrink-0"
             style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-            onClick={() => setShowFilterIcons(true)}
+            onClick={() => { setShowSearch(false); setSearchQuery(""); }}
           >
-            <SlidersHorizontal className="w-4 h-4 text-white" />
+            <X className="w-4 h-4 text-white" />
           </button>
-        )}
-        <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-          <Search className="w-4 h-4 text-white" />
-        </button>
-      </div>
+        </>
+      ) : (
+        <>
+          <span className="text-white font-semibold text-lg pl-2">Tickets</span>
+          <div className="flex items-center gap-1.5 z-10">
+            {showFilterIcons && (
+              <>
+                {filterIconItems.map(item => (
+                  <button 
+                    key={item.label}
+                    className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-600 transition-colors border border-neutral-600/50"
+                    style={{ backgroundColor: '#2A2A2E' }}
+                    title={item.label}
+                  >
+                    <item.icon className="w-4 h-4 text-white/80" />
+                  </button>
+                ))}
+                <button 
+                  className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-600 transition-colors"
+                  style={{ backgroundColor: '#2A2A2E' }}
+                  onClick={() => setShowFilterIcons(false)}
+                >
+                  <X className="w-4 h-4 text-white/80" />
+                </button>
+              </>
+            )}
+            {!showFilterIcons && (
+              <button 
+                className="p-2 rounded-full hover:opacity-80 transition-opacity"
+                style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                onClick={() => setShowFilterIcons(true)}
+              >
+                <SlidersHorizontal className="w-4 h-4 text-white" />
+              </button>
+            )}
+            <button 
+              className="p-2 rounded-full hover:opacity-80 transition-opacity" 
+              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+              onClick={() => setShowSearch(true)}
+            >
+              <Search className="w-4 h-4 text-white" />
+            </button>
+          </div>
+        </>
+      )}
     </div>
   );
 

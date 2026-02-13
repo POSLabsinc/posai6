@@ -224,7 +224,7 @@ const allOrders: GuestOrder[] = [
     status: "ORDERING",
     notes: "",
     table: "Bar",
-    orderType: "Bar",
+    orderType: "Dine-In",
     items: [
       { qty: 1, name: "Classic Burger", price: 15.00, seats: [1], modifiers: ["No Pickles", "+ Bacon"] },
       { qty: 1, name: "Craft IPA", price: 8.00, seats: [], modifiers: [] }

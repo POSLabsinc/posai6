@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X } from "lucide-react";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -380,6 +380,7 @@ const Tickets = () => {
   const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
+  const [showFilterIcons, setShowFilterIcons] = useState(false);
 
   // Swipe state for mobile cards
   const [swipeStates, setSwipeStates] = useState<Record<string, number>>({});
@@ -873,18 +874,55 @@ const Tickets = () => {
     </div>
   );
 
+  // Filter icon bar items
+  const filterIconItems = [
+    { icon: DollarSign, label: "Amount" },
+    { icon: CalendarDays, label: "Date" },
+    { icon: UsersRound, label: "Party" },
+    { icon: ClipboardList, label: "Order Type" },
+    { icon: CircleDollarSign, label: "Price" },
+    { icon: Wallet, label: "Payment" },
+  ];
+
   // ===== HEADER COMPONENT =====
   const TicketHeader = () => (
-    <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
-      <span className="text-white font-semibold text-lg pl-2">Tickets</span>
-      <div className="flex items-center gap-2 z-10">
-        <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-          <SlidersHorizontal className="w-4 h-4 text-white" />
-        </button>
-        <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-          <Search className="w-4 h-4 text-white" />
-        </button>
+    <div className="relative flex flex-col border-b border-neutral-700/50">
+      <div className="flex items-center justify-between p-2">
+        <span className="text-white font-semibold text-lg pl-2">Tickets</span>
+        <div className="flex items-center gap-2 z-10">
+          <button 
+            className={`p-2 rounded-full hover:opacity-80 transition-opacity ${showFilterIcons ? 'ring-1 ring-white/30' : ''}`}
+            style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+            onClick={() => setShowFilterIcons(prev => !prev)}
+          >
+            <SlidersHorizontal className="w-4 h-4 text-white" />
+          </button>
+          <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+            <Search className="w-4 h-4 text-white" />
+          </button>
+        </div>
       </div>
+      {showFilterIcons && (
+        <div className="flex items-center justify-center gap-2 px-3 pb-2.5 pt-0.5">
+          {filterIconItems.map(item => (
+            <button 
+              key={item.label}
+              className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-neutral-600 transition-colors border border-neutral-600/50"
+              style={{ backgroundColor: '#2A2A2E' }}
+              title={item.label}
+            >
+              <item.icon className="w-4.5 h-4.5 text-white/80" />
+            </button>
+          ))}
+          <button 
+            className="w-10 h-10 rounded-xl flex items-center justify-center hover:bg-neutral-600 transition-colors"
+            style={{ backgroundColor: '#2A2A2E' }}
+            onClick={() => setShowFilterIcons(false)}
+          >
+            <X className="w-4.5 h-4.5 text-white/80" />
+          </button>
+        </div>
+      )}
     </div>
   );
 

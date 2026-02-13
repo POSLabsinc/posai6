@@ -21,6 +21,8 @@ import printIcon from "@/assets/icons/print-icon.svg";
 import cashRegisterSvgIcon from "@/assets/icons/cash-register-icon.svg";
 import transferItemIcon from "@/assets/icons/transfer-item.svg";
 import transferEntireOrderIcon from "@/assets/icons/transfer-entire-order.svg";
+import transferToTableIcon from "@/assets/icons/transfer-to-table.svg";
+import transferToOrderIcon from "@/assets/icons/transfer-to-order.svg";
 
 // New order type icons
 import dineInSvg from "@/assets/icons/dine-in-2.svg";
@@ -935,7 +937,7 @@ const Tickets = () => {
 
               {/* Transfer Entire Order Section Title */}
               <div className="pt-1">
-                <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-3">Transfer Entire Order</p>
+                <p className="text-white/50 text-xs font-semibold uppercase tracking-wider mb-1.5">Transfer Entire Order</p>
               </div>
 
               {/* Transfer to Table */}
@@ -947,7 +949,7 @@ const Tickets = () => {
                 className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
               >
                 <div className="flex items-center gap-3 mb-1">
-                  <img src={transferEntireOrderIcon} alt="Transfer to Table" className="w-5 h-5 object-contain opacity-80" />
+                  <img src={transferToTableIcon} alt="Transfer to Table" className="w-5 h-5 object-contain opacity-80" />
                   <span className="text-white font-medium">Transfer to Table</span>
                 </div>
                 <p className="text-white/50 text-xs ml-8">Move this full order to another table or a new table.</p>
@@ -962,7 +964,7 @@ const Tickets = () => {
                 className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
               >
                 <div className="flex items-center gap-3 mb-1">
-                  <ArrowRightLeft className="w-5 h-5 text-white/80" />
+                  <img src={transferToOrderIcon} alt="Transfer to Order" className="w-5 h-5 object-contain opacity-80" />
                   <span className="text-white font-medium">Transfer to Order</span>
                 </div>
                 <p className="text-white/50 text-xs ml-8">Move this full order to another order or create a new order.</p>

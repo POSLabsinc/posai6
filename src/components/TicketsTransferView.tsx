@@ -186,37 +186,6 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
     if (!selectedTransferOrderId) return;
     setShowTransferToOrder(false);
 
-    // Handle "Transfer to New Order" - navigate to Orders page
-    if (selectedTransferOrderId === '__new__') {
-      const transferItems = isEntireOrderTransfer
-        ? currentOrder.items
-        : selectedItems.map(index => {
-            const item = currentOrder.items[index];
-            const qty = itemQuantities[index] || item.qty;
-            return { ...item, qty };
-          });
-
-      const itemsData = transferItems.map(item => ({
-        name: item.name,
-        price: item.price,
-        qty: item.qty,
-        modifiers: item.modifiers || [],
-      }));
-
-      toast.success('Items transferred to new order');
-
-      setTimeout(() => {
-        const params = new URLSearchParams({
-          mode: 'transferNew',
-          transferItems: JSON.stringify(itemsData),
-          transferFrom: currentOrder.id,
-          transferFromTable: currentOrder.table,
-        });
-        navigate(`/orders?${params.toString()}`);
-      }, 800);
-      return;
-    }
-
     // Transfer to existing order
     const targetOrder = allOrders.find(o => o.id === selectedTransferOrderId);
     const isPartialTransfer = !isEntireOrderTransfer;
@@ -1173,28 +1142,11 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
         <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-lg overflow-hidden" aria-describedby={undefined}>
           <div className="p-4 border-b border-white/10">
             <h2 className="text-white text-lg font-semibold">Transfer to Order</h2>
-            <p className="text-white/50 text-sm mt-1">Select an active order or create a new one</p>
+            <p className="text-white/50 text-sm mt-1">Select an active order to transfer</p>
           </div>
 
           <ScrollArea className="max-h-[60vh]">
             <div className="p-4 space-y-3">
-              {/* Transfer to New Order - first */}
-              <button
-                onClick={() => setSelectedTransferOrderId('__new__')}
-                className={`w-full rounded-xl border overflow-hidden text-left transition-all ${selectedTransferOrderId === '__new__' ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'}`}
-                style={{ backgroundColor: '#1B1C20' }}
-              >
-                <div className="flex items-center gap-3 p-4">
-                  <div className="flex-shrink-0 w-12 h-14 rounded-lg flex items-center justify-center border border-dashed border-white/30" style={{ background: '#1A1A1A' }}>
-                    <span className="text-2xl text-white/60">+</span>
-                  </div>
-                  <div className="flex-1">
-                    <span className="text-white font-medium text-sm">Transfer to New Order</span>
-                    <p className="text-white/40 text-xs mt-0.5">Start a new ticket with transferred items</p>
-                  </div>
-                </div>
-              </button>
-
               {/* Active orders */}
               {availableTransferOrders.map((order) => {
                 const isSelected = selectedTransferOrderId === order.id;

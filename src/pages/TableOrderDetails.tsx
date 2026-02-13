@@ -12,6 +12,7 @@ import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phon
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
+import { ticketOrders, ticketToTemplateData, formatTicketPrice, getAvailableTicketOrdersForTransfer } from "@/data/ticketOrders";
 
 // Import shared order data
 import { 
@@ -3176,11 +3177,7 @@ const TableOrderDetails = () => {
       {/* Transfer to Order Dialog (inline - no navigation) */}
       {showTransferToOrderDialog && (() => {
         const sourceOrder = allOrders.find(o => o.id === transferToOrderSourceId);
-        const availableTransferOrders = allOrders.filter(o => {
-          if (o.id === transferToOrderSourceId) return false;
-          if (o.status === "PAID" || o.status === "Completed") return false;
-          return true;
-        });
+        const availableTransferOrders = getAvailableTicketOrdersForTransfer(transferToOrderSourceId || '');
 
         const executeTransfer = () => {
           if (!selectedTransferOrderId || !sourceOrder) return;
@@ -3226,7 +3223,7 @@ const TableOrderDetails = () => {
                         style={{ backgroundColor: '#1B1C20' }}
                       >
                         <div className="p-3">
-                          <OrderLayoutTemplate order={toOrderTemplateData(order)} showBorder={false} />
+                          <OrderLayoutTemplate order={ticketToTemplateData(order)} showBorder={false} />
                           <div className="mt-3 pt-3 border-t border-white/10 space-y-2">
                             {order.items.map((item, idx) => (
                               <div key={idx} className="flex items-center justify-between py-1">

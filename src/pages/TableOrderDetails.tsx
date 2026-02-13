@@ -6,7 +6,7 @@ import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
 import RefundDialog from "@/components/RefundDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, X, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
+import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, X, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, ArrowRightLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 
@@ -3130,6 +3130,21 @@ const TableOrderDetails = () => {
                     <span className="text-white font-medium">Transfer Entire Order</span>
                   </div>
                   <p className="text-white/50 text-xs ml-8">Move this full order to another table</p>
+                </button>
+
+                {/* Transfer Entire Order to Other Orders Option */}
+                <button 
+                  onClick={() => {
+                    setShowTransferIntentDialog(false);
+                    navigate(`/tableorder/${tableId}/transfer?orderId=${transferIntentOrderId}&transferType=entire&targetMode=order`);
+                  }}
+                  className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+                >
+                  <div className="flex items-center gap-3 mb-1">
+                    <ArrowRightLeft className="w-5 h-5 text-white/80" />
+                    <span className="text-white font-medium">Transfer Entire Order to Other Orders</span>
+                  </div>
+                  <p className="text-white/50 text-xs ml-8">Move this full order to another order or create a new order</p>
                 </button>
               </div>
             </div>

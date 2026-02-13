@@ -610,7 +610,7 @@ const Tickets = () => {
   // Inline Transfer flow state
   const [transferSource, setTransferSource] = useState<GuestOrder | null>(null);
   const [transferStep, setTransferStep] = useState<'intent' | 'active' | null>(null);
-  const [transferType, setTransferType] = useState<'items' | 'entire' | null>(null);
+  const [transferType, setTransferType] = useState<'items' | 'entire' | 'entireToOrder' | null>(null);
 
 
 
@@ -944,6 +944,19 @@ const Tickets = () => {
                   <span className="text-white font-medium">Transfer Entire Order</span>
                 </div>
                 <p className="text-white/50 text-xs ml-8">Move this full order to another table</p>
+              </button>
+              <button 
+                onClick={() => {
+                  setTransferType('entireToOrder');
+                  setTransferStep('active');
+                }}
+                className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+              >
+                <div className="flex items-center gap-3 mb-1">
+                  <ArrowRightLeft className="w-5 h-5 text-white/80" />
+                  <span className="text-white font-medium">Transfer Entire Order to Other Orders</span>
+                </div>
+                <p className="text-white/50 text-xs ml-8">Move this full order to another order or create a new order</p>
               </button>
             </div>
           </div>

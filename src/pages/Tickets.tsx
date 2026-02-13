@@ -17,6 +17,8 @@ import splitIcon from "@/assets/icons/split-icon.png";
 import mergeIcon from "@/assets/icons/merge-icon.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
 import cashRegisterIcon from "@/assets/icons/cash-register.png";
+import printIcon from "@/assets/icons/print-icon.svg";
+import cashRegisterSvgIcon from "@/assets/icons/cash-register-icon.svg";
 
 // Order type icon component
 const OrderTypeIcon = ({ type, size = "default" }: { type: string; size?: "small" | "default" }) => {
@@ -672,7 +674,7 @@ const Tickets = () => {
                   style={{ background: 'linear-gradient(180deg, #5A5A5A 0%, #3A3A3A 100%)' }}
                   onClick={e => { e.stopPropagation(); }}
                 >
-                  <ReceiptText className="w-4 h-4 text-white" />
+                  <img src={printIcon} alt="Print" className="w-4 h-4 object-contain" />
                 </button>
                 {/* Cash Register icon */}
                 <button 
@@ -680,7 +682,7 @@ const Tickets = () => {
                   style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
                   onClick={e => { e.stopPropagation(); }}
                 >
-                  <img src={cashRegisterIcon} alt="Register" className="w-4 h-4 object-contain" />
+                  <img src={cashRegisterSvgIcon} alt="Register" className="w-4 h-4 object-contain" />
                 </button>
               </>
             ) : (

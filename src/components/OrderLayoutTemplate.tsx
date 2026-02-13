@@ -1,5 +1,8 @@
 import tableTargetIcon from "@/assets/icons/table-target.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
+import takeOutIcon from "@/assets/icons/take-out.svg";
+import deliveryIcon from "@/assets/icons/delivery.svg";
+import driveThruIcon from "@/assets/icons/drive-thru.svg";
 import { formatTableName } from "@/lib/orderUtils";
 
 export interface OrderData {
@@ -16,7 +19,28 @@ export interface OrderData {
   revenueCenter: string;
   paymentType: string;
   phone?: string;
+  orderType?: string;
 }
+
+const getOrderTypeIcon = (orderType?: string) => {
+  switch (orderType) {
+    case 'Takeout': return takeOutIcon;
+    case 'Delivery': return deliveryIcon;
+    case 'Drive-Thru': return driveThruIcon;
+    case 'Bar': return dineInIcon;
+    default: return dineInIcon;
+  }
+};
+
+const getOrderTypeLabel = (orderType?: string) => {
+  switch (orderType) {
+    case 'Takeout': return 'Takeout';
+    case 'Delivery': return 'Delivery';
+    case 'Drive-Thru': return 'Drive-Thru';
+    case 'Bar': return 'Bar';
+    default: return 'Dine In';
+  }
+};
 
 export const getOrderStatusColor = (status: string) => {
   switch (status.toUpperCase()) {
@@ -85,8 +109,8 @@ const OrderLayoutTemplate = ({
             {/* Row 2: Party info, Timer, Total */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
-                <img src={dineInIcon} alt="Dine In" className="w-3 h-3 object-contain opacity-60" />
-                <span>Party of {order.partySize}, {order.time}</span>
+                <img src={getOrderTypeIcon(order.orderType)} alt={getOrderTypeLabel(order.orderType)} className="w-3 h-3 object-contain opacity-60" />
+                <span>{getOrderTypeLabel(order.orderType)}, Party of {order.partySize}, {order.time}</span>
                 <span className="text-gray-500">|</span>
                 <span>{order.timer}</span>
               </div>
@@ -137,8 +161,8 @@ const OrderLayoutTemplate = ({
             {/* Row 2: Party info + Timer | empty | Total - 45% | 35% | 20% */}
             <div className="flex items-center text-sm">
               <div className="w-[45%] text-left flex items-center gap-1 text-white/60 whitespace-nowrap">
-                <img src={dineInIcon} alt="Dine In" className="w-4 h-4 object-contain opacity-60" />
-                <span className="truncate">Party of {order.partySize}, {order.time}</span>
+                <img src={getOrderTypeIcon(order.orderType)} alt={getOrderTypeLabel(order.orderType)} className="w-4 h-4 object-contain opacity-60" />
+                <span className="truncate">{getOrderTypeLabel(order.orderType)}, Party of {order.partySize}, {order.time}</span>
                 <span className="text-white/40">|</span>
                 <span>{order.timer}</span>
               </div>

@@ -153,8 +153,8 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
   const [selectedTicketOrderId, setSelectedTicketOrderId] = useState<string | null>(null);
   const [isSuccessDialogOpen, setIsSuccessDialogOpen] = useState(false);
 
-  // Transfer to Order state
-  const [showTransferToOrder, setShowTransferToOrder] = useState(false);
+  // Transfer to Order state - initialize open for direct-to-order flow
+  const [showTransferToOrder, setShowTransferToOrder] = useState(isDirectToOrder);
   const [selectedTransferOrderId, setSelectedTransferOrderId] = useState<string | null>(null);
 
   // Mobile bottom sheet for target selection
@@ -176,12 +176,13 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
     }
   }, [isEntireOrderTransfer, currentOrder.items]);
 
-  // Auto-open Transfer to Order dialog for direct-to-order flow
-  useEffect(() => {
+  // Handle cancel for direct-to-order: go back to tickets list
+  const handleTransferToOrderClose = () => {
+    setShowTransferToOrder(false);
     if (isDirectToOrder) {
-      setShowTransferToOrder(true);
+      onBack();
     }
-  }, [isDirectToOrder]);
+  };
 
   // Get orders on a specific table
   const getOrdersByTable = (tableId: string) => {
@@ -1179,7 +1180,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
       </Dialog>
 
       {/* Transfer to Order Dialog */}
-      <Dialog open={showTransferToOrder} onOpenChange={setShowTransferToOrder}>
+      <Dialog open={showTransferToOrder} onOpenChange={(open) => { if (!open) handleTransferToOrderClose(); }}>
         <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-lg overflow-hidden" aria-describedby={undefined}>
           <div className="p-4 border-b border-white/10">
             <h2 className="text-white text-lg font-semibold">Transfer to Order</h2>
@@ -1241,7 +1242,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
           </ScrollArea>
 
           <div className="p-4 border-t border-white/10 flex gap-3">
-            <button onClick={() => setShowTransferToOrder(false)} className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700">Cancel</button>
+            <button onClick={(e) => { e.stopPropagation(); handleTransferToOrderClose(); }} className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700">Cancel</button>
             <button
               onClick={() => {
                 if (selectedTransferOrderId) {

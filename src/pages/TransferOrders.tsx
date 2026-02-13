@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronDown, ArrowUpDown, ArrowDown, SlidersHorizontal, Search, Phone, Info, Check, Users, Share2, X } from "lucide-react";
+import { ChevronLeft, ChevronDown, ArrowUpDown, ArrowDown, ArrowRightLeft, SlidersHorizontal, Search, Phone, Info, Check, Users, Share2, X } from "lucide-react";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -842,10 +842,11 @@ const TransferOrders = () => {
     backgroundColor: '#1B1C20'
   }}>
       {/* Transferred Banner */}
-      {transferredTo && <div className="px-3 py-1.5 text-white text-sm font-medium" style={{
-      backgroundColor: '#8B5A2B'
+      {transferredTo && <div className="px-3 py-1.5 text-sm font-medium flex items-center gap-2" style={{
+      backgroundColor: '#1E3A5F'
     }}>
-          Transferred to {transferredTo}
+          <ArrowRightLeft className="w-4 h-4 text-[#8AC4FF]" />
+          <span style={{ color: '#8AC4FF' }}>Transferred to {transferredTo}</span>
         </div>}
       <div className="flex items-stretch w-full gap-3 p-3">
         {/* Order Number Column */}

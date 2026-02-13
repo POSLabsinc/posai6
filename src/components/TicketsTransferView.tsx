@@ -123,9 +123,10 @@ interface TicketsTransferViewProps {
   orders: TransferGuestOrder[];
   setOrders: React.Dispatch<React.SetStateAction<TransferGuestOrder[]>>;
   onTransferComplete: () => void;
+  embedded?: boolean;
 }
 
-const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, orders, setOrders, onTransferComplete }: TicketsTransferViewProps) => {
+const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, orders, setOrders, onTransferComplete, embedded = false }: TicketsTransferViewProps) => {
   const navigate = useNavigate();
   const [step, setStep] = useState<"select-items" | "select-table">(isEntireOrderTransfer ? "select-table" : "select-items");
   const [desktopStep, setDesktopStep] = useState<"select-items" | "select-table">(isEntireOrderTransfer ? "select-table" : "select-items");
@@ -710,7 +711,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
 
   // ===== DESKTOP LAYOUT =====
   const DesktopLayout = () => (
-    <div className="flex h-full gap-0">
+    <div className={`flex h-full gap-0 ${embedded ? 'flex-col' : ''}`}>
       {/* Left Panel */}
       <div className="flex-1 flex flex-col">
         {/* Header */}
@@ -863,8 +864,8 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
         )}
       </div>
 
-      {/* Right Panel */}
-      <OrderDetailsPanel />
+      {/* Right Panel - only when not embedded */}
+      {!embedded && <OrderDetailsPanel />}
     </div>
   );
 
@@ -989,13 +990,13 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
 
   return (
     <div className="h-full flex flex-col bg-black">
-      {/* Desktop Layout */}
-      <div className="hidden lg:flex h-full w-full">
+      {/* Desktop Layout - show at md when embedded */}
+      <div className={`hidden ${embedded ? 'md:flex' : 'lg:flex'} h-full w-full`}>
         <DesktopLayout />
       </div>
 
       {/* Mobile/Tablet Layout */}
-      <div className="flex flex-col flex-1 min-h-0 lg:hidden overflow-hidden">
+      <div className={`flex flex-col flex-1 min-h-0 ${embedded ? 'md:hidden' : 'lg:hidden'} overflow-hidden`}>
         {step === "select-items" && <MobileSelectItemsView />}
         {step === "select-table" && <MobileTableSelectionView />}
       </div>

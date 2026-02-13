@@ -1170,62 +1170,89 @@ const Tickets = () => {
     </div>
   );
 
-  // Desktop Layout
-  const DesktopLayout = () => (
-    <div className="flex h-full bg-black">
-      {/* Left Panel - Order List */}
-      <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-        <TicketHeader />
-        <FilterTabs style="glass" />
-
-        <ScrollArea className="flex-1 px-1.5">
-          <div className="space-y-2 pb-3">
-            {filteredOrders.map(guest => (
-              <TicketCard 
-                key={guest.id}
-                guest={guest} 
-                isSelected={selectedGuest.id === guest.id} 
-                onSelect={() => handleDesktopOrderClick(guest)}
-                showActions
-              />
-            ))}
-          </div>
-          <ScrollBar orientation="vertical" />
-        </ScrollArea>
-      </div>
-
-      <RightPanel width="w-[345px]" />
+  // Transfer Left Panel - embedded in layout
+  const TransferLeftPanel = ({ isTablet = false }: { isTablet?: boolean }) => (
+    <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
+      <TicketsTransferView
+        sourceOrder={transferSource as any}
+        isEntireOrderTransfer={transferType === 'entire' || transferType === 'entireToOrder'}
+        onBack={closeTransferFlow}
+        orders={orders as any}
+        setOrders={setOrders as any}
+        onTransferComplete={() => {
+          closeTransferFlow();
+          const updated = orders.find(o => o.id === transferSource!.id);
+          if (updated) setSelectedGuest(updated);
+        }}
+        embedded
+      />
     </div>
   );
+
+  // Desktop Layout
+  const DesktopLayout = () => {
+    const isTransferActive = transferStep === 'active' && transferSource && transferType;
+    return (
+      <div className="flex h-full bg-black">
+        {isTransferActive ? (
+          <TransferLeftPanel />
+        ) : (
+          <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
+            <TicketHeader />
+            <FilterTabs style="glass" />
+            <ScrollArea className="flex-1 px-1.5">
+              <div className="space-y-2 pb-3">
+                {filteredOrders.map(guest => (
+                  <TicketCard 
+                    key={guest.id}
+                    guest={guest} 
+                    isSelected={selectedGuest.id === guest.id} 
+                    onSelect={() => handleDesktopOrderClick(guest)}
+                    showActions
+                  />
+                ))}
+              </div>
+              <ScrollBar orientation="vertical" />
+            </ScrollArea>
+          </div>
+        )}
+        <RightPanel width="w-[345px]" />
+      </div>
+    );
+  };
 
   // Tablet Layout
-  const TabletLayout = () => (
-    <div className="flex h-full bg-black">
-      {/* Left Panel - Order List */}
-      <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-        <TicketHeader />
-        <FilterTabs />
-
-        <ScrollArea className="flex-1 px-1.5">
-          <div className="space-y-2 pb-3">
-            {filteredOrders.map(guest => (
-              <TicketCard 
-                key={guest.id}
-                guest={guest} 
-                isSelected={selectedGuest.id === guest.id} 
-                onSelect={() => handleDesktopOrderClick(guest)}
-                compact
-                showActions
-              />
-            ))}
+  const TabletLayout = () => {
+    const isTransferActive = transferStep === 'active' && transferSource && transferType;
+    return (
+      <div className="flex h-full bg-black">
+        {isTransferActive ? (
+          <TransferLeftPanel isTablet />
+        ) : (
+          <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
+            <TicketHeader />
+            <FilterTabs />
+            <ScrollArea className="flex-1 px-1.5">
+              <div className="space-y-2 pb-3">
+                {filteredOrders.map(guest => (
+                  <TicketCard 
+                    key={guest.id}
+                    guest={guest} 
+                    isSelected={selectedGuest.id === guest.id} 
+                    onSelect={() => handleDesktopOrderClick(guest)}
+                    compact
+                    showActions
+                  />
+                ))}
+              </div>
+              <ScrollBar orientation="vertical" />
+            </ScrollArea>
           </div>
-          <ScrollBar orientation="vertical" />
-        </ScrollArea>
+        )}
+        <RightPanel width="w-[280px]" isTablet />
       </div>
-
-      <RightPanel width="w-[280px]" isTablet />
-    </div>
-  );
+    );
+  };
 
   // Responsive rendering
   return (
@@ -1249,18 +1276,17 @@ const Tickets = () => {
       <MergeDialog />
       <TransferIntentDialog />
 
-      {/* Full-screen Transfer View */}
+      {/* Mobile Transfer View - still full screen on mobile */}
       {transferStep === 'active' && transferSource && transferType && (
-        <div className="fixed inset-0 z-[60] bg-black">
+        <div className="fixed inset-0 z-[60] bg-black md:hidden">
           <TicketsTransferView
             sourceOrder={transferSource as any}
-            isEntireOrderTransfer={transferType === 'entire'}
+            isEntireOrderTransfer={transferType === 'entire' || transferType === 'entireToOrder'}
             onBack={closeTransferFlow}
             orders={orders as any}
             setOrders={setOrders as any}
             onTransferComplete={() => {
               closeTransferFlow();
-              // Refresh selected guest if it was the transfer source
               const updated = orders.find(o => o.id === transferSource.id);
               if (updated) setSelectedGuest(updated);
             }}

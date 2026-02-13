@@ -536,13 +536,11 @@ const Tickets = () => {
           <span className={`text-neutral-500 ${compact ? 'text-[10px]' : 'text-xs'}`}>{guest.revenueCenter}</span>
         </div>
 
-        {/* SERVER & PAYMENT INFO (desktop/tablet only) */}
-        {!compact && (
-          <div className="flex-shrink-0 w-[110px] py-2 flex flex-col justify-center text-right pr-2">
-            <span className="text-white text-xs font-medium truncate">{guest.server}</span>
-            <span className="text-neutral-400 text-[11px] truncate">{paymentDisplay}</span>
-          </div>
-        )}
+        {/* SERVER & PAYMENT INFO */}
+        <div className={`flex-shrink-0 ${compact ? 'w-[90px] py-1.5' : 'w-[110px] py-2'} flex flex-col justify-center text-right pr-2`}>
+          <span className={`text-white font-medium truncate ${compact ? 'text-[11px]' : 'text-xs'}`}>{guest.server}</span>
+          <span className={`text-neutral-400 truncate ${compact ? 'text-[10px]' : 'text-[11px]'}`}>{paymentDisplay}</span>
+        </div>
 
         {/* RIGHT: Status + Amount */}
         <div className={`flex-shrink-0 flex flex-col items-end justify-center ${compact ? 'pr-1.5 py-1.5 w-[85px]' : 'pr-2 py-2 w-[100px]'}`}>

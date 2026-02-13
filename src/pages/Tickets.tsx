@@ -2,9 +2,10 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check, Info, ChevronDown } from "lucide-react";
 import { toast } from "sonner";
 import TicketsTransferView from "@/components/TicketsTransferView";
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -670,8 +671,15 @@ const Tickets = () => {
 
   // Inline Transfer flow state
   const [transferSource, setTransferSource] = useState<GuestOrder | null>(null);
-  const [transferStep, setTransferStep] = useState<'intent' | 'active' | null>(null);
+  const [transferStep, setTransferStep] = useState<'intent' | 'select-items' | 'select-table' | 'active' | null>(null);
   const [transferType, setTransferType] = useState<'items' | 'entire' | null>(null);
+  const [selectedTransferItems, setSelectedTransferItems] = useState<number[]>([]);
+  const [transferItemQuantities, setTransferItemQuantities] = useState<Record<number, number>>({});
+  const [selectedTargetTable, setSelectedTargetTable] = useState<string | null>(null);
+  const [transferSelectAll, setTransferSelectAll] = useState(false);
+  const [showTicketSelection, setShowTicketSelection] = useState(false);
+  const [selectedTicketOrderId, setSelectedTicketOrderId] = useState<string | null>(null);
+  const [showTableConfirmDialog, setShowTableConfirmDialog] = useState(false);
 
 
 

@@ -16,6 +16,7 @@ import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
 import mergeIcon from "@/assets/icons/merge-icon.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
+import cashRegisterIcon from "@/assets/icons/cash-register.png";
 
 // Order type icon component
 const OrderTypeIcon = ({ type, size = "default" }: { type: string; size?: "small" | "default" }) => {
@@ -660,31 +661,54 @@ const Tickets = () => {
           </span>
         </div>
 
-        {/* FAR RIGHT: Action Strip */}
+        {/* FAR RIGHT: Action Strip - Status dependent */}
         {showActions && (
           <div className="flex-shrink-0 flex flex-col rounded-r-xl overflow-hidden border-l border-neutral-700/50">
-            <button 
-              className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-600/50 transition-colors"
-              style={{ background: 'rgba(255, 159, 101, 0.9)', backgroundImage: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-              onClick={e => {
-                e.stopPropagation();
-              }}
-            >
-              <ReceiptText className="w-4 h-4 text-white" />
-            </button>
-            <button 
-              className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors border-t border-neutral-600/50"
-              style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-              onClick={e => {
-                e.stopPropagation();
-                const tableNum = guest.table.replace('T', '');
-                if (tableNum && tableNum !== '-') {
-                  navigate(`/tableorder/${tableNum}/transfer?orderId=${guest.id}`);
-                }
-              }}
-            >
-              <ChevronRight className="w-4 h-4 text-neutral-800" />
-            </button>
+            {guest.status === "PAID" || guest.status === "COMPLETED" ? (
+              <>
+                {/* Print icon */}
+                <button 
+                  className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors"
+                  style={{ background: 'linear-gradient(180deg, #8A8A8A 0%, #5A5A5A 100%)' }}
+                  onClick={e => { e.stopPropagation(); }}
+                >
+                  <ReceiptText className="w-4 h-4 text-white" />
+                </button>
+                {/* Cash Register icon */}
+                <button 
+                  className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors border-t border-neutral-600/50"
+                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                  onClick={e => { e.stopPropagation(); }}
+                >
+                  <img src={cashRegisterIcon} alt="Register" className="w-4 h-4 object-contain" />
+                </button>
+              </>
+            ) : (
+              <>
+                {/* Runner icon (orange) */}
+                <button 
+                  className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-600/50 transition-colors"
+                  style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+                  onClick={e => { e.stopPropagation(); }}
+                >
+                  <img src={runnerIcon} alt="Runner" className="w-4 h-4 object-contain brightness-0 invert" />
+                </button>
+                {/* Transfer arrow */}
+                <button 
+                  className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors border-t border-neutral-600/50"
+                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                  onClick={e => {
+                    e.stopPropagation();
+                    const tableNum = guest.table.replace('T', '');
+                    if (tableNum && tableNum !== '-') {
+                      navigate(`/tableorder/${tableNum}/transfer?orderId=${guest.id}`);
+                    }
+                  }}
+                >
+                  <ChevronRight className="w-4 h-4 text-neutral-800" />
+                </button>
+              </>
+            )}
           </div>
         )}
       </div>

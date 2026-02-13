@@ -10,6 +10,7 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, X, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, ArrowRightLeft } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
+import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
 
 // Import shared order data
 import { 
@@ -25,7 +26,8 @@ import {
   calculateCombinedTotals,
   hasMergedOrTransferredItems,
   MergedOrderSource,
-  calculateOrderTotals
+  calculateOrderTotals,
+  toOrderTemplateData
 } from "@/data/orders";
 import { formatTableName } from "@/lib/orderUtils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -3229,29 +3231,7 @@ const TableOrderDetails = () => {
                         style={{ backgroundColor: '#1B1C20' }}
                       >
                         <div className="p-3">
-                          {/* Order header */}
-                          <div className="flex items-stretch gap-3">
-                            <div className="flex-shrink-0 flex flex-col items-center justify-center w-12 rounded-lg border border-white/20 py-1.5" style={{ background: '#1A1A1A' }}>
-                              <span className="text-base font-bold text-white">{order.id}</span>
-                              <span className="text-[9px] text-white/40">000</span>
-                            </div>
-                            <div className="flex-1 min-w-0 flex flex-col justify-between">
-                              <div className="flex items-center justify-between">
-                                <span className="text-white font-medium text-sm truncate">{order.name} · {formatTableName(order.table)}</span>
-                                <span className={`text-xs font-semibold uppercase ${getSharedStatusColor(order.status)}`}>{order.status}</span>
-                              </div>
-                              <div className="flex items-center justify-between text-xs text-white/50">
-                                <span>{order.server}</span>
-                                <span className="text-white font-semibold">{formatPrice(totals.total)}</span>
-                              </div>
-                              <div className="flex items-center justify-between text-xs text-white/50">
-                                <span>{order.revenueCenter}</span>
-                                <span>$0.00</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Items */}
+                          <OrderLayoutTemplate order={toOrderTemplateData(order)} />
                           <div className="mt-2 space-y-1">
                             {order.items.map((item, idx) => (
                               <div key={idx} className="flex items-center justify-between py-0.5">
@@ -3263,8 +3243,6 @@ const TableOrderDetails = () => {
                               </div>
                             ))}
                           </div>
-
-                          {/* Total */}
                           <div className="mt-2 pt-2 border-t border-white/10 flex items-center justify-between">
                             <span className="text-white/50 text-xs">{order.items.length} items</span>
                             <span className="text-white font-semibold text-sm">{formatPrice(totals.total)}</span>

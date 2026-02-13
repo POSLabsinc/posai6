@@ -2,17 +2,14 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check, Info, ChevronDown } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check } from "lucide-react";
 import { toast } from "sonner";
 import TicketsTransferView from "@/components/TicketsTransferView";
-import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from "@/components/ui/alert-dialog";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
 import clearIcon from "@/assets/icons/clear-c.png";
 import fireIcon from "@/assets/icons/fire.png";
-import tableTargetIcon from "@/assets/icons/table-target.png";
-import arrowRightIcon from "@/assets/icons/arrow-right.png";
 import shareOrderIcon from "@/assets/icons/share-order.png";
 import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import seatIcon from "@/assets/icons/seat-icon.png";
@@ -517,65 +514,6 @@ const allOrders: GuestOrder[] = [
 // Helper function to format price
 const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
-// Table status configurations for transfer table grid
-const tableStatusConfig: Record<string, { color: string; bgColor: string; label: string }> = {
-  "Available": { color: "text-white", bgColor: "bg-neutral-700", label: "Available" },
-  "Ordering": { color: "text-yellow-400", bgColor: "bg-neutral-800", label: "Ordering" },
-  "Ordered": { color: "text-orange-500", bgColor: "bg-neutral-800", label: "Ordered" },
-  "Reserved": { color: "text-gray-400", bgColor: "bg-neutral-800", label: "Reserved" },
-  "Seated": { color: "text-gray-300", bgColor: "bg-neutral-800", label: "Seated" },
-  "Running Late": { color: "text-red-400", bgColor: "bg-neutral-800", label: "Late" },
-  "1st Course": { color: "text-purple-400", bgColor: "bg-neutral-800", label: "1st Course" },
-  "2nd Course": { color: "text-yellow-400", bgColor: "bg-neutral-800", label: "2nd Course" },
-  "3rd Course": { color: "text-orange-500", bgColor: "bg-neutral-800", label: "3rd Course" },
-  "Dessert": { color: "text-pink-400", bgColor: "bg-neutral-800", label: "Dessert" },
-  "Partially Seated": { color: "text-green-400", bgColor: "bg-neutral-800", label: "Partial" },
-  "Served": { color: "text-blue-400", bgColor: "bg-neutral-800", label: "Served" },
-  "Paid": { color: "text-emerald-400", bgColor: "bg-neutral-800", label: "Paid" },
-  "Ready": { color: "text-emerald-400", bgColor: "bg-neutral-800", label: "Ready" },
-};
-
-const getSeatDotColor = (status: string): string => {
-  switch (status) {
-    case "Available": return "bg-green-500";
-    case "Ordering": return "bg-red-500";
-    case "Ordered": return "bg-orange-500";
-    case "Reserved": return "bg-gray-500";
-    case "Seated": return "bg-gray-400";
-    case "Running Late": return "bg-red-500";
-    case "1st Course": return "bg-purple-500";
-    case "2nd Course": return "bg-yellow-500";
-    case "3rd Course": return "bg-orange-500";
-    case "Dessert": return "bg-pink-500";
-    case "Partially Seated": return "bg-green-500";
-    case "Served": return "bg-blue-500";
-    case "Paid": return "bg-emerald-500";
-    case "Ready": return "bg-emerald-500";
-    default: return "bg-gray-500";
-  }
-};
-
-type TableGridType = {
-  id: string;
-  seats: number;
-  status: string;
-  time: string;
-};
-
-const defaultTables: TableGridType[] = [
-  { id: "T1", seats: 8, status: "Available", time: "" },
-  { id: "T2", seats: 5, status: "Ordering", time: "25M" },
-  { id: "T3", seats: 4, status: "Ordered", time: "2H 25M" },
-  { id: "T4", seats: 3, status: "Reserved", time: "2H 25M" },
-  { id: "T5", seats: 4, status: "Seated", time: "25M" },
-  { id: "T6", seats: 2, status: "Running Late", time: "45M" },
-  { id: "T7", seats: 5, status: "1st Course", time: "12M" },
-  { id: "T8", seats: 4, status: "Ready", time: "13M" },
-  { id: "T9", seats: 3, status: "3rd Course", time: "14M" },
-  { id: "T10", seats: 4, status: "Dessert", time: "16M" },
-  { id: "T11", seats: 5, status: "Partially Seated", time: "18M" },
-  { id: "T12", seats: 5, status: "Served", time: "36M" },
-];
 
 // Helper function to get order items for display
 const getOrderItems = (order: GuestOrder) => order.items.map(item => ({
@@ -671,15 +609,8 @@ const Tickets = () => {
 
   // Inline Transfer flow state
   const [transferSource, setTransferSource] = useState<GuestOrder | null>(null);
-  const [transferStep, setTransferStep] = useState<'intent' | 'select-items' | 'select-table' | 'active' | null>(null);
+  const [transferStep, setTransferStep] = useState<'intent' | 'active' | null>(null);
   const [transferType, setTransferType] = useState<'items' | 'entire' | null>(null);
-  const [selectedTransferItems, setSelectedTransferItems] = useState<number[]>([]);
-  const [transferItemQuantities, setTransferItemQuantities] = useState<Record<number, number>>({});
-  const [selectedTargetTable, setSelectedTargetTable] = useState<string | null>(null);
-  const [transferSelectAll, setTransferSelectAll] = useState(false);
-  const [showTicketSelection, setShowTicketSelection] = useState(false);
-  const [selectedTicketOrderId, setSelectedTicketOrderId] = useState<string | null>(null);
-  const [showTableConfirmDialog, setShowTableConfirmDialog] = useState(false);
 
 
 
@@ -963,144 +894,12 @@ const Tickets = () => {
     setTransferSource(guest);
     setTransferStep('intent');
     setTransferType(null);
-    setSelectedTransferItems([]);
-    setTransferItemQuantities({});
-    setSelectedTargetTable(null);
-    setTransferSelectAll(false);
-    setShowTicketSelection(false);
-    setSelectedTicketOrderId(null);
-    setShowTableConfirmDialog(false);
   };
 
   const closeTransferFlow = () => {
     setTransferStep(null);
     setTransferType(null);
     setTransferSource(null);
-    setSelectedTransferItems([]);
-    setTransferItemQuantities({});
-    setSelectedTargetTable(null);
-    setTransferSelectAll(false);
-    setShowTicketSelection(false);
-    setSelectedTicketOrderId(null);
-    setShowTableConfirmDialog(false);
-  };
-
-  const handleTransferItemSelect = (index: number) => {
-    if (!transferSource) return;
-    if (selectedTransferItems.includes(index)) {
-      setSelectedTransferItems(prev => prev.filter(i => i !== index));
-      setTransferItemQuantities(prev => { const n = {...prev}; delete n[index]; return n; });
-    } else {
-      setSelectedTransferItems(prev => [...prev, index]);
-      setTransferItemQuantities(prev => ({ ...prev, [index]: transferSource.items[index].qty }));
-    }
-  };
-
-  const handleTransferQuantityChange = (index: number, qty: number) => {
-    setTransferItemQuantities(prev => ({ ...prev, [index]: qty }));
-  };
-
-  const handleTransferSelectAll = () => {
-    if (!transferSource) return;
-    if (transferSelectAll) {
-      setSelectedTransferItems([]);
-      setTransferSelectAll(false);
-    } else {
-      setSelectedTransferItems(transferSource.items.map((_, i) => i));
-      const quantities: Record<number, number> = {};
-      transferSource.items.forEach((item, i) => { quantities[i] = item.qty; });
-      setTransferItemQuantities(quantities);
-      setTransferSelectAll(true);
-    }
-  };
-
-  const handleConfirmTableTransfer = () => {
-    if (!selectedTargetTable || !transferSource) return;
-    const targetTableOrders = orders.filter(o => 
-      o.table === selectedTargetTable && 
-      o.status !== "PAID" && 
-      o.status !== "COMPLETED" &&
-      o.id !== transferSource.id
-    );
-    if (targetTableOrders.length > 0) {
-      setShowTicketSelection(true);
-      setSelectedTicketOrderId(null);
-    } else {
-      setShowTableConfirmDialog(true);
-    }
-  };
-
-  const executeTransfer = () => {
-    if (!transferSource || !selectedTargetTable) return;
-    setShowTableConfirmDialog(false);
-    setShowTicketSelection(false);
-    
-    const isEntire = transferType === 'entire';
-    const fromLabel = transferSource.table !== "--" ? transferSource.table : `Order #${transferSource.id}`;
-    
-    setOrders(prev => {
-      if (isEntire || selectedTransferItems.length === transferSource.items.length) {
-        // Move entire order to new table
-        return prev.map(o => o.id === transferSource.id ? { ...o, table: selectedTargetTable } : o);
-      } else {
-        // Partial transfer
-        const remainingItems = transferSource.items.filter((_, i) => !selectedTransferItems.includes(i));
-        const transferredItems = selectedTransferItems.map(i => ({
-          ...transferSource.items[i],
-          qty: transferItemQuantities[i] || transferSource.items[i].qty
-        }));
-        const newSubtotal = remainingItems.reduce((s, item) => s + item.price * item.qty, 0);
-        const ratio = transferSource.subtotal > 0 ? newSubtotal / transferSource.subtotal : 0;
-        
-        let updated = prev.map(o => {
-          if (o.id === transferSource.id) {
-            return { 
-              ...o, 
-              items: remainingItems, 
-              subtotal: +newSubtotal.toFixed(2),
-              discount: +(transferSource.discount * ratio).toFixed(2),
-              serviceCharge: +(transferSource.serviceCharge * ratio).toFixed(2),
-              tax: +(transferSource.tax * ratio).toFixed(2),
-              tip: +(transferSource.tip * ratio).toFixed(2),
-              total: +(newSubtotal + (transferSource.serviceCharge * ratio) + (transferSource.tax * ratio) - (transferSource.discount * ratio) + (transferSource.tip * ratio)).toFixed(2),
-            };
-          }
-          return o;
-        });
-
-        // If merging into an existing ticket
-        if (selectedTicketOrderId && selectedTicketOrderId !== '__new__') {
-          updated = updated.map(o => {
-            if (o.id === selectedTicketOrderId) {
-              const newItems = [...o.items, ...transferredItems];
-              const newSub = newItems.reduce((s, item) => s + item.price * item.qty, 0);
-              return { 
-                ...o, 
-                items: newItems, 
-                subtotal: +newSub.toFixed(2),
-                total: +(newSub + o.serviceCharge + o.tax - o.discount + o.tip).toFixed(2),
-              };
-            }
-            return o;
-          });
-        }
-        
-        return updated;
-      }
-    });
-
-    // Update selected guest view
-    const updatedSource = orders.find(o => o.id === transferSource.id);
-    if (updatedSource && selectedGuest.id === transferSource.id) {
-      setSelectedGuest({ ...selectedGuest, table: isEntire ? selectedTargetTable : selectedGuest.table });
-    }
-
-    toast.success(
-      `${isEntire ? 'Order' : 'Items'} transferred from ${fromLabel} to ${selectedTargetTable}`,
-      { description: isEntire ? 'Entire order has been moved successfully.' : `${selectedTransferItems.length} item(s) transferred successfully.` }
-    );
-    
-    closeTransferFlow();
   };
 
   // ===== TRANSFER INTENT DIALOG =====
@@ -1123,7 +922,7 @@ const Tickets = () => {
               <button 
                 onClick={() => {
                   setTransferType('items');
-                  setTransferStep('select-items');
+                  setTransferStep('active');
                 }}
                 className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
               >
@@ -1136,14 +935,7 @@ const Tickets = () => {
               <button 
                 onClick={() => {
                   setTransferType('entire');
-                  if (transferSource) {
-                    setSelectedTransferItems(transferSource.items.map((_, i) => i));
-                    const quantities: Record<number, number> = {};
-                    transferSource.items.forEach((item, i) => { quantities[i] = item.qty; });
-                    setTransferItemQuantities(quantities);
-                    setTransferSelectAll(true);
-                  }
-                  setTransferStep('select-table');
+                  setTransferStep('active');
                 }}
                 className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
               >
@@ -1154,306 +946,6 @@ const Tickets = () => {
                 <p className="text-white/50 text-xs ml-8">Move this full order to another table</p>
               </button>
             </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ===== TRANSFER ITEM SELECTION DIALOG =====
-  const TransferItemSelectionDialog = () => {
-    if (transferStep !== 'select-items' || !transferSource) return null;
-
-    return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/80" onClick={closeTransferFlow} />
-        <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[500px] max-w-[95vw] max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setTransferStep('intent')} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-                <ChevronRight className="w-4 h-4 text-white rotate-180" />
-              </button>
-              <h2 className="text-white text-lg font-semibold">Select Items to Transfer</h2>
-            </div>
-            <button onClick={closeTransferFlow} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-              <X className="w-4 h-4 text-white" />
-            </button>
-          </div>
-
-          {/* Source order info */}
-          <div className="px-4 py-2 border-b border-white/10" style={{ backgroundColor: 'rgba(255, 158, 101, 0.08)' }}>
-            <div className="flex items-center justify-between">
-              <span className="text-white/70 text-sm">#{transferSource.id} · {transferSource.name}</span>
-              <span className="text-white font-medium text-sm">{formatPrice(transferSource.total)}</span>
-            </div>
-            {transferSource.table !== "--" && <span className="text-white/40 text-xs">{transferSource.table} · {transferSource.items.length} items</span>}
-          </div>
-
-          <div className="px-4 py-2 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <p className="text-white/80 text-sm font-medium">Select Items</p>
-              <Info className="w-3.5 h-3.5 text-white/40" />
-            </div>
-            <button onClick={handleTransferSelectAll} className="text-white/60 text-sm font-medium hover:text-white transition-colors">
-              {transferSelectAll ? "Deselect All" : "Select All"}
-            </button>
-          </div>
-
-          <ScrollArea className="flex-1 px-4">
-            <div className="py-2 space-y-2 pb-4">
-              {transferSource.items.map((item, index) => {
-                const isSelected = selectedTransferItems.includes(index);
-                const selectedQty = transferItemQuantities[index] || item.qty;
-                return (
-                  <div 
-                    key={index}
-                    onClick={() => handleTransferItemSelect(index)}
-                    className={`rounded-xl border transition-all cursor-pointer overflow-hidden p-3 ${isSelected ? "border-orange-500 bg-orange-500/5" : "border-white/10 bg-white/[0.02]"}`}
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className={`w-7 h-7 rounded-md flex items-center justify-center text-sm font-bold flex-shrink-0 ${isSelected ? "bg-orange-500 text-white" : "bg-neutral-700 text-white"}`}>
-                        {isSelected ? selectedQty : item.qty}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between gap-2">
-                          <span className="text-white text-sm font-medium flex-1">{item.name}</span>
-                          <div className="flex items-center gap-2">
-                            {isSelected && item.qty > 1 && (
-                              <div className="relative" onClick={e => e.stopPropagation()}>
-                                <select 
-                                  value={selectedQty} 
-                                  onChange={e => { e.stopPropagation(); handleTransferQuantityChange(index, parseInt(e.target.value)); }}
-                                  className="appearance-none bg-neutral-600 text-white text-sm font-medium rounded-full px-3 py-1 pr-6 cursor-pointer focus:outline-none"
-                                >
-                                  {Array.from({ length: item.qty }, (_, i) => i + 1).map(qty => (
-                                    <option key={qty} value={qty}>{qty}</option>
-                                  ))}
-                                </select>
-                                <ChevronDown className="absolute right-1.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-white pointer-events-none" />
-                              </div>
-                            )}
-                            <span className="text-white text-sm font-medium">{formatPrice(item.price * item.qty)}</span>
-                          </div>
-                        </div>
-                        {item.modifiers.length > 0 && (
-                          <div className="mt-1 space-y-0.5">
-                            {item.modifiers.map((mod, i) => (
-                              <div key={i} className="text-white/50 text-xs">
-                                {mod.startsWith('+') ? '+' : mod.startsWith('-') ? '−' : '·'} {mod.replace(/^[+-]\s*/, '')}
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                        {item.seats.length > 0 && (
-                          <div className="flex items-center gap-1 mt-1.5">
-                            <img src={seatIcon} alt="Seat" className="w-3.5 h-3.5 opacity-50" />
-                            <span className="text-white/50 text-xs">{item.seats.join(', ')}</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <ScrollBar orientation="vertical" />
-          </ScrollArea>
-
-          <div className="p-4 border-t border-white/10 flex gap-3">
-            <button onClick={closeTransferFlow} className="px-6 py-2.5 rounded-full text-white font-medium text-sm bg-neutral-800 hover:bg-neutral-700">Cancel</button>
-            <button 
-              onClick={() => setTransferStep('select-table')}
-              disabled={selectedTransferItems.length === 0}
-              className={`flex-1 py-2.5 rounded-full font-medium text-sm ${selectedTransferItems.length > 0 ? 'text-black' : 'text-white/40 bg-white/10'}`}
-              style={selectedTransferItems.length > 0 ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : undefined}
-            >
-              SELECT TABLE ({selectedTransferItems.length} items)
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ===== TRANSFER TABLE SELECTION DIALOG =====
-  const TransferTableSelectionDialog = () => {
-    if (transferStep !== 'select-table' || !transferSource) return null;
-    const sourceTable = transferSource.table;
-    const availableTables = defaultTables.filter(t => t.id !== sourceTable);
-
-    return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/80" onClick={closeTransferFlow} />
-        <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[600px] max-w-[95vw] max-h-[85vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <button onClick={() => setTransferStep(transferType === 'items' ? 'select-items' : 'intent')} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-                <ChevronRight className="w-4 h-4 text-white rotate-180" />
-              </button>
-              <h2 className="text-white text-lg font-semibold">Select Destination Table</h2>
-            </div>
-            <button onClick={closeTransferFlow} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-              <X className="w-4 h-4 text-white" />
-            </button>
-          </div>
-
-          {/* Transfer info banner */}
-          <div className="px-4 py-2 border-b border-white/10" style={{ backgroundColor: 'rgba(138, 196, 255, 0.08)' }}>
-            <div className="flex items-center gap-2">
-              <img src={tableTargetIcon} alt="Transfer" className="w-4 h-4 opacity-70" />
-              <span className="text-sm font-medium" style={{ color: '#8AC4FF' }}>
-                {transferType === 'entire' 
-                  ? `Transferring entire order #${transferSource.id}` 
-                  : `Transferring ${selectedTransferItems.length} item(s) from order #${transferSource.id}`}
-              </span>
-            </div>
-          </div>
-
-          <ScrollArea className="flex-1">
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 p-4">
-              {availableTables.map(table => {
-                const config = tableStatusConfig[table.status] || tableStatusConfig["Available"];
-                const dotColor = getSeatDotColor(table.status);
-                const isSelected = selectedTargetTable === table.id;
-                
-                return (
-                  <div
-                    key={table.id}
-                    onClick={() => setSelectedTargetTable(table.id)}
-                    className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer transition-all border-2 ${
-                      isSelected 
-                        ? "border-orange-500 ring-2 ring-orange-500/30" 
-                        : "border-neutral-800 hover:bg-neutral-800"
-                    }`}
-                  >
-                    <span className="text-2xl font-bold text-white mb-1">{table.id}</span>
-                    <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
-                    <div className="flex gap-1 mb-2">
-                      {Array.from({ length: Math.min(table.seats, 6) }).map((_, i) => (
-                        <div key={i} className={`w-2 h-2 flex-shrink-0 rounded-full ${dotColor}`} />
-                      ))}
-                      {table.seats > 6 && <span className="text-xs text-gray-500">+{table.seats - 6}</span>}
-                    </div>
-                    <div className="mt-auto w-full">
-                      <div className="flex justify-end mb-1 min-h-[1rem] px-1">
-                        {table.time && <span className="text-gray-500 text-xs">{table.time}</span>}
-                      </div>
-                      <div className={`w-full text-center py-1 rounded-md border border-neutral-600 ${config.bgColor}`}>
-                        <span className={`text-xs font-medium ${config.color}`}>{table.status}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <ScrollBar orientation="vertical" />
-          </ScrollArea>
-
-          <div className="p-4 border-t border-white/10 flex gap-3">
-            <button onClick={closeTransferFlow} className="px-6 py-2.5 rounded-full text-white font-medium text-sm bg-neutral-800 hover:bg-neutral-700">CANCEL</button>
-            <button 
-              onClick={handleConfirmTableTransfer}
-              disabled={!selectedTargetTable}
-              className={`flex-1 py-2.5 rounded-full font-medium text-sm ${selectedTargetTable ? 'text-black' : 'text-white/40 bg-white/10'}`}
-              style={selectedTargetTable ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : undefined}
-            >
-              CONFIRM TRANSFER{selectedTargetTable ? ` TO ${selectedTargetTable}` : ''}
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ===== TICKET SELECTION DIALOG (for occupied tables) =====
-  const TransferTicketSelectionDialog = () => {
-    if (!showTicketSelection || !transferSource || !selectedTargetTable) return null;
-    const targetTickets = orders.filter(o => 
-      o.table === selectedTargetTable && 
-      o.status !== "PAID" && 
-      o.status !== "COMPLETED" &&
-      o.id !== transferSource.id
-    );
-
-    return (
-      <div className="fixed inset-0 z-[70] flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/80" onClick={() => setShowTicketSelection(false)} />
-        <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[460px] max-w-[95vw] max-h-[80vh] overflow-hidden flex flex-col" onClick={e => e.stopPropagation()}>
-          <div className="p-4 border-b border-white/10">
-            <h2 className="text-white text-lg font-semibold">Transfer to {selectedTargetTable}</h2>
-            <p className="text-white/50 text-sm mt-1">Select an active ticket or create a new order</p>
-          </div>
-
-          <ScrollArea className="flex-1 max-h-[60vh]">
-            <div className="p-4 space-y-3">
-              {/* Transfer to New Order - first */}
-              <button
-                onClick={() => setSelectedTicketOrderId('__new__')}
-                className={`w-full rounded-xl border overflow-hidden text-left transition-all ${selectedTicketOrderId === '__new__' ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'}`}
-                style={{ backgroundColor: '#1B1C20' }}
-              >
-                <div className="flex items-center gap-3 p-4">
-                  <div className="flex-shrink-0 w-12 h-14 rounded-lg flex items-center justify-center border border-dashed border-white/30" style={{ background: '#1A1A1A' }}>
-                    <span className="text-2xl text-white/60">+</span>
-                  </div>
-                  <div className="flex-1">
-                    <span className="text-white font-medium text-sm">Transfer to New Order</span>
-                    <p className="text-white/40 text-xs mt-0.5">Start a new ticket with transferred items</p>
-                  </div>
-                </div>
-              </button>
-
-              {/* Active tickets on target table */}
-              {targetTickets.map(ticket => (
-                <button
-                  key={ticket.id}
-                  onClick={() => setSelectedTicketOrderId(ticket.id)}
-                  className={`w-full rounded-xl border overflow-hidden text-left transition-all ${selectedTicketOrderId === ticket.id ? 'border-white ring-1 ring-white/30' : 'border-white/[0.25] hover:border-white/40'}`}
-                  style={{ backgroundColor: '#1B1C20' }}
-                >
-                  <div className="p-3">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-white font-medium text-sm">#{ticket.id} · {ticket.name}</span>
-                      <span className="text-white font-bold text-sm">{formatPrice(ticket.total)}</span>
-                    </div>
-                    <div className="flex items-center gap-2 text-white/50 text-xs">
-                      <OrderTypeIcon type={ticket.orderType} size="small" />
-                      <span>{ticket.orderType}</span>
-                      <span>·</span>
-                      <span>{ticket.items.length} items</span>
-                    </div>
-                    <div className="mt-2 space-y-1">
-                      {ticket.items.map((item, idx) => (
-                        <div key={idx} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2 min-w-0 flex-1">
-                            <span className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0">{item.qty}</span>
-                            <span className="text-white text-xs truncate">{item.name}</span>
-                          </div>
-                          <span className="text-white/70 text-xs font-medium flex-shrink-0 ml-2">{formatPrice(item.price * item.qty)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          </ScrollArea>
-
-          <div className="p-4 border-t border-white/10 flex gap-3">
-            <button onClick={() => setShowTicketSelection(false)} className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700">Cancel</button>
-            <button 
-              onClick={() => {
-                if (selectedTicketOrderId === '__new__') {
-                  setShowTicketSelection(false);
-                  setShowTableConfirmDialog(true);
-                } else if (selectedTicketOrderId) {
-                  executeTransfer();
-                }
-              }}
-              disabled={!selectedTicketOrderId}
-              className={`flex-1 py-2.5 rounded-full font-medium text-sm ${selectedTicketOrderId ? 'text-black' : 'text-black/50 opacity-50'}`}
-              style={selectedTicketOrderId ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: '#555' }}
-            >Confirm Transfer</button>
           </div>
         </div>
       </div>
@@ -2179,30 +1671,25 @@ const Tickets = () => {
       {/* Merge & Transfer Dialogs */}
       <MergeDialog />
       <TransferIntentDialog />
-      <TransferItemSelectionDialog />
-      <TransferTableSelectionDialog />
-      <TransferTicketSelectionDialog />
 
-      {/* Table Transfer Confirmation Dialog */}
-      <AlertDialog open={showTableConfirmDialog} onOpenChange={setShowTableConfirmDialog}>
-        <AlertDialogContent className="bg-neutral-900 border-white/10">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">
-              {transferType === 'entire' ? 'Transfer Entire Order?' : 'Transfer Items?'}
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-white/60">
-              {transferType === 'entire' 
-                ? <>Are you sure you want to transfer this entire order to {selectedTargetTable}? All items, modifiers, notes, discounts, and charges will be moved together.</>
-                : <>Are you sure you want to transfer {selectedTransferItems.length} item{selectedTransferItems.length > 1 ? 's' : ''} to {selectedTargetTable}?</>
-              }
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-neutral-800 text-white border-none hover:bg-neutral-700">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={executeTransfer} className="text-black" style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}>Confirm</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Full-screen Transfer View */}
+      {transferStep === 'active' && transferSource && transferType && (
+        <div className="fixed inset-0 z-[60] bg-black">
+          <TicketsTransferView
+            sourceOrder={transferSource as any}
+            isEntireOrderTransfer={transferType === 'entire'}
+            onBack={closeTransferFlow}
+            orders={orders as any}
+            setOrders={setOrders as any}
+            onTransferComplete={() => {
+              closeTransferFlow();
+              // Refresh selected guest if it was the transfer source
+              const updated = orders.find(o => o.id === transferSource.id);
+              if (updated) setSelectedGuest(updated);
+            }}
+          />
+        </div>
+      )}
     </>
   );
 };

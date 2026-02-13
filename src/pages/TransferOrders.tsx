@@ -99,6 +99,7 @@ const TransferOrders = () => {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get("orderId");
   const transferType = searchParams.get("transferType"); // 'entire' for full order transfer
+  const targetMode = searchParams.get("targetMode"); // 'order' to go directly to order selection
   const isEntireOrderTransfer = transferType === "entire";
   
   // For entire order transfer, start with table selection step
@@ -127,7 +128,7 @@ const TransferOrders = () => {
   const [showTableConfirmDialog, setShowTableConfirmDialog] = useState(false);
   const [showTicketSelection, setShowTicketSelection] = useState(false);
   const [selectedTicketOrderId, setSelectedTicketOrderId] = useState<string | null>(null);
-  const [showTransferToOrder, setShowTransferToOrder] = useState(false);
+  const [showTransferToOrder, setShowTransferToOrder] = useState(targetMode === 'order');
   const [selectedTransferOrderId, setSelectedTransferOrderId] = useState<string | null>(null);
 
   // Get the current order being transferred from
@@ -1754,7 +1755,7 @@ const TransferOrders = () => {
       </Dialog>
 
       {/* Transfer to Order Dialog - shows all active orders */}
-      <Dialog open={showTransferToOrder} onOpenChange={setShowTransferToOrder}>
+      <Dialog open={showTransferToOrder} onOpenChange={(open) => { if (!open && targetMode === 'order') { navigate(`/tableorder/${tableId}`); } setShowTransferToOrder(open); }}>
         <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-lg overflow-hidden">
           <div className="p-4 border-b border-white/10">
             <h2 className="text-white text-lg font-semibold">Transfer to Order</h2>
@@ -1832,7 +1833,7 @@ const TransferOrders = () => {
           {/* Footer buttons */}
           <div className="p-4 border-t border-white/10 flex gap-3">
             <button 
-              onClick={() => setShowTransferToOrder(false)}
+              onClick={() => { if (targetMode === 'order') { navigate(`/tableorder/${tableId}`); } setShowTransferToOrder(false); }}
               className="flex-1 py-2.5 rounded-full font-medium text-sm bg-neutral-800 text-white hover:bg-neutral-700"
             >
               Cancel

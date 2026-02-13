@@ -1381,7 +1381,7 @@ const Tickets = () => {
       <FilterTabs />
 
       {/* Guest Orders List */}
-      <ScrollArea className="flex-1 px-3">
+      <ScrollArea className="flex-1 px-1.5">
         <div className="space-y-2 pb-3">
           {filteredOrders.map(guest => (
             <TicketCard 
@@ -1410,7 +1410,7 @@ const Tickets = () => {
         <TicketHeader />
         <FilterTabs style="glass" />
 
-        <ScrollArea className="flex-1 px-3">
+        <ScrollArea className="flex-1 px-1.5">
           <div className="space-y-2 pb-3">
             {filteredOrders.map(guest => (
               <TicketCard 
@@ -1438,7 +1438,7 @@ const Tickets = () => {
         <TicketHeader />
         <FilterTabs />
 
-        <ScrollArea className="flex-1 px-3">
+        <ScrollArea className="flex-1 px-1.5">
           <div className="space-y-2 pb-3">
             {filteredOrders.map(guest => (
               <TicketCard 

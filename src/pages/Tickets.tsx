@@ -697,13 +697,7 @@ const Tickets = () => {
                 <button 
                   className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors border-t border-neutral-600/50"
                   style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                  onClick={e => {
-                    e.stopPropagation();
-                    const tableNum = guest.table.replace('T', '');
-                    if (tableNum && tableNum !== '-') {
-                      navigate(`/tableorder/${tableNum}/transfer?orderId=${guest.id}`);
-                    }
-                  }}
+                  onClick={e => { e.stopPropagation(); }}
                 >
                   <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
                 </button>

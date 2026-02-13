@@ -20,6 +20,8 @@ import dineInIcon from "@/assets/icons/dine-in.png";
 import cashRegisterIcon from "@/assets/icons/cash-register.png";
 import printIcon from "@/assets/icons/print-icon.svg";
 import cashRegisterSvgIcon from "@/assets/icons/cash-register-icon.svg";
+import transferItemIcon from "@/assets/icons/transfer-item.svg";
+import transferEntireOrderIcon from "@/assets/icons/transfer-entire-order.svg";
 
 // New order type icons
 import dineInSvg from "@/assets/icons/dine-in-2.svg";
@@ -606,7 +608,6 @@ const Tickets = () => {
   const [mergeTarget, setMergeTarget] = useState<GuestOrder | null>(null);
   const [showTransferDialog, setShowTransferDialog] = useState(false);
   const [transferSource, setTransferSource] = useState<GuestOrder | null>(null);
-  const [transferTargetTable, setTransferTargetTable] = useState<string | null>(null);
 
 
 
@@ -812,31 +813,8 @@ const Tickets = () => {
   const handleTransferClick = (guest: GuestOrder, e: React.MouseEvent) => {
     e.stopPropagation();
     setTransferSource(guest);
-    setTransferTargetTable(null);
     setShowTransferDialog(true);
   };
-
-  const confirmTransfer = () => {
-    if (!transferSource || !transferTargetTable) return;
-    const oldTable = transferSource.table;
-
-    const updatedOrder: GuestOrder = {
-      ...transferSource,
-      table: transferTargetTable,
-    };
-
-    setOrders(prev => prev.map(o => o.id === transferSource.id ? updatedOrder : o));
-    setSelectedGuest(updatedOrder);
-    setShowTransferDialog(false);
-    setTransferSource(null);
-    setTransferTargetTable(null);
-
-    toast.success(`Order transferred from ${oldTable} to ${transferTargetTable}`, {
-      description: `Ticket #${updatedOrder.id} (${updatedOrder.name}) is now at ${transferTargetTable}.`,
-    });
-  };
-
-  const availableTables = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"];
 
   // ===== MERGE DIALOG =====
   const MergeDialog = () => {
@@ -914,78 +892,63 @@ const Tickets = () => {
     );
   };
 
-  // ===== TRANSFER DIALOG =====
+  // ===== TRANSFER INTENT DIALOG (matches TableOrderDetails) =====
   const TransferDialog = () => {
     if (!showTransferDialog || !transferSource) return null;
-    const occupiedTables = orders.filter(o => o.id !== transferSource.id && o.table !== "--").map(o => o.table);
+
+    // Determine table context for navigation
+    const sourceTable = transferSource.table !== "--" ? transferSource.table : "T1";
 
     return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70" onClick={() => setShowTransferDialog(false)}>
-        <div className="w-[460px] max-h-[80vh] rounded-2xl overflow-hidden flex flex-col" style={{ backgroundColor: '#1B1C20', border: '1px solid rgba(255,255,255,0.1)' }} onClick={e => e.stopPropagation()}>
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5" />
-              <span className="text-white font-semibold text-lg">Transfer Table</span>
-            </div>
-            <button onClick={() => setShowTransferDialog(false)} className="p-1.5 rounded-full hover:bg-white/10 transition-colors">
-              <X className="w-4 h-4 text-white/60" />
+      <div className="fixed inset-0 z-[60] flex items-center justify-center">
+        <div className="absolute inset-0 bg-black/80" onClick={() => setShowTransferDialog(false)} />
+        <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[340px] max-w-[90vw] overflow-hidden">
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-white/10">
+            <h2 className="text-white text-lg font-semibold">Transfer Order</h2>
+            <button 
+              onClick={() => setShowTransferDialog(false)}
+              className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
+            >
+              <X className="w-4 h-4 text-white" />
             </button>
           </div>
 
-          <div className="px-5 py-3 border-b border-white/10" style={{ backgroundColor: 'rgba(200, 200, 200, 0.08)' }}>
-            <span className="text-white/60 text-xs uppercase tracking-wider">Transferring</span>
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-white font-medium">#{transferSource.id} · {transferSource.name}</span>
-              <span className="text-white font-bold">{formatPrice(transferSource.total)}</span>
+          {/* Content */}
+          <div className="p-4">
+            <p className="text-white/60 text-sm mb-4">What would you like to transfer?</p>
+            
+            <div className="space-y-3">
+              {/* Transfer Items Option */}
+              <button 
+                onClick={() => {
+                  setShowTransferDialog(false);
+                  navigate(`/tableorder/${sourceTable}/transfer?orderId=${transferSource.id}`);
+                }}
+                className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+              >
+                <div className="flex items-center gap-3 mb-1">
+                  <img src={transferItemIcon} alt="Transfer Items" className="w-5 h-5 object-contain opacity-80" />
+                  <span className="text-white font-medium">Transfer Items</span>
+                </div>
+                <p className="text-white/50 text-xs ml-8">Move selected items to another order or table</p>
+              </button>
+
+              {/* Transfer Entire Order Option */}
+              <button 
+                onClick={() => {
+                  setShowTransferDialog(false);
+                  navigate(`/tableorder/${sourceTable}/transfer?orderId=${transferSource.id}&transferType=entire`);
+                }}
+                className="w-full p-4 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
+              >
+                <div className="flex items-center gap-3 mb-1">
+                  <img src={transferEntireOrderIcon} alt="Transfer Entire Order" className="w-5 h-5 object-contain opacity-80" />
+                  <span className="text-white font-medium">Transfer Entire Order</span>
+                </div>
+                <p className="text-white/50 text-xs ml-8">Move this full order to another table</p>
+              </button>
             </div>
-            <span className="text-white/50 text-sm">Current: {transferSource.table !== "--" ? transferSource.table : "No table"} · {transferSource.items.length} items</span>
-          </div>
-
-          <div className="px-5 py-3">
-            <span className="text-white/60 text-xs uppercase tracking-wider">Select destination table</span>
-          </div>
-
-          <div className="px-5 pb-4">
-            <div className="grid grid-cols-4 gap-2">
-              {availableTables.map(table => {
-                const isCurrentTable = table === transferSource.table;
-                const isOccupied = occupiedTables.includes(table);
-                const isSelected = transferTargetTable === table;
-                return (
-                  <button
-                    key={table}
-                    disabled={isCurrentTable}
-                    onClick={() => setTransferTargetTable(table)}
-                    className={`py-3 rounded-xl text-sm font-medium transition-all border ${
-                      isCurrentTable 
-                        ? 'border-white/5 bg-white/5 text-white/20 cursor-not-allowed' 
-                        : isSelected 
-                          ? 'border-blue-400/60 bg-blue-400/15 text-white' 
-                          : isOccupied
-                            ? 'border-orange-400/30 bg-orange-400/10 text-orange-300 hover:border-orange-400/50'
-                            : 'border-white/10 bg-white/5 text-white hover:border-white/20 hover:bg-white/10'
-                    }`}
-                  >
-                    <div className="flex flex-col items-center gap-0.5">
-                      <span className="font-bold">{table}</span>
-                      {isCurrentTable && <span className="text-[10px] text-white/30">Current</span>}
-                      {isOccupied && !isCurrentTable && <span className="text-[10px]">Occupied</span>}
-                      {!isOccupied && !isCurrentTable && <span className="text-[10px] text-green-400/60">Available</span>}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="px-5 py-4 border-t border-white/10 flex items-center gap-3">
-            <button onClick={() => setShowTransferDialog(false)} className="flex-1 py-2.5 rounded-full text-white text-sm font-medium border border-white/20 hover:bg-white/10 transition-colors">Cancel</button>
-            <button 
-              onClick={confirmTransfer} 
-              disabled={!transferTargetTable}
-              className="flex-1 py-2.5 rounded-full text-sm font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ background: transferTargetTable ? 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' : '#555', color: transferTargetTable ? '#000' : '#fff' }}
-            >Confirm Transfer</button>
           </div>
         </div>
       </div>

@@ -2,7 +2,8 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check } from "lucide-react";
+import { toast } from "sonner";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -591,12 +592,23 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 const Tickets = () => {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState("All");
+  const [orders, setOrders] = useState(allOrders);
   const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [showFilterIcons, setShowFilterIcons] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Merge/Transfer state
+  const [showMergeDialog, setShowMergeDialog] = useState(false);
+  const [mergeSource, setMergeSource] = useState<GuestOrder | null>(null);
+  const [mergeTarget, setMergeTarget] = useState<GuestOrder | null>(null);
+  const [showTransferDialog, setShowTransferDialog] = useState(false);
+  const [transferSource, setTransferSource] = useState<GuestOrder | null>(null);
+  const [transferTargetTable, setTransferTargetTable] = useState<string | null>(null);
+
+
 
   // Swipe state for mobile cards
   const [swipeStates, setSwipeStates] = useState<Record<string, number>>({});
@@ -707,16 +719,16 @@ const Tickets = () => {
   };
 
   const getFilterCount = (filter: string) => {
-    if (filter === "All") return allOrders.length;
-    if (filter === "Open") return allOrders.filter(g => g.status === "ORDERING").length;
-    if (filter === "Completed") return allOrders.filter(g => g.status === "COMPLETED").length;
-    if (filter === "Paid") return allOrders.filter(g => g.status === "PAID" || g.paymentType !== "--").length;
-    if (filter === "Unpaid") return allOrders.filter(g => g.status === "UNPAID" || g.paymentType === "--").length;
+    if (filter === "All") return orders.length;
+    if (filter === "Open") return orders.filter(g => g.status === "ORDERING").length;
+    if (filter === "Completed") return orders.filter(g => g.status === "COMPLETED").length;
+    if (filter === "Paid") return orders.filter(g => g.status === "PAID" || g.paymentType !== "--").length;
+    if (filter === "Unpaid") return orders.filter(g => g.status === "UNPAID" || g.paymentType === "--").length;
     return 0;
   };
 
   const filteredOrders = (() => {
-    let orders = activeFilter === "All" ? allOrders : allOrders.filter(guest => {
+    let filtered = activeFilter === "All" ? orders : orders.filter(guest => {
       switch (activeFilter) {
         case "Open": return guest.status === "ORDERING";
         case "Completed": return guest.status === "COMPLETED";
@@ -727,7 +739,7 @@ const Tickets = () => {
     });
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
-      orders = orders.filter(g =>
+      filtered = filtered.filter(g =>
         g.name.toLowerCase().includes(q) ||
         g.id.includes(q) ||
         g.check.includes(q) ||
@@ -735,7 +747,7 @@ const Tickets = () => {
         g.server.toLowerCase().includes(q)
       );
     }
-    return orders;
+    return filtered;
   })();
 
   const toggleSeat = (seat: number) => {
@@ -750,6 +762,234 @@ const Tickets = () => {
   // Desktop click handler - always show details in right panel
   const handleDesktopOrderClick = (guest: GuestOrder) => {
     setSelectedGuest(guest);
+  };
+
+  // ===== MERGE HANDLERS =====
+  const handleMergeClick = (guest: GuestOrder, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setMergeSource(guest);
+    setMergeTarget(null);
+    setShowMergeDialog(true);
+  };
+
+  const getMergeableTickets = (source: GuestOrder) => {
+    return orders.filter(o => 
+      o.id !== source.id && 
+      o.status !== "PAID" && 
+      o.status !== "COMPLETED"
+    );
+  };
+
+  const confirmMerge = () => {
+    if (!mergeSource || !mergeTarget) return;
+    
+    const mergedItems = [...mergeSource.items, ...mergeTarget.items];
+    const updatedSource: GuestOrder = {
+      ...mergeSource,
+      items: mergedItems,
+      subtotal: mergeSource.subtotal + mergeTarget.subtotal,
+      discount: mergeSource.discount + mergeTarget.discount,
+      serviceCharge: mergeSource.serviceCharge + mergeTarget.serviceCharge,
+      tax: mergeSource.tax + mergeTarget.tax,
+      tip: mergeSource.tip + mergeTarget.tip,
+      total: mergeSource.total + mergeTarget.total,
+      partySize: mergeSource.partySize + mergeTarget.partySize,
+      notes: [mergeSource.notes, mergeTarget.notes].filter(Boolean).join("; "),
+    };
+
+    setOrders(prev => prev.filter(o => o.id !== mergeTarget.id).map(o => o.id === mergeSource.id ? updatedSource : o));
+    setSelectedGuest(updatedSource);
+    setShowMergeDialog(false);
+    setMergeSource(null);
+    setMergeTarget(null);
+
+    toast.success(`Order #${mergeTarget.id} merged into Order #${mergeSource.id}`, {
+      description: `Items, balances, and order history have been combined.`,
+    });
+  };
+
+  // ===== TRANSFER HANDLERS =====
+  const handleTransferClick = (guest: GuestOrder, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setTransferSource(guest);
+    setTransferTargetTable(null);
+    setShowTransferDialog(true);
+  };
+
+  const confirmTransfer = () => {
+    if (!transferSource || !transferTargetTable) return;
+    const oldTable = transferSource.table;
+
+    const updatedOrder: GuestOrder = {
+      ...transferSource,
+      table: transferTargetTable,
+    };
+
+    setOrders(prev => prev.map(o => o.id === transferSource.id ? updatedOrder : o));
+    setSelectedGuest(updatedOrder);
+    setShowTransferDialog(false);
+    setTransferSource(null);
+    setTransferTargetTable(null);
+
+    toast.success(`Order transferred from ${oldTable} to ${transferTargetTable}`, {
+      description: `Ticket #${updatedOrder.id} (${updatedOrder.name}) is now at ${transferTargetTable}.`,
+    });
+  };
+
+  const availableTables = ["T1", "T2", "T3", "T4", "T5", "T6", "T7", "T8", "T9", "T10", "T11", "T12"];
+
+  // ===== MERGE DIALOG =====
+  const MergeDialog = () => {
+    if (!showMergeDialog || !mergeSource) return null;
+    const mergeable = getMergeableTickets(mergeSource);
+
+    return (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70" onClick={() => setShowMergeDialog(false)}>
+        <div className="w-[460px] max-h-[80vh] rounded-2xl overflow-hidden flex flex-col" style={{ backgroundColor: '#1B1C20', border: '1px solid rgba(255,255,255,0.1)' }} onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <img src={mergeIcon} alt="Merge" className="w-5 h-5" />
+              <span className="text-white font-semibold text-lg">Merge Tickets</span>
+            </div>
+            <button onClick={() => setShowMergeDialog(false)} className="p-1.5 rounded-full hover:bg-white/10 transition-colors">
+              <X className="w-4 h-4 text-white/60" />
+            </button>
+          </div>
+
+          <div className="px-5 py-3 border-b border-white/10" style={{ backgroundColor: 'rgba(255, 158, 101, 0.1)' }}>
+            <span className="text-white/60 text-xs uppercase tracking-wider">Merging from</span>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-white font-medium">#{mergeSource.id} · {mergeSource.name}</span>
+              <span className="text-white font-bold">{formatPrice(mergeSource.total)}</span>
+            </div>
+            {mergeSource.table !== "--" && <span className="text-white/50 text-sm">{mergeSource.table} · {mergeSource.items.length} items</span>}
+          </div>
+
+          <div className="px-5 py-3">
+            <span className="text-white/60 text-xs uppercase tracking-wider">Select target ticket to merge into</span>
+          </div>
+
+          <ScrollArea className="flex-1 px-5 max-h-[300px]">
+            <div className="space-y-2 pb-4">
+              {mergeable.length === 0 ? (
+                <div className="text-center py-8 text-white/40 text-sm">No eligible tickets to merge with</div>
+              ) : (
+                mergeable.map(ticket => (
+                  <div 
+                    key={ticket.id}
+                    onClick={() => setMergeTarget(ticket)}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all ${mergeTarget?.id === ticket.id ? 'border-orange-400/60 bg-orange-400/10' : 'border-white/10 hover:border-white/20 bg-white/5'}`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        {mergeTarget?.id === ticket.id && <Check className="w-4 h-4 text-orange-400" />}
+                        <span className="text-white font-medium">#{ticket.id} · {ticket.name}</span>
+                      </div>
+                      <span className="text-white font-bold text-sm">{formatPrice(ticket.total)}</span>
+                    </div>
+                    <div className="flex items-center gap-2 mt-1 text-white/50 text-xs">
+                      <OrderTypeIcon type={ticket.orderType} size="small" />
+                      <span>{ticket.orderType}</span>
+                      {ticket.table !== "--" && <><span>·</span><span>{ticket.table}</span></>}
+                      <span>·</span>
+                      <span>{ticket.items.length} items</span>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+
+          <div className="px-5 py-4 border-t border-white/10 flex items-center gap-3">
+            <button onClick={() => setShowMergeDialog(false)} className="flex-1 py-2.5 rounded-full text-white text-sm font-medium border border-white/20 hover:bg-white/10 transition-colors">Cancel</button>
+            <button 
+              onClick={confirmMerge} 
+              disabled={!mergeTarget}
+              className="flex-1 py-2.5 rounded-full text-white text-sm font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: mergeTarget ? 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' : '#555' }}
+            >Confirm Merge</button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // ===== TRANSFER DIALOG =====
+  const TransferDialog = () => {
+    if (!showTransferDialog || !transferSource) return null;
+    const occupiedTables = orders.filter(o => o.id !== transferSource.id && o.table !== "--").map(o => o.table);
+
+    return (
+      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70" onClick={() => setShowTransferDialog(false)}>
+        <div className="w-[460px] max-h-[80vh] rounded-2xl overflow-hidden flex flex-col" style={{ backgroundColor: '#1B1C20', border: '1px solid rgba(255,255,255,0.1)' }} onClick={e => e.stopPropagation()}>
+          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+            <div className="flex items-center gap-3">
+              <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5" />
+              <span className="text-white font-semibold text-lg">Transfer Table</span>
+            </div>
+            <button onClick={() => setShowTransferDialog(false)} className="p-1.5 rounded-full hover:bg-white/10 transition-colors">
+              <X className="w-4 h-4 text-white/60" />
+            </button>
+          </div>
+
+          <div className="px-5 py-3 border-b border-white/10" style={{ backgroundColor: 'rgba(200, 200, 200, 0.08)' }}>
+            <span className="text-white/60 text-xs uppercase tracking-wider">Transferring</span>
+            <div className="flex items-center justify-between mt-1">
+              <span className="text-white font-medium">#{transferSource.id} · {transferSource.name}</span>
+              <span className="text-white font-bold">{formatPrice(transferSource.total)}</span>
+            </div>
+            <span className="text-white/50 text-sm">Current: {transferSource.table !== "--" ? transferSource.table : "No table"} · {transferSource.items.length} items</span>
+          </div>
+
+          <div className="px-5 py-3">
+            <span className="text-white/60 text-xs uppercase tracking-wider">Select destination table</span>
+          </div>
+
+          <div className="px-5 pb-4">
+            <div className="grid grid-cols-4 gap-2">
+              {availableTables.map(table => {
+                const isCurrentTable = table === transferSource.table;
+                const isOccupied = occupiedTables.includes(table);
+                const isSelected = transferTargetTable === table;
+                return (
+                  <button
+                    key={table}
+                    disabled={isCurrentTable}
+                    onClick={() => setTransferTargetTable(table)}
+                    className={`py-3 rounded-xl text-sm font-medium transition-all border ${
+                      isCurrentTable 
+                        ? 'border-white/5 bg-white/5 text-white/20 cursor-not-allowed' 
+                        : isSelected 
+                          ? 'border-blue-400/60 bg-blue-400/15 text-white' 
+                          : isOccupied
+                            ? 'border-orange-400/30 bg-orange-400/10 text-orange-300 hover:border-orange-400/50'
+                            : 'border-white/10 bg-white/5 text-white hover:border-white/20 hover:bg-white/10'
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-0.5">
+                      <span className="font-bold">{table}</span>
+                      {isCurrentTable && <span className="text-[10px] text-white/30">Current</span>}
+                      {isOccupied && !isCurrentTable && <span className="text-[10px]">Occupied</span>}
+                      {!isOccupied && !isCurrentTable && <span className="text-[10px] text-green-400/60">Available</span>}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="px-5 py-4 border-t border-white/10 flex items-center gap-3">
+            <button onClick={() => setShowTransferDialog(false)} className="flex-1 py-2.5 rounded-full text-white text-sm font-medium border border-white/20 hover:bg-white/10 transition-colors">Cancel</button>
+            <button 
+              onClick={confirmTransfer} 
+              disabled={!transferTargetTable}
+              className="flex-1 py-2.5 rounded-full text-sm font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ background: transferTargetTable ? 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' : '#555', color: transferTargetTable ? '#000' : '#fff' }}
+            >Confirm Transfer</button>
+          </div>
+        </div>
+      </div>
+    );
   };
 
   // ===== TICKET CARD COMPONENT =====
@@ -912,7 +1152,7 @@ const Tickets = () => {
                 <button 
                   className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-600/50 transition-colors"
                   style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-                  onClick={e => { e.stopPropagation(); }}
+                  onClick={e => handleMergeClick(guest, e)}
                 >
                   <img src={mergeIcon} alt="Merge" className="w-4 h-4 object-contain" />
                 </button>
@@ -920,7 +1160,7 @@ const Tickets = () => {
                 <button 
                   className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors border-t border-neutral-600/50"
                   style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                  onClick={e => { e.stopPropagation(); }}
+                  onClick={e => handleTransferClick(guest, e)}
                 >
                   <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
                 </button>
@@ -936,10 +1176,10 @@ const Tickets = () => {
         <div className="relative rounded-xl cursor-pointer transition-all overflow-hidden bg-black">
           {/* Swipe Action Buttons */}
           <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ backgroundColor: '#666666' }}>
+            <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ backgroundColor: '#666666' }} onClick={e => { e.stopPropagation(); handleMergeClick(guest, e); }}>
               <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
             </button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+            <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }} onClick={e => { e.stopPropagation(); handleTransferClick(guest, e); }}>
               <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
             </button>
           </div>
@@ -1467,6 +1707,10 @@ const Tickets = () => {
       <div className="hidden lg:block h-full">
         <DesktopLayout />
       </div>
+
+      {/* Merge & Transfer Dialogs */}
+      <MergeDialog />
+      <TransferDialog />
     </>
   );
 };

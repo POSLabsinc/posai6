@@ -400,6 +400,10 @@ const TransferOrders = () => {
     const transferredItems = isPartialTransfer
       ? selectedItems.map(index => currentOrder.items[index])
       : currentOrder.items;
+    // Look up existing active orders on the target table to merge into
+    const targetTableOrders = allOrders.filter(o => o.table === selectedTargetTable && o.status !== 'Paid' && o.status !== 'PAID' && o.status !== 'Completed');
+    const targetOrderId = targetTableOrders.length > 0 ? targetTableOrders[0].id : undefined;
+
     persistTransferData(selectedTargetTable, {
       sourceOrderId: currentOrder.id,
       sourceTable: currentOrder.table,
@@ -412,6 +416,7 @@ const TransferOrders = () => {
       sourceRevenueCenter: currentOrder.revenueCenter,
       sourceOrderType: currentOrder.orderType,
       sourceNotes: currentOrder.notes || '',
+      targetOrderId,
     });
     
     // Show success toast

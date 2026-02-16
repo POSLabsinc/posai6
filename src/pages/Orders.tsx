@@ -6161,6 +6161,7 @@ const Orders = () => {
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
+  const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
   const [showVoucherOptionsPopup, setShowVoucherOptionsPopup] = useState(false);
   const [showCreateVoucherForm, setShowCreateVoucherForm] = useState(false);
   const [appliedVoucherAmount, setAppliedVoucherAmount] = useState(0);
@@ -9229,7 +9230,8 @@ const Orders = () => {
       {/* Voucher Dialog */}
       <VoucherDialog
       isOpen={showVoucherDialog}
-      onClose={() => setShowVoucherDialog(false)}
+      onClose={() => { setShowVoucherDialog(false); setVoucherDialogInitialView('sell'); }}
+      initialView={voucherDialogInitialView}
       onAddVoucher={(amount) => {
         setOrderItems((prev) => [...prev, {
           id: Date.now(),
@@ -9288,6 +9290,7 @@ const Orders = () => {
                 <button
               onClick={() => {
                 setShowVoucherOptionsPopup(false);
+                setVoucherDialogInitialView('redeem');
                 setShowVoucherDialog(true);
               }}
               className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">

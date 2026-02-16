@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface VoucherDialogProps {
@@ -6,16 +6,20 @@ interface VoucherDialogProps {
   onClose: () => void;
   onAddVoucher: (amount: number) => void;
   onRedeemVoucher: (voucherCode: string, balance: number) => void;
+  initialView?: 'sell' | 'redeem';
 }
 
 const PRESET_AMOUNTS = [10, 25, 50, 100];
 
-const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: VoucherDialogProps) => {
-  const [view, setView] = useState<'sell' | 'redeem'>('sell');
+const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher, initialView = 'sell' }: VoucherDialogProps) => {
+  const [view, setView] = useState<'sell' | 'redeem'>(initialView);
   const [amount, setAmount] = useState<string>('');
   const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
   const [voucherCode, setVoucherCode] = useState<string>('');
 
+  useEffect(() => {
+    if (isOpen) setView(initialView);
+  }, [isOpen, initialView]);
   // Calculate display amount from string (treating input as cents)
   const getDisplayAmount = (): number => {
     if (selectedPreset !== null) return selectedPreset;

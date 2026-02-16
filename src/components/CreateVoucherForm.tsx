@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Ticket, Calendar, QrCode, Info } from "lucide-react";
+import { X, Ticket, Calendar, QrCode, Info, Plus, Minus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -164,14 +164,29 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
         {/* Maximum Uses */}
         <div>
           <label className="text-sm text-white/70 mb-1 block">Maximum Uses</label>
-          <Input
-            type="number"
-            min="1"
-            value={formData.maximumUses}
-            onChange={(e) => handleChange("maximumUses", e.target.value)}
-            placeholder="Unlimited"
-            className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
-          />
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                const current = parseInt(formData.maximumUses) || 0;
+                if (current > 0) handleChange("maximumUses", String(current - 1));
+              }}
+              className="w-10 h-10 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0"
+            >
+              <Minus className="w-4 h-4" />
+            </button>
+            <div className="flex-1 h-10 rounded-md border border-white/20 bg-white/10 flex items-center justify-center text-white text-sm">
+              {formData.maximumUses ? formData.maximumUses : "Unlimited"}
+            </div>
+            <button
+              onClick={() => {
+                const current = parseInt(formData.maximumUses) || 0;
+                handleChange("maximumUses", String(current + 1));
+              }}
+              className="w-10 h-10 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+            </button>
+          </div>
           {formData.maximumUses && (
             <p className="text-white/40 text-xs mt-1 flex items-center gap-1">
               <Info className="w-3 h-3" />

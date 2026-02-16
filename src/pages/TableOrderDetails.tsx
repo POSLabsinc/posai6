@@ -2125,27 +2125,26 @@ const TableOrderDetails = () => {
           />
         </div>
 
-        {/* Transfer info banner - below order notes (hide for source order of a full transfer) */}
+        {/* Transfer info banner - below order notes (only show for full transfers, not partial) */}
         {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && 
          !(transferSourceOrderId === currentSelectedGuest?.id && transferType === 'full') && (
-          <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
-            {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => {
-              // Determine transfer type: from URL param or from persisted data
-              const effectiveTransferType = transferType || (currentSelectedGuest as any)?._persistedTransferType || 'partial';
-              return (
-                <div key={sourceIdx} className="flex items-center gap-2">
-                  <img src={transferIcon} alt="Transferred" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
-                  <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
-                    {effectiveTransferType === 'full' ? (
-                      <>Order fully transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
-                    ) : (
-                      <>Order transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
-                    )}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+          (() => {
+            const effectiveTransferType = transferType || (currentSelectedGuest as any)?._persistedTransferType || 'partial';
+            // Only show banner for full transfers
+            if (effectiveTransferType !== 'full') return null;
+            return (
+              <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
+                {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
+                  <div key={sourceIdx} className="flex items-center gap-2">
+                    <img src={transferIcon} alt="Transferred" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
+                    <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+                      Order fully transferred from {formatTableName(source.table)} · Order #{source.orderId}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            );
+          })()
         )}
         
         {/* Local Transfer Result - Outgoing info banner */}

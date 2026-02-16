@@ -1,49 +1,59 @@
 
 
-# Fix Transfer Functionality in Tickets Module
+# Fix "Transfer to Table" in Tickets Module -- Show Active Orders and New Order Option
 
-## Problems Found
+## Problem
 
-There are **three distinct bugs** in the Tickets module's transfer flow (`TicketsTransferView.tsx`):
+When transferring items from Order 6 (Table 7) to Table 2 in the Tickets module, the user sees a plain confirmation alert ("Transfer Items? Are you sure...") instead of the proper ticket selection dialog that shows:
+- Active orders on the target table
+- A "Transfer to New Order" option
 
-### Bug 1: "Transfer to Order" does nothing to the data
-In `executeTransferToOrder()` (line 199-240), when transferring to an **existing order**, the function only shows a toast and calls `onTransferComplete()`. It never actually:
-- Removes items from the source order
-- Adds items to the target order
-- Updates any financial totals
+This happens because `handleConfirmTableTransfer()` in `TicketsTransferView.tsx` (line 352-363) has two branches:
+- If the target table has active orders: shows the ticket selection dialog (correct behavior)
+- If the target table has NO active orders: shows a simple AlertDialog confirmation (wrong behavior)
 
-The transfer is purely cosmetic -- no state changes happen.
+The Table Order module (`TransferOrders.tsx`) handles this correctly by always showing the ticket selection dialog with a "Create New Order" option, and by persisting transfer data to localStorage so the target table picks it up.
 
-### Bug 2: Available orders list reads from static data, not unified context
-Line 196 calls `getAvailableTicketOrdersForTransfer(currentOrder.id)` which reads from the **static** `ticketOrders` array in `src/data/ticketOrders.ts`. This means:
-- It doesn't reflect any prior merges or transfers
-- It shows stale data
+## Root Cause
 
-Similarly, line 233 does `ticketOrders.find(...)` to look up the target order from static data.
-
-### Bug 3: "Transfer to Table" works but doesn't persist properly after navigation
-The `executeTransfer()` function (line 300) correctly calls `setOrders()` which is wired to `updateOrders` from the unified context. However, the `onTransferComplete` callback in `Tickets.tsx` (line 1186-1189) tries to find the updated order but uses the old `orders` reference from the closure, which may be stale.
+The `getOrdersByTable("T2")` call filters the unified `orders` array for orders with `table === "T2"`. If no matching orders are found (due to data gaps or table ID mismatches), it falls into the `else` branch and shows the basic confirmation alert, which skips the active-orders listing and the "Create New Order" option entirely.
 
 ## Fix Plan
 
 ### File: `src/components/TicketsTransferView.tsx`
 
-**Fix 1** -- Make `executeTransferToOrder()` actually move items:
-- For **entire order** transfers: merge all items from source into target order, then remove the source order
-- For **partial item** transfers: remove selected items from source, add them to target order, recalculate financial totals on both
-- Use the `setOrders` prop (which is wired to unified context) for all mutations
+**Change 1** -- Always show the ticket selection dialog when confirming a table transfer, regardless of whether the target table has active orders. The ticket selection dialog already includes the "Transfer to New Order" button, so it works for both cases (occupied and available tables).
 
-**Fix 2** -- Replace static data reads with the `orders` prop:
-- Change `availableTransferOrders` to filter from the `orders` prop instead of calling `getAvailableTicketOrdersForTransfer()` from static data
-- Remove the `ticketOrders.find()` call on line 233 and use `orders.find()` instead
+Update `handleConfirmTableTransfer()` from:
+```
+if (targetTableOrders.length > 0) {
+  setShowTicketSelection(true);      // occupied table
+} else {
+  setShowTableConfirmDialog(true);   // available table (plain alert)
+}
+```
+To:
+```
+// Always show ticket selection -- it includes both
+// active orders (if any) and "Transfer to New Order"
+setShowTicketSelection(true);
+setSelectedTicketOrderId(null);
+```
 
-### File: `src/pages/Tickets.tsx`
+**Change 2** -- Add localStorage persistence (matching the Table Order module's `persistTransferData` pattern) so that after a transfer, the target table's detail view picks up the transferred items.
 
-**Fix 3** -- Ensure the `onTransferComplete` callback reads the latest state:
-- After closing the transfer flow, re-select the updated guest from the current `orders` array to refresh the right panel
+Add a `persistTransferData` helper function that:
+- Writes transfer records to `localStorage` key `pos-table-transfers`
+- Clears any prior transfer from the same source order (prevents duplicates)
+- Dispatches `pos-transfer-updated` event for cross-module sync
+- Sets `pos-transfer-just-happened` in sessionStorage
 
-## What Will Change for the User
-- Clicking "Transfer Items" or "Transfer Entire Order" to another order in the Tickets module will actually move the items and update totals
-- The available orders list will reflect real-time state (including prior merges/transfers)
-- After any transfer completes, the ticket list and detail panel will immediately show the updated data
+Call this from `executeTransfer()` before updating in-memory state, so both the unified context AND localStorage reflect the transfer.
+
+**Change 3** -- In `executeTransfer()`, for full transfers to an available table (no existing ticket selected), persist the transfer and handle it the same way as Table Order: move the order to the new table rather than just showing a toast.
+
+## What Changes for the User
+- Selecting any target table (occupied or available) now shows the ticket selection dialog with active orders (if any) and a "Transfer to New Order" option
+- Transfer data persists to localStorage, so navigating to the target table in Table Order shows the transferred items with the blue-shaded styling and info banner
+- The plain confirmation alert is removed from the table transfer flow (it was the wrong UX)
 

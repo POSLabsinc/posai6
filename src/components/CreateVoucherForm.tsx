@@ -32,6 +32,7 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
     customCode: "",
     enableQrBarcode: false,
   });
+  const [minPurchaseOption, setMinPurchaseOption] = useState("none");
 
   const handleChange = (field: keyof VoucherFormData, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -198,18 +199,43 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
         {/* Minimum Purchase */}
         <div>
           <label className="text-sm text-white/70 mb-1 block">Minimum Purchase</label>
-          <div className="relative">
-            <Input
-              type="number"
-              min="0"
-              step="0.01"
-              value={formData.minimumPurchase}
-              onChange={(e) => handleChange("minimumPurchase", e.target.value)}
-              placeholder="No minimum"
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pl-7"
-            />
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">$</span>
-          </div>
+          <Select
+            value={minPurchaseOption}
+            onValueChange={(val) => {
+              setMinPurchaseOption(val);
+              if (val !== "custom") handleChange("minimumPurchase", val === "none" ? "" : val);
+              else handleChange("minimumPurchase", "");
+            }}
+          >
+            <SelectTrigger className="bg-white/10 border-white/20 text-white">
+              <SelectValue placeholder="No minimum" />
+            </SelectTrigger>
+            <SelectContent className="bg-neutral-800 border-white/10 z-[200]">
+              <SelectItem value="none" className="text-white hover:bg-white/10">No Minimum</SelectItem>
+              <SelectItem value="10" className="text-white hover:bg-white/10">$10.00</SelectItem>
+              <SelectItem value="25" className="text-white hover:bg-white/10">$25.00</SelectItem>
+              <SelectItem value="50" className="text-white hover:bg-white/10">$50.00</SelectItem>
+              <SelectItem value="75" className="text-white hover:bg-white/10">$75.00</SelectItem>
+              <SelectItem value="100" className="text-white hover:bg-white/10">$100.00</SelectItem>
+              <SelectItem value="150" className="text-white hover:bg-white/10">$150.00</SelectItem>
+              <SelectItem value="200" className="text-white hover:bg-white/10">$200.00</SelectItem>
+              <SelectItem value="custom" className="text-white hover:bg-white/10">Custom Amount</SelectItem>
+            </SelectContent>
+          </Select>
+          {minPurchaseOption === "custom" && (
+            <div className="relative mt-2">
+              <Input
+                type="number"
+                min="0"
+                step="0.01"
+                value={formData.minimumPurchase}
+                onChange={(e) => handleChange("minimumPurchase", e.target.value)}
+                placeholder="Enter amount"
+                className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pl-7"
+              />
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50 text-sm">$</span>
+            </div>
+          )}
         </div>
 
         {/* Tags */}

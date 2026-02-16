@@ -2138,7 +2138,7 @@ const TableOrderDetails = () => {
                     {effectiveTransferType === 'full' ? (
                       <>Order fully transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
                     ) : (
-                      <>Order transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
+                      <>{source.items?.length || 0} item{(source.items?.length || 0) !== 1 ? 's' : ''} transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
                     )}
                   </span>
                 </div>

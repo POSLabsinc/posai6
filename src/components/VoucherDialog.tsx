@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface VoucherDialogProps {
@@ -96,7 +97,13 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher, initial
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 rounded-xl p-0 max-w-[420px] w-full">
+      <DialogContent className="bg-neutral-900 border-neutral-700 rounded-xl p-0 max-w-[420px] w-full [&>button]:hidden">
+        <button
+          onClick={handleClose}
+          className="absolute right-4 top-4 p-1 hover:bg-white/10 rounded-full transition-colors z-[10]"
+        >
+          <X className="w-5 h-5 text-white/70" />
+        </button>
         {view === 'sell' ? (
           <div className="p-5">
             {/* Header */}

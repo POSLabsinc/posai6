@@ -87,10 +87,14 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
 
   const getVoucherCodeDisplay = () => {
     if (!voucherData) return '';
-    const code = voucherData.customCode;
-    if (voucherData.type === 'percentage') return `${code} (${voucherData.value}% Off)`;
-    if (voucherData.type === 'fixed') return `${code} ($${voucherData.value} Off)`;
-    return `${code} (Free Item)`;
+    return voucherData.customCode;
+  };
+
+  const getVoucherTypeLabel = () => {
+    if (!voucherData) return '';
+    if (voucherData.type === 'percentage') return `${voucherData.value}% Off`;
+    if (voucherData.type === 'fixed') return `$${voucherData.value} Off`;
+    return 'Free Item';
   };
 
   const formatExpirationDate = () => {
@@ -108,18 +112,23 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
               How would you like to<br />send the voucher?
             </h2>
 
-            {/* Voucher Details */}
-            <div className="space-y-3 mb-6">
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400 text-sm">Voucher Code</span>
-                <span className="text-white text-sm font-medium">{getVoucherCodeDisplay()}</span>
+            {/* Voucher Code Display */}
+            <div className="flex flex-col items-center mb-5">
+              <div className="border-2 border-dashed border-white/30 rounded-xl px-6 py-3 mb-1">
+                <span className="text-white text-xl font-bold tracking-widest">{getVoucherCodeDisplay()}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400 text-sm">Expiration Date</span>
+              <span className="text-neutral-400 text-xs mt-1">{getVoucherTypeLabel()}</span>
+            </div>
+
+            {/* Expiration & Uses in one row */}
+            <div className="flex justify-between items-center mb-6 px-2">
+              <div className="flex flex-col items-start">
+                <span className="text-neutral-500 text-[10px] uppercase tracking-wide">Expires</span>
                 <span className="text-white text-sm font-medium">{formatExpirationDate()}</span>
               </div>
-              <div className="flex justify-between items-center">
-                <span className="text-neutral-400 text-sm">Maximum Uses</span>
+              <div className="w-px h-8 bg-white/10" />
+              <div className="flex flex-col items-end">
+                <span className="text-neutral-500 text-[10px] uppercase tracking-wide">Max Uses</span>
                 <span className="text-white text-sm font-medium">{voucherData?.maximumUses || '1'}</span>
               </div>
             </div>

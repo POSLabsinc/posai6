@@ -594,24 +594,6 @@ const Tickets = () => {
           {/* Row 3: Revenue Center */}
           <span className={`text-neutral-500 ${compact ? 'text-xs' : 'text-sm'}`}>{guest.revenueCenter}</span>
 
-          {/* Transfer Info Banner */}
-          {guest.transferInfo && (
-            <div className={`mt-1 flex items-center gap-1 ${compact ? 'text-[10px]' : 'text-xs'}`}>
-              {guest.transferInfo.type === 'sent' ? (
-                <span className="text-[#8AC4FF]">
-                  {guest.transferInfo.transferType === 'full'
-                    ? `Fully transferred to Order #${guest.transferInfo.targetOrderId}`
-                    : `Transferred (${guest.transferInfo.itemCount}) item${(guest.transferInfo.itemCount || 0) > 1 ? 's' : ''} to Order #${guest.transferInfo.targetOrderId}`}
-                </span>
-              ) : (
-                <span className="text-[#8AC4FF]">
-                  {guest.transferInfo.transferType === 'full'
-                    ? `Received full order from ${guest.transferInfo.sourceTable !== '--' ? guest.transferInfo.sourceTable + ' · ' : ''}Order #${guest.transferInfo.sourceOrderId}`
-                    : `Received (${guest.transferInfo.itemCount}) item${(guest.transferInfo.itemCount || 0) > 1 ? 's' : ''} from Order #${guest.transferInfo.sourceOrderId}`}
-                </span>
-              )}
-            </div>
-          )}
         </div>
 
         {/* SERVER & PAYMENT INFO */}
@@ -729,9 +711,34 @@ const Tickets = () => {
       </div>
     );
 
+    const hasTransferBanner = !!guest.transferInfo;
+    
+    const transferBanner = hasTransferBanner ? (
+      <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
+        <span className={`${compact ? 'text-[10px]' : 'text-xs'} font-medium`}>
+          {guest.transferInfo!.type === 'sent' ? (
+            <>
+              <span style={{ color: '#8AC4FF' }}>
+                {guest.transferInfo!.transferType === 'full' ? 'Order fully transferred to' : `Transferred ${guest.transferInfo!.itemCount} item${(guest.transferInfo!.itemCount || 0) > 1 ? 's' : ''} to`}
+              </span>{" "}
+              <span className="text-white">Order #{guest.transferInfo!.targetOrderId}{guest.transferInfo!.targetOrderName ? ` · ${guest.transferInfo!.targetOrderName}` : ''}</span>
+            </>
+          ) : (
+            <>
+              <span style={{ color: '#8AC4FF' }}>
+                {guest.transferInfo!.transferType === 'full' ? 'Order fully transferred from' : `${guest.transferInfo!.itemCount} item${(guest.transferInfo!.itemCount || 0) > 1 ? 's' : ''} transferred from`}
+              </span>{" "}
+              <span className="text-white">{guest.transferInfo!.sourceTable && guest.transferInfo!.sourceTable !== '--' ? `${guest.transferInfo!.sourceTable} · ` : ''}Order #{guest.transferInfo!.sourceOrderId}</span>
+            </>
+          )}
+        </span>
+      </div>
+    ) : null;
+
     if (showSwipe) {
       return (
-        <div className="relative rounded-xl cursor-pointer transition-all overflow-hidden bg-black">
+        <div className="relative cursor-pointer transition-all overflow-hidden bg-black">
+          {transferBanner}
           {/* Swipe Action Buttons */}
           <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ backgroundColor: '#666666' }} onClick={e => { e.stopPropagation(); handleMergeClick(guest, e); }}>
@@ -744,7 +751,7 @@ const Tickets = () => {
 
           {/* Swipeable card content */}
           <div 
-            className="relative transition-transform duration-200 ease-out md:transform-none bg-black rounded-xl select-none" 
+            className="relative transition-transform duration-200 ease-out md:transform-none bg-black select-none" 
             style={{ transform: `translateX(${swipeStates[guest.id] || 0}px)`, transition: isDraggingRef.current && currentCardId.current === guest.id ? "none" : "transform 0.2s ease-out" }} 
             onTouchStart={e => handleSwipeStart(e, guest)} 
             onTouchMove={handleSwipeMove} 
@@ -756,7 +763,7 @@ const Tickets = () => {
             onMouseLeave={e => handleSwipeEnd(false, e, guest)} 
             onClick={() => handleCardClick(guest)}
           >
-            <div className={`border rounded-xl overflow-hidden transition-all ${isSelected ? 'border-white/40' : 'border-neutral-700/60 hover:border-neutral-500/60'}`} style={{ backgroundColor: '#1B1C20' }}>
+            <div className={`border ${hasTransferBanner ? 'rounded-b-xl' : 'rounded-xl'} overflow-hidden transition-all ${isSelected ? 'border-white/40' : 'border-neutral-700/60 hover:border-neutral-500/60'}`} style={{ backgroundColor: '#1B1C20' }}>
               {cardContent}
             </div>
           </div>
@@ -765,12 +772,15 @@ const Tickets = () => {
     }
 
     return (
-      <div 
-        onClick={onSelect}
-        className={`rounded-xl border cursor-pointer transition-all overflow-hidden hover:shadow-lg hover:shadow-black/20 ${isSelected ? "border-white/40 shadow-md shadow-black/30" : "border-neutral-700/60 hover:border-neutral-500/60"}`} 
-        style={{ backgroundColor: '#1B1C20' }}
-      >
-        {cardContent}
+      <div>
+        {transferBanner}
+        <div 
+          onClick={onSelect}
+          className={`${hasTransferBanner ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden hover:shadow-lg hover:shadow-black/20 ${isSelected ? "border-white/40 shadow-md shadow-black/30" : "border-neutral-700/60 hover:border-neutral-500/60"}`} 
+          style={{ backgroundColor: '#1B1C20' }}
+        >
+          {cardContent}
+        </div>
       </div>
     );
   };

@@ -2001,6 +2001,18 @@ const TableOrderDetails = () => {
           </div>
         )}
 
+        {/* URL-based Transfer Outgoing info banner */}
+        {transferSourceOrderId && transferSourceOrderId === currentSelectedGuest?.id && transferType && (
+          <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
+            <div className="flex items-center gap-2">
+              <ArrowRightLeft className="w-4 h-4 text-[#8AC4FF]" />
+              <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+                {transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'} to {formatTableName(transferToTable || '')}{transferDestArea ? ` (${transferDestArea})` : ''}{transferredToOrderId && transferredToOrderId !== 'new' ? ` · Order #${transferredToOrderId}` : ''}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Order Items */}
         <ScrollArea className="flex-1 min-h-0 px-2">
           <div className="py-1 space-y-1">
@@ -2090,12 +2102,7 @@ const TableOrderDetails = () => {
                                     {formatPrice(item.price * item.qty)}
                                   </span>
                                 </div>
-                                {isTransferredOut && (
-                                  <div className="flex items-center gap-1 mt-0.5">
-                                    <ArrowRightLeft className="w-3 h-3 text-[#8AC4FF]" />
-                                    <span className="text-[10px] text-[#8AC4FF]">Transferred to {transferDestLabel}</span>
-                                  </div>
-                                )}
+                                {/* Per-item transfer label removed - shown as common banner below order notes */}
                               </>
                             );
                           })()}

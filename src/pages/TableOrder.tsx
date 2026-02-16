@@ -1185,22 +1185,28 @@ const TableOrder = () => {
   // Floorplan-specific state
   const [tablePositions, setTablePositions] = useState<TableType[]>(loadSavedPositions);
 
-  // Sync transfer state: mark Available tables with pending transfers as "Ordering"
+  // Listen for active transfers (event-driven, not on mount)
   useEffect(() => {
-    const transferData = localStorage.getItem('pos-table-transfers');
-    if (!transferData) return;
-    try {
-      const transfers = JSON.parse(transferData);
-      const tablesWithTransfers = Object.keys(transfers).filter(id => transfers[id]?.length > 0);
-      if (tablesWithTransfers.length > 0) {
-        setTablePositions(prev => prev.map(table => {
-          if (table.status === 'Available' && tablesWithTransfers.includes(table.id)) {
-            return { ...table, status: 'Ordering', time: '0M', guests: 1 };
-          }
-          return table;
-        }));
-      }
-    } catch (e) { /* ignore parse errors */ }
+    const handleTransferUpdate = () => {
+      const transferData = localStorage.getItem('pos-table-transfers');
+      if (!transferData) return;
+      try {
+        const transfers = JSON.parse(transferData);
+        const tablesWithTransfers = Object.keys(transfers)
+          .filter(id => transfers[id]?.length > 0);
+        if (tablesWithTransfers.length > 0) {
+          setTablePositions(prev => prev.map(table => {
+            if (table.status === 'Available' && tablesWithTransfers.includes(table.id)) {
+              return { ...table, status: 'Ordering', time: '0M', guests: 1 };
+            }
+            return table;
+          }));
+        }
+      } catch (e) { /* ignore */ }
+    };
+
+    window.addEventListener('pos-transfer-updated', handleTransferUpdate);
+    return () => window.removeEventListener('pos-transfer-updated', handleTransferUpdate);
   }, []);
 
   const [isDragging, setIsDragging] = useState(false);

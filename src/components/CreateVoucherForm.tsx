@@ -31,7 +31,7 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
     minimumPurchase: "",
     tags: "",
     customCode: "",
-    enableQrBarcode: false,
+    enableQrBarcode: true,
   });
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
   const [createdVoucherData, setCreatedVoucherData] = useState<VoucherFormData | null>(null);

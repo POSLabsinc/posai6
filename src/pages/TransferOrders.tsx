@@ -381,6 +381,7 @@ const TransferOrders = () => {
       );
       existing[targetTable].push(transferData);
       localStorage.setItem(TRANSFER_STORAGE_KEY, JSON.stringify(existing));
+      sessionStorage.setItem('pos-transfer-just-happened', 'true');
       window.dispatchEvent(new Event('pos-transfer-updated'));
     } catch { /* ignore */ }
   };

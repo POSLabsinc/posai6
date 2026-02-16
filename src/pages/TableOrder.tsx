@@ -1205,6 +1205,13 @@ const TableOrder = () => {
       } catch (e) { /* ignore */ }
     };
 
+    // Check if a transfer just happened (across navigation)
+    if (sessionStorage.getItem('pos-transfer-just-happened') === 'true') {
+      sessionStorage.removeItem('pos-transfer-just-happened');
+      handleTransferUpdate();
+    }
+
+    // Also listen for real-time events (same-page updates)
     window.addEventListener('pos-transfer-updated', handleTransferUpdate);
     return () => window.removeEventListener('pos-transfer-updated', handleTransferUpdate);
   }, []);

@@ -1985,9 +1985,13 @@ const TableOrderDetails = () => {
           <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
             {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
               <div key={sourceIdx} className="flex items-center gap-2">
-                <img src={transferIcon} alt="Transferred" className="w-4 h-4 opacity-70" />
+                <img src={transferIcon} alt="Transferred" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
                 <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
-                  Transferred from Order {source.orderId} · {formatTableName(source.table)}
+                  {transferType === 'full' ? (
+                    <>Order fully transferred from {formatTableName(source.table)}</>
+                  ) : (
+                    <>Order transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
+                  )}
                 </span>
               </div>
             ))}

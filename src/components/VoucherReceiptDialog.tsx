@@ -117,9 +117,8 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
               <div className="border-[1.5px] border-dashed border-white/25 rounded-lg px-5 py-2.5">
                 <span className="text-white text-lg font-semibold tracking-[0.25em]">{getVoucherCodeDisplay()}</span>
               </div>
-              <span className="text-neutral-400 text-[11px] mt-2">{getVoucherTypeLabel()}</span>
-              <span className="text-neutral-500 text-[11px] mt-1">
-                Expires {formatExpirationDate()} · Max Uses {voucherData?.maximumUses || '1'}
+              <span className="text-neutral-500 text-[11px] mt-2">
+                <span className="text-white">{getVoucherTypeLabel()}</span> · Expires <span className="text-white">{formatExpirationDate()}</span> · Max Uses <span className="text-white">{voucherData?.maximumUses || '1'}</span>
               </span>
             </div>
 

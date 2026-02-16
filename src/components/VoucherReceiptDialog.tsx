@@ -3,6 +3,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Printer, MessageSquare, Mail, ChevronDown, Delete, Check, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { VoucherFormData } from './CreateVoucherForm';
+import eatosLogo from '@/assets/icons/orderos-logo.png';
 
 interface VoucherReceiptDialogProps {
   open: boolean;
@@ -174,9 +175,10 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
               to protect your privacy.
             </p>
 
-            <p className="text-neutral-500 text-xs text-center">
-              Powered by <span className="text-white font-semibold">Point of Sale AI</span>
-            </p>
+            <div className="flex items-center justify-center gap-1.5">
+              <span className="text-neutral-500 text-xs">Powered by</span>
+              <img src={eatosLogo} alt="eatOS" className="h-4" />
+            </div>
           </div>
         )}
 

@@ -335,6 +335,7 @@ const TransferOrders = () => {
       sourceRevenueCenter: currentOrder.revenueCenter,
       sourceOrderType: currentOrder.orderType,
       sourceNotes: currentOrder.notes || '',
+      targetOrderId: selectedTicketOrderId || undefined,
     });
     
     toast.success(`${isPartialTransfer ? 'Items' : 'Order'} transferred successfully to ${formatTableName(selectedTargetTable)}`);
@@ -368,6 +369,7 @@ const TransferOrders = () => {
     sourceRevenueCenter: string;
     sourceOrderType: string;
     sourceNotes: string;
+    targetOrderId?: string;
   }) => {
     const TRANSFER_STORAGE_KEY = 'pos-table-transfers';
     try {

@@ -519,10 +519,13 @@ const TableOrderDetails = () => {
           seats: item.seats || [],
         }));
         const totals = calculateOrderTotals(transferredItems, 0);
-        const maxOrderId = Math.max(...allOrders.map(o => parseInt(o.id) || 0));
-        const newOrderId = String(maxOrderId + 1 + idx);
-        const maxCheck = Math.max(...allOrders.map(o => parseInt(o.check) || 0));
-        const newCheck = String(maxCheck + 1 + idx);
+        // For full transfers, preserve the original order ID; for partial, generate new
+        const newOrderId = transfer.transferType === 'full' 
+          ? transfer.sourceOrderId 
+          : String(Math.max(...allOrders.map(o => parseInt(o.id) || 0)) + 1 + idx);
+        const newCheck = transfer.transferType === 'full'
+          ? transfer.sourceOrderId
+          : String(Math.max(...allOrders.map(o => parseInt(o.check) || 0)) + 1 + idx);
         
         return {
           id: newOrderId,

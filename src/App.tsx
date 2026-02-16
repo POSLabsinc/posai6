@@ -41,6 +41,7 @@ import Settings from "./pages/Settings";
 import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 import FullReservationsView from "./pages/FullReservationsView";
+import Voucher from "./pages/Voucher";
 
 const queryClient = new QueryClient();
 
@@ -86,6 +87,7 @@ const App = () => (
                 <Route path="/tableorder/:tableId/transfer" element={<TransferOrders />} />
                 <Route path="/reservations" element={<FullReservationsView />} />
                 <Route path="/tickets" element={<Tickets />} />
+                <Route path="/voucher" element={<Voucher />} />
                 <Route path="/settings" element={<Settings />} />
                 <Route path="/reports" element={<Reports />} />
                 <Route path="/orderos" element={<Reports />} />

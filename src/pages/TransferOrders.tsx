@@ -375,6 +375,10 @@ const TransferOrders = () => {
     try {
       const existing = JSON.parse(localStorage.getItem(TRANSFER_STORAGE_KEY) || '{}');
       if (!existing[targetTable]) existing[targetTable] = [];
+      // Remove any previous transfer from the same source order to avoid duplicates
+      existing[targetTable] = existing[targetTable].filter(
+        (t: any) => t.sourceOrderId !== transferData.sourceOrderId
+      );
       existing[targetTable].push(transferData);
       localStorage.setItem(TRANSFER_STORAGE_KEY, JSON.stringify(existing));
     } catch { /* ignore */ }

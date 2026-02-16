@@ -1116,27 +1116,31 @@ const TableOrderDetails = () => {
                 </button>
               </>
             )
-          ) : (
-            /* Unpaid order actions: Clear, Fire, Charge */
+          ) : (() => {
+            const isFullyTransferredOut = (transferSourceOrderId === currentSelectedGuest?.id && transferType === 'full') ||
+              (localTransferResult?.sourceOrderId === currentSelectedGuest?.id && localTransferResult?.transferType === 'full');
+            return (
             <>
-              <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+              <button disabled={isFullyTransferredOut} className={`w-10 h-10 rounded-full bg-red-600 flex items-center justify-center ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : 'hover:bg-red-500'} transition-colors`}>
                 <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
               </button>
-              <button className="px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium" style={{
+              <button disabled={isFullyTransferredOut} className={`px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : ''}`} style={{
                 background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)"
               }}>
                 <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
                 <span>FIRE</span>
               </button>
               <button 
-                onClick={() => setShowPaymentDialog(true)}
-                className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" 
+                disabled={isFullyTransferredOut}
+                onClick={() => !isFullyTransferredOut && setShowPaymentDialog(true)}
+                className={`flex-1 py-2.5 rounded-full text-black text-sm font-bold ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : ''}`}
                 style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
               >
                 CHARGE {formatPrice(currentSelectedGuest.total - appliedDiscount)}
               </button>
             </>
-          )}
+            );
+          })()}
         </div>
       </div>
     );
@@ -2254,25 +2258,29 @@ const TableOrderDetails = () => {
                   </>
                 )}
               </>
-            ) : (
+            ) : (() => {
+              const isFullyTransferredOut = (transferSourceOrderId === currentSelectedGuest?.id && transferType === 'full') ||
+                (localTransferResult?.sourceOrderId === currentSelectedGuest?.id && localTransferResult?.transferType === 'full');
+              return (
               <>
-                <button className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
+                <button disabled={isFullyTransferredOut} className={`w-8 h-8 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0 ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : 'hover:bg-red-600'}`}>
                   <img src={clearIcon} alt="Clear" className="w-3 h-3" />
                 </button>
-                <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
+                <button disabled={isFullyTransferredOut} className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : ''}`} style={{
                   backgroundColor: '#C9C9C9'
                 }}>
                   <img src={saveIcon} alt="Save" className="w-4 h-4" />
                 </button>
-                <button className="flex-1 h-8 rounded-full flex items-center justify-center gap-1.5" style={{
+                <button disabled={isFullyTransferredOut} className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : ''}`} style={{
                   background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
                 }}>
                   <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                   <span className="text-white font-semibold text-sm">FIRE</span>
                 </button>
                 <button 
-                  onClick={() => setShowPaymentDialog(true)}
-                  className="flex-1 h-8 rounded-full flex items-center justify-center" 
+                  disabled={isFullyTransferredOut}
+                  onClick={() => !isFullyTransferredOut && setShowPaymentDialog(true)}
+                  className={`flex-1 h-8 rounded-full flex items-center justify-center ${isFullyTransferredOut ? 'opacity-40 cursor-not-allowed' : ''}`}
                   style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
                 >
                   <span className="text-black font-semibold text-xs">
@@ -2280,7 +2288,8 @@ const TableOrderDetails = () => {
                   </span>
                 </button>
               </>
-            )}
+              );
+            })()}
           </div>
         </div>
         </div>

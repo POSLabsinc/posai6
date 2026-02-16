@@ -332,8 +332,36 @@ const TableOrderDetails = () => {
     };
   };
   
+  // Read persisted transfers from localStorage for this table
+  const TRANSFER_STORAGE_KEY = 'pos-table-transfers';
+  const persistedTransfers = useMemo(() => {
+    if (!tableId) return [];
+    try {
+      const stored = JSON.parse(localStorage.getItem(TRANSFER_STORAGE_KEY) || '{}');
+      return (stored[tableId] || []) as {
+        sourceOrderId: string;
+        sourceTable: string;
+        transferType: 'full' | 'partial';
+        items: { name: string; qty: number; price: number; modifiers?: string[]; seats: number[] }[];
+        sourceOrderName: string;
+        sourceServer: string;
+        sourcePhone: string;
+        sourcePartySize: number;
+        sourceRevenueCenter: string;
+        sourceOrderType: string;
+        sourceNotes: string;
+        targetOrderId?: string;
+      }[];
+    } catch { return []; }
+  }, [tableId]);
+
   // Get orders for this table with calculated totals (static + session orders)
   const tableOrders = getOrdersByTable(tableId || "T2");
+  
+  // Get persisted transfers that target specific existing orders
+  const persistedTransfersForExistingOrders = persistedTransfers.filter(t => t.targetOrderId);
+  const persistedTransfersForNewOrders = persistedTransfers.filter(t => !t.targetOrderId);
+  
   const staticGuestOrders: GuestOrder[] = tableOrders.map((order, orderIndex) => {
     const orderWithTotals = getOrderWithTotals(order) as GuestOrder;
     
@@ -363,7 +391,7 @@ const TableOrderDetails = () => {
       }
     }
     
-    // If this order is the destination of a transfer (exact ID match only)
+    // If this order is the destination of a transfer (exact ID match only) - URL params
     if (transferDestOrderId === order.id && transferredOrderId && transferredItemNames.length > 0) {
       const transferSource = allOrders.find(o => o.id === transferredOrderId);
       if (transferSource) {
@@ -385,30 +413,48 @@ const TableOrderDetails = () => {
       }
     }
     
+    // Check persisted transfers targeting this specific order
+    const matchingPersistedTransfers = persistedTransfersForExistingOrders.filter(t => t.targetOrderId === order.id);
+    if (matchingPersistedTransfers.length > 0) {
+      const allTransferredItems: OrderItem[] = [];
+      const transferSources: MergedOrderSource[] = [];
+      
+      matchingPersistedTransfers.forEach(transfer => {
+        const items: OrderItem[] = transfer.items.map(item => ({
+          name: item.name,
+          qty: item.qty,
+          price: item.price,
+          modifiers: item.modifiers || [],
+          seats: item.seats || [],
+        }));
+        allTransferredItems.push(...items);
+        transferSources.push({
+          orderId: transfer.sourceOrderId,
+          orderName: transfer.sourceOrderName,
+          table: transfer.sourceTable,
+          items: items
+        });
+      });
+      
+      orderWithTotals.transferredFrom = [
+        ...(orderWithTotals.transferredFrom || []),
+        ...transferSources
+      ];
+      (orderWithTotals as any)._persistedTransferType = matchingPersistedTransfers[0].transferType;
+      
+      // Recalculate totals with transferred items included
+      const combinedTotals = calculateCombinedTotals(orderWithTotals);
+      orderWithTotals.subtotal = combinedTotals.subtotal;
+      orderWithTotals.discount = combinedTotals.discount;
+      orderWithTotals.serviceCharge = combinedTotals.serviceCharge;
+      orderWithTotals.tax = combinedTotals.tax;
+      orderWithTotals.total = combinedTotals.total;
+    }
+    
     return orderWithTotals;
   });
   
-  // Read persisted transfers from localStorage for this table
-  const TRANSFER_STORAGE_KEY = 'pos-table-transfers';
-  const persistedTransfers = useMemo(() => {
-    if (!tableId) return [];
-    try {
-      const stored = JSON.parse(localStorage.getItem(TRANSFER_STORAGE_KEY) || '{}');
-      return (stored[tableId] || []) as {
-        sourceOrderId: string;
-        sourceTable: string;
-        transferType: 'full' | 'partial';
-        items: { name: string; qty: number; price: number; modifiers?: string[]; seats: number[] }[];
-        sourceOrderName: string;
-        sourceServer: string;
-        sourcePhone: string;
-        sourcePartySize: number;
-        sourceRevenueCenter: string;
-        sourceOrderType: string;
-        sourceNotes: string;
-      }[];
-    } catch { return []; }
-  }, [tableId]);
+  
   
   // For table-level partial transfers where no existing order matched, create a virtual new order
   const virtualTransferOrder: GuestOrder[] = (() => {
@@ -462,9 +508,9 @@ const TableOrderDetails = () => {
       }
     }
     
-    // Then check persisted transfers from localStorage
-    if (persistedTransfers.length > 0) {
-      return persistedTransfers.map((transfer, idx) => {
+    // Then check persisted transfers from localStorage (only those without targetOrderId - those with targetOrderId are attached to existing orders above)
+    if (persistedTransfersForNewOrders.length > 0) {
+      return persistedTransfersForNewOrders.map((transfer, idx) => {
         const transferredItems: OrderItem[] = transfer.items.map(item => ({
           name: item.name,
           qty: item.qty,
@@ -1283,7 +1329,7 @@ const TableOrderDetails = () => {
                {/* Transferred Items Indicator (Destination - receiving items) */}
 {(((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
                  (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && transferredFromTable !== tableId) || 
-                 (guest.transferredFrom && guest.transferredFrom.length > 0 && virtualTransferOrder.some(v => v.id === guest.id)) ? (
+                 (guest.transferredFrom && guest.transferredFrom.length > 0 && (virtualTransferOrder.some(v => v.id === guest.id) || (guest as any)?._persistedTransferType)) ? (
                 <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
                    <span className="text-xs font-medium">
                      {(() => {
@@ -1294,7 +1340,7 @@ const TableOrderDetails = () => {
                          return (
                            <>
                              <span style={{ color: '#8AC4FF' }}>Order fully transferred from</span>{" "}
-                             <span className="text-white">{formatTableName(sourceTable)}</span>
+                             <span className="text-white">{formatTableName(sourceTable)} · Order #{sourceOrderId}</span>
                            </>
                          );
                        } else {
@@ -1661,7 +1707,7 @@ const TableOrderDetails = () => {
                     <span className="text-sm font-medium">
                       <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
                       <span className="text-white"> to {formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
-                      {transferType !== 'full' && transferredToOrderId && transferredToOrderId !== 'new' && (
+                      {transferredToOrderId && transferredToOrderId !== 'new' && transferredToOrderId !== transferSourceOrderId && (
                         <>
                           <span style={{ color: '#8AC4FF' }}> · </span>
                           <span className="text-white">Order #{transferredToOrderId}</span>
@@ -2075,7 +2121,7 @@ const TableOrderDetails = () => {
                   <img src={transferIcon} alt="Transferred" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
                   <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
                     {effectiveTransferType === 'full' ? (
-                      <>Order fully transferred from {formatTableName(source.table)}</>
+                      <>Order fully transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
                     ) : (
                       <>Order transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
                     )}
@@ -2104,7 +2150,7 @@ const TableOrderDetails = () => {
             <div className="flex items-center gap-2">
               <img src={transferIcon} alt="Transferred" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
               <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
-                {transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'} to {formatTableName(transferToTable || '')}{transferDestArea ? ` (${transferDestArea})` : ''}{transferType !== 'full' && transferredToOrderId && transferredToOrderId !== 'new' ? ` · Order #${transferredToOrderId}` : ''}
+                {transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'} to {formatTableName(transferToTable || '')}{transferDestArea ? ` (${transferDestArea})` : ''}{transferredToOrderId && transferredToOrderId !== 'new' && transferredToOrderId !== transferSourceOrderId ? ` · Order #${transferredToOrderId}` : ''}
               </span>
             </div>
           </div>

@@ -1577,7 +1577,7 @@ const TableOrderDetails = () => {
                     <span className="text-sm font-medium">
                       <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
                       <span className="text-white"> to {formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
-                      {transferredToOrderId && transferredToOrderId !== 'new' && (
+                      {transferType !== 'full' && transferredToOrderId && transferredToOrderId !== 'new' && (
                         <>
                           <span style={{ color: '#8AC4FF' }}> · </span>
                           <span className="text-white">Order #{transferredToOrderId}</span>
@@ -1979,8 +1979,9 @@ const TableOrderDetails = () => {
           />
         </div>
 
-        {/* Transfer info banner - below order notes */}
-        {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && (
+        {/* Transfer info banner - below order notes (hide for source order of a full transfer) */}
+        {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && 
+         !(transferSourceOrderId === currentSelectedGuest?.id && transferType === 'full') && (
           <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
             {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
               <div key={sourceIdx} className="flex items-center gap-2">
@@ -2011,7 +2012,7 @@ const TableOrderDetails = () => {
             <div className="flex items-center gap-2">
               <img src={transferIcon} alt="Transferred" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
               <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
-                {transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'} to {formatTableName(transferToTable || '')}{transferDestArea ? ` (${transferDestArea})` : ''}{transferredToOrderId && transferredToOrderId !== 'new' ? ` · Order #${transferredToOrderId}` : ''}
+                {transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'} to {formatTableName(transferToTable || '')}{transferDestArea ? ` (${transferDestArea})` : ''}{transferType !== 'full' && transferredToOrderId && transferredToOrderId !== 'new' ? ` · Order #${transferredToOrderId}` : ''}
               </span>
             </div>
           </div>
@@ -2022,7 +2023,8 @@ const TableOrderDetails = () => {
           <div className="py-1 space-y-1">
             {/* Transferred Items at top */}
             {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && 
-             !virtualTransferOrder.some(v => v.id === currentSelectedGuest.id) && (
+             !virtualTransferOrder.some(v => v.id === currentSelectedGuest.id) &&
+             !(transferSourceOrderId === currentSelectedGuest?.id && transferType === 'full') && (
               <div className="mb-2 pb-2 border-b border-white/10">
                 {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
                   <div key={sourceIdx}>

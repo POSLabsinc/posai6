@@ -59,8 +59,9 @@ const OrderTypeIcon = ({ type, size = "default" }: { type: string; size?: "small
   return <img src={src} alt={type} className={`${iconSize} object-contain`} />;
 };
 
-// Re-export ticket data from shared source
-import { ticketOrders as allOrders, TicketOrder as GuestOrder, TicketOrderItem as OrderItem, TicketPaymentEntry as PaymentEntry } from "@/data/ticketOrders";
+// Re-export ticket data types
+import { TicketOrder as GuestOrder, TicketOrderItem as OrderItem, TicketPaymentEntry as PaymentEntry } from "@/data/ticketOrders";
+import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
 export type { GuestOrder, OrderItem, PaymentEntry };
 
 // Helper function to format price
@@ -145,9 +146,10 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const Tickets = () => {
   const navigate = useNavigate();
+  const { orders: unifiedOrders, updateOrders, removeOrder: removeUnifiedOrder } = useUnifiedOrders();
   const [activeFilter, setActiveFilter] = useState("All");
-  const [orders, setOrders] = useState(allOrders);
-  const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
+  const orders = unifiedOrders;
+  const [selectedGuest, setSelectedGuest] = useState(unifiedOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [showFilterIcons, setShowFilterIcons] = useState(false);
@@ -353,7 +355,7 @@ const Tickets = () => {
       notes: [mergeSource.notes, mergeTarget.notes].filter(Boolean).join("; "),
     };
 
-    setOrders(prev => prev.filter(o => o.id !== mergeTarget.id).map(o => o.id === mergeSource.id ? updatedSource : o));
+    updateOrders(prev => prev.filter(o => o.id !== mergeTarget.id).map(o => o.id === mergeSource.id ? updatedSource : o));
     setSelectedGuest(updatedSource);
     setShowMergeDialog(false);
     setMergeSource(null);
@@ -1180,7 +1182,7 @@ const Tickets = () => {
         transferTarget={transferType === 'entireToOrder' ? 'order' : 'table'}
         onBack={closeTransferFlow}
         orders={orders as any}
-        setOrders={setOrders as any}
+        setOrders={updateOrders as any}
         onTransferComplete={() => {
           closeTransferFlow();
           const updated = orders.find(o => o.id === transferSource!.id);
@@ -1287,7 +1289,7 @@ const Tickets = () => {
             transferTarget={transferType === 'entireToOrder' ? 'order' : 'table'}
             onBack={closeTransferFlow}
             orders={orders as any}
-            setOrders={setOrders as any}
+            setOrders={updateOrders as any}
             onTransferComplete={() => {
               closeTransferFlow();
               const updated = orders.find(o => o.id === transferSource.id);

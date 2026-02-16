@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/Layout";
 import { PanelPositionProvider } from "@/contexts/PanelPositionContext";
 import { SessionOrderProvider } from "@/contexts/SessionOrderContext";
+import { UnifiedOrderProvider } from "@/contexts/UnifiedOrderContext";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
 import OrdersDesign1 from "./pages/OrdersDesign1";
@@ -48,6 +49,7 @@ const App = () => (
     <TooltipProvider>
       <PanelPositionProvider>
         <SessionOrderProvider>
+        <UnifiedOrderProvider>
           <Toaster />
           <Sonner />
           <BrowserRouter>
@@ -91,6 +93,7 @@ const App = () => (
               </Routes>
             </Layout>
           </BrowserRouter>
+        </UnifiedOrderProvider>
         </SessionOrderProvider>
       </PanelPositionProvider>
     </TooltipProvider>

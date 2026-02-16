@@ -235,34 +235,58 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
 
     // Transfer to existing order - actually move items/order in unified context
     const isEntire = isEntireOrderTransfer || selectedItems.length === currentOrder.items.length;
+    const targetOrder = orders.find(o => o.id === selectedTransferOrderId);
+    const targetName = targetOrder ? targetOrder.name : `Order #${selectedTransferOrderId}`;
+    const transferredItemCount = isEntire ? currentOrder.items.length : selectedItems.length;
 
     setOrders(prev => {
       if (isEntire) {
         // Full transfer: merge all source items into target, remove source order
+        // But keep source order with transferInfo so ticket card shows info
         const sourceOrder = prev.find(o => o.id === currentOrder.id);
         if (!sourceOrder) return prev;
 
-        const updated = prev
-          .filter(o => o.id !== currentOrder.id) // remove source
-          .map(o => {
-            if (o.id === selectedTransferOrderId) {
-              const newItems = [...o.items, ...sourceOrder.items];
-              const newSub = newItems.reduce((s, item) => s + item.price * item.qty, 0);
-              return {
-                ...o,
-                items: newItems,
-                subtotal: +newSub.toFixed(2),
-                discount: +(o.discount + sourceOrder.discount).toFixed(2),
-                serviceCharge: +(o.serviceCharge + sourceOrder.serviceCharge).toFixed(2),
-                tax: +(o.tax + sourceOrder.tax).toFixed(2),
-                tip: +(o.tip + sourceOrder.tip).toFixed(2),
-                total: +(o.total + sourceOrder.total).toFixed(2),
-                partySize: o.partySize + sourceOrder.partySize,
-              };
-            }
-            return o;
-          });
-        return updated;
+        return prev.map(o => {
+          if (o.id === currentOrder.id) {
+            // Mark source as fully transferred (keep it visible with info)
+            return {
+              ...o,
+              items: [],
+              subtotal: 0, discount: 0, serviceCharge: 0, tax: 0, tip: 0, total: 0,
+              transferInfo: {
+                type: 'sent' as const,
+                transferType: 'full' as const,
+                targetOrderId: selectedTransferOrderId!,
+                targetOrderName: targetName,
+                itemCount: sourceOrder.items.length,
+              },
+            };
+          }
+          if (o.id === selectedTransferOrderId) {
+            const newItems = [...o.items, ...sourceOrder.items];
+            const newSub = newItems.reduce((s, item) => s + item.price * item.qty, 0);
+            return {
+              ...o,
+              items: newItems,
+              subtotal: +newSub.toFixed(2),
+              discount: +(o.discount + sourceOrder.discount).toFixed(2),
+              serviceCharge: +(o.serviceCharge + sourceOrder.serviceCharge).toFixed(2),
+              tax: +(o.tax + sourceOrder.tax).toFixed(2),
+              tip: +(o.tip + sourceOrder.tip).toFixed(2),
+              total: +(o.total + sourceOrder.total).toFixed(2),
+              partySize: o.partySize + sourceOrder.partySize,
+              transferInfo: {
+                type: 'received' as const,
+                transferType: 'full' as const,
+                sourceOrderId: currentOrder.id,
+                sourceOrderName: currentOrder.name,
+                sourceTable: currentOrder.table,
+                itemCount: sourceOrder.items.length,
+              },
+            };
+          }
+          return o;
+        });
       } else {
         // Partial transfer: move selected items from source to target
         const transferredItems = selectedItems.map(i => ({
@@ -284,6 +308,13 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
               tax: +(currentOrder.tax * ratio).toFixed(2),
               tip: +(currentOrder.tip * ratio).toFixed(2),
               total: +(newSourceSub + (currentOrder.serviceCharge * ratio) + (currentOrder.tax * ratio) - (currentOrder.discount * ratio) + (currentOrder.tip * ratio)).toFixed(2),
+              transferInfo: {
+                type: 'sent' as const,
+                transferType: 'partial' as const,
+                targetOrderId: selectedTransferOrderId!,
+                targetOrderName: targetName,
+                itemCount: transferredItemCount,
+              },
             };
           }
           if (o.id === selectedTransferOrderId) {
@@ -294,6 +325,14 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
               items: newItems,
               subtotal: +newSub.toFixed(2),
               total: +(newSub + o.serviceCharge + o.tax - o.discount + o.tip).toFixed(2),
+              transferInfo: {
+                type: 'received' as const,
+                transferType: 'partial' as const,
+                sourceOrderId: currentOrder.id,
+                sourceOrderName: currentOrder.name,
+                sourceTable: currentOrder.table,
+                itemCount: transferredItemCount,
+              },
             };
           }
           return o;

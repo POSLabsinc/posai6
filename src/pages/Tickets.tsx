@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check, Info } from "lucide-react";
 import { toast } from "sonner";
 import TicketsTransferView from "@/components/TicketsTransferView";
 
@@ -593,6 +593,25 @@ const Tickets = () => {
 
           {/* Row 3: Revenue Center */}
           <span className={`text-neutral-500 ${compact ? 'text-xs' : 'text-sm'}`}>{guest.revenueCenter}</span>
+
+          {/* Transfer Info Banner */}
+          {guest.transferInfo && (
+            <div className={`mt-1 flex items-center gap-1 ${compact ? 'text-[10px]' : 'text-xs'}`}>
+              {guest.transferInfo.type === 'sent' ? (
+                <span className="text-[#8AC4FF]">
+                  {guest.transferInfo.transferType === 'full'
+                    ? `Fully transferred to Order #${guest.transferInfo.targetOrderId}`
+                    : `Transferred (${guest.transferInfo.itemCount}) item${(guest.transferInfo.itemCount || 0) > 1 ? 's' : ''} to Order #${guest.transferInfo.targetOrderId}`}
+                </span>
+              ) : (
+                <span className="text-[#8AC4FF]">
+                  {guest.transferInfo.transferType === 'full'
+                    ? `Received full order from ${guest.transferInfo.sourceTable !== '--' ? guest.transferInfo.sourceTable + ' · ' : ''}Order #${guest.transferInfo.sourceOrderId}`
+                    : `Received (${guest.transferInfo.itemCount}) item${(guest.transferInfo.itemCount || 0) > 1 ? 's' : ''} from Order #${guest.transferInfo.sourceOrderId}`}
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* SERVER & PAYMENT INFO */}
@@ -1063,6 +1082,27 @@ const Tickets = () => {
             <div className={`flex items-center gap-2 text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} bg-white/10 ${isTablet ? 'p-1.5' : 'p-2'} rounded-lg`}>
               <span>📝</span>
               <span className={isTablet ? 'truncate' : ''}>{selectedGuest.notes || "No notes"}</span>
+            </div>
+          </div>
+        )}
+
+        {/* Transfer Info Banner */}
+        {selectedGuest.transferInfo && (
+          <div className={`${isTablet ? 'mx-3 mb-1' : 'mx-4 mb-1'} ${isTablet ? 'px-2 py-1.5' : 'px-3 py-2'} rounded-lg border`}
+            style={{ backgroundColor: '#1E3A5F', borderColor: '#3B6A9E' }}>
+            <div className={`flex items-center gap-2 ${isTablet ? 'text-xs' : 'text-sm'}`}>
+              <Info className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} text-[#8AC4FF] flex-shrink-0`} />
+              <span className="text-[#8AC4FF] font-medium">
+                {selectedGuest.transferInfo.type === 'sent' ? (
+                  selectedGuest.transferInfo.transferType === 'full'
+                    ? `Order fully transferred to Order #${selectedGuest.transferInfo.targetOrderId}`
+                    : `${selectedGuest.transferInfo.itemCount} item${(selectedGuest.transferInfo.itemCount || 0) > 1 ? 's' : ''} transferred to Order #${selectedGuest.transferInfo.targetOrderId}`
+                ) : (
+                  selectedGuest.transferInfo.transferType === 'full'
+                    ? `Order fully transferred from ${selectedGuest.transferInfo.sourceTable !== '--' ? selectedGuest.transferInfo.sourceTable + ' · ' : ''}Order #${selectedGuest.transferInfo.sourceOrderId}`
+                    : `${selectedGuest.transferInfo.itemCount} item${(selectedGuest.transferInfo.itemCount || 0) > 1 ? 's' : ''} transferred from Order #${selectedGuest.transferInfo.sourceOrderId}`
+                )}
+              </span>
             </div>
           </div>
         )}

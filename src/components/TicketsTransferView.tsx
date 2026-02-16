@@ -10,7 +10,7 @@ import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import SwipeableCartItem from "@/components/SwipeableCartItem";
 import { toast } from "sonner";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
-import { ticketOrders, ticketToTemplateData, formatTicketPrice, getAvailableTicketOrdersForTransfer } from "@/data/ticketOrders";
+import { ticketToTemplateData, formatTicketPrice } from "@/data/ticketOrders";
 
 // Import icons
 import clearIcon from "@/assets/icons/clear-c.png";
@@ -192,8 +192,12 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
   // Available tables (exclude source table)
   const availableTables = defaultTables.filter(table => table.id !== currentOrder.table);
 
-  // Available orders for Transfer to Order (exclude current, paid, completed)
-  const availableTransferOrders = getAvailableTicketOrdersForTransfer(currentOrder.id);
+  // Available orders for Transfer to Order (exclude current, paid, completed) - use live context data
+  const availableTransferOrders = orders.filter(o => 
+    o.id !== currentOrder.id && 
+    o.status !== "PAID" && 
+    o.status !== "COMPLETED"
+  );
 
   // Execute Transfer to Order
   const executeTransferToOrder = () => {
@@ -229,13 +233,75 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
       return;
     }
 
-    // Transfer to existing order - stay on same screen
-    const targetOrder = ticketOrders.find(o => o.id === selectedTransferOrderId);
-    const isPartialTransfer = !isEntireOrderTransfer;
+    // Transfer to existing order - actually move items/order in unified context
+    const isEntire = isEntireOrderTransfer || selectedItems.length === currentOrder.items.length;
 
-    toast.success(`${isPartialTransfer ? 'Items' : 'Order'} transferred to Order #${selectedTransferOrderId}`);
-    
-    // Stay on same screen - just close the transfer view
+    setOrders(prev => {
+      if (isEntire) {
+        // Full transfer: merge all source items into target, remove source order
+        const sourceOrder = prev.find(o => o.id === currentOrder.id);
+        if (!sourceOrder) return prev;
+
+        const updated = prev
+          .filter(o => o.id !== currentOrder.id) // remove source
+          .map(o => {
+            if (o.id === selectedTransferOrderId) {
+              const newItems = [...o.items, ...sourceOrder.items];
+              const newSub = newItems.reduce((s, item) => s + item.price * item.qty, 0);
+              return {
+                ...o,
+                items: newItems,
+                subtotal: +newSub.toFixed(2),
+                discount: +(o.discount + sourceOrder.discount).toFixed(2),
+                serviceCharge: +(o.serviceCharge + sourceOrder.serviceCharge).toFixed(2),
+                tax: +(o.tax + sourceOrder.tax).toFixed(2),
+                tip: +(o.tip + sourceOrder.tip).toFixed(2),
+                total: +(o.total + sourceOrder.total).toFixed(2),
+                partySize: o.partySize + sourceOrder.partySize,
+              };
+            }
+            return o;
+          });
+        return updated;
+      } else {
+        // Partial transfer: move selected items from source to target
+        const transferredItems = selectedItems.map(i => ({
+          ...currentOrder.items[i],
+          qty: itemQuantities[i] || currentOrder.items[i].qty,
+        }));
+        const remainingItems = currentOrder.items.filter((_, i) => !selectedItems.includes(i));
+        const newSourceSub = remainingItems.reduce((s, item) => s + item.price * item.qty, 0);
+        const ratio = currentOrder.subtotal > 0 ? newSourceSub / currentOrder.subtotal : 0;
+
+        return prev.map(o => {
+          if (o.id === currentOrder.id) {
+            return {
+              ...o,
+              items: remainingItems,
+              subtotal: +newSourceSub.toFixed(2),
+              discount: +(currentOrder.discount * ratio).toFixed(2),
+              serviceCharge: +(currentOrder.serviceCharge * ratio).toFixed(2),
+              tax: +(currentOrder.tax * ratio).toFixed(2),
+              tip: +(currentOrder.tip * ratio).toFixed(2),
+              total: +(newSourceSub + (currentOrder.serviceCharge * ratio) + (currentOrder.tax * ratio) - (currentOrder.discount * ratio) + (currentOrder.tip * ratio)).toFixed(2),
+            };
+          }
+          if (o.id === selectedTransferOrderId) {
+            const newItems = [...o.items, ...transferredItems];
+            const newSub = newItems.reduce((s, item) => s + item.price * item.qty, 0);
+            return {
+              ...o,
+              items: newItems,
+              subtotal: +newSub.toFixed(2),
+              total: +(newSub + o.serviceCharge + o.tax - o.discount + o.tip).toFixed(2),
+            };
+          }
+          return o;
+        });
+      }
+    });
+
+    toast.success(`${isEntire ? 'Order' : 'Items'} transferred to Order #${selectedTransferOrderId}`);
     onTransferComplete();
   };
 

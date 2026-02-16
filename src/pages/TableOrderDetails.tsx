@@ -1684,24 +1684,37 @@ const TableOrderDetails = () => {
 {/* Transferred Items Indicator (Destination - receiving items) */}
                 {/* For full order transfer: show on first order when transferType is 'full' */}
                 {/* For partial transfer: show when transferDestOrderId matches */}
-{((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
-                  (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && transferredFromTable !== tableId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
+{(((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
+                  (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && transferredFromTable !== tableId) ||
+                  (guest.transferredFrom && guest.transferredFrom.length > 0 && (virtualTransferOrder.some(v => v.id === guest.id) || (guest as any)?._persistedTransferType)) ? (
+                    <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
-                      {transferType === 'full' ? (
-                        <>
-                          <span style={{ color: '#8AC4FF' }}>Order transferred from</span>{" "}
-                          <span className="text-white">{formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
-                        </>
-                      ) : (
-                        <>
-                          <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
-                          <span className="text-white">{transferredItemNames.length} item(s)</span>{" "}
-                          <span style={{ color: '#8AC4FF' }}>from</span>{" "}
-                          <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
-                        </>
-                      )}
+                      {(() => {
+                        const effectiveType = transferType || (guest as any)?._persistedTransferType || 'partial';
+                        const sourceTable = transferredFromTable || guest.transferredFrom?.[0]?.table || '';
+                        const sourceOrderId = transferredOrderId || guest.transferredFrom?.[0]?.orderId || '';
+                        if (effectiveType === 'full') {
+                          return (
+                            <>
+                              <span style={{ color: '#8AC4FF' }}>Order fully transferred from</span>{" "}
+                              <span className="text-white">{formatTableName(sourceTable)} · Order #{sourceOrderId}</span>
+                            </>
+                          );
+                        } else {
+                          const itemCount = transferredItemNames.length || guest.transferredFrom?.[0]?.items?.length || 0;
+                          return (
+                            <>
+                              <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
+                              <span className="text-white">{itemCount} item(s)</span>{" "}
+                              <span style={{ color: '#8AC4FF' }}>from</span>{" "}
+                              <span className="text-white">Order {sourceOrderId} · {formatTableName(sourceTable)}</span>
+                            </>
+                          );
+                        }
+                      })()}
                     </span>
-                  </div>}
+                  </div>
+                ) : null}
                 {/* Transferred OUT Indicator (Source - sending items out) */}
                 {transferSourceOrderId === guest.id && transferType && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
@@ -1724,7 +1737,7 @@ const TableOrderDetails = () => {
                     </span>
                   </div>
                 )}
-                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) || (localTransferResult && localTransferResult.sourceOrderId === guest.id) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
+                <div onClick={() => setSelectedGuest(guest)} className={`overflow-hidden ${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (transferSourceOrderId === guest.id && transferType) || (guest.id === mergedOrderId && destOrderId) || (localTransferResult && localTransferResult.sourceOrderId === guest.id) || (guest.transferredFrom && guest.transferredFrom.length > 0 && (virtualTransferOrder.some(v => v.id === guest.id) || (guest as any)?._persistedTransferType)) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{
               backgroundColor: '#1B1C20'
             }}>
                 <div className="hidden md:flex items-stretch">
@@ -2497,25 +2510,38 @@ const TableOrderDetails = () => {
                     </span>
                   </div>}
                 {/* Transferred Items Indicator (Destination - receiving items) */}
-                {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
-                  (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
+                {(((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
+                  (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0)))) ||
+                  (guest.transferredFrom && guest.transferredFrom.length > 0 && (virtualTransferOrder.some(v => v.id === guest.id) || (guest as any)?._persistedTransferType)) ? (
+                  <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-xs font-medium">
-                      {transferType === 'full' ? (
-                        <>
-                          <span style={{ color: '#8AC4FF' }}>Order transferred from</span>{" "}
-                          <span className="text-white">{formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
-                        </>
-                      ) : (
-                        <>
-                          <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
-                          <span className="text-white">{transferredItemNames.length} item(s)</span>{" "}
-                          <span style={{ color: '#8AC4FF' }}>from</span>{" "}
-                          <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
-                        </>
-                      )}
+                      {(() => {
+                        const effectiveType = transferType || (guest as any)?._persistedTransferType || 'partial';
+                        const sourceTable = transferredFromTable || guest.transferredFrom?.[0]?.table || '';
+                        const sourceOrderId = transferredOrderId || guest.transferredFrom?.[0]?.orderId || '';
+                        if (effectiveType === 'full') {
+                          return (
+                            <>
+                              <span style={{ color: '#8AC4FF' }}>Order fully transferred from</span>{" "}
+                              <span className="text-white">{formatTableName(sourceTable)} · Order #{sourceOrderId}</span>
+                            </>
+                          );
+                        } else {
+                          const itemCount = transferredItemNames.length || guest.transferredFrom?.[0]?.items?.length || 0;
+                          return (
+                            <>
+                              <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
+                              <span className="text-white">{itemCount} item(s)</span>{" "}
+                              <span style={{ color: '#8AC4FF' }}>from</span>{" "}
+                              <span className="text-white">Order {sourceOrderId} · {formatTableName(sourceTable)}</span>
+                            </>
+                          );
+                        }
+                      })()}
                     </span>
-                  </div>}
-                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
+                  </div>
+                ) : null}
+                <div onClick={() => setSelectedGuest(guest)} className={`${(destOrderId === guest.id && mergedFromTable) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (guest.transferredFrom && guest.transferredFrom.length > 0 && (virtualTransferOrder.some(v => v.id === guest.id) || (guest as any)?._persistedTransferType)) ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden ${currentSelectedGuest?.id === guest.id ? "border-white" : "border-white/10"}`}>
                 <div className="flex items-stretch w-full bg-neutral-900">
                   {/* Left Content with padding */}
                   <div className="flex-1 flex items-stretch gap-2 p-2">

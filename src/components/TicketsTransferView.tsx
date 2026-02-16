@@ -351,15 +351,45 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
 
   const handleConfirmTableTransfer = () => {
     if (!selectedTargetTable) return;
-    const targetTableOrders = getOrdersByTable(selectedTargetTable).filter(
-      o => o.status !== "PAID" && o.status !== "COMPLETED" && o.id !== currentOrder.id
-    );
-    if (targetTableOrders.length > 0) {
-      setShowTicketSelection(true);
-      setSelectedTicketOrderId(null);
-    } else {
-      setShowTableConfirmDialog(true);
-    }
+    // Always show ticket selection dialog — it includes both
+    // active orders (if any) and "Transfer to New Order" option
+    setShowTicketSelection(true);
+    setSelectedTicketOrderId(null);
+  };
+
+  // Persist transfer data to localStorage for cross-module sync (matching Table Order module pattern)
+  const persistTransferData = (targetTable: string, transferData: {
+    sourceOrderId: string;
+    sourceTable: string;
+    transferType: 'full' | 'partial';
+    items: { name: string; qty: number; price: number; modifiers?: string[]; seats: number[] }[];
+    sourceOrderName: string;
+    sourceServer: string;
+    sourcePhone: string;
+    sourcePartySize: number;
+    sourceRevenueCenter: string;
+    sourceOrderType: string;
+    sourceNotes: string;
+    targetOrderId?: string;
+  }) => {
+    const TRANSFER_STORAGE_KEY = 'pos-table-transfers';
+    try {
+      const existing = JSON.parse(localStorage.getItem(TRANSFER_STORAGE_KEY) || '{}');
+      // Remove any previous transfer from the same source order to avoid duplicates
+      for (const table of Object.keys(existing)) {
+        if (Array.isArray(existing[table])) {
+          existing[table] = existing[table].filter(
+            (t: any) => t.sourceOrderId !== transferData.sourceOrderId
+          );
+          if (existing[table].length === 0) delete existing[table];
+        }
+      }
+      if (!existing[targetTable]) existing[targetTable] = [];
+      existing[targetTable].push(transferData);
+      localStorage.setItem(TRANSFER_STORAGE_KEY, JSON.stringify(existing));
+      sessionStorage.setItem('pos-transfer-just-happened', 'true');
+      window.dispatchEvent(new Event('pos-transfer-updated'));
+    } catch { /* ignore */ }
   };
 
   // Execute transfer
@@ -370,16 +400,38 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
 
     const isEntire = isEntireOrderTransfer || selectedItems.length === currentOrder.items.length;
     const fromLabel = currentOrder.table !== "--" ? currentOrder.table : `Order #${currentOrder.id}`;
+    const targetId = ticketId || selectedTicketOrderId;
 
+    // Build transferred items list
+    const transferredItems = isEntire
+      ? currentOrder.items
+      : selectedItems.map(i => ({
+          ...currentOrder.items[i],
+          qty: itemQuantities[i] || currentOrder.items[i].qty
+        }));
+
+    // Persist transfer data to localStorage for cross-module sync
+    persistTransferData(selectedTargetTable, {
+      sourceOrderId: currentOrder.id,
+      sourceTable: currentOrder.table,
+      transferType: isEntire ? 'full' : 'partial',
+      items: transferredItems.map(item => ({ name: item.name, qty: item.qty, price: item.price, modifiers: item.modifiers, seats: item.seats })),
+      sourceOrderName: currentOrder.name,
+      sourceServer: currentOrder.server,
+      sourcePhone: currentOrder.phone,
+      sourcePartySize: currentOrder.partySize,
+      sourceRevenueCenter: currentOrder.revenueCenter,
+      sourceOrderType: currentOrder.orderType,
+      sourceNotes: currentOrder.notes || '',
+      targetOrderId: (targetId && targetId !== '__new__') ? targetId : undefined,
+    });
+
+    // Update in-memory state via unified context
     setOrders(prev => {
       if (isEntire) {
         return prev.map(o => o.id === currentOrder.id ? { ...o, table: selectedTargetTable } : o);
       } else {
         const remainingItems = currentOrder.items.filter((_, i) => !selectedItems.includes(i));
-        const transferredItems = selectedItems.map(i => ({
-          ...currentOrder.items[i],
-          qty: itemQuantities[i] || currentOrder.items[i].qty
-        }));
         const newSubtotal = remainingItems.reduce((s, item) => s + item.price * item.qty, 0);
         const ratio = currentOrder.subtotal > 0 ? newSubtotal / currentOrder.subtotal : 0;
 
@@ -399,7 +451,6 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
           return o;
         });
 
-        const targetId = ticketId || selectedTicketOrderId;
         if (targetId && targetId !== '__new__') {
           updated = updated.map(o => {
             if (o.id === targetId) {

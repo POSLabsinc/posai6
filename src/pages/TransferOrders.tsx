@@ -274,32 +274,26 @@ const TransferOrders = () => {
     
     // Handle "Transfer to New Order" from ticket selection
     if (selectedTicketOrderId === '__new__') {
-      const transferItems = isEntireOrderTransfer
-        ? currentOrder.items
-        : selectedItems.map(index => {
-            const item = currentOrder.items[index];
-            const qty = itemQuantities[index] || item.qty;
-            return { ...item, qty };
-          });
+      const itemNames = isEntireOrderTransfer
+        ? currentOrder.items.map(item => item.name).join(',')
+        : selectedItems.map(index => currentOrder.items[index].name).join(',');
+      const isFullTransfer = isEntireOrderTransfer || selectedItems.length === currentOrder.items.length;
       
-      const itemsData = transferItems.map(item => ({
-        name: item.name,
-        price: item.price,
-        qty: item.qty,
-        modifiers: item.modifiers || [],
-      }));
-      
-      toast.success('Items transferred to new order');
+      toast.success(`${isFullTransfer ? 'Order' : 'Items'} transferred to new order on ${formatTableName(selectedTargetTable)}`);
       
       setTimeout(() => {
-        const params = new URLSearchParams({
-          mode: 'transferNew',
-          transferItems: JSON.stringify(itemsData),
-          transferFrom: currentOrder.id,
-          transferFromTable: currentOrder.table,
+        const transferParams = new URLSearchParams({
+          transferred: currentOrder.id,
+          transferFrom: currentOrder.table,
+          transferDest: 'new',
+          items: itemNames,
+          transferSource: currentOrder.id,
+          transferType: isFullTransfer ? 'full' : 'partial',
+          transferredTo: 'new',
+          transferToTable: selectedTargetTable.replace('T', '')
         });
-        navigate(`/orders?${params.toString()}`);
-      }, 800);
+        navigate(`/tableorder/${tableId}?${transferParams.toString()}`);
+      }, 1500);
       return;
     }
     

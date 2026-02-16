@@ -8777,7 +8777,7 @@ const Orders = () => {
             </div>
 
             {/* Right Side Actions Sidebar */}
-            {isOrderActionsSidebarOpen &&
+            {isOrderActionsSidebarOpen && !showCreateVoucherForm &&
           <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
                 <div className="flex-1 flex flex-col rounded-2xl p-1.5 gap-1" style={{
               background: '#7575754D',

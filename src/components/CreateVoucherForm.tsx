@@ -26,7 +26,7 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
     type: "" as VoucherFormData["type"],
     value: "",
     expirationDate: "",
-    maximumUses: "",
+    maximumUses: "1",
     minimumPurchase: "",
     tags: "",
     customCode: "",
@@ -168,14 +168,14 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
             <button
               onClick={() => {
                 const current = parseInt(formData.maximumUses) || 0;
-                if (current > 0) handleChange("maximumUses", String(current - 1));
+                if (current > 1) handleChange("maximumUses", String(current - 1));
               }}
               className="w-10 h-10 rounded-lg bg-white/10 border border-white/20 flex items-center justify-center text-white hover:bg-white/20 transition-colors flex-shrink-0"
             >
               <Minus className="w-4 h-4" />
             </button>
             <div className="flex-1 h-10 rounded-md border border-white/20 bg-white/10 flex items-center justify-center text-white text-sm">
-              {formData.maximumUses ? formData.maximumUses : "Unlimited"}
+              {formData.maximumUses}
             </div>
             <button
               onClick={() => {

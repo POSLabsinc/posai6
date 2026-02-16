@@ -1184,6 +1184,25 @@ const TableOrder = () => {
   
   // Floorplan-specific state
   const [tablePositions, setTablePositions] = useState<TableType[]>(loadSavedPositions);
+
+  // Sync transfer state: mark Available tables with pending transfers as "Ordering"
+  useEffect(() => {
+    const transferData = localStorage.getItem('pos-table-transfers');
+    if (!transferData) return;
+    try {
+      const transfers = JSON.parse(transferData);
+      const tablesWithTransfers = Object.keys(transfers).filter(id => transfers[id]?.length > 0);
+      if (tablesWithTransfers.length > 0) {
+        setTablePositions(prev => prev.map(table => {
+          if (table.status === 'Available' && tablesWithTransfers.includes(table.id)) {
+            return { ...table, status: 'Ordering', time: '0M', guests: 1 };
+          }
+          return table;
+        }));
+      }
+    } catch (e) { /* ignore parse errors */ }
+  }, []);
+
   const [isDragging, setIsDragging] = useState(false);
   const [hasDragged, setHasDragged] = useState(false);
   const [draggedTableId, setDraggedTableId] = useState<string | null>(null);

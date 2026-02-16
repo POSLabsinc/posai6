@@ -2005,7 +2005,7 @@ const TableOrderDetails = () => {
         {transferSourceOrderId && transferSourceOrderId === currentSelectedGuest?.id && transferType && (
           <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
             <div className="flex items-center gap-2">
-              <ArrowRightLeft className="w-4 h-4 text-[#8AC4FF]" />
+              <img src={transferIcon} alt="Transferred" className="w-4 h-4 opacity-70" />
               <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
                 {transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'} to {formatTableName(transferToTable || '')}{transferDestArea ? ` (${transferDestArea})` : ''}{transferredToOrderId && transferredToOrderId !== 'new' ? ` · Order #${transferredToOrderId}` : ''}
               </span>

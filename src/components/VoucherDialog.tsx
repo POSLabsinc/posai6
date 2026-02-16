@@ -172,9 +172,18 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher, initial
             </button>
           </div>
         ) : (
-          <div className="p-5">
-            {/* Header - Centered */}
-            <h2 className="text-white text-lg font-semibold text-center mb-6">Redeem Voucher</h2>
+          <div className="p-5 relative">
+            {/* Header with close button */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="w-8" />
+              <h2 className="text-white text-lg font-semibold text-center">Redeem Voucher</h2>
+              <button
+                onClick={handleClose}
+                className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-white/70" />
+              </button>
+            </div>
             
             {/* Voucher Code Input Field */}
             <div className="mb-5">

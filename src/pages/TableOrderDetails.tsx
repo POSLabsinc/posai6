@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { useOrderTimers } from "@/hooks/use-order-timer";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
+import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
 import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
 import RefundDialog from "@/components/RefundDialog";
@@ -238,6 +239,7 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const TableOrderDetails = () => {
   const navigate = useNavigate();
+  const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
   const {
     tableId
   } = useParams();
@@ -3469,6 +3471,53 @@ const TableOrderDetails = () => {
             transferType: 'full',
           });
           
+          // Update unified context so Tickets module reflects the transfer
+          updateUnifiedOrders(prev => {
+            const matchSource = (o: any) => o.name === sourceOrder.name && o.table === sourceOrder.table;
+            const matchTarget = (o: any) => o.id === selectedTransferOrderId;
+            const targetName = targetOrder ? targetOrder.name : `Order #${selectedTransferOrderId}`;
+
+            return prev.map(o => {
+              if (matchSource(o)) {
+                return {
+                  ...o,
+                  items: [],
+                  subtotal: 0, discount: 0, serviceCharge: 0, tax: 0, tip: 0, total: 0,
+                  transferInfo: {
+                    type: 'sent' as const,
+                    transferType: 'full' as const,
+                    targetOrderId: selectedTransferOrderId!,
+                    targetOrderName: targetName,
+                    itemCount: sourceOrder.items.length,
+                  },
+                };
+              }
+              if (matchTarget(o)) {
+                const srcInPrev = prev.find(matchSource);
+                const srcItems = srcInPrev ? srcInPrev.items : [];
+                const newItems = [...o.items, ...srcItems];
+                const newSub = newItems.reduce((s: number, item: any) => s + item.price * item.qty, 0);
+                return {
+                  ...o,
+                  items: newItems,
+                  subtotal: +newSub.toFixed(2),
+                  tax: +(newSub * 0.0735).toFixed(2),
+                  serviceCharge: +(newSub * 0.05).toFixed(2),
+                  total: +(newSub + newSub * 0.05 + newSub * 0.0735 - o.discount).toFixed(2),
+                  transferInfo: {
+                    type: 'received' as const,
+                    transferType: 'full' as const,
+                    sourceOrderId: sourceOrder.id,
+                    sourceOrderName: sourceOrder.name,
+                    sourceTable: sourceOrder.table,
+                    itemCount: sourceOrder.items.length,
+                  },
+                };
+              }
+              return o;
+            });
+          });
+
           // Select the source order to show its details with strikethrough
           const sourceGuest = guestOrders.find(g => g.id === sourceOrder.id);
           if (sourceGuest) {

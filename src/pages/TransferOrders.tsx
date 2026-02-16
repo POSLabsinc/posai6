@@ -374,11 +374,17 @@ const TransferOrders = () => {
     const TRANSFER_STORAGE_KEY = 'pos-table-transfers';
     try {
       const existing = JSON.parse(localStorage.getItem(TRANSFER_STORAGE_KEY) || '{}');
+      // Remove any previous transfer from the same source order from ALL tables to avoid duplicates
+      for (const table of Object.keys(existing)) {
+        if (Array.isArray(existing[table])) {
+          existing[table] = existing[table].filter(
+            (t: any) => t.sourceOrderId !== transferData.sourceOrderId
+          );
+          // Clean up empty arrays
+          if (existing[table].length === 0) delete existing[table];
+        }
+      }
       if (!existing[targetTable]) existing[targetTable] = [];
-      // Remove any previous transfer from the same source order to avoid duplicates
-      existing[targetTable] = existing[targetTable].filter(
-        (t: any) => t.sourceOrderId !== transferData.sourceOrderId
-      );
       existing[targetTable].push(transferData);
       localStorage.setItem(TRANSFER_STORAGE_KEY, JSON.stringify(existing));
       sessionStorage.setItem('pos-transfer-just-happened', 'true');

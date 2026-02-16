@@ -53,24 +53,20 @@ export function UnifiedOrderProvider({ children }: { children: ReactNode }) {
           for (const transfer of transfers as any[]) {
             const { sourceOrderId, sourceTable, transferType, items, sourceOrderName, sourceServer, sourcePhone, sourcePartySize, sourceRevenueCenter, sourceOrderType, sourceNotes, targetOrderId } = transfer;
 
+            // Match source order by name + table (IDs differ between orders.ts and ticketOrders.ts)
+            const matchSource = (o: TicketOrder) => o.name === sourceOrderName && o.table === sourceTable;
+
             if (transferType === 'full') {
-              // Full transfer: update the source order's table to the target
-              const existsInOrders = updated.some(o => o.id === sourceOrderId);
+              const existsInOrders = updated.some(matchSource);
               if (existsInOrders) {
-                updated = updated.map(o => {
-                  if (o.id === sourceOrderId) {
-                    return { ...o, table: targetTable };
-                  }
-                  return o;
-                });
+                updated = updated.map(o => matchSource(o) ? { ...o, table: targetTable } : o);
               }
             } else if (transferType === 'partial') {
-              // Partial transfer: remove transferred items from source, add to target
               const transferredItemNames = (items || []).map((i: any) => i.name);
               
               // Update source order - remove transferred items
               updated = updated.map(o => {
-                if (o.id === sourceOrderId) {
+                if (matchSource(o)) {
                   const remainingItems = o.items.filter(item => !transferredItemNames.includes(item.name));
                   const newSubtotal = remainingItems.reduce((s, item) => s + item.price * item.qty, 0);
                   const ratio = o.subtotal > 0 ? newSubtotal / o.subtotal : 0;

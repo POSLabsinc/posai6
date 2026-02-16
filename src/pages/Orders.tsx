@@ -87,6 +87,7 @@ import CustomOrderGuestForm, { CustomOrderGuestData } from "@/components/CustomO
 import MPINDialog from "@/components/MPINDialog";
 import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 import VoucherDialog from "@/components/VoucherDialog";
+import CreateVoucherForm from "@/components/CreateVoucherForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6161,6 +6162,7 @@ const Orders = () => {
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
   const [showVoucherOptionsPopup, setShowVoucherOptionsPopup] = useState(false);
+  const [showCreateVoucherForm, setShowCreateVoucherForm] = useState(false);
   const [appliedVoucherAmount, setAppliedVoucherAmount] = useState(0);
   const [voucherCode, setVoucherCode] = useState('');
   const [priceOverrideItem, setPriceOverrideItem] = useState<{id: number;name: string;price: number;image?: string;} | null>(null);
@@ -7307,6 +7309,20 @@ const Orders = () => {
             </div>
         }
 
+          {/* Mobile Create Voucher Form Overlay */}
+          {showCreateVoucherForm &&
+        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
+              <div className="w-full max-w-md h-[85vh] rounded-xl overflow-hidden relative" style={{ background: '#2A2A2A' }}>
+                <CreateVoucherForm
+              onClose={() => setShowCreateVoucherForm(false)}
+              onCreate={(voucherData) => {
+                toast.success("Voucher created successfully!");
+                setShowCreateVoucherForm(false);
+              }} />
+              </div>
+            </div>
+        }
+
           {/* Mobile Cart Items */}
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? null : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
@@ -8051,6 +8067,17 @@ const Orders = () => {
                   setShowAddGuestForm(false);
                 }} />
 
+                </div>
+            }
+              {/* Create Voucher Form Overlay */}
+              {showCreateVoucherForm &&
+            <div className="absolute inset-0 z-10 bg-background">
+                  <CreateVoucherForm
+                onClose={() => setShowCreateVoucherForm(false)}
+                onCreate={(voucherData) => {
+                  toast.success("Voucher created successfully!");
+                  setShowCreateVoucherForm(false);
+                }} />
                 </div>
             }
               {/* Order Type & Guest Info */}
@@ -9246,7 +9273,7 @@ const Orders = () => {
                 <button
               onClick={() => {
                 setShowVoucherOptionsPopup(false);
-                setShowVoucherDialog(true);
+                setShowCreateVoucherForm(true);
               }}
               className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
 

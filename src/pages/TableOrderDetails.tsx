@@ -388,59 +388,130 @@ const TableOrderDetails = () => {
     return orderWithTotals;
   });
   
+  // Read persisted transfers from localStorage for this table
+  const TRANSFER_STORAGE_KEY = 'pos-table-transfers';
+  const persistedTransfers = useMemo(() => {
+    if (!tableId) return [];
+    try {
+      const stored = JSON.parse(localStorage.getItem(TRANSFER_STORAGE_KEY) || '{}');
+      return (stored[tableId] || []) as {
+        sourceOrderId: string;
+        sourceTable: string;
+        transferType: 'full' | 'partial';
+        items: { name: string; qty: number; price: number; modifiers?: string[]; seats: number[] }[];
+        sourceOrderName: string;
+        sourceServer: string;
+        sourcePhone: string;
+        sourcePartySize: number;
+        sourceRevenueCenter: string;
+        sourceOrderType: string;
+        sourceNotes: string;
+      }[];
+    } catch { return []; }
+  }, [tableId]);
+  
   // For table-level partial transfers where no existing order matched, create a virtual new order
   const virtualTransferOrder: GuestOrder[] = (() => {
-    if (transferType !== 'partial' || !transferredOrderId || transferredItemNames.length === 0) return [];
-    // Check if any existing order already has the transfer attached (exact ID match)
-    const alreadyAttached = staticGuestOrders.some(o => o.transferredFrom && o.transferredFrom.length > 0);
-    if (alreadyAttached) return [];
+    // First check URL-param based transfers (original logic for partial)
+    if (transferType === 'partial' && transferredOrderId && transferredItemNames.length > 0) {
+      const alreadyAttached = staticGuestOrders.some(o => o.transferredFrom && o.transferredFrom.length > 0);
+      if (!alreadyAttached) {
+        const transferSource = allOrders.find(o => o.id === transferredOrderId);
+        if (transferSource) {
+          const transferredItems = transferSource.items.filter(item => 
+            transferredItemNames.includes(item.name)
+          );
+          if (transferredItems.length > 0) {
+            const totals = calculateOrderTotals(transferredItems, 0);
+            const maxOrderId = Math.max(...allOrders.map(o => parseInt(o.id) || 0));
+            const newOrderId = String(maxOrderId + 1);
+            const maxCheck = Math.max(...allOrders.map(o => parseInt(o.check) || 0));
+            const newCheck = String(maxCheck + 1);
+            
+            return [{
+              id: newOrderId,
+              name: transferSource.name,
+              phone: transferSource.phone,
+              partySize: transferredItems.length,
+              time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+              timer: "0:00",
+              server: transferSource.server,
+              check: newCheck,
+              paymentType: "--",
+              revenueCenter: transferSource.revenueCenter,
+              status: "ORDERING",
+              notes: "",
+              table: tableId || "",
+              orderType: transferSource.orderType,
+              items: transferredItems,
+              subtotal: totals.subtotal,
+              discount: totals.discount,
+              serviceCharge: totals.serviceCharge,
+              tax: totals.tax,
+              tip: totals.tip,
+              total: totals.total,
+              transferredFrom: [{
+                orderId: transferSource.id,
+                orderName: transferSource.name,
+                table: transferredFromTable || transferSource.table,
+                items: transferredItems
+              }]
+            }];
+          }
+        }
+      }
+    }
     
-    const transferSource = allOrders.find(o => o.id === transferredOrderId);
-    if (!transferSource) return [];
+    // Then check persisted transfers from localStorage
+    if (persistedTransfers.length > 0) {
+      return persistedTransfers.map((transfer, idx) => {
+        const transferredItems: OrderItem[] = transfer.items.map(item => ({
+          name: item.name,
+          qty: item.qty,
+          price: item.price,
+          modifiers: item.modifiers || [],
+          seats: item.seats || [],
+        }));
+        const totals = calculateOrderTotals(transferredItems, 0);
+        const maxOrderId = Math.max(...allOrders.map(o => parseInt(o.id) || 0));
+        const newOrderId = String(maxOrderId + 1 + idx);
+        const maxCheck = Math.max(...allOrders.map(o => parseInt(o.check) || 0));
+        const newCheck = String(maxCheck + 1 + idx);
+        
+        return {
+          id: newOrderId,
+          name: transfer.sourceOrderName,
+          phone: transfer.sourcePhone,
+          partySize: transfer.sourcePartySize,
+          time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
+          timer: "0:00",
+          server: transfer.sourceServer,
+          check: newCheck,
+          paymentType: "--",
+          revenueCenter: transfer.sourceRevenueCenter,
+          status: "ORDERING" as const,
+          notes: transfer.sourceNotes,
+          table: tableId || "",
+          orderType: transfer.sourceOrderType,
+          items: transferredItems,
+          subtotal: totals.subtotal,
+          discount: totals.discount,
+          serviceCharge: totals.serviceCharge,
+          tax: totals.tax,
+          tip: totals.tip,
+          total: totals.total,
+          transferredFrom: [{
+            orderId: transfer.sourceOrderId,
+            orderName: transfer.sourceOrderName,
+            table: transfer.sourceTable,
+            items: transferredItems
+          }],
+          _persistedTransferType: transfer.transferType,
+        } as GuestOrder & { _persistedTransferType?: string };
+      });
+    }
     
-    const transferredItems = transferSource.items.filter(item => 
-      transferredItemNames.includes(item.name)
-    );
-    if (transferredItems.length === 0) return [];
-    
-    const totals = calculateOrderTotals(transferredItems, 0);
-    
-    // Generate a new order number (next sequential after existing orders)
-    const maxOrderId = Math.max(...allOrders.map(o => parseInt(o.id) || 0));
-    const newOrderId = String(maxOrderId + 1);
-    // Generate a new check number
-    const maxCheck = Math.max(...allOrders.map(o => parseInt(o.check) || 0));
-    const newCheck = String(maxCheck + 1);
-    
-    return [{
-      id: newOrderId,
-      name: transferSource.name,
-      phone: transferSource.phone,
-      partySize: transferredItems.length,
-      time: new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true }),
-      timer: "0:00",
-      server: transferSource.server,
-      check: newCheck,
-      paymentType: "--",
-      revenueCenter: transferSource.revenueCenter,
-      status: "ORDERING",
-      notes: "",
-      table: tableId || "",
-      orderType: transferSource.orderType,
-      items: transferredItems,
-      subtotal: totals.subtotal,
-      discount: totals.discount,
-      serviceCharge: totals.serviceCharge,
-      tax: totals.tax,
-      tip: totals.tip,
-      total: totals.total,
-      transferredFrom: [{
-        orderId: transferSource.id,
-        orderName: transferSource.name,
-        table: transferredFromTable || transferSource.table,
-        items: transferredItems
-      }]
-    }];
+    return [];
   })();
   
   // Merge static and session orders - session orders shown first, virtual transfer orders on top
@@ -1210,24 +1281,37 @@ const TableOrderDetails = () => {
                 </div>}
               
                {/* Transferred Items Indicator (Destination - receiving items) */}
-{((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
-                 (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && transferredFromTable !== tableId && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
+{(((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
+                 (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && transferredFromTable !== tableId) || 
+                 (guest.transferredFrom && guest.transferredFrom.length > 0 && virtualTransferOrder.some(v => v.id === guest.id)) ? (
+                <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
                    <span className="text-xs font-medium">
-                     {transferType === 'full' ? (
-                       <>
-                         <span style={{ color: '#8AC4FF' }}>Order transferred from</span>{" "}
-                         <span className="text-white">{formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
-                       </>
-                     ) : (
-                       <>
-                         <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
-                         <span className="text-white">{transferredItemNames.length} item(s)</span>{" "}
-                         <span style={{ color: '#8AC4FF' }}>from</span>{" "}
-                         <span className="text-white">Order {transferredOrderId} · {formatTableName(transferredFromTable || "")}{transferSourceArea ? ` (${transferSourceArea})` : ''}</span>
-                       </>
-                     )}
+                     {(() => {
+                       const effectiveType = transferType || (guest as any)?._persistedTransferType || 'partial';
+                       const sourceTable = transferredFromTable || guest.transferredFrom?.[0]?.table || '';
+                       const sourceOrderId = transferredOrderId || guest.transferredFrom?.[0]?.orderId || '';
+                       if (effectiveType === 'full') {
+                         return (
+                           <>
+                             <span style={{ color: '#8AC4FF' }}>Order fully transferred from</span>{" "}
+                             <span className="text-white">{formatTableName(sourceTable)}</span>
+                           </>
+                         );
+                       } else {
+                         const itemCount = transferredItemNames.length || guest.transferredFrom?.[0]?.items?.length || 0;
+                         return (
+                           <>
+                             <span style={{ color: '#8AC4FF' }}>Transferred</span>{" "}
+                             <span className="text-white">{itemCount} item(s)</span>{" "}
+                             <span style={{ color: '#8AC4FF' }}>from</span>{" "}
+                             <span className="text-white">Order {sourceOrderId} · {formatTableName(sourceTable)}</span>
+                           </>
+                         );
+                       }
+                     })()}
                    </span>
-                 </div>}
+                 </div>
+               ) : null}
                
                {/* Outgoing Transfer Indicator (Source - items sent out) */}
                {localTransferResult && localTransferResult.sourceOrderId === guest.id && (
@@ -1238,7 +1322,7 @@ const TableOrderDetails = () => {
                    </span>
                  </div>
                )}
-              <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (localTransferResult && localTransferResult.sourceOrderId === guest.id) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
+              <div className={`relative ${(destOrderId === guest.id && mergedFromTable) || (guest.id === mergedOrderId && destOrderId) || ((transferType === 'full' && transferredFromTable && guestIndex === 0) || (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) || (localTransferResult && localTransferResult.sourceOrderId === guest.id) || (guest.transferredFrom && guest.transferredFrom.length > 0 && virtualTransferOrder.some(v => v.id === guest.id)) ? 'rounded-b-xl' : 'rounded-xl'} cursor-pointer transition-all overflow-hidden bg-black`}>
               {/* Swipe Action Buttons (revealed on swipe left) */}
               {(guest.status === 'Paid' || guest.status === 'PAID' || guest.status === 'Completed') ? (
                 /* Receipt and Register buttons for paid orders */
@@ -1983,18 +2067,22 @@ const TableOrderDetails = () => {
         {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && 
          !(transferSourceOrderId === currentSelectedGuest?.id && transferType === 'full') && (
           <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
-            {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
-              <div key={sourceIdx} className="flex items-center gap-2">
-                <img src={transferIcon} alt="Transferred" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
-                <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
-                  {transferType === 'full' ? (
-                    <>Order fully transferred from {formatTableName(source.table)}</>
-                  ) : (
-                    <>Order transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
-                  )}
-                </span>
-              </div>
-            ))}
+            {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => {
+              // Determine transfer type: from URL param or from persisted data
+              const effectiveTransferType = transferType || (currentSelectedGuest as any)?._persistedTransferType || 'partial';
+              return (
+                <div key={sourceIdx} className="flex items-center gap-2">
+                  <img src={transferIcon} alt="Transferred" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
+                  <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+                    {effectiveTransferType === 'full' ? (
+                      <>Order fully transferred from {formatTableName(source.table)}</>
+                    ) : (
+                      <>Order transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
+                    )}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         )}
         
@@ -2027,7 +2115,6 @@ const TableOrderDetails = () => {
           <div className="py-1 space-y-1">
             {/* Transferred Items at top */}
             {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && 
-             !virtualTransferOrder.some(v => v.id === currentSelectedGuest.id) &&
              !(transferSourceOrderId === currentSelectedGuest?.id && transferType === 'full') && (
               <div className="mb-2 pb-2 border-b border-white/10">
                 {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => (
@@ -2067,7 +2154,7 @@ const TableOrderDetails = () => {
                 ))}
               </div>
             )}
-            {currentSelectedGuest && (() => {
+            {currentSelectedGuest && !virtualTransferOrder.some(v => v.id === currentSelectedGuest.id) && (() => {
               const allSeatsSelected = seatFilter.includes('all') || seatFilter.length === 0;
               const numericSeats = seatFilter.filter((s): s is number => typeof s === 'number');
               const filteredItems = filterItemsBySeats(currentSelectedGuest.items, numericSeats, allSeatsSelected);

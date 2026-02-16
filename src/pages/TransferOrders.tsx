@@ -279,6 +279,23 @@ const TransferOrders = () => {
         : selectedItems.map(index => currentOrder.items[index].name).join(',');
       const isFullTransfer = isEntireOrderTransfer || selectedItems.length === currentOrder.items.length;
       
+      const transferredItems = isEntireOrderTransfer
+        ? currentOrder.items
+        : selectedItems.map(index => currentOrder.items[index]);
+      persistTransferData(selectedTargetTable, {
+        sourceOrderId: currentOrder.id,
+        sourceTable: currentOrder.table,
+        transferType: isFullTransfer ? 'full' : 'partial',
+        items: transferredItems.map(item => ({ name: item.name, qty: item.qty, price: item.price, modifiers: item.modifiers, seats: item.seats })),
+        sourceOrderName: currentOrder.name,
+        sourceServer: currentOrder.server,
+        sourcePhone: currentOrder.phone,
+        sourcePartySize: currentOrder.partySize,
+        sourceRevenueCenter: currentOrder.revenueCenter,
+        sourceOrderType: currentOrder.orderType,
+        sourceNotes: currentOrder.notes || '',
+      });
+      
       toast.success(`${isFullTransfer ? 'Order' : 'Items'} transferred to new order on ${formatTableName(selectedTargetTable)}`);
       
       setTimeout(() => {
@@ -303,6 +320,23 @@ const TransferOrders = () => {
       : currentOrder.items.map(item => item.name).join(',');
     const isFullTransfer = isEntireOrderTransfer || selectedItems.length === currentOrder.items.length;
     
+    const transferredItems = isPartialTransfer
+      ? selectedItems.map(index => currentOrder.items[index])
+      : currentOrder.items;
+    persistTransferData(selectedTargetTable, {
+      sourceOrderId: currentOrder.id,
+      sourceTable: currentOrder.table,
+      transferType: isFullTransfer ? 'full' : 'partial',
+      items: transferredItems.map(item => ({ name: item.name, qty: item.qty, price: item.price, modifiers: item.modifiers, seats: item.seats })),
+      sourceOrderName: currentOrder.name,
+      sourceServer: currentOrder.server,
+      sourcePhone: currentOrder.phone,
+      sourcePartySize: currentOrder.partySize,
+      sourceRevenueCenter: currentOrder.revenueCenter,
+      sourceOrderType: currentOrder.orderType,
+      sourceNotes: currentOrder.notes || '',
+    });
+    
     toast.success(`${isPartialTransfer ? 'Items' : 'Order'} transferred successfully to ${formatTableName(selectedTargetTable)}`);
     
     setTimeout(() => {
@@ -321,6 +355,29 @@ const TransferOrders = () => {
     }, 1500);
   };
 
+  // Persist transfer data to localStorage for target table
+  const persistTransferData = (targetTable: string, transferData: {
+    sourceOrderId: string;
+    sourceTable: string;
+    transferType: 'full' | 'partial';
+    items: { name: string; qty: number; price: number; modifiers?: string[]; seats: number[] }[];
+    sourceOrderName: string;
+    sourceServer: string;
+    sourcePhone: string;
+    sourcePartySize: number;
+    sourceRevenueCenter: string;
+    sourceOrderType: string;
+    sourceNotes: string;
+  }) => {
+    const TRANSFER_STORAGE_KEY = 'pos-table-transfers';
+    try {
+      const existing = JSON.parse(localStorage.getItem(TRANSFER_STORAGE_KEY) || '{}');
+      if (!existing[targetTable]) existing[targetTable] = [];
+      existing[targetTable].push(transferData);
+      localStorage.setItem(TRANSFER_STORAGE_KEY, JSON.stringify(existing));
+    } catch { /* ignore */ }
+  };
+
   // Execute the actual transfer to table
   const executeTableTransfer = () => {
     if (!selectedTargetTable) return;
@@ -332,6 +389,24 @@ const TransferOrders = () => {
       ? selectedItems.map(index => currentOrder.items[index].name).join(',')
       : currentOrder.items.map(item => item.name).join(',');
     const isFullTransfer = isEntireOrderTransfer || selectedItems.length === currentOrder.items.length;
+    
+    // Persist transfer data for the target table
+    const transferredItems = isPartialTransfer
+      ? selectedItems.map(index => currentOrder.items[index])
+      : currentOrder.items;
+    persistTransferData(selectedTargetTable, {
+      sourceOrderId: currentOrder.id,
+      sourceTable: currentOrder.table,
+      transferType: isFullTransfer ? 'full' : 'partial',
+      items: transferredItems.map(item => ({ name: item.name, qty: item.qty, price: item.price, modifiers: item.modifiers, seats: item.seats })),
+      sourceOrderName: currentOrder.name,
+      sourceServer: currentOrder.server,
+      sourcePhone: currentOrder.phone,
+      sourcePartySize: currentOrder.partySize,
+      sourceRevenueCenter: currentOrder.revenueCenter,
+      sourceOrderType: currentOrder.orderType,
+      sourceNotes: currentOrder.notes || '',
+    });
     
     // Show success toast
     toast.success(`${isPartialTransfer ? 'Items' : 'Order'} transferred successfully to ${formatTableName(selectedTargetTable)}`);

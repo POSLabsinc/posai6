@@ -1,55 +1,42 @@
 
-# Fix: Full Transfer to Existing Order Creating New Orders
+
+# Fix: Transferred Order Should Keep Original Order Number
 
 ## Problem
-When fully transferring an order to a table that already has orders (e.g., Table 3 with Order #6), the system creates new virtual orders (12, 13) instead of merging into the existing Order #6. This happens because `executeTableTransfer()` in `TransferOrders.tsx` never sets `targetOrderId` in the persisted data.
+When fully transferring Order #1 to a new order on another table, the target table shows "Order #12" (or #13) instead of "Order #1". The virtual order generator calculates `Math.max(allOrderIds) + 1` for the new ID, but since the entire order was moved, it should keep its original identity.
 
 ## Root Cause
-Two separate code paths handle transfers:
-- `executeTransferToTicket()` -- correctly sets `targetOrderId`
-- `executeTableTransfer()` -- does NOT set `targetOrderId`
-
-On the target table, transfers without `targetOrderId` are treated as "new orders" and generate virtual entries.
+In `src/pages/TableOrderDetails.tsx` (lines 512-557), the `persistedTransfersForNewOrders` path always generates a new sequential order ID and check number, regardless of whether it's a full or partial transfer.
 
 ## Solution
 
-### File: `src/pages/TransferOrders.tsx`
-
-1. Update `executeTableTransfer()` to detect if the target table already has existing orders
-2. If the target table has exactly one active (unpaid) order, automatically set `targetOrderId` to that order's ID
-3. If the target table has multiple active orders, set `targetOrderId` to the first active order (since the user already confirmed the table selection)
-4. Only omit `targetOrderId` when the target table is truly available (no existing orders)
-
-```text
-executeTableTransfer() {
-  ...
-  // Look up existing orders on the target table
-  const targetTableOrders = allOrders.filter(o => o.table === selectedTargetTable && o.status !== 'Paid');
-  
-  persistTransferData(selectedTargetTable, {
-    ...existing fields...,
-    // If target table has existing orders, merge into the first one
-    targetOrderId: targetTableOrders.length > 0 ? targetTableOrders[0].id : undefined,
-  });
-}
-```
-
 ### File: `src/pages/TableOrderDetails.tsx`
 
-No changes needed -- the existing logic at lines 417-452 already correctly handles transfers with `targetOrderId` by merging them into the matching static order and recalculating totals.
+In the `persistedTransfersForNewOrders.map()` block (around lines 522-525), change the ID/check assignment to preserve the source order's ID when the transfer type is "full":
 
-## Technical Details
+**Current logic:**
+```typescript
+const maxOrderId = Math.max(...allOrders.map(o => parseInt(o.id) || 0));
+const newOrderId = String(maxOrderId + 1 + idx);
+const maxCheck = Math.max(...allOrders.map(o => parseInt(o.check) || 0));
+const newCheck = String(maxCheck + 1 + idx);
+```
 
-- The `persistedTransfersForExistingOrders` filter (line 362) already separates transfers with `targetOrderId` from those without
-- The merge logic (lines 417-452) already attaches transferred items, sets `_persistedTransferType`, and recalculates combined totals
-- The banner rendering already checks for `_persistedTransferType` to show "Order fully transferred from Table X . Order #Y"
+**Updated logic:**
+```typescript
+// For full transfers, preserve the original order ID; for partial, generate new
+const newOrderId = transfer.transferType === 'full' 
+  ? transfer.sourceOrderId 
+  : String(Math.max(...allOrders.map(o => parseInt(o.id) || 0)) + 1 + idx);
+const newCheck = transfer.transferType === 'full'
+  ? transfer.sourceOrderId
+  : String(Math.max(...allOrders.map(o => parseInt(o.check) || 0)) + 1 + idx);
+```
+
+This is a small, targeted change -- only 4 lines replaced. No other files need modification.
 
 ## Expected Result
-- Transfer Order 1 from Table 2 to Table 3 (which has Order 6)
-- Source table shows: "Fully Transferred to Table 3 (Patio) . Order #6"
-- Target table (Table 3) shows Order 6 with:
-  - Blue banner: "Order fully transferred from Table 2 . Order #1"
-  - Transferred items in blue shade below order notes
-  - Original Order 6 items below
-  - Updated Subtotal, Tax, Service Charge, Total reflecting all items
-- No new orders (12, 13) are created
+- Transfer entire Order #1 from Table 2 to Table 3 (new order)
+- Target table shows **Order #1** (not #12)
+- Partial transfers still generate new sequential IDs as before
+

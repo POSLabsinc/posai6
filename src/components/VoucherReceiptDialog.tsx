@@ -113,24 +113,14 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
             </h2>
 
             {/* Voucher Code Display */}
-            <div className="flex flex-col items-center mb-4">
+            <div className="flex flex-col items-center mb-6">
               <div className="border-[1.5px] border-dashed border-white/25 rounded-lg px-5 py-2.5">
                 <span className="text-white text-lg font-semibold tracking-[0.25em]">{getVoucherCodeDisplay()}</span>
               </div>
               <span className="text-neutral-400 text-[11px] mt-2">{getVoucherTypeLabel()}</span>
-            </div>
-
-            {/* Expiration & Uses in one row */}
-            <div className="flex justify-between items-center mb-6 px-4">
-              <div className="flex flex-col items-start">
-                <span className="text-neutral-500 text-[10px] uppercase tracking-wide">Expires</span>
-                <span className="text-white text-[13px] font-medium">{formatExpirationDate()}</span>
-              </div>
-              <div className="w-px h-7 bg-white/10" />
-              <div className="flex flex-col items-end">
-                <span className="text-neutral-500 text-[10px] uppercase tracking-wide">Max Uses</span>
-                <span className="text-white text-[13px] font-medium">{voucherData?.maximumUses || '1'}</span>
-              </div>
+              <span className="text-neutral-500 text-[11px] mt-1">
+                Expires {formatExpirationDate()} · Max Uses {voucherData?.maximumUses || '1'}
+              </span>
             </div>
 
             {/* Receipt Options */}

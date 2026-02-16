@@ -459,7 +459,7 @@ const TableOrderDetails = () => {
   // For table-level partial transfers where no existing order matched, create a virtual new order
   const virtualTransferOrder: GuestOrder[] = (() => {
     // First check URL-param based transfers (original logic for partial)
-    if (transferType === 'partial' && transferredOrderId && transferredItemNames.length > 0) {
+    if (transferType === 'partial' && transferredOrderId && transferredItemNames.length > 0 && transferredFromTable !== tableId) {
       const alreadyAttached = staticGuestOrders.some(o => o.transferredFrom && o.transferredFrom.length > 0);
       if (!alreadyAttached) {
         const transferSource = allOrders.find(o => o.id === transferredOrderId);

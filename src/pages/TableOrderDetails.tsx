@@ -1206,8 +1206,8 @@ const TableOrderDetails = () => {
                 </div>}
               
                {/* Transferred Items Indicator (Destination - receiving items) */}
-               {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
-                 (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
+{((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
+                 (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && transferredFromTable !== tableId && <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
                    <span className="text-xs font-medium">
                      {transferType === 'full' ? (
                        <>
@@ -1550,8 +1550,8 @@ const TableOrderDetails = () => {
 {/* Transferred Items Indicator (Destination - receiving items) */}
                 {/* For full order transfer: show on first order when transferType is 'full' */}
                 {/* For partial transfer: show when transferDestOrderId matches */}
-                {((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
-                  (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
+{((transferType === 'full' && transferredFromTable && guestIndex === 0) || 
+                  (transferType === 'partial' && transferredFromTable && transferredOrderId && (transferDestOrderId === guest.id || guestIndex === 0))) && transferredFromTable !== tableId && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
                       {transferType === 'full' ? (
                         <>
@@ -1572,9 +1572,13 @@ const TableOrderDetails = () => {
                 {transferSourceOrderId === guest.id && transferType && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
                       <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
-                      <span className="text-white"> to Order {transferredToOrderId}</span>
-                      <span style={{ color: '#8AC4FF' }}> · </span>
-                      <span className="text-white">{formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
+                      <span className="text-white"> to {formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
+                      {transferredToOrderId && transferredToOrderId !== 'new' && (
+                        <>
+                          <span style={{ color: '#8AC4FF' }}> · </span>
+                          <span className="text-white">Order #{transferredToOrderId}</span>
+                        </>
+                      )}
                     </span>
                   </div>}
                 {/* Local Transfer Result - Outgoing (stays on same page) */}

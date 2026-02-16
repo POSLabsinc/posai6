@@ -1096,20 +1096,19 @@ const Tickets = () => {
           </div>
         )}
 
-        {/* Transfer Info Banner */}
+        {/* Transfer Info - matching Table Order right panel style */}
         {selectedGuest.transferInfo && (
-          <div className={`${isTablet ? 'mx-3 mb-1' : 'mx-4 mb-1'} ${isTablet ? 'px-2 py-1.5' : 'px-3 py-2'} rounded-lg border`}
-            style={{ backgroundColor: '#1E3A5F', borderColor: '#3B6A9E' }}>
-            <div className={`flex items-center gap-2 ${isTablet ? 'text-xs' : 'text-sm'}`}>
-              <Info className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} text-[#8AC4FF] flex-shrink-0`} />
-              <span className="text-[#8AC4FF] font-medium">
+          <div className={`${isTablet ? 'px-3 py-1.5' : 'px-3 py-1.5'} border-b border-white/10 flex-shrink-0`}>
+            <div className="flex items-center gap-2">
+              <ArrowRightLeft className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} text-[#8AC4FF] flex-shrink-0`} />
+              <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
                 {selectedGuest.transferInfo.type === 'sent' ? (
                   selectedGuest.transferInfo.transferType === 'full'
-                    ? `Order fully transferred to Order #${selectedGuest.transferInfo.targetOrderId}`
-                    : `${selectedGuest.transferInfo.itemCount} item${(selectedGuest.transferInfo.itemCount || 0) > 1 ? 's' : ''} transferred to Order #${selectedGuest.transferInfo.targetOrderId}`
+                    ? `Fully Transferred to ${selectedGuest.transferInfo.targetOrderName ? selectedGuest.transferInfo.targetOrderName + ' · ' : ''}Order #${selectedGuest.transferInfo.targetOrderId}`
+                    : `Transferred (${selectedGuest.transferInfo.itemCount}) item${(selectedGuest.transferInfo.itemCount || 0) > 1 ? 's' : ''} to Order #${selectedGuest.transferInfo.targetOrderId}`
                 ) : (
                   selectedGuest.transferInfo.transferType === 'full'
-                    ? `Order fully transferred from ${selectedGuest.transferInfo.sourceTable !== '--' ? selectedGuest.transferInfo.sourceTable + ' · ' : ''}Order #${selectedGuest.transferInfo.sourceOrderId}`
+                    ? `Fully Transferred from ${selectedGuest.transferInfo.sourceTable && selectedGuest.transferInfo.sourceTable !== '--' ? selectedGuest.transferInfo.sourceTable + ' · ' : ''}Order #${selectedGuest.transferInfo.sourceOrderId}`
                     : `${selectedGuest.transferInfo.itemCount} item${(selectedGuest.transferInfo.itemCount || 0) > 1 ? 's' : ''} transferred from Order #${selectedGuest.transferInfo.sourceOrderId}`
                 )}
               </span>

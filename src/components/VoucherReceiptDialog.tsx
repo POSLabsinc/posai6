@@ -175,10 +175,9 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
               to protect your privacy.
             </p>
 
-            <div className="flex items-center justify-center gap-1.5">
-              <span className="text-neutral-500 text-xs">Powered by</span>
-              <img src={eatosLogo} alt="eatOS" className="h-4" />
-            </div>
+            <p className="text-neutral-500 text-xs text-center">
+              Powered by <span className="text-white font-semibold">eatOS</span>
+            </p>
           </div>
         )}
 

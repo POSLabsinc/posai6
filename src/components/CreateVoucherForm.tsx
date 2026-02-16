@@ -155,7 +155,7 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
               type="date"
               value={formData.expirationDate}
               onChange={(e) => handleChange("expirationDate", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pr-9 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:hidden"
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pr-9 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
             />
             <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
           </div>

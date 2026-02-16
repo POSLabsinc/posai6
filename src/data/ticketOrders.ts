@@ -23,6 +23,7 @@ export interface TicketTransferInfo {
   sourceOrderName?: string;
   sourceTable?: string;
   itemCount?: number;
+  transferredItems?: TicketOrderItem[];
 }
 
 export interface TicketOrder {

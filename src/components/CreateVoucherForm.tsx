@@ -17,6 +17,7 @@ export interface VoucherFormData {
   maximumUses: string;
   minimumPurchase: string;
   tags: string;
+  customCode: string;
   enableQrBarcode: boolean;
 }
 
@@ -28,6 +29,7 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
     maximumUses: "",
     minimumPurchase: "",
     tags: "",
+    customCode: "",
     enableQrBarcode: false,
   });
 
@@ -203,6 +205,17 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
             onChange={(e) => handleChange("tags", e.target.value)}
             placeholder="e.g. VIP, Holiday, Promotion"
             className="bg-white/10 border-white/20 text-white placeholder:text-white/40"
+          />
+        </div>
+
+        {/* Custom Voucher Code */}
+        <div>
+          <label className="text-sm text-white/70 mb-1 block">Custom Voucher Code</label>
+          <Input
+            value={formData.customCode}
+            onChange={(e) => handleChange("customCode", e.target.value.toUpperCase())}
+            placeholder="e.g. SUMMER2026"
+            className="bg-white/10 border-white/20 text-white placeholder:text-white/40 uppercase"
           />
         </div>
 

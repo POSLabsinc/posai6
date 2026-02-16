@@ -1185,8 +1185,12 @@ const Tickets = () => {
         setOrders={updateOrders as any}
         onTransferComplete={() => {
           closeTransferFlow();
-          const updated = orders.find(o => o.id === transferSource!.id);
-          if (updated) setSelectedGuest(updated);
+          // Use setTimeout to read latest state after the setOrders update has been applied
+          setTimeout(() => {
+            const latestOrders = JSON.parse(localStorage.getItem('pos-unified-orders') || '[]');
+            const updated = latestOrders.find((o: any) => o.id === transferSource!.id);
+            if (updated) setSelectedGuest(updated);
+          }, 50);
         }}
         embedded
       />
@@ -1292,8 +1296,11 @@ const Tickets = () => {
             setOrders={updateOrders as any}
             onTransferComplete={() => {
               closeTransferFlow();
-              const updated = orders.find(o => o.id === transferSource.id);
-              if (updated) setSelectedGuest(updated);
+              setTimeout(() => {
+                const latestOrders = JSON.parse(localStorage.getItem('pos-unified-orders') || '[]');
+                const updated = latestOrders.find((o: any) => o.id === transferSource.id);
+                if (updated) setSelectedGuest(updated);
+              }, 50);
             }}
           />
         </div>

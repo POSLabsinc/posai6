@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import VoucherReceiptDialog from "./VoucherReceiptDialog";
 
 interface CreateVoucherFormProps {
   onClose: () => void;
@@ -32,6 +33,8 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
     customCode: "",
     enableQrBarcode: false,
   });
+  const [showReceiptDialog, setShowReceiptDialog] = useState(false);
+  const [createdVoucherData, setCreatedVoucherData] = useState<VoucherFormData | null>(null);
   const [minPurchaseOption, setMinPurchaseOption] = useState("none");
 
   const handleChange = (field: keyof VoucherFormData, value: string | boolean) => {
@@ -49,12 +52,21 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
 
   const handleCreate = () => {
     if (isFormValid) {
-      onCreate(formData);
-      onClose();
+      setCreatedVoucherData({ ...formData });
+      setShowReceiptDialog(true);
     }
   };
 
+  const handleReceiptClose = () => {
+    setShowReceiptDialog(false);
+    if (createdVoucherData) {
+      onCreate(createdVoucherData);
+    }
+    onClose();
+  };
+
   return (
+    <>
     <div
       className="flex flex-col h-full rounded-lg overflow-hidden"
       style={{
@@ -301,6 +313,15 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
         </button>
       </div>
     </div>
+
+    <VoucherReceiptDialog
+      open={showReceiptDialog}
+      onOpenChange={(open) => {
+        if (!open) handleReceiptClose();
+      }}
+      voucherData={createdVoucherData}
+    />
+  </>
   );
 };
 

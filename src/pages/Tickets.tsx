@@ -23,6 +23,7 @@ import transferItemIcon from "@/assets/icons/transfer-item.svg";
 import transferEntireOrderIcon from "@/assets/icons/transfer-entire-order.svg";
 import transferToTableIcon from "@/assets/icons/transfer-to-table.svg";
 import transferToOrderIcon from "@/assets/icons/transfer-to-order.svg";
+import transferIcon from "@/assets/icons/transfer-icon.png";
 
 // New order type icons
 import dineInSvg from "@/assets/icons/dine-in-2.svg";
@@ -1100,7 +1101,7 @@ const Tickets = () => {
         {selectedGuest.transferInfo && (
           <div className={`${isTablet ? 'px-3 py-1.5' : 'px-3 py-1.5'} border-b border-white/10 flex-shrink-0`}>
             <div className="flex items-center gap-2">
-              <ArrowRightLeft className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} text-[#8AC4FF] flex-shrink-0`} />
+              <img src={transferIcon} alt="Transfer" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} flex-shrink-0`} style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
               <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
                 {selectedGuest.transferInfo.type === 'sent' ? (
                   selectedGuest.transferInfo.transferType === 'full'
@@ -1119,6 +1120,47 @@ const Tickets = () => {
         {/* Order Items */}
         <ScrollArea className={`flex-1 ${isTablet ? 'px-3' : 'px-4'}`}>
           <div className={`py-2 space-y-${isTablet ? '1.5' : '2'}`}>
+            {/* For SENT orders: show original items with strikethrough */}
+            {selectedGuest.transferInfo?.type === 'sent' && selectedGuest.transferInfo.transferredItems && selectedGuest.transferInfo.transferredItems.map((item, index) => (
+              <div key={`sent-${index}`} className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} bg-white/5 border border-white/10 opacity-50`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-2">
+                    <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} bg-white rounded flex items-center justify-center text-black font-bold`}>
+                      {item.qty}
+                    </span>
+                    <div>
+                      <span className={`text-white font-medium line-through ${isTablet ? 'text-sm' : ''}`}>{item.name}</span>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <img src={transferIcon} alt="Transfer" className="w-3 h-3" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
+                        <span className="text-[10px] text-[#8AC4FF]">Transferred to {selectedGuest.transferInfo!.targetOrderName || `Order #${selectedGuest.transferInfo!.targetOrderId}`}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className={`text-white font-medium line-through ${isTablet ? 'text-sm' : ''}`}>{formatPrice(item.price * item.qty)}</span>
+                </div>
+              </div>
+            ))}
+
+            {/* For RECEIVED orders: show transferred items in blue shade */}
+            {selectedGuest.transferInfo?.type === 'received' && selectedGuest.transferInfo.transferredItems && (
+              <div className="mb-2 pb-2 border-b border-white/10">
+                {selectedGuest.transferInfo.transferredItems.map((item, index) => (
+                  <div key={`received-${index}`} className={`${isTablet ? 'p-2 rounded-lg mb-1' : 'p-3 rounded-xl mb-1.5'} border border-[#3B6A9E]`} style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' }}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2">
+                        <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} bg-[#3B6A9E] rounded flex items-center justify-center text-white font-bold`}>
+                          {item.qty}
+                        </span>
+                        <span className={`text-white font-medium ${isTablet ? 'text-sm' : ''}`}>{item.name}</span>
+                      </div>
+                      <span className={`text-white/80 font-medium ${isTablet ? 'text-sm' : ''}`}>{formatPrice(item.price * item.qty)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Regular items (for non-transferred orders OR remaining items on received orders) */}
             {getOrderItems(selectedGuest).map((item, index) => (
               <div key={index} className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} bg-white/5 border border-white/10`}>
                 <div className="flex items-start justify-between">

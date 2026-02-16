@@ -3489,6 +3489,7 @@ const TableOrderDetails = () => {
                     targetOrderId: selectedTransferOrderId!,
                     targetOrderName: targetName,
                     itemCount: sourceOrder.items.length,
+                    transferredItems: [...sourceOrder.items],
                   },
                 };
               }
@@ -3511,6 +3512,7 @@ const TableOrderDetails = () => {
                     sourceOrderName: sourceOrder.name,
                     sourceTable: sourceOrder.table,
                     itemCount: sourceOrder.items.length,
+                    transferredItems: [...sourceOrder.items],
                   },
                 };
               }

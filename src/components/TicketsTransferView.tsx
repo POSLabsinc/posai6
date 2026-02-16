@@ -259,6 +259,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
                 targetOrderId: selectedTransferOrderId!,
                 targetOrderName: targetName,
                 itemCount: sourceOrder.items.length,
+                transferredItems: [...sourceOrder.items],
               },
             };
           }
@@ -282,6 +283,7 @@ const TicketsTransferView = ({ sourceOrder, isEntireOrderTransfer, onBack, order
                 sourceOrderName: currentOrder.name,
                 sourceTable: currentOrder.table,
                 itemCount: sourceOrder.items.length,
+                transferredItems: [...sourceOrder.items],
               },
             };
           }

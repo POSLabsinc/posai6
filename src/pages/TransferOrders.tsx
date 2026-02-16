@@ -496,10 +496,8 @@ const TransferOrders = () => {
 
     // Update unified context so Tickets module reflects the transfer
     updateUnifiedOrders(prev => {
-      // Match source by name + table (IDs differ between orders.ts and ticketOrders.ts)
       const matchSource = (o: any) => o.name === currentOrder.name && o.table === currentOrder.table;
-      // Match target by name (non-table orders may have table "--")
-      const matchTarget = (o: any) => o.name === targetOrder?.name;
+      const matchTarget = (o: any) => o.id === selectedTransferOrderId || (o.name === targetOrder?.name && o.name !== 'Guest');
 
       if (isFullTransfer) {
         return prev.map(o => {

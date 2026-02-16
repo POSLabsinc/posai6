@@ -113,23 +113,23 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
             </h2>
 
             {/* Voucher Code Display */}
-            <div className="flex flex-col items-center mb-5">
-              <div className="border-2 border-dashed border-white/30 rounded-xl px-6 py-3 mb-1">
-                <span className="text-white text-xl font-bold tracking-widest">{getVoucherCodeDisplay()}</span>
+            <div className="flex flex-col items-center mb-4">
+              <div className="border-[1.5px] border-dashed border-white/25 rounded-lg px-5 py-2.5">
+                <span className="text-white text-lg font-semibold tracking-[0.25em]">{getVoucherCodeDisplay()}</span>
               </div>
-              <span className="text-neutral-400 text-xs mt-1">{getVoucherTypeLabel()}</span>
+              <span className="text-neutral-400 text-[11px] mt-2">{getVoucherTypeLabel()}</span>
             </div>
 
             {/* Expiration & Uses in one row */}
-            <div className="flex justify-between items-center mb-6 px-2">
+            <div className="flex justify-between items-center mb-6 px-4">
               <div className="flex flex-col items-start">
                 <span className="text-neutral-500 text-[10px] uppercase tracking-wide">Expires</span>
-                <span className="text-white text-sm font-medium">{formatExpirationDate()}</span>
+                <span className="text-white text-[13px] font-medium">{formatExpirationDate()}</span>
               </div>
-              <div className="w-px h-8 bg-white/10" />
+              <div className="w-px h-7 bg-white/10" />
               <div className="flex flex-col items-end">
                 <span className="text-neutral-500 text-[10px] uppercase tracking-wide">Max Uses</span>
-                <span className="text-white text-sm font-medium">{voucherData?.maximumUses || '1'}</span>
+                <span className="text-white text-[13px] font-medium">{voucherData?.maximumUses || '1'}</span>
               </div>
             </div>
 

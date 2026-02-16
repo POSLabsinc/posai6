@@ -195,13 +195,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher, initial
               REDEEM VOUCHER
             </button>
             
-            {/* SELL VOUCHER Button */}
-            <button
-              onClick={handleBackToSell}
-              className="w-full py-3 rounded-lg text-sm font-semibold bg-neutral-800 border border-neutral-600 text-white hover:bg-neutral-700 transition-colors"
-            >
-              SELL VOUCHER
-            </button>
           </div>
         )}
       </DialogContent>

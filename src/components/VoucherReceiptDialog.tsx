@@ -87,7 +87,7 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
 
   const getVoucherCodeDisplay = () => {
     if (!voucherData) return '';
-    const code = voucherData.customCode || 'AUTO-GENERATED';
+    const code = voucherData.customCode;
     if (voucherData.type === 'percentage') return `${code} (${voucherData.value}% Off)`;
     if (voucherData.type === 'fixed') return `${code} ($${voucherData.value} Off)`;
     return `${code} (Free Item)`;

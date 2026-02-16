@@ -50,9 +50,22 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
     formData.expirationDate &&
     (formData.type === "free_item" || formData.value);
 
+  const generateVoucherCode = () => {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let code = '';
+    for (let i = 0; i < 8; i++) {
+      code += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return code;
+  };
+
   const handleCreate = () => {
     if (isFormValid) {
-      setCreatedVoucherData({ ...formData });
+      const data = { ...formData };
+      if (!data.customCode) {
+        data.customCode = generateVoucherCode();
+      }
+      setCreatedVoucherData(data);
       setShowReceiptDialog(true);
     }
   };

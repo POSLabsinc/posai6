@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { X, Ticket, Calendar, QrCode, Info, Plus, Minus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";

@@ -3,7 +3,6 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Printer, MessageSquare, Mail, ChevronDown, Delete, Check, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 import { VoucherFormData } from './CreateVoucherForm';
-import eatosLogo from '@/assets/icons/orderos-logo.png';
 
 interface VoucherReceiptDialogProps {
   open: boolean;

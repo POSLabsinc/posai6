@@ -130,6 +130,13 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
                 <Printer className="w-8 h-8 text-white" />
                 <span className="text-white text-sm font-medium">Print</span>
               </button>
+              <button
+                onClick={() => setStep('email-input')}
+                className="flex-1 flex flex-col items-center gap-3 py-6 border border-neutral-700 rounded-xl hover:bg-neutral-800 transition-colors"
+              >
+                <Mail className="w-8 h-8 text-white" />
+                <span className="text-white text-sm font-medium">Email</span>
+              </button>
               <div
                 className="flex-1 flex flex-col items-center gap-3 py-6 border border-neutral-700 rounded-xl opacity-50 cursor-not-allowed relative"
               >
@@ -139,13 +146,6 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
                 <span className="text-white text-sm font-medium">WhatsApp</span>
                 <span className="text-[10px] text-neutral-400 absolute bottom-2">Coming Soon</span>
               </div>
-              <button
-                onClick={() => setStep('email-input')}
-                className="flex-1 flex flex-col items-center gap-3 py-6 border border-neutral-700 rounded-xl hover:bg-neutral-800 transition-colors"
-              >
-                <Mail className="w-8 h-8 text-white" />
-                <span className="text-white text-sm font-medium">Email</span>
-              </button>
             </div>
 
             {/* No Receipt Button */}

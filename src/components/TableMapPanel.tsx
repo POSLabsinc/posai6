@@ -710,14 +710,16 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
                     )}
                   </div>
                 </PopoverTrigger>
-                <PopoverContent 
-                  className="w-56 p-0 bg-neutral-900 border-neutral-700 shadow-xl" 
-                  side="right" 
-                  align="start"
-                  sideOffset={10}
-                >
-                  <TableActionPopover table={table} />
-                </PopoverContent>
+                {!onTableSelect && (
+                  <PopoverContent 
+                    className="w-56 p-0 bg-neutral-900 border-neutral-700 shadow-xl" 
+                    side="right" 
+                    align="start"
+                    sideOffset={10}
+                  >
+                    <TableActionPopover table={table} />
+                  </PopoverContent>
+                )}
               </Popover>
             ))}
           </div>
@@ -752,7 +754,7 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
                     />
                   </div>
                 </PopoverTrigger>
-                {table.status !== "Available" && (
+                {!onTableSelect && table.status !== "Available" && (
                   <PopoverContent 
                     className="w-56 p-0 bg-neutral-900 border-neutral-700 shadow-xl" 
                     side="right" 

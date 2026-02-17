@@ -58,18 +58,18 @@ type TableType = {
 
 // Default table data
 const defaultTables: TableType[] = [
-  { id: "T1", seats: 8, status: "Reserved", time: "", shape: "circle", occupiedSeats: [], guests: 0, x: 90, y: 70 },
-  { id: "T2", seats: 5, status: "Ordering", time: "25M", shape: "square", occupiedSeats: [1, 2], guests: 2, x: 300, y: 90 },
-  { id: "T3", seats: 4, status: "Ordered", time: "2H 25M", shape: "circle", occupiedSeats: [1, 2, 3], guests: 3, x: 510, y: 60 },
-  { id: "T4", seats: 3, status: "Reserved", time: "2H 25M", shape: "square", occupiedSeats: [], guests: 0, x: 720, y: 100 },
-  { id: "T5", seats: 4, status: "Seated", time: "25M", shape: "circle", occupiedSeats: [1, 3], guests: 2, x: 130, y: 260 },
-  { id: "T6", seats: 2, status: "Running Late", time: "45M", shape: "square", occupiedSeats: [], guests: 0, x: 350, y: 240 },
-  { id: "T7", seats: 5, status: "1st Course", time: "12M", shape: "circle", occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 560, y: 280 },
-  { id: "T8", seats: 4, status: "Ready", time: "13M", shape: "square", occupiedSeats: [1, 2, 3, 4], guests: 4, x: 770, y: 260 },
-  { id: "T9", seats: 3, status: "3rd Course", time: "14M", shape: "circle", occupiedSeats: [1, 2, 3], guests: 3, x: 90, y: 450 },
-  { id: "T10", seats: 4, status: "Dessert", time: "16M", shape: "square", occupiedSeats: [1, 2], guests: 2, x: 300, y: 430 },
-  { id: "T11", seats: 5, status: "Partially Seated", time: "18M", shape: "circle", occupiedSeats: [1, 3, 5], guests: 3, x: 510, y: 470 },
-  { id: "T12", seats: 5, status: "Served", time: "36M", shape: "square", occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 720, y: 450 },
+  { id: "T1", seats: 8, status: "Reserved", time: "", shape: "circle", occupiedSeats: [], guests: 0, x: 100, y: 80 },
+  { id: "T2", seats: 5, status: "Ordering", time: "25M", shape: "square", occupiedSeats: [1, 2], guests: 2, x: 330, y: 100 },
+  { id: "T3", seats: 4, status: "Ordered", time: "2H 25M", shape: "circle", occupiedSeats: [1, 2, 3], guests: 3, x: 560, y: 70 },
+  { id: "T4", seats: 3, status: "Reserved", time: "2H 25M", shape: "square", occupiedSeats: [], guests: 0, x: 790, y: 110 },
+  { id: "T5", seats: 4, status: "Seated", time: "25M", shape: "circle", occupiedSeats: [1, 3], guests: 2, x: 140, y: 310 },
+  { id: "T6", seats: 2, status: "Running Late", time: "45M", shape: "square", occupiedSeats: [], guests: 0, x: 380, y: 290 },
+  { id: "T7", seats: 5, status: "1st Course", time: "12M", shape: "circle", occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 610, y: 330 },
+  { id: "T8", seats: 4, status: "Ready", time: "13M", shape: "square", occupiedSeats: [1, 2, 3, 4], guests: 4, x: 840, y: 310 },
+  { id: "T9", seats: 3, status: "3rd Course", time: "14M", shape: "circle", occupiedSeats: [1, 2, 3], guests: 3, x: 100, y: 540 },
+  { id: "T10", seats: 4, status: "Dessert", time: "16M", shape: "square", occupiedSeats: [1, 2], guests: 2, x: 330, y: 520 },
+  { id: "T11", seats: 5, status: "Partially Seated", time: "18M", shape: "circle", occupiedSeats: [1, 3, 5], guests: 3, x: 560, y: 560 },
+  { id: "T12", seats: 5, status: "Served", time: "36M", shape: "square", occupiedSeats: [1, 2, 3, 4, 5], guests: 5, x: 790, y: 540 },
 ];
 
 // Seat dot colors
@@ -94,7 +94,7 @@ const getSeatDotColor = (status: string): string => {
 
 // Chair components
 const CircularChair = ({ angle, isOccupied, tableRadius }: { angle: number; isOccupied: boolean; tableRadius: number }) => {
-  const chairDistance = tableRadius + 18;
+  const chairDistance = tableRadius + 22;
   const radian = (angle * Math.PI) / 180;
   const x = Math.cos(radian) * chairDistance;
   const y = Math.sin(radian) * chairDistance;
@@ -109,7 +109,7 @@ const CircularChair = ({ angle, isOccupied, tableRadius }: { angle: number; isOc
       }}
     >
       <div 
-        className={`w-5 h-3 rounded-t-full transition-colors ${
+        className={`w-6 h-3.5 rounded-t-full transition-colors ${
           isOccupied ? "bg-blue-500 shadow-lg shadow-blue-500/30" : "bg-neutral-700 border border-neutral-600"
         }`}
       />
@@ -123,8 +123,8 @@ const SquareChair = ({ side, position, isOccupied, tableSize }: {
   isOccupied: boolean;
   tableSize: number;
 }) => {
-  const offset = tableSize / 2 + 14;
-  const positionOffset = (position - 0.5) * 24;
+  const offset = tableSize / 2 + 18;
+  const positionOffset = (position - 0.5) * 28;
   
   let style: React.CSSProperties = {};
   let rotation = 0;
@@ -154,7 +154,7 @@ const SquareChair = ({ side, position, isOccupied, tableSize }: {
       style={{ ...style, transform: `translate(-50%, -50%) rotate(${rotation}deg)` }}
     >
       <div 
-        className={`w-5 h-3 rounded-t transition-colors ${
+        className={`w-6 h-3.5 rounded-t transition-colors ${
           isOccupied ? "bg-blue-500 shadow-lg shadow-blue-500/30" : "bg-neutral-700 border border-neutral-600"
         }`}
       />
@@ -169,8 +169,8 @@ const FloorPlanCircularTable = ({ table, isSelected, isHighlighted }: {
   isHighlighted: boolean;
 }) => {
   const config = statusConfig[table.status] || statusConfig["Available"];
-  const tableRadius = table.seats >= 8 ? 48 : table.seats >= 6 ? 40 : 32;
-  const containerSize = 160;
+  const tableRadius = table.seats >= 8 ? 60 : table.seats >= 6 ? 50 : 42;
+  const containerSize = 200;
 
   const chairAngles = Array.from({ length: table.seats }, (_, i) => 
     (360 / table.seats) * i - 90
@@ -217,8 +217,8 @@ const FloorPlanCircularTable = ({ table, isSelected, isHighlighted }: {
               : `0 4px 20px ${config.hexColor}40`
           }}
         >
-          <span className="text-white font-bold text-base leading-none">{table.id}</span>
-          <span className="text-[11px] font-semibold mt-0.5" style={{ color: config.hexColor }}>
+          <span className="text-white font-bold text-lg leading-none">{table.id}</span>
+          <span className="text-[12px] font-semibold mt-0.5" style={{ color: config.hexColor }}>
             {config.label}
           </span>
           <div className="flex items-center gap-0.5 mt-1">
@@ -235,7 +235,7 @@ const FloorPlanCircularTable = ({ table, isSelected, isHighlighted }: {
 
         {table.time && (
           <div 
-            className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+            className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-3 py-1 rounded-full text-[12px] font-semibold"
             style={{ backgroundColor: 'rgba(23, 23, 23, 0.95)', border: `1px solid ${config.hexColor}50` }}
           >
             <Clock className="w-3 h-3" style={{ color: config.hexColor }} />
@@ -253,8 +253,8 @@ const FloorPlanSquareTable = ({ table, isSelected, isHighlighted }: {
   isHighlighted: boolean;
 }) => {
   const config = statusConfig[table.status] || statusConfig["Available"];
-  const tableSize = 65;
-  const containerSize = 160;
+  const tableSize = 82;
+  const containerSize = 200;
 
   const getChairLayout = (seats: number) => {
     const chairs: { side: 'top' | 'right' | 'bottom' | 'left'; position: number }[] = [];
@@ -312,8 +312,8 @@ const FloorPlanSquareTable = ({ table, isSelected, isHighlighted }: {
               : `0 4px 20px ${config.hexColor}40`
           }}
         >
-          <span className="text-white font-bold text-base leading-none">{table.id}</span>
-          <span className="text-[11px] font-semibold mt-0.5" style={{ color: config.hexColor }}>
+          <span className="text-white font-bold text-lg leading-none">{table.id}</span>
+          <span className="text-[12px] font-semibold mt-0.5" style={{ color: config.hexColor }}>
             {config.label}
           </span>
           <div className="flex items-center gap-0.5 mt-1">
@@ -330,7 +330,7 @@ const FloorPlanSquareTable = ({ table, isSelected, isHighlighted }: {
 
         {table.time && (
           <div 
-            className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
+            className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-3 py-1 rounded-full text-[12px] font-semibold"
             style={{ backgroundColor: 'rgba(23, 23, 23, 0.95)', border: `1px solid ${config.hexColor}50` }}
           >
             <Clock className="w-3 h-3" style={{ color: config.hexColor }} />

@@ -145,7 +145,7 @@ const getStatusBadgeStyle = (status: string): { color: string; bg: string } => {
 
 const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
-const Tickets = () => {
+const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => {
   const navigate = useNavigate();
   const { orders: unifiedOrders, updateOrders, removeOrder: removeUnifiedOrder } = useUnifiedOrders();
   const [activeFilter, setActiveFilter] = useState("All");

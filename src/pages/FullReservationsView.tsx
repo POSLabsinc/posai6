@@ -16,6 +16,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer";
 import { 
   Clock, Users, MapPin, Calendar as CalendarIcon, AlertCircle, 
   ChevronLeft, ChevronRight, Phone, FileText, CreditCard, 
@@ -23,11 +29,12 @@ import {
   User, Hash, Utensils, Baby, Accessibility, Bell, StickyNote, MessageSquare,
   ExternalLink, CheckCircle2, XCircle, Map as MapIcon, Grid, X,
   List, ListFilter, ClipboardList, Flag, PauseCircle, PlayCircle, Send,
-  Cake, Heart, Wallet
+  Cake, Heart, Wallet, MoreHorizontal
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+// Responsive breakpoint hooks defined below
 import { mockReservations, type Reservation } from "@/components/ReservationsPanel";
 import { EditReservationDialog } from "@/components/EditReservationDialog";
 import TableMapPanel, { defaultTables, type TableType } from "@/components/TableMapPanel";
@@ -151,6 +158,32 @@ const getTimeContext = (reservation: Reservation, selectedDate: Date): { label: 
   return null;
 };
 
+// Responsive hooks for phone/tablet/desktop
+const useIsPhone = () => {
+  const [isPhone, setIsPhone] = useState(false);
+  useEffect(() => {
+    const check = () => setIsPhone(window.innerWidth < 640);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  return isPhone;
+};
+
+const useIsTablet = () => {
+  const [isTablet, setIsTablet] = useState(false);
+  useEffect(() => {
+    const check = () => {
+      const w = window.innerWidth;
+      setIsTablet(w >= 640 && w < 1024);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+  return isTablet;
+};
+
 // Enhanced Reservation Card for Timeline with Host-Focused Signals
 const ReservationCard = ({
   reservation,
@@ -199,7 +232,8 @@ const ReservationCard = ({
   return (
     <div
       onClick={() => onReservationClick(reservation)}
-      className={`pl-3 pr-3 py-2.5 rounded-lg border cursor-pointer transition-all hover:bg-white/5 overflow-hidden ${
+      className={cn(
+        "pl-3 pr-3 py-2.5 sm:py-3 rounded-lg border cursor-pointer transition-all hover:bg-white/5 overflow-hidden min-h-[48px]",
         isSelected 
           ? "border-orange-500 bg-orange-500/10 ring-1 ring-orange-500/30"
           : reservation.status === "late" 
@@ -207,7 +241,7 @@ const ReservationCard = ({
             : isUnassigned
               ? "border-amber-500/40 bg-amber-500/5"
               : "border-neutral-700/50 bg-neutral-800/30"
-      }`}
+      )}
     >
       {/* Three Row Layout for Information Hierarchy */}
       <div className="flex flex-col gap-1.5">
@@ -220,7 +254,7 @@ const ReservationCard = ({
           }`} />
           
           {/* Guest Name - Primary Element */}
-          <span className="text-white text-sm font-medium truncate flex-1 min-w-0">
+          <span className="text-white text-sm sm:text-base font-medium truncate flex-1 min-w-0">
             {reservation.guestName}
           </span>
           
@@ -233,26 +267,26 @@ const ReservationCard = ({
         </div>
         
         {/* Row 2: Time, Party, Table, Time Context */}
-        <div className="flex items-center gap-3 pl-4">
+        <div className="flex items-center gap-3 pl-4 flex-wrap">
           {/* Time */}
           <div className="flex items-center gap-1 flex-shrink-0">
             <Clock className="w-3 h-3 text-neutral-500" />
-            <span className="text-neutral-300 text-xs">{reservation.time}</span>
+            <span className="text-neutral-300 text-xs sm:text-sm">{reservation.time}</span>
           </div>
           
           {/* Party Size */}
           <div className="flex items-center gap-1 flex-shrink-0">
             <Users className="w-3 h-3 text-neutral-500" />
-            <span className="text-neutral-300 text-xs">{reservation.partySize}</span>
+            <span className="text-neutral-300 text-xs sm:text-sm">{reservation.partySize}</span>
           </div>
           
           {/* Table */}
           <div className="flex items-center gap-1 flex-shrink-0">
             <MapPin className="w-3 h-3 text-neutral-500" />
             {reservation.tableId ? (
-              <span className="text-neutral-300 text-xs font-medium">{reservation.tableId}</span>
+              <span className="text-neutral-300 text-xs sm:text-sm font-medium">{reservation.tableId}</span>
             ) : (
-              <span className="text-amber-400 text-xs font-semibold">Unassigned</span>
+              <span className="text-amber-400 text-xs sm:text-sm font-semibold">Unassigned</span>
             )}
           </div>
           
@@ -260,7 +294,7 @@ const ReservationCard = ({
           {timeContext && (
             <>
               <div className="flex-1" />
-              <span className={`text-[10px] font-medium ${timeContext.className}`}>
+              <span className={`text-[10px] sm:text-xs font-medium ${timeContext.className}`}>
                 {timeContext.label}
               </span>
             </>
@@ -324,11 +358,11 @@ const FieldRow = ({
   value: string | number | undefined | null; 
   valueClass?: string;
 }) => (
-  <div className="flex items-start gap-3 py-2">
+  <div className="flex items-start gap-3 py-2.5 sm:py-2">
     <Icon className="w-4 h-4 text-neutral-500 mt-0.5 flex-shrink-0" />
     <div className="flex-1 min-w-0">
       <p className="text-neutral-500 text-xs uppercase tracking-wide mb-0.5">{label}</p>
-      <p className={cn("text-sm", value ? valueClass : "text-neutral-600 italic")}>
+      <p className={cn("text-sm sm:text-base", value ? valueClass : "text-neutral-600 italic")}>
         {value || "Not specified"}
       </p>
     </div>
@@ -345,7 +379,7 @@ const BooleanFieldRow = ({
   label: string; 
   value: boolean | undefined; 
 }) => (
-  <div className="flex items-start gap-3 py-2">
+  <div className="flex items-start gap-3 py-2.5 sm:py-2">
     <Icon className="w-4 h-4 text-neutral-500 mt-0.5 flex-shrink-0" />
     <div className="flex-1 min-w-0">
       <p className="text-neutral-500 text-xs uppercase tracking-wide mb-0.5">{label}</p>
@@ -368,7 +402,7 @@ const BooleanFieldRow = ({
   </div>
 );
 
-// Tabbed Reservation Details Panel (eatOS POS parity)
+// Tabbed Reservation Details Panel
 const ReservationDetailsPanel = ({
   reservation,
   availableTables,
@@ -402,35 +436,35 @@ const ReservationDetailsPanel = ({
 
   return (
     <div className="h-full flex flex-col bg-neutral-900">
-      {/* Header: Name, Time, Status, Close */}
-      <div className="px-6 pt-5 pb-0 border-b border-neutral-800">
+      {/* Header */}
+      <div className="px-4 sm:px-6 pt-4 sm:pt-5 pb-0 border-b border-neutral-800">
         <div className="flex items-center justify-between mb-3">
-          <div>
-            <h2 className="text-white text-lg font-semibold">{reservation.guestName}</h2>
-            <p className="text-neutral-400 text-sm">
+          <div className="min-w-0 flex-1">
+            <h2 className="text-white text-base sm:text-lg font-semibold truncate">{reservation.guestName}</h2>
+            <p className="text-neutral-400 text-xs sm:text-sm">
               {reservation.time} • {isToday(reservation.date) ? "Today" : format(reservation.date, "MMM d, yyyy")}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${config.bg} ${config.text} border ${config.border}`}>
+          <div className="flex items-center gap-2 flex-shrink-0">
+            <span className={`px-2 sm:px-3 py-1 rounded-full text-[10px] sm:text-xs font-semibold ${config.bg} ${config.text} border ${config.border}`}>
               {config.label}
             </span>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+              className="w-8 h-8 sm:w-8 sm:h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
             >
               <X className="w-4 h-4 text-neutral-400" />
             </button>
           </div>
         </div>
 
-        {/* Tab Navigation */}
-        <div className="flex items-center gap-6">
+        {/* Tab Navigation - horizontally scrollable on mobile */}
+        <div className="flex items-center gap-4 sm:gap-6 overflow-x-auto scrollbar-hide">
           {tabs.map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`pb-2.5 text-sm font-medium transition-colors border-b-2 ${
+              className={`pb-2.5 text-xs sm:text-sm font-medium transition-colors border-b-2 whitespace-nowrap min-h-[44px] flex items-end ${
                 activeTab === tab.id
                   ? "text-white border-orange-500"
                   : "text-neutral-500 border-transparent hover:text-neutral-300"
@@ -444,7 +478,7 @@ const ReservationDetailsPanel = ({
 
       {/* Tab Content */}
       <ScrollArea className="flex-1">
-        <div className="px-6 py-4">
+        <div className="px-4 sm:px-6 py-4">
           {activeTab === "guest" && (
             <div className="space-y-0 divide-y divide-neutral-800">
               <FieldRow icon={User} label="Guest Name (First)" value={firstName} />
@@ -519,26 +553,26 @@ const ReservationDetailsPanel = ({
         </div>
       </ScrollArea>
 
-      {/* Bottom Actions */}
-      <div className="px-6 py-4 border-t border-neutral-800 bg-neutral-900/50">
-        <div className="flex gap-3">
+      {/* Bottom Actions - sticky */}
+      <div className="px-4 sm:px-6 py-3 sm:py-4 border-t border-neutral-800 bg-neutral-900/50">
+        <div className="flex gap-2 sm:gap-3">
           {reservation.status !== "seated" && reservation.tableId && (
             <button
               onClick={() => onSeatGuest(reservation)}
-              className="flex-1 px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-medium transition-colors"
+              className="flex-1 px-3 sm:px-4 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs sm:text-sm font-medium transition-colors min-h-[44px]"
             >
               Seat Guest
             </button>
           )}
           <button
             onClick={() => onEditReservation(reservation)}
-            className="flex-1 px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-sm font-medium transition-colors"
+            className="flex-1 px-3 sm:px-4 py-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white text-xs sm:text-sm font-medium transition-colors min-h-[44px]"
           >
-            Edit Reservation
+            Edit
           </button>
           <button
             onClick={() => onCancelReservation(reservation)}
-            className="flex-1 px-4 py-3 rounded-lg bg-red-900/40 hover:bg-red-900/60 text-red-400 text-sm font-medium transition-colors"
+            className="flex-1 px-3 sm:px-4 py-3 rounded-lg bg-red-900/40 hover:bg-red-900/60 text-red-400 text-xs sm:text-sm font-medium transition-colors min-h-[44px]"
           >
             Cancel
           </button>
@@ -560,6 +594,9 @@ const availableTables = [
 const FullReservationsView = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsPhone(); // <640px
+  const isTablet = useIsTablet(); // 640-1024px
+  const isDesktop = !isMobile && !isTablet;
   
   // Get state passed from TableOrder page
   const passedState = location.state as { 
@@ -587,6 +624,13 @@ const FullReservationsView = () => {
   const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
   const [mapViewMode, setMapViewMode] = useState<"floorplan" | "grid">("floorplan");
   const [selectedTableFromMap, setSelectedTableFromMap] = useState<string | null>(null);
+  
+  // Mobile tab state
+  const [mobileActiveTab, setMobileActiveTab] = useState<"timeline" | "floorplan" | "details">("timeline");
+  // Tablet: details slide-over
+  const [tabletDetailsOpen, setTabletDetailsOpen] = useState(false);
+  // Mobile: table bottom sheet
+  const [mobileTableSheetOpen, setMobileTableSheetOpen] = useState(false);
   
   // Utility bar state
   const [listViewMode, setListViewMode] = useState<"grouped" | "flat">("grouped");
@@ -643,6 +687,12 @@ const FullReservationsView = () => {
   const handleReservationSelect = (reservation: Reservation) => {
     setSelectedReservation(reservation);
     setSelectedTableFromMap(null);
+    if (isMobile) {
+      setMobileActiveTab("details");
+    }
+    if (isTablet) {
+      setTabletDetailsOpen(true);
+    }
   };
 
   const handleAssignTable = (reservationId: string, tableId: string) => {
@@ -725,6 +775,15 @@ const FullReservationsView = () => {
     }
   };
 
+  // Handle table select from map
+  const handleTableSelectFromMap = (tableId: string) => {
+    setSelectedTableFromMap(tableId);
+    setSelectedReservation(null);
+    if (isMobile) {
+      setMobileTableSheetOpen(true);
+    }
+  };
+
   // Auto-scroll to selected reservation's hour block
   useEffect(() => {
     if (selectedReservation) {
@@ -736,508 +795,570 @@ const FullReservationsView = () => {
     }
   }, [selectedReservation]);
 
+  // Timeline panel content (reused across layouts)
+  const TimelineContent = () => (
+    <>
+      {/* List Header: Date Filter + Status Indicators */}
+      <div className="px-3 sm:px-4 py-2.5 sm:py-3 border-b border-neutral-800 space-y-2 sm:space-y-3">
+        {/* Date Navigation Row */}
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handlePrevDay}
+            className="w-8 h-8 sm:w-7 sm:h-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+          >
+            <ChevronLeft className="w-4 h-4 text-neutral-400" />
+          </button>
+          
+          <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
+            <PopoverTrigger asChild>
+              <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors min-h-[44px] sm:min-h-0">
+                <CalendarIcon className="w-4 h-4 text-orange-400" />
+                <span className="text-white text-sm font-semibold">{getDateLabel(selectedDate)}</span>
+                {!isTodaySelected && (
+                  <span className="text-neutral-500 text-xs">{format(selectedDate, "MMM d")}</span>
+                )}
+              </button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-neutral-900 border-neutral-700" align="start">
+              <Calendar
+                mode="single"
+                selected={selectedDate}
+                onSelect={(date) => {
+                  if (date) {
+                    setSelectedDate(date);
+                    setIsCalendarOpen(false);
+                  }
+                }}
+                initialFocus
+                className={cn("p-3 pointer-events-auto")}
+              />
+            </PopoverContent>
+          </Popover>
+          
+          {!isTodaySelected && (
+            <button
+              onClick={handleToday}
+              className="px-2 py-1 rounded bg-orange-500/20 text-orange-400 text-[10px] font-semibold uppercase tracking-wide hover:bg-orange-500/30 transition-colors min-h-[32px]"
+            >
+              Today
+            </button>
+          )}
+          
+          <button
+            onClick={handleNextDay}
+            className="w-8 h-8 sm:w-7 sm:h-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
+          >
+            <ChevronRight className="w-4 h-4 text-neutral-400" />
+          </button>
+        </div>
+        
+        {/* Status Indicators Row */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10">
+            <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+            <span className="text-blue-400 text-[11px] font-medium">{filteredReservations.length}</span>
+          </div>
+          {lateCount > 0 && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/10 animate-pulse">
+              <AlertCircle className="w-3 h-3 text-red-400" />
+              <span className="text-red-400 text-[11px] font-medium">{lateCount} Late</span>
+            </div>
+          )}
+          {unassignedCount > 0 && (
+            <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10">
+              <MapPin className="w-3 h-3 text-amber-400" />
+              <span className="text-amber-400 text-[11px] font-medium">{unassignedCount} Unassigned</span>
+            </div>
+          )}
+          <span className="text-neutral-500 text-xs ml-auto uppercase tracking-wide">
+            {activeQuickFilter ? activeQuickFilter.charAt(0).toUpperCase() + activeQuickFilter.slice(1) : "Timeline"}
+          </span>
+        </div>
+        
+        {/* Utility Bar - horizontally scrollable on mobile */}
+        <TooltipProvider delayDuration={200}>
+          <div className="flex items-center justify-between gap-2 pt-1 sm:pt-2">
+            {/* Left: View Controls + Quick Filters */}
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-hide">
+              {/* View / Group Toggle */}
+              <button
+                onClick={() => setListViewMode(listViewMode === "grouped" ? "flat" : "grouped")}
+                className={`w-8 h-8 min-w-[32px] rounded-lg flex items-center justify-center transition-colors ${
+                  listViewMode === "grouped" 
+                    ? "bg-neutral-800 text-white" 
+                    : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                {listViewMode === "grouped" ? <ListFilter className="w-4 h-4" /> : <List className="w-4 h-4" />}
+              </button>
+              
+              {/* Waitlist Access */}
+              <button className="relative w-8 h-8 min-w-[32px] rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors">
+                <ClipboardList className="w-4 h-4 text-neutral-400" />
+                {waitlistCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-[10px] font-bold text-black flex items-center justify-center">
+                    {waitlistCount}
+                  </span>
+                )}
+              </button>
+              
+              {/* Alerts / Flags */}
+              <button className="relative w-8 h-8 min-w-[32px] rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors">
+                <Flag className={`w-4 h-4 ${lateCount > 0 ? "text-red-400" : "text-neutral-400"}`} />
+                {(lateCount > 0 || unassignedCount > 0) && (
+                  <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center ${
+                    lateCount > 0 ? "bg-red-500 text-white" : "bg-amber-500 text-black"
+                  }`}>
+                    {lateCount + unassignedCount}
+                  </span>
+                )}
+              </button>
+              
+              <div className="w-px h-5 bg-neutral-700 mx-1 flex-shrink-0" />
+              
+              {/* Quick Filters */}
+              <button 
+                onClick={() => setActiveQuickFilter(activeQuickFilter === "birthday" ? null : "birthday")}
+                className={`relative w-8 h-8 min-w-[32px] rounded-lg flex items-center justify-center transition-colors ${
+                  activeQuickFilter === "birthday" ? "bg-pink-500/20 text-pink-400" : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                <Cake className="w-4 h-4" />
+                {birthdayCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-pink-500 text-[10px] font-bold text-white flex items-center justify-center">{birthdayCount}</span>
+                )}
+              </button>
+              
+              <button 
+                onClick={() => setActiveQuickFilter(activeQuickFilter === "anniversary" ? null : "anniversary")}
+                className={`relative w-8 h-8 min-w-[32px] rounded-lg flex items-center justify-center transition-colors ${
+                  activeQuickFilter === "anniversary" ? "bg-rose-500/20 text-rose-400" : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                <Heart className="w-4 h-4" />
+                {anniversaryCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center">{anniversaryCount}</span>
+                )}
+              </button>
+              
+              <button 
+                onClick={() => setActiveQuickFilter(activeQuickFilter === "message" ? null : "message")}
+                className={`relative w-8 h-8 min-w-[32px] rounded-lg flex items-center justify-center transition-colors ${
+                  activeQuickFilter === "message" ? "bg-blue-500/20 text-blue-400" : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                <MessageSquare className="w-4 h-4" />
+                {messageCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-500 text-[10px] font-bold text-white flex items-center justify-center">{messageCount}</span>
+                )}
+              </button>
+              
+              <button 
+                onClick={() => setActiveQuickFilter(activeQuickFilter === "deposit" ? null : "deposit")}
+                className={`relative w-8 h-8 min-w-[32px] rounded-lg flex items-center justify-center transition-colors ${
+                  activeQuickFilter === "deposit" ? "bg-amber-500/20 text-amber-400" : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                <Wallet className="w-4 h-4" />
+                {depositPendingCount > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-[10px] font-bold text-black flex items-center justify-center">{depositPendingCount}</span>
+                )}
+              </button>
+            </div>
+            
+            {/* Right: Quick Actions - hidden on very small screens, show in overflow */}
+            <div className="hidden sm:flex items-center gap-1">
+              <button 
+                onClick={() => setSelectedReservation(null)}
+                className="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors"
+              >
+                <MapIcon className="w-4 h-4 text-neutral-400" />
+              </button>
+              <button className="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors">
+                <Send className="w-4 h-4 text-neutral-400" />
+              </button>
+              <button
+                onClick={() => {
+                  setReservationsPaused(!reservationsPaused);
+                  toast({
+                    title: reservationsPaused ? "Reservations Resumed" : "Reservations Paused",
+                    description: reservationsPaused 
+                      ? "New reservations are now being accepted" 
+                      : "New reservations are temporarily disabled",
+                  });
+                }}
+                className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
+                  reservationsPaused 
+                    ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" 
+                    : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
+                }`}
+              >
+                {reservationsPaused ? <PlayCircle className="w-4 h-4" /> : <PauseCircle className="w-4 h-4" />}
+              </button>
+            </div>
+          </div>
+          
+          {/* Active Filter Indicator */}
+          {activeQuickFilter && (
+            <div className="flex items-center justify-between mt-2 px-2 py-1.5 rounded-md bg-neutral-800/50">
+              <span className="text-neutral-300 text-xs">
+                Showing: <span className="font-medium text-white">{activeQuickFilter.charAt(0).toUpperCase() + activeQuickFilter.slice(1)}</span>
+                <span className="text-neutral-500 ml-1">({filteredReservations.length})</span>
+              </span>
+              <button 
+                onClick={() => setActiveQuickFilter(null)}
+                className="text-neutral-400 hover:text-white text-xs flex items-center gap-1 min-h-[32px]"
+              >
+                <X className="w-3 h-3" />
+                Clear
+              </button>
+            </div>
+          )}
+          
+          {reservationsPaused && (
+            <div className="mt-2 px-3 py-1.5 rounded-md bg-red-500/15 border border-red-500/30 flex items-center justify-center gap-2">
+              <PauseCircle className="w-3.5 h-3.5 text-red-400" />
+              <span className="text-red-400 text-xs font-medium">New reservations paused</span>
+            </div>
+          )}
+        </TooltipProvider>
+      </div>
+      
+      {/* Reservation List */}
+      <ScrollArea className="flex-1">
+        <div className="pl-3 pr-4 sm:pl-4 sm:pr-6 py-3 sm:py-4 space-y-3">
+          {sortedHours.map((hour) => {
+            const hourReservations = groupedReservations.get(hour) || [];
+            const isCurrentHour = hour === currentHour && isTodaySelected;
+            
+            return (
+              <div key={hour} id={`hour-block-${hour}`} className="relative">
+                {/* Time Block Header */}
+                <div 
+                  className={`sticky top-0 z-10 flex items-center gap-2 px-2.5 py-1.5 rounded-md mb-2 ${
+                    isCurrentHour 
+                      ? "bg-orange-500/15 border border-orange-500/30" 
+                      : "bg-neutral-800/60"
+                  }`}
+                >
+                  <Clock className={`w-3.5 h-3.5 ${isCurrentHour ? "text-orange-400" : "text-neutral-500"}`} />
+                  <span className={`text-xs font-semibold ${isCurrentHour ? "text-orange-400" : "text-neutral-300"}`}>
+                    {formatHourBlock(hour)}
+                  </span>
+                  {isCurrentHour && (
+                    <Badge className="bg-orange-500 text-white text-[9px] px-1.5 py-0 h-4 ml-1">
+                      NOW
+                    </Badge>
+                  )}
+                  <span className="text-neutral-500 text-[10px] ml-auto">{hourReservations.length}</span>
+                </div>
+                
+                {/* Reservations in this time block */}
+                <div className="space-y-2">
+                  {hourReservations.map((reservation) => (
+                    <ReservationCard
+                      key={reservation.id}
+                      reservation={reservation}
+                      isSelected={selectedReservation?.id === reservation.id}
+                      onReservationClick={handleReservationSelect}
+                      selectedDate={selectedDate}
+                    />
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+          
+          {filteredReservations.length === 0 && (
+            <div className="flex flex-col items-center justify-center py-16 text-center">
+              <CalendarIcon className="w-12 h-12 text-neutral-700 mb-3" />
+              <h4 className="text-neutral-400 font-medium">No Reservations</h4>
+              <p className="text-neutral-600 text-sm mt-1">{getDateLabel(selectedDate)}</p>
+            </div>
+          )}
+        </div>
+      </ScrollArea>
+    </>
+  );
+
+  // Floor plan / grid content (reused)
+  const FloorPlanContent = () => (
+    <TableMapPanel 
+      viewMode={mapViewMode}
+      selectedReservation={selectedReservation}
+      selectedTableIdExternal={selectedTableFromMap}
+      onTableSelect={handleTableSelectFromMap}
+    />
+  );
+
+  // Get table data for context panel / bottom sheet
+  const selectedTableData = selectedTableFromMap ? defaultTables.find(t => t.id === selectedTableFromMap) : null;
+  const linkedReservation = selectedTableFromMap ? reservations.find(r => r.tableId === selectedTableFromMap && r.status !== "completed") : null;
+
   return (
     <div className="h-screen bg-neutral-950 flex flex-col overflow-hidden">
-      {/* Header - Navigation + Layout Toggle */}
-      <div className="flex-shrink-0 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-sm">
-        <div className="flex items-center justify-between px-6 py-3">
-          {/* Left: Back to Tables + Reservations Title (navigation cluster) */}
-          <div className="flex items-center gap-4">
+      {/* Header - Sticky, Compact on mobile */}
+      <div className="flex-shrink-0 border-b border-neutral-800 bg-neutral-900/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3">
+          {/* Left: Back + Title */}
+          <div className="flex items-center gap-2 sm:gap-4">
             <button
               onClick={handleBackToTables}
-              className="flex items-center gap-2 px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white transition-colors"
+              className="flex items-center gap-1 sm:gap-2 px-2 sm:px-4 py-2 rounded-lg bg-neutral-800 hover:bg-neutral-700 text-white transition-colors min-h-[44px]"
             >
               <ArrowLeft className="w-4 h-4" />
-              <span className="text-sm font-medium">Back to Tables</span>
+              <span className="text-xs sm:text-sm font-medium hidden sm:inline">Back to Tables</span>
             </button>
             
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
-                <CalendarIcon className="w-4 h-4 text-orange-400" />
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-orange-500/20 flex items-center justify-center">
+                <CalendarIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400" />
               </div>
-              <h1 className="text-white text-lg font-semibold">Reservations</h1>
+              <h1 className="text-white text-sm sm:text-lg font-semibold">Reservations</h1>
             </div>
           </div>
           
-          {/* Right: Layout Toggle */}
+          {/* Right: Layout Toggle (always visible) + overflow on mobile */}
           <div className="flex items-center gap-2">
-            <div className="flex items-center bg-neutral-800 rounded-lg p-1">
-              <button
-                onClick={() => setMapViewMode("floorplan")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  mapViewMode === "floorplan" 
-                    ? "bg-neutral-700 text-white" 
-                    : "text-neutral-400 hover:text-white"
-                }`}
-              >
-                <MapIcon className="w-4 h-4" />
-                <span className="hidden sm:inline">Floor Plan</span>
-              </button>
-              <button
-                onClick={() => setMapViewMode("grid")}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
-                  mapViewMode === "grid" 
-                    ? "bg-neutral-700 text-white" 
-                    : "text-neutral-400 hover:text-white"
-                }`}
-              >
-                <Grid className="w-4 h-4" />
-                <span className="hidden sm:inline">Grid</span>
-              </button>
-            </div>
+            {/* View Toggle - Floor Plan / Grid (visible when showing floor plan) */}
+            {(isDesktop || (!isMobile) || mobileActiveTab === "floorplan") && (
+              <div className="flex items-center bg-neutral-800 rounded-lg p-0.5 sm:p-1">
+                <button
+                  onClick={() => setMapViewMode("floorplan")}
+                  className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors min-h-[36px] ${
+                    mapViewMode === "floorplan" 
+                      ? "bg-neutral-700 text-white" 
+                      : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  <MapIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Floor Plan</span>
+                </button>
+                <button
+                  onClick={() => setMapViewMode("grid")}
+                  className={`flex items-center gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md text-xs sm:text-sm font-medium transition-colors min-h-[36px] ${
+                    mapViewMode === "grid" 
+                      ? "bg-neutral-700 text-white" 
+                      : "text-neutral-400 hover:text-white"
+                  }`}
+                >
+                  <Grid className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                  <span className="hidden sm:inline">Grid</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
+        
+        {/* Mobile Tab Switcher - phone only */}
+        {isMobile && (
+          <div className="flex items-center border-t border-neutral-800">
+            {[
+              { id: "timeline" as const, label: "Timeline", icon: List },
+              { id: "floorplan" as const, label: "Floor Plan", icon: MapIcon },
+              { id: "details" as const, label: "Details", icon: FileText },
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setMobileActiveTab(tab.id)}
+                className={`flex-1 flex items-center justify-center gap-1.5 py-2.5 text-xs font-medium transition-colors border-b-2 min-h-[44px] ${
+                  mobileActiveTab === tab.id
+                    ? "text-orange-400 border-orange-500 bg-orange-500/5"
+                    : "text-neutral-500 border-transparent hover:text-neutral-300"
+                }`}
+              >
+                <tab.icon className="w-3.5 h-3.5" />
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
-      {/* Main Content - Two Column Layout */}
-      <div className="flex-1 flex overflow-hidden">
-        {/* Left Column: Timeline or Table Context Panel */}
-        <div className="w-[420px] border-r border-neutral-800 bg-neutral-900/50 flex flex-col overflow-hidden">
-          {selectedTableFromMap ? (
-            // Table Context Panel - when a table is selected on the map
-            (() => {
-              const tableData = defaultTables.find(t => t.id === selectedTableFromMap);
-              const linkedRes = reservations.find(r => r.tableId === selectedTableFromMap && r.status !== "completed");
-              if (!tableData) return null;
-              return (
+      {/* === MOBILE LAYOUT (<640px) === */}
+      {isMobile && (
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {mobileActiveTab === "timeline" && (
+            <div className="flex-1 flex flex-col overflow-hidden">
+              {selectedTableFromMap && selectedTableData ? (
                 <TableContextPanel
-                  table={tableData}
-                  linkedReservation={linkedRes}
+                  table={selectedTableData}
+                  linkedReservation={linkedReservation}
                   onBack={() => setSelectedTableFromMap(null)}
                   onAction={(action, tableId) => {
-                    if (action === 'edit-reservation' && linkedRes) {
-                      handleEditReservation(linkedRes);
-                    } else if (action === 'cancel-reservation' && linkedRes) {
-                      handleCancelReservation(linkedRes);
-                    } else if (action === 'seat-guest' && linkedRes) {
-                      handleSeatGuest(linkedRes);
-                    } else if (action === 'view-order' || action === 'start-order' || action === 'add-items') {
-                      navigate(`/tableorder/${tableId}`);
-                    }
+                    if (action === 'edit-reservation' && linkedReservation) handleEditReservation(linkedReservation);
+                    else if (action === 'cancel-reservation' && linkedReservation) handleCancelReservation(linkedReservation);
+                    else if (action === 'seat-guest' && linkedReservation) handleSeatGuest(linkedReservation);
+                    else if (action === 'view-order' || action === 'start-order' || action === 'add-items') navigate(`/tableorder/${tableId}`);
                   }}
                 />
-              );
-            })()
-          ) : (
-            // Reservations Timeline Panel - default state
-            <>
-          {/* List Header: Date Filter + Status Indicators */}
-          <div className="px-4 py-3 border-b border-neutral-800 space-y-3">
-            {/* Date Navigation Row */}
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handlePrevDay}
-                className="w-7 h-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4 text-neutral-400" />
-              </button>
-              
-              <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
-                <PopoverTrigger asChild>
-                  <button className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-800 hover:bg-neutral-700 transition-colors">
-                    <CalendarIcon className="w-4 h-4 text-orange-400" />
-                    <span className="text-white text-sm font-semibold">{getDateLabel(selectedDate)}</span>
-                    {!isTodaySelected && (
-                      <span className="text-neutral-500 text-xs">{format(selectedDate, "MMM d")}</span>
-                    )}
-                  </button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-neutral-900 border-neutral-700" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={selectedDate}
-                    onSelect={(date) => {
-                      if (date) {
-                        setSelectedDate(date);
-                        setIsCalendarOpen(false);
-                      }
-                    }}
-                    initialFocus
-                    className={cn("p-3 pointer-events-auto")}
-                  />
-                </PopoverContent>
-              </Popover>
-              
-              {!isTodaySelected && (
-                <button
-                  onClick={handleToday}
-                  className="px-2 py-1 rounded bg-orange-500/20 text-orange-400 text-[10px] font-semibold uppercase tracking-wide hover:bg-orange-500/30 transition-colors"
-                >
-                  Today
-                </button>
+              ) : (
+                <TimelineContent />
               )}
-              
-              <button
-                onClick={handleNextDay}
-                className="w-7 h-7 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors"
-              >
-                <ChevronRight className="w-4 h-4 text-neutral-400" />
-              </button>
             </div>
-            
-            {/* Status Indicators Row */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-blue-500/10">
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500" />
-                <span className="text-blue-400 text-[11px] font-medium">{filteredReservations.length}</span>
-              </div>
-              {lateCount > 0 && (
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-red-500/10 animate-pulse">
-                  <AlertCircle className="w-3 h-3 text-red-400" />
-                  <span className="text-red-400 text-[11px] font-medium">{lateCount} Late</span>
-                </div>
-              )}
-              {unassignedCount > 0 && (
-                <div className="flex items-center gap-1.5 px-2 py-1 rounded-full bg-amber-500/10">
-                  <MapPin className="w-3 h-3 text-amber-400" />
-                  <span className="text-amber-400 text-[11px] font-medium">{unassignedCount} Unassigned</span>
-                </div>
-              )}
-              <span className="text-neutral-500 text-xs ml-auto uppercase tracking-wide">
-                {activeQuickFilter ? activeQuickFilter.charAt(0).toUpperCase() + activeQuickFilter.slice(1) : "Timeline"}
-              </span>
+          )}
+          
+          {mobileActiveTab === "floorplan" && (
+            <div className="flex-1 overflow-hidden">
+              <FloorPlanContent />
             </div>
-            
-            {/* Utility Bar - Below Status Indicators */}
-            <TooltipProvider delayDuration={200}>
-              <div className="flex items-center justify-between gap-2 pt-2">
-                {/* Left: View Controls + Quick Filters */}
-                <div className="flex items-center gap-1">
-                  {/* View / Group Toggle */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => setListViewMode(listViewMode === "grouped" ? "flat" : "grouped")}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                          listViewMode === "grouped" 
-                            ? "bg-neutral-800 text-white" 
-                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                        }`}
-                      >
-                        {listViewMode === "grouped" ? (
-                          <ListFilter className="w-4 h-4" />
-                        ) : (
-                          <List className="w-4 h-4" />
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>{listViewMode === "grouped" ? "Switch to Flat List" : "Switch to Time-Grouped"}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Waitlist Access */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="relative w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
-                        <ClipboardList className="w-4 h-4 text-neutral-400 group-hover:text-white" />
-                        {waitlistCount > 0 && (
-                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-[10px] font-bold text-black flex items-center justify-center">
-                            {waitlistCount}
-                          </span>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>Waitlist ({waitlistCount} guests)</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Alerts / Flags */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="relative w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
-                        <Flag className={`w-4 h-4 ${lateCount > 0 ? "text-red-400" : "text-neutral-400 group-hover:text-white"}`} />
-                        {(lateCount > 0 || unassignedCount > 0) && (
-                          <span className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-[10px] font-bold flex items-center justify-center ${
-                            lateCount > 0 ? "bg-red-500 text-white" : "bg-amber-500 text-black"
-                          }`}>
-                            {lateCount + unassignedCount}
-                          </span>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
-                      <div className="space-y-1">
-                        <p className="font-medium">Alerts</p>
-                        {lateCount > 0 && <p className="text-red-400 text-xs">{lateCount} Late guests</p>}
-                        {unassignedCount > 0 && <p className="text-amber-400 text-xs">{unassignedCount} Unassigned</p>}
-                        {lateCount === 0 && unassignedCount === 0 && <p className="text-neutral-400 text-xs">No alerts</p>}
-                      </div>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Divider */}
-                  <div className="w-px h-5 bg-neutral-700 mx-1" />
-                  
-                  {/* Quick Filter: Birthday */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => setActiveQuickFilter(activeQuickFilter === "birthday" ? null : "birthday")}
-                        className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                          activeQuickFilter === "birthday"
-                            ? "bg-pink-500/20 text-pink-400"
-                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                        }`}
-                      >
-                        <Cake className="w-4 h-4" />
-                        {birthdayCount > 0 && (
-                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-pink-500 text-[10px] font-bold text-white flex items-center justify-center">
-                            {birthdayCount}
-                          </span>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>Birthdays ({birthdayCount})</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Quick Filter: Anniversary */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => setActiveQuickFilter(activeQuickFilter === "anniversary" ? null : "anniversary")}
-                        className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                          activeQuickFilter === "anniversary"
-                            ? "bg-rose-500/20 text-rose-400"
-                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                        }`}
-                      >
-                        <Heart className="w-4 h-4" />
-                        {anniversaryCount > 0 && (
-                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-[10px] font-bold text-white flex items-center justify-center">
-                            {anniversaryCount}
-                          </span>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>Anniversaries ({anniversaryCount})</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Quick Filter: Guest Message */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => setActiveQuickFilter(activeQuickFilter === "message" ? null : "message")}
-                        className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                          activeQuickFilter === "message"
-                            ? "bg-blue-500/20 text-blue-400"
-                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                        }`}
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        {messageCount > 0 && (
-                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-blue-500 text-[10px] font-bold text-white flex items-center justify-center">
-                            {messageCount}
-                          </span>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>Guest Messages ({messageCount})</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Quick Filter: Deposit Pending */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => setActiveQuickFilter(activeQuickFilter === "deposit" ? null : "deposit")}
-                        className={`relative w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                          activeQuickFilter === "deposit"
-                            ? "bg-amber-500/20 text-amber-400"
-                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                        }`}
-                      >
-                        <Wallet className="w-4 h-4" />
-                        {depositPendingCount > 0 && (
-                          <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-[10px] font-bold text-black flex items-center justify-center">
-                            {depositPendingCount}
-                          </span>
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>Deposit Pending ({depositPendingCount})</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-                
-                {/* Right: Quick Actions + Manager Controls */}
-                <div className="flex items-center gap-1">
-                  {/* Jump to Floor */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button 
-                        onClick={() => setSelectedReservation(null)}
-                        className="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group"
-                      >
-                        <MapIcon className="w-4 h-4 text-neutral-400 group-hover:text-white" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>Jump to Floor Map</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Guest Communication */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button className="w-8 h-8 rounded-lg bg-neutral-800/50 hover:bg-neutral-800 flex items-center justify-center transition-colors group">
-                        <Send className="w-4 h-4 text-neutral-400 group-hover:text-white" />
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>Message Guests</p>
-                    </TooltipContent>
-                  </Tooltip>
-                  
-                  {/* Reservation Control - Pause/Resume */}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <button
-                        onClick={() => {
-                          setReservationsPaused(!reservationsPaused);
-                          toast({
-                            title: reservationsPaused ? "Reservations Resumed" : "Reservations Paused",
-                            description: reservationsPaused 
-                              ? "New reservations are now being accepted" 
-                              : "New reservations are temporarily disabled",
-                          });
-                        }}
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center transition-colors ${
-                          reservationsPaused 
-                            ? "bg-red-500/20 text-red-400 hover:bg-red-500/30" 
-                            : "bg-neutral-800/50 text-neutral-400 hover:bg-neutral-800 hover:text-white"
-                        }`}
-                      >
-                        {reservationsPaused ? (
-                          <PlayCircle className="w-4 h-4" />
-                        ) : (
-                          <PauseCircle className="w-4 h-4" />
-                        )}
-                      </button>
-                    </TooltipTrigger>
-                    <TooltipContent side="bottom" className="bg-neutral-800 text-white border-neutral-700">
-                      <p>{reservationsPaused ? "Resume Reservations" : "Pause New Reservations"}</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </div>
-              </div>
-              
-              {/* Active Filter Indicator + Clear */}
-              {activeQuickFilter && (
-                <div className="flex items-center justify-between mt-2 px-2 py-1.5 rounded-md bg-neutral-800/50">
-                  <span className="text-neutral-300 text-xs">
-                    Showing: <span className="font-medium text-white">{activeQuickFilter.charAt(0).toUpperCase() + activeQuickFilter.slice(1)}</span>
-                    <span className="text-neutral-500 ml-1">({filteredReservations.length})</span>
-                  </span>
-                  <button 
-                    onClick={() => setActiveQuickFilter(null)}
-                    className="text-neutral-400 hover:text-white text-xs flex items-center gap-1"
-                  >
-                    <X className="w-3 h-3" />
-                    Clear
-                  </button>
+          )}
+          
+          {mobileActiveTab === "details" && (
+            <div className="flex-1 overflow-hidden">
+              {selectedReservation ? (
+                <ReservationDetailsPanel
+                  reservation={selectedReservation}
+                  availableTables={availableTables}
+                  onAssignTable={handleAssignTable}
+                  onSeatGuest={handleSeatGuest}
+                  onEditReservation={handleEditReservation}
+                  onCancelReservation={handleCancelReservation}
+                  onClose={() => {
+                    setSelectedReservation(null);
+                    setMobileActiveTab("timeline");
+                  }}
+                />
+              ) : (
+                <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+                  <FileText className="w-12 h-12 text-neutral-700 mb-3" />
+                  <h4 className="text-neutral-400 font-medium text-sm">No Reservation Selected</h4>
+                  <p className="text-neutral-600 text-xs mt-1">Tap a reservation from the Timeline to view details</p>
                 </div>
               )}
-              
-              {/* Paused Banner */}
-              {reservationsPaused && (
-                <div className="mt-2 px-3 py-1.5 rounded-md bg-red-500/15 border border-red-500/30 flex items-center justify-center gap-2">
-                  <PauseCircle className="w-3.5 h-3.5 text-red-400" />
-                  <span className="text-red-400 text-xs font-medium">New reservations paused</span>
-                </div>
-              )}
-            </TooltipProvider>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* === TABLET LAYOUT (640-1024px) === */}
+      {isTablet && (
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left: Timeline or Table Context */}
+          <div className="w-[320px] border-r border-neutral-800 bg-neutral-900/50 flex flex-col overflow-hidden">
+            {selectedTableFromMap && selectedTableData ? (
+              <TableContextPanel
+                table={selectedTableData}
+                linkedReservation={linkedReservation}
+                onBack={() => setSelectedTableFromMap(null)}
+                onAction={(action, tableId) => {
+                  if (action === 'edit-reservation' && linkedReservation) handleEditReservation(linkedReservation);
+                  else if (action === 'cancel-reservation' && linkedReservation) handleCancelReservation(linkedReservation);
+                  else if (action === 'seat-guest' && linkedReservation) handleSeatGuest(linkedReservation);
+                  else if (action === 'view-order' || action === 'start-order' || action === 'add-items') navigate(`/tableorder/${tableId}`);
+                }}
+              />
+            ) : (
+              <TimelineContent />
+            )}
           </div>
           
-          <ScrollArea className="flex-1">
-            <div className="pl-4 pr-6 py-4 space-y-3">
-              {sortedHours.map((hour) => {
-                const hourReservations = groupedReservations.get(hour) || [];
-                const isCurrentHour = hour === currentHour && isTodaySelected;
-                
-                return (
-                  <div key={hour} id={`hour-block-${hour}`} className="relative">
-                    {/* Time Block Header */}
-                    <div 
-                      className={`sticky top-0 z-10 flex items-center gap-2 px-2.5 py-1.5 rounded-md mb-2 ${
-                        isCurrentHour 
-                          ? "bg-orange-500/15 border border-orange-500/30" 
-                          : "bg-neutral-800/60"
-                      }`}
-                    >
-                      <Clock className={`w-3.5 h-3.5 ${isCurrentHour ? "text-orange-400" : "text-neutral-500"}`} />
-                      <span className={`text-xs font-semibold ${isCurrentHour ? "text-orange-400" : "text-neutral-300"}`}>
-                        {formatHourBlock(hour)}
-                      </span>
-                      {isCurrentHour && (
-                        <Badge className="bg-orange-500 text-white text-[9px] px-1.5 py-0 h-4 ml-1">
-                          NOW
-                        </Badge>
-                      )}
-                      <span className="text-neutral-500 text-[10px] ml-auto">{hourReservations.length}</span>
-                    </div>
-                    
-                    {/* Reservations in this time block */}
-                    <div className="space-y-2">
-                      {hourReservations.map((reservation) => (
-                        <ReservationCard
-                          key={reservation.id}
-                          reservation={reservation}
-                          isSelected={selectedReservation?.id === reservation.id}
-                          onReservationClick={handleReservationSelect}
-                          selectedDate={selectedDate}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                );
-              })}
-              
-              {filteredReservations.length === 0 && (
-                <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <CalendarIcon className="w-12 h-12 text-neutral-700 mb-3" />
-                  <h4 className="text-neutral-400 font-medium">No Reservations</h4>
-                  <p className="text-neutral-600 text-sm mt-1">{getDateLabel(selectedDate)}</p>
-                </div>
+          {/* Center: Floor Plan / Grid */}
+          <div className="flex-1 bg-neutral-950">
+            <FloorPlanContent />
+          </div>
+          
+          {/* Right: Details Slide-Over Drawer */}
+          <Drawer 
+            open={tabletDetailsOpen && !!selectedReservation} 
+            onOpenChange={(open) => {
+              setTabletDetailsOpen(open);
+              if (!open) setSelectedReservation(null);
+            }}
+            direction="right"
+          >
+            <DrawerContent className="h-full w-[420px] bg-neutral-900 border-l border-neutral-800 ml-auto inset-y-0 right-0 rounded-none">
+              {selectedReservation && (
+                <ReservationDetailsPanel
+                  reservation={selectedReservation}
+                  availableTables={availableTables}
+                  onAssignTable={handleAssignTable}
+                  onSeatGuest={handleSeatGuest}
+                  onEditReservation={handleEditReservation}
+                  onCancelReservation={handleCancelReservation}
+                  onClose={() => {
+                    setTabletDetailsOpen(false);
+                    setSelectedReservation(null);
+                  }}
+                />
               )}
-            </div>
-          </ScrollArea>
-            </>
-          )}
+            </DrawerContent>
+          </Drawer>
         </div>
+      )}
 
-        {/* Right Column: Table Map or Reservation Details */}
-        <div className="flex-1 bg-neutral-950">
-          {selectedReservation ? (
-            <ReservationDetailsPanel
-              reservation={selectedReservation}
-              availableTables={availableTables}
-              onAssignTable={handleAssignTable}
-              onSeatGuest={handleSeatGuest}
-              onEditReservation={handleEditReservation}
-              onCancelReservation={handleCancelReservation}
-              onClose={() => setSelectedReservation(null)}
-            />
-          ) : (
-            <TableMapPanel 
-              viewMode={mapViewMode}
-              selectedReservation={selectedReservation}
-              selectedTableIdExternal={selectedTableFromMap}
-              onTableSelect={(tableId) => {
-                setSelectedTableFromMap(tableId);
-                setSelectedReservation(null);
-              }}
-            />
-          )}
+      {/* === DESKTOP LAYOUT (>1024px) === */}
+      {isDesktop && (
+        <div className="flex-1 flex overflow-hidden">
+          {/* Left Column: Timeline or Table Context Panel */}
+          <div className="w-[420px] border-r border-neutral-800 bg-neutral-900/50 flex flex-col overflow-hidden">
+            {selectedTableFromMap && selectedTableData ? (
+              <TableContextPanel
+                table={selectedTableData}
+                linkedReservation={linkedReservation}
+                onBack={() => setSelectedTableFromMap(null)}
+                onAction={(action, tableId) => {
+                  if (action === 'edit-reservation' && linkedReservation) handleEditReservation(linkedReservation);
+                  else if (action === 'cancel-reservation' && linkedReservation) handleCancelReservation(linkedReservation);
+                  else if (action === 'seat-guest' && linkedReservation) handleSeatGuest(linkedReservation);
+                  else if (action === 'view-order' || action === 'start-order' || action === 'add-items') navigate(`/tableorder/${tableId}`);
+                }}
+              />
+            ) : (
+              <TimelineContent />
+            )}
+          </div>
+
+          {/* Right Column: Table Map or Reservation Details */}
+          <div className="flex-1 bg-neutral-950">
+            {selectedReservation ? (
+              <ReservationDetailsPanel
+                reservation={selectedReservation}
+                availableTables={availableTables}
+                onAssignTable={handleAssignTable}
+                onSeatGuest={handleSeatGuest}
+                onEditReservation={handleEditReservation}
+                onCancelReservation={handleCancelReservation}
+                onClose={() => setSelectedReservation(null)}
+              />
+            ) : (
+              <FloorPlanContent />
+            )}
+          </div>
         </div>
-      </div>
+      )}
+
+      {/* Mobile Table Bottom Sheet */}
+      {isMobile && selectedTableData && (
+        <Drawer open={mobileTableSheetOpen} onOpenChange={setMobileTableSheetOpen}>
+          <DrawerContent className="bg-neutral-900 border-t border-neutral-800 max-h-[75vh]">
+            <DrawerHeader className="pb-2">
+              <DrawerTitle className="text-white text-lg font-bold flex items-center gap-2">
+                Table {selectedTableData.id}
+                <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
+                  selectedTableData.status === "Available" ? "bg-emerald-500/15 text-emerald-400" : "bg-neutral-500/15 text-neutral-400"
+                }`}>
+                  {selectedTableData.status}
+                </span>
+              </DrawerTitle>
+            </DrawerHeader>
+            <ScrollArea className="flex-1 px-4 pb-6">
+              <TableContextPanel
+                table={selectedTableData}
+                linkedReservation={linkedReservation}
+                onBack={() => setMobileTableSheetOpen(false)}
+                onAction={(action, tableId) => {
+                  setMobileTableSheetOpen(false);
+                  if (action === 'edit-reservation' && linkedReservation) handleEditReservation(linkedReservation);
+                  else if (action === 'cancel-reservation' && linkedReservation) handleCancelReservation(linkedReservation);
+                  else if (action === 'seat-guest' && linkedReservation) handleSeatGuest(linkedReservation);
+                  else if (action === 'view-order' || action === 'start-order' || action === 'add-items') navigate(`/tableorder/${tableId}`);
+                }}
+              />
+            </ScrollArea>
+          </DrawerContent>
+        </Drawer>
+      )}
 
       {/* Edit Reservation Dialog */}
       {reservationToEdit && (
@@ -1252,7 +1373,7 @@ const FullReservationsView = () => {
 
       {/* Cancel Confirmation Dialog */}
       <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
-        <AlertDialogContent className="bg-neutral-900 border-neutral-800 text-white">
+        <AlertDialogContent className="bg-neutral-900 border-neutral-800 text-white max-w-[90vw] sm:max-w-lg">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">Cancel Reservation?</AlertDialogTitle>
             <AlertDialogDescription className="text-neutral-400">
@@ -1267,13 +1388,13 @@ const FullReservationsView = () => {
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-neutral-800 border-neutral-700 text-white hover:bg-neutral-700 hover:text-white">
+          <AlertDialogFooter className="flex-col sm:flex-row gap-2">
+            <AlertDialogCancel className="bg-neutral-800 border-neutral-700 text-white hover:bg-neutral-700 hover:text-white min-h-[44px]">
               Keep Reservation
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmCancelReservation}
-              className="bg-red-600 text-white hover:bg-red-500"
+              className="bg-red-600 text-white hover:bg-red-500 min-h-[44px]"
             >
               Cancel Reservation
             </AlertDialogAction>

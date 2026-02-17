@@ -9,7 +9,6 @@ import {
 } from "lucide-react";
 import type { Reservation } from "@/components/ReservationsPanel";
 
-// Table type matching TableMapPanel
 type TableType = {
   id: string;
   seats: number;
@@ -23,7 +22,6 @@ type TableType = {
   blockedNote?: string;
 };
 
-// Status config for table statuses
 const tableStatusConfig: Record<string, { color: string; bgColor: string; label: string }> = {
   "Available": { color: "text-emerald-400", bgColor: "bg-emerald-500/15", label: "Available" },
   "Ordering": { color: "text-purple-400", bgColor: "bg-purple-500/15", label: "Ordering" },
@@ -40,7 +38,6 @@ const tableStatusConfig: Record<string, { color: string; bgColor: string; label:
   "Ready": { color: "text-emerald-400", bgColor: "bg-emerald-500/15", label: "Ready" },
 };
 
-// Get primary CTA based on status
 const getPrimaryCTA = (status: string): { label: string; icon: React.ElementType; className: string } | null => {
   switch (status) {
     case "Reserved": return { label: "Seat Guest", icon: Armchair, className: "bg-emerald-600 hover:bg-emerald-500" };
@@ -69,10 +66,10 @@ const ActionButton = ({ icon: Icon, label, onClick, iconColor = "text-neutral-40
 }) => (
   <button
     onClick={onClick}
-    className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors rounded-lg"
+    className="w-full flex items-center gap-3 px-4 py-3 sm:py-2.5 text-left text-neutral-300 hover:bg-neutral-800 hover:text-white transition-colors rounded-lg min-h-[44px]"
   >
-    <Icon className={`w-4 h-4 flex-shrink-0 ${iconColor}`} />
-    <span className="text-sm">{label}</span>
+    <Icon className={`w-4 h-4 sm:w-4 sm:h-4 flex-shrink-0 ${iconColor}`} />
+    <span className="text-sm sm:text-sm">{label}</span>
   </button>
 );
 
@@ -97,23 +94,21 @@ const TableContextPanel = ({ table, linkedReservation, onBack, onAction }: Table
       {/* Back Button */}
       <button
         onClick={onBack}
-        className="flex items-center gap-2 px-4 py-3 text-neutral-400 hover:text-white transition-colors border-b border-neutral-800"
+        className="flex items-center gap-2 px-4 py-3 text-neutral-400 hover:text-white transition-colors border-b border-neutral-800 min-h-[48px]"
       >
         <ArrowLeft className="w-4 h-4" />
         <span className="text-sm font-medium">Back to Reservations</span>
       </button>
 
       {/* Header Section */}
-      <div className="px-5 py-4 border-b border-neutral-800">
-        {/* Table Name + Status */}
+      <div className="px-4 sm:px-5 py-3 sm:py-4 border-b border-neutral-800">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-white text-xl font-bold">Table {table.id}</h2>
+          <h2 className="text-white text-lg sm:text-xl font-bold">Table {table.id}</h2>
           <span className={`px-3 py-1 rounded-full text-xs font-semibold ${config.bgColor} ${config.color} border border-current/20`}>
             {config.label}
           </span>
         </div>
 
-        {/* Info Row */}
         <div className="flex items-center gap-4 text-sm">
           <div className="flex items-center gap-1.5">
             <Users className="w-3.5 h-3.5 text-neutral-500" />
@@ -127,14 +122,12 @@ const TableContextPanel = ({ table, linkedReservation, onBack, onAction }: Table
           )}
         </div>
 
-        {/* Server (mock) */}
         <div className="flex items-center gap-1.5 mt-2 text-sm">
           <User className="w-3.5 h-3.5 text-neutral-500" />
           <span className="text-neutral-400">Server:</span>
           <span className="text-neutral-300">Unassigned</span>
         </div>
 
-        {/* Linked Reservation Info */}
         {hasReservation && linkedReservation && (
           <div className="mt-3 p-3 rounded-lg bg-neutral-800/60 border border-neutral-700/50 space-y-1.5">
             <div className="flex items-center gap-2">
@@ -168,7 +161,7 @@ const TableContextPanel = ({ table, linkedReservation, onBack, onAction }: Table
         <div className="px-4 py-3 border-b border-neutral-800">
           <button
             onClick={() => handleAction(primaryCTA.label.toLowerCase().replace(/\s/g, '-'))}
-            className={`w-full flex items-center justify-center gap-2 py-3 rounded-xl text-white font-semibold text-sm transition-colors ${primaryCTA.className}`}
+            className={`w-full flex items-center justify-center gap-2 py-3 sm:py-3 rounded-xl text-white font-semibold text-sm transition-colors min-h-[48px] ${primaryCTA.className}`}
           >
             <primaryCTA.icon className="w-5 h-5" />
             {primaryCTA.label}
@@ -179,7 +172,6 @@ const TableContextPanel = ({ table, linkedReservation, onBack, onAction }: Table
       {/* Scrollable Action Sections */}
       <ScrollArea className="flex-1">
         <div className="pb-6">
-          {/* Order Actions */}
           {isOccupied && (
             <>
               <SectionHeader title="Order Actions" />
@@ -194,7 +186,6 @@ const TableContextPanel = ({ table, linkedReservation, onBack, onAction }: Table
             </>
           )}
 
-          {/* Reservation Actions */}
           {hasReservation && (
             <>
               <SectionHeader title="Reservation Actions" />
@@ -208,7 +199,6 @@ const TableContextPanel = ({ table, linkedReservation, onBack, onAction }: Table
             </>
           )}
 
-          {/* Table Actions */}
           <SectionHeader title="Table Actions" />
           <div className="px-2">
             <ActionButton icon={RefreshCw} label="Change Table" iconColor="text-cyan-400" onClick={() => handleAction('change-table')} />

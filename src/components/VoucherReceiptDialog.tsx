@@ -382,7 +382,7 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
               <button
                 onClick={handleSendEmail}
                 disabled={!emailAddress.trim()}
-                className={`w-full py-3 font-semibold rounded-lg transition-colors ${emailAddress.trim() ? 'bg-white text-black hover:bg-neutral-200' : 'bg-neutral-700 text-neutral-300 opacity-50 cursor-not-allowed'}`}
+                className="w-full py-3 bg-neutral-700 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 SEND
               </button>

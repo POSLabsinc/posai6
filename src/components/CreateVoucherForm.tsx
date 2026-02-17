@@ -122,9 +122,6 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
                 <SelectItem value="fixed" className="text-white hover:bg-white/10">
                   Fixed Amount
                 </SelectItem>
-                <SelectItem value="free_item" className="text-white hover:bg-white/10">
-                  Free Item
-                </SelectItem>
               </SelectContent>
             </Select>
           </div>

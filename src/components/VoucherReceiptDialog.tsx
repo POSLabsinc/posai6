@@ -130,13 +130,13 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
                 <Printer className="w-8 h-8 text-white" />
                 <span className="text-white text-sm font-medium">Print</span>
               </button>
-              <button
-                onClick={() => setStep('phone-input')}
-                className="flex-1 flex flex-col items-center gap-3 py-6 border border-neutral-700 rounded-xl hover:bg-neutral-800 transition-colors"
+              <div
+                className="flex-1 flex flex-col items-center gap-3 py-6 border border-neutral-700 rounded-xl opacity-50 cursor-not-allowed relative"
               >
                 <MessageSquare className="w-8 h-8 text-white" />
-                <span className="text-white text-sm font-medium">Text</span>
-              </button>
+                <span className="text-white text-sm font-medium">WhatsApp</span>
+                <span className="text-[10px] text-neutral-400 absolute bottom-2">Coming Soon</span>
+              </div>
               <button
                 onClick={() => setStep('email-input')}
                 className="flex-1 flex flex-col items-center gap-3 py-6 border border-neutral-700 rounded-xl hover:bg-neutral-800 transition-colors"

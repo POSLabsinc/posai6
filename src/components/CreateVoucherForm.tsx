@@ -46,7 +46,6 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
 
   const isFormValid =
     formData.type &&
-    formData.expirationDate &&
     (formData.type === "free_item" || formData.value);
 
   const generateVoucherCode = () => {
@@ -167,22 +166,6 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
           )}
         </div>
 
-        {/* Expiration Date */}
-        <div>
-          <label className="text-sm text-white/70 mb-1 block">
-            Expiration Date <span className="text-primary">*</span>
-          </label>
-          <div className="relative">
-            <Input
-              type="date"
-              value={formData.expirationDate}
-              onChange={(e) => handleChange("expirationDate", e.target.value)}
-              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pr-9 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
-            />
-            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
-          </div>
-        </div>
-
         {/* Maximum Uses */}
         <div>
           <label className="text-sm text-white/70 mb-1 block">Maximum Uses</label>
@@ -289,6 +272,22 @@ const CreateVoucherForm = ({ onClose, onCreate }: CreateVoucherFormProps) => {
             placeholder="e.g. SUMMER2026"
             className="bg-white/10 border-white/20 text-white placeholder:text-white/40 uppercase"
           />
+        </div>
+
+        {/* Expiration Date */}
+        <div>
+          <label className="text-sm text-white/70 mb-1 block">
+            Expiration Date
+          </label>
+          <div className="relative">
+            <Input
+              type="date"
+              value={formData.expirationDate}
+              onChange={(e) => handleChange("expirationDate", e.target.value)}
+              className="bg-white/10 border-white/20 text-white placeholder:text-white/40 pr-9 [color-scheme:dark] [&::-webkit-calendar-picker-indicator]:opacity-0 [&::-webkit-calendar-picker-indicator]:absolute [&::-webkit-calendar-picker-indicator]:inset-0 [&::-webkit-calendar-picker-indicator]:w-full [&::-webkit-calendar-picker-indicator]:h-full [&::-webkit-calendar-picker-indicator]:cursor-pointer"
+            />
+            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
+          </div>
         </div>
 
         {/* QR / Barcode Toggle */}

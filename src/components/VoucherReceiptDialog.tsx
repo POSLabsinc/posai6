@@ -22,6 +22,7 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
   const [lastName, setLastName] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
   const [noMarketing, setNoMarketing] = useState(false);
+  const [emailError, setEmailError] = useState('');
 
   const handleClose = () => {
     setStep('selection');
@@ -31,6 +32,7 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
     setLastName('');
     setSearchQuery('');
     setNoMarketing(false);
+    setEmailError('');
     onOpenChange(false);
   };
 
@@ -62,11 +64,20 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
     }
   };
 
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+
   const handleSendEmail = () => {
-    if (emailAddress.includes('@') && emailAddress.includes('.')) {
-      toast.success('Voucher sent via Email');
-      handleClose();
+    if (!emailAddress.trim()) {
+      setEmailError('Email is required');
+      return;
     }
+    if (!isValidEmail(emailAddress)) {
+      setEmailError('Please enter a valid email address');
+      return;
+    }
+    setEmailError('');
+    toast.success('Voucher sent via Email');
+    handleClose();
   };
 
   const formatPhoneNumber = (digits: string) => {
@@ -350,9 +361,10 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
                 type="email"
                 placeholder="email@example.com"
                 value={emailAddress}
-                onChange={(e) => setEmailAddress(e.target.value)}
-                className="bg-neutral-800 border-neutral-700 text-white text-sm placeholder:text-neutral-500"
+                onChange={(e) => { setEmailAddress(e.target.value); setEmailError(''); }}
+                className={`bg-neutral-800 border-neutral-700 text-white text-sm placeholder:text-neutral-500 ${emailError ? 'border-red-500' : ''}`}
               />
+              {emailError && <p className="text-red-400 text-xs mt-1">{emailError}</p>}
             </div>
 
             <div className="px-4 py-2">
@@ -370,7 +382,7 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
             <div className="px-4 py-3">
               <button
                 onClick={handleSendEmail}
-                disabled={!emailAddress.includes('@') || !emailAddress.includes('.')}
+                disabled={!emailAddress.trim()}
                 className="w-full py-3 bg-neutral-700 text-neutral-300 font-semibold rounded-lg hover:bg-neutral-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 SEND

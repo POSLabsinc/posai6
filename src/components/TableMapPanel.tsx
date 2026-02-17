@@ -195,7 +195,7 @@ const FloorPlanCircularTable = ({ table, isSelected, isHighlighted }: {
         ))}
 
         {config.isReady && (
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 animate-bounce">
             <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-0.5 rounded-full shadow-lg shadow-emerald-500/50">
               <Bell className="w-2.5 h-2.5" />
               <span className="text-[9px] font-bold whitespace-nowrap">ORDER READY</span>
@@ -290,7 +290,7 @@ const FloorPlanSquareTable = ({ table, isSelected, isHighlighted }: {
         ))}
 
         {config.isReady && (
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 animate-bounce">
             <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-0.5 rounded-full shadow-lg shadow-emerald-500/50">
               <Bell className="w-2.5 h-2.5" />
               <span className="text-[9px] font-bold whitespace-nowrap">ORDER READY</span>

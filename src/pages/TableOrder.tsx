@@ -705,8 +705,8 @@ const MapCircularTable = ({
   isMerged?: boolean;
 }) => {
   const config = statusConfig[table.status] || statusConfig["Available"];
-  const tableRadius = table.seats >= 8 ? 40 : table.seats >= 6 ? 34 : 28;
-  const containerSize = 140;
+  const tableRadius = table.seats >= 8 ? 52 : table.seats >= 6 ? 44 : 36;
+  const containerSize = 170;
 
   const chairAngles = Array.from({ length: table.seats }, (_, i) => 
     (360 / table.seats) * i - 90
@@ -847,8 +847,8 @@ const MapSquareTable = ({
   isMerged?: boolean;
 }) => {
   const config = statusConfig[table.status] || statusConfig["Available"];
-  const tableSize = 55;
-  const containerSize = 140;
+  const tableSize = 70;
+  const containerSize = 170;
 
   const getChairLayout = (seats: number) => {
     const chairs: { side: 'top' | 'right' | 'bottom' | 'left'; position: number }[] = [];

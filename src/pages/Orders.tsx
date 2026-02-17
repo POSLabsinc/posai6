@@ -87,7 +87,6 @@ import CustomOrderGuestForm, { CustomOrderGuestData } from "@/components/CustomO
 import MPINDialog from "@/components/MPINDialog";
 import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 import VoucherDialog from "@/components/VoucherDialog";
-import CreateVoucherForm from "@/components/CreateVoucherForm";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -5589,7 +5588,7 @@ const getAllCategoryItems = (menu: string, category: string): MenuItem[] => {
 const getAllMenuItems = (menu: string): MenuItem[] => {
   const menuData = menuItemsData[menu];
   if (!menuData) return [];
-  return Object.values(menuData).flatMap((cat) => Object.values(cat).flat());
+  return Object.values(menuData).flatMap(cat => Object.values(cat).flat());
 };
 interface OrderItem {
   id: number;
@@ -5610,16 +5609,16 @@ interface OrderItem {
 }
 const initialOrderItems: OrderItem[] = [];
 const orderTypes = [
-{ label: "DINE IN", icon: dineInIcon },
-{ label: "TAKE OUT", icon: takeOutIcon },
-{ label: "DELIVERY", icon: deliveryIcon },
-{ label: "BANQUET", icon: banquetIcon },
-{ label: "DRIVE THRU", icon: driveThruIcon },
-{ label: "CURB SIDE", icon: curbSideIcon },
-{ label: "SCHEDULED", icon: scheduledIcon },
-{ label: "PHONE-IN", icon: phoneInIcon },
-{ label: "CUSTOM", icon: customOrderIcon }];
-
+  { label: "DINE IN", icon: dineInIcon },
+  { label: "TAKE OUT", icon: takeOutIcon },
+  { label: "DELIVERY", icon: deliveryIcon },
+  { label: "BANQUET", icon: banquetIcon },
+  { label: "DRIVE THRU", icon: driveThruIcon },
+  { label: "CURB SIDE", icon: curbSideIcon },
+  { label: "SCHEDULED", icon: scheduledIcon },
+  { label: "PHONE-IN", icon: phoneInIcon },
+  { label: "CUSTOM", icon: customOrderIcon }
+];
 
 // Discount types data
 interface DiscountType {
@@ -5632,45 +5631,45 @@ interface DiscountType {
 }
 
 const discountTypes: DiscountType[] = [
-{ id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
-{ id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
-{ id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
-{ id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
-{ id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
-{ id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
-{ id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
-{ id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
-{ id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
-{ id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
-{ id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
-{ id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' }];
-
+  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
+  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
+  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
+  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
+  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
+  { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
+  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
+  { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
+  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
+  { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
+  { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
+  { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
+];
 
 // Payment methods constants
 const initialPaymentMethods = [
-{ id: 'loyalty', name: 'Loyalty', icon: Tag },
-{ id: 'account', name: 'Account', icon: User },
-{ id: 'card', name: 'Card', icon: CreditCard },
-{ id: 'cash', name: 'Cash', icon: Banknote },
-{ id: 'gift-card', name: 'Gift Card', icon: Gift },
-{ id: 'pay-link', name: 'Pay by Link', icon: Link }];
-
+  { id: 'loyalty', name: 'Loyalty', icon: Tag },
+  { id: 'account', name: 'Account', icon: User },
+  { id: 'card', name: 'Card', icon: CreditCard },
+  { id: 'cash', name: 'Cash', icon: Banknote },
+  { id: 'gift-card', name: 'Gift Card', icon: Gift },
+  { id: 'pay-link', name: 'Pay by Link', icon: Link }
+];
 
 const initialOtherPaymentMethods = [
-{ id: 'qr-code', name: 'QR Code', icon: QrCode },
-{ id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
-{ id: 'external-cc', name: 'External CC', icon: ExternalLink },
-{ id: 'manual-card', name: 'Manual card', icon: Clipboard },
-{ id: 'blizzful', name: 'Blizzful', icon: Utensils },
-{ id: 'ubereats', name: 'UberEats', icon: ShoppingBag },
-{ id: 'doordash', name: 'DoorDash', icon: Truck },
-{ id: 'grubhub', name: 'Grubhub', icon: UtensilsCrossed }];
-
+  { id: 'qr-code', name: 'QR Code', icon: QrCode },
+  { id: 'manual-cc', name: 'Manual CC', icon: CreditCard },
+  { id: 'external-cc', name: 'External CC', icon: ExternalLink },
+  { id: 'manual-card', name: 'Manual card', icon: Clipboard },
+  { id: 'blizzful', name: 'Blizzful', icon: Utensils },
+  { id: 'ubereats', name: 'UberEats', icon: ShoppingBag },
+  { id: 'doordash', name: 'DoorDash', icon: Truck },
+  { id: 'grubhub', name: 'Grubhub', icon: UtensilsCrossed }
+];
 
 type PaymentMethodType = {
   id: string;
   name: string;
-  icon: React.ComponentType<{className?: string;}>;
+  icon: React.ComponentType<{ className?: string }>;
 };
 
 const quickAmounts = [1, 2, 5, 10, 20, 50, 100];
@@ -5687,10 +5686,10 @@ interface GuestUser {
 // USA-centric phone format: (XXX) XXX-XXXX
 const formatPhoneNumber = (digits: string): string => {
   if (!digits) return '';
-
+  
   // Limit to 10 digits for USA format
   const d = digits.slice(0, 10);
-
+  
   if (d.length <= 3) {
     return `(${d}`;
   }
@@ -6031,7 +6030,7 @@ const Orders = () => {
   const navigate = useNavigate();
   const { panelLayout } = usePanelPosition();
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
-
+  
   const addItemMode = searchParams.get('mode') === 'addItem';
   const transferNewMode = searchParams.get('mode') === 'transferNew';
   const transferItemsParam = searchParams.get('transferItems');
@@ -6041,21 +6040,21 @@ const Orders = () => {
   const partySizeFromParams = searchParams.get('partySize');
   const seatsFromParams = searchParams.get('seats');
   const guestsFromParams = searchParams.get('guests');
-
+  
   // Session order mode - coming from TableOrder seat selection
   const isSessionOrderMode = !!sessionIdFromParams && !!tableIdFromParams;
   const sessionOrder = isSessionOrderMode ? getOrderBySessionId(sessionIdFromParams) : null;
-  const sessionPartySize = partySizeFromParams ? parseInt(partySizeFromParams) : sessionOrder?.partySize || 0;
-
+  const sessionPartySize = partySizeFromParams ? parseInt(partySizeFromParams) : (sessionOrder?.partySize || 0);
+  
   const isTableOrder = !!tableIdFromParams && !!seatsFromParams && !!guestsFromParams;
-  const totalSeats = seatsFromParams ? parseInt(seatsFromParams) : sessionPartySize || 0;
-  const guestCount = guestsFromParams ? parseInt(guestsFromParams) : sessionPartySize || 0;
-
+  const totalSeats = seatsFromParams ? parseInt(seatsFromParams) : (sessionPartySize || 0);
+  const guestCount = guestsFromParams ? parseInt(guestsFromParams) : (sessionPartySize || 0);
+  
   // Get existing order data if in add-item mode
   const existingOrder = addItemMode && existingOrderId ? getOrderById(existingOrderId) : null;
   const existingOrderPaymentStatus = existingOrder?.paymentStatus || existingOrder?.status;
   const isExistingOrderPaid = existingOrderPaymentStatus === 'Paid' || existingOrderPaymentStatus === 'PAID';
-
+  
   // Helper to get first category and subcategory for a menu
   const getFirstCategoryAndSubcategory = (menu: string) => {
     const categories = menuCategories[menu] || [];
@@ -6161,20 +6160,17 @@ const Orders = () => {
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
-  const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
-  const [showVoucherOptionsPopup, setShowVoucherOptionsPopup] = useState(false);
-  const [showCreateVoucherForm, setShowCreateVoucherForm] = useState(false);
   const [appliedVoucherAmount, setAppliedVoucherAmount] = useState(0);
   const [voucherCode, setVoucherCode] = useState('');
-  const [priceOverrideItem, setPriceOverrideItem] = useState<{id: number;name: string;price: number;image?: string;} | null>(null);
+  const [priceOverrideItem, setPriceOverrideItem] = useState<{ id: number; name: string; price: number; image?: string } | null>(null);
   const [orderNumber, setOrderNumber] = useState(1);
   const [orderCreatedTime] = useState<string>(() => {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
   });
-
+  
   // Payment Dialog State (component manages its own internal states)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
-
+  
   // Split order state
   const [isOrderSplit, setIsOrderSplit] = useState(false);
   const [splitConfiguration, setSplitConfiguration] = useState<{
@@ -6183,7 +6179,7 @@ const Orders = () => {
     checkAssignments: Record<number, number>;
   } | null>(null);
   const [showSplitOrderAlert, setShowSplitOrderAlert] = useState(false);
-
+  
   // Table order seat selection state - initialize with all seats selected when coming from table orders
   const [selectedSeats, setSelectedSeats] = useState<number[]>(() => {
     if (isTableOrder && guestCount > 0) {
@@ -6191,43 +6187,43 @@ const Orders = () => {
     }
     return [];
   });
-
+  
   // Seat filter for cart display - empty array means show all, 'all' for shared items, numbers for specific seats (multi-select)
   const [seatFilter, setSeatFilter] = useState<(number | 'all')[]>([]);
-
+  
   // Toggle seat selection for table orders
   const toggleSeatSelection = (seatNumber: number) => {
-    setSelectedSeats((prev) => {
+    setSelectedSeats(prev => {
       if (prev.includes(seatNumber)) {
-        return prev.filter((s) => s !== seatNumber);
+        return prev.filter(s => s !== seatNumber);
       }
       return [...prev, seatNumber].sort((a, b) => a - b);
     });
   };
-
+  
   // Toggle seat filter for cart display
   const toggleSeatFilter = (seatNumber: number | 'all') => {
-    setSeatFilter((prev) => {
+    setSeatFilter(prev => {
       if (prev.includes(seatNumber)) {
-        return prev.filter((s) => s !== seatNumber);
+        return prev.filter(s => s !== seatNumber);
       }
       return [...prev, seatNumber];
     });
   };
-
+  
   // Filter order items based on seat filter (multi-select)
-  const filteredOrderItems = seatFilter.length === 0 ?
-  orderItems :
-  orderItems.filter((item) => {
-    // Check if item matches any of the selected filters
-    return seatFilter.some((filter) => {
-      if (filter === 'all') {
-        return item.assignedSeats?.length === guestCount;
-      }
-      return item.assignedSeats?.includes(filter as number);
-    });
-  });
-
+  const filteredOrderItems = seatFilter.length === 0 
+    ? orderItems 
+    : orderItems.filter(item => {
+        // Check if item matches any of the selected filters
+        return seatFilter.some(filter => {
+          if (filter === 'all') {
+            return item.assignedSeats?.length === guestCount;
+          }
+          return item.assignedSeats?.includes(filter as number);
+        });
+      });
+  
   // Initialize order with existing items when in add-item mode
   useEffect(() => {
     if (addItemMode && existingOrder) {
@@ -6235,7 +6231,7 @@ const Orders = () => {
       setGuestName(existingOrder.name);
       setGuestPhone(existingOrder.phone.replace(/\D/g, ''));
       setOrderNotes(existingOrder.notes);
-
+      
       // Convert order type
       const orderTypeMap: Record<string, string> = {
         'Dine-In': 'DINE IN',
@@ -6244,7 +6240,7 @@ const Orders = () => {
         'Bar': 'DINE IN'
       };
       setOrderType(orderTypeMap[existingOrder.orderType] || 'DINE IN');
-
+      
       // Convert existing order items to local format
       const convertedItems: OrderItem[] = existingOrder.items.map((item, index) => ({
         id: Date.now() + index,
@@ -6254,10 +6250,10 @@ const Orders = () => {
         modifiers: item.modifiers.length > 0 ? item.modifiers : undefined,
         itemOrderType: orderTypeMap[existingOrder.orderType] || 'Dine In'
       }));
-
+      
       // Store existing items separately to track what's paid vs new
       setExistingItems(convertedItems);
-
+      
       // If existing order is unpaid, show all items; if paid, start with empty cart for new items
       if (!isExistingOrderPaid) {
         setOrderItems(convertedItems);
@@ -6281,7 +6277,7 @@ const Orders = () => {
           name: item.name,
           price: item.price,
           modifiers: item.modifiers && item.modifiers.length > 0 ? item.modifiers : undefined,
-          isTransferred: true
+          isTransferred: true,
         }));
         setOrderItems(convertedItems);
       } catch (e) {
@@ -6297,7 +6293,7 @@ const Orders = () => {
       return;
     }
     if (guestName.trim().length > 0) {
-      const filtered = mockGuestUsers.filter((user) => user.name.toLowerCase().includes(guestName.toLowerCase()));
+      const filtered = mockGuestUsers.filter(user => user.name.toLowerCase().includes(guestName.toLowerCase()));
       setFilteredGuests(filtered);
       setShowGuestDropdown(filtered.length > 0);
     } else {
@@ -6312,7 +6308,7 @@ const Orders = () => {
       return;
     }
     if (guestPhone.trim().length > 0) {
-      const filtered = mockGuestUsers.filter((user) => user.phone.replace(/\D/g, '').includes(guestPhone));
+      const filtered = mockGuestUsers.filter(user => user.phone.replace(/\D/g, '').includes(guestPhone));
       setFilteredByPhone(filtered);
       setShowPhoneDropdown(filtered.length > 0);
     } else {
@@ -6377,10 +6373,10 @@ const Orders = () => {
     if (velocity > 0.5) {
       if (diff < -20) {
         // Swipe down - hide/minimize
-        setMenuPosition((prev) => prev === 'full' ? 'center' : 'minimized');
+        setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
       } else if (diff > 20) {
         // Swipe up - show/expand
-        setMenuPosition((prev) => prev === 'minimized' ? 'center' : 'full');
+        setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
       }
     } else {
       // Slow drag - snap based on current visual height
@@ -6435,19 +6431,19 @@ const Orders = () => {
       if (velocity > 0.5) {
         if (diff < -20) {
           // Swipe down - hide/minimize
-          setMenuPosition((prev) => prev === 'full' ? 'center' : 'minimized');
+          setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
         } else if (diff > 20) {
           // Swipe up - show/expand
-          setMenuPosition((prev) => prev === 'minimized' ? 'center' : 'full');
+          setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
         }
       } else {
         // Snap based on final position
         if (diff < -80) {
           // Drag down - hide/minimize
-          setMenuPosition((prev) => prev === 'full' ? 'center' : 'minimized');
+          setMenuPosition(prev => prev === 'full' ? 'center' : 'minimized');
         } else if (diff > 80) {
           // Drag up - show/expand
-          setMenuPosition((prev) => prev === 'minimized' ? 'center' : 'full');
+          setMenuPosition(prev => prev === 'minimized' ? 'center' : 'full');
         }
       }
       setDragOffset(0);
@@ -6468,14 +6464,14 @@ const Orders = () => {
       setShowSplitOrderAlert(true);
       return;
     }
-
+    
     // When coming from table order, assign all seats by default
     const allSeats = isTableOrder ? Array.from({ length: guestCount }, (_, i) => i + 1) : undefined;
-
-    setOrderItems((prev) => {
-      const existing = prev.find((o) => o.name === item.name && (!o.modifiers || o.modifiers.length === 0));
+    
+    setOrderItems(prev => {
+      const existing = prev.find(o => o.name === item.name && (!o.modifiers || o.modifiers.length === 0));
       if (existing) {
-        return prev.map((o) => o.name === item.name && (!o.modifiers || o.modifiers.length === 0) ? {
+        return prev.map(o => o.name === item.name && (!o.modifiers || o.modifiers.length === 0) ? {
           ...o,
           qty: o.qty + 1
         } : o);
@@ -6493,14 +6489,14 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
-  }, quantity: number, modifiers: string[], notes: string, totalPrice: number, assignedSeats?: number[], discountInfo?: {name: string;amount: number;}) => {
+  }, quantity: number, modifiers: string[], notes: string, totalPrice: number, assignedSeats?: number[], discountInfo?: { name: string; amount: number }) => {
     // When assignedSeats is defined (from table order) but empty, treat as "share on table" (all seats)
     const allSeats = isTableOrder ? Array.from({ length: guestCount }, (_, i) => i + 1) : undefined;
-    const seatsToAssign = assignedSeats !== undefined ?
-    assignedSeats.length > 0 ? assignedSeats : allSeats :
-    undefined;
-
-    setOrderItems((prev) => {
+    const seatsToAssign = assignedSeats !== undefined 
+      ? (assignedSeats.length > 0 ? assignedSeats : allSeats) 
+      : undefined;
+    
+    setOrderItems(prev => {
       return [...prev, {
         id: Date.now(),
         qty: quantity,
@@ -6524,7 +6520,7 @@ const Orders = () => {
       setShowSplitOrderAlert(true);
       return;
     }
-
+    
     setSelectedItemForCustomization(item);
     setSelectedItemImage(foodImages[imageIndex % foodImages.length]);
 
@@ -6542,7 +6538,7 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
-  }, quantity: number, modifiers: string[], notes: string, totalPrice: number, discountInfo?: {name: string;amount: number;}) => {
+  }, quantity: number, modifiers: string[], notes: string, totalPrice: number, discountInfo?: { name: string; amount: number }) => {
     addToCartWithModifiers(item, quantity, modifiers, notes, totalPrice, undefined, discountInfo);
     setShowInlineCustomization(false);
     setSelectedItemForCustomization(null);
@@ -6558,16 +6554,16 @@ const Orders = () => {
     setIsProductInfoFullScreen(view === 'productInfo');
   };
   const removeFromCart = (itemId: number) => {
-    setOrderItems((prev) => prev.filter((item) => item.id !== itemId));
+    setOrderItems(prev => prev.filter(item => item.id !== itemId));
   };
   const updateItemOrderType = (itemId: number, newOrderType: string) => {
-    setOrderItems((prev) => prev.map((item) =>
-    item.id === itemId ? { ...item, itemOrderType: newOrderType } : item
+    setOrderItems(prev => prev.map(item => 
+      item.id === itemId ? { ...item, itemOrderType: newOrderType } : item
     ));
   };
 
   // Price Override functions
-  const handlePriceClick = (item: {id: number;name: string;price: number;}, image?: string) => {
+  const handlePriceClick = (item: { id: number; name: string; price: number }, image?: string) => {
     setPriceOverrideItem({ ...item, image });
     setShowMPINDialog(true);
   };
@@ -6578,10 +6574,10 @@ const Orders = () => {
 
   const handlePriceOverrideApply = (newPrice: number, reason: string, notes?: string) => {
     if (priceOverrideItem) {
-      setOrderItems((prev) => prev.map((item) =>
-      item.id === priceOverrideItem.id ?
-      { ...item, price: newPrice, priceOverrideReason: reason, priceOverrideNotes: notes } :
-      item
+      setOrderItems(prev => prev.map(item => 
+        item.id === priceOverrideItem.id 
+          ? { ...item, price: newPrice, priceOverrideReason: reason, priceOverrideNotes: notes }
+          : item
       ));
       setPriceOverrideItem(null);
     }
@@ -6593,16 +6589,16 @@ const Orders = () => {
       if (value === 'clear') {
         setCustomItemPrice("");
       } else if (value === 'backspace') {
-        setCustomItemPrice((prev) => prev.slice(0, -1));
+        setCustomItemPrice(prev => prev.slice(0, -1));
       } else if (value === '.') {
         if (!customItemPrice.includes('.')) {
-          setCustomItemPrice((prev) => prev + value);
+          setCustomItemPrice(prev => prev + value);
         }
       } else {
         // Limit decimal places to 2
         const parts = customItemPrice.split('.');
         if (parts.length === 2 && parts[1].length >= 2) return;
-        setCustomItemPrice((prev) => prev + value);
+        setCustomItemPrice(prev => prev + value);
       }
     }
   };
@@ -6610,19 +6606,19 @@ const Orders = () => {
   const handleCustomItemKeyboardClick = (key: string) => {
     if (activeCustomItemField === 'name') {
       if (key === 'backspace') {
-        setCustomItemName((prev) => prev.slice(0, -1));
+        setCustomItemName(prev => prev.slice(0, -1));
       } else if (key === 'clear') {
         setCustomItemName("");
       } else if (key === 'space') {
-        setCustomItemName((prev) => prev + ' ');
+        setCustomItemName(prev => prev + ' ');
       } else if (key === 'shift') {
-        setIsShiftActive((prev) => !prev);
+        setIsShiftActive(prev => !prev);
       } else if (key === '123') {
         // Switch to price field when 123 is pressed
         setActiveCustomItemField('price');
       } else {
         // Auto-capitalize first letter of each word
-        setCustomItemName((prev) => {
+        setCustomItemName(prev => {
           const shouldCapitalize = prev.length === 0 || prev.endsWith(' ');
           const char = shouldCapitalize || isShiftActive ? key.toUpperCase() : key.toLowerCase();
           return prev + char;
@@ -6638,7 +6634,7 @@ const Orders = () => {
   const addCustomItemToOrder = () => {
     const price = parseFloat(customItemPrice) || 0;
     if (customItemName.trim() && price > 0) {
-      setOrderItems((prev) => [...prev, {
+      setOrderItems(prev => [...prev, {
         id: Date.now(),
         qty: 1,
         name: customItemName.trim(),
@@ -6683,33 +6679,33 @@ const Orders = () => {
     setActiveSubcategory(firstSubcategory);
   };
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const selectedDiscount = discountTypes.find((d) => d.id === selectedDiscountId);
-  const discount = selectedDiscount ?
-  selectedDiscount.fixedAmount || subtotal * ((selectedDiscount.percentage || 0) / 100) :
-  0;
+  const selectedDiscount = discountTypes.find(d => d.id === selectedDiscountId);
+  const discount = selectedDiscount 
+    ? (selectedDiscount.fixedAmount || (subtotal * ((selectedDiscount.percentage || 0) / 100)))
+    : 0;
   const serviceCharge = appliedServiceCharge;
   const taxRate = 0.02;
   // Calculate tax only on items NOT marked as noTax
-  const taxableSubtotal = orderItems.
-  filter((item) => !item.noTax).
-  reduce((sum, item) => sum + item.price * item.qty, 0);
+  const taxableSubtotal = orderItems
+    .filter(item => !item.noTax)
+    .reduce((sum, item) => sum + item.price * item.qty, 0);
   const tax = isTaxExempt ? 0 : Math.max(0, taxableSubtotal - discount) * taxRate;
 
   // Handler to toggle no-tax state for individual items
   const handleToggleItemNoTax = (itemId: number) => {
-    setOrderItems((prev) => prev.map((item) =>
-    item.id === itemId ?
-    { ...item, noTax: !item.noTax } :
-    item
+    setOrderItems(prev => prev.map(item => 
+      item.id === itemId 
+        ? { ...item, noTax: !item.noTax } 
+        : item
     ));
   };
 
   // Handler to toggle fired state for individual items
   const handleToggleItemFire = (itemId: number) => {
-    setOrderItems((prev) => prev.map((item) =>
-    item.id === itemId ?
-    { ...item, isFired: !item.isFired } :
-    item
+    setOrderItems(prev => prev.map(item => 
+      item.id === itemId 
+        ? { ...item, isFired: !item.isFired } 
+        : item
     ));
   };
 
@@ -6717,18 +6713,18 @@ const Orders = () => {
   const handleFireOrder = () => {
     if (!isSessionOrderMode || !sessionIdFromParams) {
       // Not a session order, just toggle all items to fired
-      setOrderItems((prev) => prev.map((item) => ({ ...item, isFired: true })));
+      setOrderItems(prev => prev.map(item => ({ ...item, isFired: true })));
       toast.success("Order items marked as fired!");
       return;
     }
-
+    
     if (orderItems.length === 0) {
       toast.error("Please add items to the order before firing");
       return;
     }
-
+    
     // Convert cart items to the format expected by session orders
-    const sessionOrderItems = orderItems.map((item) => ({
+    const sessionOrderItems = orderItems.map(item => ({
       qty: item.qty,
       name: item.name,
       price: item.price,
@@ -6736,15 +6732,15 @@ const Orders = () => {
       modifiers: item.modifiers || [],
       isShared: item.assignedSeats?.length === guestCount
     }));
-
+    
     // Update session order items
     updateOrderItems(sessionIdFromParams, sessionOrderItems);
-
+    
     // Fire the order - changes status to ORDERED
     fireSessionOrder(sessionIdFromParams);
-
+    
     toast.success("Order fired to kitchen!");
-
+    
     // Navigate to TableOrderDetails
     if (tableIdFromParams) {
       navigate(`/tableorder/${tableIdFromParams}`);
@@ -6752,20 +6748,20 @@ const Orders = () => {
   };
 
   const total = subtotal - discount + serviceCharge + tax;
-
+  
   // Calculate new items total for add-item mode when existing order is paid
-  const newItemsSubtotal = addItemMode && isExistingOrderPaid ?
-  orderItems.reduce((sum, item) => sum + item.price * item.qty, 0) :
-  subtotal;
+  const newItemsSubtotal = addItemMode && isExistingOrderPaid 
+    ? orderItems.reduce((sum, item) => sum + item.price * item.qty, 0)
+    : subtotal;
   const newItemsTax = newItemsSubtotal * taxRate;
   const newItemsTotal = newItemsSubtotal + newItemsTax;
-
+  
   // Determine what to charge based on payment status, gift card, and voucher
   const baseChargeAmount = addItemMode && isExistingOrderPaid ? newItemsTotal : total;
   const chargeAmount = Math.max(0, baseChargeAmount - appliedGiftCardAmount - appliedVoucherAmount);
-  const chargeLabel = addItemMode ?
-  isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER' :
-  '';
+  const chargeLabel = addItemMode 
+    ? (isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER') 
+    : '';
   return <div className="relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden pt-2">
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />
@@ -6775,9 +6771,9 @@ const Orders = () => {
         <div className="px-1 pb-2 flex-shrink-0">
           <div className="flex items-center justify-between text-xs mb-2 gap-2">
             <div className="relative">
-              <input ref={mobileGuestInputRef} type="text" value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]" />
+              <input ref={mobileGuestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]" />
               {showGuestDropdown && filteredGuests.length > 0 && <div ref={mobileGuestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
-                  {filteredGuests.map((guest) => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
+                  {filteredGuests.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
                       {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
                           {guest.initials}
                         </div>}
@@ -6790,9 +6786,9 @@ const Orders = () => {
             </div>
             <div className="relative flex items-center gap-0.5">
               <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
-              <input ref={mobilePhoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-36 min-w-0 text-[#808080]" />
+              <input ref={mobilePhoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-36 min-w-0 text-[#808080]" />
               {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={mobilePhoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
-                  {filteredByPhone.map((guest) => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
+                  {filteredByPhone.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
                       {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
                           {guest.initials}
                         </div>}
@@ -6812,36 +6808,36 @@ const Orders = () => {
           {/* Action buttons - hidden on mobile, shown via three-dot dropdown */}
           <div className="hidden md:block overflow-x-auto scrollbar-hide mb-2">
             <div className="flex items-center gap-2 w-max">
-              <Button
-              variant="secondary"
-              size="sm"
-              className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5"
-              onClick={toggleCustomItemPanel}>
-
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5"
+                onClick={toggleCustomItemPanel}
+              >
                 <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-4 h-4" />
                 {showCustomItemPanel ? "Menu" : "Custom Item"}
               </Button>
-              <Button
-              variant="secondary"
-              size="sm"
-              className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap"
-              onClick={() => {
-                if (isManager) {
-                  setDiscountDialogView('discounts');
-                } else {
-                  setDiscountDialogView('mpin');
-                }
-                setShowDiscountDialog(true);
-              }}>
-
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap"
+                onClick={() => {
+                  if (isManager) {
+                    setDiscountDialogView('discounts');
+                  } else {
+                    setDiscountDialogView('mpin');
+                  }
+                  setShowDiscountDialog(true);
+                }}
+              >
                 Discount
               </Button>
-              <Button
-              variant="secondary"
-              size="sm"
-              className={`text-xs rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-7 px-3 whitespace-nowrap`}
-              onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}>
-
+              <Button 
+                variant="secondary" 
+                size="sm" 
+                className={`text-xs rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-7 px-3 whitespace-nowrap`}
+                onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
+              >
                 No Tax
               </Button>
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
@@ -6860,8 +6856,8 @@ const Orders = () => {
         {/* Background Container for Order Content */}
         <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden mx-1 transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 min-h-0' : 'min-h-0'}`}>
           {/* Order Type & Guest Info */}
-          {isTableOrder ?
-        <>
+          {isTableOrder ? (
+            <>
               {/* Table Order Header - Row 1 */}
               <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
                 <div className="flex items-center gap-2">
@@ -6876,14 +6872,14 @@ const Orders = () => {
                   <img src={runnerIcon} alt="User" className="w-4 h-4" />
                   <span className="text-neutral-400">{guestName || "Mia Jone"}</span>
                   <button onClick={() => {
-                const newExpanded = !isOrderPanelExpanded;
-                setIsOrderPanelExpanded(newExpanded);
-                if (newExpanded) {
-                  setMenuPosition('minimized');
-                } else {
-                  setMenuPosition('center');
-                }
-              }} className="p-1 rounded hover:bg-neutral-700 transition-colors">
+                    const newExpanded = !isOrderPanelExpanded;
+                    setIsOrderPanelExpanded(newExpanded);
+                    if (newExpanded) {
+                      setMenuPosition('minimized');
+                    } else {
+                      setMenuPosition('center');
+                    }
+                  }} className="p-1 rounded hover:bg-neutral-700 transition-colors">
                     <img src={isOrderPanelExpanded ? collapsePanelIcon : expandPanelIcon} alt="Toggle panel" className="w-4 h-4" />
                   </button>
                 </div>
@@ -6893,150 +6889,150 @@ const Orders = () => {
                 <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
                   <img src={chairWhiteIcon} alt="Chair" className="w-3 h-3" />
                 </button>
-                <button
-              onClick={() => toggleSeatFilter('all')}
-              className={`p-1 rounded transition-colors ${
-              seatFilter.includes('all') ?
-              'bg-white' :
-              'bg-neutral-700 hover:bg-neutral-600'}`
-              }>
-
+                <button 
+                  onClick={() => toggleSeatFilter('all')}
+                  className={`p-1 rounded transition-colors ${
+                    seatFilter.includes('all') 
+                      ? 'bg-white' 
+                      : 'bg-neutral-700 hover:bg-neutral-600'
+                  }`}
+                >
                   <Share2 className={`w-3 h-3 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
                 </button>
-                {Array.from({ length: guestCount }).map((_, i) =>
-            <button
-              key={i}
-              onClick={() => toggleSeatFilter(i + 1)}
-              className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold transition-colors ${
-              seatFilter.includes(i + 1) ?
-              'bg-white text-black' :
-              'bg-neutral-600 text-white hover:bg-neutral-500'}`
-              }>
-
+                {Array.from({ length: guestCount }).map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => toggleSeatFilter(i + 1)}
+                    className={`w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold transition-colors ${
+                      seatFilter.includes(i + 1) 
+                        ? 'bg-white text-black' 
+                        : 'bg-neutral-600 text-white hover:bg-neutral-500'
+                    }`}
+                  >
                     {i + 1}
                   </button>
-            )}
+                ))}
               </div>
-            </> :
-
-        <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+            </>
+          ) : (
+            <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
               <div className="flex items-center gap-2">
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
-                  background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-                }}>
-                      <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
+                    background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                  }}>
+                      <img src={orderTypes.find(t => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
                       {orderType} <ChevronDown className="w-3 h-3" />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px] p-1 z-50">
-                    {orderTypes.map((type) => <DropdownMenuItem key={type.label} onClick={() => {
-                  setOrderType(type.label);
-                  if (type.label === "DINE IN") {
-                    setShowDineInForm(true);
-                    setDineInGuestData(null);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
-                  } else if (type.label === "TAKE OUT") {
-                    setShowTakeOutForm(true);
-                    setTakeOutGuestData(null);
-                    setShowDineInForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
-                  } else if (type.label === "DELIVERY") {
-                    setShowDeliveryForm(true);
-                    setDeliveryGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowBanquetForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
-                  } else if (type.label === "BANQUET") {
-                    setShowBanquetForm(true);
-                    setBanquetGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
-                  } else if (type.label === "DRIVE THRU") {
-                    setShowDriveThruForm(true);
-                    setDriveThruGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowBanquetForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
-                  } else if (type.label === "CURB SIDE") {
-                    setShowCurbSideForm(true);
-                    setCurbSideGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
-                  } else if (type.label === "SCHEDULED") {
-                    setShowScheduledForm(true);
-                    setScheduledGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
-                  } else if (type.label === "PHONE-IN") {
-                    setShowPhoneInForm(true);
-                    setPhoneInGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowCustomOrderForm(false);
-                  } else if (type.label === "CUSTOM") {
-                    setShowCustomOrderForm(true);
-                    setCustomOrderGuestData(null);
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                  } else {
-                    setShowDineInForm(false);
-                    setShowTakeOutForm(false);
-                    setShowDeliveryForm(false);
-                    setShowDriveThruForm(false);
-                    setShowCurbSideForm(false);
-                    setShowScheduledForm(false);
-                    setShowPhoneInForm(false);
-                    setShowCustomOrderForm(false);
-                  }
-                }} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
+                    {orderTypes.map(type => <DropdownMenuItem key={type.label} onClick={() => {
+                        setOrderType(type.label);
+                        if (type.label === "DINE IN") {
+                          setShowDineInForm(true);
+                          setDineInGuestData(null);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "TAKE OUT") {
+                          setShowTakeOutForm(true);
+                          setTakeOutGuestData(null);
+                          setShowDineInForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "DELIVERY") {
+                          setShowDeliveryForm(true);
+                          setDeliveryGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowBanquetForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "BANQUET") {
+                          setShowBanquetForm(true);
+                          setBanquetGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "DRIVE THRU") {
+                          setShowDriveThruForm(true);
+                          setDriveThruGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowBanquetForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "CURB SIDE") {
+                          setShowCurbSideForm(true);
+                          setCurbSideGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "SCHEDULED") {
+                          setShowScheduledForm(true);
+                          setScheduledGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "PHONE-IN") {
+                          setShowPhoneInForm(true);
+                          setPhoneInGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowCustomOrderForm(false);
+                        } else if (type.label === "CUSTOM") {
+                          setShowCustomOrderForm(true);
+                          setCustomOrderGuestData(null);
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                        } else {
+                          setShowDineInForm(false);
+                          setShowTakeOutForm(false);
+                          setShowDeliveryForm(false);
+                          setShowDriveThruForm(false);
+                          setShowCurbSideForm(false);
+                          setShowScheduledForm(false);
+                          setShowPhoneInForm(false);
+                          setShowCustomOrderForm(false);
+                        }
+                      }} className="text-white hover:bg-neutral-700 cursor-pointer text-[10px] py-1 px-2 flex items-center gap-2">
                         <img src={type.icon} alt="" className="w-4 h-4" />
                         {type.label}
                       </DropdownMenuItem>)}
@@ -7054,31 +7050,31 @@ const Orders = () => {
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="bg-neutral-800 border-neutral-700 min-w-[160px] p-1 z-50">
-                    <DropdownMenuItem
-                  onClick={toggleCustomItemPanel}
-                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-
+                    <DropdownMenuItem 
+                      onClick={toggleCustomItemPanel}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
                       <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />
                       Custom Item
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                  onClick={() => {
-                    if (isManager) {
-                      setDiscountDialogView('discounts');
-                    } else {
-                      setDiscountDialogView('mpin');
-                    }
-                    setShowDiscountDialog(true);
-                  }}
-                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-
+                    <DropdownMenuItem 
+                      onClick={() => {
+                        if (isManager) {
+                          setDiscountDialogView('discounts');
+                        } else {
+                          setDiscountDialogView('mpin');
+                        }
+                        setShowDiscountDialog(true);
+                      }}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
                       <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
                       Discount
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                  onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
-                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-
+                    <DropdownMenuItem 
+                      onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
                       <img src={noTaxBtnIcon} alt="" className="w-3.5 h-3.5" />
                       No Tax
                     </DropdownMenuItem>
@@ -7086,38 +7082,38 @@ const Orders = () => {
                       <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
                       Register
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                  onClick={() => setShowTransferCheckDialog(true)}
-                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-
+                    <DropdownMenuItem 
+                      onClick={() => setShowTransferCheckDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
                       <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
                       Transfer Check
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                  onClick={() => setShowGiftCardDialog(true)}
-                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-
+                    <DropdownMenuItem 
+                      onClick={() => setShowGiftCardDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
                       <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />
                       Gift Card
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                  onClick={() => setShowServiceChargeDialog(true)}
-                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-
+                    <DropdownMenuItem 
+                      onClick={() => setShowServiceChargeDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
                       <img src={serviceChargeIcon} alt="" className="w-3.5 h-3.5" />
                       Service Charge
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                  onClick={() => setShowAddGuestForm(true)}
-                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-
+                    <DropdownMenuItem 
+                      onClick={() => setShowAddGuestForm(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
                       <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />
                       Add Guest
                     </DropdownMenuItem>
-                    <DropdownMenuItem
-                  onClick={() => setShowVoucherOptionsPopup(true)}
-                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-
+                    <DropdownMenuItem 
+                      onClick={() => setShowVoucherDialog(true)}
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
                       <Ticket className="w-3.5 h-3.5" />
                       Voucher
                     </DropdownMenuItem>
@@ -7128,212 +7124,198 @@ const Orders = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 <button onClick={() => {
-              const newExpanded = !isOrderPanelExpanded;
-              setIsOrderPanelExpanded(newExpanded);
-              if (newExpanded) {
-                setMenuPosition('minimized');
-              } else {
-                setMenuPosition('center');
-              }
-            }} className="p-1 rounded hover:bg-neutral-700 transition-colors">
+                const newExpanded = !isOrderPanelExpanded;
+                setIsOrderPanelExpanded(newExpanded);
+                if (newExpanded) {
+                  setMenuPosition('minimized');
+                } else {
+                  setMenuPosition('center');
+                }
+              }} className="p-1 rounded hover:bg-neutral-700 transition-colors">
                   <img src={isOrderPanelExpanded ? collapsePanelIcon : expandPanelIcon} alt="Toggle panel" className="w-4 h-4" />
                 </button>
               </div>
             </div>
-        }
+          )}
 
           {/* Order Notes */}
           <div className="px-2 py-1.5 border-b border-sidebar-border">
             <OrderNotesAutocomplete
-            value={orderNotes}
-            onChange={setOrderNotes}
-            placeholder="Order notes and Allergies" />
-
+              value={orderNotes}
+              onChange={setOrderNotes}
+              placeholder="Order notes and Allergies"
+            />
           </div>
-          {transferNewMode &&
-        <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2">
+          {transferNewMode && (
+            <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2">
               <img src={transferIconPng} alt="Transferred" className="w-4 h-4 opacity-70" />
               <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
                 Transferred from Order {searchParams.get('transferFrom')} · Table {searchParams.get('transferFromTable')?.replace('T', '')}
               </span>
             </div>
-        }
+          )}
 
           {/* Mobile Guest Forms */}
-          {orderType === "DINE IN" && showDineInForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
+          {orderType === "DINE IN" && showDineInForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
               <DineInGuestForm
-            onSave={(data) => {
-              setDineInGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowDineInForm(false);
-            }}
-            onCancel={() => setShowDineInForm(false)}
-            onClose={() => setShowDineInForm(false)}
-            initialData={dineInGuestData || undefined} />
-
+                onSave={(data) => {
+                  setDineInGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowDineInForm(false);
+                }}
+                onCancel={() => setShowDineInForm(false)}
+                onClose={() => setShowDineInForm(false)}
+                initialData={dineInGuestData || undefined}
+              />
             </div>
-        }
-          {orderType === "TAKE OUT" && showTakeOutForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
+          )}
+          {orderType === "TAKE OUT" && showTakeOutForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
               <TakeOutGuestForm
-            onSave={(data) => {
-              setTakeOutGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowTakeOutForm(false);
-            }}
-            onCancel={() => setShowTakeOutForm(false)}
-            onClose={() => setShowTakeOutForm(false)}
-            initialData={takeOutGuestData || undefined} />
-
+                onSave={(data) => {
+                  setTakeOutGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowTakeOutForm(false);
+                }}
+                onCancel={() => setShowTakeOutForm(false)}
+                onClose={() => setShowTakeOutForm(false)}
+                initialData={takeOutGuestData || undefined}
+              />
             </div>
-        }
-          {orderType === "DELIVERY" && showDeliveryForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
+          )}
+          {orderType === "DELIVERY" && showDeliveryForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
               <DeliveryGuestForm
-            onSave={(data) => {
-              setDeliveryGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowDeliveryForm(false);
-            }}
-            onCancel={() => setShowDeliveryForm(false)}
-            onClose={() => setShowDeliveryForm(false)}
-            initialData={deliveryGuestData || undefined} />
-
+                onSave={(data) => {
+                  setDeliveryGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowDeliveryForm(false);
+                }}
+                onCancel={() => setShowDeliveryForm(false)}
+                onClose={() => setShowDeliveryForm(false)}
+                initialData={deliveryGuestData || undefined}
+              />
             </div>
-        }
-          {orderType === "BANQUET" && showBanquetForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
+          )}
+          {orderType === "BANQUET" && showBanquetForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
               <BanquetGuestForm
-            onSave={(data) => {
-              setBanquetGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowBanquetForm(false);
-            }}
-            onCancel={() => setShowBanquetForm(false)}
-            onClose={() => setShowBanquetForm(false)}
-            initialData={banquetGuestData || undefined} />
-
+                onSave={(data) => {
+                  setBanquetGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowBanquetForm(false);
+                }}
+                onCancel={() => setShowBanquetForm(false)}
+                onClose={() => setShowBanquetForm(false)}
+                initialData={banquetGuestData || undefined}
+              />
             </div>
-        }
-          {orderType === "DRIVE THRU" && showDriveThruForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
+          )}
+          {orderType === "DRIVE THRU" && showDriveThruForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
               <DriveThruGuestForm
-            onSave={(data) => {
-              setDriveThruGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowDriveThruForm(false);
-            }}
-            onCancel={() => setShowDriveThruForm(false)}
-            onClose={() => setShowDriveThruForm(false)}
-            initialData={driveThruGuestData || undefined} />
-
+                onSave={(data) => {
+                  setDriveThruGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowDriveThruForm(false);
+                }}
+                onCancel={() => setShowDriveThruForm(false)}
+                onClose={() => setShowDriveThruForm(false)}
+                initialData={driveThruGuestData || undefined}
+              />
             </div>
-        }
-          {orderType === "CURB SIDE" && showCurbSideForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
+          )}
+          {orderType === "CURB SIDE" && showCurbSideForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
               <CurbSideGuestForm
-            onSave={(data) => {
-              setCurbSideGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowCurbSideForm(false);
-            }}
-            onCancel={() => setShowCurbSideForm(false)}
-            onClose={() => setShowCurbSideForm(false)}
-            initialData={curbSideGuestData || undefined} />
-
+                onSave={(data) => {
+                  setCurbSideGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowCurbSideForm(false);
+                }}
+                onCancel={() => setShowCurbSideForm(false)}
+                onClose={() => setShowCurbSideForm(false)}
+                initialData={curbSideGuestData || undefined}
+              />
             </div>
-        }
-          {orderType === "SCHEDULED" && showScheduledForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
+          )}
+          {orderType === "SCHEDULED" && showScheduledForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
               <ScheduledGuestForm
-            onSave={(data) => {
-              setScheduledGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowScheduledForm(false);
-            }}
-            onCancel={() => setShowScheduledForm(false)}
-            onClose={() => setShowScheduledForm(false)}
-            initialData={scheduledGuestData || undefined} />
-
+                onSave={(data) => {
+                  setScheduledGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowScheduledForm(false);
+                }}
+                onCancel={() => setShowScheduledForm(false)}
+                onClose={() => setShowScheduledForm(false)}
+                initialData={scheduledGuestData || undefined}
+              />
             </div>
-        }
-          {orderType === "PHONE-IN" && showPhoneInForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
+          )}
+          {orderType === "PHONE-IN" && showPhoneInForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
               <PhoneInGuestForm
-            onSave={(data) => {
-              setPhoneInGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowPhoneInForm(false);
-            }}
-            onClose={() => setShowPhoneInForm(false)}
-            initialData={phoneInGuestData || undefined} />
-
+                onSave={(data) => {
+                  setPhoneInGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowPhoneInForm(false);
+                }}
+                onClose={() => setShowPhoneInForm(false)}
+                initialData={phoneInGuestData || undefined}
+              />
             </div>
-        }
-          {orderType === "CUSTOM" && showCustomOrderForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
+          )}
+          {orderType === "CUSTOM" && showCustomOrderForm && (
+            <div className="px-2 py-2 border-b border-sidebar-border">
               <CustomOrderGuestForm
-            onSave={(data) => {
-              setCustomOrderGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowCustomOrderForm(false);
-            }}
-            onClose={() => setShowCustomOrderForm(false)}
-            initialData={customOrderGuestData || undefined} />
-
+                onSave={(data) => {
+                  setCustomOrderGuestData(data);
+                  setGuestName(data.guestName);
+                  setGuestPhone(data.phoneNumber || '');
+                  setShowCustomOrderForm(false);
+                }}
+                onClose={() => setShowCustomOrderForm(false)}
+                initialData={customOrderGuestData || undefined}
+              />
             </div>
-        }
+          )}
 
           {/* Mobile Add Guest Form Overlay */}
-          {showAddGuestForm &&
-        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
+          {showAddGuestForm && (
+            <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
               <div className="w-full max-w-md h-[85vh] rounded-xl overflow-hidden relative" style={{ background: '#2A2A2A' }}>
                 <AddGuestForm
-              onClose={() => setShowAddGuestForm(false)}
-              onSave={(guestData) => {
-                setGuestName(`${guestData.firstName} ${guestData.lastName}`);
-                setGuestPhone(guestData.phoneNumber);
-                setShowAddGuestForm(false);
-              }} />
-
+                  onClose={() => setShowAddGuestForm(false)}
+                  onSave={(guestData) => {
+                    setGuestName(`${guestData.firstName} ${guestData.lastName}`);
+                    setGuestPhone(guestData.phoneNumber);
+                    setShowAddGuestForm(false);
+                  }}
+                />
               </div>
             </div>
-        }
-
-          {/* Mobile Create Voucher Form Overlay */}
-          {showCreateVoucherForm &&
-        <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
-              <div className="w-full max-w-md h-[85vh] rounded-xl overflow-hidden relative" style={{ background: '#2A2A2A' }}>
-                <CreateVoucherForm
-              onClose={() => setShowCreateVoucherForm(false)}
-              onCreate={(voucherData) => {
-                toast.success("Voucher created successfully!");
-                setShowCreateVoucherForm(false);
-              }} />
-              </div>
-            </div>
-        }
+          )}
 
           {/* Mobile Cart Items */}
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
             {orderItems.length === 0 ? null : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
                 <div className="px-1.5 py-0.5 space-y-0.5">
                   {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
-                      <div
-                  className={`rounded px-1.5 py-1 cursor-pointer ${item.isTransferred ? 'border border-[#3B6A9E]' : 'bg-neutral-800'}`}
-                  style={item.isTransferred ? { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } : undefined}
-                  onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}>
-
+                      <div 
+                        className={`rounded px-1.5 py-1 cursor-pointer ${item.isTransferred ? 'border border-[#3B6A9E]' : 'bg-neutral-800'}`}
+                        style={item.isTransferred ? { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } : undefined}
+                        onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}
+                      >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
                             <span className={`w-4 h-4 rounded text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0 ${item.isTransferred ? 'bg-[#3B6A9E]' : 'border border-white/50'}`}>
@@ -7341,59 +7323,59 @@ const Orders = () => {
                             </span>
                             <span className="text-[11px] font-medium text-foreground">{item.name}</span>
                           </div>
-                          {item.itemOrderType === 'VOUCHER' ?
-                    <span
-                      className="text-[11px] font-medium text-foreground cursor-pointer transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
-                      }}>
-
-                              ${item.price.toFixed(2)}
-                            </span> :
-                    item.noTax ?
-                    <span
-                      className="text-[11px] font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
-                      }}>
-
-                              <span className="line-through text-white/40">${(item.price * (1 + taxRate)).toFixed(2)}</span>
-                              <span className="text-green-400">${item.price.toFixed(2)}</span>
-                            </span> :
-
-                    <span
-                      className="text-[11px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
-                      }}>
-
+                          {item.itemOrderType === 'VOUCHER' ? (
+                            <span 
+                              className="text-[11px] font-medium text-foreground cursor-pointer transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                              }}
+                            >
                               ${item.price.toFixed(2)}
                             </span>
-                    }
+                          ) : item.noTax ? (
+                            <span 
+                              className="text-[11px] font-medium flex items-center gap-1.5 cursor-pointer transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                              }}
+                            >
+                              <span className="line-through text-white/40">${(item.price * (1 + taxRate)).toFixed(2)}</span>
+                              <span className="text-green-400">${item.price.toFixed(2)}</span>
+                            </span>
+                          ) : (
+                            <span 
+                              className="text-[11px] font-medium text-foreground hover:text-primary cursor-pointer transition-colors"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                              }}
+                            >
+                              ${item.price.toFixed(2)}
+                            </span>
+                          )}
                         </div>
                         
                         {/* Modifiers with tree hierarchy - Mobile */}
                         {item.modifiers && item.modifiers.length > 0 && (() => {
-                    const displayedModifiers = expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2);
-                    const hasShowButton = item.modifiers.length > 2;
-
-                    return (
-                      <div className="ml-2.5 mt-0.5 relative">
-                              {displayedModifiers.map((mod, idx) => {
-                          const isAddOn = mod.startsWith("Add:");
-                          const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
-                          const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
-                          const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
-
+                          const displayedModifiers = expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2);
+                          const hasShowButton = item.modifiers.length > 2;
+                          
                           return (
-                            <div key={idx} className="relative flex items-center text-[10px] py-[2px]">
+                            <div className="ml-2.5 mt-0.5 relative">
+                              {displayedModifiers.map((mod, idx) => {
+                                const isAddOn = mod.startsWith("Add:");
+                                const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
+                                
+                                return (
+                                  <div key={idx} className="relative flex items-center text-[10px] py-[2px]">
                                     {/* Vertical line - only show if not last item */}
-                                    {!isLastItem &&
-                              <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
-                              }
+                                    {!isLastItem && (
+                                      <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
+                                    )}
                                     {/* Vertical line segment to connect to horizontal */}
                                     <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                     {/* Horizontal connector */}
@@ -7407,41 +7389,41 @@ const Orders = () => {
                                         {displayMod}
                                       </span>
                                     </div>
-                                  </div>);
-
-                        })}
-                              {hasShowButton &&
-                        <div className="relative flex items-center py-[2px]">
+                                  </div>
+                                );
+                              })}
+                              {hasShowButton && (
+                                <div className="relative flex items-center py-[2px]">
                                   {/* Vertical line segment to connect to horizontal (this is the last item) */}
                                   <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                   {/* Horizontal connector */}
                                   <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
-                                  <button
-                            className="text-[10px] text-white/60 hover:text-white ml-4"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setExpandedCartItems((prev) => {
-                                const newSet = new Set(prev);
-                                if (newSet.has(item.id)) {
-                                  newSet.delete(item.id);
-                                } else {
-                                  newSet.add(item.id);
-                                }
-                                return newSet;
-                              });
-                            }}>
-
+                                  <button 
+                                    className="text-[10px] text-white/60 hover:text-white ml-4"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedCartItems(prev => {
+                                        const newSet = new Set(prev);
+                                        if (newSet.has(item.id)) {
+                                          newSet.delete(item.id);
+                                        } else {
+                                          newSet.add(item.id);
+                                        }
+                                        return newSet;
+                                      });
+                                    }}
+                                  >
                                     {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
                                   </button>
                                 </div>
-                        }
-                            </div>);
-
-                  })()}
+                              )}
+                            </div>
+                          );
+                        })()}
                         
                         {/* Item Notes Display - Mobile */}
-                        {item.notes &&
-                  <div className="ml-2.5 mt-0.5 relative">
+                        {item.notes && (
+                          <div className="ml-2.5 mt-0.5 relative">
                             <div className="relative flex items-center text-[10px] py-[2px]">
                               {/* Vertical line segment to connect to horizontal */}
                               <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
@@ -7454,11 +7436,11 @@ const Orders = () => {
                               </div>
                             </div>
                           </div>
-                  }
+                        )}
                         
                         {/* Item Discount Display - Mobile */}
-                        {item.discountName && item.discountAmount && item.discountAmount > 0 &&
-                  <div className="ml-2.5 mt-0.5 relative">
+                        {item.discountName && item.discountAmount && item.discountAmount > 0 && (
+                          <div className="ml-2.5 mt-0.5 relative">
                             <div className="relative flex items-center text-[10px] py-[2px]">
                               {/* Vertical line segment to connect to horizontal */}
                               <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
@@ -7471,28 +7453,28 @@ const Orders = () => {
                               </div>
                             </div>
                           </div>
-                  }
+                        )}
                         
                         {/* Seat Assignment Display - Mobile */}
-                        {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 &&
-                  <div className="mt-0.5 flex items-center gap-1 ml-5">
+                        {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
+                          <div className="mt-0.5 flex items-center gap-1 ml-5">
                             <img src={chairWhiteIcon} alt="Seats" className="w-3 h-3 opacity-70" />
-                            {item.assignedSeats.length === guestCount ?
-                    <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
+                            {item.assignedSeats.length === guestCount ? (
+                              <span className="w-4 h-4 rounded bg-neutral-700 text-white flex items-center justify-center">
                                 <Share2 className="w-2.5 h-2.5" />
-                              </span> :
-
-                    item.assignedSeats.map((seat) =>
-                    <span
-                      key={seat}
-                      className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center">
-
+                              </span>
+                            ) : (
+                              item.assignedSeats.map(seat => (
+                                <span 
+                                  key={seat}
+                                  className="w-4 h-4 rounded bg-neutral-700 text-white text-[9px] font-medium flex items-center justify-center"
+                                >
                                   {seat}
                                 </span>
-                    )
-                    }
+                              ))
+                            )}
                           </div>
-                  }
+                        )}
                       </div>
                     </SwipeableCartItem>)}
                 </div>
@@ -7516,40 +7498,40 @@ const Orders = () => {
             </div>}
 
           {/* Action Buttons - Only show when cart has items */}
-          {orderItems.length > 0 &&
-        <div className="px-2 py-2 flex items-center gap-2">
+          {orderItems.length > 0 && (
+            <div className="px-2 py-2 flex items-center gap-2">
               <button onClick={() => setOrderItems([])} className="w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center flex-shrink-0">
                 <img src={clearCIcon} alt="Clear" className="w-3 h-3" />
               </button>
               <button className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{
-            backgroundColor: '#C9C9C9'
-          }}>
+              backgroundColor: '#C9C9C9'
+            }}>
                 <img src={saveIcon} alt="Save" className="w-4 h-4" />
               </button>
-              <button
-            onClick={handleFireOrder}
-            disabled={orderItems.length === 0}
-            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
-            style={{
-              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-            }}>
-
+              <button 
+                onClick={handleFireOrder}
+                disabled={orderItems.length === 0}
+                className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`} 
+                style={{
+                  background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+                }}
+              >
                 <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                 <span className="text-white font-semibold text-sm">FIRE</span>
               </button>
-              <button
-            onClick={() => setShowPaymentDialog(true)}
-            className="flex-1 h-8 rounded-full flex items-center justify-center"
-            style={{
-              background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-            }}>
-
+              <button 
+                onClick={() => setShowPaymentDialog(true)}
+                className="flex-1 h-8 rounded-full flex items-center justify-center" 
+                style={{
+                  background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                }}
+              >
                 <span className="text-black font-semibold text-xs">
                   CHARGE ${chargeAmount.toFixed(2)}{chargeLabel && ` (${chargeLabel})`}
                 </span>
               </button>
             </div>
-        }
+          )}
         </div>
       </div>
 
@@ -7571,85 +7553,85 @@ const Orders = () => {
           <div className="touch-none" onTouchStart={handleTouchStart} onTouchMove={handleTouchMove} onTouchEnd={handleTouchEnd} onMouseDown={handleMouseDown}>
             <img src={grabberIcon} alt="Drag to resize" className="w-10 h-1.5 opacity-60 hover:opacity-100 transition-opacity cursor-grab" />
           </div>
-          {!(showInlineCustomization && selectedItemForCustomization) && !isSearchMode && <button className="w-6 h-6 p-0 border-0 bg-transparent z-10 touch-auto" onClick={(e) => {
-          e.stopPropagation();
-          setIsSearchMode(true);
-          setMenuPosition('full');
-          setTimeout(() => searchInputRef.current?.focus(), 100);
-        }}>
+          {!(showInlineCustomization && selectedItemForCustomization) && !isSearchMode && <button className="w-6 h-6 p-0 border-0 bg-transparent z-10 touch-auto" onClick={e => {
+            e.stopPropagation();
+            setIsSearchMode(true);
+            setMenuPosition('full');
+            setTimeout(() => searchInputRef.current?.focus(), 100);
+          }}>
             <img src={searchIcon} alt="Search" className="w-full h-full object-contain" />
           </button>}
-          {showInlineCustomization && selectedItemForCustomization || isSearchMode ? <div className="w-8" /> : null}
+          {(showInlineCustomization && selectedItemForCustomization) || isSearchMode ? <div className="w-8" /> : null}
         </div>
         {/* Menu Content - Hidden when minimized */}
       <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-[12px] md:rounded-[16px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
         {/* Custom Item Panel */}
-        {showCustomItemPanel ?
-        <div className="flex-1 flex flex-col p-3 md:p-4 overflow-y-auto scrollbar-hide min-h-0">
+        {showCustomItemPanel ? (
+          <div className="flex-1 flex flex-col p-3 md:p-4 overflow-y-auto scrollbar-hide min-h-0">
             {/* Header */}
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
               <h2 className="text-white text-lg font-semibold">Custom Item</h2>
-              <button
-              onClick={toggleCustomItemPanel}
-              className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors">
-
+              <button 
+                onClick={toggleCustomItemPanel}
+                className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors"
+              >
                 <X className="w-4 h-4 text-white" />
               </button>
             </div>
 
             {/* Name Input */}
             <div className="mb-3 flex-shrink-0">
-              <div
-              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? 'border-orange-500' : 'border-neutral-700'}`}
-              onClick={() => setActiveCustomItemField('name')}>
-
+              <div 
+                className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? 'border-orange-500' : 'border-neutral-700'}`}
+                onClick={() => setActiveCustomItemField('name')}
+              >
                 <span className="text-neutral-500 text-sm uppercase">NAME</span>
                 <input
-                type="text"
-                value={customItemName}
-                onChange={(e) => {
-                  // Auto-capitalize first letter of each word
-                  const value = e.target.value;
-                  const capitalizedValue = value.replace(/\b\w/g, (char) => char.toUpperCase());
-                  setCustomItemName(capitalizedValue);
-                }}
-                onFocus={() => setActiveCustomItemField('name')}
-                placeholder="Enter item name"
-                className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500" />
-
+                  type="text"
+                  value={customItemName}
+                  onChange={(e) => {
+                    // Auto-capitalize first letter of each word
+                    const value = e.target.value;
+                    const capitalizedValue = value.replace(/\b\w/g, (char) => char.toUpperCase());
+                    setCustomItemName(capitalizedValue);
+                  }}
+                  onFocus={() => setActiveCustomItemField('name')}
+                  placeholder="Enter item name"
+                  className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500"
+                />
               </div>
             </div>
 
             {/* Price Input */}
             <div className="mb-3 flex-shrink-0">
-              <div
-              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'price' ? 'border-orange-500' : 'border-neutral-700'}`}
-              onClick={() => setActiveCustomItemField('price')}>
-
+              <div 
+                className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'price' ? 'border-orange-500' : 'border-neutral-700'}`}
+                onClick={() => setActiveCustomItemField('price')}
+              >
                 <span className="text-neutral-500 text-sm uppercase">PRICE</span>
                 <div className="flex-1 flex items-center">
                   <span className="text-white text-sm mr-1">$</span>
                   <input
-                  type="text"
-                  value={customItemPrice}
-                  readOnly
-                  onFocus={() => setActiveCustomItemField('price')}
-                  placeholder="0.00"
-                  className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500" />
-
+                    type="text"
+                    value={customItemPrice}
+                    readOnly
+                    onFocus={() => setActiveCustomItemField('price')}
+                    placeholder="0.00"
+                    className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500"
+                  />
                 </div>
               </div>
             </div>
 
             {/* Add to Order Button */}
             <button
-            onClick={addCustomItemToOrder}
-            disabled={!customItemName.trim() || !customItemPrice}
-            className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-            style={{
-              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-            }}>
-
+              onClick={addCustomItemToOrder}
+              disabled={!customItemName.trim() || !customItemPrice}
+              className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+              style={{
+                background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+              }}
+            >
               <Plus className="w-4 h-4" />
               Add to Order
               {customItemPrice && <span className="ml-2">${parseFloat(customItemPrice).toFixed(2)}</span>}
@@ -7657,156 +7639,156 @@ const Orders = () => {
 
             {/* Keyboard / Numpad */}
             {activeCustomItemField === 'name' ? (
-          /* QWERTY Keyboard for Name */
-          <div className="flex flex-col gap-1.5 min-h-0">
+              /* QWERTY Keyboard for Name */
+              <div className="flex flex-col gap-1.5 min-h-0">
                 {/* Row 1: q-p */}
                 <div className="grid grid-cols-10 gap-1">
-                  {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map((key) =>
-              <button
-                key={key}
-                onClick={() => handleCustomItemKeyboardClick(key)}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
-
+                  {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => handleCustomItemKeyboardClick(key)}
+                      className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors"
+                    >
                       {isShiftActive ? key.toUpperCase() : key}
                     </button>
-              )}
+                  ))}
                 </div>
                 {/* Row 2: a-l */}
                 <div className="grid grid-cols-10 gap-1">
-                  {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map((key) =>
-              <button
-                key={key}
-                onClick={() => handleCustomItemKeyboardClick(key)}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
-
+                  {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => handleCustomItemKeyboardClick(key)}
+                      className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors"
+                    >
                       {isShiftActive ? key.toUpperCase() : key}
                     </button>
-              )}
+                  ))}
                   <div /> {/* Empty space to align */}
                 </div>
                 {/* Row 3: shift, z-m, backspace */}
                 <div className="grid grid-cols-10 gap-1">
                   <button
-                onClick={() => handleCustomItemKeyboardClick('shift')}
-                className={`bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors ${isShiftActive ? 'bg-blue-600 hover:bg-blue-500' : ''}`}>
-
+                    onClick={() => handleCustomItemKeyboardClick('shift')}
+                    className={`bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors ${isShiftActive ? 'bg-blue-600 hover:bg-blue-500' : ''}`}
+                  >
                     ⇧
                   </button>
-                  {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map((key) =>
-              <button
-                key={key}
-                onClick={() => handleCustomItemKeyboardClick(key)}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
-
+                  {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => handleCustomItemKeyboardClick(key)}
+                      className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors"
+                    >
                       {isShiftActive ? key.toUpperCase() : key}
                     </button>
-              )}
+                  ))}
                   <button
-                onClick={() => handleCustomItemKeyboardClick('backspace')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-2 flex items-center justify-center">
-
+                    onClick={() => handleCustomItemKeyboardClick('backspace')}
+                    className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-2 flex items-center justify-center"
+                  >
                     <Delete className="w-5 h-5" />
                   </button>
                 </div>
                 {/* Row 4: 123, Space, Clear */}
                 <div className="grid grid-cols-6 gap-1">
                   <button
-                onClick={() => handleCustomItemKeyboardClick('123')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors">
-
+                    onClick={() => handleCustomItemKeyboardClick('123')}
+                    className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors"
+                  >
                     123
                   </button>
                   <button
-                onClick={() => handleCustomItemKeyboardClick('space')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-4">
-
+                    onClick={() => handleCustomItemKeyboardClick('space')}
+                    className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-4"
+                  >
                     Space
                   </button>
                   <button
-                onClick={() => handleCustomItemKeyboardClick('clear')}
-                className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-sm font-medium py-3 transition-colors">
-
+                    onClick={() => handleCustomItemKeyboardClick('clear')}
+                    className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-sm font-medium py-3 transition-colors"
+                  >
                     Clear
                   </button>
                 </div>
-              </div>) : (
-
-          /* Numpad for Price */
-          <div className="flex flex-col gap-2 min-h-0">
+              </div>
+            ) : (
+              /* Numpad for Price */
+              <div className="flex flex-col gap-2 min-h-0">
                 <div className="grid grid-cols-3 gap-2">
-                  {['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((num) =>
-              <button
-                key={num}
-                onClick={() => handleCustomItemNumpadClick(num)}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
-
+                  {['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((num) => (
+                    <button
+                      key={num}
+                      onClick={() => handleCustomItemNumpadClick(num)}
+                      className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
+                    >
                       {num}
                     </button>
-              )}
+                  ))}
                   <button
-                onClick={() => handleCustomItemNumpadClick('clear')}
-                className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-lg font-medium py-4 transition-colors">
-
+                    onClick={() => handleCustomItemNumpadClick('clear')}
+                    className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-lg font-medium py-4 transition-colors"
+                  >
                     Clear
                   </button>
                   <button
-                onClick={() => handleCustomItemNumpadClick('0')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
-
+                    onClick={() => handleCustomItemNumpadClick('0')}
+                    className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
+                  >
                     0
                   </button>
                   <button
-                onClick={() => handleCustomItemNumpadClick('.')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
-
+                    onClick={() => handleCustomItemNumpadClick('.')}
+                    className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors"
+                  >
                     .
                   </button>
                 </div>
                 
                 {/* Backspace Button */}
                 <button
-              onClick={() => handleCustomItemNumpadClick('backspace')}
-              className="w-full bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors">
-
+                  onClick={() => handleCustomItemNumpadClick('backspace')}
+                  className="w-full bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors"
+                >
                   <Delete className="w-5 h-5 text-white" />
                 </button>
-              </div>)
-          }
-          </div> :
-        showInlineCustomization && selectedItemForCustomization ?
-        isProductInfoFullScreen ?
-        // Full-screen product info overlay on mobile
-        <div className="fixed inset-0 z-50 bg-neutral-900 md:hidden flex flex-col" style={{ bottom: '56px' }}>
-              <InlineItemCustomization
-            item={selectedItemForCustomization}
-            itemImage={selectedItemImage}
-            onAddToCart={handleInlineAddToCart}
-            onCancel={handleInlineCancel}
-            onViewChange={handleInlineViewChange}
-            className="h-full" />
-
-            </div> :
-
-        <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
-              <InlineItemCustomization
-            item={selectedItemForCustomization}
-            itemImage={selectedItemImage}
-            onAddToCart={handleInlineAddToCart}
-            onCancel={handleInlineCancel}
-            onViewChange={handleInlineViewChange}
-            className="h-full" />
-
-            </div> :
-
-        <>
+              </div>
+            )}
+          </div>
+        ) : showInlineCustomization && selectedItemForCustomization ? (
+          isProductInfoFullScreen ? (
+            // Full-screen product info overlay on mobile
+            <div className="fixed inset-0 z-50 bg-neutral-900 md:hidden flex flex-col" style={{ bottom: '56px' }}>
+              <InlineItemCustomization 
+                item={selectedItemForCustomization} 
+                itemImage={selectedItemImage} 
+                onAddToCart={handleInlineAddToCart} 
+                onCancel={handleInlineCancel} 
+                onViewChange={handleInlineViewChange}
+                className="h-full" 
+              />
+            </div>
+          ) : (
+            <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
+              <InlineItemCustomization 
+                item={selectedItemForCustomization} 
+                itemImage={selectedItemImage} 
+                onAddToCart={handleInlineAddToCart} 
+                onCancel={handleInlineCancel} 
+                onViewChange={handleInlineViewChange}
+                className="h-full" 
+              />
+            </div>
+          )
+        ) : <>
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Desktop Search Button - Top Right Corner */}
           <div className="hidden md:flex absolute top-1 right-0 z-10 items-center">
-            <button
-                className="cursor-pointer"
-                onClick={() => setIsDesktopSearchOpen(true)}>
-
+            <button 
+              className="cursor-pointer"
+              onClick={() => setIsDesktopSearchOpen(true)}
+            >
               <img src={searchIcon} alt="Search" className="w-8 h-8 lg:w-9 lg:h-9" />
             </button>
           </div>
@@ -7826,7 +7808,7 @@ const Orders = () => {
                   <SelectValue placeholder="Select Menu" />
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-neutral-700">
-                  {menuList.map((menu) => <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
+                  {menuList.map(menu => <SelectItem key={menu} value={menu} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
                       {menu}
                     </SelectItem>)}
                 </SelectContent>
@@ -7835,7 +7817,7 @@ const Orders = () => {
               <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-8 lg:w-9 h-6 md:h-8 lg:h-9" />
             </Button>}
           {/* Categories */}
-          {menuCategories[selectedMenu].map((cat) => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
+          {menuCategories[selectedMenu].map(cat => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
         </div>
@@ -7845,7 +7827,7 @@ const Orders = () => {
         {/* Subcategories based on selected category - Hidden in search mode on mobile */}
         <div className={`overflow-x-auto scrollbar-hide ${horizontalScrollMode ? '' : 'max-h-[6rem] md:max-h-[7rem] lg:max-h-[8.5rem]'} ${isSearchMode ? 'hidden md:block' : ''}`}>
           <div className={`flex gap-1 md:gap-1.5 lg:gap-2 ${horizontalScrollMode ? 'flex-row flex-nowrap' : 'flex-row flex-wrap'}`}>
-            {(categorySubcategories[activeCategory] || []).map((sub) => <Button key={sub} variant="outline" className={`rounded-md px-3 md:px-4 lg:px-6 h-7 md:h-7 lg:h-8 text-[11px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
+            {(categorySubcategories[activeCategory] || []).map(sub => <Button key={sub} variant="outline" className={`rounded-md px-3 md:px-4 lg:px-6 h-7 md:h-7 lg:h-8 text-[11px] md:text-[10px] lg:text-xs whitespace-nowrap border ${activeSubcategory === sub ? `bg-black ${getCategoryTextColor(activeCategory)} ${getCategoryHoverTextColor(activeCategory)} ${getCategoryBorderColor(activeCategory)} font-semibold hover:bg-black` : `bg-black text-header-foreground ${getCategoryBorderColor(activeCategory)} hover:bg-black/80`}`} onClick={() => setActiveSubcategory(sub)}>
                 {sub}
               </Button>)}
           </div>
@@ -7858,7 +7840,7 @@ const Orders = () => {
           {(() => {
               // Get items based on selected menu, category, and subcategory
               let currentItems: MenuItem[] = [];
-
+              
               // When there's a search query, always search across ALL menu items
               if (searchQuery.trim()) {
                 currentItems = getAllMenuItems(selectedMenu);
@@ -7871,12 +7853,12 @@ const Orders = () => {
               }
 
               // Filter items based on search query
-              const filteredItems = searchQuery.trim() ? currentItems.filter((item) => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
+              const filteredItems = searchQuery.trim() ? currentItems.filter(item => item.name.toLowerCase().includes(searchQuery.toLowerCase())) : currentItems;
               return thumbnailViewMode ? <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-1 md:gap-1.5 lg:gap-2 pb-4 md:pb-0">
                 {filteredItems.map((item, index) => <div key={item.id} className="flex flex-col rounded-md overflow-hidden cursor-pointer group border border-neutral-700">
                     <div className="relative aspect-[2/1] md:aspect-square bg-neutral-800" onClick={() => openCustomizationDialog(item, index)}>
                       <img src={foodImages[index % foodImages.length]} alt={item.name} className="w-full h-full object-cover" />
-                      <button onClick={(e) => {
+                      <button onClick={e => {
                       e.stopPropagation();
                       addToCart(item);
                     }} className="absolute top-0.5 md:top-1 left-0.5 md:left-1 w-5 md:w-6 h-5 md:h-6 bg-orange-500 hover:bg-orange-600 rounded flex items-center justify-center transition-colors">
@@ -7904,7 +7886,7 @@ const Orders = () => {
                         {item.name}
                       </span>
                     </div>
-                    <button onClick={(e) => {
+                    <button onClick={e => {
                     e.stopPropagation();
                     addToCart(item);
                   }} className="w-6 md:w-8 text-white flex-shrink-0 flex items-center justify-center" style={{
@@ -7922,7 +7904,7 @@ const Orders = () => {
         {isDesktopSearchOpen && <div className="hidden md:flex items-center gap-2 px-3 py-2.5 bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
           <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
             <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
-            <input type="text" placeholder="Search items..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
+            <input type="text" placeholder="Search items..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
             {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
               <X className="w-4 h-4 text-neutral-400" />
             </button>}
@@ -7939,7 +7921,7 @@ const Orders = () => {
         {isSearchMode && <div className="flex items-center gap-2 px-3 py-2.5 md:hidden bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
           <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
             <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
-            <input ref={searchInputRef} type="text" placeholder="Search items..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
+            <input ref={searchInputRef} type="text" placeholder="Search items..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
             {searchQuery && <button onClick={() => setSearchQuery('')} className="p-0.5">
               <X className="w-4 h-4 text-neutral-400" />
             </button>}
@@ -7963,9 +7945,9 @@ const Orders = () => {
           <div className="px-1 pb-2 flex-shrink-0">
             <div className="flex items-center text-xs mb-2 gap-2">
               <div className="relative flex-1">
-                <input ref={guestInputRef} type="text" value={guestName} onChange={(e) => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-full min-w-0 font-medium text-[#808080]" />
+                <input ref={guestInputRef} type="text" value={guestName} onChange={e => setGuestName(e.target.value)} placeholder="GUEST NAME" className="bg-transparent outline-none placeholder:text-[#808080] w-full min-w-0 font-medium text-[#808080]" />
                 {showGuestDropdown && filteredGuests.length > 0 && <div ref={guestDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
-                    {filteredGuests.map((guest) => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
+                    {filteredGuests.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
                         {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
                             {guest.initials}
                           </div>}
@@ -7978,9 +7960,9 @@ const Orders = () => {
               </div>
               <div className="relative flex items-center gap-0.5 flex-shrink-0">
                 <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
-                <input ref={phoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={(e) => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080] text-xs" />
+                <input ref={phoneInputRef} type="tel" inputMode="tel" value={formatPhoneNumber(guestPhone)} onChange={e => setGuestPhone(e.target.value.replace(/\D/g, ''))} placeholder="(XXX) XXX-XXXX" className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080] text-xs" />
                 {showPhoneDropdown && filteredByPhone.length > 0 && <div ref={phoneDropdownRef} className="absolute top-full left-0 mt-1 bg-neutral-700 rounded-xl shadow-xl border border-neutral-600 z-50 min-w-[220px] py-1 overflow-hidden">
-                    {filteredByPhone.map((guest) => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
+                    {filteredByPhone.map(guest => <button key={guest.id} onClick={() => selectGuest(guest)} className="w-full flex items-center gap-3 px-3 py-2 hover:bg-neutral-600 transition-colors text-left">
                         {guest.avatar ? <img src={guest.avatar} alt={guest.name} className="w-10 h-10 rounded-full object-cover" /> : <div className="w-10 h-10 rounded-full bg-neutral-500 flex items-center justify-center text-white font-semibold text-sm">
                             {guest.initials}
                           </div>}
@@ -8000,37 +7982,37 @@ const Orders = () => {
             
             <div className="flex items-center gap-1.5 mb-2">
               <div className="flex items-center justify-between flex-1 overflow-x-auto scrollbar-hide gap-1.5">
-                <Button
-                variant="secondary"
-                size="sm"
-                className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
-                onClick={toggleCustomItemPanel}>
-
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
+                  onClick={toggleCustomItemPanel}
+                >
                   <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-3 h-3" />
                   {showCustomItemPanel ? "Menu" : "Custom Item"}
                 </Button>
-                <Button
-                variant="secondary"
-                size="sm"
-                className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
-                onClick={() => {
-                  if (isManager) {
-                    setDiscountDialogView('discounts');
-                  } else {
-                    setDiscountDialogView('mpin');
-                  }
-                  setShowDiscountDialog(true);
-                }}>
-
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
+                  onClick={() => {
+                    if (isManager) {
+                      setDiscountDialogView('discounts');
+                    } else {
+                      setDiscountDialogView('mpin');
+                    }
+                    setShowDiscountDialog(true);
+                  }}
+                >
                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />
                   Discount
                 </Button>
-                <Button
-                variant="secondary"
-                size="sm"
-                className={`text-[10px] rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
-                onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}>
-
+                <Button 
+                  variant="secondary" 
+                  size="sm" 
+                  className={`text-[10px] rounded-[10px] ${isTaxExempt ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#666666] border h-6 px-3 whitespace-nowrap flex-1 gap-1.5`}
+                  onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
+                >
                   <img src={noTaxBtnIcon} alt="" className="w-3 h-3" />
                   No Tax
                 </Button>
@@ -8039,12 +8021,12 @@ const Orders = () => {
                   Register
                 </Button>
               </div>
-              <Button
-              variant="secondary"
-              size="icon"
-              className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0"
-              onClick={() => setIsOrderActionsSidebarOpen(!isOrderActionsSidebarOpen)}>
-
+              <Button 
+                variant="secondary" 
+                size="icon" 
+                className="h-6 w-6 rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border flex-shrink-0"
+                onClick={() => setIsOrderActionsSidebarOpen(!isOrderActionsSidebarOpen)}
+              >
                 {isOrderActionsSidebarOpen ? <X className="w-3 h-3" /> : <MoreVertical className="w-3 h-3" />}
               </Button>
             </div>
@@ -8054,36 +8036,25 @@ const Orders = () => {
           <div className="flex-1 flex gap-2 min-h-0">
             {/* Background Container for Order Content */}
             <div className="flex-1 flex flex-col rounded-lg overflow-hidden min-h-0 relative" style={{
-            background: '#7575754D',
-            boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-          }}>
+              background: '#7575754D',
+              boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+            }}>
               {/* Add Guest Form Overlay */}
-              {showAddGuestForm &&
-            <div className="absolute inset-0 z-10 bg-background">
+              {showAddGuestForm && (
+                <div className="absolute inset-0 z-10 bg-background">
                   <AddGuestForm
-                onClose={() => setShowAddGuestForm(false)}
-                onSave={(guestData) => {
-                  setGuestName(`${guestData.firstName} ${guestData.lastName}`);
-                  setGuestPhone(guestData.phoneNumber);
-                  setShowAddGuestForm(false);
-                }} />
-
+                    onClose={() => setShowAddGuestForm(false)}
+                    onSave={(guestData) => {
+                      setGuestName(`${guestData.firstName} ${guestData.lastName}`);
+                      setGuestPhone(guestData.phoneNumber);
+                      setShowAddGuestForm(false);
+                    }}
+                  />
                 </div>
-            }
-              {/* Create Voucher Form Overlay */}
-              {showCreateVoucherForm &&
-            <div className="absolute inset-0 z-10 bg-background">
-                  <CreateVoucherForm
-                onClose={() => setShowCreateVoucherForm(false)}
-                onCreate={(voucherData) => {
-                  toast.success("Voucher created successfully!");
-                  setShowCreateVoucherForm(false);
-                }} />
-                </div>
-            }
+              )}
               {/* Order Type & Guest Info */}
-              {isTableOrder ?
-            <>
+              {isTableOrder ? (
+                <>
                   {/* Table Order Header - Row 1 */}
                   <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
                     <div className="flex items-center gap-2">
@@ -8104,135 +8075,135 @@ const Orders = () => {
                     <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
                       <img src={chairWhiteIcon} alt="Chair" className="w-3.5 h-3.5" />
                     </button>
-                    <button
-                  onClick={() => toggleSeatFilter('all')}
-                  className={`p-1 rounded transition-colors ${
-                  seatFilter.includes('all') ?
-                  'bg-white' :
-                  'bg-neutral-700 hover:bg-neutral-600'}`
-                  }>
-
+                    <button 
+                      onClick={() => toggleSeatFilter('all')}
+                      className={`p-1 rounded transition-colors ${
+                        seatFilter.includes('all') 
+                          ? 'bg-white' 
+                          : 'bg-neutral-700 hover:bg-neutral-600'
+                      }`}
+                    >
                       <Share2 className={`w-3.5 h-3.5 ${seatFilter.includes('all') ? 'text-black' : 'text-white'}`} />
                     </button>
-                    {Array.from({ length: guestCount }).map((_, i) =>
-                <button
-                  key={i}
-                  onClick={() => toggleSeatFilter(i + 1)}
-                  className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold transition-colors ${
-                  seatFilter.includes(i + 1) ?
-                  'bg-white text-black' :
-                  'bg-neutral-600 text-white hover:bg-neutral-500'}`
-                  }>
-
+                    {Array.from({ length: guestCount }).map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => toggleSeatFilter(i + 1)}
+                        className={`w-6 h-6 rounded flex items-center justify-center text-xs font-bold transition-colors ${
+                          seatFilter.includes(i + 1) 
+                            ? 'bg-white text-black' 
+                            : 'bg-neutral-600 text-white hover:bg-neutral-500'
+                        }`}
+                      >
                         {i + 1}
                       </button>
-                )}
+                    ))}
                   </div>
-                </> :
-
-            <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
+                </>
+              ) : (
+                <div className="flex items-center justify-between px-2 py-2 border-b border-sidebar-border">
                   <div className="flex items-center gap-2">
                     <DropdownMenu>
                       <DropdownMenuTrigger asChild>
                         <button className="flex items-center gap-1.5 text-xs font-medium bg-neutral-700 hover:bg-neutral-600 px-3 py-1.5 rounded transition-colors">
-                          <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
+                          <img src={orderTypes.find(t => t.label === orderType)?.icon} alt="" className="w-4 h-4" />
                           {orderType} <ChevronDown className="w-3 h-3" />
                         </button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="start" className="bg-neutral-800 border-neutral-700 min-w-[140px]">
-                        {orderTypes.map((type) => <DropdownMenuItem key={type.label} onClick={() => {
-                      setOrderType(type.label);
-                      if (type.label === "DINE IN") {
-                        setShowDineInForm(true);
-                        setDineInGuestData(null);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                      } else if (type.label === "TAKE OUT") {
-                        setShowTakeOutForm(true);
-                        setTakeOutGuestData(null);
-                        setShowDineInForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                      } else if (type.label === "DELIVERY") {
-                        setShowDeliveryForm(true);
-                        setDeliveryGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowBanquetForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                      } else if (type.label === "BANQUET") {
-                        setShowBanquetForm(true);
-                        setBanquetGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowPhoneInForm(false);
-                        setShowCustomOrderForm(false);
-                      } else if (type.label === "DRIVE THRU") {
-                        setShowDriveThruForm(true);
-                        setDriveThruGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowBanquetForm(false);
-                        setShowCurbSideForm(false);
-                      } else if (type.label === "CURB SIDE") {
-                        setShowCurbSideForm(true);
-                        setCurbSideGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowBanquetForm(false);
-                        setShowDriveThruForm(false);
-                        setShowScheduledForm(false);
-                      } else if (type.label === "SCHEDULED") {
-                        setShowScheduledForm(true);
-                        setScheduledGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowPhoneInForm(false);
-                        setShowCustomOrderForm(false);
-                      } else if (type.label === "PHONE-IN") {
-                        setShowPhoneInForm(true);
-                        setPhoneInGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowCustomOrderForm(false);
-                      } else if (type.label === "CUSTOM") {
-                        setShowCustomOrderForm(true);
-                        setCustomOrderGuestData(null);
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowPhoneInForm(false);
-                      } else {
-                        setShowDineInForm(false);
-                        setShowTakeOutForm(false);
-                        setShowDeliveryForm(false);
-                        setShowDriveThruForm(false);
-                        setShowCurbSideForm(false);
-                        setShowScheduledForm(false);
-                        setShowPhoneInForm(false);
-                        setShowCustomOrderForm(false);
-                      }
-                    }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
+                        {orderTypes.map(type => <DropdownMenuItem key={type.label} onClick={() => {
+                            setOrderType(type.label);
+                            if (type.label === "DINE IN") {
+                              setShowDineInForm(true);
+                              setDineInGuestData(null);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                            } else if (type.label === "TAKE OUT") {
+                              setShowTakeOutForm(true);
+                              setTakeOutGuestData(null);
+                              setShowDineInForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                            } else if (type.label === "DELIVERY") {
+                              setShowDeliveryForm(true);
+                              setDeliveryGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowBanquetForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                            } else if (type.label === "BANQUET") {
+                              setShowBanquetForm(true);
+                              setBanquetGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                              setShowScheduledForm(false);
+                              setShowPhoneInForm(false);
+                              setShowCustomOrderForm(false);
+                            } else if (type.label === "DRIVE THRU") {
+                              setShowDriveThruForm(true);
+                              setDriveThruGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowBanquetForm(false);
+                              setShowCurbSideForm(false);
+                            } else if (type.label === "CURB SIDE") {
+                              setShowCurbSideForm(true);
+                              setCurbSideGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowBanquetForm(false);
+                              setShowDriveThruForm(false);
+                              setShowScheduledForm(false);
+                            } else if (type.label === "SCHEDULED") {
+                              setShowScheduledForm(true);
+                              setScheduledGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                              setShowPhoneInForm(false);
+                              setShowCustomOrderForm(false);
+                            } else if (type.label === "PHONE-IN") {
+                              setShowPhoneInForm(true);
+                              setPhoneInGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                              setShowScheduledForm(false);
+                              setShowCustomOrderForm(false);
+                            } else if (type.label === "CUSTOM") {
+                              setShowCustomOrderForm(true);
+                              setCustomOrderGuestData(null);
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                              setShowScheduledForm(false);
+                              setShowPhoneInForm(false);
+                            } else {
+                              setShowDineInForm(false);
+                              setShowTakeOutForm(false);
+                              setShowDeliveryForm(false);
+                              setShowDriveThruForm(false);
+                              setShowCurbSideForm(false);
+                              setShowScheduledForm(false);
+                              setShowPhoneInForm(false);
+                              setShowCustomOrderForm(false);
+                            }
+                          }} className="text-white hover:bg-neutral-700 cursor-pointer flex items-center gap-2">
                             <img src={type.icon} alt="" className="w-4 h-4" />
                             {type.label}
                           </DropdownMenuItem>)}
@@ -8245,225 +8216,225 @@ const Orders = () => {
                     <span>MIA JONE</span>
                   </div>
                 </div>
-            }
+              )}
 
               {/* Dine In Guest Form */}
-              {orderType === "DINE IN" && showDineInForm ?
-            <DineInGuestForm
-              onSave={(data) => {
-                setDineInGuestData(data);
-                setGuestName(data.guestName);
-                setGuestPhone(data.phoneNumber);
-                setShowDineInForm(false);
-              }}
-              onClose={() => setShowDineInForm(false)}
-              initialData={dineInGuestData} /> :
-
-            orderType === "TAKE OUT" && showTakeOutForm ?
-            <TakeOutGuestForm
-              onSave={(data) => {
-                setTakeOutGuestData(data);
-                setGuestName(data.guestName);
-                setGuestPhone(data.phoneNumber);
-                setShowTakeOutForm(false);
-              }}
-              onClose={() => setShowTakeOutForm(false)}
-              initialData={takeOutGuestData} /> :
-
-            orderType === "DELIVERY" && showDeliveryForm ?
-            <DeliveryGuestForm
-              onSave={(data) => {
-                setDeliveryGuestData(data);
-                setGuestName(data.guestName);
-                setGuestPhone(data.phoneNumber);
-                setShowDeliveryForm(false);
-              }}
-              onClose={() => setShowDeliveryForm(false)}
-              initialData={deliveryGuestData} /> :
-
-            orderType === "BANQUET" && showBanquetForm ?
-            <BanquetGuestForm
-              onSave={(data) => {
-                setBanquetGuestData(data);
-                setGuestName(data.guestName);
-                setGuestPhone(data.phoneNumber);
-                setShowBanquetForm(false);
-              }}
-              onClose={() => setShowBanquetForm(false)}
-              initialData={banquetGuestData} /> :
-
-            orderType === "DRIVE THRU" && showDriveThruForm ?
-            <DriveThruGuestForm
-              onSave={(data) => {
-                setDriveThruGuestData(data);
-                setGuestName(data.guestName);
-                setGuestPhone(data.phoneNumber);
-                setShowDriveThruForm(false);
-              }}
-              onClose={() => setShowDriveThruForm(false)}
-              initialData={driveThruGuestData} /> :
-
-            orderType === "CURB SIDE" && showCurbSideForm ?
-            <CurbSideGuestForm
-              onSave={(data) => {
-                setCurbSideGuestData(data);
-                setGuestName(data.guestName);
-                setGuestPhone(data.phoneNumber);
-                setShowCurbSideForm(false);
-              }}
-              onClose={() => setShowCurbSideForm(false)}
-              initialData={curbSideGuestData} /> :
-
-            orderType === "SCHEDULED" && showScheduledForm ?
-            <ScheduledGuestForm
-              onSave={(data) => {
-                setScheduledGuestData(data);
-                setGuestName(data.guestName);
-                setGuestPhone(data.phoneNumber);
-                setShowScheduledForm(false);
-              }}
-              onClose={() => setShowScheduledForm(false)}
-              initialData={scheduledGuestData} /> :
-
-            orderType === "PHONE-IN" && showPhoneInForm ?
-            <PhoneInGuestForm
-              onSave={(data) => {
-                setPhoneInGuestData(data);
-                setGuestName(data.guestName);
-                setGuestPhone(data.phoneNumber);
-                setShowPhoneInForm(false);
-              }}
-              onClose={() => setShowPhoneInForm(false)}
-              initialData={phoneInGuestData} /> :
-
-            orderType === "CUSTOM" && showCustomOrderForm ?
-            <CustomOrderGuestForm
-              onSave={(data) => {
-                setCustomOrderGuestData(data);
-                setGuestName(data.guestName);
-                setGuestPhone(data.phoneNumber);
-                setShowCustomOrderForm(false);
-              }}
-              onClose={() => setShowCustomOrderForm(false)}
-              initialData={customOrderGuestData} /> :
-
-
-            <>
+              {orderType === "DINE IN" && showDineInForm ? (
+                <DineInGuestForm
+                  onSave={(data) => {
+                    setDineInGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowDineInForm(false);
+                  }}
+                  onClose={() => setShowDineInForm(false)}
+                  initialData={dineInGuestData}
+                />
+              ) : orderType === "TAKE OUT" && showTakeOutForm ? (
+                <TakeOutGuestForm
+                  onSave={(data) => {
+                    setTakeOutGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowTakeOutForm(false);
+                  }}
+                  onClose={() => setShowTakeOutForm(false)}
+                  initialData={takeOutGuestData}
+                />
+              ) : orderType === "DELIVERY" && showDeliveryForm ? (
+                <DeliveryGuestForm
+                  onSave={(data) => {
+                    setDeliveryGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowDeliveryForm(false);
+                  }}
+                  onClose={() => setShowDeliveryForm(false)}
+                  initialData={deliveryGuestData}
+                />
+              ) : orderType === "BANQUET" && showBanquetForm ? (
+                <BanquetGuestForm
+                  onSave={(data) => {
+                    setBanquetGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowBanquetForm(false);
+                  }}
+                  onClose={() => setShowBanquetForm(false)}
+                  initialData={banquetGuestData}
+                />
+              ) : orderType === "DRIVE THRU" && showDriveThruForm ? (
+                <DriveThruGuestForm
+                  onSave={(data) => {
+                    setDriveThruGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowDriveThruForm(false);
+                  }}
+                  onClose={() => setShowDriveThruForm(false)}
+                  initialData={driveThruGuestData}
+                />
+              ) : orderType === "CURB SIDE" && showCurbSideForm ? (
+                <CurbSideGuestForm
+                  onSave={(data) => {
+                    setCurbSideGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowCurbSideForm(false);
+                  }}
+                  onClose={() => setShowCurbSideForm(false)}
+                  initialData={curbSideGuestData}
+                />
+              ) : orderType === "SCHEDULED" && showScheduledForm ? (
+                <ScheduledGuestForm
+                  onSave={(data) => {
+                    setScheduledGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowScheduledForm(false);
+                  }}
+                  onClose={() => setShowScheduledForm(false)}
+                  initialData={scheduledGuestData}
+                />
+              ) : orderType === "PHONE-IN" && showPhoneInForm ? (
+                <PhoneInGuestForm
+                  onSave={(data) => {
+                    setPhoneInGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowPhoneInForm(false);
+                  }}
+                  onClose={() => setShowPhoneInForm(false)}
+                  initialData={phoneInGuestData}
+                />
+              ) : orderType === "CUSTOM" && showCustomOrderForm ? (
+                <CustomOrderGuestForm
+                  onSave={(data) => {
+                    setCustomOrderGuestData(data);
+                    setGuestName(data.guestName);
+                    setGuestPhone(data.phoneNumber);
+                    setShowCustomOrderForm(false);
+                  }}
+                  onClose={() => setShowCustomOrderForm(false)}
+                  initialData={customOrderGuestData}
+                />
+              ) : (
+                <>
                   {/* Edit Guest Info Button for Dine In */}
-                  {orderType === "DINE IN" && dineInGuestData &&
-              <button
-                onClick={() => setShowDineInForm(true)}
-                className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
-                style={{ background: 'rgba(117, 117, 117, 0.2)' }}>
-
+                  {orderType === "DINE IN" && dineInGuestData && (
+                    <button
+                      onClick={() => setShowDineInForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
                       <span>Guest: {dineInGuestData.guestName} | Table {dineInGuestData.tableNumber}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
-              }
+                  )}
                   {/* Edit Guest Info Button for Take Out */}
-                  {orderType === "TAKE OUT" && takeOutGuestData &&
-              <button
-                onClick={() => setShowTakeOutForm(true)}
-                className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
-                style={{ background: 'rgba(117, 117, 117, 0.2)' }}>
-
+                  {orderType === "TAKE OUT" && takeOutGuestData && (
+                    <button
+                      onClick={() => setShowTakeOutForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
                       <span>Guest: {takeOutGuestData.guestName}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
-              }
+                  )}
                   {/* Edit Guest Info Button for Delivery */}
-                  {orderType === "DELIVERY" && deliveryGuestData &&
-              <button
-                onClick={() => setShowDeliveryForm(true)}
-                className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
-                style={{ background: 'rgba(117, 117, 117, 0.2)' }}>
-
+                  {orderType === "DELIVERY" && deliveryGuestData && (
+                    <button
+                      onClick={() => setShowDeliveryForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
                       <span>Guest: {deliveryGuestData.guestName} | {deliveryGuestData.address.fullAddress.slice(0, 25)}...</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
-              }
+                  )}
                   {/* Edit Guest Info Button for Banquet */}
-                  {orderType === "BANQUET" && banquetGuestData &&
-              <button
-                onClick={() => setShowBanquetForm(true)}
-                className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
-                style={{ background: 'rgba(117, 117, 117, 0.2)' }}>
-
+                  {orderType === "BANQUET" && banquetGuestData && (
+                    <button
+                      onClick={() => setShowBanquetForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
                       <span>Guest: {banquetGuestData.guestName} | {banquetGuestData.eventType}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
-              }
+                  )}
                   {/* Edit Guest Info Button for Drive Thru */}
-                  {orderType === "DRIVE THRU" && driveThruGuestData &&
-              <button
-                onClick={() => setShowDriveThruForm(true)}
-                className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
-                style={{ background: 'rgba(117, 117, 117, 0.2)' }}>
-
+                  {orderType === "DRIVE THRU" && driveThruGuestData && (
+                    <button
+                      onClick={() => setShowDriveThruForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
                       <span>Guest: {driveThruGuestData.guestName}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
-              }
+                  )}
                   {/* Edit Guest Info Button for Curb Side */}
-                  {orderType === "CURB SIDE" && curbSideGuestData &&
-              <button
-                onClick={() => setShowCurbSideForm(true)}
-                className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
-                style={{ background: 'rgba(117, 117, 117, 0.2)' }}>
-
+                  {orderType === "CURB SIDE" && curbSideGuestData && (
+                    <button
+                      onClick={() => setShowCurbSideForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
                       <span>Guest: {curbSideGuestData.guestName}{curbSideGuestData.parkingSpot ? ` | ${curbSideGuestData.parkingSpot}` : ''}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
-              }
+                  )}
                   {/* Edit Guest Info Button for Scheduled */}
-                  {orderType === "SCHEDULED" && scheduledGuestData &&
-              <button
-                onClick={() => setShowScheduledForm(true)}
-                className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
-                style={{ background: 'rgba(117, 117, 117, 0.2)' }}>
-
+                  {orderType === "SCHEDULED" && scheduledGuestData && (
+                    <button
+                      onClick={() => setShowScheduledForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
                       <span>Guest: {scheduledGuestData.guestName} | {scheduledGuestData.scheduledDate ? new Date(scheduledGuestData.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) : ''}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
-              }
+                  )}
                   {/* Edit Guest Info Button for Phone-In */}
-                  {orderType === "PHONE-IN" && phoneInGuestData &&
-              <button
-                onClick={() => setShowPhoneInForm(true)}
-                className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
-                style={{ background: 'rgba(117, 117, 117, 0.2)' }}>
-
+                  {orderType === "PHONE-IN" && phoneInGuestData && (
+                    <button
+                      onClick={() => setShowPhoneInForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
                       <span>Guest: {phoneInGuestData.guestName} | {phoneInGuestData.orderFulfillmentType}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
-              }
+                  )}
                   {/* Edit Guest Info Button for Custom Order */}
-                  {orderType === "CUSTOM" && customOrderGuestData &&
-              <button
-                onClick={() => setShowCustomOrderForm(true)}
-                className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
-                style={{ background: 'rgba(117, 117, 117, 0.2)' }}>
-
+                  {orderType === "CUSTOM" && customOrderGuestData && (
+                    <button
+                      onClick={() => setShowCustomOrderForm(true)}
+                      className="w-full px-4 py-2 border-b border-sidebar-border text-left text-sm text-primary hover:bg-white/5 transition-colors flex items-center justify-between"
+                      style={{ background: 'rgba(117, 117, 117, 0.2)' }}
+                    >
                       <span>Guest: {customOrderGuestData.guestName} | {customOrderGuestData.orderType || 'Custom'} {customOrderGuestData.priority !== "Normal" ? `(${customOrderGuestData.priority})` : ''}</span>
                       <span className="text-xs underline">Edit</span>
                     </button>
-              }
+                  )}
                   {/* Order Notes */}
                   <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
                     <OrderNotesAutocomplete
-                  value={orderNotes}
-                  onChange={setOrderNotes}
-                  placeholder="Order notes" />
-
+                      value={orderNotes}
+                      onChange={setOrderNotes}
+                      placeholder="Order notes"
+                    />
                   </div>
-                  {transferNewMode &&
-              <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2 flex-shrink-0">
+                  {transferNewMode && (
+                    <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2 flex-shrink-0">
                       <img src={transferIconPng} alt="Transferred" className="w-4 h-4 opacity-70" />
                       <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
                         Transferred from Order {searchParams.get('transferFrom')} · Table {searchParams.get('transferFromTable')?.replace('T', '')}
                       </span>
                     </div>
-              }
+                  )}
 
                   {/* Order Items */}
                   <ScrollArea className="flex-1 min-h-0 px-2">
@@ -8472,13 +8443,13 @@ const Orders = () => {
                         <span className="text-muted-foreground text-sm">Let's create an order</span>
                       </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
                         {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
-                            <div
-                      className={`p-2 md:p-1.5 lg:p-3 border rounded-md md:rounded lg:rounded-lg cursor-pointer ${item.isTransferred ? 'border-[#3B6A9E]' : 'border-sidebar-border'}`}
-                      style={item.isTransferred ?
-                      { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } :
-                      { background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
-                      onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}>
-
+                            <div 
+                              className={`p-2 md:p-1.5 lg:p-3 border rounded-md md:rounded lg:rounded-lg cursor-pointer ${item.isTransferred ? 'border-[#3B6A9E]' : 'border-sidebar-border'}`}
+                              style={item.isTransferred 
+                                ? { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } 
+                                : { background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                              onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}
+                            >
                               <div className="flex flex-col">
                                 {/* Item header row */}
                                 <div className="flex items-start gap-2 md:gap-1.5 lg:gap-3">
@@ -8488,61 +8459,61 @@ const Orders = () => {
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between">
                                       <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
-                                      {item.itemOrderType === 'VOUCHER' ?
-                              <span
-                                className="text-sm md:text-xs lg:text-sm font-medium text-foreground cursor-pointer transition-colors ml-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
-                                }}>
-
-                                          ${item.price.toFixed(2)}
-                                        </span> :
-                              item.noTax ?
-                              <span
-                                className="text-sm md:text-xs lg:text-sm font-medium flex items-center gap-1.5 ml-2 cursor-pointer transition-colors"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
-                                }}>
-
-                                          <span className="line-through text-white/40">${(item.price * (1 + taxRate)).toFixed(2)}</span>
-                                          <span className="text-green-400">${item.price.toFixed(2)}</span>
-                                        </span> :
-
-                              <span
-                                className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors ml-2"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
-                                }}>
-
+                                      {item.itemOrderType === 'VOUCHER' ? (
+                                        <span 
+                                          className="text-sm md:text-xs lg:text-sm font-medium text-foreground cursor-pointer transition-colors ml-2"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                                          }}
+                                        >
                                           ${item.price.toFixed(2)}
                                         </span>
-                              }
+                                      ) : item.noTax ? (
+                                        <span 
+                                          className="text-sm md:text-xs lg:text-sm font-medium flex items-center gap-1.5 ml-2 cursor-pointer transition-colors"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                                          }}
+                                        >
+                                          <span className="line-through text-white/40">${(item.price * (1 + taxRate)).toFixed(2)}</span>
+                                          <span className="text-green-400">${item.price.toFixed(2)}</span>
+                                        </span>
+                                      ) : (
+                                        <span 
+                                          className="text-sm md:text-xs lg:text-sm font-medium text-foreground hover:text-primary cursor-pointer transition-colors ml-2"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handlePriceClick({ id: item.id, name: item.name, price: item.price }, foodImages[index % foodImages.length]);
+                                          }}
+                                        >
+                                          ${item.price.toFixed(2)}
+                                        </span>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
                                 
                                 {/* Modifiers with tree hierarchy */}
                                 {item.modifiers && item.modifiers.length > 0 && (() => {
-                          const displayedModifiers = expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2);
-                          const hasShowButton = item.modifiers.length > 2;
-
-                          return (
-                            <div className="ml-3 mt-1 relative">
+                                  const displayedModifiers = expandedCartItems.has(item.id) ? item.modifiers : item.modifiers.slice(0, 2);
+                                  const hasShowButton = item.modifiers.length > 2;
+                                  
+                                  return (
+                                    <div className="ml-3 mt-1 relative">
                                       {displayedModifiers.map((mod, idx) => {
-                                const isAddOn = mod.startsWith("Add:");
-                                const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
-                                const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
-                                const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
-
-                                return (
-                                  <div key={idx} className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
+                                        const isAddOn = mod.startsWith("Add:");
+                                        const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                        const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                        const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
+                                        
+                                        return (
+                                          <div key={idx} className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
                                             {/* Vertical line - only show if not last item */}
-                                            {!isLastItem &&
-                                    <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
-                                    }
+                                            {!isLastItem && (
+                                              <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
+                                            )}
                                             {/* Vertical line segment to connect to horizontal */}
                                             <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                             {/* Horizontal connector */}
@@ -8556,41 +8527,41 @@ const Orders = () => {
                                                 {displayMod}
                                               </span>
                                             </div>
-                                          </div>);
-
-                              })}
-                                      {hasShowButton &&
-                              <div className="relative flex items-center py-[3px]">
+                                          </div>
+                                        );
+                                      })}
+                                      {hasShowButton && (
+                                        <div className="relative flex items-center py-[3px]">
                                           {/* Vertical line segment to connect to horizontal (this is the last item) */}
                                           <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
                                           {/* Horizontal connector */}
                                           <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
-                                          <button
-                                  className="text-xs text-white/60 hover:text-white ml-5"
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    setExpandedCartItems((prev) => {
-                                      const newSet = new Set(prev);
-                                      if (newSet.has(item.id)) {
-                                        newSet.delete(item.id);
-                                      } else {
-                                        newSet.add(item.id);
-                                      }
-                                      return newSet;
-                                    });
-                                  }}>
-
+                                          <button 
+                                            className="text-xs text-white/60 hover:text-white ml-5"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setExpandedCartItems(prev => {
+                                                const newSet = new Set(prev);
+                                                if (newSet.has(item.id)) {
+                                                  newSet.delete(item.id);
+                                                } else {
+                                                  newSet.add(item.id);
+                                                }
+                                                return newSet;
+                                              });
+                                            }}
+                                          >
                                             {expandedCartItems.has(item.id) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
                                           </button>
                                         </div>
-                              }
-                                    </div>);
-
-                        })()}
+                                      )}
+                                    </div>
+                                  );
+                                })()}
                                 
                                 {/* Item Notes Display - Desktop/Tablet */}
-                                {item.notes &&
-                        <div className="ml-3 mt-1 relative">
+                                {item.notes && (
+                                  <div className="ml-3 mt-1 relative">
                                     <div className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
                                       {/* Vertical line segment to connect to horizontal */}
                                       <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
@@ -8603,11 +8574,11 @@ const Orders = () => {
                                       </div>
                                     </div>
                                   </div>
-                        }
+                                )}
                                 
                                 {/* Item Discount Display - Desktop/Tablet */}
-                                {item.discountName && item.discountAmount && item.discountAmount > 0 &&
-                        <div className="ml-3 mt-1 relative">
+                                {item.discountName && item.discountAmount && item.discountAmount > 0 && (
+                                  <div className="ml-3 mt-1 relative">
                                     <div className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
                                       {/* Vertical line segment to connect to horizontal */}
                                       <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
@@ -8620,11 +8591,11 @@ const Orders = () => {
                                       </div>
                                     </div>
                                   </div>
-                        }
+                                )}
                                 
                                 {/* No Tax Added Display for Vouchers - Desktop/Tablet */}
-                                {item.itemOrderType === 'VOUCHER' &&
-                        <div className="ml-3 mt-1 relative">
+                                {item.itemOrderType === 'VOUCHER' && (
+                                  <div className="ml-3 mt-1 relative">
                                     <div className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
                                       {/* Vertical line segment to connect to horizontal */}
                                       <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
@@ -8636,28 +8607,28 @@ const Orders = () => {
                                       </div>
                                     </div>
                                   </div>
-                        }
+                                )}
                                 
                                 {/* Seat Assignment Display - Desktop/Tablet */}
-                                {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 &&
-                        <div className="mt-1.5 md:mt-1 lg:mt-2 flex items-center gap-1.5 ml-8">
+                                {isTableOrder && item.assignedSeats && item.assignedSeats.length > 0 && (
+                                  <div className="mt-1.5 md:mt-1 lg:mt-2 flex items-center gap-1.5 ml-8">
                                     <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
-                                    {item.assignedSeats.length === guestCount ?
-                          <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
+                                    {item.assignedSeats.length === guestCount ? (
+                                      <span className="w-5 h-5 rounded bg-neutral-700 text-white flex items-center justify-center">
                                         <Share2 className="w-3 h-3" />
-                                      </span> :
-
-                          item.assignedSeats.map((seat) =>
-                          <span
-                            key={seat}
-                            className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center">
-
+                                      </span>
+                                    ) : (
+                                      item.assignedSeats.map(seat => (
+                                        <span 
+                                          key={seat}
+                                          className="w-5 h-5 rounded bg-neutral-700 text-white text-[10px] font-medium flex items-center justify-center"
+                                        >
                                           {seat}
                                         </span>
-                          )
-                          }
+                                      ))
+                                    )}
                                   </div>
-                        }
+                                )}
                               </div>
                             </div>
                           </SwipeableCartItem>)}
@@ -8665,19 +8636,19 @@ const Orders = () => {
                   </ScrollArea>
 
                   {/* Split Order Warning */}
-                  {isOrderSplit && orderItems.length > 0 &&
-              <div className="px-2 py-2">
+                  {isOrderSplit && orderItems.length > 0 && (
+                    <div className="px-2 py-2">
                       <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg px-3 py-2">
                         <p className="text-amber-400 text-xs leading-relaxed">
                           This check has been split. Re-merge this ticket if you want to fire it or add products to it.
                         </p>
                       </div>
                     </div>
-              }
+                  )}
 
                   {/* Order Summary - Only show when cart has items */}
-                  {orderItems.length > 0 &&
-              <div className="p-2 border-t border-sidebar-border flex-shrink-0">
+                  {orderItems.length > 0 && (
+                  <div className="p-2 border-t border-sidebar-border flex-shrink-0">
                 <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
                   background: '#7575754D',
                   boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
@@ -8686,54 +8657,54 @@ const Orders = () => {
                     <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
                     <span className="text-white">
                       {selectedDiscount ? selectedDiscount.name : 'Discount'}: <span className="font-medium">${discount.toFixed(2)}</span>
-                      {selectedDiscount &&
-                      <button
-                        onClick={() => setSelectedDiscountId(null)}
-                        className="text-white hover:text-white/80 text-xs font-bold ml-0.5">
-
+                      {selectedDiscount && (
+                        <button 
+                          onClick={() => setSelectedDiscountId(null)}
+                          className="text-white hover:text-white/80 text-xs font-bold ml-0.5"
+                        >
                           ×
                         </button>
-                      }
+                      )}
                     </span>
                   </div>
                   <div className="flex justify-between gap-3">
                     <span className="text-foreground flex items-center gap-1">
                       {appliedServiceChargeName || 'Service Charge'}: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
-                      {appliedServiceCharge > 0 &&
-                      <button
-                        onClick={() => {
-                          setAppliedServiceCharge(0);
-                          setAppliedServiceChargeName('');
-                        }}
-                        className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
-
+                      {appliedServiceCharge > 0 && (
+                        <button 
+                          onClick={() => {
+                            setAppliedServiceCharge(0);
+                            setAppliedServiceChargeName('');
+                          }}
+                          className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5"
+                        >
                           ×
                         </button>
-                      }
+                      )}
                     </span>
                     <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
                   </div>
-                  {appliedGiftCardAmount > 0 &&
-                  <div className="flex justify-between gap-3 pt-1 border-t border-white/10">
+                  {appliedGiftCardAmount > 0 && (
+                    <div className="flex justify-between gap-3 pt-1 border-t border-white/10">
                       <span className="text-green-500">Gift Card: <span className="font-medium">-${appliedGiftCardAmount.toFixed(2)}</span></span>
                     </div>
-                  }
-                  {appliedVoucherAmount > 0 &&
-                  <div className="flex justify-between gap-3">
+                  )}
+                  {appliedVoucherAmount > 0 && (
+                    <div className="flex justify-between gap-3">
                       <span className="text-foreground flex items-center gap-1">
                         Voucher ({voucherCode}): <span className="font-medium">-${appliedVoucherAmount.toFixed(2)}</span>
-                        <button
-                        onClick={() => {
-                          setAppliedVoucherAmount(0);
-                          setVoucherCode('');
-                        }}
-                        className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
-
+                        <button 
+                          onClick={() => {
+                            setAppliedVoucherAmount(0);
+                            setVoucherCode('');
+                          }}
+                          className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5"
+                        >
                           ×
                         </button>
                       </span>
                     </div>
-                  }
+                  )}
                 </div>
 
                 {/* Action Buttons - Inside background container */}
@@ -8746,136 +8717,136 @@ const Orders = () => {
                   }}>
                     <img src={saveIcon} alt="Save" className="w-4 h-4" />
                   </button>
-                  <button
+                  <button 
                     onClick={handleFireOrder}
                     disabled={isOrderSplit || orderItems.length === 0}
                     className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${
-                    isOrderSplit || orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`
-                    }
+                      isOrderSplit || orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''
+                    }`}
                     style={{
                       background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-                    }}>
-
+                    }}
+                  >
                     <img src={fireIcon} alt="Fire" className="w-4 h-4" />
                     <span className="text-white font-semibold text-sm">FIRE</span>
                   </button>
-                  <button
+                  <button 
                     onClick={() => setShowPaymentDialog(true)}
-                    className="flex-1 h-8 rounded-full flex items-center justify-center"
+                    className="flex-1 h-8 rounded-full flex items-center justify-center" 
                     style={{
                       background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-                    }}>
-
+                    }}
+                  >
                     <span className="text-black font-semibold text-xs">
                       CHARGE ${chargeAmount.toFixed(2)}{chargeLabel && ` (${chargeLabel})`}
                     </span>
                   </button>
                 </div>
               </div>
-              }
+              )}
                 </>
-            }
+              )}
             </div>
 
             {/* Right Side Actions Sidebar */}
-            {isOrderActionsSidebarOpen && !showCreateVoucherForm &&
-          <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
+            {isOrderActionsSidebarOpen && (
+              <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
                 <div className="flex-1 flex flex-col rounded-2xl p-1.5 gap-1" style={{
-              background: '#7575754D',
-              boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-            }}>
+                  background: '#7575754D',
+                  boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+                }}>
                   {/* Transfer Check - Only show when items in cart */}
-                  {orderItems.length > 0 &&
-              <button
-                onClick={() => setShowTransferCheckDialog(true)}
-                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-
+                  {orderItems.length > 0 && (
+                    <button 
+                      onClick={() => setShowTransferCheckDialog(true)}
+                      className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                    >
                       <img src={transferCheckIcon} alt="" className="w-5 h-5" />
-                      <span className="text-[9px] text-white text-center leading-tight">Transfer<br />Check</span>
+                      <span className="text-[9px] text-white text-center leading-tight">Transfer<br/>Check</span>
                     </button>
-              }
+                  )}
                   {/* Action Buttons */}
-                  <button
-                onClick={() => setShowGiftCardDialog(true)}
-                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-
+                  <button 
+                    onClick={() => setShowGiftCardDialog(true)}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                  >
                     <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />
-                    <span className="text-[9px] text-white text-center leading-tight">Gift<br />Card</span>
+                    <span className="text-[9px] text-white text-center leading-tight">Gift<br/>Card</span>
                   </button>
-                  <button
-                onClick={() => setShowServiceChargeDialog(true)}
-                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-
+                  <button 
+                    onClick={() => setShowServiceChargeDialog(true)}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                  >
                     <img src={serviceChargeIcon} alt="" className="w-5 h-5" />
-                    <span className="text-[9px] text-white text-center leading-tight">Service<br />Charge</span>
+                    <span className="text-[9px] text-white text-center leading-tight">Service<br/>Charge</span>
                   </button>
-                  <button
-                onClick={() => {
-                  setShowAddGuestForm(true);
-                  setIsOrderActionsSidebarOpen(false);
-                }}
-                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-
+                  <button 
+                    onClick={() => {
+                      setShowAddGuestForm(true);
+                      setIsOrderActionsSidebarOpen(false);
+                    }}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                  >
                     <img src={addGuestIcon} alt="" className="w-5 h-5" />
-                    <span className="text-[9px] text-white text-center leading-tight">Add<br />Guest</span>
+                    <span className="text-[9px] text-white text-center leading-tight">Add<br/>Guest</span>
                   </button>
-                  <button
-                onClick={() => setShowVoucherOptionsPopup(true)}
-                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-
+                  <button 
+                    onClick={() => setShowVoucherDialog(true)}
+                    className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                  >
                     <Ticket className="w-5 h-5 text-white" />
                     <span className="text-[9px] text-white text-center leading-tight">Voucher</span>
                   </button>
                   {/* Merge - Only show when order is split */}
-                  {isOrderSplit &&
-              <button
-                onClick={() => {
-                  setIsOrderSplit(false);
-                  setSplitConfiguration(null);
-                }}
-                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-
+                  {isOrderSplit && (
+                    <button 
+                      onClick={() => {
+                        setIsOrderSplit(false);
+                        setSplitConfiguration(null);
+                      }}
+                      className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors"
+                    >
                       <img src={mergeIcon} alt="" className="w-5 h-5" />
                       <span className="text-[9px] text-white text-center leading-tight">Merge</span>
                     </button>
-              }
+                  )}
                   <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
                     <img src={reopenCheckIcon} alt="" className="w-5 h-5" />
-                    <span className="text-[9px] text-white text-center leading-tight">Reopen<br />Check</span>
+                    <span className="text-[9px] text-white text-center leading-tight">Reopen<br/>Check</span>
                   </button>
                 </div>
               </div>
-          }
+            )}
           </div>
         </div>
       </div>
 
       {/* Item Customization Dialog */}
-      <ItemCustomizationDialog
-      open={customizationDialogOpen}
-      onOpenChange={setCustomizationDialogOpen}
-      item={selectedItemForCustomization}
-      itemImage={selectedItemImage}
-      onAddToCart={addToCartWithModifiers}
-      isTableOrder={isTableOrder}
-      guestCount={guestCount} />
-
+      <ItemCustomizationDialog 
+        open={customizationDialogOpen} 
+        onOpenChange={setCustomizationDialogOpen} 
+        item={selectedItemForCustomization} 
+        itemImage={selectedItemImage} 
+        onAddToCart={addToCartWithModifiers}
+        isTableOrder={isTableOrder}
+        guestCount={guestCount}
+      />
 
       {/* Discount Dialog with integrated MPIN */}
-      {showDiscountDialog &&
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      {showDiscountDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
             {discountDialogView === 'mpin' ? (
-        /* MPIN View */
-        <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
+              /* MPIN View */
+              <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
                 {/* Manager Profile */}
                 <div className="flex flex-col items-center mb-4">
                   <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
                     <img
-                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
-                alt="Manager"
-                className="w-full h-full object-cover" />
-
+                      src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
+                      alt="Manager"
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
                   <p className="text-xs text-muted-foreground">Manager</p>
@@ -8883,14 +8854,14 @@ const Orders = () => {
 
                 {/* PIN Dots */}
                 <div className="flex items-center justify-center gap-2.5 mb-4">
-                  {[0, 1, 2, 3].map((index) =>
-            <div
-              key={index}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
-              index < discountPin.length ? "bg-primary" : "bg-neutral-600"}`
-              } />
-
-            )}
+                  {[0, 1, 2, 3].map((index) => (
+                    <div
+                      key={index}
+                      className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+                        index < discountPin.length ? "bg-primary" : "bg-neutral-600"
+                      }`}
+                    />
+                  ))}
                 </div>
 
                 {/* Title */}
@@ -8898,57 +8869,57 @@ const Orders = () => {
 
                 {/* Numpad */}
                 <div className="grid grid-cols-3 gap-2 w-full">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) =>
-            <button
-              key={num}
-              type="button"
-              onClick={() => {
-                if (discountPin.length < 4) {
-                  const newPin = discountPin + num.toString();
-                  setDiscountPin(newPin);
-                  if (newPin.length === 4) {
-                    setTimeout(() => {
-                      setDiscountDialogView('discounts');
-                      setDiscountPin("");
-                    }, 200);
-                  }
-                }
-              }}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
-
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                    <button
+                      key={num}
+                      type="button"
+                      onClick={() => {
+                        if (discountPin.length < 4) {
+                          const newPin = discountPin + num.toString();
+                          setDiscountPin(newPin);
+                          if (newPin.length === 4) {
+                            setTimeout(() => {
+                              setDiscountDialogView('discounts');
+                              setDiscountPin("");
+                            }, 200);
+                          }
+                        }
+                      }}
+                      className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                    >
                       {num}
                     </button>
-            )}
+                  ))}
                   <button
-              type="button"
-              onClick={() => setDiscountPin(discountPin.slice(0, -1))}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center">
-
+                    type="button"
+                    onClick={() => setDiscountPin(discountPin.slice(0, -1))}
+                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+                  >
                     <Delete className="w-5 h-5" />
                   </button>
                   <button
-              type="button"
-              onClick={() => {
-                if (discountPin.length < 4) {
-                  const newPin = discountPin + "0";
-                  setDiscountPin(newPin);
-                  if (newPin.length === 4) {
-                    setTimeout(() => {
-                      setDiscountDialogView('discounts');
-                      setDiscountPin("");
-                    }, 200);
-                  }
-                }
-              }}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
-
+                    type="button"
+                    onClick={() => {
+                      if (discountPin.length < 4) {
+                        const newPin = discountPin + "0";
+                        setDiscountPin(newPin);
+                        if (newPin.length === 4) {
+                          setTimeout(() => {
+                            setDiscountDialogView('discounts');
+                            setDiscountPin("");
+                          }, 200);
+                        }
+                      }
+                    }}
+                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  >
                     0
                   </button>
                   <button
-              type="button"
-              onClick={() => setDiscountPin("")}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
-
+                    type="button"
+                    onClick={() => setDiscountPin("")}
+                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  >
                     C
                   </button>
                 </div>
@@ -8967,26 +8938,26 @@ const Orders = () => {
 
                 {/* Cancel button */}
                 <button
-            type="button"
-            onClick={() => {
-              setShowDiscountDialog(false);
-              setDiscountPin("");
-            }}
-            className="mt-4 text-xs text-neutral-400 hover:text-white transition-colors">
-
+                  type="button"
+                  onClick={() => {
+                    setShowDiscountDialog(false);
+                    setDiscountPin("");
+                  }}
+                  className="mt-4 text-xs text-neutral-400 hover:text-white transition-colors"
+                >
                   Cancel
                 </button>
-              </div>) : (
-
-        /* Discount Selection View */
-        <>
+              </div>
+            ) : (
+              /* Discount Selection View */
+              <>
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-neutral-700">
                   <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
-                  <button
-              onClick={() => setShowDiscountDialog(false)}
-              className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-
+                  <button 
+                    onClick={() => setShowDiscountDialog(false)}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
                     <X className="w-5 h-5 text-neutral-400" />
                   </button>
                 </div>
@@ -8994,35 +8965,35 @@ const Orders = () => {
                 {/* Discount Options */}
                 <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-none space-y-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
                   {discountTypes.map((discountType) => {
-              const discountAmount = discountType.fixedAmount || subtotal * ((discountType.percentage || 0) / 100);
-              const isSelected = selectedDiscountId === discountType.id;
-
-              const IconComponent = {
-                briefcase: Briefcase,
-                heart: Heart,
-                graduation: GraduationCap,
-                shield: Shield,
-                star: Star,
-                clock: Clock,
-                cake: Cake,
-                mappin: MapPin,
-                dollar: BadgeDollarSign,
-                tag: Tag
-              }[discountType.icon];
-
-              return (
-                <button
-                  key={discountType.id}
-                  onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                  isSelected ?
-                  'bg-orange-500/20 border border-orange-500' :
-                  'bg-neutral-800 border border-transparent hover:bg-neutral-700'}`
-                  }>
-
+                    const discountAmount = discountType.fixedAmount || (subtotal * ((discountType.percentage || 0) / 100));
+                    const isSelected = selectedDiscountId === discountType.id;
+                    
+                    const IconComponent = {
+                      briefcase: Briefcase,
+                      heart: Heart,
+                      graduation: GraduationCap,
+                      shield: Shield,
+                      star: Star,
+                      clock: Clock,
+                      cake: Cake,
+                      mappin: MapPin,
+                      dollar: BadgeDollarSign,
+                      tag: Tag
+                    }[discountType.icon];
+                    
+                    return (
+                      <button
+                        key={discountType.id}
+                        onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                          isSelected 
+                            ? 'bg-orange-500/20 border border-orange-500' 
+                            : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
+                        }`}
+                      >
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                  isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'}`
-                  }>
+                          isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
+                        }`}>
                           <IconComponent className="w-4 h-4 text-neutral-400" />
                         </div>
                         <div className="flex-1 text-left">
@@ -9032,29 +9003,29 @@ const Orders = () => {
                         <div className="text-white text-sm font-medium">
                           -${discountAmount.toFixed(2)}
                         </div>
-                      </button>);
-
-            })}
+                      </button>
+                    );
+                  })}
                 </div>
 
                 {/* Apply Button */}
                 <div className="p-3 border-t border-neutral-700">
                   <button
-              onClick={() => setShowDiscountDialog(false)}
-              className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm">
-
+                    onClick={() => setShowDiscountDialog(false)}
+                    className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
+                  >
                     Apply
                   </button>
                 </div>
-              </>)
-        }
+              </>
+            )}
           </div>
         </div>
-    }
+      )}
 
       {/* No Tax Confirmation Dialog */}
-      {showNoTaxDialog &&
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      {showNoTaxDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-[300px] mx-4 overflow-hidden animate-scale-in">
             <div className="p-6 text-center">
               <h2 className="text-white text-lg font-semibold mb-2">Disable Tax?</h2>
@@ -9062,134 +9033,134 @@ const Orders = () => {
             </div>
             <div className="flex border-t border-neutral-700">
               <button
-            onClick={() => setShowNoTaxDialog(false)}
-            className="flex-1 py-3 text-white font-medium hover:bg-neutral-800 transition-colors border-r border-neutral-700">
-
+                onClick={() => setShowNoTaxDialog(false)}
+                className="flex-1 py-3 text-white font-medium hover:bg-neutral-800 transition-colors border-r border-neutral-700"
+              >
                 Cancel
               </button>
               <button
-            onClick={() => {
-              setIsTaxExempt(true);
-              setShowNoTaxDialog(false);
-            }}
-            className="flex-1 py-3 text-orange-500 font-medium hover:bg-neutral-800 transition-colors">
-
+                onClick={() => {
+                  setIsTaxExempt(true);
+                  setShowNoTaxDialog(false);
+                }}
+                className="flex-1 py-3 text-orange-500 font-medium hover:bg-neutral-800 transition-colors"
+              >
                 Remove
               </button>
             </div>
           </div>
         </div>
-    }
+      )}
 
       {/* Gift Card Dialog */}
-      <GiftCardDialog
-      isOpen={showGiftCardDialog}
-      onClose={() => setShowGiftCardDialog(false)}
-      onApply={(amount) => setAppliedGiftCardAmount(amount)}
-      orderTotal={total} />
-
+      <GiftCardDialog 
+        isOpen={showGiftCardDialog}
+        onClose={() => setShowGiftCardDialog(false)}
+        onApply={(amount) => setAppliedGiftCardAmount(amount)}
+        orderTotal={total}
+      />
 
       {/* Service Charge Dialog */}
       <ServiceChargeDialog
-      open={showServiceChargeDialog}
-      onOpenChange={setShowServiceChargeDialog}
-      subtotal={subtotal}
-      onApply={(amount, name) => {
-        setAppliedServiceCharge(amount);
-        setAppliedServiceChargeName(name);
-      }} />
-
+        open={showServiceChargeDialog}
+        onOpenChange={setShowServiceChargeDialog}
+        subtotal={subtotal}
+        onApply={(amount, name) => {
+          setAppliedServiceCharge(amount);
+          setAppliedServiceChargeName(name);
+        }}
+      />
 
       {/* MPIN Dialog for Price Override */}
       <MPINDialog
-      open={showMPINDialog}
-      onOpenChange={setShowMPINDialog}
-      onSuccess={handleMPINSuccess}
-      correctPin="1234" />
-
+        open={showMPINDialog}
+        onOpenChange={setShowMPINDialog}
+        onSuccess={handleMPINSuccess}
+        correctPin="1234"
+      />
 
 
       {/* Price Override Dialog */}
       <PriceOverrideDialog
-      open={showPriceOverrideDialog}
-      onOpenChange={setShowPriceOverrideDialog}
-      itemName={priceOverrideItem?.name || ""}
-      itemImage={priceOverrideItem?.image}
-      originalPrice={priceOverrideItem?.price || 0}
-      onApply={handlePriceOverrideApply} />
-
+        open={showPriceOverrideDialog}
+        onOpenChange={setShowPriceOverrideDialog}
+        itemName={priceOverrideItem?.name || ""}
+        itemImage={priceOverrideItem?.image}
+        originalPrice={priceOverrideItem?.price || 0}
+        onApply={handlePriceOverrideApply}
+      />
 
       {/* Payment Dialog */}
       <PaymentDialog
-      open={showPaymentDialog}
-      onOpenChange={setShowPaymentDialog}
-      orderDetails={{
-        guest: guestName || "Guest",
-        phone: guestPhone ? formatPhoneNumber(guestPhone) : undefined,
-        table: isTableOrder ? `T${orderNumber}` : undefined,
-        check: orderNumber,
-        orderType: orderType,
-        orderNumber: orderNumber,
-        serverName: currentServerName,
-        orderTime: orderCreatedTime,
-        items: orderItems.map((item) => ({
-          id: item.id,
-          qty: item.qty,
-          name: item.name,
-          price: item.price
-        }))
-      }}
-      subtotal={subtotal}
-      tax={tax}
-      total={chargeAmount}
-      onPaymentComplete={(history) => {
-        console.log("Payment completed:", history);
-      }}
-      onSaveSplit={(config) => {
-        setIsOrderSplit(true);
-        setSplitConfiguration(config);
-
-        // Persist to session context if this is a session order
-        if (sessionIdFromParams && isSessionOrderMode) {
-          // Build split checks from the configuration
-          const checks = Array.from({ length: config.numberOfChecks }, (_, i) => {
-            const checkLetter = String.fromCharCode(97 + i); // a, b, c...
-            const itemsForCheck = orderItems.filter((_, itemIdx) =>
-            config.checkAssignments[itemIdx + 1] === i + 1
-            );
-            const checkTotal = itemsForCheck.reduce((sum, item) => sum + item.price * item.qty, 0);
-
-            return {
-              checkId: checkLetter,
-              items: itemsForCheck.map((item) => ({
-                qty: item.qty,
-                name: item.name,
-                price: item.price,
-                seats: [],
-                modifiers: []
-              })),
-              status: 'unpaid' as const,
-              total: checkTotal
-            };
-          });
-
-          saveContextSplitConfig(sessionIdFromParams, {
-            ...config,
-            checks
-          });
-        }
-      }} />
-
+        open={showPaymentDialog}
+        onOpenChange={setShowPaymentDialog}
+        orderDetails={{
+          guest: guestName || "Guest",
+          phone: guestPhone ? formatPhoneNumber(guestPhone) : undefined,
+          table: isTableOrder ? `T${orderNumber}` : undefined,
+          check: orderNumber,
+          orderType: orderType,
+          orderNumber: orderNumber,
+          serverName: currentServerName,
+          orderTime: orderCreatedTime,
+          items: orderItems.map(item => ({
+            id: item.id,
+            qty: item.qty,
+            name: item.name,
+            price: item.price
+          }))
+        }}
+        subtotal={subtotal}
+        tax={tax}
+        total={chargeAmount}
+        onPaymentComplete={(history) => {
+          console.log("Payment completed:", history);
+        }}
+        onSaveSplit={(config) => {
+          setIsOrderSplit(true);
+          setSplitConfiguration(config);
+          
+          // Persist to session context if this is a session order
+          if (sessionIdFromParams && isSessionOrderMode) {
+            // Build split checks from the configuration
+            const checks = Array.from({ length: config.numberOfChecks }, (_, i) => {
+              const checkLetter = String.fromCharCode(97 + i); // a, b, c...
+              const itemsForCheck = orderItems.filter((_, itemIdx) => 
+                config.checkAssignments[itemIdx + 1] === i + 1
+              );
+              const checkTotal = itemsForCheck.reduce((sum, item) => sum + (item.price * item.qty), 0);
+              
+              return {
+                checkId: checkLetter,
+                items: itemsForCheck.map(item => ({
+                  qty: item.qty,
+                  name: item.name,
+                  price: item.price,
+                  seats: [],
+                  modifiers: []
+                })),
+                status: 'unpaid' as const,
+                total: checkTotal
+              };
+            });
+            
+            saveContextSplitConfig(sessionIdFromParams, {
+              ...config,
+              checks
+            });
+          }
+        }}
+      />
 
       {/* Split Order Alert Dialog */}
-      {showSplitOrderAlert &&
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      {showSplitOrderAlert && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-sm mx-4 overflow-hidden animate-scale-in relative">
             {/* Close X button */}
             <button
-          onClick={() => setShowSplitOrderAlert(false)}
-          className="absolute top-3 right-3 w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors z-10">
-
+              onClick={() => setShowSplitOrderAlert(false)}
+              className="absolute top-3 right-3 w-8 h-8 rounded-full bg-neutral-800 hover:bg-neutral-700 flex items-center justify-center transition-colors z-10"
+            >
               <X className="w-4 h-4 text-neutral-400" />
             </button>
             <div className="p-6 text-center">
@@ -9201,111 +9172,53 @@ const Orders = () => {
                 You cannot add more items to a split order. If you want to add items, please merge the order first.
               </p>
               <button
-            onClick={() => {
-              setShowSplitOrderAlert(false);
-              setIsOrderSplit(false);
-              setSplitConfiguration(null);
-            }}
-            className="w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2">
-
+                onClick={() => {
+                  setShowSplitOrderAlert(false);
+                  setIsOrderSplit(false);
+                  setSplitConfiguration(null);
+                }}
+                className="w-full py-3 rounded-lg bg-gradient-to-r from-orange-500 to-amber-400 text-white font-semibold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+              >
                 <img src={mergeIcon} alt="Merge" className="w-4 h-4" />
                 Merge
               </button>
             </div>
           </div>
         </div>
-    }
+      )}
 
       {/* Transfer Check Dialog */}
       <TransferCheckDialog
-      isOpen={showTransferCheckDialog}
-      onClose={() => setShowTransferCheckDialog(false)}
-      currentServer={currentServerName}
-      onTransfer={(newServerName) => {
-        setCurrentServerName(newServerName);
-        setShowTransferCheckDialog(false);
-      }} />
-
+        isOpen={showTransferCheckDialog}
+        onClose={() => setShowTransferCheckDialog(false)}
+        currentServer={currentServerName}
+        onTransfer={(newServerName) => {
+          setCurrentServerName(newServerName);
+          setShowTransferCheckDialog(false);
+        }}
+      />
 
       {/* Voucher Dialog */}
       <VoucherDialog
-      isOpen={showVoucherDialog}
-      onClose={() => { setShowVoucherDialog(false); setVoucherDialogInitialView('sell'); }}
-      initialView={voucherDialogInitialView}
-      onAddVoucher={(amount) => {
-        setOrderItems((prev) => [...prev, {
-          id: Date.now(),
-          qty: 1,
-          name: `Voucher - $${amount.toFixed(2)}`,
-          price: amount,
-          itemOrderType: 'VOUCHER',
-          noTax: true
-        }]);
-        setShowVoucherDialog(false);
-      }}
-      onRedeemVoucher={(code, balance) => {
-        setAppliedVoucherAmount(balance);
-        setVoucherCode(code);
-        setShowVoucherDialog(false);
-      }} />
-
-
-      {/* Voucher Options Popup - matching Transfer Order popup UI */}
-      {showVoucherOptionsPopup &&
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
-          <div className="absolute inset-0 bg-black/80" onClick={() => setShowVoucherOptionsPopup(false)} />
-          <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[380px] max-w-[90vw] overflow-hidden">
-            {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <h2 className="text-white text-lg font-semibold">Voucher</h2>
-              <button
-            onClick={() => setShowVoucherOptionsPopup(false)}
-            className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-
-                <X className="w-4 h-4 text-white" />
-              </button>
-            </div>
-
-            {/* Content */}
-            <div className="p-4">
-              <p className="text-white/60 text-sm mb-3">What would you like to do?</p>
-              
-              <div className="space-y-2">
-                {/* Create Voucher */}
-                <button
-              onClick={() => {
-                setShowVoucherOptionsPopup(false);
-                setShowCreateVoucherForm(true);
-              }}
-              className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
-
-                  <div className="flex items-center gap-3 mb-0.5">
-                    <Ticket className="w-5 h-5 text-white/80" />
-                    <span className="text-white font-medium">Create Voucher</span>
-                  </div>
-                  <p className="text-white/50 text-xs ml-8">Create and send a new voucher to a customer.</p>
-                </button>
-
-                {/* Redeem Voucher */}
-                <button
-              onClick={() => {
-                setShowVoucherOptionsPopup(false);
-                setVoucherDialogInitialView('redeem');
-                setShowVoucherDialog(true);
-              }}
-              className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
-
-                  <div className="flex items-center gap-3 mb-0.5">
-                    <Gift className="w-5 h-5 text-white/80" />
-                    <span className="text-white font-medium">Redeem Voucher</span>
-                  </div>
-                  <p className="text-white/50 text-xs ml-8">Apply an existing voucher code to this order.</p>
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-    }
+        isOpen={showVoucherDialog}
+        onClose={() => setShowVoucherDialog(false)}
+        onAddVoucher={(amount) => {
+          setOrderItems(prev => [...prev, {
+            id: Date.now(),
+            qty: 1,
+            name: `Voucher - $${amount.toFixed(2)}`,
+            price: amount,
+            itemOrderType: 'VOUCHER',
+            noTax: true
+          }]);
+          setShowVoucherDialog(false);
+        }}
+        onRedeemVoucher={(code, balance) => {
+          setAppliedVoucherAmount(balance);
+          setVoucherCode(code);
+          setShowVoucherDialog(false);
+        }}
+      />
     </div>;
 };
 export default Orders;

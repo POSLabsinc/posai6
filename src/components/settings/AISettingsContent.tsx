@@ -1,0 +1,825 @@
+import { useState, useRef, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
+import { Send, Check, X, RotateCcw, Clock, Tag, Percent, CreditCard, Eye, ExternalLink, Mic, MicOff } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { SettingsManager } from "@/lib/settingsManager";
+import { useTheme } from "next-themes";
+import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "@/hooks/use-toast";
+import { useVoiceRecognition } from "@/hooks/useVoiceRecognition";
+interface Message {
+  id: string;
+  role: "user" | "assistant";
+  content: string;
+  timestamp: Date;
+  pendingChange?: PendingChange;
+  appliedChange?: AppliedChange;
+  navigateTo?: string;
+  isStreaming?: boolean;
+}
+
+interface PendingChange {
+  id: string;
+  setting: string;
+  path: string;
+  currentValue: string;
+  newValue: string;
+  status: "pending" | "applied" | "dismissed";
+  settingType?: string;
+  operation?: string;
+  data?: any;
+}
+
+interface AppliedChange {
+  setting: string;
+  path: string;
+  value: string;
+  settingType?: string;
+  data?: any;
+}
+
+interface AISettingsContentProps {
+  showHeader?: boolean;
+  onBack?: () => void;
+}
+
+interface SuggestionChip {
+  label: string;
+  icon: React.ReactNode;
+  prompt: string;
+}
+
+interface AIAction {
+  type: "view" | "update_setting" | "navigate" | "info";
+  category?: string;
+  path?: string;
+  setting?: string;
+  currentValue?: string;
+  newValue?: string;
+  settingType?: string;
+  operation?: string;
+  data?: any;
+  autoApply?: boolean;
+}
+
+const suggestionChips: SuggestionChip[] = [
+  { label: "Show my discounts", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me all active discounts" },
+  { label: "View taxes", icon: <Percent className="w-3.5 h-3.5" />, prompt: "What taxes do I have configured?" },
+  { label: "View menus", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me my menus" },
+  { label: "Service charges", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show my service charges" },
+];
+
+const AISettingsContent = ({ showHeader = true, onBack }: AISettingsContentProps) => {
+  const navigate = useNavigate();
+  const { setTheme } = useTheme();
+  const { profile, getInitials } = useAuth();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [conversationHistory, setConversationHistory] = useState<{ role: string; content: string }[]>([]);
+  const [inputValue, setInputValue] = useState("");
+  const [isTyping, setIsTyping] = useState(false);
+  const [appliedChanges, setAppliedChanges] = useState<AppliedChange[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Voice recognition hook - show transcript in real-time
+  const { isListening, isSupported: isVoiceSupported, transcript, toggleListening, stopListening } = useVoiceRecognition({
+    onTranscript: (text) => {
+      // When final transcript received, auto-send the message
+      if (text.trim()) {
+        handleSendMessage(text);
+      }
+    },
+    onError: (error) => {
+      toast({
+        title: "Voice Error",
+        description: error,
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update input value with live transcript while listening
+  useEffect(() => {
+    if (isListening && transcript) {
+      setInputValue(transcript);
+    }
+  }, [isListening, transcript]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  // Listen for theme change events from settings manager
+  useEffect(() => {
+    const handleThemeChange = (e: CustomEvent) => {
+      setTheme(e.detail.theme);
+    };
+    window.addEventListener('theme-change', handleThemeChange as EventListener);
+    return () => window.removeEventListener('theme-change', handleThemeChange as EventListener);
+  }, [setTheme]);
+
+  // Get current settings context for AI
+  const getSettingsContext = useCallback(() => {
+    return SettingsManager.getAllSettingsSummary();
+  }, []);
+
+  // Execute the pending action based on type and data
+  const executeAction = useCallback((pendingChange: PendingChange) => {
+    const { settingType, operation, data } = pendingChange;
+    
+    console.log('[AISettingsContent] executeAction called with:', { settingType, operation, data });
+    
+    if (!settingType || !data) {
+      console.warn('[AISettingsContent] Missing settingType or data:', { settingType, data });
+      return false;
+    }
+
+    try {
+      // Validate that update/archive operations target existing items
+      const validateExists = (finder: () => any, itemName: string, itemType: string): boolean => {
+        if (!finder()) {
+          console.warn(`[AISettingsContent] ${itemType} "${itemName}" not found - cannot ${operation}`);
+          toast({
+            title: "Item not found",
+            description: `"${itemName}" doesn't exist in your ${itemType}s. Please check the name and try again.`,
+            variant: "destructive",
+          });
+          return false;
+        }
+        return true;
+      };
+
+      switch (settingType) {
+        case "gratuity":
+          SettingsManager.updateGratuitySettings(data);
+          break;
+        
+        case "discount":
+          if (operation === "add") {
+            SettingsManager.addDiscount({
+              name: data.name,
+              amount: data.amount,
+              type: data.type || "Percentage",
+              archived: false,
+              applicableTo: data.applicableTo || "All Products",
+              requiresManagerPin: data.requiresManagerPin || false,
+            });
+          } else if (operation === "update") {
+            const discount = SettingsManager.findDiscountByName(data.name);
+            if (!validateExists(() => discount, data.name, "discount")) return false;
+            SettingsManager.updateDiscount(discount!.id, data);
+          } else if (operation === "archive") {
+            const discount = SettingsManager.findDiscountByName(data.name);
+            if (!validateExists(() => discount, data.name, "discount")) return false;
+            SettingsManager.archiveDiscount(discount!.id);
+          }
+          break;
+        
+        case "tax":
+          if (operation === "add") {
+            SettingsManager.addTax({
+              name: data.name,
+              amount: data.amount,
+              type: data.type || "Exclusive",
+              archived: false,
+            });
+          } else if (operation === "update") {
+            const tax = SettingsManager.findTaxByName(data.name);
+            if (!validateExists(() => tax, data.name, "tax")) return false;
+            SettingsManager.updateTax(tax!.id, data);
+          } else if (operation === "archive") {
+            const tax = SettingsManager.findTaxByName(data.name);
+            if (!validateExists(() => tax, data.name, "tax")) return false;
+            SettingsManager.archiveTax(tax!.id);
+          }
+          break;
+        
+        case "serviceCharge":
+          if (operation === "add") {
+            SettingsManager.addServiceCharge({
+              name: data.name,
+              amount: data.amount,
+              type: data.type || "Fixed",
+              archived: false,
+              orderType: data.orderType || "All Orders",
+              automaticApply: data.automaticApply || false,
+              minSeats: data.minSeats,
+              taxApplicable: data.taxApplicable || "Taxable",
+            });
+          } else if (operation === "update") {
+            const charge = SettingsManager.findServiceChargeByName(data.name);
+            if (!validateExists(() => charge, data.name, "service charge")) return false;
+            SettingsManager.updateServiceCharge(charge!.id, data);
+          } else if (operation === "archive") {
+            const charge = SettingsManager.findServiceChargeByName(data.name);
+            if (!validateExists(() => charge, data.name, "service charge")) return false;
+            SettingsManager.archiveServiceCharge(charge!.id);
+          }
+          break;
+        
+        case "menu":
+          console.log('[AISettingsContent] Processing menu case with operation:', operation);
+          if (operation === "add") {
+            const newMenu = SettingsManager.addMenuItem({
+              name: data.name,
+              isActive: data.isActive !== undefined ? data.isActive : true,
+              startDate: data.startDate || new Date().toISOString().split('T')[0],
+              endDate: data.endDate,
+              posEnabled: data.posEnabled !== undefined ? data.posEnabled : true,
+              popEnabled: data.popEnabled,
+              kioskEnabled: data.kioskEnabled,
+              onlineEnabled: data.onlineEnabled,
+            });
+            console.log('[AISettingsContent] Menu added successfully:', newMenu);
+          } else if (operation === "update") {
+            const menu = SettingsManager.findMenuByName(data.name);
+            if (menu) {
+              SettingsManager.updateMenuItem(menu.id, data);
+            }
+          } else {
+            // Default update behavior
+            const menu = SettingsManager.findMenuByName(data.name);
+            if (menu) {
+              SettingsManager.updateMenuItem(menu.id, data);
+            }
+          }
+          break;
+        
+        case "appearance":
+          SettingsManager.updateAppearanceSettings(data);
+          break;
+        
+        case "controlCenter":
+          SettingsManager.updateControlCenterSettings(data);
+          break;
+        
+        case "checkoutOptions":
+          SettingsManager.updateCheckoutOptionsSettings(data);
+          break;
+        
+        case "orders":
+          SettingsManager.updateOrdersSettings(data);
+          break;
+        
+        default:
+          console.warn("Unknown setting type:", settingType);
+          return false;
+      }
+      return true;
+    } catch (error) {
+      console.error("Error executing action:", error);
+      return false;
+    }
+  }, []);
+
+  const handleSendMessage = async (content: string) => {
+    if (!content.trim()) return;
+
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      role: "user",
+      content: content.trim(),
+      timestamp: new Date(),
+    };
+
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue("");
+    setIsTyping(true);
+
+    // Add to conversation history
+    const newHistory = [...conversationHistory, { role: "user", content: content.trim() }];
+    setConversationHistory(newHistory);
+
+    try {
+      // Call the AI edge function
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-settings-chat`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          },
+          body: JSON.stringify({
+            messages: newHistory,
+            settingsContext: getSettingsContext(),
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({}));
+        
+        if (response.status === 429) {
+          toast({
+            title: "Rate limit exceeded",
+            description: "Please wait a moment and try again.",
+            variant: "destructive",
+          });
+        } else if (response.status === 402) {
+          toast({
+            title: "AI credits exhausted",
+            description: "Please add credits to your workspace to continue using AI features.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "AI Error",
+            description: errorData.error || "Failed to get AI response",
+            variant: "destructive",
+          });
+        }
+        
+        setIsTyping(false);
+        return;
+      }
+
+      const data = await response.json();
+      
+      let pendingChange: PendingChange | undefined;
+      let navigateTo: string | undefined;
+      let appliedChange: AppliedChange | undefined;
+
+      // Process the AI action
+      const action = data.action as AIAction;
+      
+      if (action?.type === "update_setting") {
+        const change: PendingChange = {
+          id: Date.now().toString(),
+          setting: action.setting || "Setting",
+          path: action.path || "Settings",
+          currentValue: action.currentValue || "Current",
+          newValue: action.newValue || "New",
+          status: "pending",
+          settingType: action.settingType,
+          operation: action.operation,
+          data: action.data,
+        };
+
+        // Auto-apply if marked as autoApply (for simple toggle/enable/disable changes)
+        if (action.autoApply === true) {
+          const success = executeAction(change);
+          if (success) {
+            change.status = "applied";
+            appliedChange = {
+              setting: change.setting,
+              path: change.path,
+              value: change.newValue,
+              settingType: change.settingType,
+              data: change.data,
+            };
+            // Track for undo
+            setAppliedChanges((prev) => [...prev, appliedChange!]);
+          } else {
+            // If auto-apply failed, show as pending for manual retry
+            pendingChange = change;
+          }
+        } else {
+          // Show confirmation UI for non-auto-apply changes
+          pendingChange = change;
+        }
+      } else if (action?.type === "navigate" && action.path) {
+        navigateTo = action.path;
+      }
+
+      const assistantMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        role: "assistant",
+        content: data.message || "I'm not sure how to help with that. Could you rephrase?",
+        timestamp: new Date(),
+        pendingChange,
+        appliedChange,
+        navigateTo,
+      };
+
+      setMessages((prev) => [...prev, assistantMessage]);
+      setConversationHistory((prev) => [...prev, { role: "assistant", content: data.message }]);
+      setIsTyping(false);
+
+    } catch (error) {
+      console.error("Error calling AI:", error);
+      toast({
+        title: "Connection Error",
+        description: "Failed to connect to AI service. Please try again.",
+        variant: "destructive",
+      });
+      setIsTyping(false);
+    }
+  };
+
+  const handleApplyChange = (messageId: string, change: PendingChange) => {
+    // Execute the action
+    const success = executeAction(change);
+    
+    if (!success) {
+      toast({
+        title: "Error",
+        description: "Failed to apply the change. Please try again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Update the message to show applied state
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === messageId
+          ? {
+              ...msg,
+              pendingChange: { ...change, status: "applied" },
+              appliedChange: {
+                setting: change.setting,
+                path: change.path,
+                value: change.newValue,
+                settingType: change.settingType,
+                data: change.data,
+              },
+            }
+          : msg
+      )
+    );
+
+    // Track applied changes for undo
+    setAppliedChanges((prev) => [
+      ...prev,
+      { setting: change.setting, path: change.path, value: change.newValue, settingType: change.settingType, data: change.data },
+    ]);
+
+    // Add confirmation message
+    setTimeout(() => {
+      const confirmMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: `✓ Done! ${change.setting} has been updated successfully.\n\nThe change is now active. Is there anything else you'd like to adjust?`,
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, confirmMessage]);
+    }, 400);
+  };
+
+  const handleDismissChange = (messageId: string, change: PendingChange) => {
+    setMessages((prev) =>
+      prev.map((msg) =>
+        msg.id === messageId
+          ? { ...msg, pendingChange: { ...change, status: "dismissed" } }
+          : msg
+      )
+    );
+
+    setTimeout(() => {
+      const dismissMessage: Message = {
+        id: Date.now().toString(),
+        role: "assistant",
+        content: "No problem, I've canceled that change. What else can I help you with?",
+        timestamp: new Date(),
+      };
+      setMessages((prev) => [...prev, dismissMessage]);
+    }, 300);
+  };
+
+  const handleUndoChange = (change: AppliedChange) => {
+    setAppliedChanges((prev) =>
+      prev.filter((c) => c.setting !== change.setting)
+    );
+
+    // Note: Full undo would require storing previous values
+    const undoMessage: Message = {
+      id: Date.now().toString(),
+      role: "assistant",
+      content: `↩ "${change.setting}" has been marked for undo. To fully revert, please visit ${change.path} and adjust manually.`,
+      timestamp: new Date(),
+    };
+    setMessages((prev) => [...prev, undoMessage]);
+  };
+
+  const handleNavigate = (path: string) => {
+    navigate(path);
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    handleSendMessage(inputValue);
+  };
+
+  const handleChipClick = (chip: SuggestionChip) => {
+    handleSendMessage(chip.prompt);
+  };
+
+  const renderPendingChange = (messageId: string, change: PendingChange) => {
+    if (change.status === "applied") {
+      return (
+        <div className="mt-3 bg-green-500/10 border border-green-500/30 rounded-xl p-3">
+          <div className="flex items-center gap-2 text-green-400 mb-1">
+            <Check className="w-4 h-4" />
+            <span className="text-sm font-medium">Change Applied</span>
+          </div>
+          <p className="text-xs text-muted-foreground">{change.path}</p>
+        </div>
+      );
+    }
+
+    if (change.status === "dismissed") {
+      return (
+        <div className="mt-3 bg-neutral-700/30 border border-neutral-600/30 rounded-xl p-3">
+          <div className="flex items-center gap-2 text-muted-foreground mb-1">
+            <X className="w-4 h-4" />
+            <span className="text-sm font-medium">Change Canceled</span>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="mt-3 bg-neutral-700/40 rounded-xl p-3 border border-neutral-600/30">
+        {/* Change Preview */}
+        <div className="flex items-start gap-2 mb-3">
+          <Eye className="w-4 h-4 text-violet-400 mt-0.5" />
+          <div className="flex-1">
+            <p className="text-sm font-medium text-foreground">{change.setting}</p>
+            <p className="text-xs text-muted-foreground">{change.path}</p>
+          </div>
+        </div>
+
+        {/* Before/After */}
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-muted-foreground w-14">Current:</span>
+            <span className="text-neutral-400 line-through">{change.currentValue}</span>
+          </div>
+          <div className="flex items-center gap-2 text-xs">
+            <span className="text-muted-foreground w-14">New:</span>
+            <span className="text-green-400 font-medium">{change.newValue}</span>
+          </div>
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex gap-2">
+          <button
+            onClick={() => handleApplyChange(messageId, change)}
+            className="flex-1 flex items-center justify-center gap-2 bg-primary text-primary-foreground rounded-lg py-2 px-3 text-sm font-medium active:opacity-70 transition-opacity"
+          >
+            <Check className="w-4 h-4" />
+            Apply
+          </button>
+          <button
+            onClick={() => handleDismissChange(messageId, change)}
+            className="flex items-center justify-center gap-2 bg-neutral-700/60 text-foreground rounded-lg py-2 px-3 text-sm font-medium active:opacity-70 transition-opacity"
+          >
+            <X className="w-4 h-4" />
+            Cancel
+          </button>
+        </div>
+      </div>
+    );
+  };
+
+  const renderNavigateButton = (path: string) => (
+    <button
+      onClick={() => handleNavigate(path)}
+      className="mt-3 w-full flex items-center justify-center gap-2 bg-neutral-700/40 hover:bg-neutral-700/60 text-foreground rounded-xl py-3 px-4 text-sm font-medium active:opacity-70 transition-all border border-neutral-600/30"
+    >
+      <ExternalLink className="w-4 h-4" />
+      Go to Settings
+    </button>
+  );
+
+  const renderMessageContent = (content: string) => {
+    // Simple markdown-like rendering for bold text and newlines
+    const lines = content.split('\n');
+    return lines.map((line, lineIndex) => {
+      const parts = line.split(/(\*\*[^*]+\*\*)/g);
+      return (
+        <span key={lineIndex}>
+          {parts.map((part, partIndex) => {
+            if (part.startsWith('**') && part.endsWith('**')) {
+              return <strong key={partIndex} className="font-semibold">{part.slice(2, -2)}</strong>;
+            }
+            return <span key={partIndex}>{part}</span>;
+          })}
+          {lineIndex < lines.length - 1 && <br />}
+        </span>
+      );
+    });
+  };
+
+  return (
+    <div className="h-full flex flex-col overflow-hidden">
+      {/* Header */}
+      {showHeader && onBack && (
+        <div className="flex-shrink-0 p-4 flex justify-end">
+          <button
+            onClick={onBack}
+            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+          >
+            <X className="w-5 h-5 text-foreground" />
+          </button>
+        </div>
+      )}
+
+      {/* Applied Changes Bar */}
+      {appliedChanges.length > 0 && (
+        <div className="flex-shrink-0 bg-green-500/10 border-b border-green-500/20 px-4 py-2">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Check className="w-4 h-4 text-green-400" />
+              <span className="text-sm text-green-400">
+                {appliedChanges.length} change{appliedChanges.length > 1 ? "s" : ""} applied
+              </span>
+            </div>
+            <button
+              onClick={() => appliedChanges.length > 0 && handleUndoChange(appliedChanges[appliedChanges.length - 1])}
+              className="flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground active:opacity-70 transition-colors"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+              Undo last
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Messages Area */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide p-4 space-y-4">
+        {messages.length === 0 ? (
+          <div className="h-full flex flex-col items-center justify-center text-center px-4">
+            <div className="mb-4 overflow-visible">
+              <AnimatedAIIcon size={56} />
+            </div>
+            <h2 className="text-xl font-semibold text-foreground mb-2">
+              How can I help you today?
+            </h2>
+            <p className="text-muted-foreground mb-8 max-w-sm">
+              I can view, update, and manage all your settings. Just tell me what you need!
+            </p>
+            
+            {/* Quick Suggestion Chips */}
+            <div className="flex flex-wrap gap-2 justify-center max-w-lg">
+              {suggestionChips.map((chip) => (
+                <button
+                  key={chip.label}
+                  onClick={() => handleChipClick(chip)}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-full bg-neutral-800/60 text-sm text-foreground hover:bg-neutral-700/60 active:opacity-70 transition-all border border-neutral-700/50"
+                >
+                  <span className="text-violet-400">{chip.icon}</span>
+                  {chip.label}
+                </button>
+              ))}
+            </div>
+            
+            {/* Example commands hint */}
+            <div className="mt-8 text-center">
+              <p className="text-xs text-muted-foreground mb-2">Try asking:</p>
+              <div className="space-y-1.5 text-xs text-neutral-500">
+                <p>"Update Sales Tax to 9%"</p>
+                <p>"Add a 15% student discount"</p>
+                <p>"Set delivery fee to $6"</p>
+                <p>"Activate the Weekend Brunch menu"</p>
+                <p>"Enable online ordering for Lunch Menu"</p>
+                <p>"Set 20% auto gratuity for parties of 8+"</p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <>
+            {messages.map((message) => (
+              <div
+                key={message.id}
+                className={cn("flex gap-3", message.role === "user" ? "justify-end" : "justify-start")}
+              >
+                {message.role === "assistant" && (
+                  <div className="flex-shrink-0 -ml-1">
+                    <AnimatedAIIcon size={24} />
+                  </div>
+                )}
+                <div className="max-w-[85%]">
+                  <div
+                    className={cn(
+                      "rounded-2xl px-4 py-3",
+                      message.role === "user"
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-neutral-800/60 text-foreground"
+                    )}
+                  >
+                    <p className="text-sm whitespace-pre-wrap">{renderMessageContent(message.content)}</p>
+                  </div>
+                  
+                  {/* Auto-Applied Change Indicator */}
+                  {message.appliedChange && !message.pendingChange && (
+                    <div className="mt-3 bg-green-500/10 border border-green-500/30 rounded-xl p-3">
+                      <div className="flex items-center gap-2 text-green-400 mb-1">
+                        <Check className="w-4 h-4" />
+                        <span className="text-sm font-medium">Change Applied</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">{message.appliedChange.setting} → {message.appliedChange.value}</p>
+                    </div>
+                  )}
+                  
+                  {/* Pending Change Card */}
+                  {message.pendingChange && renderPendingChange(message.id, message.pendingChange)}
+                  
+                  {/* Navigate Button */}
+                  {message.navigateTo && renderNavigateButton(message.navigateTo)}
+                </div>
+                {message.role === "user" && (
+                  <Avatar className="w-8 h-8 rounded-lg flex-shrink-0">
+                    <AvatarImage 
+                      src={profile?.avatar_url || undefined} 
+                      alt={profile?.full_name || "User"} 
+                      className="rounded-lg object-cover" 
+                    />
+                    <AvatarFallback className="rounded-lg bg-neutral-700 text-foreground text-xs font-medium">
+                      {getInitials()}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+              </div>
+            ))}
+            
+            {/* Typing Indicator */}
+            {isTyping && (
+              <div className="flex gap-3 justify-start">
+                <div className="flex-shrink-0 -ml-1">
+                  <AnimatedAIIcon size={24} />
+                </div>
+                <div className="bg-neutral-800/60 rounded-2xl px-4 py-3">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 rounded-full bg-neutral-500 animate-bounce" style={{ animationDelay: "0ms" }} />
+                    <div className="w-2 h-2 rounded-full bg-neutral-500 animate-bounce" style={{ animationDelay: "150ms" }} />
+                    <div className="w-2 h-2 rounded-full bg-neutral-500 animate-bounce" style={{ animationDelay: "300ms" }} />
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </>
+        )}
+      </div>
+
+      {/* Input Area */}
+      <div className="flex-shrink-0 p-4 border-t border-neutral-800">
+        <form onSubmit={handleSubmit} className="flex gap-3 items-center">
+          {/* Microphone Button */}
+          {isVoiceSupported && (
+            <button
+              type="button"
+              onClick={toggleListening}
+              disabled={isTyping}
+              className={cn(
+                "w-12 h-12 rounded-full flex items-center justify-center transition-all flex-shrink-0",
+                isListening
+                  ? "bg-red-500 text-white animate-pulse"
+                  : "bg-neutral-800/60 text-muted-foreground hover:bg-neutral-700/60 hover:text-foreground"
+              )}
+              title={isListening ? "Stop listening" : "Start voice command"}
+            >
+              {isListening ? <MicOff className="w-5 h-5" /> : <Mic className="w-5 h-5" />}
+            </button>
+          )}
+          
+          <div className="flex-1 relative">
+            <input
+              ref={inputRef}
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              placeholder={isListening ? "Listening..." : "Ask me to change any setting..."}
+              className={cn(
+                "w-full bg-neutral-800/60 rounded-full px-5 py-3 text-foreground placeholder:text-muted-foreground outline-none focus:ring-2 focus:ring-primary/50 transition-all",
+                isListening && "ring-2 ring-red-500/50"
+              )}
+              readOnly={isListening}
+            />
+          </div>
+          
+          <button
+            type="submit"
+            disabled={!inputValue.trim() || isTyping || isListening}
+            className={cn(
+              "w-12 h-12 rounded-full flex items-center justify-center transition-all flex-shrink-0",
+              inputValue.trim() && !isTyping && !isListening
+                ? "bg-primary text-primary-foreground active:opacity-70"
+                : "bg-neutral-800/60 text-muted-foreground"
+            )}
+          >
+            <Send className="w-5 h-5" />
+          </button>
+        </form>
+        
+        {/* Voice listening indicator */}
+        {isListening && (
+          <div className="mt-2 flex items-center justify-center gap-2 text-sm text-red-400">
+            <span className="inline-block w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+            Listening... Speak your command
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default AISettingsContent;

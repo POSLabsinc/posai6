@@ -1,0 +1,119 @@
+import { useState } from "react";
+import { ChevronLeft, Search, Check } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
+
+import hardwareCardReaderIcon from "@/assets/icons/hardware-card-reader.png";
+
+interface CardReaderContentProps {
+  showHeader?: boolean;
+  onBack?: () => void;
+}
+
+interface DeviceEntry {
+  id: string;
+  name: string;
+  type: string;
+  serial: string;
+}
+
+const MOCK_DEVICES: DeviceEntry[] = [
+  { id: "1", name: "test revert", type: "SQUARE", serial: "6846f95cf42cac52afd635d6" },
+  { id: "2", name: "eOS-P400-2407", type: "ADYEN", serial: "6862ad6352c388795d6317c2" },
+  { id: "3", name: "Staging Card Reader", type: "BOLT", serial: "21267692301108773462251S" },
+  { id: "4", name: "EOC-S1F2-9732", type: "ADYEN", serial: "693c63f0c97c611755586489" },
+];
+
+const CardReaderContent = ({ showHeader = true, onBack }: CardReaderContentProps) => {
+  const isMobile = useIsMobile();
+  const [selectedDeviceId, setSelectedDeviceId] = useState<string>("4");
+
+  const selectedDevice = MOCK_DEVICES.find(d => d.id === selectedDeviceId);
+
+  return (
+    <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
+      {showHeader && onBack && (
+        <div className="px-6 pt-5">
+          <button
+            onClick={onBack}
+            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+          >
+            <ChevronLeft className="w-4 h-4 text-foreground" />
+          </button>
+        </div>
+      )}
+
+      <div className="pt-6 px-6 pb-28">
+        {/* Header Card */}
+        <div className={`bg-neutral-800/60 rounded-2xl p-6 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'} mb-6`}>
+          <div
+            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
+            style={{ backgroundColor: "#F59F00" }}
+          >
+            <img src={hardwareCardReaderIcon} alt="Card Reader" className="w-7 h-7 object-contain" />
+          </div>
+          <h2 className="text-foreground text-lg font-semibold mb-1">Card Reader</h2>
+          <p className="text-neutral-500 text-sm leading-relaxed">
+            Scans credit card data for transactions or access and can detect/pair with new card readers.
+          </p>
+        </div>
+
+        {/* Detect Button */}
+        <button className="w-full bg-neutral-800/60 rounded-full py-3.5 px-4 flex items-center justify-center gap-2 active:opacity-70 transition-opacity mb-6">
+          <Search className="w-4 h-4 text-foreground" />
+          <span className="text-foreground text-base font-medium">Detect</span>
+        </button>
+
+        {/* Selected Device */}
+        {selectedDevice && (
+          <div className="mb-6">
+            <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">
+              Selected Card Reader
+            </p>
+            <div className="bg-neutral-800/60 rounded-2xl py-3.5 px-4 flex items-center justify-between">
+              <span className="text-foreground text-base font-medium">{selectedDevice.name}</span>
+              <span className="text-neutral-500 text-xs font-mono">{selectedDevice.serial.slice(0, 12)}…</span>
+            </div>
+          </div>
+        )}
+
+        {/* Devices List */}
+        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">
+          Available Devices
+        </p>
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          {MOCK_DEVICES.map((device, index) => {
+            const isSelected = device.id === selectedDeviceId;
+            return (
+              <div key={device.id}>
+                <button
+                  onClick={() => setSelectedDeviceId(device.id)}
+                  className="w-full py-3.5 px-4 flex items-center gap-3 active:opacity-70 transition-opacity"
+                >
+                  {/* Selection indicator */}
+                  <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${
+                    isSelected 
+                      ? 'bg-foreground' 
+                      : 'border-2 border-neutral-600'
+                  }`}>
+                    {isSelected && <Check className="w-3.5 h-3.5 text-background" />}
+                  </div>
+
+                  {/* Device info */}
+                  <div className="flex-1 text-left min-w-0">
+                    <p className="text-foreground text-sm font-medium truncate">{device.name}</p>
+                    <p className="text-neutral-500 text-xs mt-0.5">{device.type} · <span className="font-mono">{device.serial.slice(0, 16)}…</span></p>
+                  </div>
+                </button>
+                {index < MOCK_DEVICES.length - 1 && (
+                  <div className="h-px bg-neutral-700/50 mx-4" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CardReaderContent;

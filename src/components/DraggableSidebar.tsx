@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
+import { Settings, Sparkles, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
 import { toast } from "@/hooks/use-toast";
@@ -19,7 +19,8 @@ const menuItems = [
   { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
   { title: "Tickets", url: "/tickets", icon: ticketIcon },
   { title: "orderOS", url: "/orderos", icon: homeIcon },
-  { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Settings, isGlass: true },
+  { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, matchSubpaths: true },
+  { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Sparkles, isGlass: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
 
@@ -256,6 +257,7 @@ export function DraggableSidebar() {
                   ) : (
                     <NavLink
                       to={item.url}
+                      end={!(item as { matchSubpaths?: boolean }).matchSubpaths}
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                     >

@@ -3,7 +3,6 @@ import { toast } from "sonner";
 import { useOrderTimers } from "@/hooks/use-order-timer";
 import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { PaymentDialog } from "@/components/PaymentDialog";
-import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
 import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
 import RefundDialog from "@/components/RefundDialog";
@@ -239,7 +238,6 @@ const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const TableOrderDetails = () => {
   const navigate = useNavigate();
-  const { updateOrders: updateUnifiedOrders } = useUnifiedOrders();
   const {
     tableId
   } = useParams();
@@ -461,7 +459,7 @@ const TableOrderDetails = () => {
   // For table-level partial transfers where no existing order matched, create a virtual new order
   const virtualTransferOrder: GuestOrder[] = (() => {
     // First check URL-param based transfers (original logic for partial)
-    if (transferType === 'partial' && transferredOrderId && transferredItemNames.length > 0 && transferredFromTable !== tableId) {
+    if (transferType === 'partial' && transferredOrderId && transferredItemNames.length > 0) {
       const alreadyAttached = staticGuestOrders.some(o => o.transferredFrom && o.transferredFrom.length > 0);
       if (!alreadyAttached) {
         const transferSource = allOrders.find(o => o.id === transferredOrderId);
@@ -1723,7 +1721,7 @@ const TableOrderDetails = () => {
                 {/* Transferred OUT Indicator (Source - sending items out) */}
                 {transferSourceOrderId === guest.id && transferType && <div className="px-3 py-1 rounded-t-xl bg-[#1E3A5F]">
                     <span className="text-sm font-medium">
-                      <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : `Transferred (${transferredOutItemNames.length}) item${transferredOutItemNames.length !== 1 ? 's' : ''}`}</span>
+                      <span style={{ color: '#8AC4FF' }}>{transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'}</span>
                       <span className="text-white"> to {formatTableName(transferToTable || "")}{transferDestArea ? ` (${transferDestArea})` : ''}</span>
                       {transferredToOrderId && transferredToOrderId !== 'new' && transferredToOrderId !== transferSourceOrderId && (
                         <>
@@ -2127,11 +2125,12 @@ const TableOrderDetails = () => {
           />
         </div>
 
-        {/* Transfer info banner - below order notes (hide on source order for partial transfers) */}
+        {/* Transfer info banner - below order notes (hide for source order of a full transfer) */}
         {currentSelectedGuest?.transferredFrom && currentSelectedGuest.transferredFrom.length > 0 && 
-         !(transferSourceOrderId === currentSelectedGuest?.id) && (
+         !(transferSourceOrderId === currentSelectedGuest?.id && transferType === 'full') && (
           <div className="px-3 py-1.5 border-b border-sidebar-border flex-shrink-0">
             {currentSelectedGuest.transferredFrom.map((source, sourceIdx) => {
+              // Determine transfer type: from URL param or from persisted data
               const effectiveTransferType = transferType || (currentSelectedGuest as any)?._persistedTransferType || 'partial';
               return (
                 <div key={sourceIdx} className="flex items-center gap-2">
@@ -2140,7 +2139,7 @@ const TableOrderDetails = () => {
                     {effectiveTransferType === 'full' ? (
                       <>Order fully transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
                     ) : (
-                      <>{source.items?.length || 0} item{(source.items?.length || 0) !== 1 ? 's' : ''} transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
+                      <>Order transferred from {formatTableName(source.table)} · Order #{source.orderId}</>
                     )}
                   </span>
                 </div>
@@ -2167,7 +2166,7 @@ const TableOrderDetails = () => {
             <div className="flex items-center gap-2">
               <img src={transferIcon} alt="Transferred" className="w-4 h-4" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
               <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
-                {transferType === 'full' ? 'Fully Transferred' : `Transferred (${transferredOutItemNames.length}) item${transferredOutItemNames.length !== 1 ? 's' : ''}`} to {formatTableName(transferToTable || '')}{transferDestArea ? ` (${transferDestArea})` : ''}{transferredToOrderId && transferredToOrderId !== 'new' && transferredToOrderId !== transferSourceOrderId ? ` · Order #${transferredToOrderId}` : ''}
+                {transferType === 'full' ? 'Fully Transferred' : 'Partially Transferred'} to {formatTableName(transferToTable || '')}{transferDestArea ? ` (${transferDestArea})` : ''}{transferredToOrderId && transferredToOrderId !== 'new' && transferredToOrderId !== transferSourceOrderId ? ` · Order #${transferredToOrderId}` : ''}
               </span>
             </div>
           </div>
@@ -3471,55 +3470,6 @@ const TableOrderDetails = () => {
             transferType: 'full',
           });
           
-          // Update unified context so Tickets module reflects the transfer
-          updateUnifiedOrders(prev => {
-            const matchSource = (o: any) => o.name === sourceOrder.name && o.table === sourceOrder.table;
-            const matchTarget = (o: any) => o.id === selectedTransferOrderId;
-            const targetName = targetOrder ? targetOrder.name : `Order #${selectedTransferOrderId}`;
-
-            return prev.map(o => {
-              if (matchSource(o)) {
-                return {
-                  ...o,
-                  items: [],
-                  subtotal: 0, discount: 0, serviceCharge: 0, tax: 0, tip: 0, total: 0,
-                  transferInfo: {
-                    type: 'sent' as const,
-                    transferType: 'full' as const,
-                    targetOrderId: selectedTransferOrderId!,
-                    targetOrderName: targetName,
-                    itemCount: sourceOrder.items.length,
-                    transferredItems: [...sourceOrder.items],
-                  },
-                };
-              }
-              if (matchTarget(o)) {
-                const srcInPrev = prev.find(matchSource);
-                const srcItems = srcInPrev ? srcInPrev.items : [];
-                const newItems = [...o.items, ...srcItems];
-                const newSub = newItems.reduce((s: number, item: any) => s + item.price * item.qty, 0);
-                return {
-                  ...o,
-                  items: newItems,
-                  subtotal: +newSub.toFixed(2),
-                  tax: +(newSub * 0.0735).toFixed(2),
-                  serviceCharge: +(newSub * 0.05).toFixed(2),
-                  total: +(newSub + newSub * 0.05 + newSub * 0.0735 - o.discount).toFixed(2),
-                  transferInfo: {
-                    type: 'received' as const,
-                    transferType: 'full' as const,
-                    sourceOrderId: sourceOrder.id,
-                    sourceOrderName: sourceOrder.name,
-                    sourceTable: sourceOrder.table,
-                    itemCount: sourceOrder.items.length,
-                    transferredItems: [...sourceOrder.items],
-                  },
-                };
-              }
-              return o;
-            });
-          });
-
           // Select the source order to show its details with strikethrough
           const sourceGuest = guestOrders.find(g => g.id === sourceOrder.id);
           if (sourceGuest) {

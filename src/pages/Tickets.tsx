@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check, Info } from "lucide-react";
 import { toast } from "sonner";
 import TicketsTransferView from "@/components/TicketsTransferView";
 
@@ -23,6 +23,7 @@ import transferItemIcon from "@/assets/icons/transfer-item.svg";
 import transferEntireOrderIcon from "@/assets/icons/transfer-entire-order.svg";
 import transferToTableIcon from "@/assets/icons/transfer-to-table.svg";
 import transferToOrderIcon from "@/assets/icons/transfer-to-order.svg";
+import transferIcon from "@/assets/icons/transfer-icon.png";
 
 // New order type icons
 import dineInSvg from "@/assets/icons/dine-in-2.svg";
@@ -59,8 +60,9 @@ const OrderTypeIcon = ({ type, size = "default" }: { type: string; size?: "small
   return <img src={src} alt={type} className={`${iconSize} object-contain`} />;
 };
 
-// Re-export ticket data from shared source
-import { ticketOrders as allOrders, TicketOrder as GuestOrder, TicketOrderItem as OrderItem, TicketPaymentEntry as PaymentEntry } from "@/data/ticketOrders";
+// Re-export ticket data types
+import { TicketOrder as GuestOrder, TicketOrderItem as OrderItem, TicketPaymentEntry as PaymentEntry } from "@/data/ticketOrders";
+import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
 export type { GuestOrder, OrderItem, PaymentEntry };
 
 // Helper function to format price
@@ -143,11 +145,12 @@ const getStatusBadgeStyle = (status: string): { color: string; bg: string } => {
 
 const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
-const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => {
+const Tickets = () => {
   const navigate = useNavigate();
+  const { orders: unifiedOrders, updateOrders, removeOrder: removeUnifiedOrder } = useUnifiedOrders();
   const [activeFilter, setActiveFilter] = useState("All");
-  const [orders, setOrders] = useState(allOrders);
-  const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
+  const orders = unifiedOrders;
+  const [selectedGuest, setSelectedGuest] = useState(unifiedOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
   const [showFilterIcons, setShowFilterIcons] = useState(false);
@@ -353,7 +356,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
       notes: [mergeSource.notes, mergeTarget.notes].filter(Boolean).join("; "),
     };
 
-    setOrders(prev => prev.filter(o => o.id !== mergeTarget.id).map(o => o.id === mergeSource.id ? updatedSource : o));
+    updateOrders(prev => prev.filter(o => o.id !== mergeTarget.id).map(o => o.id === mergeSource.id ? updatedSource : o));
     setSelectedGuest(updatedSource);
     setShowMergeDialog(false);
     setMergeSource(null);
@@ -591,6 +594,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
           {/* Row 3: Revenue Center */}
           <span className={`text-neutral-500 ${compact ? 'text-xs' : 'text-sm'}`}>{guest.revenueCenter}</span>
+
         </div>
 
         {/* SERVER & PAYMENT INFO */}
@@ -708,9 +712,34 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
       </div>
     );
 
+    const hasTransferBanner = !!guest.transferInfo;
+    
+    const transferBanner = hasTransferBanner ? (
+      <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
+        <span className={`${compact ? 'text-[10px]' : 'text-xs'} font-medium`}>
+          {guest.transferInfo!.type === 'sent' ? (
+            <>
+              <span style={{ color: '#8AC4FF' }}>
+                {guest.transferInfo!.transferType === 'full' ? 'Order fully transferred to' : `Transferred ${guest.transferInfo!.itemCount} item${(guest.transferInfo!.itemCount || 0) > 1 ? 's' : ''} to`}
+              </span>{" "}
+              <span className="text-white">Order #{guest.transferInfo!.targetOrderId}{guest.transferInfo!.targetOrderName ? ` · ${guest.transferInfo!.targetOrderName}` : ''}</span>
+            </>
+          ) : (
+            <>
+              <span style={{ color: '#8AC4FF' }}>
+                {guest.transferInfo!.transferType === 'full' ? 'Order fully transferred from' : `${guest.transferInfo!.itemCount} item${(guest.transferInfo!.itemCount || 0) > 1 ? 's' : ''} transferred from`}
+              </span>{" "}
+              <span className="text-white">{guest.transferInfo!.sourceTable && guest.transferInfo!.sourceTable !== '--' ? `${guest.transferInfo!.sourceTable} · ` : ''}Order #{guest.transferInfo!.sourceOrderId}</span>
+            </>
+          )}
+        </span>
+      </div>
+    ) : null;
+
     if (showSwipe) {
       return (
-        <div className="relative rounded-xl cursor-pointer transition-all overflow-hidden bg-black">
+        <div className="relative cursor-pointer transition-all overflow-hidden bg-black">
+          {transferBanner}
           {/* Swipe Action Buttons */}
           <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
             <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ backgroundColor: '#666666' }} onClick={e => { e.stopPropagation(); handleMergeClick(guest, e); }}>
@@ -723,7 +752,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
           {/* Swipeable card content */}
           <div 
-            className="relative transition-transform duration-200 ease-out md:transform-none bg-black rounded-xl select-none" 
+            className="relative transition-transform duration-200 ease-out md:transform-none bg-black select-none" 
             style={{ transform: `translateX(${swipeStates[guest.id] || 0}px)`, transition: isDraggingRef.current && currentCardId.current === guest.id ? "none" : "transform 0.2s ease-out" }} 
             onTouchStart={e => handleSwipeStart(e, guest)} 
             onTouchMove={handleSwipeMove} 
@@ -735,7 +764,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             onMouseLeave={e => handleSwipeEnd(false, e, guest)} 
             onClick={() => handleCardClick(guest)}
           >
-            <div className={`border rounded-xl overflow-hidden transition-all ${isSelected ? 'border-white/40' : 'border-neutral-700/60 hover:border-neutral-500/60'}`} style={{ backgroundColor: '#1B1C20' }}>
+            <div className={`border ${hasTransferBanner ? 'rounded-b-xl' : 'rounded-xl'} overflow-hidden transition-all ${isSelected ? 'border-white/40' : 'border-neutral-700/60 hover:border-neutral-500/60'}`} style={{ backgroundColor: '#1B1C20' }}>
               {cardContent}
             </div>
           </div>
@@ -744,12 +773,15 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
     }
 
     return (
-      <div 
-        onClick={onSelect}
-        className={`rounded-xl border cursor-pointer transition-all overflow-hidden hover:shadow-lg hover:shadow-black/20 ${isSelected ? "border-white/40 shadow-md shadow-black/30" : "border-neutral-700/60 hover:border-neutral-500/60"}`} 
-        style={{ backgroundColor: '#1B1C20' }}
-      >
-        {cardContent}
+      <div>
+        {transferBanner}
+        <div 
+          onClick={onSelect}
+          className={`${hasTransferBanner ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden hover:shadow-lg hover:shadow-black/20 ${isSelected ? "border-white/40 shadow-md shadow-black/30" : "border-neutral-700/60 hover:border-neutral-500/60"}`} 
+          style={{ backgroundColor: '#1B1C20' }}
+        >
+          {cardContent}
+        </div>
       </div>
     );
   };
@@ -1065,9 +1097,70 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           </div>
         )}
 
+        {/* Transfer Info - matching Table Order right panel style */}
+        {selectedGuest.transferInfo && (
+          <div className={`${isTablet ? 'px-3 py-1.5' : 'px-3 py-1.5'} border-b border-white/10 flex-shrink-0`}>
+            <div className="flex items-center gap-2">
+              <img src={transferIcon} alt="Transfer" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} flex-shrink-0`} style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
+              <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
+                {selectedGuest.transferInfo.type === 'sent' ? (
+                  selectedGuest.transferInfo.transferType === 'full'
+                    ? `Fully Transferred to ${selectedGuest.transferInfo.targetOrderName ? selectedGuest.transferInfo.targetOrderName + ' · ' : ''}Order #${selectedGuest.transferInfo.targetOrderId}`
+                    : `Transferred (${selectedGuest.transferInfo.itemCount}) item${(selectedGuest.transferInfo.itemCount || 0) > 1 ? 's' : ''} to Order #${selectedGuest.transferInfo.targetOrderId}`
+                ) : (
+                  selectedGuest.transferInfo.transferType === 'full'
+                    ? `Fully Transferred from ${selectedGuest.transferInfo.sourceTable && selectedGuest.transferInfo.sourceTable !== '--' ? selectedGuest.transferInfo.sourceTable + ' · ' : ''}Order #${selectedGuest.transferInfo.sourceOrderId}`
+                    : `${selectedGuest.transferInfo.itemCount} item${(selectedGuest.transferInfo.itemCount || 0) > 1 ? 's' : ''} transferred from Order #${selectedGuest.transferInfo.sourceOrderId}`
+                )}
+              </span>
+            </div>
+          </div>
+        )}
+
         {/* Order Items */}
         <ScrollArea className={`flex-1 ${isTablet ? 'px-3' : 'px-4'}`}>
           <div className={`py-2 space-y-${isTablet ? '1.5' : '2'}`}>
+            {/* For SENT orders: show original items with strikethrough */}
+            {selectedGuest.transferInfo?.type === 'sent' && selectedGuest.transferInfo.transferredItems && selectedGuest.transferInfo.transferredItems.map((item, index) => (
+              <div key={`sent-${index}`} className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} bg-white/5 border border-white/10 opacity-50`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-2">
+                    <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} bg-white rounded flex items-center justify-center text-black font-bold`}>
+                      {item.qty}
+                    </span>
+                    <div>
+                      <span className={`text-white font-medium line-through ${isTablet ? 'text-sm' : ''}`}>{item.name}</span>
+                      <div className="flex items-center gap-1 mt-0.5">
+                        <img src={transferIcon} alt="Transfer" className="w-3 h-3" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
+                        <span className="text-[10px] text-[#8AC4FF]">Transferred to {selectedGuest.transferInfo!.targetOrderName || `Order #${selectedGuest.transferInfo!.targetOrderId}`}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <span className={`text-white font-medium line-through ${isTablet ? 'text-sm' : ''}`}>{formatPrice(item.price * item.qty)}</span>
+                </div>
+              </div>
+            ))}
+
+            {/* For RECEIVED orders: show transferred items in blue shade */}
+            {selectedGuest.transferInfo?.type === 'received' && selectedGuest.transferInfo.transferredItems && (
+              <div className="mb-2 pb-2 border-b border-white/10">
+                {selectedGuest.transferInfo.transferredItems.map((item, index) => (
+                  <div key={`received-${index}`} className={`${isTablet ? 'p-2 rounded-lg mb-1' : 'p-3 rounded-xl mb-1.5'} border border-[#3B6A9E]`} style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' }}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2">
+                        <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} bg-[#3B6A9E] rounded flex items-center justify-center text-white font-bold`}>
+                          {item.qty}
+                        </span>
+                        <span className={`text-white font-medium ${isTablet ? 'text-sm' : ''}`}>{item.name}</span>
+                      </div>
+                      <span className={`text-white/80 font-medium ${isTablet ? 'text-sm' : ''}`}>{formatPrice(item.price * item.qty)}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Regular items (for non-transferred orders OR remaining items on received orders) */}
             {getOrderItems(selectedGuest).map((item, index) => (
               <div key={index} className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} bg-white/5 border border-white/10`}>
                 <div className="flex items-start justify-between">
@@ -1180,11 +1273,15 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         transferTarget={transferType === 'entireToOrder' ? 'order' : 'table'}
         onBack={closeTransferFlow}
         orders={orders as any}
-        setOrders={setOrders as any}
+        setOrders={updateOrders as any}
         onTransferComplete={() => {
           closeTransferFlow();
-          const updated = orders.find(o => o.id === transferSource!.id);
-          if (updated) setSelectedGuest(updated);
+          // Use setTimeout to read latest state after the setOrders update has been applied
+          setTimeout(() => {
+            const latestOrders = JSON.parse(localStorage.getItem('pos-unified-orders') || '[]');
+            const updated = latestOrders.find((o: any) => o.id === transferSource!.id);
+            if (updated) setSelectedGuest(updated);
+          }, 50);
         }}
         embedded
       />
@@ -1287,11 +1384,14 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             transferTarget={transferType === 'entireToOrder' ? 'order' : 'table'}
             onBack={closeTransferFlow}
             orders={orders as any}
-            setOrders={setOrders as any}
+            setOrders={updateOrders as any}
             onTransferComplete={() => {
               closeTransferFlow();
-              const updated = orders.find(o => o.id === transferSource.id);
-              if (updated) setSelectedGuest(updated);
+              setTimeout(() => {
+                const latestOrders = JSON.parse(localStorage.getItem('pos-unified-orders') || '[]');
+                const updated = latestOrders.find((o: any) => o.id === transferSource.id);
+                if (updated) setSelectedGuest(updated);
+              }, 50);
             }}
           />
         </div>

@@ -14,6 +14,18 @@ export interface TicketPaymentEntry {
   amount: number;
 }
 
+export interface TicketTransferInfo {
+  type: 'sent' | 'received';
+  transferType: 'full' | 'partial';
+  targetOrderId?: string;
+  targetOrderName?: string;
+  sourceOrderId?: string;
+  sourceOrderName?: string;
+  sourceTable?: string;
+  itemCount?: number;
+  transferredItems?: TicketOrderItem[];
+}
+
 export interface TicketOrder {
   id: string;
   name: string;
@@ -37,6 +49,7 @@ export interface TicketOrder {
   total: number;
   table: string;
   orderType: string;
+  transferInfo?: TicketTransferInfo;
 }
 
 export const ticketOrders: TicketOrder[] = [

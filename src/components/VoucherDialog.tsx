@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 
 interface VoucherDialogProps {
@@ -6,16 +7,20 @@ interface VoucherDialogProps {
   onClose: () => void;
   onAddVoucher: (amount: number) => void;
   onRedeemVoucher: (voucherCode: string, balance: number) => void;
+  initialView?: 'sell' | 'redeem';
 }
 
 const PRESET_AMOUNTS = [10, 25, 50, 100];
 
-const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: VoucherDialogProps) => {
-  const [view, setView] = useState<'sell' | 'redeem'>('sell');
+const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher, initialView = 'sell' }: VoucherDialogProps) => {
+  const [view, setView] = useState<'sell' | 'redeem'>(initialView);
   const [amount, setAmount] = useState<string>('');
   const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
   const [voucherCode, setVoucherCode] = useState<string>('');
 
+  useEffect(() => {
+    if (isOpen) setView(initialView);
+  }, [isOpen, initialView]);
   // Calculate display amount from string (treating input as cents)
   const getDisplayAmount = (): number => {
     if (selectedPreset !== null) return selectedPreset;
@@ -92,7 +97,13 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: Vouch
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 rounded-xl p-0 max-w-[420px] w-full">
+      <DialogContent className="bg-neutral-900 border-neutral-700 rounded-xl p-0 max-w-[420px] w-full [&>button]:hidden">
+        <button
+          onClick={handleClose}
+          className="absolute right-4 top-4 p-1 hover:bg-white/10 rounded-full transition-colors z-[10]"
+        >
+          <X className="w-5 h-5 text-white/70" />
+        </button>
         {view === 'sell' ? (
           <div className="p-5">
             {/* Header */}
@@ -161,9 +172,18 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: Vouch
             </button>
           </div>
         ) : (
-          <div className="p-5">
-            {/* Header - Centered */}
-            <h2 className="text-white text-lg font-semibold text-center mb-6">Redeem Voucher</h2>
+          <div className="p-5 relative">
+            {/* Header with close button */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="w-8" />
+              <h2 className="text-white text-lg font-semibold text-center">Redeem Voucher</h2>
+              <button
+                onClick={handleClose}
+                className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-white/70" />
+              </button>
+            </div>
             
             {/* Voucher Code Input Field */}
             <div className="mb-5">
@@ -191,13 +211,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher }: Vouch
               REDEEM VOUCHER
             </button>
             
-            {/* SELL VOUCHER Button */}
-            <button
-              onClick={handleBackToSell}
-              className="w-full py-3 rounded-lg text-sm font-semibold bg-neutral-800 border border-neutral-600 text-white hover:bg-neutral-700 transition-colors"
-            >
-              SELL VOUCHER
-            </button>
           </div>
         )}
       </DialogContent>

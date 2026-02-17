@@ -705,8 +705,8 @@ const MapCircularTable = ({
   isMerged?: boolean;
 }) => {
   const config = statusConfig[table.status] || statusConfig["Available"];
-  const tableRadius = table.seats >= 8 ? 52 : table.seats >= 6 ? 44 : 36;
-  const containerSize = 170;
+  const tableRadius = table.seats >= 8 ? 58 : table.seats >= 6 ? 50 : 42;
+  const containerSize = 190;
 
   const chairAngles = Array.from({ length: table.seats }, (_, i) => 
     (360 / table.seats) * i - 90
@@ -769,9 +769,9 @@ const MapCircularTable = ({
               : config.isReady ? undefined : `0 4px 20px ${config.hexColor}40`
           }}
         >
-          <span className="text-white font-bold text-sm leading-none">{table.id}</span>
+          <span className="text-white font-bold text-base leading-none">{table.id}</span>
           <span 
-            className="text-[9px] font-medium mt-0.5"
+            className="text-[11px] font-semibold mt-0.5 whitespace-nowrap"
             style={{ color: isMerged ? "#22d3ee" : config.hexColor }}
           >
             {config.label}
@@ -780,7 +780,7 @@ const MapCircularTable = ({
             {Array.from({ length: Math.min(table.seats, 6) }).map((_, i) => (
               <div 
                 key={i}
-                className={`w-1 h-1 rounded-full transition-colors ${
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${
                   i < table.guests ? "bg-blue-400" : "bg-neutral-600"
                 }`}
               />
@@ -790,13 +790,13 @@ const MapCircularTable = ({
 
         {table.time && (
           <div 
-            className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
+            className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
             style={{ 
               backgroundColor: 'rgba(23, 23, 23, 0.95)',
               border: `1px solid ${config.hexColor}50`
             }}
           >
-            <Clock className="w-2.5 h-2.5" style={{ color: config.hexColor }} />
+            <Clock className="w-3 h-3" style={{ color: config.hexColor }} />
             <span className="text-gray-300">{table.time}</span>
           </div>
         )}
@@ -809,7 +809,7 @@ const MapCircularTable = ({
         >
           <div className="flex flex-col items-center">
             <span className="text-[10px] text-gray-400 mb-1.5">Select guests</span>
-            <div className="flex flex-wrap gap-1.5 justify-center max-w-[100px]">
+            <div className="flex flex-wrap gap-1.5 justify-center max-w-[120px]">
               {Array.from({ length: table.seats }).map((_, i) => (
                 <button
                   key={i}
@@ -817,7 +817,7 @@ const MapCircularTable = ({
                     e.stopPropagation();
                     onGuestSelect(i + 1);
                   }}
-                  className="w-6 h-6 flex items-center justify-center text-xs font-bold text-white bg-neutral-700 rounded-full hover:bg-green-500 transition-all hover:scale-110"
+                  className="w-7 h-7 flex items-center justify-center text-sm font-bold text-white bg-neutral-700 rounded-full hover:bg-green-500 transition-all hover:scale-110"
                 >
                   {i + 1}
                 </button>
@@ -847,8 +847,8 @@ const MapSquareTable = ({
   isMerged?: boolean;
 }) => {
   const config = statusConfig[table.status] || statusConfig["Available"];
-  const tableSize = 70;
-  const containerSize = 170;
+  const tableSize = 80;
+  const containerSize = 190;
 
   const getChairLayout = (seats: number) => {
     const chairs: { side: 'top' | 'right' | 'bottom' | 'left'; position: number }[] = [];
@@ -933,9 +933,9 @@ const MapSquareTable = ({
               : config.isReady ? undefined : `0 4px 20px ${config.hexColor}40`
           }}
         >
-          <span className="text-white font-bold text-sm leading-none">{table.id}</span>
+          <span className="text-white font-bold text-base leading-none">{table.id}</span>
           <span 
-            className="text-[9px] font-medium mt-0.5"
+            className="text-[11px] font-semibold mt-0.5 whitespace-nowrap"
             style={{ color: isMerged ? "#22d3ee" : config.hexColor }}
           >
             {config.label}
@@ -944,7 +944,7 @@ const MapSquareTable = ({
             {Array.from({ length: table.seats }).map((_, i) => (
               <div 
                 key={i}
-                className={`w-1 h-1 rounded-full transition-colors ${
+                className={`w-1.5 h-1.5 rounded-full transition-colors ${
                   i < table.guests ? "bg-blue-400" : "bg-neutral-600"
                 }`}
               />
@@ -954,13 +954,13 @@ const MapSquareTable = ({
 
         {table.time && (
           <div 
-            className="absolute -bottom-1 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium"
+            className="absolute -bottom-2 left-1/2 -translate-x-1/2 flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-semibold"
             style={{ 
               backgroundColor: 'rgba(23, 23, 23, 0.95)',
               border: `1px solid ${config.hexColor}50`
             }}
           >
-            <Clock className="w-2.5 h-2.5" style={{ color: config.hexColor }} />
+            <Clock className="w-3 h-3" style={{ color: config.hexColor }} />
             <span className="text-gray-300">{table.time}</span>
           </div>
         )}

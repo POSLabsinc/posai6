@@ -30,7 +30,8 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { mockReservations, type Reservation } from "@/components/ReservationsPanel";
 import { EditReservationDialog } from "@/components/EditReservationDialog";
-import TableMapPanel from "@/components/TableMapPanel";
+import TableMapPanel, { defaultTables, type TableType } from "@/components/TableMapPanel";
+import TableContextPanel from "@/components/TableContextPanel";
 
 // Status configurations
 const statusConfig: Record<string, { bg: string; text: string; border: string; label: string; dot: string }> = {
@@ -585,6 +586,7 @@ const FullReservationsView = () => {
   const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [reservationToCancel, setReservationToCancel] = useState<Reservation | null>(null);
   const [mapViewMode, setMapViewMode] = useState<"floorplan" | "grid">("floorplan");
+  const [selectedTableFromMap, setSelectedTableFromMap] = useState<string | null>(null);
   
   // Utility bar state
   const [listViewMode, setListViewMode] = useState<"grouped" | "flat">("grouped");
@@ -640,6 +642,7 @@ const FullReservationsView = () => {
 
   const handleReservationSelect = (reservation: Reservation) => {
     setSelectedReservation(reservation);
+    setSelectedTableFromMap(null);
   };
 
   const handleAssignTable = (reservationId: string, tableId: string) => {
@@ -788,8 +791,36 @@ const FullReservationsView = () => {
 
       {/* Main Content - Two Column Layout */}
       <div className="flex-1 flex overflow-hidden">
-        {/* Left Column: Timeline */}
-        <div className="w-[420px] border-r border-neutral-800 bg-neutral-900/50 flex flex-col">
+        {/* Left Column: Timeline or Table Context Panel */}
+        <div className="w-[420px] border-r border-neutral-800 bg-neutral-900/50 flex flex-col overflow-hidden">
+          {selectedTableFromMap ? (
+            // Table Context Panel - when a table is selected on the map
+            (() => {
+              const tableData = defaultTables.find(t => t.id === selectedTableFromMap);
+              const linkedRes = reservations.find(r => r.tableId === selectedTableFromMap && r.status !== "completed");
+              if (!tableData) return null;
+              return (
+                <TableContextPanel
+                  table={tableData}
+                  linkedReservation={linkedRes}
+                  onBack={() => setSelectedTableFromMap(null)}
+                  onAction={(action, tableId) => {
+                    if (action === 'edit-reservation' && linkedRes) {
+                      handleEditReservation(linkedRes);
+                    } else if (action === 'cancel-reservation' && linkedRes) {
+                      handleCancelReservation(linkedRes);
+                    } else if (action === 'seat-guest' && linkedRes) {
+                      handleSeatGuest(linkedRes);
+                    } else if (action === 'view-order' || action === 'start-order' || action === 'add-items') {
+                      navigate(`/tableorder/${tableId}`);
+                    }
+                  }}
+                />
+              );
+            })()
+          ) : (
+            // Reservations Timeline Panel - default state
+            <>
           {/* List Header: Date Filter + Status Indicators */}
           <div className="px-4 py-3 border-b border-neutral-800 space-y-3">
             {/* Date Navigation Row */}
@@ -1178,6 +1209,8 @@ const FullReservationsView = () => {
               )}
             </div>
           </ScrollArea>
+            </>
+          )}
         </div>
 
         {/* Right Column: Table Map or Reservation Details */}
@@ -1196,8 +1229,10 @@ const FullReservationsView = () => {
             <TableMapPanel 
               viewMode={mapViewMode}
               selectedReservation={selectedReservation}
+              selectedTableIdExternal={selectedTableFromMap}
               onTableSelect={(tableId) => {
-                console.log("Table selected:", tableId);
+                setSelectedTableFromMap(tableId);
+                setSelectedReservation(null);
               }}
             />
           )}

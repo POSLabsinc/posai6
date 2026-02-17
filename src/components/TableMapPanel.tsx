@@ -430,15 +430,20 @@ const StatusLegend = () => (
   </div>
 );
 
+// Export table type for use in other components
+export type { TableType };
+export { defaultTables };
+
 // Props
 interface TableMapPanelProps {
   viewMode: "floorplan" | "grid";
   selectedReservation: Reservation | null;
   onTableSelect?: (tableId: string) => void;
+  selectedTableIdExternal?: string | null;
 }
 
 // Main Component
-const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect }: TableMapPanelProps) => {
+const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedTableIdExternal }: TableMapPanelProps) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [tables, setTables] = useState<TableType[]>(defaultTables);
@@ -462,8 +467,8 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect }: TableMa
     time: "7:00 PM",
   });
 
-  // Highlighted table from selected reservation
-  const highlightedTableId = selectedReservation?.tableId || null;
+  // Highlighted table from selected reservation OR external selection
+  const highlightedTableId = selectedReservation?.tableId || selectedTableIdExternal || null;
 
   const handleTableClick = (table: TableType) => {
     setSelectedTableId(table.id);

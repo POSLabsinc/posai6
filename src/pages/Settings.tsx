@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SettingsNavigation from "@/components/SettingsNavigation";
+import SettingsGuidedTour from "@/components/SettingsGuidedTour";
 import AccountPanel from "@/components/AccountPanel";
 import PersonalInformationContent from "@/components/settings/PersonalInformationContent";
 import RestaurantInformationContent from "@/components/settings/RestaurantInformationContent";
@@ -292,6 +293,11 @@ const Settings = () => {
 
   return (
     <div className="h-full flex gap-0 md:gap-2 p-0 md:p-2 overflow-hidden">
+      {/* Guided Tour - only on main settings screen */}
+      {(location.pathname === '/settings' || location.pathname === '/settings/account') && (
+        <SettingsGuidedTour />
+      )}
+
       {/* Left Panel - Settings Navigation with independent scroll */}
       <div className="w-full md:w-[325px] md:flex-shrink-0 md:bg-card md:rounded-2xl h-full overflow-hidden">
         <SettingsNavigation 

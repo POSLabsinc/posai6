@@ -37,7 +37,7 @@ interface SettingsItemProps {
 }
 
 // Desktop/Tablet version of settings item (no arrow, no container)
-const SettingsItem = ({ iconSrc, label, iconBgColor, onClick, isActive }: SettingsItemProps & { isActive?: boolean }) => {
+const SettingsItem = ({ iconSrc, label, iconBgColor, onClick, isActive, tourId }: SettingsItemProps & { isActive?: boolean; tourId?: string }) => {
   const { getIconBgColor, getIconSizeClass, iconSize } = useAppearance();
   const iconSizeClass = getIconSizeClass();
   const containerSize = iconContainerSizeMap[iconSize];
@@ -45,6 +45,7 @@ const SettingsItem = ({ iconSrc, label, iconBgColor, onClick, isActive }: Settin
   return (
     <button
       onClick={onClick}
+      data-tour={tourId}
       className={`flex items-center gap-4 w-full py-3 px-3 active:opacity-70 transition-all rounded-full ${isActive ? 'bg-neutral-800 dark:bg-neutral-700/60 text-white' : ''}`}
     >
       <div 
@@ -59,7 +60,7 @@ const SettingsItem = ({ iconSrc, label, iconBgColor, onClick, isActive }: Settin
 };
 
 // Mobile version of settings item (with arrow)
-const MobileSettingsItem = ({ iconSrc, label, iconBgColor, onClick }: SettingsItemProps) => {
+const MobileSettingsItem = ({ iconSrc, label, iconBgColor, onClick, tourId }: SettingsItemProps & { tourId?: string }) => {
   const { getIconBgColor, getIconSizeClass, iconSize } = useAppearance();
   const iconSizeClass = getIconSizeClass();
   const containerSize = iconContainerSizeMap[iconSize];
@@ -67,6 +68,7 @@ const MobileSettingsItem = ({ iconSrc, label, iconBgColor, onClick }: SettingsIt
   return (
     <button
       onClick={onClick}
+      data-tour={tourId}
       className="flex items-center justify-between w-full py-2.5 px-4 active:opacity-70 transition-opacity"
     >
       <div className="flex items-center gap-4">
@@ -187,6 +189,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
         {/* User Profile Card */}
         <button 
           onClick={onUserProfileClick}
+          data-tour="profile"
           className="w-full active:opacity-70 transition-opacity text-left mb-5"
         >
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
@@ -224,6 +227,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
                   label={item.label}
                   iconBgColor={item.iconBgColor}
                   onClick={() => handleItemClick(item.id)}
+                  tourId={item.id}
                 />
                 {index < mainItems.length - 1 && (
                   <div className="h-px bg-neutral-700/50 mx-4" />
@@ -243,6 +247,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
                   label={item.label}
                   iconBgColor={item.iconBgColor}
                   onClick={() => handleItemClick(item.id)}
+                  tourId={item.id}
                 />
                 {index < systemItems.length - 1 && (
                   <div className="h-px bg-neutral-700/50 mx-4" />
@@ -319,6 +324,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
         {/* User Profile Card */}
         <button 
           onClick={onUserProfileClick}
+          data-tour="profile"
           className="w-full active:opacity-70 transition-opacity text-left mb-6"
         >
           <div className="flex items-center gap-4">
@@ -355,6 +361,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
                 iconBgColor={item.iconBgColor}
                 onClick={() => handleItemClick(item.id)}
                 isActive={activeItemId === item.id}
+                tourId={item.id}
               />
             ))}
           </div>
@@ -371,6 +378,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
                 iconBgColor={item.iconBgColor}
                 onClick={() => handleItemClick(item.id)}
                 isActive={activeItemId === item.id}
+                tourId={item.id}
               />
             ))}
           </div>

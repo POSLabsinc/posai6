@@ -1,8 +1,10 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Printer, MessageSquare, Mail, ChevronDown, Delete, Check, ArrowLeft } from 'lucide-react';
+import { Printer, Mail, ChevronDown, Delete, Check, ArrowLeft, Search } from 'lucide-react';
 import { toast } from 'sonner';
 import { VoucherFormData } from './CreateVoucherForm';
+import { customers, Customer } from '@/data/customers';
+import { Input } from '@/components/ui/input';
 
 interface VoucherReceiptDialogProps {
   open: boolean;
@@ -16,14 +18,36 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
   const [step, setStep] = useState<ReceiptStep>('selection');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [emailAddress, setEmailAddress] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
   const [noMarketing, setNoMarketing] = useState(false);
 
   const handleClose = () => {
     setStep('selection');
     setPhoneNumber('');
     setEmailAddress('');
+    setFirstName('');
+    setLastName('');
+    setSearchQuery('');
     setNoMarketing(false);
     onOpenChange(false);
+  };
+
+  const searchResults = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    const q = searchQuery.toLowerCase();
+    return customers.filter(
+      c => c.name.toLowerCase().includes(q) || c.email?.toLowerCase().includes(q) || c.phone.includes(searchQuery)
+    ).slice(0, 5);
+  }, [searchQuery]);
+
+  const handleSelectCustomer = (customer: Customer) => {
+    const nameParts = customer.name.split(' ');
+    setFirstName(nameParts[0] || '');
+    setLastName(nameParts.slice(1).join(' ') || '');
+    setEmailAddress(customer.email || '');
+    setSearchQuery('');
   };
 
   const handlePrint = () => {
@@ -257,10 +281,10 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
         )}
 
         {step === 'email-input' && (
-          <div className="flex flex-col h-[520px]">
+          <div className="flex flex-col">
             <div className="flex items-center gap-2 p-4 border-b border-neutral-800">
               <button
-                onClick={() => setStep('selection')}
+                onClick={() => { setStep('selection'); setSearchQuery(''); setFirstName(''); setLastName(''); setEmailAddress(''); }}
                 className="w-8 h-8 rounded-full hover:bg-neutral-800 flex items-center justify-center transition-colors"
               >
                 <ArrowLeft className="w-5 h-5 text-white" />
@@ -268,13 +292,66 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
               <h2 className="text-white text-base font-semibold flex-1 text-center pr-8">Where should we email the voucher?</h2>
             </div>
 
-            <div className="px-4 py-3">
-              <input
-                type="text"
+            {/* Search Guest */}
+            <div className="px-4 pt-4 pb-2 relative">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+                <Input
+                  type="text"
+                  placeholder="Search existing guest..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full bg-neutral-800 border-neutral-700 text-white pl-9 pr-4 py-3 rounded-lg text-sm placeholder:text-neutral-500"
+                />
+              </div>
+              {searchResults.length > 0 && (
+                <div className="absolute left-4 right-4 top-full mt-1 bg-neutral-800 border border-neutral-700 rounded-lg overflow-hidden z-10 max-h-40 overflow-y-auto">
+                  {searchResults.map(customer => (
+                    <button
+                      key={customer.id}
+                      onClick={() => handleSelectCustomer(customer)}
+                      className="w-full flex flex-col px-4 py-2.5 hover:bg-neutral-700 transition-colors text-left"
+                    >
+                      <span className="text-white text-sm font-medium">{customer.name}</span>
+                      <span className="text-neutral-400 text-xs">{customer.email || 'No email'} · {customer.phone}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Form Fields */}
+            <div className="px-4 py-2 flex gap-3">
+              <div className="flex-1">
+                <label className="text-neutral-400 text-xs mb-1 block">First Name</label>
+                <Input
+                  type="text"
+                  placeholder="First Name"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  className="bg-neutral-800 border-neutral-700 text-white text-sm placeholder:text-neutral-500"
+                />
+              </div>
+              <div className="flex-1">
+                <label className="text-neutral-400 text-xs mb-1 block">Last Name</label>
+                <Input
+                  type="text"
+                  placeholder="Last Name"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  className="bg-neutral-800 border-neutral-700 text-white text-sm placeholder:text-neutral-500"
+                />
+              </div>
+            </div>
+
+            <div className="px-4 py-2">
+              <label className="text-neutral-400 text-xs mb-1 block">Email <span className="text-red-400">*</span></label>
+              <Input
+                type="email"
                 placeholder="email@example.com"
                 value={emailAddress}
-                readOnly
-                className="w-full bg-neutral-800 text-white px-4 py-3 rounded-lg text-sm placeholder:text-neutral-500 outline-none"
+                onChange={(e) => setEmailAddress(e.target.value)}
+                className="bg-neutral-800 border-neutral-700 text-white text-sm placeholder:text-neutral-500"
               />
             </div>
 
@@ -290,7 +367,7 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
               </label>
             </div>
 
-            <div className="px-4 py-2">
+            <div className="px-4 py-3">
               <button
                 onClick={handleSendEmail}
                 disabled={!emailAddress.includes('@') || !emailAddress.includes('.')}
@@ -298,26 +375,6 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
               >
                 SEND
               </button>
-            </div>
-
-            <div className="flex-1 flex flex-col justify-end px-2 pb-4 gap-1">
-              {emailKeys.map((row, rowIndex) => (
-                <div key={rowIndex} className="flex justify-center gap-1">
-                  {row.map(key => (
-                    <button
-                      key={key}
-                      onClick={() => handleEmailKeyPress(key)}
-                      className={`rounded-md text-sm font-medium transition-colors ${
-                        key === 'delete' ? 'bg-neutral-700 text-white hover:bg-neutral-600 px-3 h-10' :
-                        key.length > 1 ? 'bg-neutral-700 text-white hover:bg-neutral-600 px-2 h-10 text-xs' :
-                        'bg-neutral-800 text-white hover:bg-neutral-700 w-8 h-10'
-                      }`}
-                    >
-                      {key === 'delete' ? <Delete className="w-4 h-4 mx-auto" /> : key}
-                    </button>
-                  ))}
-                </div>
-              ))}
             </div>
           </div>
         )}

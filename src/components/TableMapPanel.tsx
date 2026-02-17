@@ -669,6 +669,11 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect }: TableMa
 
   return (
     <div className="h-full flex flex-col bg-neutral-950">
+      {/* Status Legend - Fixed at top */}
+      <div className="sticky top-0 z-30 bg-neutral-950 border-b border-neutral-800">
+        <StatusLegend />
+      </div>
+
       {/* Floor Plan View */}
       {viewMode === "floorplan" && (
         <div className="flex-1 relative overflow-auto">
@@ -733,10 +738,6 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect }: TableMa
             ))}
           </div>
           
-          {/* Status Legend */}
-          <div className="absolute bottom-4 left-4 right-4">
-            <StatusLegend />
-          </div>
         </div>
       )}
 
@@ -781,10 +782,6 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect }: TableMa
             ))}
           </div>
           
-          {/* Status Legend */}
-          <div className="mt-4">
-            <StatusLegend />
-          </div>
         </ScrollArea>
       )}
 

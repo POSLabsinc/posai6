@@ -97,7 +97,7 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
   };
 
   const formatExpirationDate = () => {
-    if (!voucherData?.expirationDate) return '';
+    if (!voucherData?.expirationDate) return 'NA';
     const date = new Date(voucherData.expirationDate + 'T00:00:00');
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
   };

@@ -194,14 +194,7 @@ const FloorPlanCircularTable = ({ table, isSelected, isHighlighted }: {
           />
         ))}
 
-        {config.isReady && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 animate-bounce">
-            <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-0.5 rounded-full shadow-lg shadow-emerald-500/50">
-              <Bell className="w-2.5 h-2.5" />
-              <span className="text-[9px] font-bold whitespace-nowrap">ORDER READY</span>
-            </div>
-          </div>
-        )}
+        {/* ORDER READY badge hidden for now */}
 
         <div 
           className={`rounded-full flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-110 ${
@@ -289,14 +282,7 @@ const FloorPlanSquareTable = ({ table, isSelected, isHighlighted }: {
           />
         ))}
 
-        {config.isReady && (
-          <div className="absolute top-2 left-1/2 -translate-x-1/2 z-20 animate-bounce">
-            <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-0.5 rounded-full shadow-lg shadow-emerald-500/50">
-              <Bell className="w-2.5 h-2.5" />
-              <span className="text-[9px] font-bold whitespace-nowrap">ORDER READY</span>
-            </div>
-          </div>
-        )}
+        {/* ORDER READY badge hidden for now */}
 
         <div 
           className={`rounded-lg flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-110 ${
@@ -356,14 +342,7 @@ const GridTableCard = ({ table, isHighlighted, onClick, onGuestSelect, showGuest
   
   return (
     <div className={`relative ${isHighlighted ? "animate-pulse" : ""}`}>
-      {isReady && (
-        <div className="absolute -top-3 left-1/2 -translate-x-1/2 z-20 animate-bounce">
-          <div className="flex items-center gap-1 bg-emerald-500 text-white px-2 py-1 rounded-full shadow-lg shadow-emerald-500/50">
-            <Bell className="w-3 h-3" />
-            <span className="text-[10px] font-bold whitespace-nowrap">ORDER READY</span>
-          </div>
-        </div>
-      )}
+      {/* ORDER READY badge hidden for now */}
       
       {table.status === "Reserved" && (
         <div className="absolute -top-2 right-1 z-20">

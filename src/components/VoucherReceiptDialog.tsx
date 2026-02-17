@@ -368,9 +368,8 @@ const VoucherReceiptDialog = ({ open, onOpenChange, voucherData }: VoucherReceip
             </div>
 
             <div className="px-4 py-2">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label className="flex items-center gap-2 cursor-pointer" onClick={() => setNoMarketing(!noMarketing)}>
                 <div
-                  onClick={() => setNoMarketing(!noMarketing)}
                   className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors ${noMarketing ? 'bg-white border-white' : 'border-neutral-600 bg-transparent'}`}
                 >
                   {noMarketing && <Check className="w-2.5 h-2.5 text-black" />}

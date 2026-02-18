@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Pencil } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
@@ -90,6 +90,7 @@ import VoucherDialog from "@/components/VoucherDialog";
 import CreateVoucherForm from "@/components/CreateVoucherForm";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import OpenPriceDialog from "@/components/OpenPriceDialog";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -212,6 +213,7 @@ interface MenuItem {
   id: number;
   name: string;
   price: number;
+  isOpenPrice?: boolean;
 }
 type SubcategoryItems = Record<string, MenuItem[]>;
 type CategoryItems = Record<string, SubcategoryItems>;
@@ -1314,6 +1316,16 @@ const menuItemsData: MenuItemsStructure = {
         id: 300,
         name: "Crispy Calamari",
         price: 12.99
+      }, {
+        id: 9990,
+        name: "Custom Chicken",
+        price: 0,
+        isOpenPrice: true
+      }, {
+        id: 9991,
+        name: "Market Price Fish",
+        price: 0,
+        isOpenPrice: true
       }, {
         id: 301,
         name: "Spinach Artichoke Dip",
@@ -5609,6 +5621,7 @@ interface OrderItem {
   noTax?: boolean;
   isFired?: boolean;
   isTransferred?: boolean;
+  isOpenPrice?: boolean;
 }
 const initialOrderItems: OrderItem[] = [];
 const orderTypes = [
@@ -6174,6 +6187,12 @@ const Orders = () => {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
   });
 
+  // Open Price state
+  const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);
+  const [openPriceItem, setOpenPriceItem] = useState<MenuItem | null>(null);
+  const [openPriceImageIndex, setOpenPriceImageIndex] = useState(0);
+  const [openPriceFlow, setOpenPriceFlow] = useState<'quickAdd' | 'viewItem'>('quickAdd');
+
   // Payment Dialog State (component manages its own internal states)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
 
@@ -6464,10 +6483,19 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
+    isOpenPrice?: boolean;
   }) => {
     // Block adding items if order is split
     if (isOrderSplit) {
       setShowSplitOrderAlert(true);
+      return;
+    }
+
+    // Block open price items - show price entry modal first
+    if (item.isOpenPrice) {
+      setOpenPriceItem(item as MenuItem);
+      setOpenPriceFlow('quickAdd');
+      setShowOpenPriceDialog(true);
       return;
     }
 
@@ -6520,10 +6548,20 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
+    isOpenPrice?: boolean;
   }, imageIndex: number) => {
     // Block opening customization if order is split
     if (isOrderSplit) {
       setShowSplitOrderAlert(true);
+      return;
+    }
+
+    // Block open price items - show price entry modal first, then open customization
+    if (item.isOpenPrice && item.price === 0) {
+      setOpenPriceItem(item as MenuItem);
+      setOpenPriceImageIndex(imageIndex);
+      setOpenPriceFlow('viewItem');
+      setShowOpenPriceDialog(true);
       return;
     }
 
@@ -7316,6 +7354,7 @@ const Orders = () => {
                               {item.qty}
                             </span>
                             <span className="text-[11px] font-medium text-foreground">{item.name}</span>
+                            {item.isOpenPrice && <span className="text-[8px] text-orange-400/70 font-medium">Custom</span>}
                           </div>
                           {item.itemOrderType === 'VOUCHER' ?
                     <span
@@ -7871,11 +7910,19 @@ const Orders = () => {
                       </button>
                     </div>
                     <div className="p-0.5 md:p-1 bg-neutral-900 flex items-center justify-between gap-1" onClick={() => openCustomizationDialog(item, index)}>
-                      <span className="text-[11px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-1 flex-1">
-                        {item.name}
-                      </span>
+                      <div className="flex items-center gap-1 flex-1 min-w-0">
+                        <span className="text-[11px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-1">
+                          {item.name}
+                        </span>
+                        {item.isOpenPrice && (
+                          <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 flex-shrink-0">
+                            <DollarSign className="w-2.5 h-2.5 text-orange-400" />
+                            <Pencil className="w-2 h-2 text-orange-400" />
+                          </span>
+                        )}
+                      </div>
                       <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold shrink-0">
-                        ${item.price.toFixed(2)}
+                        {item.isOpenPrice ? "Open" : `$${item.price.toFixed(2)}`}
                       </span>
                     </div>
                   </div>)}
@@ -7885,11 +7932,14 @@ const Orders = () => {
                     background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
                   }}>
                       <span className="float-right text-[9px] md:text-[10px] ml-1 text-white">
-                        ${item.price.toFixed(2)}
+                        {item.isOpenPrice ? "Open" : `$${item.price.toFixed(2)}`}
                       </span>
                       <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2">
                         {item.name}
                       </span>
+                      {item.isOpenPrice && (
+                        <span className="text-[8px] md:text-[9px] text-orange-400/70 font-medium mt-0.5 block">Open Price</span>
+                      )}
                     </div>
                     <button onClick={(e) => {
                     e.stopPropagation();
@@ -8474,7 +8524,10 @@ const Orders = () => {
                                   </span>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between">
-                                      <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
+                                        {item.isOpenPrice && <span className="text-[9px] text-orange-400/70 font-medium">Custom Price</span>}
+                                      </div>
                                       {item.itemOrderType === 'VOUCHER' ?
                               <span
                                 className="text-sm md:text-xs lg:text-sm font-medium text-foreground cursor-pointer transition-colors ml-2"
@@ -8836,6 +8889,45 @@ const Orders = () => {
           </div>
         </div>
       </div>
+
+      {/* Open Price Dialog */}
+      <OpenPriceDialog
+        open={showOpenPriceDialog}
+        onOpenChange={(open) => {
+          setShowOpenPriceDialog(open);
+          if (!open) setOpenPriceItem(null);
+        }}
+        productName={openPriceItem?.name || ""}
+        onConfirm={(price) => {
+          if (openPriceItem) {
+            const itemWithPrice = { ...openPriceItem, price };
+            if (openPriceFlow === 'quickAdd') {
+              // Quick add: add directly to cart with entered price
+              const allSeats = isTableOrder ? Array.from({ length: guestCount }, (_, i) => i + 1) : undefined;
+              setOrderItems((prev) => [...prev, {
+                id: Date.now(),
+                qty: 1,
+                name: itemWithPrice.name,
+                price: itemWithPrice.price,
+                assignedSeats: allSeats,
+                isOpenPrice: true
+              }]);
+            } else {
+              // View item: open customization dialog with entered price
+              setSelectedItemForCustomization(itemWithPrice);
+              setSelectedItemImage(foodImages[openPriceImageIndex % foodImages.length]);
+              const isMobile = window.innerWidth < 768;
+              if (isMobile) {
+                setShowInlineCustomization(true);
+              } else {
+                setCustomizationDialogOpen(true);
+              }
+            }
+          }
+          setShowOpenPriceDialog(false);
+          setOpenPriceItem(null);
+        }}
+      />
 
       {/* Item Customization Dialog */}
       <ItemCustomizationDialog

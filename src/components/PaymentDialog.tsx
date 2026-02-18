@@ -771,8 +771,8 @@ export function PaymentDialog({
                 <ArrowLeft className="w-5 h-5 text-neutral-300" />
               </button>
               <div className="flex items-center gap-2">
-                <span className="text-white text-base font-medium">Total Due</span>
-                <span className="text-red-500 text-base font-bold">${total.toFixed(2)}</span>
+                <span className="text-white text-base font-medium">{paymentHistory.length > 0 ? 'Remaining' : 'Total Due'}</span>
+                <span className="text-red-500 text-base font-bold">${paymentHistory.length > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
               </div>
               <button 
                 onClick={() => onOpenChange(false)}
@@ -782,9 +782,22 @@ export function PaymentDialog({
               </button>
             </div>
             
+            {/* Payment History - show previous payments */}
+            {paymentHistory.length > 0 && (
+              <div className="px-4 py-2 border-b border-neutral-700 bg-neutral-800/50">
+                <span className="text-neutral-400 text-xs block mb-1">Previous Payments</span>
+                {paymentHistory.map((payment, index) => (
+                  <div key={index} className="flex items-center justify-between py-0.5">
+                    <span className="text-green-400 text-xs">{payment.methodLabel}</span>
+                    <span className="text-green-400 text-xs">${payment.amount.toFixed(2)}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Label */}
             <div className="text-center text-neutral-400 text-sm py-4">
-              Choose Payment Method
+              {paymentHistory.length > 0 ? 'Choose Next Payment Method' : 'Choose Payment Method'}
             </div>
             
             {/* Payment Methods Grid - 3 columns */}
@@ -1032,6 +1045,10 @@ export function PaymentDialog({
                         setSelectedDeliveryPartner(null);
                         setDeliveryReference('');
                         setLoyaltyStep('guest-list');
+                        // On mobile, go back to payment method selection grid
+                        if (isMobile) {
+                          setMobilePaymentSelectionActive(true);
+                        }
                       }}
                       className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
                     >

@@ -88,6 +88,7 @@ import MPINDialog from "@/components/MPINDialog";
 import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 import VoucherDialog from "@/components/VoucherDialog";
 import CreateVoucherForm from "@/components/CreateVoucherForm";
+import { Drawer, DrawerContent } from "@/components/ui/drawer";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -7161,140 +7162,112 @@ const Orders = () => {
             </div>
         }
 
-          {/* Mobile Guest Forms */}
-          {orderType === "DINE IN" && showDineInForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
-              <DineInGuestForm
-            onSave={(data) => {
-              setDineInGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowDineInForm(false);
-            }}
-            onCancel={() => setShowDineInForm(false)}
-            onClose={() => setShowDineInForm(false)}
-            initialData={dineInGuestData || undefined} />
+           {/* Mobile Guest Forms - Bottom Sheet Drawers */}
+          <Drawer open={showDineInForm && orderType === "DINE IN"} onOpenChange={(open) => { if (!open) setShowDineInForm(false); }}>
+            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
+              <div className="flex flex-col h-[85vh]">
+                <DineInGuestForm
+                  onSave={(data) => { setDineInGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowDineInForm(false); }}
+                  onCancel={() => setShowDineInForm(false)}
+                  onClose={() => setShowDineInForm(false)}
+                  initialData={dineInGuestData || undefined} />
+              </div>
+            </DrawerContent>
+          </Drawer>
 
-            </div>
-        }
-          {orderType === "TAKE OUT" && showTakeOutForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
-              <TakeOutGuestForm
-            onSave={(data) => {
-              setTakeOutGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowTakeOutForm(false);
-            }}
-            onCancel={() => setShowTakeOutForm(false)}
-            onClose={() => setShowTakeOutForm(false)}
-            initialData={takeOutGuestData || undefined} />
+          <Drawer open={showTakeOutForm && orderType === "TAKE OUT"} onOpenChange={(open) => { if (!open) setShowTakeOutForm(false); }}>
+            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
+              <div className="flex flex-col h-[85vh]">
+                <TakeOutGuestForm
+                  onSave={(data) => { setTakeOutGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowTakeOutForm(false); }}
+                  onCancel={() => setShowTakeOutForm(false)}
+                  onClose={() => setShowTakeOutForm(false)}
+                  initialData={takeOutGuestData || undefined} />
+              </div>
+            </DrawerContent>
+          </Drawer>
 
-            </div>
-        }
-          {orderType === "DELIVERY" && showDeliveryForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
-              <DeliveryGuestForm
-            onSave={(data) => {
-              setDeliveryGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowDeliveryForm(false);
-            }}
-            onCancel={() => setShowDeliveryForm(false)}
-            onClose={() => setShowDeliveryForm(false)}
-            initialData={deliveryGuestData || undefined} />
+          <Drawer open={showDeliveryForm && orderType === "DELIVERY"} onOpenChange={(open) => { if (!open) setShowDeliveryForm(false); }}>
+            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
+              <div className="flex flex-col h-[85vh]">
+                <DeliveryGuestForm
+                  onSave={(data) => { setDeliveryGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowDeliveryForm(false); }}
+                  onCancel={() => setShowDeliveryForm(false)}
+                  onClose={() => setShowDeliveryForm(false)}
+                  initialData={deliveryGuestData || undefined} />
+              </div>
+            </DrawerContent>
+          </Drawer>
 
-            </div>
-        }
-          {orderType === "BANQUET" && showBanquetForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
-              <BanquetGuestForm
-            onSave={(data) => {
-              setBanquetGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowBanquetForm(false);
-            }}
-            onCancel={() => setShowBanquetForm(false)}
-            onClose={() => setShowBanquetForm(false)}
-            initialData={banquetGuestData || undefined} />
+          <Drawer open={showBanquetForm && orderType === "BANQUET"} onOpenChange={(open) => { if (!open) setShowBanquetForm(false); }}>
+            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
+              <div className="flex flex-col h-[85vh]">
+                <BanquetGuestForm
+                  onSave={(data) => { setBanquetGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowBanquetForm(false); }}
+                  onCancel={() => setShowBanquetForm(false)}
+                  onClose={() => setShowBanquetForm(false)}
+                  initialData={banquetGuestData || undefined} />
+              </div>
+            </DrawerContent>
+          </Drawer>
 
-            </div>
-        }
-          {orderType === "DRIVE THRU" && showDriveThruForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
-              <DriveThruGuestForm
-            onSave={(data) => {
-              setDriveThruGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowDriveThruForm(false);
-            }}
-            onCancel={() => setShowDriveThruForm(false)}
-            onClose={() => setShowDriveThruForm(false)}
-            initialData={driveThruGuestData || undefined} />
+          <Drawer open={showDriveThruForm && orderType === "DRIVE THRU"} onOpenChange={(open) => { if (!open) setShowDriveThruForm(false); }}>
+            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
+              <div className="flex flex-col h-[85vh]">
+                <DriveThruGuestForm
+                  onSave={(data) => { setDriveThruGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowDriveThruForm(false); }}
+                  onCancel={() => setShowDriveThruForm(false)}
+                  onClose={() => setShowDriveThruForm(false)}
+                  initialData={driveThruGuestData || undefined} />
+              </div>
+            </DrawerContent>
+          </Drawer>
 
-            </div>
-        }
-          {orderType === "CURB SIDE" && showCurbSideForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
-              <CurbSideGuestForm
-            onSave={(data) => {
-              setCurbSideGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowCurbSideForm(false);
-            }}
-            onCancel={() => setShowCurbSideForm(false)}
-            onClose={() => setShowCurbSideForm(false)}
-            initialData={curbSideGuestData || undefined} />
+          <Drawer open={showCurbSideForm && orderType === "CURB SIDE"} onOpenChange={(open) => { if (!open) setShowCurbSideForm(false); }}>
+            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
+              <div className="flex flex-col h-[85vh]">
+                <CurbSideGuestForm
+                  onSave={(data) => { setCurbSideGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowCurbSideForm(false); }}
+                  onCancel={() => setShowCurbSideForm(false)}
+                  onClose={() => setShowCurbSideForm(false)}
+                  initialData={curbSideGuestData || undefined} />
+              </div>
+            </DrawerContent>
+          </Drawer>
 
-            </div>
-        }
-          {orderType === "SCHEDULED" && showScheduledForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
-              <ScheduledGuestForm
-            onSave={(data) => {
-              setScheduledGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowScheduledForm(false);
-            }}
-            onCancel={() => setShowScheduledForm(false)}
-            onClose={() => setShowScheduledForm(false)}
-            initialData={scheduledGuestData || undefined} />
+          <Drawer open={showScheduledForm && orderType === "SCHEDULED"} onOpenChange={(open) => { if (!open) setShowScheduledForm(false); }}>
+            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
+              <div className="flex flex-col h-[85vh]">
+                <ScheduledGuestForm
+                  onSave={(data) => { setScheduledGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowScheduledForm(false); }}
+                  onCancel={() => setShowScheduledForm(false)}
+                  onClose={() => setShowScheduledForm(false)}
+                  initialData={scheduledGuestData || undefined} />
+              </div>
+            </DrawerContent>
+          </Drawer>
 
-            </div>
-        }
-          {orderType === "PHONE-IN" && showPhoneInForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
-              <PhoneInGuestForm
-            onSave={(data) => {
-              setPhoneInGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowPhoneInForm(false);
-            }}
-            onClose={() => setShowPhoneInForm(false)}
-            initialData={phoneInGuestData || undefined} />
+          <Drawer open={showPhoneInForm && orderType === "PHONE-IN"} onOpenChange={(open) => { if (!open) setShowPhoneInForm(false); }}>
+            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
+              <div className="flex flex-col h-[85vh]">
+                <PhoneInGuestForm
+                  onSave={(data) => { setPhoneInGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowPhoneInForm(false); }}
+                  onClose={() => setShowPhoneInForm(false)}
+                  initialData={phoneInGuestData || undefined} />
+              </div>
+            </DrawerContent>
+          </Drawer>
 
-            </div>
-        }
-          {orderType === "CUSTOM" && showCustomOrderForm &&
-        <div className="px-2 py-2 border-b border-sidebar-border">
-              <CustomOrderGuestForm
-            onSave={(data) => {
-              setCustomOrderGuestData(data);
-              setGuestName(data.guestName);
-              setGuestPhone(data.phoneNumber || '');
-              setShowCustomOrderForm(false);
-            }}
-            onClose={() => setShowCustomOrderForm(false)}
-            initialData={customOrderGuestData || undefined} />
-
-            </div>
-        }
+          <Drawer open={showCustomOrderForm && orderType === "CUSTOM"} onOpenChange={(open) => { if (!open) setShowCustomOrderForm(false); }}>
+            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
+              <div className="flex flex-col h-[85vh]">
+                <CustomOrderGuestForm
+                  onSave={(data) => { setCustomOrderGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowCustomOrderForm(false); }}
+                  onClose={() => setShowCustomOrderForm(false)}
+                  initialData={customOrderGuestData || undefined} />
+              </div>
+            </DrawerContent>
+          </Drawer>
 
           {/* Mobile Add Guest Form Overlay */}
           {showAddGuestForm &&

@@ -7086,6 +7086,7 @@ const Orders = () => {
                       <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
                       Register
                     </DropdownMenuItem>
+                    {orderItems.length > 0 && (
                     <DropdownMenuItem
                   onClick={() => setShowTransferCheckDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
@@ -7093,6 +7094,7 @@ const Orders = () => {
                       <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
                       Transfer Check
                     </DropdownMenuItem>
+                    )}
                     <DropdownMenuItem
                   onClick={() => setShowGiftCardDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">

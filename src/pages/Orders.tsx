@@ -8853,7 +8853,7 @@ const Orders = () => {
         setShowDiscountDialog(open);
         if (!open) setDiscountPin("");
       }}>
-        <DialogContent className="w-full h-full max-w-none max-h-none rounded-none sm:w-[480px] sm:h-auto sm:max-h-[90vh] sm:rounded-xl bg-[#1a1a1a] border-none sm:border sm:border-neutral-700 p-0 gap-0 flex flex-col overflow-hidden">
+        <DialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[90vw] overflow-hidden rounded-xl">
             {discountDialogView === 'mpin' ? (
         /* MPIN View */
         <div className="flex flex-col bg-neutral-900 p-6 pb-8">
@@ -8952,23 +8952,20 @@ const Orders = () => {
 
         /* Discount Selection View */
         <>
-          {/* Grab Bar - mobile only */}
-          <div 
-            className="flex justify-center py-3 cursor-grab active:cursor-grabbing sm:hidden"
-            onClick={() => setShowDiscountDialog(false)}
-          >
-            <div className="w-12 h-1.5 bg-neutral-600 rounded-full" />
+          {/* Header */}
+          <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+            <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
+            <button 
+              type="button"
+              onClick={() => setShowDiscountDialog(false)}
+              className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+            >
+              <X className="w-5 h-5 text-neutral-400" />
+            </button>
           </div>
 
-          {/* Header */}
-          <DialogHeader className="px-6 pt-6 sm:pt-6 pb-4 border-b border-neutral-700">
-            <DialogTitle className="flex items-center gap-3 text-foreground">
-              <span className="font-semibold">Select Discounts</span>
-            </DialogTitle>
-          </DialogHeader>
-
           {/* Discount Options */}
-          <div className="flex-1 overflow-auto p-3 space-y-1 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+          <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-hide space-y-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
             {discountTypes.map((discountType) => {
               const discountAmount = discountType.fixedAmount || subtotal * ((discountType.percentage || 0) / 100);
               const isSelected = selectedDiscountId === discountType.id;
@@ -8988,46 +8985,41 @@ const Orders = () => {
 
               return (
                 <button
+                  type="button"
                   key={discountType.id}
                   onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
                   className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                  isSelected ?
-                  'bg-orange-500/20 border border-orange-500' :
-                  'bg-neutral-800 border border-transparent hover:bg-neutral-700'}`
-                  }>
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                  isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'}`
-                  }>
-                          <IconComponent className="w-4 h-4 text-neutral-400" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <div className="text-white text-sm font-medium">{discountType.name}</div>
-                          <div className="text-neutral-400 text-xs">{discountType.description}</div>
-                        </div>
-                        <div className="text-white text-sm font-medium">
-                          -${discountAmount.toFixed(2)}
-                        </div>
-                      </button>);
+                    isSelected 
+                      ? 'bg-orange-500/20 border border-orange-500' 
+                      : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
+                  }`}
+                >
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                    isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
+                  }`}>
+                    <IconComponent className="w-4 h-4 text-neutral-400" />
+                  </div>
+                  <div className="flex-1 text-left">
+                    <div className="text-white text-sm font-medium">{discountType.name}</div>
+                    <div className="text-neutral-400 text-xs">{discountType.description}</div>
+                  </div>
+                  <div className="text-white text-sm font-medium">
+                    -${discountAmount.toFixed(2)}
+                  </div>
+                </button>
+              );
             })}
           </div>
 
           {/* Apply Button */}
-          <div className="p-4 border-t border-neutral-700">
-            <div className="flex gap-3">
-              <Button
-                variant="outline"
-                className="flex-1 bg-transparent border-neutral-600 text-foreground hover:bg-neutral-800"
-                onClick={() => setShowDiscountDialog(false)}
-              >
-                CANCEL
-              </Button>
-              <Button
-                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
-                onClick={() => setShowDiscountDialog(false)}
-              >
-                APPLY
-              </Button>
-            </div>
+          <div className="p-3 border-t border-neutral-700">
+            <button
+              type="button"
+              onClick={() => setShowDiscountDialog(false)}
+              className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
+            >
+              Apply
+            </button>
           </div>
         </>)
         }

@@ -1434,37 +1434,31 @@ export const ItemCustomizationDialog = ({
         <AlertDialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[90vw] overflow-hidden rounded-xl">
           {discountDialogView === 'mpin' ? (
             /* MPIN View */
-            <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
-              {/* Manager Profile */}
-              <div className="flex flex-col items-center mb-4">
-                <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
-                  <img
-                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
-                    alt="Manager"
-                    className="w-full h-full object-cover"
-                  />
-                </div>
-                <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
-                <p className="text-xs text-muted-foreground">Manager</p>
+            <div className="flex flex-col bg-neutral-900 p-6 pb-8">
+              {/* Header - Center aligned */}
+              <div className="text-center mb-6">
+                <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
+                <p className="text-muted-foreground text-sm">Enter Manager PIN to Apply Discount.</p>
               </div>
 
-              {/* PIN Dots */}
-              <div className="flex items-center justify-center gap-2.5 mb-4">
+              {/* PIN Display with asterisks */}
+              <div className="flex justify-center gap-3 mb-6">
                 {[0, 1, 2, 3].map((index) => (
                   <div
                     key={index}
-                    className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
-                      index < pin.length ? "bg-primary" : "bg-neutral-600"
+                    className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center text-3xl font-bold transition-all ${
+                      index < pin.length
+                        ? "border-neutral-600 bg-neutral-800"
+                        : "border-neutral-600 bg-neutral-800"
                     }`}
-                  />
+                  >
+                    {index < pin.length ? <span className="text-foreground">✱</span> : ""}
+                  </div>
                 ))}
               </div>
 
-              {/* Title */}
-              <p className="text-center text-muted-foreground text-xs mb-4">Enter Manager PIN</p>
-
               {/* Numpad */}
-              <div className="grid grid-cols-3 gap-2 w-full">
+              <div className="grid grid-cols-3 gap-3 max-w-[280px] mx-auto w-full">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
                   <button
                     key={num}
@@ -1481,7 +1475,7 @@ export const ItemCustomizationDialog = ({
                         }
                       }
                     }}
-                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                    className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
                   >
                     {num}
                   </button>
@@ -1489,7 +1483,7 @@ export const ItemCustomizationDialog = ({
                 <button
                   type="button"
                   onClick={handlePinBackspace}
-                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+                  className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
                 >
                   <Delete className="w-5 h-5" />
                 </button>
@@ -1507,42 +1501,28 @@ export const ItemCustomizationDialog = ({
                       }
                     }
                   }}
-                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
                 >
                   0
                 </button>
                 <button
                   type="button"
                   onClick={handlePinClear}
-                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-2xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
                 >
                   C
                 </button>
               </div>
 
               {/* Biometric Options */}
-              <div className="flex justify-center gap-3 mt-4">
-                <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-                  <Fingerprint className="w-4 h-4" />
-                  <span className="text-xs">Touch ID</span>
+              <div className="flex justify-center gap-3 mt-4 max-w-[280px] mx-auto w-full">
+                <button type="button" className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+                  <Fingerprint className="w-6 h-6" />
                 </button>
-                <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-                  <ScanFace className="w-4 h-4" />
-                  <span className="text-xs">Face ID</span>
+                <button type="button" className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+                  <ScanFace className="w-6 h-6" />
                 </button>
               </div>
-
-              {/* Cancel button */}
-              <button
-                type="button"
-                onClick={() => {
-                  setShowDiscountDialog(false);
-                  setPin("");
-                }}
-                className="mt-4 text-xs text-neutral-400 hover:text-white transition-colors"
-              >
-                Cancel
-              </button>
             </div>
           ) : (
             /* Discount Selection View */

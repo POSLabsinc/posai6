@@ -8856,103 +8856,97 @@ const Orders = () => {
         <DialogContent className="w-full h-full max-w-none max-h-none rounded-none sm:w-[480px] sm:h-auto sm:max-h-[90vh] sm:rounded-xl bg-[#1a1a1a] border-none sm:border sm:border-neutral-700 p-0 gap-0 flex flex-col overflow-hidden">
             {discountDialogView === 'mpin' ? (
         /* MPIN View */
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="text-center pt-8 pb-4">
-            <h2 className="text-xl font-semibold text-foreground">Access Restricted</h2>
-            <p className="text-sm text-muted-foreground mt-1">Enter Manager PIN to Apply Discount.</p>
+        <div className="flex flex-col bg-neutral-900 p-6 pb-8">
+          {/* Header - Center aligned */}
+          <div className="text-center mb-6">
+            <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
+            <p className="text-muted-foreground text-sm">Enter Manager PIN to Apply Discount.</p>
           </div>
 
-          {/* PIN Dots */}
-          <div className="flex justify-center gap-4 py-6">
+          {/* PIN Display with asterisks */}
+          <div className="flex justify-center gap-3 mb-6">
             {[0, 1, 2, 3].map((index) => (
               <div
                 key={index}
-                className="w-12 h-12 flex items-center justify-center text-3xl transition-all"
+                className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center text-3xl font-bold transition-all ${
+                  index < discountPin.length
+                    ? "border-neutral-600 bg-neutral-800"
+                    : "border-neutral-600 bg-neutral-800"
+                }`}
               >
-                {index < discountPin.length ? (
-                  <span className="text-foreground">✱</span>
-                ) : (
-                  <span className="text-neutral-500">✱</span>
-                )}
+                {index < discountPin.length ? <span className="text-foreground">✱</span> : ""}
               </div>
             ))}
           </div>
 
           {/* Numpad */}
-          <div className="flex-1 flex flex-col justify-center px-6 pb-4">
-            <div className="flex flex-col gap-2">
-              {[["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"]].map((row, rowIndex) => (
-                <div key={rowIndex} className="flex justify-center gap-2">
-                  {row.map((btn) => (
-                    <button
-                      key={btn}
-                      type="button"
-                      onClick={() => {
-                        if (discountPin.length < 4) {
-                          const newPin = discountPin + btn;
-                          setDiscountPin(newPin);
-                          if (newPin.length === 4) {
-                            setTimeout(() => {
-                              setDiscountDialogView('discounts');
-                              setDiscountPin("");
-                            }, 200);
-                          }
-                        }
-                      }}
-                      className="w-[100px] h-14 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xl font-medium text-neutral-900 dark:text-foreground hover:bg-neutral-200 dark:hover:bg-neutral-700 active:bg-neutral-300 dark:active:bg-neutral-600 transition-colors"
-                    >
-                      {btn}
-                    </button>
-                  ))}
-                </div>
-              ))}
-              {/* Last row: backspace, 0, clear */}
-              <div className="flex justify-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDiscountPin(discountPin.slice(0, -1))}
-                  className="w-[100px] h-14 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-neutral-700 active:bg-neutral-300 dark:active:bg-neutral-600 transition-colors"
-                >
-                  <Delete className="w-5 h-5 text-neutral-900 dark:text-foreground" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (discountPin.length < 4) {
-                      const newPin = discountPin + "0";
-                      setDiscountPin(newPin);
-                      if (newPin.length === 4) {
-                        setTimeout(() => {
-                          setDiscountDialogView('discounts');
-                          setDiscountPin("");
-                        }, 200);
-                      }
+          <div className="grid grid-cols-3 gap-3 max-w-[280px] mx-auto w-full">
+            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+              <button
+                key={num}
+                type="button"
+                onClick={() => {
+                  if (discountPin.length < 4) {
+                    const newPin = discountPin + num.toString();
+                    setDiscountPin(newPin);
+                    if (newPin.length === 4) {
+                      setTimeout(() => {
+                        setDiscountDialogView('discounts');
+                        setDiscountPin("");
+                      }, 200);
                     }
-                  }}
-                  className="w-[100px] h-14 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xl font-medium text-neutral-900 dark:text-foreground hover:bg-neutral-200 dark:hover:bg-neutral-700 active:bg-neutral-300 dark:active:bg-neutral-600 transition-colors"
-                >
-                  0
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDiscountPin("")}
-                  className="w-[100px] h-14 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-neutral-700 active:bg-neutral-300 dark:active:bg-neutral-600 transition-colors"
-                >
-                  <span className="text-xl font-bold text-red-500">C</span>
-                </button>
-              </div>
-            </div>
+                  }
+                }}
+                className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+              >
+                {num}
+              </button>
+            ))}
+            {/* Backspace button */}
+            <button
+              type="button"
+              onClick={() => setDiscountPin(discountPin.slice(0, -1))}
+              className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+            >
+              <Delete className="w-5 h-5" />
+            </button>
+            {/* Zero button */}
+            <button
+              type="button"
+              onClick={() => {
+                if (discountPin.length < 4) {
+                  const newPin = discountPin + "0";
+                  setDiscountPin(newPin);
+                  if (newPin.length === 4) {
+                    setTimeout(() => {
+                      setDiscountDialogView('discounts');
+                      setDiscountPin("");
+                    }, 200);
+                  }
+                }
+              }}
+              className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+            >
+              0
+            </button>
+            {/* Clear button */}
+            <button
+              type="button"
+              onClick={() => setDiscountPin("")}
+              className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-2xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+            >
+              C
+            </button>
+          </div>
 
-            {/* Biometric buttons */}
-            <div className="flex justify-center gap-3 mt-6">
-              <button type="button" className="flex-1 max-w-[154px] h-14 rounded-xl bg-neutral-800 dark:bg-neutral-900 flex items-center justify-center hover:bg-neutral-700 dark:hover:bg-neutral-800 transition-colors">
-                <Fingerprint className="w-6 h-6 text-neutral-400" />
-              </button>
-              <button type="button" className="flex-1 max-w-[154px] h-14 rounded-xl bg-neutral-800 dark:bg-neutral-900 flex items-center justify-center hover:bg-neutral-700 dark:hover:bg-neutral-800 transition-colors">
-                <ScanFace className="w-6 h-6 text-neutral-400" />
-              </button>
-            </div>
+          {/* Biometric Options */}
+          <div className="flex justify-center gap-3 mt-4 max-w-[280px] mx-auto w-full">
+            <button type="button" className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+              <Fingerprint className="w-6 h-6" />
+            </button>
+            <button type="button" className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+              <ScanFace className="w-6 h-6" />
+            </button>
           </div>
         </div>) : (
 

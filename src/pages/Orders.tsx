@@ -7490,6 +7490,17 @@ const Orders = () => {
               </div>
             </div>}
 
+          {/* Split Order Warning - Mobile */}
+          {isOrderSplit && orderItems.length > 0 &&
+            <div className="px-2 py-2">
+              <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg px-3 py-2">
+                <p className="text-amber-400 text-xs leading-relaxed">
+                  This check has been split. Re-merge this ticket if you want to fire it or add products to it.
+                </p>
+              </div>
+            </div>
+          }
+
           {/* Action Buttons - Only show when cart has items */}
           {orderItems.length > 0 &&
         <div className="px-2 py-2 flex items-center gap-2">
@@ -7503,8 +7514,8 @@ const Orders = () => {
               </button>
               <button
             onClick={handleFireOrder}
-            disabled={orderItems.length === 0}
-            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={isOrderSplit || orderItems.length === 0}
+            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${isOrderSplit || orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
             }}>

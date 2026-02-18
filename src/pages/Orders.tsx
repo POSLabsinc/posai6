@@ -89,6 +89,7 @@ import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 import VoucherDialog from "@/components/VoucherDialog";
 import CreateVoucherForm from "@/components/CreateVoucherForm";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -8848,138 +8849,133 @@ const Orders = () => {
 
 
       {/* Discount Dialog with integrated MPIN */}
-      {showDiscountDialog &&
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+      <Dialog open={showDiscountDialog} onOpenChange={(open) => {
+        setShowDiscountDialog(open);
+        if (!open) setDiscountPin("");
+      }}>
+        <DialogContent className="w-full h-full max-w-none max-h-none rounded-none sm:w-[480px] sm:h-auto sm:max-h-[90vh] sm:rounded-xl bg-[#1a1a1a] border-none sm:border sm:border-neutral-700 p-0 gap-0 flex flex-col overflow-hidden">
             {discountDialogView === 'mpin' ? (
         /* MPIN View */
-        <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
-                {/* Manager Profile */}
-                <div className="flex flex-col items-center mb-4">
-                  <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
-                    <img
-                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
-                alt="Manager"
-                className="w-full h-full object-cover" />
+        <div className="flex flex-col h-full">
+          {/* Header */}
+          <div className="text-center pt-8 pb-4">
+            <h2 className="text-xl font-semibold text-foreground">Access Restricted</h2>
+            <p className="text-sm text-muted-foreground mt-1">Enter Manager PIN to Apply Discount.</p>
+          </div>
 
-                  </div>
-                  <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
-                  <p className="text-xs text-muted-foreground">Manager</p>
-                </div>
+          {/* PIN Dots */}
+          <div className="flex justify-center gap-4 py-6">
+            {[0, 1, 2, 3].map((index) => (
+              <div
+                key={index}
+                className="w-12 h-12 flex items-center justify-center text-3xl transition-all"
+              >
+                {index < discountPin.length ? (
+                  <span className="text-foreground">✱</span>
+                ) : (
+                  <span className="text-neutral-500">✱</span>
+                )}
+              </div>
+            ))}
+          </div>
 
-                {/* PIN Dots */}
-                <div className="flex items-center justify-center gap-2.5 mb-4">
-                  {[0, 1, 2, 3].map((index) =>
-            <div
-              key={index}
-              className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
-              index < discountPin.length ? "bg-primary" : "bg-neutral-600"}`
-              } />
-
-            )}
-                </div>
-
-                {/* Title */}
-                <p className="text-center text-muted-foreground text-xs mb-4">Enter Manager PIN</p>
-
-                {/* Numpad */}
-                <div className="grid grid-cols-3 gap-2 w-full">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) =>
-            <button
-              key={num}
-              type="button"
-              onClick={() => {
-                if (discountPin.length < 4) {
-                  const newPin = discountPin + num.toString();
-                  setDiscountPin(newPin);
-                  if (newPin.length === 4) {
-                    setTimeout(() => {
-                      setDiscountDialogView('discounts');
-                      setDiscountPin("");
-                    }, 200);
-                  }
-                }
-              }}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
-
-                      {num}
+          {/* Numpad */}
+          <div className="flex-1 flex flex-col justify-center px-6 pb-4">
+            <div className="flex flex-col gap-2">
+              {[["1", "2", "3"], ["4", "5", "6"], ["7", "8", "9"]].map((row, rowIndex) => (
+                <div key={rowIndex} className="flex justify-center gap-2">
+                  {row.map((btn) => (
+                    <button
+                      key={btn}
+                      type="button"
+                      onClick={() => {
+                        if (discountPin.length < 4) {
+                          const newPin = discountPin + btn;
+                          setDiscountPin(newPin);
+                          if (newPin.length === 4) {
+                            setTimeout(() => {
+                              setDiscountDialogView('discounts');
+                              setDiscountPin("");
+                            }, 200);
+                          }
+                        }
+                      }}
+                      className="w-[100px] h-14 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xl font-medium text-neutral-900 dark:text-foreground hover:bg-neutral-200 dark:hover:bg-neutral-700 active:bg-neutral-300 dark:active:bg-neutral-600 transition-colors"
+                    >
+                      {btn}
                     </button>
-            )}
-                  <button
-              type="button"
-              onClick={() => setDiscountPin(discountPin.slice(0, -1))}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center">
-
-                    <Delete className="w-5 h-5" />
-                  </button>
-                  <button
-              type="button"
-              onClick={() => {
-                if (discountPin.length < 4) {
-                  const newPin = discountPin + "0";
-                  setDiscountPin(newPin);
-                  if (newPin.length === 4) {
-                    setTimeout(() => {
-                      setDiscountDialogView('discounts');
-                      setDiscountPin("");
-                    }, 200);
-                  }
-                }
-              }}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
-
-                    0
-                  </button>
-                  <button
-              type="button"
-              onClick={() => setDiscountPin("")}
-              className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
-
-                    C
-                  </button>
+                  ))}
                 </div>
-
-                {/* Biometric Options */}
-                <div className="flex justify-center gap-3 mt-4">
-                  <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-                    <Fingerprint className="w-4 h-4" />
-                    <span className="text-xs">Touch ID</span>
-                  </button>
-                  <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-                    <ScanFace className="w-4 h-4" />
-                    <span className="text-xs">Face ID</span>
-                  </button>
-                </div>
-
-                {/* Cancel button */}
+              ))}
+              {/* Last row: backspace, 0, clear */}
+              <div className="flex justify-center gap-2">
                 <button
-            type="button"
-            onClick={() => {
-              setShowDiscountDialog(false);
-              setDiscountPin("");
-            }}
-            className="mt-4 text-xs text-neutral-400 hover:text-white transition-colors">
-
-                  Cancel
+                  type="button"
+                  onClick={() => setDiscountPin(discountPin.slice(0, -1))}
+                  className="w-[100px] h-14 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-neutral-700 active:bg-neutral-300 dark:active:bg-neutral-600 transition-colors"
+                >
+                  <Delete className="w-5 h-5 text-neutral-900 dark:text-foreground" />
                 </button>
-              </div>) : (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (discountPin.length < 4) {
+                      const newPin = discountPin + "0";
+                      setDiscountPin(newPin);
+                      if (newPin.length === 4) {
+                        setTimeout(() => {
+                          setDiscountDialogView('discounts');
+                          setDiscountPin("");
+                        }, 200);
+                      }
+                    }
+                  }}
+                  className="w-[100px] h-14 rounded-xl bg-neutral-100 dark:bg-neutral-800 text-xl font-medium text-neutral-900 dark:text-foreground hover:bg-neutral-200 dark:hover:bg-neutral-700 active:bg-neutral-300 dark:active:bg-neutral-600 transition-colors"
+                >
+                  0
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setDiscountPin("")}
+                  className="w-[100px] h-14 rounded-xl bg-neutral-100 dark:bg-neutral-800 flex items-center justify-center hover:bg-neutral-200 dark:hover:bg-neutral-700 active:bg-neutral-300 dark:active:bg-neutral-600 transition-colors"
+                >
+                  <span className="text-xl font-bold text-red-500">C</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Biometric buttons */}
+            <div className="flex justify-center gap-3 mt-6">
+              <button type="button" className="flex-1 max-w-[154px] h-14 rounded-xl bg-neutral-800 dark:bg-neutral-900 flex items-center justify-center hover:bg-neutral-700 dark:hover:bg-neutral-800 transition-colors">
+                <Fingerprint className="w-6 h-6 text-neutral-400" />
+              </button>
+              <button type="button" className="flex-1 max-w-[154px] h-14 rounded-xl bg-neutral-800 dark:bg-neutral-900 flex items-center justify-center hover:bg-neutral-700 dark:hover:bg-neutral-800 transition-colors">
+                <ScanFace className="w-6 h-6 text-neutral-400" />
+              </button>
+            </div>
+          </div>
+        </div>) : (
 
         /* Discount Selection View */
         <>
-                {/* Header */}
-                <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                  <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
-                  <button
-              onClick={() => setShowDiscountDialog(false)}
-              className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
+          {/* Grab Bar - mobile only */}
+          <div 
+            className="flex justify-center py-3 cursor-grab active:cursor-grabbing sm:hidden"
+            onClick={() => setShowDiscountDialog(false)}
+          >
+            <div className="w-12 h-1.5 bg-neutral-600 rounded-full" />
+          </div>
 
-                    <X className="w-5 h-5 text-neutral-400" />
-                  </button>
-                </div>
+          {/* Header */}
+          <DialogHeader className="px-6 pt-6 sm:pt-6 pb-4 border-b border-neutral-700">
+            <DialogTitle className="flex items-center gap-3 text-foreground">
+              <span className="font-semibold">Select Discounts</span>
+            </DialogTitle>
+          </DialogHeader>
 
-                {/* Discount Options */}
-                <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-none space-y-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                  {discountTypes.map((discountType) => {
+          {/* Discount Options */}
+          <div className="flex-1 overflow-auto p-3 space-y-1 scrollbar-none" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+            {discountTypes.map((discountType) => {
               const discountAmount = discountType.fixedAmount || subtotal * ((discountType.percentage || 0) / 100);
               const isSelected = selectedDiscountId === discountType.id;
 
@@ -9005,7 +9001,6 @@ const Orders = () => {
                   'bg-orange-500/20 border border-orange-500' :
                   'bg-neutral-800 border border-transparent hover:bg-neutral-700'}`
                   }>
-
                         <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
                   isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'}`
                   }>
@@ -9019,24 +9014,31 @@ const Orders = () => {
                           -${discountAmount.toFixed(2)}
                         </div>
                       </button>);
-
             })}
-                </div>
-
-                {/* Apply Button */}
-                <div className="p-3 border-t border-neutral-700">
-                  <button
-              onClick={() => setShowDiscountDialog(false)}
-              className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm">
-
-                    Apply
-                  </button>
-                </div>
-              </>)
-        }
           </div>
-        </div>
-    }
+
+          {/* Apply Button */}
+          <div className="p-4 border-t border-neutral-700">
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1 bg-transparent border-neutral-600 text-foreground hover:bg-neutral-800"
+                onClick={() => setShowDiscountDialog(false)}
+              >
+                CANCEL
+              </Button>
+              <Button
+                className="flex-1 bg-red-600 hover:bg-red-700 text-white"
+                onClick={() => setShowDiscountDialog(false)}
+              >
+                APPLY
+              </Button>
+            </div>
+          </div>
+        </>)
+        }
+        </DialogContent>
+      </Dialog>
 
       {/* No Tax Confirmation Dialog */}
       {showNoTaxDialog &&

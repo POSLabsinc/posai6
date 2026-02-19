@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { X, Delete, DollarSign } from "lucide-react";
-
+import { X, Delete, DollarSign, Info } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 interface OpenPriceDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -78,11 +78,18 @@ export const OpenPriceDialog = ({
         {/* Content */}
         <div className="px-4 pt-3 pb-4">
           {/* Product Name & Helper */}
-          <div className="text-center mb-3">
+          <div className="flex items-center justify-center gap-1.5 mb-3">
             <h3 className="text-white text-lg font-bold">{productName}</h3>
-            <p className="text-neutral-400 text-xs mt-0.5">
-              This product has no fixed price. Enter the amount to continue.
-            </p>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="w-4 h-4 text-neutral-400 cursor-pointer shrink-0" />
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-[240px] text-center">
+                  This product has no fixed price. Enter the amount to continue.
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </div>
 
           {/* Price Display */}
@@ -120,14 +127,6 @@ export const OpenPriceDialog = ({
               <Delete className="w-5 h-5 text-neutral-400" />
             </button>
           </div>
-
-          {/* Clear */}
-          <button
-            onClick={handleClear}
-            className="w-full h-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 text-sm font-semibold transition-all duration-150 active:scale-95 flex items-center justify-center mb-3"
-          >
-            Clear
-          </button>
 
           {/* CTA */}
           <button

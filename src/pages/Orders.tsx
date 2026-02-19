@@ -9313,7 +9313,7 @@ const Orders = () => {
 
         setOrderItems((prev) => [...prev, {
           id: Date.now(),
-          qty: 1,
+           qty: voucherData.quantity || 1,
           name: label,
           price: discountPrice,
           itemOrderType: 'VOUCHER',

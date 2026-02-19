@@ -2,12 +2,13 @@ import { useState } from "react";
 import { X, ChevronDown, Ticket } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 
 interface VoucherDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddVoucher: (amount: number, voucherData: { type: string; value: number; expiryDate?: string; maxUses?: number }) => void;
+  onAddVoucher: (amount: number, voucherData: { type: string; value: number; expiryDate?: string; maxUses?: number; quantity?: number }) => void;
   /* --- Legacy props kept for backwards compatibility (commented-out flow) --- */
   onRedeemVoucher?: (voucherCode: string, balance: number) => void;
   initialView?: 'sell' | 'redeem';
@@ -19,6 +20,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
   const [expiryDate, setExpiryDate] = useState<string>('');
   const [maxUses, setMaxUses] = useState<string>('');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   const numericValue = parseFloat(value) || 0;
 
@@ -28,6 +30,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
     setExpiryDate('');
     setMaxUses('');
     setShowTypeDropdown(false);
+    setQuantity(1);
   };
 
   const handleClose = () => {
@@ -48,6 +51,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
       value: numericValue,
       expiryDate: expiryDate || undefined,
       maxUses: maxUses ? parseInt(maxUses, 10) : undefined,
+      quantity,
     };
 
     onAddVoucher(numericValue, voucherData);
@@ -80,7 +84,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
               <p className="text-neutral-400 text-xs mt-0.5">Add voucher to the order</p>
             </div>
 
-            {/* Value badge — mirrors price badge */}
+            {/* Value badge + Quantity dropdown — mirrors View Item layout */}
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="bg-neutral-700 px-2.5 py-1 rounded-md">
                 <span className="text-white font-medium text-sm">
@@ -91,6 +95,22 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
                     : '$0.00'}
                 </span>
               </div>
+              <Select value={quantity.toString()} onValueChange={(val) => setQuantity(parseInt(val))}>
+                <SelectTrigger className="w-12 h-7 bg-neutral-700 border-none text-white font-medium text-sm rounded-md px-2 gap-0.5">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999] min-w-[3rem]">
+                  {Array.from({ length: 99 }, (_, i) => i + 1).map((num) => (
+                    <SelectItem
+                      key={num}
+                      value={num.toString()}
+                      className="text-white text-sm hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white py-1"
+                    >
+                      {num}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
           </div>
         </div>

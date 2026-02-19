@@ -8845,7 +8845,7 @@ const Orders = () => {
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
                     <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />
-                    <span className="text-[9px] text-white text-center leading-tight">Gift<br />Card</span>
+                    <span className="text-[9px] text-white text-center leading-tight">Sell Gift<br />Card</span>
                   </button>
                   <button
                 onClick={() => setShowServiceChargeDialog(true)}

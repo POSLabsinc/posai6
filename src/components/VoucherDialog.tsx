@@ -1,86 +1,32 @@
-import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { useState } from "react";
+import { X, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { toast } from "@/hooks/use-toast";
 
 interface VoucherDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddVoucher: (amount: number) => void;
-  onRedeemVoucher: (voucherCode: string, balance: number) => void;
+  onAddVoucher: (amount: number, voucherData: { type: string; value: number; expiryDate?: string; maxUses?: number }) => void;
+  /* --- Legacy props kept for backwards compatibility (commented-out flow) --- */
+  onRedeemVoucher?: (voucherCode: string, balance: number) => void;
   initialView?: 'sell' | 'redeem';
 }
 
-const PRESET_AMOUNTS = [10, 25, 50, 100];
+const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) => {
+  const [voucherType, setVoucherType] = useState<'fixed' | 'percentage'>('fixed');
+  const [value, setValue] = useState<string>('');
+  const [expiryDate, setExpiryDate] = useState<string>('');
+  const [maxUses, setMaxUses] = useState<string>('');
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
 
-const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher, initialView = 'sell' }: VoucherDialogProps) => {
-  const [view, setView] = useState<'sell' | 'redeem'>(initialView);
-  const [amount, setAmount] = useState<string>('');
-  const [selectedPreset, setSelectedPreset] = useState<number | null>(null);
-  const [voucherCode, setVoucherCode] = useState<string>('');
-
-  useEffect(() => {
-    if (isOpen) setView(initialView);
-  }, [isOpen, initialView]);
-  // Calculate display amount from string (treating input as cents)
-  const getDisplayAmount = (): number => {
-    if (selectedPreset !== null) return selectedPreset;
-    if (!amount) return 0;
-    return parseInt(amount, 10) / 100;
-  };
-
-  const displayAmount = getDisplayAmount();
-
-  const handlePresetClick = (presetAmount: number) => {
-    setSelectedPreset(presetAmount);
-    setAmount('');
-  };
-
-  const handleKeypadClick = (key: string) => {
-    setSelectedPreset(null);
-    
-    if (key === 'C') {
-      setAmount('');
-      return;
-    }
-    
-    // Limit to 8 digits (up to $999,999.99)
-    if (amount.length >= 8) return;
-    
-    setAmount(prev => prev + key);
-  };
-
-  const handleCharge = () => {
-    if (displayAmount > 0) {
-      onAddVoucher(displayAmount);
-      resetState();
-    }
-  };
-
-  const handleRedeemClick = () => {
-    setView('redeem');
-    setVoucherCode('');
-  };
-
-  const handleBackToSell = () => {
-    setView('sell');
-    setVoucherCode('');
-  };
-
-  const handleApplyVoucher = () => {
-    if (voucherCode) {
-      // Mock validation - in real app this would call an API
-      // For demo purposes, using a fixed balance of $25
-      const mockBalance = 25.00;
-      onRedeemVoucher(voucherCode, mockBalance);
-      resetState();
-    }
-  };
+  const numericValue = parseFloat(value) || 0;
 
   const resetState = () => {
-    setView('sell');
-    setAmount('');
-    setSelectedPreset(null);
-    setVoucherCode('');
+    setVoucherType('fixed');
+    setValue('');
+    setExpiryDate('');
+    setMaxUses('');
+    setShowTypeDropdown(false);
   };
 
   const handleClose = () => {
@@ -88,134 +34,159 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, onRedeemVoucher, initial
     onClose();
   };
 
-  const keypadKeys = [
-    ['1', '2', '3'],
-    ['4', '5', '6'],
-    ['7', '8', '9'],
-    ['0', '00', 'C']
-  ];
+  const handleAddToOrder = () => {
+    if (numericValue <= 0) return;
+
+    if (voucherType === 'percentage' && numericValue > 100) {
+      toast({ title: "Invalid value", description: "Percentage cannot exceed 100%", variant: "destructive" });
+      return;
+    }
+
+    const voucherData = {
+      type: voucherType,
+      value: numericValue,
+      expiryDate: expiryDate || undefined,
+      maxUses: maxUses ? parseInt(maxUses, 10) : undefined,
+    };
+
+    onAddVoucher(numericValue, voucherData);
+    toast({ title: "Voucher added to order" });
+    resetState();
+  };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-neutral-900 border-neutral-700 rounded-xl p-0 max-w-[420px] w-full [&>button]:hidden">
+        {/* Close button */}
         <button
           onClick={handleClose}
           className="absolute right-4 top-4 p-1 hover:bg-white/10 rounded-full transition-colors z-[10]"
         >
           <X className="w-5 h-5 text-white/70" />
         </button>
-        {view === 'sell' ? (
-          <div className="p-5">
-            {/* Header */}
-            <h2 className="text-white text-lg font-semibold text-center mb-6">Sell Voucher</h2>
-            
-            {/* Amount Display - Field Style */}
-            <div className="flex items-center justify-center bg-neutral-800 rounded-lg px-4 py-4 mb-6">
-              <span className="text-green-500 text-2xl font-bold text-center">
-                ${displayAmount.toFixed(2)}
-              </span>
-            </div>
-            
-            {/* Preset Amount Buttons */}
-            <div className="grid grid-cols-4 gap-2 mb-5">
-              {PRESET_AMOUNTS.map((preset) => (
-                <button
-                  key={preset}
-                  onClick={() => handlePresetClick(preset)}
-                  className={`py-2.5 px-1 rounded-lg text-sm font-medium transition-colors ${
-                    selectedPreset === preset
-                      ? 'bg-white text-black'
-                      : 'bg-neutral-800 border border-neutral-600 text-white hover:bg-neutral-700'
-                  }`}
-                >
-                  ${preset}.00
-                </button>
-              ))}
-            </div>
-            
-            {/* Numeric Keypad */}
-            <div className="grid grid-cols-3 gap-2 mb-5">
-              {keypadKeys.flat().map((key) => (
-                <button
-                  key={key}
-                  onClick={() => handleKeypadClick(key)}
-                  className={`h-12 rounded-lg text-lg font-semibold transition-colors ${
-                    key === 'C'
-                      ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30'
-                      : 'bg-neutral-800 text-white hover:bg-neutral-700'
-                  }`}
-                >
-                  {key}
-                </button>
-              ))}
-            </div>
-            
-            {/* Charge Button */}
-            <button
-              onClick={handleCharge}
-              disabled={displayAmount === 0}
-              className={`w-full py-3 rounded-lg text-sm font-semibold mb-3 transition-colors ${
-                displayAmount > 0
-                  ? 'bg-neutral-800 text-white hover:bg-neutral-700'
-                  : 'bg-neutral-800/50 text-neutral-500 cursor-not-allowed'
-              }`}
-            >
-              {displayAmount > 0 ? `CHARGE $${displayAmount.toFixed(2)}` : 'CHARGE'}
-            </button>
-            
-            {/* Redeem Button */}
-            <button
-              onClick={handleRedeemClick}
-              className="w-full py-3 rounded-lg text-sm font-semibold bg-neutral-800 border border-neutral-600 text-white hover:bg-neutral-700 transition-colors"
-            >
-              REDEEM VOUCHER
-            </button>
-          </div>
-        ) : (
-          <div className="p-5 relative">
-            {/* Header with close button */}
-            <div className="flex items-center justify-between mb-6">
-              <div className="w-8" />
-              <h2 className="text-white text-lg font-semibold text-center">Redeem Voucher</h2>
+
+        <div className="p-5">
+          {/* Header */}
+          <h2 className="text-white text-lg font-semibold text-center mb-1">Voucher</h2>
+          <p className="text-neutral-400 text-xs text-center mb-6">
+            Enter voucher details to add it to the order.
+          </p>
+
+          {/* Voucher Type Dropdown */}
+          <div className="mb-4">
+            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">Voucher Type</label>
+            <div className="relative">
               <button
-                onClick={handleClose}
-                className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+                onClick={() => setShowTypeDropdown(!showTypeDropdown)}
+                className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm text-left flex items-center justify-between focus:outline-none focus:border-neutral-500 transition-colors"
               >
-                <X className="w-5 h-5 text-white/70" />
+                <span>{voucherType === 'fixed' ? 'Fixed Amount' : 'Percentage'}</span>
+                <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showTypeDropdown ? 'rotate-180' : ''}`} />
               </button>
+              {showTypeDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-20">
+                  <button
+                    onClick={() => { setVoucherType('fixed'); setShowTypeDropdown(false); }}
+                    className={`w-full px-4 py-2.5 text-sm text-left transition-colors ${voucherType === 'fixed' ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5'}`}
+                  >
+                    Fixed Amount
+                  </button>
+                  <button
+                    onClick={() => { setVoucherType('percentage'); setShowTypeDropdown(false); }}
+                    className={`w-full px-4 py-2.5 text-sm text-left transition-colors ${voucherType === 'percentage' ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5'}`}
+                  >
+                    Percentage
+                  </button>
+                </div>
+              )}
             </div>
-            
-            {/* Voucher Code Input Field */}
-            <div className="mb-5">
+          </div>
+
+          {/* Voucher Value */}
+          <div className="mb-4">
+            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
+              Voucher Value {voucherType === 'percentage' ? '(%)' : '($)'}
+            </label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">
+                {voucherType === 'fixed' ? '$' : '%'}
+              </span>
               <input
-                type="text"
-                value={voucherCode}
-                onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
-                placeholder="ENTER VOUCHER CODE"
-                className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-4 
-                           text-white text-center text-lg font-mono tracking-wider 
-                           placeholder:text-neutral-500 uppercase focus:outline-none focus:border-neutral-500"
+                type="number"
+                value={value}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder="0.00"
+                min="0"
+                step={voucherType === 'fixed' ? '0.01' : '1'}
+                className="w-full bg-neutral-800 border border-neutral-600 rounded-lg pl-8 pr-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
             </div>
-            
-            {/* REDEEM VOUCHER Button */}
-            <button
-              onClick={handleApplyVoucher}
-              disabled={!voucherCode}
-              className={`w-full py-3 rounded-lg text-sm font-semibold mb-3 transition-colors ${
-                voucherCode
-                  ? 'bg-neutral-700 text-white hover:bg-neutral-600'
-                  : 'bg-neutral-800/50 text-neutral-500 cursor-not-allowed'
-              }`}
-            >
-              REDEEM VOUCHER
-            </button>
-            
           </div>
-        )}
+
+          {/* Expiry Date (Optional) */}
+          <div className="mb-4">
+            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
+              Expiry Date <span className="text-neutral-500">(Optional)</span>
+            </label>
+            <input
+              type="date"
+              value={expiryDate}
+              onChange={(e) => setExpiryDate(e.target.value)}
+              className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors [color-scheme:dark]"
+            />
+          </div>
+
+          {/* Max Uses (Optional) */}
+          <div className="mb-6">
+            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
+              Max Uses <span className="text-neutral-500">(Optional)</span>
+            </label>
+            <input
+              type="number"
+              value={maxUses}
+              onChange={(e) => setMaxUses(e.target.value)}
+              placeholder="Unlimited"
+              min="1"
+              className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+            />
+          </div>
+
+          {/* Add to Order Button */}
+          <button
+            onClick={handleAddToOrder}
+            disabled={numericValue <= 0}
+            className={`w-full py-3.5 rounded-lg text-sm font-semibold transition-colors ${
+              numericValue > 0
+                ? 'bg-white text-black hover:bg-neutral-200'
+                : 'bg-neutral-800/50 text-neutral-500 cursor-not-allowed'
+            }`}
+          >
+            Add to Order
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   );
 };
 
 export default VoucherDialog;
+
+/* ============================================================
+   LEGACY FLOW — commented out for future restoration
+   ============================================================
+
+   The original VoucherDialog supported two views:
+   - 'sell': Keypad-based amount entry with preset buttons + CHARGE CTA
+   - 'redeem': Voucher code text input + REDEEM VOUCHER CTA
+
+   To restore:
+   1. Uncomment the original component body (useState for view/amount/selectedPreset/voucherCode,
+      PRESET_AMOUNTS, keypadKeys, etc.)
+   2. Re-enable the props: onRedeemVoucher, initialView
+   3. Remove the new form-based component above.
+
+   Original props interface:
+     onAddVoucher: (amount: number) => void;
+     onRedeemVoucher: (voucherCode: string, balance: number) => void;
+     initialView?: 'sell' | 'redeem';
+============================================================ */

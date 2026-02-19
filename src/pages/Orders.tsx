@@ -8869,7 +8869,7 @@ const Orders = () => {
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
                     <Ticket className="w-5 h-5 text-white" />
-                    <span className="text-[9px] text-white text-center leading-tight">Voucher</span>
+                    <span className="text-[9px] text-white text-center leading-tight">Sell<br />Voucher</span>
                   </button>
                   {/* Merge - Only show when order is split */}
                   {isOrderSplit &&

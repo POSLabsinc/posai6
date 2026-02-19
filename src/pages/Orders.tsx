@@ -7135,13 +7135,13 @@ const Orders = () => {
                       Transfer Check
                     </DropdownMenuItem>
                     )}
-                    <DropdownMenuItem
+                    {/* Hidden: Gift Card - uncomment to re-enable */}
+                    {/* <DropdownMenuItem
                   onClick={() => setShowGiftCardDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-
                       <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />
                       Gift Card
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem
                   onClick={() => setShowServiceChargeDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
@@ -7156,13 +7156,13 @@ const Orders = () => {
                       <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />
                       Add Guest
                     </DropdownMenuItem>
-                    <DropdownMenuItem
+                    {/* Hidden: Voucher - uncomment to re-enable */}
+                    {/* <DropdownMenuItem
                   onClick={() => setShowVoucherOptionsPopup(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
-
                       <Ticket className="w-3.5 h-3.5" />
                       Voucher
-                    </DropdownMenuItem>
+                    </DropdownMenuItem> */}
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                       <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />
                       Reopen Check

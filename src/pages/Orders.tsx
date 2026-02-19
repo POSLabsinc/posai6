@@ -7135,13 +7135,13 @@ const Orders = () => {
                       Transfer Check
                     </DropdownMenuItem>
                     )}
-                    {/* Hidden: Gift Card - uncomment to re-enable */}
-                    {/* <DropdownMenuItem
+                    <DropdownMenuItem
                   onClick={() => setShowGiftCardDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+
                       <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />
                       Gift Card
-                    </DropdownMenuItem> */}
+                    </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowServiceChargeDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
@@ -7156,13 +7156,13 @@ const Orders = () => {
                       <img src={addGuestIcon} alt="" className="w-3.5 h-3.5" />
                       Add Guest
                     </DropdownMenuItem>
-                    {/* Hidden: Voucher - uncomment to re-enable */}
-                    {/* <DropdownMenuItem
+                    <DropdownMenuItem
                   onClick={() => setShowVoucherOptionsPopup(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+
                       <Ticket className="w-3.5 h-3.5" />
                       Voucher
-                    </DropdownMenuItem> */}
+                    </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                       <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />
                       Reopen Check
@@ -8839,13 +8839,14 @@ const Orders = () => {
                       <span className="text-[9px] text-white text-center leading-tight">Transfer<br />Check</span>
                     </button>
               }
-                  {/* Hidden: Gift Card - uncomment to re-enable */}
-                  {/* <button
+                  {/* Action Buttons */}
+                  <button
                 onClick={() => setShowGiftCardDialog(true)}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+
                     <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Gift<br />Card</span>
-                  </button> */}
+                  </button>
                   <button
                 onClick={() => setShowServiceChargeDialog(true)}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
@@ -8863,13 +8864,13 @@ const Orders = () => {
                     <img src={addGuestIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Add<br />Guest</span>
                   </button>
-                  {/* Hidden: Voucher - uncomment to re-enable */}
-                  {/* <button
+                  <button
                 onClick={() => setShowVoucherOptionsPopup(true)}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+
                     <Ticket className="w-5 h-5 text-white" />
                     <span className="text-[9px] text-white text-center leading-tight">Voucher</span>
-                  </button> */}
+                  </button>
                   {/* Merge - Only show when order is split */}
                   {isOrderSplit &&
               <button

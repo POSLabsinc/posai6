@@ -8839,14 +8839,13 @@ const Orders = () => {
                       <span className="text-[9px] text-white text-center leading-tight">Transfer<br />Check</span>
                     </button>
               }
-                  {/* Action Buttons */}
-                  <button
+                  {/* Hidden: Gift Card - uncomment to re-enable */}
+                  {/* <button
                 onClick={() => setShowGiftCardDialog(true)}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-
                     <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Gift<br />Card</span>
-                  </button>
+                  </button> */}
                   <button
                 onClick={() => setShowServiceChargeDialog(true)}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
@@ -8864,13 +8863,13 @@ const Orders = () => {
                     <img src={addGuestIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Add<br />Guest</span>
                   </button>
-                  <button
+                  {/* Hidden: Voucher - uncomment to re-enable */}
+                  {/* <button
                 onClick={() => setShowVoucherOptionsPopup(true)}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
-
                     <Ticket className="w-5 h-5 text-white" />
                     <span className="text-[9px] text-white text-center leading-tight">Voucher</span>
-                  </button>
+                  </button> */}
                   {/* Merge - Only show when order is split */}
                   {isOrderSplit &&
               <button

@@ -9303,14 +9303,19 @@ const Orders = () => {
       isOpen={showVoucherDialog}
       onClose={() => setShowVoucherDialog(false)}
       onAddVoucher={(amount, voucherData) => {
-        const label = voucherData.type === 'percentage'
-          ? `Voucher - ${amount}%`
-          : `Voucher - $${amount.toFixed(2)}`;
+        let discountPrice = amount;
+        let label = `Voucher - $${amount.toFixed(2)}`;
+
+        if (voucherData.type === 'percentage') {
+          discountPrice = subtotal * (amount / 100);
+          label = `Voucher - ${amount}% (-$${discountPrice.toFixed(2)})`;
+        }
+
         setOrderItems((prev) => [...prev, {
           id: Date.now(),
           qty: 1,
           name: label,
-          price: voucherData.type === 'fixed' ? amount : 0,
+          price: discountPrice,
           itemOrderType: 'VOUCHER',
           noTax: true
         }]);

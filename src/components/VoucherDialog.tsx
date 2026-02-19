@@ -1,9 +1,18 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import { ChevronDown, Ticket, Delete } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
+
+export interface VoucherInitialData {
+  type: 'fixed' | 'percentage';
+  value: number;
+  sellingPrice: number;
+  expiryDate?: string;
+  quantity: number;
+  editingItemId?: number;
+}
 
 interface VoucherDialogProps {
   isOpen: boolean;
@@ -11,11 +20,12 @@ interface VoucherDialogProps {
   onAddVoucher: (amount: number, voucherData: { type: string; value: number; expiryDate?: string; sellingPrice?: number; quantity?: number }) => void;
   onRedeemVoucher?: (voucherCode: string, balance: number) => void;
   initialView?: 'sell' | 'redeem';
+  initialData?: VoucherInitialData | null;
 }
 
 const QUICK_VALUES = [10, 25, 50, 100];
 
-const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) => {
+const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDialogProps) => {
   const [voucherType, setVoucherType] = useState<'fixed' | 'percentage'>('fixed');
   const [value, setValue] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
@@ -24,6 +34,21 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
   const [quantity, setQuantity] = useState(1);
   const [touched, setTouched] = useState({ value: false, sellingPrice: false });
   const [showKeypad, setShowKeypad] = useState(false);
+
+  const isEditMode = !!(initialData?.editingItemId);
+
+  // Pre-fill when initialData changes
+  useEffect(() => {
+    if (isOpen && initialData) {
+      setVoucherType(initialData.type);
+      setValue(initialData.value.toString());
+      setSellingPrice(initialData.sellingPrice.toString());
+      setExpiryDate(initialData.expiryDate || '');
+      setQuantity(initialData.quantity);
+      setTouched({ value: false, sellingPrice: false });
+      setShowKeypad(false);
+    }
+  }, [isOpen, initialData]);
 
   const numericValue = parseFloat(value) || 0;
   const numericSellingPrice = parseFloat(sellingPrice) || 0;
@@ -62,7 +87,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
       sellingPrice: numericSellingPrice,
       quantity,
     });
-    toast({ title: "Voucher added to order" });
+    toast({ title: isEditMode ? "Voucher updated" : "Voucher added to order" });
     resetState();
   };
 
@@ -92,7 +117,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
 
   const handleSellingPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
-    // Allow empty, or valid positive number
     if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) {
       setSellingPrice(val);
     }
@@ -117,8 +141,12 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
               <Ticket className="w-6 h-6 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <span className="text-white font-bold text-base leading-tight">Sell Voucher</span>
-              <p className="text-neutral-400 text-xs mt-0.5">Add voucher to the order</p>
+              <span className="text-white font-bold text-base leading-tight">
+                {isEditMode ? 'Edit Voucher' : 'Sell Voucher'}
+              </span>
+              <p className="text-neutral-400 text-xs mt-0.5">
+                {isEditMode ? 'Update voucher details' : 'Add voucher to the order'}
+              </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="bg-neutral-700 px-2.5 py-1 rounded-md">
@@ -280,7 +308,10 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
               color: isValid ? 'black' : undefined,
             }}
           >
-            {isValid ? `ADD TO ORDER $${numericSellingPrice.toFixed(2)}` : 'ADD TO ORDER'}
+            {isValid
+              ? `${isEditMode ? 'UPDATE' : 'ADD TO ORDER'} $${numericSellingPrice.toFixed(2)}`
+              : (isEditMode ? 'UPDATE' : 'ADD TO ORDER')
+            }
           </Button>
         </div>
       </DialogContent>

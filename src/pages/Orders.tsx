@@ -6176,6 +6176,7 @@ const Orders = () => {
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
+  const [editingVoucherData, setEditingVoucherData] = useState<import('@/components/VoucherDialog').VoucherInitialData | null>(null);
   const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
   const [showVoucherOptionsPopup, setShowVoucherOptionsPopup] = useState(false);
   const [showCreateVoucherForm, setShowCreateVoucherForm] = useState(false);
@@ -7346,7 +7347,21 @@ const Orders = () => {
                       <div
                   className={`rounded px-1.5 py-1 cursor-pointer ${item.isTransferred ? 'border border-[#3B6A9E]' : 'bg-neutral-800'}`}
                   style={item.isTransferred ? { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } : undefined}
-                  onClick={() => { if (item.itemOrderType === 'VOUCHER') return; openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index); }}>
+                  onClick={() => {
+                    if (item.itemOrderType === 'VOUCHER') {
+                      setEditingVoucherData({
+                        type: (item as any).voucherMeta?.type || 'fixed',
+                        value: (item as any).voucherMeta?.value || 0,
+                        sellingPrice: item.price,
+                        expiryDate: (item as any).voucherMeta?.expiryDate,
+                        quantity: item.qty,
+                        editingItemId: item.id,
+                      });
+                      setShowVoucherDialog(true);
+                      return;
+                    }
+                    openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index);
+                  }}>
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
@@ -8519,7 +8534,21 @@ const Orders = () => {
                       style={item.isTransferred ?
                       { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } :
                       { background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
-                      onClick={() => { if (item.itemOrderType === 'VOUCHER') return; openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index); }}>
+                      onClick={() => {
+                        if (item.itemOrderType === 'VOUCHER') {
+                          setEditingVoucherData({
+                            type: (item as any).voucherMeta?.type || 'fixed',
+                            value: (item as any).voucherMeta?.value || 0,
+                            sellingPrice: item.price,
+                            expiryDate: (item as any).voucherMeta?.expiryDate,
+                            quantity: item.qty,
+                            editingItemId: item.id,
+                          });
+                          setShowVoucherDialog(true);
+                          return;
+                        }
+                        openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index);
+                      }}>
 
                               <div className="flex flex-col">
                                 {/* Item header row */}
@@ -9301,22 +9330,36 @@ const Orders = () => {
       {/* Voucher Dialog */}
       <VoucherDialog
       isOpen={showVoucherDialog}
-      onClose={() => setShowVoucherDialog(false)}
+      onClose={() => { setShowVoucherDialog(false); setEditingVoucherData(null); }}
+      initialData={editingVoucherData}
       onAddVoucher={(amount, voucherData) => {
         const price = voucherData.sellingPrice || amount;
         const label = voucherData.type === 'percentage'
           ? `Voucher \u2013 ${amount}%`
           : `Voucher - $${amount.toFixed(2)}`;
+        const meta = { type: voucherData.type, value: amount, expiryDate: voucherData.expiryDate };
 
-        setOrderItems((prev) => [...prev, {
-          id: Date.now(),
-          qty: voucherData.quantity || 1,
-          name: label,
-          price: price,
-          itemOrderType: 'VOUCHER',
-          noTax: true
-        }]);
+        if (editingVoucherData?.editingItemId) {
+          // Update existing voucher item
+          setOrderItems((prev) => prev.map(item =>
+            item.id === editingVoucherData.editingItemId
+              ? { ...item, qty: voucherData.quantity || 1, name: label, price, voucherMeta: meta } as any
+              : item
+          ));
+        } else {
+          // Add new voucher item
+          setOrderItems((prev) => [...prev, {
+            id: Date.now(),
+            qty: voucherData.quantity || 1,
+            name: label,
+            price: price,
+            itemOrderType: 'VOUCHER',
+            noTax: true,
+            voucherMeta: meta,
+          } as any]);
+        }
         setShowVoucherDialog(false);
+        setEditingVoucherData(null);
       }} />
 
 

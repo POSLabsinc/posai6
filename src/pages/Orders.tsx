@@ -7404,6 +7404,9 @@ const Orders = () => {
                             </span>
                     }
                         </div>
+                        {item.itemOrderType === 'VOUCHER' && (item as any).voucherMeta?.expiryDate && (
+                          <p className="text-[9px] text-neutral-400 ml-[22px]">Expires: {(item as any).voucherMeta.expiryDate}</p>
+                        )}
                         
                         {/* Modifiers with tree hierarchy - Mobile */}
                         {item.modifiers && item.modifiers.length > 0 && (() => {
@@ -8595,6 +8598,9 @@ const Orders = () => {
                                         </span>
                               }
                                     </div>
+                                    {item.itemOrderType === 'VOUCHER' && (item as any).voucherMeta?.expiryDate && (
+                                      <p className="text-[10px] text-neutral-400 mt-0.5">Expires: {(item as any).voucherMeta.expiryDate}</p>
+                                    )}
                                   </div>
                                 </div>
                                 

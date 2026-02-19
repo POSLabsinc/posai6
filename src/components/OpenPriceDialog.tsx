@@ -86,7 +86,7 @@ export const OpenPriceDialog = ({
           </div>
 
           {/* Price Display */}
-          <div className="mb-4 text-right pr-2">
+          <div className="mb-4 text-center">
             <div className="inline-flex items-baseline gap-1">
               <span className="text-neutral-500 text-2xl font-light">$</span>
               <span className="text-white text-4xl font-bold tracking-tight tabular-nums">

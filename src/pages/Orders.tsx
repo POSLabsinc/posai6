@@ -9242,7 +9242,8 @@ const Orders = () => {
           id: item.id,
           qty: item.qty,
           name: item.name,
-          price: item.price
+          price: item.price,
+          voucherMeta: (item as any).voucherMeta,
         }))
       }}
       subtotal={subtotal}

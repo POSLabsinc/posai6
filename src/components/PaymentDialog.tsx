@@ -20,6 +20,7 @@ export interface PaymentDialogOrderItem {
   price: number;
   assignedSeats?: number[];  // Which seats this item belongs to
   isShared?: boolean;        // If true, split cost among all seats
+  voucherMeta?: { type: string; value: number; expiryDate?: string };
 }
 
 export interface PaymentDialogOrderDetails {
@@ -3821,6 +3822,9 @@ export function PaymentDialog({
                                         ${itemPrice.toFixed(2)}
                                       </span>
                                     </div>
+                                    {item.voucherMeta?.expiryDate && (
+                                      <p className="text-[9px] text-neutral-400">Expires: {item.voucherMeta.expiryDate}</p>
+                                    )}
                                     {/* Seat indicator */}
                                     <div className="flex items-center gap-0.5 mt-0.5">
                                       <Users className="w-2.5 h-2.5 text-neutral-500" />
@@ -3860,6 +3864,9 @@ export function PaymentDialog({
                                       ${(item.price * item.qty).toFixed(2)}
                                     </span>
                                   </div>
+                                  {item.voucherMeta?.expiryDate && (
+                                    <p className="text-[9px] text-neutral-400">Expires: {item.voucherMeta.expiryDate}</p>
+                                  )}
                                   {/* Seat indicator */}
                                   <div className="flex items-center gap-0.5 mt-0.5">
                                     <Users className="w-2.5 h-2.5 text-neutral-500" />
@@ -4493,6 +4500,9 @@ export function PaymentDialog({
                         <span className="text-white text-xs font-medium truncate">{item.name}</span>
                         <span className="text-white text-xs font-medium ml-2">${(item.price * item.qty).toFixed(2)}</span>
                       </div>
+                      {item.voucherMeta?.expiryDate && (
+                        <p className="text-[10px] text-neutral-400 mt-0.5">Expires: {item.voucherMeta.expiryDate}</p>
+                      )}
                       {/* Seat indicators - only for table orders */}
                       {orderDetails.partySize && (
                         <div className="flex items-center gap-0.5 mt-1">

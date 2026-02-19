@@ -23,6 +23,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [touched, setTouched] = useState({ value: false, sellingPrice: false });
+  const [showKeypad, setShowKeypad] = useState(false);
 
   const numericValue = parseFloat(value) || 0;
   const numericSellingPrice = parseFloat(sellingPrice) || 0;
@@ -37,6 +38,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
     setShowTypeDropdown(false);
     setQuantity(1);
     setTouched({ value: false, sellingPrice: false });
+    setShowKeypad(false);
   };
 
   const handleClose = () => {
@@ -179,11 +181,15 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
             <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
               Voucher Value {voucherType === 'percentage' ? '(%)' : '($)'} <span className="text-red-400">*</span>
             </label>
-            {/* Display */}
-            <div className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm ${touched.value && numericValue <= 0 ? 'border-red-500' : 'border-neutral-600'}`}>
+            {/* Tappable Display */}
+            <button
+              type="button"
+              onClick={() => setShowKeypad(prev => !prev)}
+              className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.value && numericValue <= 0 ? 'border-red-500' : showKeypad ? 'border-neutral-400' : 'border-neutral-600'}`}
+            >
               <span className="text-neutral-400 mr-1">{voucherType === 'fixed' ? '$' : '%'}</span>
               <span className="text-white">{value || '0.00'}</span>
-            </div>
+            </button>
             {touched.value && numericValue <= 0 && (
               <p className="text-red-400 text-xs mt-1">Voucher value is required</p>
             )}
@@ -201,26 +207,25 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
               ))}
             </div>
 
-            {/* Inbuilt POS Keypad */}
-            <div className="grid grid-cols-3 gap-1.5 mt-2">
-              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                <button key={num} onClick={() => handleKeyPress(num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
-                  {num}
+            {/* Inbuilt POS Keypad — shown only when tapped */}
+            {showKeypad && (
+              <div className="grid grid-cols-3 gap-1.5 mt-2">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                  <button key={num} onClick={() => handleKeyPress(num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                    {num}
+                  </button>
+                ))}
+                <button onClick={() => handleKeyPress('00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                  00
                 </button>
-              ))}
-              <button onClick={() => handleKeyPress('00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
-                00
-              </button>
-              <button onClick={() => handleKeyPress('0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
-                0
-              </button>
-              <button onClick={() => handleKeyPress('.')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
-                .
-              </button>
-            </div>
-            <button onClick={handleDeleteKey} className={`w-full h-10 mt-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600 border border-neutral-700 text-white transition-all flex items-center justify-center gap-2 text-sm font-medium`}>
-              <Delete className="w-4 h-4" /> Backspace
-            </button>
+                <button onClick={() => handleKeyPress('0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                  0
+                </button>
+                <button onClick={handleDeleteKey} className={`h-11 ${keypadBtnClass}`}>
+                  <Delete className="w-5 h-5" />
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Expiry Date */}

@@ -85,7 +85,8 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
 
   const handleQuickValue = (amount: number) => {
     setValue(amount.toString());
-    if (!sellingPrice) {
+    // Only auto-fill selling price for fixed amount vouchers
+    if (voucherType === 'fixed' && !sellingPrice) {
       setSellingPrice(amount.toString());
     }
   };

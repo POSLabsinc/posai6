@@ -3823,7 +3823,7 @@ export function PaymentDialog({
                                       </span>
                                     </div>
                                     {item.voucherMeta?.expiryDate && (
-                                      <p className="text-[9px] text-neutral-400">Expires: {item.voucherMeta.expiryDate}</p>
+                                      <p className="text-[9px] text-neutral-400">Expires: {new Date(item.voucherMeta.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                                     )}
                                     {/* Seat indicator */}
                                     <div className="flex items-center gap-0.5 mt-0.5">
@@ -3865,7 +3865,7 @@ export function PaymentDialog({
                                     </span>
                                   </div>
                                   {item.voucherMeta?.expiryDate && (
-                                    <p className="text-[9px] text-neutral-400">Expires: {item.voucherMeta.expiryDate}</p>
+                                    <p className="text-[9px] text-neutral-400">Expires: {new Date(item.voucherMeta.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                                   )}
                                   {/* Seat indicator */}
                                   <div className="flex items-center gap-0.5 mt-0.5">
@@ -4501,7 +4501,7 @@ export function PaymentDialog({
                         <span className="text-white text-xs font-medium ml-2">${(item.price * item.qty).toFixed(2)}</span>
                       </div>
                       {item.voucherMeta?.expiryDate && (
-                        <p className="text-[10px] text-neutral-400 mt-0.5">Expires: {item.voucherMeta.expiryDate}</p>
+                        <p className="text-[10px] text-neutral-400 mt-0.5">Expires: {new Date(item.voucherMeta.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                       )}
                       {/* Seat indicators - only for table orders */}
                       {orderDetails.partySize && (

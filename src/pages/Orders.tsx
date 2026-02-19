@@ -1318,7 +1318,7 @@ const menuItemsData: MenuItemsStructure = {
         price: 12.99
       }, {
         id: 9990,
-        name: "Custom Chicken",
+        name: "Chef's Special Chicken",
         price: 0,
         isOpenPrice: true
       }, {

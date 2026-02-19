@@ -4,7 +4,7 @@ import {
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
   Mail, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, 
   UtensilsCrossed, ArrowLeft, UserPlus, Search, Phone, AlertTriangle, 
-  RefreshCw, Send, Zap, Users, Clock, Share2, GripVertical, Save
+  RefreshCw, Send, Zap, Users, Clock, Share2, GripVertical, Save, Ticket
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Input } from "@/components/ui/input";
@@ -100,6 +100,7 @@ const initialOtherPaymentMethods: PaymentMethodType[] = [
   { id: 'external-cc', name: 'External CC', icon: ExternalLink },
   { id: 'manual-card', name: 'Manual card', icon: Clipboard },
   { id: 'third-party-delivery', name: '3rd Party Delivery', icon: Truck },
+  { id: 'voucher', name: 'Voucher', icon: Ticket },
 ];
 
 // Delivery Partners for Third Party Delivery
@@ -187,6 +188,13 @@ export function PaymentDialog({
   const [selectedDeliveryPartner, setSelectedDeliveryPartner] = useState<DeliveryPartner | null>(null);
   const [deliveryReference, setDeliveryReference] = useState('');
 
+  // Voucher redeem states
+  const [voucherStep, setVoucherStep] = useState<'enter-code' | 'validating' | 'summary' | 'error'>('enter-code');
+  const [voucherCode, setVoucherCode] = useState('');
+  const [voucherError, setVoucherError] = useState('');
+  const [voucherValidated, setVoucherValidated] = useState<{ code: string; type: 'fixed' | 'percentage'; value: number; expiryDate?: string } | null>(null);
+  const [voucherAppliedAmount, setVoucherAppliedAmount] = useState(0);
+
   // Receipt states
   const [textReceiptStep, setTextReceiptStep] = useState<'receipt' | 'phone-input'>('receipt');
   const [textReceiptPhone, setTextReceiptPhone] = useState('');
@@ -237,6 +245,7 @@ export function PaymentDialog({
     { id: 'manual-card', name: 'Manual Card', icon: Clipboard },
     { id: 'external-cc', name: 'External CC', icon: ExternalLink },
     { id: 'third-party-delivery', name: '3rd Party', icon: Truck },
+    { id: 'voucher', name: 'Voucher', icon: Ticket },
   ];
 
   // Handler for mobile payment method selection
@@ -282,6 +291,11 @@ export function PaymentDialog({
       setThirdPartyDeliveryStep('select-partner');
       setSelectedDeliveryPartner(null);
       setDeliveryReference('');
+    } else if (methodId === 'voucher') {
+      setVoucherStep('enter-code');
+      setVoucherCode('');
+      setVoucherError('');
+      setVoucherValidated(null);
     }
   };
 
@@ -328,6 +342,12 @@ export function PaymentDialog({
       setDragOverCheckNum(null);
       // Reset mobile payment selection
       setMobilePaymentSelectionActive(true);
+      // Reset voucher states
+      setVoucherStep('enter-code');
+      setVoucherCode('');
+      setVoucherError('');
+      setVoucherValidated(null);
+      setVoucherAppliedAmount(0);
     }
   }, [open, total]);
 
@@ -454,6 +474,10 @@ export function PaymentDialog({
     setSelectedDeliveryPartner(null);
     setDeliveryReference('');
     setLoyaltyStep('guest-list');
+    setVoucherStep('enter-code');
+    setVoucherCode('');
+    setVoucherError('');
+    setVoucherValidated(null);
   };
 
   // Handle completing payment for a split check ticket
@@ -536,6 +560,11 @@ export function PaymentDialog({
     setTextReceiptPhone('');
     setEmailReceiptStep('receipt');
     setEmailReceiptEmail('');
+    setVoucherStep('enter-code');
+    setVoucherCode('');
+    setVoucherError('');
+    setVoucherValidated(null);
+    setVoucherAppliedAmount(0);
   };
 
   // Universal payment completion helper - routes to split check or final receipt appropriately
@@ -657,6 +686,11 @@ export function PaymentDialog({
       setPayByLinkStep('select-guest');
       setSelectedGuest(null);
       setGuestSearchQuery('');
+    } else if (selectedMethod.id === 'voucher') {
+      setVoucherStep('enter-code');
+      setVoucherCode('');
+      setVoucherError('');
+      setVoucherValidated(null);
     }
     // Cash and Account stay on amount keypad (no action needed)
   };
@@ -710,6 +744,12 @@ export function PaymentDialog({
     // Third Party Delivery: transition to partner selection
     if (selectedPaymentMethod === 'third-party-delivery' && thirdPartyDeliveryStep === 'amount') {
       setThirdPartyDeliveryStep('select-partner');
+      return;
+    }
+    
+    // Voucher: transition to code entry
+    if (selectedPaymentMethod === 'voucher' && voucherStep === 'enter-code') {
+      // Already on the enter-code screen, do nothing (handled by voucher flow)
       return;
     }
     
@@ -3399,6 +3439,218 @@ export function PaymentDialog({
                 </>
               )}
             </>
+          ) : selectedPaymentMethod === 'voucher' ? (
+            /* ============= VOUCHER REDEEM FLOW - REPLACES ENTIRE PANEL ============= */
+            <>
+              {/* Header with Back Button */}
+              <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                <div className="flex items-center gap-3">
+                  <button 
+                    onClick={() => {
+                      if (isMobile) {
+                        setMobilePaymentSelectionActive(true);
+                      }
+                      setSelectedPaymentMethod('cash');
+                      setVoucherStep('enter-code');
+                      setVoucherCode('');
+                      setVoucherError('');
+                      setVoucherValidated(null);
+                    }}
+                    className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+                  >
+                    <ArrowLeft className="w-5 h-5 text-neutral-300" />
+                  </button>
+                  <span className="text-white text-lg font-medium">Redeem Voucher</span>
+                </div>
+                <span className="text-red-500 text-lg font-bold">${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
+              </div>
+
+              {/* Enter Code Screen */}
+              {(voucherStep === 'enter-code' || voucherStep === 'validating' || voucherStep === 'error') && (
+                <div className="flex-1 flex flex-col p-6">
+                  <div className="mb-4">
+                    <label className="text-neutral-400 text-xs mb-1.5 block">Voucher Code</label>
+                    <Input 
+                      type="text" 
+                      placeholder="Enter voucher code" 
+                      value={voucherCode} 
+                      onChange={e => {
+                        setVoucherCode(e.target.value.toUpperCase());
+                        if (voucherError) setVoucherError('');
+                      }} 
+                      autoFocus
+                      className="w-full py-3 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg text-center text-lg tracking-widest font-mono" 
+                    />
+                    <p className="text-neutral-500 text-[10px] mt-1.5">Scan barcode/QR or enter code manually.</p>
+                  </div>
+
+                  {/* Error Message */}
+                  {voucherError && (
+                    <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                      <span className="text-red-400 text-sm">{voucherError}</span>
+                    </div>
+                  )}
+
+                  <div className="flex gap-3 mt-auto">
+                    <button 
+                      onClick={() => {
+                        if (isMobile) {
+                          setMobilePaymentSelectionActive(true);
+                        }
+                        setSelectedPaymentMethod('cash');
+                        setVoucherStep('enter-code');
+                        setVoucherCode('');
+                        setVoucherError('');
+                      }}
+                      className="flex-1 py-3 rounded-lg text-sm font-medium bg-neutral-700 text-white hover:bg-neutral-600 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={() => {
+                        if (voucherCode.trim().length < 4) return;
+                        setVoucherStep('validating');
+                        setVoucherError('');
+                        
+                        // Simulate backend validation
+                        setTimeout(() => {
+                          const code = voucherCode.trim();
+                          // Mock validation logic
+                          if (code === 'EXPIRED') {
+                            setVoucherError('This voucher has expired');
+                            setVoucherStep('error');
+                          } else if (code === 'USED') {
+                            setVoucherError('This voucher has already been redeemed');
+                            setVoucherStep('error');
+                          } else if (code === 'INVALID') {
+                            setVoucherError('Voucher code not recognised');
+                            setVoucherStep('error');
+                          } else {
+                            // Simulate valid voucher
+                            const isPercentage = code.includes('PCT') || code.includes('%');
+                            const mockValue = isPercentage ? 25 : 25;
+                            const currentRemaining = remainingDue > 0 ? remainingDue : total;
+                            
+                            let appliedAmount: number;
+                            if (isPercentage) {
+                              // Apply percentage against subtotal, cap at remaining
+                              const discountAmount = subtotal * (mockValue / 100);
+                              appliedAmount = Math.min(discountAmount, currentRemaining);
+                            } else {
+                              // Fixed: apply up to remaining due
+                              appliedAmount = Math.min(mockValue, currentRemaining);
+                            }
+                            
+                            setVoucherValidated({
+                              code: code,
+                              type: isPercentage ? 'percentage' : 'fixed',
+                              value: mockValue,
+                              expiryDate: '2026-06-30',
+                            });
+                            setVoucherAppliedAmount(appliedAmount);
+                            setVoucherStep('summary');
+                          }
+                        }, 1000);
+                      }}
+                      disabled={voucherCode.trim().length < 4 || voucherStep === 'validating'}
+                      className={`flex-1 py-3 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
+                        voucherCode.trim().length >= 4 && voucherStep !== 'validating'
+                          ? 'bg-white hover:bg-neutral-200 text-neutral-900' 
+                          : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                      }`}
+                    >
+                      {voucherStep === 'validating' ? (
+                        <>
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          Validating...
+                        </>
+                      ) : (
+                        'Apply Voucher'
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Voucher Summary Screen */}
+              {voucherStep === 'summary' && voucherValidated && (
+                <div className="flex-1 flex flex-col p-6">
+                  {/* Success Icon */}
+                  <div className="flex justify-center mb-4">
+                    <img src={tickSuccessIcon} alt="Valid" className="w-14 h-14" />
+                  </div>
+                  
+                  <h3 className="text-white text-lg font-semibold text-center mb-4">Voucher Valid</h3>
+
+                  {/* Summary Card */}
+                  <div className="bg-neutral-800 rounded-lg p-4 mb-6 space-y-3">
+                    <div className="flex justify-between items-center py-1.5 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Voucher Code</span>
+                      <span className="text-white text-sm font-mono font-medium">
+                        {voucherValidated.code.length > 8 
+                          ? voucherValidated.code.slice(0, 4) + '••••' + voucherValidated.code.slice(-4) 
+                          : voucherValidated.code
+                        }
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center py-1.5 border-b border-neutral-700">
+                      <span className="text-neutral-400 text-sm">Voucher Value</span>
+                      <span className="text-white text-sm font-medium">
+                        {voucherValidated.type === 'percentage' 
+                          ? `${voucherValidated.value}%` 
+                          : `$${voucherValidated.value.toFixed(2)}`
+                        }
+                      </span>
+                    </div>
+                    {voucherValidated.expiryDate && (
+                      <div className="flex justify-between items-center py-1.5 border-b border-neutral-700">
+                        <span className="text-neutral-400 text-sm">Expires</span>
+                        <span className="text-white text-sm font-medium">
+                          {new Date(voucherValidated.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                        </span>
+                      </div>
+                    )}
+                    <div className="flex justify-between items-center py-1.5">
+                      <span className="text-neutral-400 text-sm">Applied Amount</span>
+                      <span className="text-green-500 text-lg font-bold">${voucherAppliedAmount.toFixed(2)}</span>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 mt-auto">
+                    <button 
+                      onClick={() => {
+                        setVoucherStep('enter-code');
+                        setVoucherCode('');
+                        setVoucherValidated(null);
+                        setVoucherError('');
+                      }}
+                      className="flex-1 py-3 rounded-lg text-sm font-medium bg-neutral-700 text-white hover:bg-neutral-600 transition-colors"
+                    >
+                      Cancel
+                    </button>
+                    <button 
+                      onClick={() => {
+                        // Apply voucher as payment
+                        const label = voucherValidated.type === 'percentage' 
+                          ? `Voucher (${voucherValidated.value}%)` 
+                          : 'Voucher';
+                        finalizePayment('voucher', voucherAppliedAmount, label);
+                        // Reset voucher states
+                        setVoucherStep('enter-code');
+                        setVoucherCode('');
+                        setVoucherValidated(null);
+                        setVoucherError('');
+                      }}
+                      className="flex-1 py-3 rounded-lg text-sm font-semibold bg-white hover:bg-neutral-200 text-neutral-900 transition-colors"
+                    >
+                      APPLY ${voucherAppliedAmount.toFixed(2)}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </>
           ) : splitCheckPaymentStep === 'receipt' && activePayingCheck !== null ? (
             /* ============= SPLIT CHECK RECEIPT SCREEN - PER-TICKET RECEIPT ============= */
             <div className="flex flex-col h-full">
@@ -4024,6 +4276,11 @@ export function PaymentDialog({
                               setThirdPartyDeliveryStep('select-partner');
                               setSelectedDeliveryPartner(null);
                               setDeliveryReference('');
+                            } else if (method.id === 'voucher') {
+                              setVoucherStep('enter-code');
+                              setVoucherCode('');
+                              setVoucherError('');
+                              setVoucherValidated(null);
                             }
                             // Cash stays on amount keypad (no action needed)
                           }}

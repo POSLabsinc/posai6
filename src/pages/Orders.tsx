@@ -7157,7 +7157,7 @@ const Orders = () => {
                       Add Guest
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                  onClick={() => setShowVoucherOptionsPopup(true)}
+                  onClick={() => setShowVoucherDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
                       <Ticket className="w-3.5 h-3.5" />
@@ -8865,7 +8865,7 @@ const Orders = () => {
                     <span className="text-[9px] text-white text-center leading-tight">Add<br />Guest</span>
                   </button>
                   <button
-                onClick={() => setShowVoucherOptionsPopup(true)}
+                onClick={() => setShowVoucherDialog(true)}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
                     <Ticket className="w-5 h-5 text-white" />
@@ -9301,71 +9301,48 @@ const Orders = () => {
       {/* Voucher Dialog */}
       <VoucherDialog
       isOpen={showVoucherDialog}
-      onClose={() => { setShowVoucherDialog(false); setVoucherDialogInitialView('sell'); }}
-      initialView={voucherDialogInitialView}
-      onAddVoucher={(amount) => {
+      onClose={() => setShowVoucherDialog(false)}
+      onAddVoucher={(amount, voucherData) => {
+        const label = voucherData.type === 'percentage'
+          ? `Voucher - ${amount}%`
+          : `Voucher - $${amount.toFixed(2)}`;
         setOrderItems((prev) => [...prev, {
           id: Date.now(),
           qty: 1,
-          name: `Voucher - $${amount.toFixed(2)}`,
-          price: amount,
+          name: label,
+          price: voucherData.type === 'fixed' ? amount : 0,
           itemOrderType: 'VOUCHER',
           noTax: true
         }]);
         setShowVoucherDialog(false);
-      }}
-      onRedeemVoucher={(code, balance) => {
-        setAppliedVoucherAmount(balance);
-        setVoucherCode(code);
-        setShowVoucherDialog(false);
       }} />
 
 
-      {/* Voucher Options Popup - matching Transfer Order popup UI */}
+      {/* LEGACY: Voucher Options Popup — commented out, restore if needed
       {showVoucherOptionsPopup &&
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+        <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/80" onClick={() => setShowVoucherOptionsPopup(false)} />
           <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[380px] max-w-[90vw] overflow-hidden">
-            {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <h2 className="text-white text-lg font-semibold">Voucher</h2>
-              <button
-            onClick={() => setShowVoucherOptionsPopup(false)}
-            className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-
+              <button onClick={() => setShowVoucherOptionsPopup(false)}
+                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
                 <X className="w-4 h-4 text-white" />
               </button>
             </div>
-
-            {/* Content */}
             <div className="p-4">
               <p className="text-white/60 text-sm mb-3">What would you like to do?</p>
-              
               <div className="space-y-2">
-                {/* Create Voucher */}
-                <button
-              onClick={() => {
-                setShowVoucherOptionsPopup(false);
-                setShowCreateVoucherForm(true);
-              }}
-              className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
-
+                <button onClick={() => { setShowVoucherOptionsPopup(false); setShowCreateVoucherForm(true); }}
+                  className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
                   <div className="flex items-center gap-3 mb-0.5">
                     <Ticket className="w-5 h-5 text-white/80" />
                     <span className="text-white font-medium">Create Voucher</span>
                   </div>
                   <p className="text-white/50 text-xs ml-8">Create and send a new voucher to a customer.</p>
                 </button>
-
-                {/* Redeem Voucher */}
-                <button
-              onClick={() => {
-                setShowVoucherOptionsPopup(false);
-                setVoucherDialogInitialView('redeem');
-                setShowVoucherDialog(true);
-              }}
-              className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
-
+                <button onClick={() => { setShowVoucherOptionsPopup(false); setVoucherDialogInitialView('redeem'); setShowVoucherDialog(true); }}
+                  className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
                   <div className="flex items-center gap-3 mb-0.5">
                     <Gift className="w-5 h-5 text-white/80" />
                     <span className="text-white font-medium">Redeem Voucher</span>
@@ -9376,7 +9353,8 @@ const Orders = () => {
             </div>
           </div>
         </div>
-    }
+      }
+      */}
     </div>;
 };
 export default Orders;

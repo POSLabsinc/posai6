@@ -7140,7 +7140,7 @@ const Orders = () => {
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
                       <img src={giftCardBtnIcon} alt="" className="w-3.5 h-3.5" />
-                      Sell Gift Card
+                      Gift Card
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => setShowServiceChargeDialog(true)}
@@ -7161,7 +7161,7 @@ const Orders = () => {
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
                       <Ticket className="w-3.5 h-3.5" />
-                      Sell Voucher
+                      Voucher
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                       <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />

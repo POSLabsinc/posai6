@@ -81,7 +81,7 @@ export const OpenPriceDialog = ({
           <div className="text-center mb-3">
             <h3 className="text-white text-lg font-bold">{productName}</h3>
             <p className="text-neutral-400 text-xs mt-0.5">
-              This item has no fixed price. Enter the amount to continue.
+              This item has no fixed price.<br />Enter the amount to continue.
             </p>
           </div>
 

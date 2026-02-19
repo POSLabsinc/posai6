@@ -45,6 +45,7 @@ interface MenuItem {
   id: number;
   name: string;
   price: number;
+  isOpenPrice?: boolean;
 }
 interface InlineItemCustomizationProps {
   item: MenuItem;
@@ -238,6 +239,8 @@ export const InlineItemCustomization = ({
   // to distinguish between price override and discount flows
 
   const handlePriceClick = () => {
+    // Don't allow price override for open price items
+    if (item.isOpenPrice) return;
     setCurrentView('mpin');
   };
 
@@ -653,7 +656,7 @@ export const InlineItemCustomization = ({
           <div className="flex items-center gap-2 flex-shrink-0">
             <button 
               onClick={handlePriceClick}
-              className="bg-neutral-700 px-2 py-1 rounded-lg hover:bg-neutral-600 transition-colors cursor-pointer"
+              className={`bg-neutral-700 px-2 py-1 rounded-lg transition-colors ${item.isOpenPrice ? 'cursor-default' : 'hover:bg-neutral-600 cursor-pointer'}`}
             >
               {selectedDiscountId ? (
                 <div className="flex flex-col items-center">

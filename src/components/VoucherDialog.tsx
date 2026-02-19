@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { X, ChevronDown, Ticket } from "lucide-react";
+import { useState, useCallback } from "react";
+import { ChevronDown, Ticket, Delete } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -8,29 +8,35 @@ import { toast } from "@/hooks/use-toast";
 interface VoucherDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddVoucher: (amount: number, voucherData: { type: string; value: number; expiryDate?: string; maxUses?: number; quantity?: number }) => void;
-  /* --- Legacy props kept for backwards compatibility (commented-out flow) --- */
+  onAddVoucher: (amount: number, voucherData: { type: string; value: number; expiryDate?: string; sellingPrice?: number; quantity?: number }) => void;
   onRedeemVoucher?: (voucherCode: string, balance: number) => void;
   initialView?: 'sell' | 'redeem';
 }
 
+const QUICK_VALUES = [10, 25, 50, 100];
+
 const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) => {
   const [voucherType, setVoucherType] = useState<'fixed' | 'percentage'>('fixed');
-  const [value, setValue] = useState<string>('');
-  const [expiryDate, setExpiryDate] = useState<string>('');
-  const [maxUses, setMaxUses] = useState<string>('');
+  const [value, setValue] = useState('');
+  const [sellingPrice, setSellingPrice] = useState('');
+  const [expiryDate, setExpiryDate] = useState('');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [touched, setTouched] = useState({ value: false, sellingPrice: false });
 
   const numericValue = parseFloat(value) || 0;
+  const numericSellingPrice = parseFloat(sellingPrice) || 0;
+
+  const isValid = numericValue > 0 && numericSellingPrice > 0;
 
   const resetState = () => {
     setVoucherType('fixed');
     setValue('');
+    setSellingPrice('');
     setExpiryDate('');
-    setMaxUses('');
     setShowTypeDropdown(false);
     setQuantity(1);
+    setTouched({ value: false, sellingPrice: false });
   };
 
   const handleClose = () => {
@@ -39,25 +45,58 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
   };
 
   const handleAddToOrder = () => {
-    if (numericValue <= 0) return;
+    setTouched({ value: true, sellingPrice: true });
+    if (!isValid) return;
 
     if (voucherType === 'percentage' && numericValue > 100) {
       toast({ title: "Invalid value", description: "Percentage cannot exceed 100%", variant: "destructive" });
       return;
     }
 
-    const voucherData = {
+    onAddVoucher(numericValue, {
       type: voucherType,
       value: numericValue,
       expiryDate: expiryDate || undefined,
-      maxUses: maxUses ? parseInt(maxUses, 10) : undefined,
+      sellingPrice: numericSellingPrice,
       quantity,
-    };
-
-    onAddVoucher(numericValue, voucherData);
+    });
     toast({ title: "Voucher added to order" });
     resetState();
   };
+
+  // POS Keypad handler for voucher value
+  const handleKeyPress = useCallback((key: string) => {
+    setValue(prev => {
+      if (key === '.' && prev.includes('.')) return prev;
+      if (key === '00') {
+        if (prev === '' || prev === '0') return prev;
+        return prev + '00';
+      }
+      if (prev === '0' && key !== '.') return key;
+      return prev + key;
+    });
+  }, []);
+
+  const handleDeleteKey = useCallback(() => {
+    setValue(prev => prev.slice(0, -1));
+  }, []);
+
+  const handleQuickValue = (amount: number) => {
+    setValue(amount.toString());
+    if (!sellingPrice) {
+      setSellingPrice(amount.toString());
+    }
+  };
+
+  const handleSellingPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    // Allow empty, or valid positive number
+    if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) {
+      setSellingPrice(val);
+    }
+  };
+
+  const keypadBtnClass = "rounded-xl bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600 border border-neutral-700 text-white transition-all duration-100 active:scale-95 flex items-center justify-center";
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -69,30 +108,20 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
           <div className="w-12 h-1 bg-neutral-600 rounded-full" />
         </div>
 
-        {/* Item Header — mirrors View Item layout */}
+        {/* Header */}
         <div className="px-4 pb-2">
           <div className="flex items-center gap-3">
-            {/* Icon in place of item image */}
             <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border-2 border-white bg-neutral-800 flex items-center justify-center">
               <Ticket className="w-6 h-6 text-white" />
             </div>
-
             <div className="flex-1 min-w-0">
-              <span className="text-white font-bold text-base leading-tight">
-                Sell Voucher
-              </span>
+              <span className="text-white font-bold text-base leading-tight">Sell Voucher</span>
               <p className="text-neutral-400 text-xs mt-0.5">Add voucher to the order</p>
             </div>
-
-            {/* Value badge + Quantity dropdown — mirrors View Item layout */}
             <div className="flex items-center gap-2 flex-shrink-0">
               <div className="bg-neutral-700 px-2.5 py-1 rounded-md">
                 <span className="text-white font-medium text-sm">
-                  {numericValue > 0
-                    ? voucherType === 'fixed'
-                      ? `$${numericValue.toFixed(2)}`
-                      : `${numericValue}%`
-                    : '$0.00'}
+                  {numericSellingPrice > 0 ? `$${numericSellingPrice.toFixed(2)}` : '$0.00'}
                 </span>
               </div>
               <Select value={quantity.toString()} onValueChange={(val) => setQuantity(parseInt(val))}>
@@ -101,11 +130,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
                 </SelectTrigger>
                 <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999] min-w-[3rem]">
                   {Array.from({ length: 99 }, (_, i) => i + 1).map((num) => (
-                    <SelectItem
-                      key={num}
-                      value={num.toString()}
-                      className="text-white text-sm hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white py-1"
-                    >
+                    <SelectItem key={num} value={num.toString()} className="text-white text-sm hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white py-1">
                       {num}
                     </SelectItem>
                   ))}
@@ -117,9 +142,11 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
 
         {/* Form Fields */}
         <div className="flex-1 px-4 pb-2 space-y-3 overflow-y-auto scrollbar-hide">
-          {/* Voucher Type Dropdown */}
+          {/* Voucher Type */}
           <div>
-            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">Voucher Type</label>
+            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
+              Voucher Type <span className="text-red-400">*</span>
+            </label>
             <div className="relative">
               <button
                 onClick={() => setShowTypeDropdown(!showTypeDropdown)}
@@ -147,32 +174,58 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
             </div>
           </div>
 
-          {/* Voucher Value */}
+          {/* Voucher Value with POS Keypad */}
           <div>
             <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
-              Voucher Value {voucherType === 'percentage' ? '(%)' : '($)'}
+              Voucher Value {voucherType === 'percentage' ? '(%)' : '($)'} <span className="text-red-400">*</span>
             </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">
-                {voucherType === 'fixed' ? '$' : '%'}
-              </span>
-              <input
-                type="number"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                placeholder="0.00"
-                min="0"
-                step={voucherType === 'fixed' ? '0.01' : '1'}
-                className="w-full bg-neutral-800 border border-neutral-600 rounded-lg pl-8 pr-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              />
+            {/* Display */}
+            <div className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm ${touched.value && numericValue <= 0 ? 'border-red-500' : 'border-neutral-600'}`}>
+              <span className="text-neutral-400 mr-1">{voucherType === 'fixed' ? '$' : '%'}</span>
+              <span className="text-white">{value || '0.00'}</span>
             </div>
+            {touched.value && numericValue <= 0 && (
+              <p className="text-red-400 text-xs mt-1">Voucher value is required</p>
+            )}
+
+            {/* Quick Add Values */}
+            <div className="flex gap-2 mt-2">
+              {QUICK_VALUES.map((amt) => (
+                <button
+                  key={amt}
+                  onClick={() => handleQuickValue(amt)}
+                  className="flex-1 py-1.5 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-xs font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                >
+                  {voucherType === 'fixed' ? `$${amt}` : `${amt}%`}
+                </button>
+              ))}
+            </div>
+
+            {/* Inbuilt POS Keypad */}
+            <div className="grid grid-cols-3 gap-1.5 mt-2">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                <button key={num} onClick={() => handleKeyPress(num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                  {num}
+                </button>
+              ))}
+              <button onClick={() => handleKeyPress('00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                00
+              </button>
+              <button onClick={() => handleKeyPress('0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                0
+              </button>
+              <button onClick={() => handleKeyPress('.')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                .
+              </button>
+            </div>
+            <button onClick={handleDeleteKey} className={`w-full h-10 mt-1.5 rounded-xl bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600 border border-neutral-700 text-white transition-all flex items-center justify-center gap-2 text-sm font-medium`}>
+              <Delete className="w-4 h-4" /> Backspace
+            </button>
           </div>
 
-          {/* Expiry Date (Optional) */}
+          {/* Expiry Date */}
           <div>
-            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
-              Expiry Date <span className="text-neutral-500">(Optional)</span>
-            </label>
+            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">Expiry Date</label>
             <input
               type="date"
               value={expiryDate}
@@ -181,23 +234,30 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
             />
           </div>
 
-          {/* Max Uses (Optional) */}
+          {/* Selling Price */}
           <div>
             <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
-              Max Uses <span className="text-neutral-500">(Optional)</span>
+              Selling Price <span className="text-red-400">*</span>
             </label>
-            <input
-              type="number"
-              value={maxUses}
-              onChange={(e) => setMaxUses(e.target.value)}
-              placeholder="Unlimited"
-              min="1"
-              className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-            />
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">$</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={sellingPrice}
+                onChange={handleSellingPriceChange}
+                onBlur={() => setTouched(prev => ({ ...prev, sellingPrice: true }))}
+                placeholder="0.00"
+                className={`w-full bg-neutral-800 border rounded-lg pl-8 pr-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors ${touched.sellingPrice && numericSellingPrice <= 0 ? 'border-red-500' : 'border-neutral-600'}`}
+              />
+            </div>
+            {touched.sellingPrice && numericSellingPrice <= 0 && (
+              <p className="text-red-400 text-xs mt-1">Selling price is required</p>
+            )}
           </div>
         </div>
 
-        {/* Action Buttons — mirrors View Item footer */}
+        {/* Footer */}
         <div className="px-4 py-3 border-t border-neutral-700 mt-auto flex items-center gap-2">
           <Button
             variant="outline"
@@ -208,18 +268,14 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
           </Button>
           <Button
             onClick={handleAddToOrder}
-            disabled={numericValue <= 0}
+            disabled={!isValid}
             className="flex-[2] py-2 rounded-full font-bold text-sm h-10 disabled:opacity-40"
             style={{
-              background: numericValue > 0
-                ? 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
-                : undefined,
-              color: numericValue > 0 ? 'black' : undefined,
+              background: isValid ? 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' : undefined,
+              color: isValid ? 'black' : undefined,
             }}
           >
-            {numericValue > 0
-              ? `ADD TO ORDER ${voucherType === 'fixed' ? `$${numericValue.toFixed(2)}` : `${numericValue}%`}`
-              : 'ADD TO ORDER'}
+            {isValid ? `ADD TO ORDER $${numericSellingPrice.toFixed(2)}` : 'ADD TO ORDER'}
           </Button>
         </div>
       </DialogContent>
@@ -228,23 +284,3 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
 };
 
 export default VoucherDialog;
-
-/* ============================================================
-   LEGACY FLOW — commented out for future restoration
-   ============================================================
-
-   The original VoucherDialog supported two views:
-   - 'sell': Keypad-based amount entry with preset buttons + CHARGE CTA
-   - 'redeem': Voucher code text input + REDEEM VOUCHER CTA
-
-   To restore:
-   1. Uncomment the original component body (useState for view/amount/selectedPreset/voucherCode,
-      PRESET_AMOUNTS, keypadKeys, etc.)
-   2. Re-enable the props: onRedeemVoucher, initialView
-   3. Remove the new form-based component above.
-
-   Original props interface:
-     onAddVoucher: (amount: number) => void;
-     onRedeemVoucher: (voucherCode: string, balance: number) => void;
-     initialView?: 'sell' | 'redeem';
-============================================================ */

@@ -7914,16 +7914,16 @@ const Orders = () => {
                         <span className="text-[11px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-1">
                           {item.name}
                         </span>
-                        {item.isOpenPrice && (
-                          <span className="flex items-center gap-0.5 px-1 py-0.5 rounded bg-orange-500/15 border border-orange-500/30 flex-shrink-0">
-                            <DollarSign className="w-2.5 h-2.5 text-orange-400" />
-                            <Pencil className="w-2 h-2 text-orange-400" />
-                          </span>
-                        )}
                       </div>
-                      <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold shrink-0">
-                        {item.isOpenPrice ? "Open" : `$${item.price.toFixed(2)}`}
-                      </span>
+                      {item.isOpenPrice ? (
+                        <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[8px] md:text-[9px] font-semibold text-white shrink-0 whitespace-nowrap">
+                          Open Price
+                        </span>
+                      ) : (
+                        <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold shrink-0">
+                          ${item.price.toFixed(2)}
+                        </span>
+                      )}
                     </div>
                   </div>)}
               </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5 pb-4 md:pb-0">
@@ -7931,15 +7931,20 @@ const Orders = () => {
                     <div className="flex-1 p-1.5 md:p-2" style={{
                     background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
                   }}>
-                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-white">
-                        {item.isOpenPrice ? "Open" : `$${item.price.toFixed(2)}`}
-                      </span>
+                      {item.isOpenPrice ? (
+                        <span className="float-right ml-1">
+                          <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[7px] md:text-[8px] font-semibold text-white whitespace-nowrap">
+                            Open Price
+                          </span>
+                        </span>
+                      ) : (
+                        <span className="float-right text-[9px] md:text-[10px] ml-1 text-white">
+                          ${item.price.toFixed(2)}
+                        </span>
+                      )}
                       <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2">
                         {item.name}
                       </span>
-                      {item.isOpenPrice && (
-                        <span className="text-[8px] md:text-[9px] text-orange-400/70 font-medium mt-0.5 block">Open Price</span>
-                      )}
                     </div>
                     <button onClick={(e) => {
                     e.stopPropagation();

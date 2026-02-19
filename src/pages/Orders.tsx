@@ -7346,7 +7346,7 @@ const Orders = () => {
                       <div
                   className={`rounded px-1.5 py-1 cursor-pointer ${item.isTransferred ? 'border border-[#3B6A9E]' : 'bg-neutral-800'}`}
                   style={item.isTransferred ? { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } : undefined}
-                  onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}>
+                  onClick={() => { if (item.itemOrderType === 'VOUCHER') return; openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index); }}>
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
@@ -8519,7 +8519,7 @@ const Orders = () => {
                       style={item.isTransferred ?
                       { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } :
                       { background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
-                      onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}>
+                      onClick={() => { if (item.itemOrderType === 'VOUCHER') return; openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index); }}>
 
                               <div className="flex flex-col">
                                 {/* Item header row */}

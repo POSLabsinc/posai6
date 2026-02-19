@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { X, ChevronDown } from "lucide-react";
+import { X, ChevronDown, Ticket } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 
 interface VoucherDialogProps {
@@ -56,24 +57,48 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 rounded-xl p-0 max-w-[420px] w-full [&>button]:hidden">
-        {/* Close button */}
-        <button
-          onClick={handleClose}
-          className="absolute right-4 top-4 p-1 hover:bg-white/10 rounded-full transition-colors z-[10]"
-        >
-          <X className="w-5 h-5 text-white/70" />
-        </button>
+      <DialogContent
+        className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full overflow-hidden rounded-2xl flex flex-col max-h-[90vh] [&>button]:hidden"
+      >
+        {/* Grabber Handle */}
+        <div className="flex justify-center pt-2 pb-1">
+          <div className="w-12 h-1 bg-neutral-600 rounded-full" />
+        </div>
 
-        <div className="p-5">
-          {/* Header */}
-          <h2 className="text-white text-lg font-semibold text-center mb-1">Voucher</h2>
-          <p className="text-neutral-400 text-xs text-center mb-6">
-            Enter voucher details to add it to the order.
-          </p>
+        {/* Item Header — mirrors View Item layout */}
+        <div className="px-4 pb-2">
+          <div className="flex items-center gap-3">
+            {/* Icon in place of item image */}
+            <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border-2 border-white bg-neutral-800 flex items-center justify-center">
+              <Ticket className="w-6 h-6 text-white" />
+            </div>
 
+            <div className="flex-1 min-w-0">
+              <span className="text-white font-bold text-base leading-tight">
+                Sell Voucher
+              </span>
+              <p className="text-neutral-400 text-xs mt-0.5">Add voucher to the order</p>
+            </div>
+
+            {/* Value badge — mirrors price badge */}
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="bg-neutral-700 px-2.5 py-1 rounded-md">
+                <span className="text-white font-medium text-sm">
+                  {numericValue > 0
+                    ? voucherType === 'fixed'
+                      ? `$${numericValue.toFixed(2)}`
+                      : `${numericValue}%`
+                    : '$0.00'}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Form Fields */}
+        <div className="flex-1 px-4 pb-2 space-y-3 overflow-y-auto scrollbar-hide">
           {/* Voucher Type Dropdown */}
-          <div className="mb-4">
+          <div>
             <label className="text-neutral-400 text-xs font-medium mb-1.5 block">Voucher Type</label>
             <div className="relative">
               <button
@@ -103,7 +128,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
           </div>
 
           {/* Voucher Value */}
-          <div className="mb-4">
+          <div>
             <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
               Voucher Value {voucherType === 'percentage' ? '(%)' : '($)'}
             </label>
@@ -124,7 +149,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
           </div>
 
           {/* Expiry Date (Optional) */}
-          <div className="mb-4">
+          <div>
             <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
               Expiry Date <span className="text-neutral-500">(Optional)</span>
             </label>
@@ -137,7 +162,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
           </div>
 
           {/* Max Uses (Optional) */}
-          <div className="mb-6">
+          <div>
             <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
               Max Uses <span className="text-neutral-500">(Optional)</span>
             </label>
@@ -150,19 +175,32 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
               className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
             />
           </div>
+        </div>
 
-          {/* Add to Order Button */}
-          <button
+        {/* Action Buttons — mirrors View Item footer */}
+        <div className="px-4 py-3 border-t border-neutral-700 mt-auto flex items-center gap-2">
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-transparent border border-neutral-500 hover:bg-neutral-800 h-10"
+          >
+            CANCEL
+          </Button>
+          <Button
             onClick={handleAddToOrder}
             disabled={numericValue <= 0}
-            className={`w-full py-3.5 rounded-lg text-sm font-semibold transition-colors ${
-              numericValue > 0
-                ? 'bg-white text-black hover:bg-neutral-200'
-                : 'bg-neutral-800/50 text-neutral-500 cursor-not-allowed'
-            }`}
+            className="flex-[2] py-2 rounded-full font-bold text-sm h-10 disabled:opacity-40"
+            style={{
+              background: numericValue > 0
+                ? 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
+                : undefined,
+              color: numericValue > 0 ? 'black' : undefined,
+            }}
           >
-            Add to Order
-          </button>
+            {numericValue > 0
+              ? `ADD TO ORDER ${voucherType === 'fixed' ? `$${numericValue.toFixed(2)}` : `${numericValue}%`}`
+              : 'ADD TO ORDER'}
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

@@ -8531,7 +8531,7 @@ const Orders = () => {
                                     <div className="flex items-center justify-between">
                                       <div className="flex items-center gap-1.5">
                                         <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
-                                        {item.isOpenPrice && <span className="text-[9px] text-orange-400/70 font-medium">Open Price</span>}
+                                        {item.isOpenPrice && <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[8px] font-semibold text-white whitespace-nowrap">Open Price</span>}
                                       </div>
                                       {item.itemOrderType === 'VOUCHER' ?
                               <span

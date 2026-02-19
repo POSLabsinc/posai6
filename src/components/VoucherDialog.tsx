@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { X, ChevronDown, Ticket } from "lucide-react";
+import { X, ChevronDown } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
+import voucherIcon from "@/assets/voucher-icon.png";
 
 interface VoucherDialogProps {
   isOpen: boolean;
@@ -69,8 +70,8 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher }: VoucherDialogProps) =>
         <div className="px-4 pb-2">
           <div className="flex items-center gap-3">
             {/* Icon in place of item image */}
-            <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border-2 border-white bg-neutral-800 flex items-center justify-center">
-              <Ticket className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border-2 border-white">
+              <img src={voucherIcon} alt="Voucher" className="w-full h-full object-cover" />
             </div>
 
             <div className="flex-1 min-w-0">

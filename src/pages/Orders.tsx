@@ -7405,7 +7405,7 @@ const Orders = () => {
                     }
                         </div>
                         {item.itemOrderType === 'VOUCHER' && (item as any).voucherMeta?.expiryDate && (
-                          <p className="text-[9px] text-neutral-400 ml-[22px]">Expires: {(item as any).voucherMeta.expiryDate}</p>
+                          <p className="text-[9px] text-neutral-400 ml-[22px]">Expires: {new Date((item as any).voucherMeta.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                         )}
                         
                         {/* Modifiers with tree hierarchy - Mobile */}
@@ -8599,7 +8599,7 @@ const Orders = () => {
                               }
                                     </div>
                                     {item.itemOrderType === 'VOUCHER' && (item as any).voucherMeta?.expiryDate && (
-                                      <p className="text-[10px] text-neutral-400 mt-0.5">Expires: {(item as any).voucherMeta.expiryDate}</p>
+                                      <p className="text-[10px] text-neutral-400 mt-0.5">Expires: {new Date((item as any).voucherMeta.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
                                     )}
                                   </div>
                                 </div>

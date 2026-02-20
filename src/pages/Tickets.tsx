@@ -5,6 +5,7 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check, Info } from "lucide-react";
 import { toast } from "sonner";
 import TicketsTransferView from "@/components/TicketsTransferView";
+import SwipeableTicketItem from "@/components/SwipeableTicketItem";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -156,6 +157,55 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const [showFilterIcons, setShowFilterIcons] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Per-product swipe state for ticket detail view
+  const [activeSwipedProductIndex, setActiveSwipedProductIndex] = useState<number | null>(null);
+
+  // Check if current ticket allows swipe actions (only unpaid/ordering)
+  const isTicketEditable = (status: string) =>
+    status === "ORDERING" || status === "UNPAID";
+
+  // Toggle No Tax for a product in the selected ticket
+  const handleProductNoTax = (itemIndex: number) => {
+    updateOrders(prev =>
+      prev.map(o => {
+        if (o.id !== selectedGuest.id) return o;
+        const newItems = o.items.map((it, idx) =>
+          idx === itemIndex ? { ...it, noTax: !it.noTax } : it
+        );
+        return { ...o, items: newItems };
+      })
+    );
+    setSelectedGuest(prev => ({
+      ...prev,
+      items: prev.items.map((it, idx) =>
+        idx === itemIndex ? { ...it, noTax: !it.noTax } : it
+      ),
+    }));
+    setActiveSwipedProductIndex(null);
+    toast.success("No Tax toggled for product");
+  };
+
+  // Cancel (mark as cancelled) a product in the selected ticket
+  const handleProductCancel = (itemIndex: number) => {
+    updateOrders(prev =>
+      prev.map(o => {
+        if (o.id !== selectedGuest.id) return o;
+        const newItems = o.items.map((it, idx) =>
+          idx === itemIndex ? { ...it, isCancelled: !it.isCancelled } : it
+        );
+        return { ...o, items: newItems };
+      })
+    );
+    setSelectedGuest(prev => ({
+      ...prev,
+      items: prev.items.map((it, idx) =>
+        idx === itemIndex ? { ...it, isCancelled: !it.isCancelled } : it
+      ),
+    }));
+    setActiveSwipedProductIndex(null);
+    toast.success("Product cancelled");
+  };
 
   // Merge state
   const [showMergeDialog, setShowMergeDialog] = useState(false);
@@ -851,39 +901,61 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         </div>
       </div>
 
-      {/* Order Items */}
+      {/* Order Products */}
       <ScrollArea className="flex-1 px-3">
-        <div className="py-2 space-y-2">
-          {getOrderItems(selectedGuest).map((item, index) => (
-            <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
-              <div className="flex items-start justify-between">
-                <div className="flex items-start gap-2">
-                  <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
-                    {item.qty}
-                  </span>
-                  <div>
-                    <span className="text-white font-medium text-sm">{item.name}</span>
-                    {item.modifiers.length > 0 && (
-                      <div className="mt-1 text-white/50 text-xs space-y-0.5">
-                        {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+        <div className="py-2 space-y-1.5">
+          {selectedGuest.items.map((item, index) => {
+            const canSwipe = isTicketEditable(selectedGuest.status);
+            return (
+              <SwipeableTicketItem
+                key={index}
+                isNoTax={item.noTax}
+                isCancelled={item.isCancelled}
+                disabled={!canSwipe}
+                isOpen={activeSwipedProductIndex === index}
+                onSwipeStart={() => setActiveSwipedProductIndex(index)}
+                onNoTax={() => handleProductNoTax(index)}
+                onCancel={() => handleProductCancel(index)}
+              >
+                <div className={`p-3 rounded-xl border transition-all ${item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'}`}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-2">
+                      <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${item.isCancelled ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'}`}>
+                        {item.qty}
+                      </span>
+                      <div>
+                        <span className={`font-medium text-sm ${item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
+                        {item.modifiers.length > 0 && (
+                          <div className="mt-1 text-white/50 text-xs space-y-0.5">
+                            {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                          {item.noTax && !item.isCancelled && (
+                            <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                          )}
+                          {item.isCancelled && (
+                            <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
+                          )}
+                        </div>
                       </div>
-                    )}
+                    </div>
+                    <span className={`font-medium text-sm ${item.isCancelled ? 'text-white/30 line-through' : 'text-white'}`}>{formatPrice(item.price * item.qty)}</span>
                   </div>
+                  {item.seats.length > 0 && (
+                    <div className="flex items-center gap-1 mt-2">
+                      <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                      {item.seats.map(seat => (
+                        <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                          {seat}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
-                <span className="text-white font-medium text-sm">{item.price}</span>
-              </div>
-              {item.seats.length > 0 && (
-                <div className="flex items-center gap-1 mt-2">
-                  <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                  {item.seats.map(seat => (
-                    <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                      {seat}
-                    </span>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
+              </SwipeableTicketItem>
+            );
+          })}
         </div>
         <ScrollBar orientation="vertical" />
       </ScrollArea>
@@ -1161,37 +1233,59 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             )}
 
             {/* Regular items (for non-transferred orders OR remaining items on received orders) */}
-            {getOrderItems(selectedGuest).map((item, index) => (
-              <div key={index} className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} bg-white/5 border border-white/10`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-2">
-                    <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} bg-white rounded flex items-center justify-center text-black font-bold`}>
-                      {item.qty}
-                    </span>
-                    <div>
-                      <span className={`text-white font-medium ${isTablet ? 'text-sm' : ''}`}>{item.name}</span>
-                      {item.modifiers.length > 0 && (
-                        <div className={`mt-${isTablet ? '0.5' : '1'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} space-y-0.5`}>
-                          {(isTablet ? item.modifiers.slice(0, 2) : item.modifiers).map((mod, i) => <div key={i}>{mod}</div>)}
-                          {isTablet && item.modifiers.length > 2 && <div>+{item.modifiers.length - 2} more</div>}
+            {selectedGuest.items.map((item, index) => {
+              const canSwipe = isTicketEditable(selectedGuest.status);
+              return (
+                <SwipeableTicketItem
+                  key={index}
+                  isNoTax={item.noTax}
+                  isCancelled={item.isCancelled}
+                  disabled={!canSwipe}
+                  isOpen={activeSwipedProductIndex === index}
+                  onSwipeStart={() => setActiveSwipedProductIndex(index)}
+                  onNoTax={() => handleProductNoTax(index)}
+                  onCancel={() => handleProductCancel(index)}
+                >
+                  <div className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} border transition-all ${item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2">
+                        <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} rounded flex items-center justify-center font-bold ${item.isCancelled ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'}`}>
+                          {item.qty}
+                        </span>
+                        <div>
+                          <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
+                          {item.modifiers.length > 0 && (
+                            <div className={`mt-${isTablet ? '0.5' : '1'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} space-y-0.5`}>
+                              {(isTablet ? item.modifiers.slice(0, 2) : item.modifiers).map((mod, i) => <div key={i}>{mod}</div>)}
+                              {isTablet && item.modifiers.length > 2 && <div>+{item.modifiers.length - 2} more</div>}
+                            </div>
+                          )}
+                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            {item.noTax && !item.isCancelled && (
+                              <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                            )}
+                            {item.isCancelled && (
+                              <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
+                            )}
+                          </div>
                         </div>
-                      )}
+                      </div>
+                      <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${item.isCancelled ? 'text-white/30 line-through' : 'text-white'}`}>{formatPrice(item.price * item.qty)}</span>
                     </div>
+                    {!isTablet && item.seats.length > 0 && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                        {item.seats.map(seat => (
+                          <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                            {seat}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <span className={`text-white font-medium ${isTablet ? 'text-sm' : ''}`}>{item.price}</span>
-                </div>
-                {!isTablet && item.seats.length > 0 && (
-                  <div className="flex items-center gap-1 mt-2">
-                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                    {item.seats.map(seat => (
-                      <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                        {seat}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            ))}
+                </SwipeableTicketItem>
+              );
+            })}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>

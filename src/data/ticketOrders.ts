@@ -6,6 +6,8 @@ export interface TicketOrderItem {
   price: number;
   seats: number[];
   modifiers: string[];
+  noTax?: boolean;
+  isCancelled?: boolean;
 }
 
 export interface TicketPaymentEntry {

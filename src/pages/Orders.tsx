@@ -7551,8 +7551,15 @@ const Orders = () => {
                          <TooltipProvider>
                            <Tooltip>
                              <TooltipTrigger asChild>
-                               <span className="text-red-400 cursor-default">
+                               <span className="text-red-400 cursor-default flex items-center gap-1">
                                  Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
+                                 {selectedDiscount &&
+                                   <button
+                                     onClick={() => setSelectedDiscountId(null)}
+                                     className="text-red-400 hover:text-red-300 text-xs font-bold ml-0.5">
+                                     ×
+                                   </button>
+                                 }
                                </span>
                              </TooltipTrigger>
                              {selectedDiscount && <TooltipContent side="top" className="text-xs">{selectedDiscount.name}</TooltipContent>}
@@ -7566,8 +7573,18 @@ const Orders = () => {
                          <TooltipProvider>
                            <Tooltip>
                              <TooltipTrigger asChild>
-                               <span className="text-foreground cursor-default">
+                               <span className="text-foreground cursor-default flex items-center gap-1">
                                  Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                                 {appliedServiceCharge > 0 &&
+                                   <button
+                                     onClick={() => {
+                                       setAppliedServiceCharge(0);
+                                       setAppliedServiceChargeName('');
+                                     }}
+                                     className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
+                                     ×
+                                   </button>
+                                 }
                                </span>
                              </TooltipTrigger>
                              {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}

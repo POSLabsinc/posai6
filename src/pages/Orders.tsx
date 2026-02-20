@@ -7087,12 +7087,6 @@ const Orders = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-xs font-bold">20</span>}
-                {isTaxExempt && (
-                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-orange-400 border border-orange-500/50 bg-orange-500/15">
-                    <img src={noTaxBtnIcon} alt="" className="w-2.5 h-2.5" />
-                    No Tax
-                  </span>
-                )}
               </div>
               <div className="flex items-center gap-2 text-xs">
                 <img src={runnerIcon} alt="User" className="w-4 h-4" />

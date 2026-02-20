@@ -54,6 +54,7 @@ interface MenuItem {
   id: number;
   name: string;
   price: number;
+  isOpenPrice?: boolean;
 }
 
 interface ItemCustomizationDialogProps {
@@ -407,6 +408,7 @@ export const ItemCustomizationDialog = ({
   // to distinguish between price override and discount flows
 
   const handlePriceClick = () => {
+    if (item?.isOpenPrice) return;
     if (isManager) {
       setCurrentView('priceOverride');
     } else {
@@ -1050,7 +1052,7 @@ export const ItemCustomizationDialog = ({
           <div className="flex items-center gap-2 flex-shrink-0">
             <button
               onClick={handlePriceClick}
-              className="bg-neutral-700 px-2.5 py-1 rounded-md hover:bg-neutral-600 transition-colors cursor-pointer"
+              className={`bg-neutral-700 px-2.5 py-1 rounded-md transition-colors ${item?.isOpenPrice ? 'cursor-default' : 'hover:bg-neutral-600 cursor-pointer'}`}
             >
               {selectedDiscountId ? (
                 <div className="flex flex-col items-center">

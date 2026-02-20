@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { X, Delete, DollarSign, Info } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -8,6 +8,7 @@ interface OpenPriceDialogProps {
   productName: string;
   onConfirm: (price: number) => void;
   ctaLabel?: "Add to Order" | "Continue";
+  initialPrice?: number;
 }
 
 export const OpenPriceDialog = ({
@@ -16,9 +17,23 @@ export const OpenPriceDialog = ({
   productName,
   onConfirm,
   ctaLabel = "Add to Order",
+  initialPrice,
 }: OpenPriceDialogProps) => {
   // Store raw digits (no decimal). E.g. "255" means $2.55
   const [digits, setDigits] = useState("");
+
+  // Pre-fill digits from initialPrice when dialog opens
+  useEffect(() => {
+    if (open) {
+      if (initialPrice && initialPrice > 0) {
+        // Convert dollar amount to cents string, e.g. 12.50 → "1250"
+        const cents = Math.round(initialPrice * 100);
+        setDigits(cents.toString());
+      } else {
+        setDigits("");
+      }
+    }
+  }, [open, initialPrice]);
 
   const centsValue = parseInt(digits || "0", 10);
   const dollarValue = centsValue / 100;

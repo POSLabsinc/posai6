@@ -768,7 +768,7 @@ export const ItemCustomizationDialog = ({
           </button>
           {showReasonDropdown && (
             <div
-              className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700 max-h-36 overflow-y-auto scrollbar-hide"
+              className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700 max-h-64 overflow-y-auto scrollbar-hide"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
               {overrideReasons.map(reason => (

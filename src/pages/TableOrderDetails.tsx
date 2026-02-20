@@ -10,6 +10,7 @@ import RefundDialog from "@/components/RefundDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, X, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, ArrowRightLeft } from "lucide-react";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
@@ -618,7 +619,7 @@ const TableOrderDetails = () => {
   // Discount state
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
-  const [discountPin, setDiscountPin] = useState("");
+  // discountPin removed — AccessRestrictedModal manages its own PIN state
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
   
   // Set initial selected guest when guestOrders changes
@@ -2046,7 +2047,6 @@ const TableOrderDetails = () => {
                   className={`text-[10px] rounded-[10px] ${selectedDiscountId ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors`}
                   onClick={() => {
                     setDiscountDialogView('mpin');
-                    setDiscountPin("");
                     setShowDiscountDialog(true);
                   }}
                 >
@@ -3260,66 +3260,11 @@ const TableOrderDetails = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
             {discountDialogView === 'mpin' ? (
-              /* MPIN View - Manager PIN entry */
-              <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
-                {/* Manager Profile */}
-                <div className="flex flex-col items-center mb-4">
-                  <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
-                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt="Manager" className="w-full h-full object-cover" />
-                  </div>
-                  <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
-                  <p className="text-xs text-muted-foreground">Manager</p>
-                </div>
-
-                {/* PIN Dots */}
-                <div className="flex items-center justify-center gap-2.5 mb-4">
-                  {[0, 1, 2, 3].map((index) => (
-                    <div key={index} className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${index < discountPin.length ? "bg-primary" : "bg-neutral-600"}`} />
-                  ))}
-                </div>
-
-                <p className="text-center text-muted-foreground text-xs mb-4">Enter Manager PIN</p>
-
-                {/* Numpad */}
-                <div className="grid grid-cols-3 gap-2 w-full">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                    <button key={num} type="button" onClick={() => {
-                      if (discountPin.length < 4) {
-                        const newPin = discountPin + num.toString();
-                        setDiscountPin(newPin);
-                        if (newPin.length === 4) {
-                          setTimeout(() => {
-                            setDiscountDialogView('discounts');
-                            setDiscountPin("");
-                          }, 200);
-                        }
-                      }
-                    }} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
-                      {num}
-                    </button>
-                  ))}
-                  <button type="button" onClick={() => setDiscountPin(discountPin.slice(0, -1))} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center">
-                    <Delete className="w-5 h-5" />
-                  </button>
-                  <button type="button" onClick={() => {
-                    if (discountPin.length < 4) {
-                      const newPin = discountPin + "0";
-                      setDiscountPin(newPin);
-                      if (newPin.length === 4) {
-                        setTimeout(() => {
-                          setDiscountDialogView('discounts');
-                          setDiscountPin("");
-                        }, 200);
-                      }
-                    }
-                  }} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
-                    0
-                  </button>
-                  <button type="button" onClick={() => setShowDiscountDialog(false)} className="h-12 rounded-xl bg-neutral-700 border border-neutral-600 text-foreground text-sm font-medium hover:bg-neutral-600 active:bg-neutral-500 transition-colors">
-                    Cancel
-                  </button>
-                </div>
-              </div>
+              <AccessRestrictedModal
+                subtitle="Manager approval required to apply discount."
+                onBack={() => { setShowDiscountDialog(false); setDiscountDialogView('mpin'); }}
+                onSuccess={() => setDiscountDialogView('discounts')}
+              />
             ) : (
               /* Discount Selection View */
               <>

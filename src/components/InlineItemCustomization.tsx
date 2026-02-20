@@ -1,10 +1,11 @@
 import { useState, useEffect, useMemo } from "react";
-import { ChevronDown, X, Search, Mic, ArrowUpDown, Delete, Fingerprint, ScanFace, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
+import { ChevronDown, X, Search, Mic, ArrowUpDown, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import offerIcon from "@/assets/icons/offer.png";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 
 // Discount types for item-level discounts
 interface DiscountType {
@@ -193,10 +194,8 @@ export const InlineItemCustomization = ({
   // View state: 'customization' | 'mpin' | 'priceOverride' | 'productInfo'
   const [currentView, setCurrentView] = useState<'customization' | 'mpin' | 'priceOverride' | 'productInfo'>('customization');
   
-  // MPIN state
-  const [pin, setPin] = useState("");
-  const [pinError, setPinError] = useState(false);
-  
+  // MPIN state now managed inside AccessRestrictedModal
+
   // Price Override state
   const [selectedReason, setSelectedReason] = useState("");
   const [newPrice, setNewPrice] = useState("");
@@ -218,8 +217,6 @@ export const InlineItemCustomization = ({
     setActiveTab('item');
     setAddOnSearchQuery("");
     setCurrentView('customization');
-    setPin("");
-    setPinError(false);
     setSelectedReason("");
     setNewPrice("");
     setOverrideNotes("");
@@ -235,9 +232,6 @@ export const InlineItemCustomization = ({
     setSelectedModifiers(defaultModifiers);
   }, [item.id]);
 
-  // PIN verification is now handled directly in the MPIN view numpad handlers
-  // to distinguish between price override and discount flows
-
   const handlePriceClick = () => {
     // Don't allow price override for open price items
     if (item.isOpenPrice) return;
@@ -247,34 +241,6 @@ export const InlineItemCustomization = ({
   const handleProductInfoClick = () => {
     setCurrentView('productInfo');
     onViewChange?.('productInfo');
-  };
-
-  // MPIN handlers
-  const handlePinNumberClick = (num: string) => {
-    if (pin.length < 4) {
-      const newPin = pin + num;
-      setPin(newPin);
-      setPinError(false);
-      // When 4 digits entered, navigate to price override (for MPIN view only)
-      if (newPin.length === 4) {
-        setTimeout(() => {
-          setCurrentView('priceOverride');
-          setPin("");
-          setNewPrice(item.price.toFixed(2));
-          setIsPriceEdited(false);
-        }, 200);
-      }
-    }
-  };
-
-  const handlePinBackspace = () => {
-    setPin(prev => prev.slice(0, -1));
-    setPinError(false);
-  };
-
-  const handlePinClear = () => {
-    setPin("");
-    setPinError(false);
   };
 
   // Price Override handlers - standard input style
@@ -421,88 +387,17 @@ export const InlineItemCustomization = ({
     : 0;
   const totalPrice = priceBeforeDiscount - discountAmount;
 
-  // Render MPIN View (Desktop style)
+  // MPIN View — delegates to shared AccessRestrictedModal
   const renderMPINView = () => (
-    <div className="flex flex-col bg-neutral-900 p-4 h-full">
-      {/* Header - Center aligned */}
-      <div className="text-center mb-4">
-        <h3 className="text-foreground font-bold text-lg mb-1">Access Restricted</h3>
-        <p className="text-muted-foreground text-xs">Enter Manager PIN to Adjust Price.</p>
-      </div>
-
-      {/* PIN Display with asterisks */}
-      <div className={`flex justify-center gap-2 mb-4 ${pinError ? 'animate-shake' : ''}`}>
-        {[0, 1, 2, 3].map((index) => (
-          <div
-            key={index}
-            className={`w-12 h-12 rounded-xl border-2 flex items-center justify-center text-2xl font-bold transition-all ${
-              index < pin.length
-                ? pinError
-                  ? "border-red-500 bg-red-500/10"
-                  : "border-neutral-600 bg-neutral-800"
-                : "border-neutral-600 bg-neutral-800"
-            }`}
-          >
-            {index < pin.length ? <span className="text-foreground">✱</span> : ""}
-          </div>
-        ))}
-      </div>
-
-      {/* Numpad */}
-      <div className="grid grid-cols-3 gap-2 px-4 w-full flex-1">
-        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-          <button
-            key={num}
-            onClick={() => handlePinNumberClick(num.toString())}
-            className="h-11 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-          >
-            {num}
-          </button>
-        ))}
-        {/* Backspace button (left) */}
-        <button
-          onClick={handlePinBackspace}
-          className="h-11 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
-        >
-          <Delete className="w-4 h-4" />
-        </button>
-        {/* Zero button (center) */}
-        <button
-          onClick={() => handlePinNumberClick("0")}
-          className="h-11 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-        >
-          0
-        </button>
-        {/* Clear button (right) - red C */}
-        <button
-          onClick={handlePinClear}
-          className="h-11 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-        >
-          C
-        </button>
-      </div>
-
-      {/* Biometric Options - Below keypad */}
-      <div className="flex justify-center gap-2 mt-3 px-4 w-full">
-        <button className="flex-1 flex items-center justify-center py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-          <Fingerprint className="w-5 h-5" />
-        </button>
-        <button className="flex-1 flex items-center justify-center py-2.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-          <ScanFace className="w-5 h-5" />
-        </button>
-      </div>
-
-      {/* Cancel button */}
-      <div className="mt-4 px-4">
-        <Button 
-          variant="outline" 
-          onClick={() => setCurrentView('customization')} 
-          className="w-full py-2 rounded-full text-white font-medium text-xs bg-transparent border border-neutral-500 hover:bg-neutral-800 h-8"
-        >
-          CANCEL
-        </Button>
-      </div>
-    </div>
+    <AccessRestrictedModal
+      subtitle="Enter Manager PIN to Adjust Price."
+      onBack={() => setCurrentView('customization')}
+      onSuccess={() => {
+        setCurrentView('priceOverride');
+        setNewPrice(item.price.toFixed(2));
+        setIsPriceEdited(false);
+      }}
+    />
   );
 
   // Render Price Override View (Desktop style)
@@ -1080,34 +975,11 @@ export const InlineItemCustomization = ({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
             {discountDialogView === 'mpin' ? (
-              <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
-                <div className="flex flex-col items-center mb-4">
-                  <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
-                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt="Manager" className="w-full h-full object-cover" />
-                  </div>
-                  <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
-                  <p className="text-xs text-muted-foreground">Manager</p>
-                </div>
-                <div className="flex items-center justify-center gap-2.5 mb-4">
-                  {[0, 1, 2, 3].map((index) => (
-                    <div key={index} className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${index < pin.length ? "bg-primary" : "bg-neutral-600"}`} />
-                  ))}
-                </div>
-                <p className="text-center text-muted-foreground text-xs mb-4">Enter Manager PIN</p>
-                <div className="grid grid-cols-3 gap-2 w-full">
-                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-                    <button key={num} type="button" onClick={() => { if (pin.length < 4) { const newPin = pin + num.toString(); setPin(newPin); if (newPin.length === 4) { setTimeout(() => { setDiscountDialogView('discounts'); setPin(""); }, 200); } } }} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">{num}</button>
-                  ))}
-                  <button type="button" onClick={handlePinBackspace} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"><Delete className="w-5 h-5" /></button>
-                  <button type="button" onClick={() => { if (pin.length < 4) { const newPin = pin + "0"; setPin(newPin); if (newPin.length === 4) { setTimeout(() => { setDiscountDialogView('discounts'); setPin(""); }, 200); } } }} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">0</button>
-                  <button type="button" onClick={handlePinClear} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors">C</button>
-                </div>
-                <div className="flex justify-center gap-3 mt-4">
-                  <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors"><Fingerprint className="w-4 h-4" /><span className="text-xs">Touch ID</span></button>
-                  <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors"><ScanFace className="w-4 h-4" /><span className="text-xs">Face ID</span></button>
-                </div>
-                <button type="button" onClick={() => { setShowDiscountDialog(false); setPin(""); }} className="mt-4 text-xs text-neutral-400 hover:text-white transition-colors">Cancel</button>
-              </div>
+              <AccessRestrictedModal
+                subtitle="Manager approval required to apply discount."
+                onBack={() => { setShowDiscountDialog(false); setDiscountDialogView('mpin'); }}
+                onSuccess={() => setDiscountDialogView('discounts')}
+              />
             ) : (
               <>
                 <div className="flex items-center justify-between p-4 border-b border-neutral-700">

@@ -311,6 +311,7 @@ export const ItemCustomizationDialog = ({
   const [selectedReason, setSelectedReason] = useState("");
   const [overrideNotes, setOverrideNotes] = useState("");
   const [showReasonDropdown, setShowReasonDropdown] = useState(false);
+  const [reasonSearch, setReasonSearch] = useState("");
 
   // Seat selection state for table orders
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
@@ -758,7 +759,7 @@ export const ItemCustomizationDialog = ({
         {/* Reason Dropdown */}
         <div className="relative mb-2">
           <button
-            onClick={() => setShowReasonDropdown(!showReasonDropdown)}
+            onClick={() => { setShowReasonDropdown(!showReasonDropdown); setReasonSearch(""); }}
             className="w-full flex items-center justify-between px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-xl text-left"
           >
             <span className={selectedReason ? "text-foreground" : "text-muted-foreground"}>
@@ -768,23 +769,44 @@ export const ItemCustomizationDialog = ({
           </button>
           {showReasonDropdown && (
             <div
-              className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700 max-h-64 overflow-y-auto scrollbar-hide"
+              className="absolute top-full left-0 right-0 mt-1 bg-neutral-900 rounded-xl overflow-hidden z-50 border border-neutral-700 shadow-xl"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              {overrideReasons.map(reason => (
-                <button
-                  key={reason}
-                  onClick={() => {
-                    setSelectedReason(reason);
-                    setShowReasonDropdown(false);
-                  }}
-                  className={`w-full px-4 py-2.5 text-left hover:bg-neutral-700 transition-colors ${
-                    selectedReason === reason ? 'text-orange-500' : 'text-foreground'
-                  }`}
-                >
-                  {reason}
-                </button>
-              ))}
+              {/* Search input */}
+              <div className="flex items-center gap-2 px-3 py-2 border-b border-neutral-700 bg-neutral-900">
+                <Search className="w-4 h-4 text-muted-foreground shrink-0" />
+                <input
+                  autoFocus
+                  type="text"
+                  placeholder="Search reason..."
+                  value={reasonSearch}
+                  onChange={e => setReasonSearch(e.target.value)}
+                  className="flex-1 bg-transparent text-foreground text-sm placeholder:text-muted-foreground outline-none"
+                />
+              </div>
+              {/* Filtered list */}
+              <div className="max-h-52 overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                {overrideReasons
+                  .filter(r => r.toLowerCase().includes(reasonSearch.toLowerCase()))
+                  .map(reason => (
+                    <button
+                      key={reason}
+                      onClick={() => {
+                        setSelectedReason(reason);
+                        setShowReasonDropdown(false);
+                        setReasonSearch("");
+                      }}
+                      className={`w-full px-4 py-2.5 text-left hover:bg-neutral-700 transition-colors ${
+                        selectedReason === reason ? 'text-orange-500' : 'text-foreground'
+                      }`}
+                    >
+                      {reason}
+                    </button>
+                  ))}
+                {overrideReasons.filter(r => r.toLowerCase().includes(reasonSearch.toLowerCase())).length === 0 && (
+                  <p className="px-4 py-3 text-sm text-muted-foreground">No reasons found</p>
+                )}
+              </div>
             </div>
           )}
         </div>

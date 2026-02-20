@@ -92,6 +92,7 @@ import CreateVoucherForm from "@/components/CreateVoucherForm";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import OpenPriceDialog from "@/components/OpenPriceDialog";
+import CustomItemBottomSheet from "@/components/pos/CustomItemBottomSheet";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6694,15 +6695,11 @@ const Orders = () => {
 
   const toggleCustomItemPanel = () => {
     if (showCustomItemPanel) {
-      // Going back to menu
       setShowCustomItemPanel(false);
       setCustomItemName("");
       setCustomItemPrice("");
     } else {
-      // Opening custom item panel
       setShowCustomItemPanel(true);
-      setMenuPosition('full');
-      setActiveCustomItemField('name');
     }
   };
   const handleMenuSelect = (value: string) => {
@@ -6860,8 +6857,8 @@ const Orders = () => {
               className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5"
               onClick={toggleCustomItemPanel}>
 
-                <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-4 h-4" />
-                {showCustomItemPanel ? "Menu" : "Custom Item"}
+                <img src={customItemIcon} alt="" className="w-4 h-4" />
+                Custom Item
               </Button>
               <Button
               variant="secondary"
@@ -7714,196 +7711,8 @@ const Orders = () => {
         </div>
         {/* Menu Content - Hidden when minimized */}
       <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-[12px] md:rounded-[16px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
-        {/* Custom Item Panel */}
-        {showCustomItemPanel ?
-        <div className="flex-1 flex flex-col p-3 md:p-4 overflow-y-auto scrollbar-hide min-h-0">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-4 flex-shrink-0">
-              <h2 className="text-white text-lg font-semibold">Custom Item</h2>
-              <button
-              onClick={toggleCustomItemPanel}
-              className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors">
-
-                <X className="w-4 h-4 text-white" />
-              </button>
-            </div>
-
-            {/* Name Input */}
-            <div className="mb-3 flex-shrink-0">
-              <div
-              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? 'border-orange-500' : 'border-neutral-700'}`}
-              onClick={() => setActiveCustomItemField('name')}>
-
-                <span className="text-neutral-500 text-sm uppercase">NAME</span>
-                <input
-                type="text"
-                value={customItemName}
-                onChange={(e) => {
-                  // Auto-capitalize first letter of each word
-                  const value = e.target.value;
-                  const capitalizedValue = value.replace(/\b\w/g, (char) => char.toUpperCase());
-                  setCustomItemName(capitalizedValue);
-                }}
-                onFocus={() => setActiveCustomItemField('name')}
-                placeholder="Enter item name"
-                className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500" />
-
-              </div>
-            </div>
-
-            {/* Price Input */}
-            <div className="mb-3 flex-shrink-0">
-              <div
-              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'price' ? 'border-orange-500' : 'border-neutral-700'}`}
-              onClick={() => setActiveCustomItemField('price')}>
-
-                <span className="text-neutral-500 text-sm uppercase">PRICE</span>
-                <div className="flex-1 flex items-center">
-                  <span className="text-white text-sm mr-1">$</span>
-                  <input
-                  type="text"
-                  value={customItemPrice}
-                  readOnly
-                  onFocus={() => setActiveCustomItemField('price')}
-                  placeholder="0.00"
-                  className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500" />
-
-                </div>
-              </div>
-            </div>
-
-            {/* Add to Order Button */}
-            <button
-            onClick={addCustomItemToOrder}
-            disabled={!customItemName.trim() || !customItemPrice}
-            className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-            style={{
-              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-            }}>
-
-              <Plus className="w-4 h-4" />
-              Add to Order
-              {customItemPrice && <span className="ml-2">${parseFloat(customItemPrice).toFixed(2)}</span>}
-            </button>
-
-            {/* Keyboard / Numpad */}
-            {activeCustomItemField === 'name' ? (
-          /* QWERTY Keyboard for Name */
-          <div className="flex flex-col gap-1.5 min-h-0">
-                {/* Row 1: q-p */}
-                <div className="grid grid-cols-10 gap-1">
-                  {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map((key) =>
-              <button
-                key={key}
-                onClick={() => handleCustomItemKeyboardClick(key)}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
-
-                      {isShiftActive ? key.toUpperCase() : key}
-                    </button>
-              )}
-                </div>
-                {/* Row 2: a-l */}
-                <div className="grid grid-cols-10 gap-1">
-                  {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map((key) =>
-              <button
-                key={key}
-                onClick={() => handleCustomItemKeyboardClick(key)}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
-
-                      {isShiftActive ? key.toUpperCase() : key}
-                    </button>
-              )}
-                  <div /> {/* Empty space to align */}
-                </div>
-                {/* Row 3: shift, z-m, backspace */}
-                <div className="grid grid-cols-10 gap-1">
-                  <button
-                onClick={() => handleCustomItemKeyboardClick('shift')}
-                className={`bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors ${isShiftActive ? 'bg-blue-600 hover:bg-blue-500' : ''}`}>
-
-                    ⇧
-                  </button>
-                  {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map((key) =>
-              <button
-                key={key}
-                onClick={() => handleCustomItemKeyboardClick(key)}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
-
-                      {isShiftActive ? key.toUpperCase() : key}
-                    </button>
-              )}
-                  <button
-                onClick={() => handleCustomItemKeyboardClick('backspace')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-2 flex items-center justify-center">
-
-                    <Delete className="w-5 h-5" />
-                  </button>
-                </div>
-                {/* Row 4: 123, Space, Clear */}
-                <div className="grid grid-cols-6 gap-1">
-                  <button
-                onClick={() => handleCustomItemKeyboardClick('123')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors">
-
-                    123
-                  </button>
-                  <button
-                onClick={() => handleCustomItemKeyboardClick('space')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-4">
-
-                    Space
-                  </button>
-                  <button
-                onClick={() => handleCustomItemKeyboardClick('clear')}
-                className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-sm font-medium py-3 transition-colors">
-
-                    Clear
-                  </button>
-                </div>
-              </div>) : (
-
-          /* Numpad for Price */
-          <div className="flex flex-col gap-2 min-h-0">
-                <div className="grid grid-cols-3 gap-2">
-                  {['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((num) =>
-              <button
-                key={num}
-                onClick={() => handleCustomItemNumpadClick(num)}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
-
-                      {num}
-                    </button>
-              )}
-                  <button
-                onClick={() => handleCustomItemNumpadClick('clear')}
-                className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-lg font-medium py-4 transition-colors">
-
-                    Clear
-                  </button>
-                  <button
-                onClick={() => handleCustomItemNumpadClick('0')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
-
-                    0
-                  </button>
-                  <button
-                onClick={() => handleCustomItemNumpadClick('.')}
-                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
-
-                    .
-                  </button>
-                </div>
-                
-                {/* Backspace Button */}
-                <button
-              onClick={() => handleCustomItemNumpadClick('backspace')}
-              className="w-full bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors">
-
-                  <Delete className="w-5 h-5 text-white" />
-                </button>
-              </div>)
-          }
-          </div> :
+        {/* Custom Item is now handled via bottom sheet overlay */}
+        {
         showInlineCustomization && selectedItemForCustomization ?
         isProductInfoFullScreen ?
         // Full-screen product info overlay on mobile
@@ -8153,8 +7962,8 @@ const Orders = () => {
                 className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
                 onClick={toggleCustomItemPanel}>
 
-                  <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-3 h-3" />
-                  {showCustomItemPanel ? "Menu" : "Custom Item"}
+                  <img src={customItemIcon} alt="" className="w-3 h-3" />
+                  Custom Item
                 </Button>
                 <Button
                 variant="secondary"
@@ -9548,6 +9357,27 @@ const Orders = () => {
         </div>
       }
       */}
+
+      {/* Custom Item Bottom Sheet Overlay */}
+      <CustomItemBottomSheet
+        open={showCustomItemPanel}
+        onClose={() => {
+          setShowCustomItemPanel(false);
+          setCustomItemName("");
+          setCustomItemPrice("");
+        }}
+        onAdd={(itemName, itemPrice) => {
+          setOrderItems((prev) => [{
+            id: Date.now(),
+            qty: 1,
+            name: itemName,
+            price: itemPrice,
+          }, ...prev]);
+          setShowCustomItemPanel(false);
+          setCustomItemName("");
+          setCustomItemPrice("");
+        }}
+      />
     </div>;
 };
 export default Orders;

@@ -1,147 +1,160 @@
 
-# Fix: Collapse Summary to One Line When Discount & Service Charge Are $0
+# Fix: Dynamic Flowing Layout for Order Summary (Mobile & Desktop)
 
 ## The Problem
 
-The current two-row layout always renders two `<div>` rows regardless of whether Discount and Service Charge are visible:
+The current layout has a fixed 2-row, 2-column structure:
 
-- **Row 1**: Sub Total (left) | Discount (right, hidden when $0 → leaves gap)
-- **Row 2**: Service Charge (left, hidden when $0) | Tax (right, `ml-auto` when no Service Charge)
+```text
+Row 1: [ Sub Total ]       [ Discount (if > 0) ]
+Row 2: [ Service Charge ]  [ Tax               ]
+       (if > 0)            (ml-auto when no SC)
+```
 
-When both Discount and Service Charge are $0, this results in:
-- Row 1: `Sub Total: $8.99` alone on the left
-- Row 2: `Tax: $0.18` pushed to the far right via `ml-auto`
+When Discount is removed, Row 1 shows `Sub Total` alone on the left — the right slot is empty. Service Charge and Tax stay locked in Row 2 and never move up.
 
-These two rows create visual dead space and split logically related info across two lines unnecessarily.
+The user expects items to **flow dynamically** into a 2-column grid, filling left-to-right, top-to-bottom — like slots being filled:
 
----
+```text
+Slot 1 (top-left):    Sub Total     ← always present
+Slot 2 (top-right):   first of: Discount → Service Charge → Tax
+Slot 3 (bottom-left): second of the above (if Slot 2 was used by Discount)
+Slot 4 (bottom-right): Tax (only if bottom row is needed)
+```
+
+## Layout Rules
+
+| Scenario | Row 1 | Row 2 |
+|---|---|---|
+| No Discount, No Service Charge | Sub Total + Tax | (hidden) |
+| Discount only | Sub Total + Discount | Tax alone (right-aligned) |
+| Service Charge only | Sub Total + Service Charge | Tax alone (right-aligned) |
+| Both Discount + Service Charge | Sub Total + Discount | Service Charge + Tax |
+
+This is the same as the current behavior for single-line and both-present cases. The **fix** is the "Discount only" case — currently Tax stays bottom-right; it should move up to Row 1 right slot, and Row 2 disappears.
+
+Similarly for "Service Charge only" — Tax should appear on the same row as Sub Total (on the right), not on a separate row.
 
 ## The Fix
 
-Use **conditional layout logic** — render a single row when both Discount and Service Charge are $0, or the existing two rows when at least one of them has a value.
+Replace the current fixed two-row structure with conditional slot logic:
 
-### Logic
+```text
+// Build a list of items to display (excluding Sub Total):
+// items = [Discount (if > 0), Service Charge (if > 0), Tax]
+// Tax is always last.
 
-```
-if (discount === 0 && serviceCharge === 0):
-  → Single row: Sub Total (left) | Tax (right)
+// If items.length === 1 (just Tax):
+//   → Single row: Sub Total | Tax
 
-else:
-  → Row 1: Sub Total (left) | Discount (right, if > 0)
-  → Row 2: Service Charge (left, if > 0) | Tax (right)
-```
+// If items.length === 2 (one of Discount/SC + Tax):
+//   → Single row: Sub Total | first-item
+//   → Second row: Tax alone (right-aligned)
+//     OR: collapse into 1 row with Sub Total | Tax
+//     (depends on design choice — see below)
 
-### Proposed UI
-
-**When both are $0 (single row):**
-```
-Sub Total: $8.99                    Tax: $0.18
-```
-
-**When Discount is applied (two rows):**
-```
-Sub Total: $8.99          Discount: -$5.00
-                                  Tax: $0.18
+// If items.length === 3 (Discount + SC + Tax):
+//   → Row 1: Sub Total | Discount
+//   → Row 2: Service Charge | Tax
 ```
 
-**When Service Charge is applied (two rows):**
-```
-Sub Total: $8.99
-Service Charge: +$1.50            Tax: $0.18
-```
+Based on the user's intent:
 
----
+- **Discount only**: Row 1 = Sub Total + Discount, Row 2 = Tax (right-aligned)
+- **Service Charge only**: Row 1 = Sub Total + Service Charge, Row 2 = Tax (right-aligned)  
+- **Both**: Row 1 = Sub Total + Discount, Row 2 = Service Charge + Tax
+- **Neither**: Row 1 = Sub Total + Tax
 
 ## Files to Edit
 
-Two locations in `src/pages/Orders.tsx`:
+Only `src/pages/Orders.tsx` — two locations:
 
-### Location 1 — Mobile/Landscape summary (lines 7542–7563)
+### Location 1 — Mobile/Landscape summary (~lines 7543–7608)
 
-Replace the two unconditional `<div>` rows with a conditional structure:
+Replace the `(discount > 0 || serviceCharge > 0) ? ... : ...` block with:
 
 ```tsx
 {(discount > 0 || serviceCharge > 0) ? (
   <>
-    {/* Row 1: Sub Total + Discount */}
+    {/* Row 1: Sub Total + (Discount if present, else Service Charge) */}
     <div className="flex justify-between gap-2">
       <span className="text-foreground">
         Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
       </span>
-      {discount > 0 && (
-        <span className="text-red-400">
-          Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
-        </span>
+      {discount > 0 ? (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-red-400 cursor-default flex items-center gap-1">
+                Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
+                {selectedDiscount && (
+                  <button onClick={() => setSelectedDiscountId(null)} ...>×</button>
+                )}
+              </span>
+            </TooltipTrigger>
+            {selectedDiscount && <TooltipContent>{selectedDiscount.name}</TooltipContent>}
+          </Tooltip>
+        </TooltipProvider>
+      ) : (
+        // No discount — Service Charge goes to top-right
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <span className="text-foreground cursor-default flex items-center gap-1">
+                Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                {appliedServiceCharge > 0 && (
+                  <button onClick={() => { setAppliedServiceCharge(0); setAppliedServiceChargeName(''); }} ...>×</button>
+                )}
+              </span>
+            </TooltipTrigger>
+            {appliedServiceChargeName && <TooltipContent>{appliedServiceChargeName}</TooltipContent>}
+          </Tooltip>
+        </TooltipProvider>
       )}
     </div>
-    {/* Row 2: Service Charge + Tax */}
+
+    {/* Row 2: (Service Charge if Discount shown) + Tax */}
     <div className="flex justify-between gap-2">
-      {serviceCharge > 0 && (
-        <span className="text-foreground">
-          Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
-        </span>
+      {discount > 0 && serviceCharge > 0 ? (
+        // Both present: SC on left, Tax on right
+        <>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="text-foreground cursor-default flex items-center gap-1">
+                  Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                  ...remove button
+                </span>
+              </TooltipTrigger>
+              ...
+            </Tooltip>
+          </TooltipProvider>
+          <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+        </>
+      ) : (
+        // Only one of them: Tax alone, right-aligned
+        <span className="text-foreground ml-auto">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
       )}
-      <span className={`text-foreground ${serviceCharge === 0 ? 'ml-auto' : ''}`}>
-        Tax: <span className="font-medium">${tax.toFixed(2)}</span>
-      </span>
     </div>
   </>
 ) : (
-  /* Single row: Sub Total + Tax */
+  // Neither — single row
   <div className="flex justify-between gap-2">
-    <span className="text-foreground">
-      Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
-    </span>
-    <span className="text-foreground">
-      Tax: <span className="font-medium">${tax.toFixed(2)}</span>
-    </span>
-  </div>
-)}
-```
-
-### Location 2 — Desktop sidebar summary (lines 8782–8813)
-
-Apply the same conditional logic:
-
-```tsx
-{(discount > 0 || serviceCharge > 0) ? (
-  <>
-    <div className="flex justify-between gap-3">
-      <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-      {discount > 0 && (
-        <span className="text-red-400 flex items-center gap-1">
-          {selectedDiscount ? selectedDiscount.name : 'Discount'}: <span className="font-medium">-${discount.toFixed(2)}</span>
-          {selectedDiscount && <button onClick={() => setSelectedDiscountId(null)} className="...">×</button>}
-        </span>
-      )}
-    </div>
-    <div className="flex justify-between gap-3">
-      {serviceCharge > 0 && (
-        <span className="text-foreground flex items-center gap-1">
-          {appliedServiceChargeName || 'Service Charge'}: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
-          {/* × remove button */}
-        </span>
-      )}
-      <span className={`text-foreground ${serviceCharge === 0 ? 'ml-auto' : ''}`}>
-        Tax: <span className="font-medium">${tax.toFixed(2)}</span>
-      </span>
-    </div>
-  </>
-) : (
-  <div className="flex justify-between gap-3">
     <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
     <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
   </div>
 )}
 ```
 
----
+### Location 2 — Desktop sidebar summary (~lines 8826–8883)
 
-## Summary of Changes
+Apply identical slot logic using the same conditional pattern, preserving the existing `gap-3` spacing and tooltip/remove-button implementations already in place for that section.
+
+## Summary
 
 | Scenario | Before | After |
 |---|---|---|
-| No Discount, No Service Charge | 2 rows with gaps | 1 row: Sub Total + Tax |
-| Discount applied | 2 rows (correct) | 2 rows (same) |
-| Service Charge applied | 2 rows (correct) | 2 rows (same) |
-| Both applied | 2 rows (correct) | 2 rows (same) |
+| No Discount, No SC | 1 row: Sub Total + Tax | Same |
+| Discount only | Row 1: Sub Total + Discount / Row 2: empty-left + Tax | Row 1: Sub Total + Discount / Row 2: Tax (right-aligned) |
+| SC only | Row 1: Sub Total + (empty) / Row 2: SC + Tax | Row 1: Sub Total + SC / Row 2: Tax (right-aligned) |
+| Both | Row 1: Sub Total + Discount / Row 2: SC + Tax | Same |

@@ -936,14 +936,16 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                             {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
                           </div>
                         )}
-                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                          {item.noTax && !item.isCancelled && (
-                            <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                          )}
-                          {item.isCancelled && (
-                            <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
-                          )}
-                        </div>
+                        {(item.noTax || item.isCancelled) && (
+                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                            {item.noTax && !item.isCancelled && (
+                              <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                            )}
+                            {item.isCancelled && (
+                              <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                     <span className={`font-medium text-sm ${item.isCancelled ? 'text-white/30 line-through' : 'text-white'}`}>{formatPrice(item.price * item.qty)}</span>
@@ -1266,14 +1268,16 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                               {isTablet && item.modifiers.length > 2 && <div>+{item.modifiers.length - 2} more</div>}
                             </div>
                           )}
-                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                            {item.noTax && !item.isCancelled && (
-                              <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                            )}
-                            {item.isCancelled && (
-                              <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
-                            )}
-                          </div>
+                          {(item.noTax || item.isCancelled) && (
+                            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                              {item.noTax && !item.isCancelled && (
+                                <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                              )}
+                              {item.isCancelled && (
+                                <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
+                              )}
+                            </div>
+                          )}
                         </div>
                       </div>
                       <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${item.isCancelled ? 'text-white/30 line-through' : 'text-white'}`}>{formatPrice(item.price * item.qty)}</span>

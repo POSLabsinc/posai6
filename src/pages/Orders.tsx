@@ -73,6 +73,7 @@ import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
 import settingsIcon from "@/assets/icons/settings.png";
 import { usePanelPosition } from "@/contexts/PanelPositionContext";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import { PanelDropZones } from "@/components/PanelDropZone";
 import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 import AddGuestForm from "@/components/AddGuestForm";
@@ -8997,115 +8998,12 @@ const Orders = () => {
       }}>
         <DialogContent hideCloseButton className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[90vw] overflow-hidden rounded-xl">
             {discountDialogView === 'mpin' ? (
-        /* MPIN View */
-        <div className="flex flex-col bg-neutral-900 p-6 pb-8">
-          {/* Header with back button */}
-          <div className="relative flex items-center justify-center mb-6">
-            <button
-              type="button"
-              onClick={() => { setShowDiscountDialog(false); setDiscountPin(""); setDiscountPinError(false); }}
-              className="absolute left-0 w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-            >
-              <ChevronLeft className="w-5 h-5 text-neutral-400" />
-            </button>
-            <div className="text-center">
-              <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
-              <p className="text-muted-foreground text-sm">Enter Manager PIN to Apply Discount.</p>
-            </div>
-          </div>
-
-          {/* PIN Display with asterisks */}
-          <div className={`flex justify-center gap-3 mb-6 ${discountPinError ? 'animate-shake' : ''}`}>
-            {[0, 1, 2, 3].map((index) => (
-              <div
-                key={index}
-                className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center text-3xl font-bold transition-all ${
-                  index < discountPin.length
-                    ? discountPinError
-                      ? "border-red-500 bg-red-500/10"
-                      : "border-neutral-400 bg-neutral-700"
-                    : "border-neutral-600 bg-neutral-800"
-                }`}
-              >
-                {index < discountPin.length ? <span className="text-foreground">✱</span> : ""}
-              </div>
-            ))}
-          </div>
-
-          {/* Numpad */}
-          <div className="grid grid-cols-3 gap-3 w-full">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-              <button
-                key={num}
-                type="button"
-                onClick={() => {
-                  if (discountPin.length < 4) {
-                    const newPin = discountPin + num.toString();
-                    setDiscountPin(newPin);
-                    if (newPin.length === 4) {
-                      if (newPin === "1234") {
-                        setTimeout(() => { setDiscountDialogView('discounts'); setDiscountPin(""); setDiscountPinError(false); }, 200);
-                      } else {
-                        setDiscountPinError(true);
-                        setTimeout(() => { setDiscountPin(""); setDiscountPinError(false); }, 600);
-                      }
-                    }
-                  }
-                }}
-                className="h-16 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-              >
-                {num}
-              </button>
-            ))}
-            {/* Backspace button */}
-            <button
-              type="button"
-              onClick={() => setDiscountPin(discountPin.slice(0, -1))}
-              className="h-16 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
-            >
-              <Delete className="w-5 h-5" />
-            </button>
-            {/* Zero button */}
-            <button
-              type="button"
-              onClick={() => {
-                if (discountPin.length < 4) {
-                  const newPin = discountPin + "0";
-                  setDiscountPin(newPin);
-                  if (newPin.length === 4) {
-                    if (newPin === "1234") {
-                      setTimeout(() => { setDiscountDialogView('discounts'); setDiscountPin(""); setDiscountPinError(false); }, 200);
-                    } else {
-                      setDiscountPinError(true);
-                      setTimeout(() => { setDiscountPin(""); setDiscountPinError(false); }, 600);
-                    }
-                  }
-                }
-              }}
-              className="h-16 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-            >
-              0
-            </button>
-            {/* Clear button */}
-            <button
-              type="button"
-              onClick={() => { setDiscountPin(""); setDiscountPinError(false); }}
-              className="h-16 rounded-xl bg-neutral-800 border border-neutral-700 text-2xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-            >
-              C
-            </button>
-          </div>
-
-          {/* Biometric Options */}
-          <div className="flex gap-3 mt-4 w-full">
-            <button type="button" className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-              <Fingerprint className="w-6 h-6" />
-            </button>
-            <button type="button" className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
-              <ScanFace className="w-6 h-6" />
-            </button>
-          </div>
-        </div>) : (
+          /* MPIN View — shared AccessRestrictedModal component */
+          <AccessRestrictedModal
+            subtitle="Manager approval required to apply discount."
+            onBack={() => { setShowDiscountDialog(false); setDiscountPin(""); setDiscountPinError(false); }}
+            onSuccess={() => { setDiscountDialogView('discounts'); setDiscountPin(""); setDiscountPinError(false); }}
+          />) : (
 
         /* Discount Selection View */
         <>

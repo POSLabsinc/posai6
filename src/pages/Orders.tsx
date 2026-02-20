@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Pencil } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, ChevronLeft, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Pencil } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
@@ -8998,10 +8998,19 @@ const Orders = () => {
             {discountDialogView === 'mpin' ? (
         /* MPIN View */
         <div className="flex flex-col bg-neutral-900 p-6 pb-8">
-          {/* Header - Center aligned */}
-          <div className="text-center mb-6">
-            <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
-            <p className="text-muted-foreground text-sm">Enter Manager PIN to Apply Discount.</p>
+          {/* Header with back button */}
+          <div className="relative flex items-center justify-center mb-6">
+            <button
+              type="button"
+              onClick={() => setShowDiscountDialog(false)}
+              className="absolute left-0 w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+            >
+              <ChevronLeft className="w-5 h-5 text-neutral-400" />
+            </button>
+            <div className="text-center">
+              <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
+              <p className="text-muted-foreground text-sm">Enter Manager PIN to Apply Discount.</p>
+            </div>
           </div>
 
           {/* PIN Display with asterisks */}
@@ -9021,7 +9030,7 @@ const Orders = () => {
           </div>
 
           {/* Numpad */}
-          <div className="grid grid-cols-3 gap-3 max-w-[280px] mx-auto w-full">
+          <div className="grid grid-cols-3 gap-3 w-full">
             {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
               <button
                 key={num}
@@ -9081,7 +9090,7 @@ const Orders = () => {
           </div>
 
           {/* Biometric Options */}
-          <div className="flex justify-center gap-3 mt-4 max-w-[280px] mx-auto w-full">
+          <div className="flex justify-center gap-3 mt-4 w-full">
             <button type="button" className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
               <Fingerprint className="w-6 h-6" />
             </button>

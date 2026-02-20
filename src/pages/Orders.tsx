@@ -7542,58 +7542,83 @@ const Orders = () => {
               }}>
                 {(discount > 0 || serviceCharge > 0) ? (
                   <>
-                    {/* Row 1: Sub Total + Discount */}
+                    {/* Row 1: Sub Total + (Discount if present, else Service Charge) */}
                     <div className="flex justify-between gap-2">
                       <span className="text-foreground">
                         Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
                       </span>
-                       {discount > 0 && (
-                         <TooltipProvider>
-                           <Tooltip>
-                             <TooltipTrigger asChild>
-                               <span className="text-red-400 cursor-default flex items-center gap-1">
-                                 Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
-                                 {selectedDiscount &&
-                                   <button
-                                     onClick={() => setSelectedDiscountId(null)}
-                                     className="text-red-400 hover:text-red-300 text-xs font-bold ml-0.5">
-                                     ×
-                                   </button>
-                                 }
-                               </span>
-                             </TooltipTrigger>
-                             {selectedDiscount && <TooltipContent side="top" className="text-xs">{selectedDiscount.name}</TooltipContent>}
-                           </Tooltip>
-                         </TooltipProvider>
-                       )}
-                     </div>
-                     {/* Row 2: Service Charge + Tax */}
-                     <div className="flex justify-between gap-2">
-                       {serviceCharge > 0 && (
-                         <TooltipProvider>
-                           <Tooltip>
-                             <TooltipTrigger asChild>
-                               <span className="text-foreground cursor-default flex items-center gap-1">
-                                 Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
-                                 {appliedServiceCharge > 0 &&
-                                   <button
-                                     onClick={() => {
-                                       setAppliedServiceCharge(0);
-                                       setAppliedServiceChargeName('');
-                                     }}
-                                     className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
-                                     ×
-                                   </button>
-                                 }
-                               </span>
-                             </TooltipTrigger>
-                             {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
-                           </Tooltip>
-                         </TooltipProvider>
-                       )}
-                      <span className={`text-foreground ${serviceCharge === 0 ? 'ml-auto' : ''}`}>
-                        Tax: <span className="font-medium">${tax.toFixed(2)}</span>
-                      </span>
+                      {discount > 0 ? (
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-red-400 cursor-default flex items-center gap-1">
+                                Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
+                                {selectedDiscount &&
+                                  <button
+                                    onClick={() => setSelectedDiscountId(null)}
+                                    className="text-red-400 hover:text-red-300 text-xs font-bold ml-0.5">
+                                    ×
+                                  </button>
+                                }
+                              </span>
+                            </TooltipTrigger>
+                            {selectedDiscount && <TooltipContent side="top" className="text-xs">{selectedDiscount.name}</TooltipContent>}
+                          </Tooltip>
+                        </TooltipProvider>
+                      ) : (
+                        /* No discount — Service Charge flows up to top-right */
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <span className="text-foreground cursor-default flex items-center gap-1">
+                                Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                                {appliedServiceCharge > 0 &&
+                                  <button
+                                    onClick={() => {
+                                      setAppliedServiceCharge(0);
+                                      setAppliedServiceChargeName('');
+                                    }}
+                                    className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
+                                    ×
+                                  </button>
+                                }
+                              </span>
+                            </TooltipTrigger>
+                            {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
+                          </Tooltip>
+                        </TooltipProvider>
+                      )}
+                    </div>
+                    {/* Row 2: Service Charge (only if discount also shown) + Tax */}
+                    <div className="flex justify-between gap-2">
+                      {discount > 0 && serviceCharge > 0 ? (
+                        <>
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <span className="text-foreground cursor-default flex items-center gap-1">
+                                  Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                                  {appliedServiceCharge > 0 &&
+                                    <button
+                                      onClick={() => {
+                                        setAppliedServiceCharge(0);
+                                        setAppliedServiceChargeName('');
+                                      }}
+                                      className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
+                                      ×
+                                    </button>
+                                  }
+                                </span>
+                              </TooltipTrigger>
+                              {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
+                            </Tooltip>
+                          </TooltipProvider>
+                          <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                        </>
+                      ) : (
+                        /* Only one of discount/SC — Tax flows to right-aligned second row */
+                        <span className="text-foreground ml-auto">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                      )}
                     </div>
                   </>
                 ) : (
@@ -8826,9 +8851,10 @@ const Orders = () => {
                 }}>
                   {(discount > 0 || serviceCharge > 0) ? (
                     <>
+                      {/* Row 1: Sub Total + (Discount if present, else Service Charge) */}
                       <div className="flex justify-between gap-3">
                         <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-                        {discount > 0 && (
+                        {discount > 0 ? (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -8846,10 +8872,8 @@ const Orders = () => {
                               {selectedDiscount && <TooltipContent side="top" className="text-xs">{selectedDiscount.name}</TooltipContent>}
                             </Tooltip>
                           </TooltipProvider>
-                        )}
-                      </div>
-                      <div className="flex justify-between gap-3">
-                        {serviceCharge > 0 && (
+                        ) : (
+                          /* No discount — Service Charge flows up to top-right */
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -8871,7 +8895,37 @@ const Orders = () => {
                             </Tooltip>
                           </TooltipProvider>
                         )}
-                        <span className={`text-foreground ${serviceCharge === 0 ? 'ml-auto' : ''}`}>Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                      </div>
+                      {/* Row 2: Service Charge (only if discount also shown) + Tax */}
+                      <div className="flex justify-between gap-3">
+                        {discount > 0 && serviceCharge > 0 ? (
+                          <>
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <span className="text-foreground flex items-center gap-1 cursor-default">
+                                    Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                                    {appliedServiceCharge > 0 &&
+                                      <button
+                                        onClick={() => {
+                                          setAppliedServiceCharge(0);
+                                          setAppliedServiceChargeName('');
+                                        }}
+                                        className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
+                                        ×
+                                      </button>
+                                    }
+                                  </span>
+                                </TooltipTrigger>
+                                {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
+                              </Tooltip>
+                            </TooltipProvider>
+                            <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                          </>
+                        ) : (
+                          /* Only one of discount/SC — Tax flows to right-aligned second row */
+                          <span className="text-foreground ml-auto">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                        )}
                       </div>
                     </>
                   ) : (

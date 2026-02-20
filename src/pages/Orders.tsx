@@ -9002,7 +9002,7 @@ const Orders = () => {
           <div className="relative flex items-center justify-center mb-6">
             <button
               type="button"
-              onClick={() => setShowDiscountDialog(false)}
+              onClick={() => setDiscountDialogView('discounts')}
               className="absolute left-0 w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
             >
               <ChevronLeft className="w-5 h-5 text-neutral-400" />

@@ -7567,14 +7567,14 @@ const Orders = () => {
                     {/* Row 1: Sub Total + (Discount if present, else Service Charge) */}
                     <div className="flex justify-between gap-2">
                       <span className="text-foreground">
-                        Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
+                        <span className="font-medium">Sub Total</span> <span className="font-bold">${subtotal.toFixed(2)}</span>
                       </span>
                       {discount > 0 ? (
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="text-red-400 cursor-default flex items-center gap-1">
-                                Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
+                               <span className="text-red-400 cursor-default flex items-center gap-1">
+                                 <span className="font-medium">Discount</span> <span className="font-bold">-${discount.toFixed(2)}</span>
                                 {selectedDiscount &&
                                   <button
                                     onClick={() => setSelectedDiscountId(null)}
@@ -7592,8 +7592,8 @@ const Orders = () => {
                         <TooltipProvider>
                           <Tooltip>
                             <TooltipTrigger asChild>
-                              <span className="text-foreground cursor-default flex items-center gap-1">
-                                Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                               <span className="text-foreground cursor-default flex items-center gap-1">
+                                 <span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+${serviceCharge.toFixed(2)}</span>
                                 {appliedServiceCharge > 0 &&
                                   <button
                                     onClick={() => {
@@ -7618,8 +7618,8 @@ const Orders = () => {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="text-foreground cursor-default flex items-center gap-1">
-                                  Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                                 <span className="text-foreground cursor-default flex items-center gap-1">
+                                   <span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+${serviceCharge.toFixed(2)}</span>
                                   {appliedServiceCharge > 0 &&
                                     <button
                                       onClick={() => {
@@ -7638,7 +7638,7 @@ const Orders = () => {
                           {isTaxExempt ? (
                             <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
                           ) : (
-                            <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                            <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
                           )}
                         </>
                       ) : (
@@ -7646,7 +7646,7 @@ const Orders = () => {
                         isTaxExempt ? (
                           <span className="ml-auto text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
                         ) : (
-                          <span className="text-foreground ml-auto">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                          <span className="text-foreground ml-auto"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
                         )
                       )}
                     </div>
@@ -7654,12 +7654,12 @@ const Orders = () => {
                 ) : (
                   <div className="flex justify-between gap-2">
                     <span className="text-foreground">
-                      Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
+                      <span className="font-medium">Sub Total</span> <span className="font-bold">${subtotal.toFixed(2)}</span>
                     </span>
                     {isTaxExempt ? (
                       <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
                     ) : (
-                      <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                      <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
                     )}
                   </div>
                 )}
@@ -8707,13 +8707,13 @@ const Orders = () => {
                     <>
                       {/* Row 1: Sub Total + (Discount if present, else Service Charge) */}
                       <div className="flex justify-between gap-3">
-                        <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+                        <span className="text-foreground"><span className="font-medium">Sub Total</span> <span className="font-bold">${subtotal.toFixed(2)}</span></span>
                         {discount > 0 ? (
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="text-red-400 flex items-center gap-1 cursor-default">
-                                  Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
+                                 <span className="text-red-400 flex items-center gap-1 cursor-default">
+                                   <span className="font-medium">Discount</span> <span className="font-bold">-${discount.toFixed(2)}</span>
                                   {selectedDiscount &&
                                     <button
                                       onClick={() => setSelectedDiscountId(null)}
@@ -8731,8 +8731,8 @@ const Orders = () => {
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
-                                <span className="text-foreground flex items-center gap-1 cursor-default">
-                                  Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                                 <span className="text-foreground flex items-center gap-1 cursor-default">
+                                   <span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+${serviceCharge.toFixed(2)}</span>
                                   {appliedServiceCharge > 0 &&
                                     <button
                                       onClick={() => {
@@ -8757,8 +8757,8 @@ const Orders = () => {
                             <TooltipProvider>
                               <Tooltip>
                                 <TooltipTrigger asChild>
-                                  <span className="text-foreground flex items-center gap-1 cursor-default">
-                                    Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                                   <span className="text-foreground flex items-center gap-1 cursor-default">
+                                     <span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+${serviceCharge.toFixed(2)}</span>
                                     {appliedServiceCharge > 0 &&
                                       <button
                                         onClick={() => {
@@ -8777,7 +8777,7 @@ const Orders = () => {
                             {isTaxExempt ? (
                               <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
                             ) : (
-                              <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                              <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
                             )}
                           </>
                         ) : (
@@ -8785,18 +8785,18 @@ const Orders = () => {
                           isTaxExempt ? (
                             <span className="ml-auto text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
                           ) : (
-                            <span className="text-foreground ml-auto">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                            <span className="text-foreground ml-auto"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
                           )
                         )}
                       </div>
                     </>
                   ) : (
                     <div className="flex justify-between gap-3">
-                      <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+                      <span className="text-foreground"><span className="font-medium">Sub Total</span> <span className="font-bold">${subtotal.toFixed(2)}</span></span>
                       {isTaxExempt ? (
                         <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
                       ) : (
-                        <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                        <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
                       )}
                     </div>
                   )}

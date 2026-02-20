@@ -2371,12 +2371,12 @@ const TableOrderDetails = () => {
             boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
           }}>
             <div className="flex justify-between gap-3">
-              <span className="text-foreground">Sub Total: <span className="font-medium">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span></span>
-              <span className="text-white">Discount: <span className="font-medium">{formatPrice((currentSelectedGuest?.discount || 0) + appliedDiscount)}</span></span>
+              <span className="text-foreground"><span className="font-medium">Sub Total</span> <span className="font-bold">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span></span>
+              <span className="text-white"><span className="font-medium">Discount</span> <span className="font-bold">{formatPrice((currentSelectedGuest?.discount || 0) + appliedDiscount)}</span></span>
             </div>
             <div className="flex justify-between gap-3">
-              <span className="text-foreground">Service Charge: <span className="font-medium text-primary">+{formatPrice(currentSelectedGuest?.serviceCharge || 0)}</span></span>
-              <span className="text-foreground">Tax: <span className="font-medium">{formatPrice(currentSelectedGuest?.tax || 0)}</span></span>
+              <span className="text-foreground"><span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+{formatPrice(currentSelectedGuest?.serviceCharge || 0)}</span></span>
+              <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">{formatPrice(currentSelectedGuest?.tax || 0)}</span></span>
             </div>
           </div>
 

@@ -7533,20 +7533,37 @@ const Orders = () => {
           </div>
 
           {/* Order Summary - Only show when items exist */}
-          {orderItems.length > 0 && <div className="px-2 py-1 border-t border-sidebar-border text-xs flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1">
-                <span className="text-muted-foreground">Sub:</span>
-                <span className="text-foreground">${subtotal.toFixed(2)}</span>
+          {orderItems.length > 0 && (
+            <div className="px-2 py-1.5 border-t border-sidebar-border">
+              <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
+                background: '#7575754D',
+                boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+              }}>
+                {/* Row 1: Sub Total + Discount (hidden when $0) */}
+                <div className="flex justify-between gap-2">
+                  <span className="text-foreground">
+                    Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
+                  </span>
+                  {discount > 0 && (
+                    <span className="text-red-400">
+                      Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
+                    </span>
+                  )}
+                </div>
+                {/* Row 2: Service Charge (hidden when $0) + Tax */}
+                <div className="flex justify-between gap-2">
+                  {serviceCharge > 0 && (
+                    <span className="text-foreground">
+                      Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                    </span>
+                  )}
+                  <span className={`text-foreground ${serviceCharge === 0 ? 'ml-auto' : ''}`}>
+                    Tax: <span className="font-medium">${tax.toFixed(2)}</span>
+                  </span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <span className="text-red-500">{selectedDiscount ? selectedDiscount.name.split(' ')[0] : 'Disc'}:</span>
-                <span className="text-red-500">${discount.toFixed(2)}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <span className="text-muted-foreground">{appliedServiceChargeName ? appliedServiceChargeName.split(' ')[0] : 'Svc'}:</span>
-                <span className="text-foreground">${serviceCharge.toFixed(2)}</span>
-              </div>
-            </div>}
+            </div>
+          )}
 
           {/* Split Order Warning - Mobile */}
           {isOrderSplit && orderItems.length > 0 &&

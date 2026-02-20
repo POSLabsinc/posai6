@@ -6147,6 +6147,7 @@ const Orders = () => {
   const [isManager, setIsManager] = useState(false); // TODO: Connect to actual user role system
   const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
   const [discountPin, setDiscountPin] = useState("");
+  const [discountPinError, setDiscountPinError] = useState(false);
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
     id: number;
     name: string;
@@ -9002,7 +9003,7 @@ const Orders = () => {
           <div className="relative flex items-center justify-center mb-6">
             <button
               type="button"
-              onClick={() => setDiscountDialogView('discounts')}
+              onClick={() => { setDiscountDialogView('discounts'); setDiscountPin(""); setDiscountPinError(false); }}
               className="absolute left-0 w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
             >
               <ChevronLeft className="w-5 h-5 text-neutral-400" />
@@ -9014,13 +9015,15 @@ const Orders = () => {
           </div>
 
           {/* PIN Display with asterisks */}
-          <div className="flex justify-center gap-3 mb-6">
+          <div className={`flex justify-center gap-3 mb-6 ${discountPinError ? 'animate-shake' : ''}`}>
             {[0, 1, 2, 3].map((index) => (
               <div
                 key={index}
                 className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center text-3xl font-bold transition-all ${
                   index < discountPin.length
-                    ? "border-neutral-600 bg-neutral-800"
+                    ? discountPinError
+                      ? "border-red-500 bg-red-500/10"
+                      : "border-neutral-600 bg-neutral-800"
                     : "border-neutral-600 bg-neutral-800"
                 }`}
               >
@@ -9040,10 +9043,12 @@ const Orders = () => {
                     const newPin = discountPin + num.toString();
                     setDiscountPin(newPin);
                     if (newPin.length === 4) {
-                      setTimeout(() => {
-                        setDiscountDialogView('discounts');
-                        setDiscountPin("");
-                      }, 200);
+                      if (newPin === "1234") {
+                        setTimeout(() => { setDiscountDialogView('discounts'); setDiscountPin(""); setDiscountPinError(false); }, 200);
+                      } else {
+                        setDiscountPinError(true);
+                        setTimeout(() => { setDiscountPin(""); setDiscountPinError(false); }, 600);
+                      }
                     }
                   }
                 }}
@@ -9068,10 +9073,12 @@ const Orders = () => {
                   const newPin = discountPin + "0";
                   setDiscountPin(newPin);
                   if (newPin.length === 4) {
-                    setTimeout(() => {
-                      setDiscountDialogView('discounts');
-                      setDiscountPin("");
-                    }, 200);
+                    if (newPin === "1234") {
+                      setTimeout(() => { setDiscountDialogView('discounts'); setDiscountPin(""); setDiscountPinError(false); }, 200);
+                    } else {
+                      setDiscountPinError(true);
+                      setTimeout(() => { setDiscountPin(""); setDiscountPinError(false); }, 600);
+                    }
                   }
                 }
               }}
@@ -9082,7 +9089,7 @@ const Orders = () => {
             {/* Clear button */}
             <button
               type="button"
-              onClick={() => setDiscountPin("")}
+              onClick={() => { setDiscountPin(""); setDiscountPinError(false); }}
               className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-2xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
             >
               C
@@ -9090,7 +9097,7 @@ const Orders = () => {
           </div>
 
           {/* Biometric Options */}
-          <div className="flex justify-center gap-3 mt-4 w-full">
+          <div className="flex gap-3 mt-4 w-full">
             <button type="button" className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
               <Fingerprint className="w-6 h-6" />
             </button>

@@ -1,160 +1,146 @@
 
-# Fix: Dynamic Flowing Layout for Order Summary (Mobile & Desktop)
+# Fix: Open Price Status Indicator — Mobile Portrait & View Item Flow
 
-## The Problem
+## Root Cause Analysis
 
-The current layout has a fixed 2-row, 2-column structure:
+There are two separate bugs to fix, both in `src/pages/Orders.tsx`.
 
-```text
-Row 1: [ Sub Total ]       [ Discount (if > 0) ]
-Row 2: [ Service Charge ]  [ Tax               ]
-       (if > 0)            (ml-auto when no SC)
-```
+---
 
-When Discount is removed, Row 1 shows `Sub Total` alone on the left — the right slot is empty. Service Charge and Tax stay locked in Row 2 and never move up.
+## Bug 1 — Mobile Portrait Order Panel Shows "Custom" Instead of "Open Price" Pill
 
-The user expects items to **flow dynamically** into a 2-column grid, filling left-to-right, top-to-bottom — like slots being filled:
-
-```text
-Slot 1 (top-left):    Sub Total     ← always present
-Slot 2 (top-right):   first of: Discount → Service Charge → Tax
-Slot 3 (bottom-left): second of the above (if Slot 2 was used by Discount)
-Slot 4 (bottom-right): Tax (only if bottom row is needed)
-```
-
-## Layout Rules
-
-| Scenario | Row 1 | Row 2 |
-|---|---|---|
-| No Discount, No Service Charge | Sub Total + Tax | (hidden) |
-| Discount only | Sub Total + Discount | Tax alone (right-aligned) |
-| Service Charge only | Sub Total + Service Charge | Tax alone (right-aligned) |
-| Both Discount + Service Charge | Sub Total + Discount | Service Charge + Tax |
-
-This is the same as the current behavior for single-line and both-present cases. The **fix** is the "Discount only" case — currently Tax stays bottom-right; it should move up to Row 1 right slot, and Row 2 disappears.
-
-Similarly for "Service Charge only" — Tax should appear on the same row as Sub Total (on the right), not on a separate row.
-
-## The Fix
-
-Replace the current fixed two-row structure with conditional slot logic:
-
-```text
-// Build a list of items to display (excluding Sub Total):
-// items = [Discount (if > 0), Service Charge (if > 0), Tax]
-// Tax is always last.
-
-// If items.length === 1 (just Tax):
-//   → Single row: Sub Total | Tax
-
-// If items.length === 2 (one of Discount/SC + Tax):
-//   → Single row: Sub Total | first-item
-//   → Second row: Tax alone (right-aligned)
-//     OR: collapse into 1 row with Sub Total | Tax
-//     (depends on design choice — see below)
-
-// If items.length === 3 (Discount + SC + Tax):
-//   → Row 1: Sub Total | Discount
-//   → Row 2: Service Charge | Tax
-```
-
-Based on the user's intent:
-
-- **Discount only**: Row 1 = Sub Total + Discount, Row 2 = Tax (right-aligned)
-- **Service Charge only**: Row 1 = Sub Total + Service Charge, Row 2 = Tax (right-aligned)  
-- **Both**: Row 1 = Sub Total + Discount, Row 2 = Service Charge + Tax
-- **Neither**: Row 1 = Sub Total + Tax
-
-## Files to Edit
-
-Only `src/pages/Orders.tsx` — two locations:
-
-### Location 1 — Mobile/Landscape summary (~lines 7543–7608)
-
-Replace the `(discount > 0 || serviceCharge > 0) ? ... : ...` block with:
+### Where
+Line 7377 in the mobile portrait order item row:
 
 ```tsx
-{(discount > 0 || serviceCharge > 0) ? (
-  <>
-    {/* Row 1: Sub Total + (Discount if present, else Service Charge) */}
-    <div className="flex justify-between gap-2">
-      <span className="text-foreground">
-        Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
-      </span>
-      {discount > 0 ? (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="text-red-400 cursor-default flex items-center gap-1">
-                Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
-                {selectedDiscount && (
-                  <button onClick={() => setSelectedDiscountId(null)} ...>×</button>
-                )}
-              </span>
-            </TooltipTrigger>
-            {selectedDiscount && <TooltipContent>{selectedDiscount.name}</TooltipContent>}
-          </Tooltip>
-        </TooltipProvider>
-      ) : (
-        // No discount — Service Charge goes to top-right
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <span className="text-foreground cursor-default flex items-center gap-1">
-                Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
-                {appliedServiceCharge > 0 && (
-                  <button onClick={() => { setAppliedServiceCharge(0); setAppliedServiceChargeName(''); }} ...>×</button>
-                )}
-              </span>
-            </TooltipTrigger>
-            {appliedServiceChargeName && <TooltipContent>{appliedServiceChargeName}</TooltipContent>}
-          </Tooltip>
-        </TooltipProvider>
-      )}
-    </div>
+{item.isOpenPrice && <span className="text-[8px] text-orange-400/70 font-medium">Custom</span>}
+```
 
-    {/* Row 2: (Service Charge if Discount shown) + Tax */}
-    <div className="flex justify-between gap-2">
-      {discount > 0 && serviceCharge > 0 ? (
-        // Both present: SC on left, Tax on right
-        <>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <span className="text-foreground cursor-default flex items-center gap-1">
-                  Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
-                  ...remove button
-                </span>
-              </TooltipTrigger>
-              ...
-            </Tooltip>
-          </TooltipProvider>
-          <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
-        </>
-      ) : (
-        // Only one of them: Tax alone, right-aligned
-        <span className="text-foreground ml-auto">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
-      )}
-    </div>
-  </>
-) : (
-  // Neither — single row
-  <div className="flex justify-between gap-2">
-    <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-    <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
-  </div>
+This is inconsistent with:
+- **Landscape view** (line 7839/7857): renders the correct orange gradient pill badge labeled "Open Price"
+- **Desktop sidebar** (line 8471): renders the correct orange gradient pill badge labeled "Open Price"
+
+### Fix
+Replace the plain text `"Custom"` span with the same orange gradient pill used in landscape and desktop:
+
+```tsx
+{item.isOpenPrice && (
+  <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[8px] font-semibold text-white whitespace-nowrap">
+    Open Price
+  </span>
 )}
 ```
 
-### Location 2 — Desktop sidebar summary (~lines 8826–8883)
+---
 
-Apply identical slot logic using the same conditional pattern, preserving the existing `gap-3` spacing and tooltip/remove-button implementations already in place for that section.
+## Bug 2 — Open Price Flag Not Set When Adding via View Item
+
+### Where
+The `addToCartWithModifiers` function (lines 6537–6547) builds the new order item object but does NOT include `isOpenPrice`:
+
+```tsx
+// Current — isOpenPrice is MISSING
+return [...prev, {
+  id: Date.now(),
+  qty: quantity,
+  name: item.name,
+  price: totalPrice / quantity,
+  modifiers: ...,
+  notes: ...,
+  assignedSeats: ...,
+  discountName: ...,
+  discountAmount: ...
+}];
+```
+
+The quick-add flow (line 8912) correctly sets `isOpenPrice: true`, but the view-item flow calls `addToCartWithModifiers` which silently drops the flag.
+
+### Fix — Two-part
+
+**Part A**: Update the `addToCartWithModifiers` function signature to accept an optional `isOpenPrice` parameter:
+
+The `item` parameter already has the shape `{ id: number; name: string; price: number }`. Since `openPriceItem` has `isOpenPrice: true`, when `setSelectedItemForCustomization(itemWithPrice)` is called (line 8916), `itemWithPrice` carries `isOpenPrice: true`. The function just needs to pass it through.
+
+Update the item object construction inside `addToCartWithModifiers` to include:
+```tsx
+isOpenPrice: (item as any).isOpenPrice || false,
+```
+
+This means the MenuItem shape already carries `isOpenPrice`, so reading `item.isOpenPrice` (after updating the type parameter to include it) propagates the flag automatically when the view-item flow passes `itemWithPrice` to the customization dialog, which then calls `onAddToCart` → `addToCartWithModifiers`.
+
+**Part B**: Update the TypeScript type of the `item` parameter in `addToCartWithModifiers` to include `isOpenPrice?: boolean`:
+
+```tsx
+const addToCartWithModifiers = (item: {
+  id: number;
+  name: string;
+  price: number;
+  isOpenPrice?: boolean;   // ← add this
+}, quantity: number, ...) => {
+```
+
+---
+
+## Files to Edit
+
+Only `src/pages/Orders.tsx` — three targeted changes:
+
+### Change 1 — Fix mobile portrait "Custom" label (line 7377)
+
+```tsx
+// Before
+{item.isOpenPrice && <span className="text-[8px] text-orange-400/70 font-medium">Custom</span>}
+
+// After
+{item.isOpenPrice && (
+  <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[8px] font-semibold text-white whitespace-nowrap">
+    Open Price
+  </span>
+)}
+```
+
+### Change 2 — Add `isOpenPrice?` to `addToCartWithModifiers` item type (line 6525–6529)
+
+```tsx
+// Before
+const addToCartWithModifiers = (item: {
+  id: number;
+  name: string;
+  price: number;
+}, quantity: number, ...
+
+// After
+const addToCartWithModifiers = (item: {
+  id: number;
+  name: string;
+  price: number;
+  isOpenPrice?: boolean;
+}, quantity: number, ...
+```
+
+### Change 3 — Include `isOpenPrice` in the new cart item object (line 6537–6547)
+
+```tsx
+// After other fields, add:
+isOpenPrice: item.isOpenPrice || false,
+```
+
+---
+
+## Consistency Matrix After Fix
+
+| View | Trigger | Badge shown |
+|---|---|---|
+| Mobile portrait order panel | Quick Add | Open Price pill (orange gradient) |
+| Mobile portrait order panel | View Item | Open Price pill (orange gradient) ← fixed |
+| Landscape order panel | Quick Add | Open Price pill (orange gradient) |
+| Landscape order panel | View Item | Open Price pill (orange gradient) ← fixed |
+| Desktop sidebar | Quick Add | Open Price pill (orange gradient) |
+| Desktop sidebar | View Item | Open Price pill (orange gradient) ← fixed |
+
+---
 
 ## Summary
 
-| Scenario | Before | After |
-|---|---|---|
-| No Discount, No SC | 1 row: Sub Total + Tax | Same |
-| Discount only | Row 1: Sub Total + Discount / Row 2: empty-left + Tax | Row 1: Sub Total + Discount / Row 2: Tax (right-aligned) |
-| SC only | Row 1: Sub Total + (empty) / Row 2: SC + Tax | Row 1: Sub Total + SC / Row 2: Tax (right-aligned) |
-| Both | Row 1: Sub Total + Discount / Row 2: SC + Tax | Same |
+- **1 label fix**: Replace `"Custom"` text with the proper orange gradient "Open Price" pill badge in the mobile portrait order item row.
+- **2 logic fixes**: Extend the `addToCartWithModifiers` type signature and cart item constructor to carry the `isOpenPrice` flag through the view-item flow, so the badge appears regardless of how the item was added.

@@ -6526,6 +6526,7 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
+    isOpenPrice?: boolean;
   }, quantity: number, modifiers: string[], notes: string, totalPrice: number, assignedSeats?: number[], discountInfo?: {name: string;amount: number;}) => {
     // When assignedSeats is defined (from table order) but empty, treat as "share on table" (all seats)
     const allSeats = isTableOrder ? Array.from({ length: guestCount }, (_, i) => i + 1) : undefined;
@@ -6543,7 +6544,8 @@ const Orders = () => {
         notes: notes.trim() ? notes.trim() : undefined,
         assignedSeats: seatsToAssign,
         discountName: discountInfo?.name,
-        discountAmount: discountInfo?.amount
+        discountAmount: discountInfo?.amount,
+        isOpenPrice: item.isOpenPrice || false,
       }];
     });
   };
@@ -7374,7 +7376,11 @@ const Orders = () => {
                               {item.qty}
                             </span>
                             <span className="text-[11px] font-medium text-foreground">{item.name}</span>
-                            {item.isOpenPrice && <span className="text-[8px] text-orange-400/70 font-medium">Custom</span>}
+                            {item.isOpenPrice && (
+                              <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[8px] font-semibold text-white whitespace-nowrap">
+                                Open Price
+                              </span>
+                            )}
                           </div>
                           {item.itemOrderType === 'VOUCHER' ?
                     <span

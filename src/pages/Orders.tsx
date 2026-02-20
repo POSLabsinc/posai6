@@ -8797,8 +8797,8 @@ const Orders = () => {
                       <div className="flex justify-between gap-3">
                         <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
                         {discount > 0 && (
-                          <span className="text-red-400 flex items-center gap-1">
-                            {selectedDiscount ? selectedDiscount.name : 'Discount'}: <span className="font-medium">-${discount.toFixed(2)}</span>
+                           <span className="text-red-400 flex items-center gap-1">
+                            Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
                             {selectedDiscount &&
                               <button
                                 onClick={() => setSelectedDiscountId(null)}
@@ -8811,8 +8811,8 @@ const Orders = () => {
                       </div>
                       <div className="flex justify-between gap-3">
                         {serviceCharge > 0 && (
-                          <span className="text-foreground flex items-center gap-1">
-                            {appliedServiceChargeName || 'Service Charge'}: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                           <span className="text-foreground flex items-center gap-1">
+                            Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
                             {appliedServiceCharge > 0 &&
                               <button
                                 onClick={() => {

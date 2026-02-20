@@ -1,126 +1,73 @@
 
-# Fix: Price Override Triggered for Open Price Items in ItemCustomizationDialog
+## Fix: Access Restricted MPIN Popup — Back Button & Padding
 
-## Root Cause
+### Problem
+The screenshot shows the **Price Override MPIN screen** inside `ItemCustomizationDialog.tsx` (`renderMPINView`). Two issues remain unfixed:
 
-There are two places where the fix needs to be applied, both in `src/components/ItemCustomizationDialog.tsx`.
-
-### Why It Happens
-
-When a user views an open price item (via "View Item") and the customization dialog opens (`ItemCustomizationDialog`), tapping the price display calls `handlePriceClick`. This function has **no awareness of open price items** — it blindly opens the MPIN screen, then proceeds to the Price Override flow.
-
-By contrast, the **mobile/inline** path uses `InlineItemCustomization.tsx`, which already correctly guards against this:
-
-```tsx
-// InlineItemCustomization.tsx line 241-243 — ALREADY CORRECT
-const handlePriceClick = () => {
-  if (item.isOpenPrice) return;  // ← guard exists here
-  ...
-};
-```
-
-But `ItemCustomizationDialog.tsx` is missing this guard entirely, and its local `MenuItem` interface does not even include `isOpenPrice`:
-
-```tsx
-// ItemCustomizationDialog.tsx lines 53-57 — MISSING isOpenPrice
-interface MenuItem {
-  id: number;
-  name: string;
-  price: number;   // isOpenPrice is absent
-}
-```
-
-```tsx
-// ItemCustomizationDialog.tsx lines 409-415 — NO guard
-const handlePriceClick = () => {
-  if (isManager) {
-    setCurrentView('priceOverride');  // ← proceeds even for open price items
-  } else {
-    setCurrentView('mpin');           // ← same issue
-  }
-};
-```
+1. **Padding issue**: Lines 686 and 720 still have `max-w-[280px] mx-auto` on the numpad grid and biometric button row — this creates large left/right gaps inside the dialog.
+2. **No back button**: Lines 661–665 only render a centered title/subtitle block. There is no `ChevronLeft` button to navigate back to the customization view.
 
 ---
 
-## Files to Edit
-
-Only `src/components/ItemCustomizationDialog.tsx` — two targeted changes.
+### Root Cause
+The previous fix was applied to the **Discount dialog** inside `Orders.tsx` but NOT to the **`renderMPINView`** function inside `src/components/ItemCustomizationDialog.tsx`, which is a completely separate component that also renders an "Access Restricted" MPIN screen.
 
 ---
 
-### Change 1 — Add `isOpenPrice` to the local `MenuItem` interface (line 53-57)
+### Fix Plan
 
-```tsx
-// Before
-interface MenuItem {
-  id: number;
-  name: string;
-  price: number;
-}
+**File: `src/components/ItemCustomizationDialog.tsx`**
 
-// After
-interface MenuItem {
-  id: number;
-  name: string;
-  price: number;
-  isOpenPrice?: boolean;
-}
+**Change 1 — Add back button to header (lines 659–665):**
+
+Replace the plain centered header with a relative container that positions a `ChevronLeft` button on the left, while keeping the title/subtitle centered. Clicking the back button will call `setCurrentView('customization')` to return to the item customization screen.
+
+```
+Before:
+<div className="text-center mb-6">
+  <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
+  <p className="text-muted-foreground text-sm">Enter Manager PIN to Adjust Price.</p>
+</div>
+
+After:
+<div className="relative flex items-center justify-center mb-6">
+  <button
+    onClick={() => setCurrentView('customization')}
+    className="absolute left-0 w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+  >
+    <ChevronLeft className="w-5 h-5 text-neutral-400" />
+  </button>
+  <div className="text-center">
+    <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
+    <p className="text-muted-foreground text-sm">Enter Manager PIN to Adjust Price.</p>
+  </div>
+</div>
 ```
 
-This allows the component to read the `isOpenPrice` property from the item passed in from `Orders.tsx` (which already passes `selectedItemForCustomization` with `isOpenPrice: true` for open price items).
+**Change 2 — Remove `max-w-[280px] mx-auto` from numpad (line 686):**
 
----
+```
+Before:
+<div className="grid grid-cols-3 gap-3 max-w-[280px] mx-auto w-full">
 
-### Change 2 — Add open price guard to `handlePriceClick` (lines 409-415)
-
-```tsx
-// Before
-const handlePriceClick = () => {
-  if (isManager) {
-    setCurrentView('priceOverride');
-  } else {
-    setCurrentView('mpin');
-  }
-};
-
-// After
-const handlePriceClick = () => {
-  if (item?.isOpenPrice) return;   // ← block MPIN/price override for open price items
-  if (isManager) {
-    setCurrentView('priceOverride');
-  } else {
-    setCurrentView('mpin');
-  }
-};
+After:
+<div className="grid grid-cols-3 gap-3 w-full">
 ```
 
----
+**Change 3 — Remove `max-w-[280px] mx-auto` from biometric row (line 720):**
 
-## Visual Impact on the Price Button
+```
+Before:
+<div className="flex justify-center gap-3 mt-4 max-w-[280px] mx-auto w-full">
 
-Additionally, the price button in the customization view should visually indicate it is non-interactive for open price items (matching what `InlineItemCustomization.tsx` already does at line 659):
-
-```tsx
-// InlineItemCustomization.tsx line 659 — reference for styling
-className={`bg-neutral-700 px-2 py-1 rounded-lg transition-colors ${item.isOpenPrice ? 'cursor-default' : 'hover:bg-neutral-600 cursor-pointer'}`}
+After:
+<div className="flex gap-3 mt-4 w-full">
 ```
 
-The same conditional styling will be applied to the price button in `ItemCustomizationDialog.tsx` (around line 1052) so the cursor and hover state reflect the non-clickable nature.
+**Change 4 — Ensure `ChevronLeft` is imported** in `ItemCustomizationDialog.tsx` (check existing imports and add if missing).
 
 ---
 
-## Consistency Matrix After Fix
-
-| Customization Path | Price Tap Behavior |
-|---|---|
-| InlineItemCustomization (mobile) | Blocked for open price items (already correct) |
-| ItemCustomizationDialog (desktop/modal) | Blocked for open price items (fixed by this plan) |
-
----
-
-## Summary
-
-- **1 type fix**: Add `isOpenPrice?: boolean` to the local `MenuItem` interface in `ItemCustomizationDialog.tsx` so the prop flows through.
-- **1 logic fix**: Add an early return guard `if (item?.isOpenPrice) return;` at the top of `handlePriceClick` in `ItemCustomizationDialog.tsx`.
-- **1 style fix**: Update the price button's `className` to use `cursor-default` (no hover) when the item is open price, matching the inline customization component.
+### Result
+- The numpad and biometric buttons will stretch to fill the full dialog width, eliminating the side padding.
+- A `ChevronLeft` back button will appear in the top-left of the header, navigating back to the customization view when tapped.

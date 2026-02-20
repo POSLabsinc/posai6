@@ -71,9 +71,11 @@ interface ItemCustomizationDialogProps {
 
 const overrideReasons = [
   "Manager Discount",
-  "Customer Complaint",
   "Price Match",
+  "Damaged Item",
   "Promotional Offer",
+  "Loyalty Discount",
+  "Customer Complaint",
   "Employee Discount",
   "Loyalty Reward",
   "Other"

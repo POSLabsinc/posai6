@@ -590,12 +590,12 @@ export const InlineItemCustomization = ({
           </div>
         </div>}
 
-      {/* Item Notes */}
+      {/* Product Notes */}
       <div className="px-3 pb-2">
         <OrderNotesAutocomplete
           value={itemNotes}
           onChange={setItemNotes}
-          placeholder="Item notes"
+          placeholder="Product notes"
           storageKey="item-notes-history"
         />
       </div>

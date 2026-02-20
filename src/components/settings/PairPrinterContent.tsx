@@ -12,7 +12,7 @@ interface PairPrinterContentProps {
 const PRINTER_TYPES = [
   { id: "kot", label: "Default KOT Printer Model" },
   { id: "bill", label: "Default Bill/Receipt Printer" },
-  { id: "custom", label: "Default Custom Item Printer" },
+  { id: "custom", label: "Default Custom Product Printer" },
 ];
 
 const PairPrinterContent = ({ showHeader = true, onBack }: PairPrinterContentProps) => {

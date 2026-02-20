@@ -2034,7 +2034,7 @@ const TableOrderDetails = () => {
                     Merge
                   </button>
                 ) : (
-                  // Show Add Item button for regular orders
+                  // Show Add Product button for regular orders
                   <button 
                     className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
                     onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
@@ -3332,7 +3332,7 @@ const TableOrderDetails = () => {
               <p className="text-white/60 text-sm mb-3">What would you like to transfer?</p>
               
               <div className="space-y-2">
-                {/* Transfer Items Option */}
+                {/* Transfer Products Option */}
                 <button 
                   onClick={() => {
                     setShowTransferIntentDialog(false);
@@ -3341,10 +3341,10 @@ const TableOrderDetails = () => {
                   className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
                 >
                   <div className="flex items-center gap-3 mb-0.5">
-                    <img src={transferItemIcon} alt="Transfer Items" className="w-5 h-5 object-contain opacity-80" />
-                    <span className="text-white font-medium">Transfer Items</span>
+                    <img src={transferItemIcon} alt="Transfer Products" className="w-5 h-5 object-contain opacity-80" />
+                    <span className="text-white font-medium">Transfer Products</span>
                   </div>
-                  <p className="text-white/50 text-xs ml-8">Move selected items to another table or order.</p>
+                  <p className="text-white/50 text-xs ml-8">Move selected products to another table or order.</p>
                 </button>
 
                 {/* Transfer Entire Order Section Title */}

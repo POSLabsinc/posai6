@@ -1577,10 +1577,10 @@ const TransferOrders = () => {
             {/* Select Items Section */}
             <div className="px-3 pb-2 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <p className="text-white/80 text-sm font-medium">Select Items</p>
+                <p className="text-white/80 text-sm font-medium">Select Products</p>
                 <div className="flex items-center gap-1 text-white/40 text-xs">
                   <Info className="w-3 h-3" />
-                  <span>Item notes are included</span>
+                  <span>Product notes are included</span>
                 </div>
               </div>
               <button onClick={handleSelectAll} className={`px-3 py-1 rounded-full text-xs font-medium transition-colors ${selectAll ? "bg-white text-black" : "bg-white/10 text-white"}`}>
@@ -1820,12 +1820,12 @@ const TransferOrders = () => {
         <AlertDialogContent className="bg-neutral-900 border-white/10">
           <AlertDialogHeader>
             <AlertDialogTitle className="text-white">
-              {isEntireOrderTransfer ? 'Transfer Entire Order?' : 'Transfer Items?'}
+              {isEntireOrderTransfer ? 'Transfer Entire Order?' : 'Transfer Products?'}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-white/60">
               {isEntireOrderTransfer 
-                ? <>Are you sure you want to transfer this entire order to {formatTableName(selectedTargetTable || '')}?<br /><br />All items, modifiers, notes, discounts, and charges will be moved together.</>
-                : <>Are you sure you want to transfer {selectedItems.length} item{selectedItems.length > 1 ? 's' : ''} to {formatTableName(selectedTargetTable || '')}?</>
+                ? <>Are you sure you want to transfer this entire order to {formatTableName(selectedTargetTable || '')}?<br /><br />All products, modifiers, notes, discounts, and charges will be moved together.</>
+                : <>Are you sure you want to transfer {selectedItems.length} product{selectedItems.length > 1 ? 's' : ''} to {formatTableName(selectedTargetTable || '')}?</>
               }
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -2056,9 +2056,9 @@ const TransferOrders = () => {
       <Dialog open={isConfirmDialogOpen} onOpenChange={setIsConfirmDialogOpen}>
         <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-2xl overflow-hidden">
           {/* Title */}
-          <h2 className="text-white text-xl font-semibold text-center pt-4 pb-4">Transfer Items</h2>
+          <h2 className="text-white text-xl font-semibold text-center pt-4 pb-4">Transfer Products</h2>
 
-          {/* From Order with Items Being Transferred */}
+          {/* From Order with Products Being Transferred */}
           <div className="px-6 pb-4">
             <p className="text-amber-400 text-lg font-medium mb-2">From</p>
             <div className="rounded-xl border border-white overflow-hidden" style={{
@@ -2147,7 +2147,7 @@ const TransferOrders = () => {
         <DialogContent className="bg-neutral-900 border-white/10 p-0 max-w-sm rounded-2xl overflow-hidden">
           {/* Header with close button */}
           <div className="flex items-center justify-between px-4 pt-4 pb-2">
-            <h2 className="text-white text-lg font-semibold">Items Transferred</h2>
+            <h2 className="text-white text-lg font-semibold">Products Transferred</h2>
             <button 
               onClick={() => {
                 const itemNames = selectedItems.map(index => currentOrder.items[index].name).join(',');

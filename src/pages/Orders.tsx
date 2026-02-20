@@ -6151,6 +6151,7 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
+    isOpenPrice?: boolean;
   } | null>(null);
   const [selectedItemImage, setSelectedItemImage] = useState<string | undefined>(undefined);
   const [showInlineCustomization, setShowInlineCustomization] = useState(false);
@@ -8975,7 +8976,16 @@ const Orders = () => {
       itemImage={selectedItemImage}
       onAddToCart={addToCartWithModifiers}
       isTableOrder={isTableOrder}
-      guestCount={guestCount} />
+      guestCount={guestCount}
+      onOpenPriceEdit={() => {
+        if (selectedItemForCustomization?.isOpenPrice) {
+          setCustomizationDialogOpen(false);
+          setOpenPriceItem({ id: selectedItemForCustomization.id, name: selectedItemForCustomization.name, price: selectedItemForCustomization.price, isOpenPrice: true } as MenuItem);
+          setOpenPriceFlow('editCartItem');
+          setOpenPriceEditCartItemId(selectedItemForCustomization.id);
+          setShowOpenPriceDialog(true);
+        }
+      }} />
 
 
       {/* Discount Dialog with integrated MPIN */}

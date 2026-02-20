@@ -66,6 +66,7 @@ interface ItemCustomizationDialogProps {
   isManager?: boolean;
   isTableOrder?: boolean;
   guestCount?: number;
+  onOpenPriceEdit?: () => void;
 }
 
 const overrideReasons = [
@@ -284,7 +285,8 @@ export const ItemCustomizationDialog = ({
   onAddToCart,
   isManager = false,
   isTableOrder = false,
-  guestCount = 0
+  guestCount = 0,
+  onOpenPriceEdit
 }: ItemCustomizationDialogProps) => {
   const [quantity, setQuantity] = useState(1);
   const [selectedModifiers, setSelectedModifiers] = useState<string[]>([]);
@@ -408,7 +410,10 @@ export const ItemCustomizationDialog = ({
   // to distinguish between price override and discount flows
 
   const handlePriceClick = () => {
-    if (item?.isOpenPrice) return;
+    if (item?.isOpenPrice) {
+      onOpenPriceEdit?.();
+      return;
+    }
     if (isManager) {
       setCurrentView('priceOverride');
     } else {

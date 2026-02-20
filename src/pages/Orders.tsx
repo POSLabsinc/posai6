@@ -6194,7 +6194,8 @@ const Orders = () => {
   const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);
   const [openPriceItem, setOpenPriceItem] = useState<MenuItem | null>(null);
   const [openPriceImageIndex, setOpenPriceImageIndex] = useState(0);
-  const [openPriceFlow, setOpenPriceFlow] = useState<'quickAdd' | 'viewItem'>('quickAdd');
+  const [openPriceFlow, setOpenPriceFlow] = useState<'quickAdd' | 'viewItem' | 'editCartItem'>('quickAdd');
+  const [openPriceEditCartItemId, setOpenPriceEditCartItemId] = useState<number | null>(null);
 
   // Payment Dialog State (component manages its own internal states)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -7367,6 +7368,14 @@ const Orders = () => {
                       setShowVoucherDialog(true);
                       return;
                     }
+                    if (item.isOpenPrice) {
+                      setOpenPriceItem({ id: item.id, name: item.name, price: item.price, isOpenPrice: true } as MenuItem);
+                      setOpenPriceImageIndex(index);
+                      setOpenPriceFlow('editCartItem');
+                      setOpenPriceEditCartItemId(item.id);
+                      setShowOpenPriceDialog(true);
+                      return;
+                    }
                     openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index);
                   }}>
 
@@ -8461,6 +8470,14 @@ const Orders = () => {
                           setShowVoucherDialog(true);
                           return;
                         }
+                        if (item.isOpenPrice) {
+                          setOpenPriceItem({ id: item.id, name: item.name, price: item.price, isOpenPrice: true } as MenuItem);
+                          setOpenPriceImageIndex(index);
+                          setOpenPriceFlow('editCartItem');
+                          setOpenPriceEditCartItemId(item.id);
+                          setShowOpenPriceDialog(true);
+                          return;
+                        }
                         openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index);
                       }}>
 
@@ -8917,6 +8934,20 @@ const Orders = () => {
                 assignedSeats: allSeats,
                 isOpenPrice: true
               }]);
+            } else if (openPriceFlow === 'editCartItem' && openPriceEditCartItemId !== null) {
+              // Edit existing cart item: update its price then open customization
+              setOrderItems((prev) => prev.map((o) =>
+                o.id === openPriceEditCartItemId ? { ...o, price: itemWithPrice.price } : o
+              ));
+              setSelectedItemForCustomization({ ...itemWithPrice, id: openPriceEditCartItemId });
+              setSelectedItemImage(foodImages[openPriceImageIndex % foodImages.length]);
+              const isMobile = window.innerWidth < 768;
+              if (isMobile) {
+                setShowInlineCustomization(true);
+              } else {
+                setCustomizationDialogOpen(true);
+              }
+              setOpenPriceEditCartItemId(null);
             } else {
               // View item: open customization dialog with entered price
               setSelectedItemForCustomization(itemWithPrice);

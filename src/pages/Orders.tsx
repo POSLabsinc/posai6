@@ -7087,6 +7087,12 @@ const Orders = () => {
                   </DropdownMenuContent>
                 </DropdownMenu>
                 {orderItems.length > 0 && <span className="bg-sidebar-accent px-2 py-0.5 rounded text-xs font-bold">20</span>}
+                {isTaxExempt && (
+                  <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold text-orange-400 border border-orange-500/50 bg-orange-500/15">
+                    <img src={noTaxBtnIcon} alt="" className="w-2.5 h-2.5" />
+                    No Tax
+                  </span>
+                )}
               </div>
               <div className="flex items-center gap-2 text-xs">
                 <img src={runnerIcon} alt="User" className="w-4 h-4" />
@@ -7121,10 +7127,11 @@ const Orders = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
-                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                  className={`cursor-pointer text-xs py-2 px-3 flex items-center gap-2 ${isTaxExempt ? 'bg-orange-500/20 text-orange-400' : 'text-white hover:bg-neutral-700'}`}>
 
-                      <img src={noTaxBtnIcon} alt="" className="w-3.5 h-3.5" />
+                      <img src={noTaxBtnIcon} alt="" className={`w-3.5 h-3.5 ${isTaxExempt ? 'opacity-100' : ''}`} />
                       No Tax
+                      {isTaxExempt && <span className="ml-auto text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-medium">ON</span>}
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                       <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
@@ -7634,11 +7641,11 @@ const Orders = () => {
                               {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
                             </Tooltip>
                           </TooltipProvider>
-                          <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                          <span className="text-foreground">Tax: <span className={`font-medium ${isTaxExempt ? 'text-orange-400' : ''}`}>${tax.toFixed(2)}{isTaxExempt && <span className="ml-1 text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1 rounded">No Tax</span>}</span></span>
                         </>
                       ) : (
                         /* Only one of discount/SC — Tax flows to right-aligned second row */
-                        <span className="text-foreground ml-auto">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                        <span className="text-foreground ml-auto">Tax: <span className={`font-medium ${isTaxExempt ? 'text-orange-400' : ''}`}>${tax.toFixed(2)}{isTaxExempt && <span className="ml-1 text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1 rounded">No Tax</span>}</span></span>
                       )}
                     </div>
                   </>
@@ -7648,7 +7655,7 @@ const Orders = () => {
                       Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
                     </span>
                     <span className="text-foreground">
-                      Tax: <span className="font-medium">${tax.toFixed(2)}</span>
+                      Tax: <span className={`font-medium ${isTaxExempt ? 'text-orange-400' : ''}`}>${tax.toFixed(2)}{isTaxExempt && <span className="ml-1 text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1 rounded">No Tax</span>}</span>
                     </span>
                   </div>
                 )}

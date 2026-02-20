@@ -7,8 +7,9 @@ interface OpenPriceDialogProps {
   onOpenChange: (open: boolean) => void;
   productName: string;
   onConfirm: (price: number) => void;
-  ctaLabel?: "Add to Order" | "Continue";
+  ctaLabel?: "Add to Order" | "Continue" | "Save";
   initialPrice?: number;
+  isEditing?: boolean;
 }
 
 export const OpenPriceDialog = ({
@@ -18,6 +19,7 @@ export const OpenPriceDialog = ({
   onConfirm,
   ctaLabel = "Add to Order",
   initialPrice,
+  isEditing = false,
 }: OpenPriceDialogProps) => {
   // Store raw digits (no decimal). E.g. "255" means $2.55
   const [digits, setDigits] = useState("");
@@ -117,9 +119,11 @@ export const OpenPriceDialog = ({
                 {formatDisplay(centsValue)}
               </span>
             </div>
-            {centsValue === 0 && (
+            {ctaLabel === "Save" ? (
+              <p className="text-orange-400/80 text-xs mt-1">Editing the open price</p>
+            ) : centsValue === 0 ? (
               <p className="text-neutral-500 text-xs mt-1">Enter Base Price</p>
-            )}
+            ) : null}
           </div>
 
           {/* Keypad: 1-9 */}

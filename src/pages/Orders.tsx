@@ -8921,7 +8921,7 @@ const Orders = () => {
           if (!open) setOpenPriceItem(null);
         }}
         productName={openPriceItem?.name || ""}
-        ctaLabel={openPriceFlow === 'viewItem' ? "Continue" : "Add to Order"}
+        ctaLabel={openPriceFlow === 'viewItem' ? "Continue" : openPriceFlow === 'editCartItem' ? "Save" : "Add to Order"}
         initialPrice={openPriceFlow === 'editCartItem' ? openPriceItem?.price : undefined}
         onConfirm={(price) => {
           if (openPriceItem) {

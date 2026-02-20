@@ -54,7 +54,6 @@ interface MenuItem {
   id: number;
   name: string;
   price: number;
-  isOpenPrice?: boolean;
 }
 
 interface ItemCustomizationDialogProps {
@@ -1087,53 +1086,6 @@ export const ItemCustomizationDialog = ({
         </div>
       </div>
 
-      {/* Open Price Breakdown — shown only for open-price items */}
-      {item?.isOpenPrice && (() => {
-        const modTotal = selectedModifiers.reduce((t, modName) => {
-          for (const cat of itemModifiers) {
-            const opt = cat.options.find(o => o.name === modName);
-            if (opt?.price) return t + opt.price;
-          }
-          return t;
-        }, 0);
-        const aoTotal = selectedAddOns.reduce((t, aoName) => {
-          const ao = currentItemAddOns.find(a => a.name === aoName);
-          return t + (ao?.price || 0);
-        }, 0);
-        const baseP = item.price;
-        const subtotal = (baseP + modTotal + aoTotal) * quantity;
-        return (
-          <div className="mx-4 mb-2 rounded-xl border border-orange-500/20 bg-orange-500/5 px-3 py-2.5">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-orange-300/80 text-[10px] font-semibold uppercase tracking-wider">Base Price</span>
-              <span className="text-orange-200 text-xs font-bold">${baseP.toFixed(2)}</span>
-            </div>
-            {modTotal > 0 && (
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-neutral-400 text-[10px]">+ Modifiers</span>
-                <span className="text-neutral-300 text-[10px] font-medium">+${modTotal.toFixed(2)}</span>
-              </div>
-            )}
-            {aoTotal > 0 && (
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-neutral-400 text-[10px]">+ Add-ons</span>
-                <span className="text-neutral-300 text-[10px] font-medium">+${aoTotal.toFixed(2)}</span>
-              </div>
-            )}
-            {quantity > 1 && (
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-neutral-400 text-[10px]">× Quantity</span>
-                <span className="text-neutral-300 text-[10px] font-medium">{quantity}</span>
-              </div>
-            )}
-            <div className="border-t border-orange-500/20 mt-1.5 pt-1.5 flex items-center justify-between">
-              <span className="text-white text-xs font-bold">Total</span>
-              <span className="text-orange-400 text-sm font-bold">${subtotal.toFixed(2)}</span>
-            </div>
-          </div>
-        );
-      })()}
-
       {/* Seat Selection Row - Only shown for table orders */}
       {isTableOrder && guestCount > 0 && (
         <div className="px-4 pb-2">
@@ -1444,18 +1396,15 @@ export const ItemCustomizationDialog = ({
         <Button 
           onClick={handleAddToCart} 
           className="flex-[2] py-2 rounded-full font-bold text-sm h-10" 
-          style={item?.isOpenPrice ? {
-            background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)',
-            color: 'white'
-          } : {
+          style={{
             background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
             color: 'black'
           }}
         >
           {selectedDiscountId ? (
             <>
-              ADD <span className="line-through opacity-60 mx-1">${getDisplayPrice().priceBeforeDiscount.toFixed(2)}</span>
-              <span>${getDisplayPrice().finalPrice.toFixed(2)}</span>
+              ADD <span className="line-through text-neutral-500 mx-1">${getDisplayPrice().priceBeforeDiscount.toFixed(2)}</span>
+              <span className="text-green-600">${getDisplayPrice().finalPrice.toFixed(2)}</span>
             </>
           ) : (
             `ADD $${getDisplayPrice().finalPrice.toFixed(2)}`

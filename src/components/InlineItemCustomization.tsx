@@ -686,53 +686,6 @@ export const InlineItemCustomization = ({
         </div>
       </div>
 
-      {/* Open Price Breakdown — shown only for open-price items */}
-      {item.isOpenPrice && (() => {
-        const modBd = selectedModifiers.reduce((t, modName) => {
-          for (const cat of itemModifiers) {
-            const opt = cat.options.find(o => o.name === modName);
-            if (opt?.price) return t + opt.price;
-          }
-          return t;
-        }, 0);
-        const aoBd = selectedAddOns.reduce((t, aoName) => {
-          const ao = addOnItems.find(a => a.name === aoName);
-          return t + (ao?.price || 0);
-        }, 0);
-        const baseBd = overriddenPrice !== null ? overriddenPrice : item.price;
-        const subtotalBd = (baseBd + modBd + aoBd) * quantity;
-        return (
-          <div className="mx-3 mb-2 rounded-xl border border-orange-500/20 bg-orange-500/5 px-3 py-2">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-orange-300/80 text-[10px] font-semibold uppercase tracking-wider">Base Price</span>
-              <span className="text-orange-200 text-[11px] font-bold">${baseBd.toFixed(2)}</span>
-            </div>
-            {modBd > 0 && (
-              <div className="flex items-center justify-between mb-0.5">
-                <span className="text-neutral-400 text-[9px]">+ Modifiers</span>
-                <span className="text-neutral-300 text-[9px] font-medium">+${modBd.toFixed(2)}</span>
-              </div>
-            )}
-            {aoBd > 0 && (
-              <div className="flex items-center justify-between mb-0.5">
-                <span className="text-neutral-400 text-[9px]">+ Add-ons</span>
-                <span className="text-neutral-300 text-[9px] font-medium">+${aoBd.toFixed(2)}</span>
-              </div>
-            )}
-            {quantity > 1 && (
-              <div className="flex items-center justify-between mb-0.5">
-                <span className="text-neutral-400 text-[9px]">× Quantity</span>
-                <span className="text-neutral-300 text-[9px] font-medium">{quantity}</span>
-              </div>
-            )}
-            <div className="border-t border-orange-500/20 mt-1 pt-1 flex items-center justify-between">
-              <span className="text-white text-[10px] font-bold">Total</span>
-              <span className="text-orange-400 text-xs font-bold">${subtotalBd.toFixed(2)}</span>
-            </div>
-          </div>
-        );
-      })()}
-
       {/* Selected Modifiers Pills */}
       {selectedModifiers.length > 0 && <div className="px-3 pb-2">
           <div className="flex flex-wrap gap-1">
@@ -943,17 +896,10 @@ export const InlineItemCustomization = ({
         >
           <img src={offerIcon} alt="Offer" className="w-full h-full object-cover" />
         </button>
-        <Button
-          onClick={handleAddToCart}
-          className="flex-[2] py-1 rounded-full font-bold text-[10px] h-7"
-          style={item.isOpenPrice ? {
-            background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)',
-            color: 'white'
-          } : {
-            background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
-            color: 'black'
-          }}
-        >
+        <Button onClick={handleAddToCart} className="flex-[2] py-1 rounded-full font-bold text-[10px] h-7" style={{
+        background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)',
+        color: 'black'
+      }}>
           ADD ${totalPrice.toFixed(2)}
         </Button>
       </div>

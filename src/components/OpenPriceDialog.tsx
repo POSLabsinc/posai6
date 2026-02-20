@@ -100,6 +100,9 @@ export const OpenPriceDialog = ({
                 {formatDisplay(centsValue)}
               </span>
             </div>
+            {centsValue === 0 && (
+              <p className="text-neutral-500 text-xs mt-1">Enter Base Price</p>
+            )}
           </div>
 
           {/* Keypad: 1-9 */}

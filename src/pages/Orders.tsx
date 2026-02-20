@@ -6147,8 +6147,7 @@ const Orders = () => {
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
   const [isManager, setIsManager] = useState(false); // TODO: Connect to actual user role system
   const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
-  const [discountPin, setDiscountPin] = useState("");
-  const [discountPinError, setDiscountPinError] = useState(false);
+  // discountPin/discountPinError removed — AccessRestrictedModal manages its own PIN state
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
     id: number;
     name: string;
@@ -8994,15 +8993,15 @@ const Orders = () => {
       {/* Discount Dialog with integrated MPIN */}
       <Dialog open={showDiscountDialog} onOpenChange={(open) => {
         setShowDiscountDialog(open);
-        if (!open) setDiscountPin("");
+        if (!open) setDiscountDialogView('mpin');
       }}>
         <DialogContent hideCloseButton className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[90vw] overflow-hidden rounded-xl">
             {discountDialogView === 'mpin' ? (
           /* MPIN View — shared AccessRestrictedModal component */
           <AccessRestrictedModal
             subtitle="Manager approval required to apply discount."
-            onBack={() => { setShowDiscountDialog(false); setDiscountPin(""); setDiscountPinError(false); }}
-            onSuccess={() => { setDiscountDialogView('discounts'); setDiscountPin(""); setDiscountPinError(false); }}
+            onBack={() => { setShowDiscountDialog(false); setDiscountDialogView('mpin'); }}
+            onSuccess={() => { setDiscountDialogView('discounts'); }}
           />) : (
 
         /* Discount Selection View */

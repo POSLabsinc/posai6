@@ -7635,11 +7635,19 @@ const Orders = () => {
                               {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
                             </Tooltip>
                           </TooltipProvider>
-                          <span className="text-foreground">Tax: <span className={`font-medium ${isTaxExempt ? 'text-orange-400' : ''}`}>${tax.toFixed(2)}{isTaxExempt && <span className="ml-1 text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1 rounded">No Tax</span>}</span></span>
+                          {isTaxExempt ? (
+                            <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                          ) : (
+                            <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                          )}
                         </>
                       ) : (
                         /* Only one of discount/SC — Tax flows to right-aligned second row */
-                        <span className="text-foreground ml-auto">Tax: <span className={`font-medium ${isTaxExempt ? 'text-orange-400' : ''}`}>${tax.toFixed(2)}{isTaxExempt && <span className="ml-1 text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1 rounded">No Tax</span>}</span></span>
+                        isTaxExempt ? (
+                          <span className="ml-auto text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                        ) : (
+                          <span className="text-foreground ml-auto">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                        )
                       )}
                     </div>
                   </>
@@ -7648,9 +7656,11 @@ const Orders = () => {
                     <span className="text-foreground">
                       Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
                     </span>
-                    <span className="text-foreground">
-                      Tax: <span className={`font-medium ${isTaxExempt ? 'text-orange-400' : ''}`}>${tax.toFixed(2)}{isTaxExempt && <span className="ml-1 text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1 rounded">No Tax</span>}</span>
-                    </span>
+                    {isTaxExempt ? (
+                      <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                    ) : (
+                      <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                    )}
                   </div>
                 )}
               </div>
@@ -8764,18 +8774,30 @@ const Orders = () => {
                                 {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
                               </Tooltip>
                             </TooltipProvider>
-                            <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                            {isTaxExempt ? (
+                              <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                            ) : (
+                              <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                            )}
                           </>
                         ) : (
                           /* Only one of discount/SC — Tax flows to right-aligned second row */
-                          <span className="text-foreground ml-auto">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                          isTaxExempt ? (
+                            <span className="ml-auto text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                          ) : (
+                            <span className="text-foreground ml-auto">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                          )
                         )}
                       </div>
                     </>
                   ) : (
                     <div className="flex justify-between gap-3">
                       <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-                      <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                      {isTaxExempt ? (
+                        <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                      ) : (
+                        <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                      )}
                     </div>
                   )}
                   {appliedGiftCardAmount > 0 &&

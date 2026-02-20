@@ -165,46 +165,52 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const isTicketEditable = (status: string) =>
     status === "ORDERING" || status === "UNPAID";
 
+  // Recalculate ticket totals from its current items (excluding cancelled ones)
+  const recalcTotals = (items: GuestOrder['items'], existingOrder: GuestOrder) => {
+    const TAX_RATE = 0.0735;
+    const SERVICE_CHARGE_RATE = 0.05;
+    const DISCOUNT_THRESHOLD = 50;
+    const DISCOUNT_AMOUNT = 5.00;
+
+    const activeItems = items.filter(it => !it.isCancelled);
+    const subtotal = activeItems.reduce((sum, it) => sum + it.price * it.qty, 0);
+    const discount = subtotal > DISCOUNT_THRESHOLD ? DISCOUNT_AMOUNT : 0;
+    const serviceCharge = subtotal * SERVICE_CHARGE_RATE;
+    // Respect per-item noTax flags
+    const taxableSubtotal = activeItems.filter(it => !it.noTax).reduce((sum, it) => sum + it.price * it.qty, 0);
+    const tax = Math.max(0, taxableSubtotal - discount) * TAX_RATE;
+    const total = subtotal - discount + serviceCharge + tax + (existingOrder.tip ?? 0);
+
+    return { subtotal, discount, serviceCharge, tax, total };
+  };
+
   // Toggle No Tax for a product in the selected ticket
   const handleProductNoTax = (itemIndex: number) => {
-    updateOrders(prev =>
-      prev.map(o => {
-        if (o.id !== selectedGuest.id) return o;
-        const newItems = o.items.map((it, idx) =>
-          idx === itemIndex ? { ...it, noTax: !it.noTax } : it
-        );
-        return { ...o, items: newItems };
-      })
+    const newItems = selectedGuest.items.map((it, idx) =>
+      idx === itemIndex ? { ...it, noTax: !it.noTax } : it
     );
-    setSelectedGuest(prev => ({
-      ...prev,
-      items: prev.items.map((it, idx) =>
-        idx === itemIndex ? { ...it, noTax: !it.noTax } : it
-      ),
-    }));
+    const totals = recalcTotals(newItems, selectedGuest);
+    const updated = { ...selectedGuest, items: newItems, ...totals };
+
+    updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updated : o));
+    setSelectedGuest(updated);
     setActiveSwipedProductIndex(null);
     toast.success("No Tax toggled for product");
   };
 
-  // Cancel (mark as cancelled) a product in the selected ticket
+  // Cancel (mark as cancelled) a product in the selected ticket and recalculate totals
   const handleProductCancel = (itemIndex: number) => {
-    updateOrders(prev =>
-      prev.map(o => {
-        if (o.id !== selectedGuest.id) return o;
-        const newItems = o.items.map((it, idx) =>
-          idx === itemIndex ? { ...it, isCancelled: !it.isCancelled } : it
-        );
-        return { ...o, items: newItems };
-      })
+    const newItems = selectedGuest.items.map((it, idx) =>
+      idx === itemIndex ? { ...it, isCancelled: !it.isCancelled } : it
     );
-    setSelectedGuest(prev => ({
-      ...prev,
-      items: prev.items.map((it, idx) =>
-        idx === itemIndex ? { ...it, isCancelled: !it.isCancelled } : it
-      ),
-    }));
+    const totals = recalcTotals(newItems, selectedGuest);
+    const updated = { ...selectedGuest, items: newItems, ...totals };
+
+    updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updated : o));
+    setSelectedGuest(updated);
     setActiveSwipedProductIndex(null);
-    toast.success("Product cancelled");
+    const wasCancelled = selectedGuest.items[itemIndex]?.isCancelled;
+    toast.success(wasCancelled ? "Product restored" : "Product cancelled");
   };
 
   // Merge state

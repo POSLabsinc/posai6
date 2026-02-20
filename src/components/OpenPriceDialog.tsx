@@ -86,7 +86,7 @@ export const OpenPriceDialog = ({
                   <Info className="w-4 h-4 text-neutral-400 cursor-pointer shrink-0" />
                 </TooltipTrigger>
                 <TooltipContent side="bottom" className="max-w-[240px] text-center">
-                  This product has no fixed price. Enter the amount to continue.
+                  This product has no fixed price. Enter the selling price to continue.
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>

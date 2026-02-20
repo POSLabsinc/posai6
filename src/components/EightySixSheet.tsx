@@ -260,7 +260,7 @@ export function EightySixSheet({
               <div className="eighty-six-icon w-7 h-7">
                 <Ban size={16} strokeWidth={2.5} />
               </div>
-              <span>86 Items</span>
+              <span>86 Products</span>
               {eightySixedItems.length > 0 && (
                 <EightySixBadge 
                   size="lg" 
@@ -292,23 +292,23 @@ export function EightySixSheet({
                   : 'bg-neutral-800 text-white hover:bg-neutral-700'
               }`}
             >
-              Add Items
+              Add Products
             </button>
           </div>
 
           {view === 'manage' ? (
-            /* Currently 86'd Items */
+            /* Currently 86'd Products */
             <ScrollArea className="flex-1">
               {eightySixedItems.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 px-4">
                   <Package className="w-12 h-12 text-white/20 mb-4" />
-                  <p className="text-white/40 text-center">No items are currently 86'd</p>
+                  <p className="text-white/40 text-center">No products are currently 86'd</p>
                   <Button
                     variant="outline"
                     onClick={() => setView('add')}
                     className="mt-4 border-white/20 text-white hover:bg-white/10"
                   >
-                    Add Items
+                    Add Products
                   </Button>
                 </div>
               ) : (
@@ -516,7 +516,7 @@ export function EightySixSheet({
               )}
             </ScrollArea>
           ) : (
-            /* Add Items View */
+            /* Add Products View */
             <>
               {/* Search */}
               <div className="p-4 border-b border-white/10">
@@ -525,7 +525,7 @@ export function EightySixSheet({
                   <Input
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search menu items..."
+                    placeholder="Search menu products..."
                     className="pl-9 bg-neutral-800 border-neutral-700 text-white placeholder:text-white/40"
                   />
                 </div>

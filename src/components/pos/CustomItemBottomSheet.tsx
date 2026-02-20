@@ -127,7 +127,7 @@ const CustomItemBottomSheet: React.FC<CustomItemBottomSheetProps> = ({
 
               {/* Header */}
               <div className="flex items-center justify-between px-4 py-3 flex-shrink-0 border-b border-neutral-800">
-                <h2 className="text-white text-base font-semibold">Custom Item</h2>
+                <h2 className="text-white text-base font-semibold">Custom Product</h2>
                 <button
                   onClick={handleClose}
                   className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 active:bg-neutral-500 flex items-center justify-center transition-colors touch-manipulation"
@@ -155,7 +155,7 @@ const CustomItemBottomSheet: React.FC<CustomItemBottomSheetProps> = ({
                     value={name}
                     readOnly
                     onFocus={() => setActiveField("name")}
-                    placeholder="Enter item name"
+                    placeholder="Enter product name"
                     className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500 caret-orange-500"
                   />
                   {name.length > 0 && activeField === "name" && (

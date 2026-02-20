@@ -6767,7 +6767,7 @@ const Orders = () => {
     }
 
     if (orderItems.length === 0) {
-      toast.error("Please add items to the order before firing");
+      toast.error("Please add products to the order before firing");
       return;
     }
 
@@ -6863,7 +6863,7 @@ const Orders = () => {
               onClick={toggleCustomItemPanel}>
 
                 <img src={customItemIcon} alt="" className="w-4 h-4" />
-                Custom Item
+                Custom Product
               </Button>
               <Button
               variant="secondary"
@@ -7103,7 +7103,7 @@ const Orders = () => {
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
                       <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />
-                      Custom Item
+                      Custom Product
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => {
@@ -7495,7 +7495,7 @@ const Orders = () => {
 
                   })()}
                         
-                        {/* Item Notes Display - Mobile */}
+                        {/* Product Notes Display - Mobile */}
                         {item.notes &&
                   <div className="ml-2.5 mt-0.5 relative">
                             <div className="relative flex items-center text-[10px] py-[2px]">
@@ -7746,7 +7746,7 @@ const Orders = () => {
         </div>
         {/* Menu Content - Hidden when minimized */}
       <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-[12px] md:rounded-[16px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
-        {/* Custom Item is now handled via bottom sheet overlay */}
+        {/* Custom Product is now handled via bottom sheet overlay */}
         {
         showInlineCustomization && selectedItemForCustomization ?
         isProductInfoFullScreen ?
@@ -7998,7 +7998,7 @@ const Orders = () => {
                 onClick={toggleCustomItemPanel}>
 
                   <img src={customItemIcon} alt="" className="w-3 h-3" />
-                  Custom Item
+                  Custom Product
                 </Button>
                 <Button
                 variant="secondary"
@@ -8609,7 +8609,7 @@ const Orders = () => {
 
                         })()}
                                 
-                                {/* Item Notes Display - Desktop/Tablet */}
+                                {/* Product Notes Display - Desktop/Tablet */}
                                 {item.notes &&
                         <div className="ml-3 mt-1 relative">
                                     <div className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
@@ -9248,9 +9248,9 @@ const Orders = () => {
               <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-6 h-6 text-amber-400" />
               </div>
-              <h3 className="text-white font-semibold text-lg mb-2">Cannot Add Items</h3>
+              <h3 className="text-white font-semibold text-lg mb-2">Cannot Add Products</h3>
               <p className="text-neutral-400 text-sm mb-6">
-                You cannot add more items to a split order. If you want to add items, please merge the order first.
+                You cannot add more products to a split order. If you want to add products, please merge the order first.
               </p>
               <button
             onClick={() => {

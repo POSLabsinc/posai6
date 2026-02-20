@@ -901,7 +901,7 @@ const ScheduledOrdersV2 = () => {
                   />
                 </div>
                 
-                {/* 86 Items */}
+                {/* 86 Products */}
                 <button 
                   onClick={() => setEightySixSheetOpen(true)}
                   className="flex items-center gap-2 px-3 py-1 rounded-xl h-[36px]" 

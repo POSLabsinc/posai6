@@ -482,10 +482,10 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
               >
                 <div className="flex items-center gap-3 mb-0.5">
-                  <img src={transferItemIcon} alt="Transfer Items" className="w-5 h-5 object-contain opacity-80" />
-                  <span className="text-white font-medium">Transfer Items</span>
+                  <img src={transferItemIcon} alt="Transfer Products" className="w-5 h-5 object-contain opacity-80" />
+                  <span className="text-white font-medium">Transfer Products</span>
                 </div>
-                <p className="text-white/50 text-xs ml-8">Move selected items to another table or order.</p>
+                <p className="text-white/50 text-xs ml-8">Move selected products to another table or order.</p>
               </button>
 
               {/* Transfer Entire Order Section Title */}
@@ -1042,7 +1042,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           </div>
         </div>
         <div className={`flex gap-${isTablet ? '1' : '2'} ${isTablet ? 'flex-wrap' : ''}`}>
-          {["Add Item", "Discount", "Receipt", ...(isTablet ? [] : ["No Tax", "Register"])].map(label => (
+          {["Add Product", "Discount", "Receipt", ...(isTablet ? [] : ["No Tax", "Register"])].map(label => (
             <button key={label} className={`${isTablet ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-xs'} bg-neutral-700 text-white rounded-full hover:bg-neutral-600 transition-colors`}>
               {label}
             </button>

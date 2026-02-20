@@ -7539,28 +7539,41 @@ const Orders = () => {
                 background: '#7575754D',
                 boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
               }}>
-                {/* Row 1: Sub Total + Discount (hidden when $0) */}
-                <div className="flex justify-between gap-2">
-                  <span className="text-foreground">
-                    Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
-                  </span>
-                  {discount > 0 && (
-                    <span className="text-red-400">
-                      Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
-                    </span>
-                  )}
-                </div>
-                {/* Row 2: Service Charge (hidden when $0) + Tax */}
-                <div className="flex justify-between gap-2">
-                  {serviceCharge > 0 && (
+                {(discount > 0 || serviceCharge > 0) ? (
+                  <>
+                    {/* Row 1: Sub Total + Discount */}
+                    <div className="flex justify-between gap-2">
+                      <span className="text-foreground">
+                        Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
+                      </span>
+                      {discount > 0 && (
+                        <span className="text-red-400">
+                          Discount: <span className="font-medium">-${discount.toFixed(2)}</span>
+                        </span>
+                      )}
+                    </div>
+                    {/* Row 2: Service Charge + Tax */}
+                    <div className="flex justify-between gap-2">
+                      {serviceCharge > 0 && (
+                        <span className="text-foreground">
+                          Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                        </span>
+                      )}
+                      <span className={`text-foreground ${serviceCharge === 0 ? 'ml-auto' : ''}`}>
+                        Tax: <span className="font-medium">${tax.toFixed(2)}</span>
+                      </span>
+                    </div>
+                  </>
+                ) : (
+                  <div className="flex justify-between gap-2">
                     <span className="text-foreground">
-                      Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                      Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span>
                     </span>
-                  )}
-                  <span className={`text-foreground ${serviceCharge === 0 ? 'ml-auto' : ''}`}>
-                    Tax: <span className="font-medium">${tax.toFixed(2)}</span>
-                  </span>
-                </div>
+                    <span className="text-foreground">
+                      Tax: <span className="font-medium">${tax.toFixed(2)}</span>
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
           )}
@@ -8779,39 +8792,48 @@ const Orders = () => {
                   background: '#7575754D',
                   boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
                 }}>
-                  <div className="flex justify-between gap-3">
-                    <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
-                    {discount > 0 && (
-                      <span className="text-red-400 flex items-center gap-1">
-                        {selectedDiscount ? selectedDiscount.name : 'Discount'}: <span className="font-medium">-${discount.toFixed(2)}</span>
-                        {selectedDiscount &&
-                          <button
-                            onClick={() => setSelectedDiscountId(null)}
-                            className="text-red-400 hover:text-red-300 text-xs font-bold ml-0.5">
-                            ×
-                          </button>
-                        }
-                      </span>
-                    )}
-                  </div>
-                  <div className="flex justify-between gap-3">
-                    {serviceCharge > 0 && (
-                      <span className="text-foreground flex items-center gap-1">
-                        {appliedServiceChargeName || 'Service Charge'}: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
-                        {appliedServiceCharge > 0 &&
-                          <button
-                            onClick={() => {
-                              setAppliedServiceCharge(0);
-                              setAppliedServiceChargeName('');
-                            }}
-                            className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
-                            ×
-                          </button>
-                        }
-                      </span>
-                    )}
-                    <span className={`text-foreground ${serviceCharge === 0 ? 'ml-auto' : ''}`}>Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
-                  </div>
+                  {(discount > 0 || serviceCharge > 0) ? (
+                    <>
+                      <div className="flex justify-between gap-3">
+                        <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+                        {discount > 0 && (
+                          <span className="text-red-400 flex items-center gap-1">
+                            {selectedDiscount ? selectedDiscount.name : 'Discount'}: <span className="font-medium">-${discount.toFixed(2)}</span>
+                            {selectedDiscount &&
+                              <button
+                                onClick={() => setSelectedDiscountId(null)}
+                                className="text-red-400 hover:text-red-300 text-xs font-bold ml-0.5">
+                                ×
+                              </button>
+                            }
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex justify-between gap-3">
+                        {serviceCharge > 0 && (
+                          <span className="text-foreground flex items-center gap-1">
+                            {appliedServiceChargeName || 'Service Charge'}: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                            {appliedServiceCharge > 0 &&
+                              <button
+                                onClick={() => {
+                                  setAppliedServiceCharge(0);
+                                  setAppliedServiceChargeName('');
+                                }}
+                                className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
+                                ×
+                              </button>
+                            }
+                          </span>
+                        )}
+                        <span className={`text-foreground ${serviceCharge === 0 ? 'ml-auto' : ''}`}>Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                      </div>
+                    </>
+                  ) : (
+                    <div className="flex justify-between gap-3">
+                      <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+                      <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                    </div>
+                  )}
                   {appliedGiftCardAmount > 0 &&
                   <div className="flex justify-between gap-3 pt-1 border-t border-white/10">
                       <span className="text-green-500">Gift Card: <span className="font-medium">-${appliedGiftCardAmount.toFixed(2)}</span></span>

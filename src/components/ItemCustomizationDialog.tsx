@@ -1050,6 +1050,11 @@ export const ItemCustomizationDialog = ({
             </button>
           </div>
           <div className="flex items-center gap-2 flex-shrink-0">
+            {item?.isOpenPrice && (
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 select-none pointer-events-none">
+                Open Price
+              </span>
+            )}
             <button
               onClick={handlePriceClick}
               className={`bg-neutral-700 px-2.5 py-1 rounded-md transition-colors ${item?.isOpenPrice ? 'cursor-default' : 'hover:bg-neutral-600 cursor-pointer'}`}

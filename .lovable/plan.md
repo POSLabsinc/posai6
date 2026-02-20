@@ -1,146 +1,126 @@
 
-# Fix: Open Price Status Indicator — Mobile Portrait & View Item Flow
+# Fix: Price Override Triggered for Open Price Items in ItemCustomizationDialog
 
-## Root Cause Analysis
+## Root Cause
 
-There are two separate bugs to fix, both in `src/pages/Orders.tsx`.
+There are two places where the fix needs to be applied, both in `src/components/ItemCustomizationDialog.tsx`.
 
----
+### Why It Happens
 
-## Bug 1 — Mobile Portrait Order Panel Shows "Custom" Instead of "Open Price" Pill
+When a user views an open price item (via "View Item") and the customization dialog opens (`ItemCustomizationDialog`), tapping the price display calls `handlePriceClick`. This function has **no awareness of open price items** — it blindly opens the MPIN screen, then proceeds to the Price Override flow.
 
-### Where
-Line 7377 in the mobile portrait order item row:
+By contrast, the **mobile/inline** path uses `InlineItemCustomization.tsx`, which already correctly guards against this:
 
 ```tsx
-{item.isOpenPrice && <span className="text-[8px] text-orange-400/70 font-medium">Custom</span>}
+// InlineItemCustomization.tsx line 241-243 — ALREADY CORRECT
+const handlePriceClick = () => {
+  if (item.isOpenPrice) return;  // ← guard exists here
+  ...
+};
 ```
 
-This is inconsistent with:
-- **Landscape view** (line 7839/7857): renders the correct orange gradient pill badge labeled "Open Price"
-- **Desktop sidebar** (line 8471): renders the correct orange gradient pill badge labeled "Open Price"
-
-### Fix
-Replace the plain text `"Custom"` span with the same orange gradient pill used in landscape and desktop:
+But `ItemCustomizationDialog.tsx` is missing this guard entirely, and its local `MenuItem` interface does not even include `isOpenPrice`:
 
 ```tsx
-{item.isOpenPrice && (
-  <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[8px] font-semibold text-white whitespace-nowrap">
-    Open Price
-  </span>
-)}
-```
-
----
-
-## Bug 2 — Open Price Flag Not Set When Adding via View Item
-
-### Where
-The `addToCartWithModifiers` function (lines 6537–6547) builds the new order item object but does NOT include `isOpenPrice`:
-
-```tsx
-// Current — isOpenPrice is MISSING
-return [...prev, {
-  id: Date.now(),
-  qty: quantity,
-  name: item.name,
-  price: totalPrice / quantity,
-  modifiers: ...,
-  notes: ...,
-  assignedSeats: ...,
-  discountName: ...,
-  discountAmount: ...
-}];
-```
-
-The quick-add flow (line 8912) correctly sets `isOpenPrice: true`, but the view-item flow calls `addToCartWithModifiers` which silently drops the flag.
-
-### Fix — Two-part
-
-**Part A**: Update the `addToCartWithModifiers` function signature to accept an optional `isOpenPrice` parameter:
-
-The `item` parameter already has the shape `{ id: number; name: string; price: number }`. Since `openPriceItem` has `isOpenPrice: true`, when `setSelectedItemForCustomization(itemWithPrice)` is called (line 8916), `itemWithPrice` carries `isOpenPrice: true`. The function just needs to pass it through.
-
-Update the item object construction inside `addToCartWithModifiers` to include:
-```tsx
-isOpenPrice: (item as any).isOpenPrice || false,
-```
-
-This means the MenuItem shape already carries `isOpenPrice`, so reading `item.isOpenPrice` (after updating the type parameter to include it) propagates the flag automatically when the view-item flow passes `itemWithPrice` to the customization dialog, which then calls `onAddToCart` → `addToCartWithModifiers`.
-
-**Part B**: Update the TypeScript type of the `item` parameter in `addToCartWithModifiers` to include `isOpenPrice?: boolean`:
-
-```tsx
-const addToCartWithModifiers = (item: {
+// ItemCustomizationDialog.tsx lines 53-57 — MISSING isOpenPrice
+interface MenuItem {
   id: number;
   name: string;
-  price: number;
-  isOpenPrice?: boolean;   // ← add this
-}, quantity: number, ...) => {
+  price: number;   // isOpenPrice is absent
+}
+```
+
+```tsx
+// ItemCustomizationDialog.tsx lines 409-415 — NO guard
+const handlePriceClick = () => {
+  if (isManager) {
+    setCurrentView('priceOverride');  // ← proceeds even for open price items
+  } else {
+    setCurrentView('mpin');           // ← same issue
+  }
+};
 ```
 
 ---
 
 ## Files to Edit
 
-Only `src/pages/Orders.tsx` — three targeted changes:
+Only `src/components/ItemCustomizationDialog.tsx` — two targeted changes.
 
-### Change 1 — Fix mobile portrait "Custom" label (line 7377)
+---
 
-```tsx
-// Before
-{item.isOpenPrice && <span className="text-[8px] text-orange-400/70 font-medium">Custom</span>}
-
-// After
-{item.isOpenPrice && (
-  <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[8px] font-semibold text-white whitespace-nowrap">
-    Open Price
-  </span>
-)}
-```
-
-### Change 2 — Add `isOpenPrice?` to `addToCartWithModifiers` item type (line 6525–6529)
+### Change 1 — Add `isOpenPrice` to the local `MenuItem` interface (line 53-57)
 
 ```tsx
 // Before
-const addToCartWithModifiers = (item: {
+interface MenuItem {
   id: number;
   name: string;
   price: number;
-}, quantity: number, ...
+}
 
 // After
-const addToCartWithModifiers = (item: {
+interface MenuItem {
   id: number;
   name: string;
   price: number;
   isOpenPrice?: boolean;
-}, quantity: number, ...
+}
 ```
 
-### Change 3 — Include `isOpenPrice` in the new cart item object (line 6537–6547)
+This allows the component to read the `isOpenPrice` property from the item passed in from `Orders.tsx` (which already passes `selectedItemForCustomization` with `isOpenPrice: true` for open price items).
+
+---
+
+### Change 2 — Add open price guard to `handlePriceClick` (lines 409-415)
 
 ```tsx
-// After other fields, add:
-isOpenPrice: item.isOpenPrice || false,
+// Before
+const handlePriceClick = () => {
+  if (isManager) {
+    setCurrentView('priceOverride');
+  } else {
+    setCurrentView('mpin');
+  }
+};
+
+// After
+const handlePriceClick = () => {
+  if (item?.isOpenPrice) return;   // ← block MPIN/price override for open price items
+  if (isManager) {
+    setCurrentView('priceOverride');
+  } else {
+    setCurrentView('mpin');
+  }
+};
 ```
+
+---
+
+## Visual Impact on the Price Button
+
+Additionally, the price button in the customization view should visually indicate it is non-interactive for open price items (matching what `InlineItemCustomization.tsx` already does at line 659):
+
+```tsx
+// InlineItemCustomization.tsx line 659 — reference for styling
+className={`bg-neutral-700 px-2 py-1 rounded-lg transition-colors ${item.isOpenPrice ? 'cursor-default' : 'hover:bg-neutral-600 cursor-pointer'}`}
+```
+
+The same conditional styling will be applied to the price button in `ItemCustomizationDialog.tsx` (around line 1052) so the cursor and hover state reflect the non-clickable nature.
 
 ---
 
 ## Consistency Matrix After Fix
 
-| View | Trigger | Badge shown |
-|---|---|---|
-| Mobile portrait order panel | Quick Add | Open Price pill (orange gradient) |
-| Mobile portrait order panel | View Item | Open Price pill (orange gradient) ← fixed |
-| Landscape order panel | Quick Add | Open Price pill (orange gradient) |
-| Landscape order panel | View Item | Open Price pill (orange gradient) ← fixed |
-| Desktop sidebar | Quick Add | Open Price pill (orange gradient) |
-| Desktop sidebar | View Item | Open Price pill (orange gradient) ← fixed |
+| Customization Path | Price Tap Behavior |
+|---|---|
+| InlineItemCustomization (mobile) | Blocked for open price items (already correct) |
+| ItemCustomizationDialog (desktop/modal) | Blocked for open price items (fixed by this plan) |
 
 ---
 
 ## Summary
 
-- **1 label fix**: Replace `"Custom"` text with the proper orange gradient "Open Price" pill badge in the mobile portrait order item row.
-- **2 logic fixes**: Extend the `addToCartWithModifiers` type signature and cart item constructor to carry the `isOpenPrice` flag through the view-item flow, so the badge appears regardless of how the item was added.
+- **1 type fix**: Add `isOpenPrice?: boolean` to the local `MenuItem` interface in `ItemCustomizationDialog.tsx` so the prop flows through.
+- **1 logic fix**: Add an early return guard `if (item?.isOpenPrice) return;` at the top of `handlePriceClick` in `ItemCustomizationDialog.tsx`.
+- **1 style fix**: Update the price button's `className` to use `cursor-default` (no hover) when the item is open price, matching the inline customization component.

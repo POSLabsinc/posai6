@@ -307,7 +307,8 @@ export const ItemCustomizationDialog = ({
   const correctPin = "1234";
   
   // Price Override state
-  const [newPriceInput, setNewPriceInput] = useState("");
+  // Stored as integer cents for true POS currency logic (e.g. 1234 = $12.34)
+  const [newPriceCents, setNewPriceCents] = useState(0);
   const [selectedReason, setSelectedReason] = useState("");
   const [overrideNotes, setOverrideNotes] = useState("");
   const [showReasonDropdown, setShowReasonDropdown] = useState(false);
@@ -386,7 +387,7 @@ export const ItemCustomizationDialog = ({
       setCurrentView('customization');
       setPin("");
       setPinError(false);
-      setNewPriceInput("");
+      setNewPriceCents(0);
       setSelectedReason("");
       setOverrideNotes("");
       setSelectedSeats([]);
@@ -428,7 +429,7 @@ export const ItemCustomizationDialog = ({
     setCurrentView('customization');
     setPin("");
     setPinError(false);
-    setNewPriceInput("");
+    setNewPriceCents(0);
     setSelectedReason("");
     setOverrideNotes("");
   };
@@ -455,26 +456,37 @@ export const ItemCustomizationDialog = ({
     setPin("");
   };
 
+  // True POS currency logic — digits shift right-to-left in cents
   const handlePriceNumberClick = (num: string) => {
-    if (newPriceInput.length < 8) {
-      setNewPriceInput(prev => prev + num);
-    }
+    const digits = num === '00' ? 2 : 1;
+    setNewPriceCents(prev => {
+      const appended = num === '00' ? prev * 100 : prev * 10 + parseInt(num);
+      // Cap at $9999.99 (999999 cents)
+      return Math.min(appended, 999999);
+    });
   };
 
   const handlePriceBackspace = () => {
-    setNewPriceInput(prev => prev.slice(0, -1));
+    setNewPriceCents(prev => Math.floor(prev / 10));
   };
 
   const handlePriceClear = () => {
-    setNewPriceInput("");
+    setNewPriceCents(0);
+  };
+
+  // Format cents integer as "$X.XX" display string
+  const formatCentsDisplay = (cents: number) => {
+    const dollars = Math.floor(cents / 100);
+    const centsRemainder = cents % 100;
+    return `${dollars}.${String(centsRemainder).padStart(2, '0')}`;
   };
 
   const handleApplyPriceOverride = () => {
-    const newPrice = parseFloat(newPriceInput);
-    if (!isNaN(newPrice) && newPrice >= 0) {
+    if (newPriceCents > 0 && selectedReason) {
+      const newPrice = newPriceCents / 100;
       setOverriddenPrice(newPrice);
       setCurrentView('customization');
-      setNewPriceInput("");
+      setNewPriceCents(0);
       setSelectedReason("");
       setOverrideNotes("");
     }
@@ -834,11 +846,11 @@ export const ItemCustomizationDialog = ({
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground">New Price</span>
-            <span className="text-lg font-semibold text-green-500">${formatPriceDisplay(newPriceInput)}</span>
+            <span className="text-lg font-semibold text-green-500">${formatCentsDisplay(newPriceCents)}</span>
           </div>
         </div>
 
-        {/* Numpad - Row based like desktop */}
+        {/* Numpad */}
         <div className="flex flex-col gap-2 mb-3">
           {[['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']].map((row, rowIndex) => (
             <div key={rowIndex} className="grid grid-cols-3 gap-2">
@@ -853,17 +865,13 @@ export const ItemCustomizationDialog = ({
               ))}
             </div>
           ))}
-          {/* Last row: decimal, 0 and backspace */}
+          {/* Last row: 00, 0, backspace */}
           <div className="grid grid-cols-3 gap-2">
             <button
-              onClick={() => {
-                if (!newPriceInput.includes('.')) {
-                  setNewPriceInput(prev => prev + '.');
-                }
-              }}
+              onClick={() => handlePriceNumberClick('00')}
               className="h-10 rounded-xl bg-neutral-800 border border-neutral-700 text-lg font-bold text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
             >
-              .
+              00
             </button>
             <button
               onClick={() => handlePriceNumberClick('0')}
@@ -891,9 +899,9 @@ export const ItemCustomizationDialog = ({
           </Button>
           <Button
             onClick={handleApplyPriceOverride}
-            disabled={!newPriceInput || !selectedReason}
+            disabled={newPriceCents === 0 || !selectedReason || newPriceCents === Math.round((item?.price ?? 0) * 100)}
             className="flex-1 h-10 rounded-xl text-white font-bold disabled:opacity-40 disabled:bg-neutral-600"
-            style={{ background: !newPriceInput || !selectedReason ? undefined : 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+            style={{ background: newPriceCents === 0 || !selectedReason || newPriceCents === Math.round((item?.price ?? 0) * 100) ? undefined : 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
           >
             APPLY
           </Button>

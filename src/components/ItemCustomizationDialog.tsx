@@ -658,10 +658,18 @@ export const ItemCustomizationDialog = ({
   // MPIN Screen
   const renderMPINView = () => (
     <div className="flex flex-col bg-neutral-900 p-6 pb-8">
-      {/* Header - Center aligned */}
-      <div className="text-center mb-6">
-        <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
-        <p className="text-muted-foreground text-sm">Enter Manager PIN to Adjust Price.</p>
+      {/* Header with back button */}
+      <div className="relative flex items-center justify-center mb-6">
+        <button
+          onClick={() => setCurrentView('customization')}
+          className="absolute left-0 w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
+        >
+          <ChevronLeft className="w-5 h-5 text-neutral-400" />
+        </button>
+        <div className="text-center">
+          <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
+          <p className="text-muted-foreground text-sm">Enter Manager PIN to Adjust Price.</p>
+        </div>
       </div>
 
       {/* PIN Display with asterisks */}
@@ -683,7 +691,7 @@ export const ItemCustomizationDialog = ({
       </div>
 
       {/* Numpad */}
-      <div className="grid grid-cols-3 gap-3 max-w-[280px] mx-auto w-full">
+      <div className="grid grid-cols-3 gap-3 w-full">
         {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
           <button
             key={num}
@@ -717,7 +725,7 @@ export const ItemCustomizationDialog = ({
       </div>
 
       {/* Biometric Options - Below keypad */}
-      <div className="flex justify-center gap-3 mt-4 max-w-[280px] mx-auto w-full">
+      <div className="flex gap-3 mt-4 w-full">
         <button className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
           <Fingerprint className="w-6 h-6" />
         </button>

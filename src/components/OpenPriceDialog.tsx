@@ -7,6 +7,7 @@ interface OpenPriceDialogProps {
   onOpenChange: (open: boolean) => void;
   productName: string;
   onConfirm: (price: number) => void;
+  ctaLabel?: "Add to Order" | "Continue";
 }
 
 export const OpenPriceDialog = ({
@@ -14,6 +15,7 @@ export const OpenPriceDialog = ({
   onOpenChange,
   productName,
   onConfirm,
+  ctaLabel = "Add to Order",
 }: OpenPriceDialogProps) => {
   // Store raw digits (no decimal). E.g. "255" means $2.55
   const [digits, setDigits] = useState("");
@@ -137,7 +139,7 @@ export const OpenPriceDialog = ({
             disabled={dollarValue <= 0}
             className="w-full py-3 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
           >
-            Add to Order — ${dollarValue > 0 ? dollarValue.toFixed(2) : "0.00"}
+            {ctaLabel} — ${dollarValue > 0 ? dollarValue.toFixed(2) : "0.00"}
           </button>
         </div>
       </DialogContent>

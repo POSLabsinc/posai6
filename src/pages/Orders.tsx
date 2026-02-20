@@ -8920,6 +8920,7 @@ const Orders = () => {
           if (!open) setOpenPriceItem(null);
         }}
         productName={openPriceItem?.name || ""}
+        ctaLabel={openPriceFlow === 'viewItem' ? "Continue" : "Add to Order"}
         onConfirm={(price) => {
           if (openPriceItem) {
             const itemWithPrice = { ...openPriceItem, price };

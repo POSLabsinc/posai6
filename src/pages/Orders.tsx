@@ -8942,6 +8942,7 @@ const Orders = () => {
               setOrderItems((prev) => prev.map((o) =>
                 o.id === openPriceEditCartItemId ? { ...o, price: itemWithPrice.price } : o
               ));
+              toast.success(`Price updated to $${itemWithPrice.price.toFixed(2)}`, { duration: 2000 });
               setSelectedItemForCustomization({ ...itemWithPrice, id: openPriceEditCartItemId });
               setSelectedItemImage(foodImages[openPriceImageIndex % foodImages.length]);
               const isMobile = window.innerWidth < 768;

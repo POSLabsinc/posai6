@@ -473,6 +473,10 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
               {touched.voucherName && !voucherName.trim() && (
                 <p className="text-red-400 text-xs mt-1">Voucher name is required</p>
               )}
+              <p className="text-neutral-500 text-[10px] mt-1.5 flex items-center gap-1.5 px-0.5 opacity-80">
+                <span>💡</span>
+                <span>For bulk voucher creation, manage vouchers from Dashboard.</span>
+              </p>
             </div>
 
             {/* LEFT: Redeemable Value */}

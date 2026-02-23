@@ -990,7 +990,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         {/* FAR RIGHT: Action Strip - Status dependent */}
         {showActions && (
           <div className="flex-shrink-0 flex flex-col rounded-r-xl overflow-hidden border-l border-neutral-700/50">
-            {guest.status === "PAID" || guest.status === "COMPLETED" || guest.status === "PARTIALLY REFUNDED" ? (
+            {guest.status === "COMPLETED" || guest.status === "PARTIALLY REFUNDED" ? (
               <>
                 {/* Print icon */}
                 <button 
@@ -1178,7 +1178,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         <div className="py-2 space-y-1.5">
           {selectedGuest.items.map((item, index) => {
             const canSwipe = isTicketEditable(selectedGuest.status);
-            const isPaidTicket = selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED";
+            const isPaidTicket = selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED";
             const itemRefunded = isItemRefunded(selectedGuest.id, index);
 
             // Helper to render modifier list
@@ -1426,7 +1426,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
       </div>
 
       {/* Action Buttons - mobile */}
-      {selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED" ? (
+      {selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED" ? (
         <div className="px-3 py-2 border-t border-neutral-700/50">
           <Button 
             variant="secondary"
@@ -1462,7 +1462,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
       {/* Bottom Actions */}
       <div className="px-3 py-3 border-t border-neutral-700/50 flex items-center gap-2">
-        {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED") ? (
+        {(selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED") ? (
           showRefundMode ? (
             <button 
               onClick={() => setShowRefundDialog(true)}
@@ -1485,10 +1485,31 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"
                 style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
               >
-                CLOSE
+                REFUND
               </button>
             </>
           )
+        ) : selectedGuest.status === "PAID" ? (
+          <>
+            <button 
+              onClick={() => setShowTipDialog(true)}
+              className="flex-1 py-2.5 rounded-full text-white text-sm font-bold border border-white/20"
+              style={{ background: '#1B1C20' }}
+            >
+              ADD TIP
+            </button>
+            <button 
+              onClick={() => {
+                const updatedGuest = { ...selectedGuest, status: 'COMPLETED' };
+                setSelectedGuest(updatedGuest);
+                updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updatedGuest : o));
+              }}
+              className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"
+              style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+            >
+              CLOSE
+            </button>
+          </>
         ) : (
           <>
             <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
@@ -1753,7 +1774,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             {/* Regular items (for non-transferred orders OR remaining items on received orders) */}
             {selectedGuest.items.map((item, index) => {
               const canSwipe = isTicketEditable(selectedGuest.status);
-              const isPaidTicket = selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED";
+              const isPaidTicket = selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED";
               const itemRefunded = isItemRefunded(selectedGuest.id, index);
 
               // Helper to render modifier list (mobile/tablet)
@@ -2022,7 +2043,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
                 {/* Bottom Actions */}
                 <div className={`${isTablet ? 'px-0 py-2' : 'px-2 py-3'} flex items-center gap-2`}>
-                  {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED") ? (
+                  {(selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED") ? (
                     showRefundMode ? (
                       <button 
                         onClick={() => setShowRefundDialog(true)}
@@ -2045,10 +2066,31 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                           className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
                           style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
                         >
-                          CLOSE
+                          REFUND
                         </button>
                       </>
                     )
+                  ) : selectedGuest.status === "PAID" ? (
+                    <>
+                      <button 
+                        onClick={() => setShowTipDialog(true)}
+                        className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-white font-bold border border-white/20`}
+                        style={{ background: '#1B1C20' }}
+                      >
+                        ADD TIP
+                      </button>
+                      <button 
+                        onClick={() => {
+                          const updatedGuest = { ...selectedGuest, status: 'COMPLETED' };
+                          setSelectedGuest(updatedGuest);
+                          updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updatedGuest : o));
+                        }}
+                        className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
+                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                      >
+                        CLOSE
+                      </button>
+                    </>
                   ) : (
                     <>
                       <button className={`${isTablet ? 'w-7 h-7' : 'w-8 h-8'} rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors`}>

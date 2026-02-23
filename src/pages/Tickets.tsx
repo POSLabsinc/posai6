@@ -222,6 +222,10 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
 
+  // No Tax state - matches New Order exactly
+  const [showNoTaxDialog, setShowNoTaxDialog] = useState(false);
+  const [isTaxExempt, setIsTaxExempt] = useState(false);
+
   // Receipt dialog state
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
 
@@ -249,9 +253,9 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
     const subtotal = activeItems.reduce((sum, it) => sum + it.price * it.qty, 0);
     const discount = subtotal > DISCOUNT_THRESHOLD ? DISCOUNT_AMOUNT : 0;
     const serviceCharge = subtotal * SERVICE_CHARGE_RATE;
-    // Respect per-item noTax flags
+    // Respect per-item noTax flags AND order-level isTaxExempt
     const taxableSubtotal = activeItems.filter(it => !it.noTax).reduce((sum, it) => sum + it.price * it.qty, 0);
-    const tax = Math.max(0, taxableSubtotal - discount) * TAX_RATE;
+    const tax = isTaxExempt ? 0 : Math.max(0, taxableSubtotal - discount) * TAX_RATE;
     const total = subtotal - discount + serviceCharge + tax + (existingOrder.tip ?? 0);
 
     return { subtotal, discount, serviceCharge, tax, total };
@@ -1130,6 +1134,63 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         <ScrollBar orientation="vertical" />
       </ScrollArea>
 
+      {/* Order Summary - mobile */}
+      <div className="px-3 py-1.5 border-t border-neutral-700/50">
+        <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{ background: '#7575754D' }}>
+          <div className="flex justify-between gap-3">
+            <span className="text-white"><span className="font-medium">Sub Total</span> <span className="font-bold">{formatPrice(selectedGuest.subtotal)}</span></span>
+            {selectedGuest.discount > 0 && (
+              <span className="text-red-400"><span className="font-medium">Discount</span> <span className="font-bold">-{formatPrice(selectedGuest.discount)}</span></span>
+            )}
+          </div>
+          <div className="flex justify-between gap-3">
+            {selectedGuest.serviceCharge > 0 && (
+              <span className="text-white"><span className="font-medium">Service Charge</span> <span className="font-bold">+{formatPrice(selectedGuest.serviceCharge)}</span></span>
+            )}
+            {isTaxExempt ? (
+              <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+            ) : (
+              <span className="text-white"><span className="font-medium">Tax</span> <span className="font-bold">{formatPrice(selectedGuest.tax)}</span></span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Action Buttons - mobile */}
+      {selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" ? (
+        <div className="px-3 py-2 border-t border-neutral-700/50">
+          <Button 
+            variant="secondary"
+            size="sm"
+            onClick={() => setShowTransferCheckDialog(true)}
+            className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5"
+          >
+            <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
+            Transfer Check
+          </Button>
+        </div>
+      ) : (
+        <div className="px-3 py-2 border-t border-neutral-700/50">
+          <ScrollArea className="w-full">
+            <div className="flex gap-2">
+              {[
+                { label: "Add Product", icon: customItemIcon, action: () => navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`) },
+                { label: "Discount", icon: discountBtnIcon, action: () => { setDiscountDialogView('mpin'); setShowDiscountDialog(true); }, highlight: !!selectedDiscountId },
+                { label: "No Tax", icon: noTaxBtnIcon, action: () => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true), highlight: isTaxExempt },
+                { label: "Receipt", icon: printIcon, action: () => setShowReceiptDialog(true) },
+                { label: "Transfer Check", icon: transferCheckIcon, action: () => setShowTransferCheckDialog(true) },
+              ].map(({ label, icon, action, highlight }: any) => (
+                <Button key={label} variant="secondary" size="sm" onClick={action} className={`text-xs rounded-[10px] ${highlight ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-7 px-3 whitespace-nowrap flex items-center gap-1.5`}>
+                  <img src={icon} alt="" className="w-4 h-4" />
+                  {label}
+                </Button>
+              ))}
+            </div>
+            <ScrollBar orientation="horizontal" />
+          </ScrollArea>
+        </div>
+      )}
+
       {/* Bottom Actions */}
       <div className="px-3 py-3 border-t border-neutral-700/50 flex items-center gap-2">
         <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
@@ -1146,7 +1207,12 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" 
           style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
         >
-          CHARGE {formatPrice(selectedGuest.total)}
+          {(() => {
+            const mobileTotal = isTaxExempt 
+              ? selectedGuest.subtotal - selectedGuest.discount + selectedGuest.serviceCharge + (selectedGuest.tip ?? 0)
+              : selectedGuest.total;
+            return `CHARGE ${formatPrice(mobileTotal)}`;
+          })()}
         </button>
       </div>
     </div>
@@ -1260,7 +1326,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
               { label: "Discount", icon: discountBtnIcon, action: () => { setDiscountDialogView('mpin'); setShowDiscountDialog(true); }, highlight: !!selectedDiscountId },
               { label: "Receipt", icon: printIcon, action: () => setShowReceiptDialog(true) },
               ...(!isTablet ? [
-                { label: "No Tax", icon: noTaxBtnIcon },
+                { label: "No Tax", icon: noTaxBtnIcon, action: () => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true), highlight: isTaxExempt },
                 { label: "Register", icon: registerBtnIcon },
               ] : []),
               { label: "Transfer Check", icon: transferCheckIcon, action: () => setShowTransferCheckDialog(true) },
@@ -1448,7 +1514,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         <div className="p-2 border-t border-white/10 flex-shrink-0">
           {(() => {
             const totalDiscount = selectedGuest.discount + appliedDiscount;
-            const adjustedTax = Math.max(0, selectedGuest.tax - appliedDiscount * 0.0735);
+            const adjustedTax = isTaxExempt ? 0 : Math.max(0, selectedGuest.tax - appliedDiscount * 0.0735);
             const chargeTotal = Math.max(0, selectedGuest.subtotal - totalDiscount + selectedGuest.serviceCharge + adjustedTax + (selectedGuest.tip ?? 0));
             const discountName = selectedDiscountId ? discountTypes.find(d => d.id === selectedDiscountId)?.name : null;
             
@@ -1477,7 +1543,11 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                       {selectedGuest.serviceCharge > 0 && (
                         <span className="text-white"><span className="font-medium">Service Charge</span> <span className="font-bold">+{formatPrice(selectedGuest.serviceCharge)}</span></span>
                       )}
-                      <span className="text-white"><span className="font-medium">Tax</span> <span className="font-bold">{formatPrice(adjustedTax)}</span></span>
+                      {isTaxExempt ? (
+                        <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                      ) : (
+                        <span className="text-white"><span className="font-medium">Tax</span> <span className="font-bold">{formatPrice(adjustedTax)}</span></span>
+                      )}
                     </div>
                   )}
                 </div>
@@ -1814,6 +1884,35 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           qty: item.qty
         }))}
       />
+
+      {/* No Tax Confirmation Dialog - matches New Order exactly */}
+      {showNoTaxDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-[300px] mx-4 overflow-hidden animate-scale-in">
+            <div className="p-6 text-center">
+              <h2 className="text-white text-lg font-semibold mb-2">Disable Tax?</h2>
+              <p className="text-neutral-400 text-sm">Are you sure you want to remove tax from this order?</p>
+            </div>
+            <div className="flex border-t border-neutral-700">
+              <button
+                onClick={() => setShowNoTaxDialog(false)}
+                className="flex-1 py-3 text-white font-medium hover:bg-neutral-800 transition-colors border-r border-neutral-700"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => {
+                  setIsTaxExempt(true);
+                  setShowNoTaxDialog(false);
+                }}
+                className="flex-1 py-3 text-orange-500 font-medium hover:bg-neutral-800 transition-colors"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

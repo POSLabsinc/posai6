@@ -1204,7 +1204,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         ) : (
           <div className={`flex gap-2 overflow-x-auto scrollbar-hide ${isTablet ? 'flex-wrap' : ''}`}>
             {[
-              { label: "Add Product", icon: customItemIcon },
+              { label: "Add Product", icon: customItemIcon, action: () => navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`) },
               { label: "Discount", icon: discountBtnIcon },
               { label: "Receipt", icon: printIcon },
               ...(!isTablet ? [

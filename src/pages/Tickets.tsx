@@ -376,8 +376,8 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
       filtered = filtered.filter(g => g.revenueCenter === advFilterRevenueCenter);
     }
     if (advFilterDate) {
-      // Filter by date portion of the order time (not implemented deeply; placeholder match)
-      // Since orders don't have a date field, this is a UI-only filter for now
+      const filterDateStr = advFilterDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
+      filtered = filtered.filter(g => g.date === filterDateStr);
     }
     if (advFilterEmployee) {
       filtered = filtered.filter(g => g.server === advFilterEmployee);

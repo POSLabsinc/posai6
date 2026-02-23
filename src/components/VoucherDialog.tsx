@@ -491,17 +491,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
               {touched.value && numericValue <= 0 && (
                 <p className="text-red-400 text-xs mt-1">Redeemable value is required</p>
               )}
-              <div className="flex gap-2 mt-2">
-                {QUICK_VALUES.map((amt) => (
-                  <button
-                    key={amt}
-                    onClick={() => handleQuickValue(amt)}
-                    className="flex-1 py-1.5 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-xs font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
-                  >
-                    {`$${amt}`}
-                  </button>
-                ))}
-              </div>
               {showKeypad && (
                 <div className="grid grid-cols-3 gap-1.5 mt-2">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (

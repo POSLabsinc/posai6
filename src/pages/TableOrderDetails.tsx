@@ -3260,6 +3260,7 @@ const TableOrderDetails = () => {
         open={showTipDialog}
         onOpenChange={setShowTipDialog}
         orderTotal={currentSelectedGuest?.total || 0}
+        existingTip={currentSelectedGuest?.tip || 0}
         onTipSelected={(tip) => {
           console.log("Tip selected:", tip);
           // Handle tip logic here

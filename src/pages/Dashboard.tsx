@@ -1906,6 +1906,7 @@ const Dashboard = () => {
         open={showTipDialog}
         onOpenChange={setShowTipDialog}
         orderTotal={selectedOrder?.total || 0}
+        existingTip={Number(selectedOrder?.tip) || 0}
         onTipSelected={(tip) => {
           console.log("Tip selected:", tip);
         }}

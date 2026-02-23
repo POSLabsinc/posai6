@@ -36,6 +36,7 @@ export interface TransferGuestOrder {
   name: string;
   phone: string;
   partySize: number;
+  date?: string;
   time: string;
   timer: string;
   server: string;

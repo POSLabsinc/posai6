@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Search, SlidersHorizontal, Phone, X, Check, Info } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import TicketsFilterBar from "@/components/TicketsFilterBar";
 import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
@@ -1185,21 +1186,23 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           </div>
         </div>
         {selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" ? (
-          <div className={`flex gap-${isTablet ? '1' : '2'}`}>
-            <button 
+          <div className="flex gap-2">
+            <Button 
+              variant="secondary"
+              size="sm"
               onClick={() => setShowTransferCheckDialog(true)}
-              className={`${isTablet ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-xs'} bg-neutral-700 text-white rounded-full hover:bg-neutral-600 transition-colors flex items-center gap-1.5`}
+              className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5"
             >
               <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
               Transfer Check
-            </button>
+            </Button>
           </div>
         ) : (
-          <div className={`flex gap-${isTablet ? '1' : '2'} ${isTablet ? 'flex-wrap' : ''}`}>
+          <div className={`flex gap-2 ${isTablet ? 'flex-wrap' : ''}`}>
             {["Add Product", "Discount", "Receipt", ...(isTablet ? [] : ["No Tax", "Register"])].map(label => (
-              <button key={label} className={`${isTablet ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-xs'} bg-neutral-700 text-white rounded-full hover:bg-neutral-600 transition-colors`}>
+              <Button key={label} variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
                 {label}
-              </button>
+              </Button>
             ))}
           </div>
         )}

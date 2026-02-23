@@ -9,6 +9,8 @@ import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
 import RefundDialog from "@/components/RefundDialog";
+import ItemRefundDialog from "@/components/ItemRefundDialog";
+import SwipeableRefundItem from "@/components/SwipeableRefundItem";
 import TicketsFilterBar from "@/components/TicketsFilterBar";
 import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
 import TicketsTransferView from "@/components/TicketsTransferView";
@@ -238,6 +240,35 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const [showRefundMode, setShowRefundMode] = useState(false);
   const [showRefundDialog, setShowRefundDialog] = useState(false);
 
+  // Product-level refund state
+  const [refundedProducts, setRefundedProducts] = useState<Set<string>>(new Set());
+  const [showItemRefundDialog, setShowItemRefundDialog] = useState(false);
+  const [itemRefundTarget, setItemRefundTarget] = useState<{ index: number; item: OrderItem } | null>(null);
+
+  const isPaidOrCompleted = (status: string) => status === "PAID" || status === "COMPLETED";
+
+  const handleProductRefundSwipe = (index: number, item: OrderItem) => {
+    setItemRefundTarget({ index, item });
+    setShowItemRefundDialog(true);
+  };
+
+  const handleItemRefundComplete = (reason: string) => {
+    if (!itemRefundTarget || !selectedGuest) return;
+    const key = `${selectedGuest.id}-${itemRefundTarget.index}`;
+    setRefundedProducts(prev => new Set(prev).add(key));
+    
+    // Recalculate totals excluding refunded product
+    const refundAmount = itemRefundTarget.item.price * itemRefundTarget.item.qty;
+    const updated = {
+      ...selectedGuest,
+      total: Math.max(0, selectedGuest.total - refundAmount),
+      subtotal: Math.max(0, selectedGuest.subtotal - refundAmount),
+      status: 'PARTIALLY REFUNDED' as any,
+    };
+    updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updated : o));
+    setSelectedGuest(updated);
+    toast.success(`${itemRefundTarget.item.name} refunded`);
+  };
   // Calculate applied discount
   const appliedDiscount = useMemo(() => {
     if (!selectedDiscountId || !selectedGuest) return 0;
@@ -1091,6 +1122,66 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         <div className="py-2 space-y-1.5">
           {selectedGuest.items.map((item, index) => {
             const canSwipe = isTicketEditable(selectedGuest.status);
+            const isPaid = isPaidOrCompleted(selectedGuest.status);
+            const refundKey = `${selectedGuest.id}-${index}`;
+            const isRefunded = refundedProducts.has(refundKey);
+
+            const productContent = (
+              <div className={`p-3 rounded-xl border transition-all ${isRefunded ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'}`}>
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start gap-2">
+                    <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${isRefunded ? 'bg-red-500/20 text-red-400' : item.isCancelled ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'}`}>
+                      {item.qty}
+                    </span>
+                    <div>
+                      <span className={`font-medium text-sm ${isRefunded ? 'text-white/40 line-through' : item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
+                      {item.modifiers.length > 0 && (
+                        <div className="mt-1 text-white/50 text-xs space-y-0.5">
+                          {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                        </div>
+                      )}
+                      <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                        {isRefunded && (
+                          <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">REFUNDED</span>
+                        )}
+                        {item.noTax && !item.isCancelled && !isRefunded && (
+                          <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                        )}
+                        {item.isCancelled && !isRefunded && (
+                          <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  <span className={`font-medium text-sm ${isRefunded ? 'text-white/30 line-through' : item.isCancelled ? 'text-white/30 line-through' : 'text-white'}`}>{formatPrice(item.price * item.qty)}</span>
+                </div>
+                {item.seats.length > 0 && (
+                  <div className="flex items-center gap-1 mt-2">
+                    <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                    {item.seats.map(seat => (
+                      <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                        {seat}
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+
+            // For paid tickets: wrap with SwipeableRefundItem
+            if (isPaid && !isRefunded && !item.isCancelled) {
+              return (
+                <SwipeableRefundItem
+                  key={index}
+                  onRefund={() => handleProductRefundSwipe(index, item)}
+                  label={item.name}
+                >
+                  {productContent}
+                </SwipeableRefundItem>
+              );
+            }
+
+            // For active tickets: wrap with SwipeableTicketItem
             return (
               <SwipeableTicketItem
                 key={index}
@@ -1102,44 +1193,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 onNoTax={() => handleProductNoTax(index)}
                 onCancel={() => handleProductCancel(index)}
               >
-                <div className={`p-3 rounded-xl border transition-all ${item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'}`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-2">
-                      <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${item.isCancelled ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'}`}>
-                        {item.qty}
-                      </span>
-                      <div>
-                        <span className={`font-medium text-sm ${item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
-                        {item.modifiers.length > 0 && (
-                          <div className="mt-1 text-white/50 text-xs space-y-0.5">
-                            {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
-                          </div>
-                        )}
-                        {(item.noTax || item.isCancelled) && (
-                          <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                            {item.noTax && !item.isCancelled && (
-                              <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                            )}
-                            {item.isCancelled && (
-                              <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                    <span className={`font-medium text-sm ${item.isCancelled ? 'text-white/30 line-through' : 'text-white'}`}>{formatPrice(item.price * item.qty)}</span>
-                  </div>
-                  {item.seats.length > 0 && (
-                    <div className="flex items-center gap-1 mt-2">
-                      <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                      {item.seats.map(seat => (
-                        <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                          {seat}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                {productContent}
               </SwipeableTicketItem>
             );
           })}
@@ -1497,6 +1551,67 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             {/* Regular items (for non-transferred orders OR remaining items on received orders) */}
             {selectedGuest.items.map((item, index) => {
               const canSwipe = isTicketEditable(selectedGuest.status);
+              const isPaid = isPaidOrCompleted(selectedGuest.status);
+              const refundKey = `${selectedGuest.id}-${index}`;
+              const isRefunded = refundedProducts.has(refundKey);
+
+              const productContent = (
+                <div className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} border transition-all ${isRefunded ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'}`}>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-2">
+                      <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} rounded flex items-center justify-center font-bold ${isRefunded ? 'bg-red-500/20 text-red-400' : item.isCancelled ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'}`}>
+                        {item.qty}
+                      </span>
+                      <div>
+                        <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${isRefunded ? 'text-white/40 line-through' : item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
+                        {item.modifiers.length > 0 && (
+                          <div className={`mt-${isTablet ? '0.5' : '1'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} space-y-0.5`}>
+                            {(isTablet ? item.modifiers.slice(0, 2) : item.modifiers).map((mod, i) => <div key={i}>{mod}</div>)}
+                            {isTablet && item.modifiers.length > 2 && <div>+{item.modifiers.length - 2} more</div>}
+                          </div>
+                        )}
+                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                          {isRefunded && (
+                            <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">REFUNDED</span>
+                          )}
+                          {item.noTax && !item.isCancelled && !isRefunded && (
+                            <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                          )}
+                          {item.isCancelled && !isRefunded && (
+                            <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${isRefunded ? 'text-white/30 line-through' : item.isCancelled ? 'text-white/30 line-through' : 'text-white'}`}>{formatPrice(item.price * item.qty)}</span>
+                  </div>
+                  {!isTablet && item.seats.length > 0 && (
+                    <div className="flex items-center gap-1 mt-2">
+                      <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                      {item.seats.map(seat => (
+                        <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                          {seat}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+
+              // For paid tickets: wrap with SwipeableRefundItem
+              if (isPaid && !isRefunded && !item.isCancelled) {
+                return (
+                  <SwipeableRefundItem
+                    key={index}
+                    onRefund={() => handleProductRefundSwipe(index, item)}
+                    label={item.name}
+                  >
+                    {productContent}
+                  </SwipeableRefundItem>
+                );
+              }
+
+              // For active tickets: wrap with SwipeableTicketItem
               return (
                 <SwipeableTicketItem
                   key={index}
@@ -1508,45 +1623,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                   onNoTax={() => handleProductNoTax(index)}
                   onCancel={() => handleProductCancel(index)}
                 >
-                  <div className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} border transition-all ${item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'}`}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-2">
-                        <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} rounded flex items-center justify-center font-bold ${item.isCancelled ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'}`}>
-                          {item.qty}
-                        </span>
-                        <div>
-                          <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
-                          {item.modifiers.length > 0 && (
-                            <div className={`mt-${isTablet ? '0.5' : '1'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} space-y-0.5`}>
-                              {(isTablet ? item.modifiers.slice(0, 2) : item.modifiers).map((mod, i) => <div key={i}>{mod}</div>)}
-                              {isTablet && item.modifiers.length > 2 && <div>+{item.modifiers.length - 2} more</div>}
-                            </div>
-                          )}
-                          {(item.noTax || item.isCancelled) && (
-                            <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                              {item.noTax && !item.isCancelled && (
-                                <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                              )}
-                              {item.isCancelled && (
-                                <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${item.isCancelled ? 'text-white/30 line-through' : 'text-white'}`}>{formatPrice(item.price * item.qty)}</span>
-                    </div>
-                    {!isTablet && item.seats.length > 0 && (
-                      <div className="flex items-center gap-1 mt-2">
-                        <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                        {item.seats.map(seat => (
-                          <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                            {seat}
-                          </span>
-                        ))}
-                      </div>
-                    )}
-                  </div>
+                  {productContent}
                 </SwipeableTicketItem>
               );
             })}
@@ -2028,6 +2105,16 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           console.log("Refund completed:", amount, reason);
           setShowRefundMode(false);
         }}
+      />
+
+      {/* Item-level Refund Dialog */}
+      <ItemRefundDialog
+        open={showItemRefundDialog}
+        onOpenChange={setShowItemRefundDialog}
+        itemName={itemRefundTarget?.item.name || ''}
+        itemPrice={itemRefundTarget?.item.price || 0}
+        itemQty={itemRefundTarget?.item.qty || 1}
+        onRefundComplete={handleItemRefundComplete}
       />
     </div>
   );

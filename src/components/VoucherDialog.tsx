@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { ChevronDown, Ticket, Delete, RefreshCw, Pencil, Search, Gift } from "lucide-react";
+import { ChevronDown, Ticket, Delete, Search, Gift } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -115,15 +115,14 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const [value, setValue] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
-  const [validFrom, setValidFrom] = useState('');
+  const [validFrom, setValidFrom] = useState(() => new Date().toISOString().split('T')[0]);
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [redemptionLimit, setRedemptionLimit] = useState('');
   const [minimumOrder, setMinimumOrder] = useState('');
   const [issuedBy, setIssuedBy] = useState(MOCK_EMPLOYEES[0]?.name || '');
   const [notes, setNotes] = useState('');
-  const [voucherCode, setVoucherCode] = useState(generateVoucherCode);
-  const [isCustomCode, setIsCustomCode] = useState(false);
+  const [voucherCode] = useState(generateVoucherCode);
   const [showStaffDropdown, setShowStaffDropdown] = useState(false);
   const [staffSearch, setStaffSearch] = useState('');
   const [touched, setTouched] = useState({ voucherName: false, value: false, sellingPrice: false });
@@ -148,7 +147,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
       setValue(initialData.value.toString());
       setSellingPrice(initialData.sellingPrice.toString());
       setExpiryDate(initialData.expiryDate || '');
-      setValidFrom(initialData.validFrom || '');
+      setValidFrom(initialData.validFrom || new Date().toISOString().split('T')[0]);
       setQuantity(initialData.quantity);
       setRedemptionLimit(initialData.redemptionLimit?.toString() || '');
       setMinimumOrder(initialData.minimumOrder?.toString() || '');
@@ -186,7 +185,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setValue('');
     setSellingPrice('');
     setExpiryDate('');
-    setValidFrom('');
+    setValidFrom(new Date().toISOString().split('T')[0]);
     setShowTypeDropdown(false);
     setQuantity(1);
     setRedemptionLimit('');
@@ -195,8 +194,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setShowStaffDropdown(false);
     setStaffSearch('');
     setNotes('');
-    setVoucherCode(generateVoucherCode());
-    setIsCustomCode(false);
     setTouched({ voucherName: false, value: false, sellingPrice: false });
     setShowKeypad(false);
     setIsGift(false);
@@ -537,43 +534,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
             </div>
           </div>
 
-          {/* 8b. Voucher Code */}
-          <div>
-            <label className={labelClass}>Voucher Code</label>
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={voucherCode}
-                onChange={(e) => {
-                  if (isCustomCode) setVoucherCode(e.target.value.toUpperCase().slice(0, 20));
-                }}
-                readOnly={!isCustomCode}
-                className={`${inputClass} flex-1 font-mono tracking-wider ${!isCustomCode ? 'opacity-80' : ''}`}
-              />
-              <button
-                type="button"
-                onClick={() => {
-                  setVoucherCode(generateVoucherCode());
-                  setIsCustomCode(false);
-                }}
-                title="Generate new code"
-                className="p-2.5 rounded-lg bg-neutral-800 border border-neutral-600 text-neutral-300 hover:text-white hover:bg-neutral-700 transition-colors"
-              >
-                <RefreshCw className="w-4 h-4" />
-              </button>
-              <button
-                type="button"
-                onClick={() => setIsCustomCode(prev => !prev)}
-                title={isCustomCode ? "Use auto-generated" : "Enter custom code"}
-                className={`p-2.5 rounded-lg border transition-colors ${isCustomCode ? 'bg-neutral-600 border-neutral-500 text-white' : 'bg-neutral-800 border-neutral-600 text-neutral-300 hover:text-white hover:bg-neutral-700'}`}
-              >
-                <Pencil className="w-4 h-4" />
-              </button>
-            </div>
-            <p className="text-neutral-500 text-xs mt-1">
-              {isCustomCode ? 'Enter a custom voucher code' : 'Auto-generated code (tap pencil to customize)'}
-            </p>
-          </div>
 
           {/* 9. Issued By */}
           <div className="relative" ref={staffDropdownRef}>

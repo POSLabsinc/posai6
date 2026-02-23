@@ -1275,7 +1275,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                       item.isCancelled ? 'text-white/30 line-through' : 'text-white'
                     }`}>{formatPrice(item.price * item.qty)}</span>
                   </div>
-                  {item.seats.length > 0 && (
+                  {selectedGuest.orderType === "Table Order" && item.seats.length > 0 && (
                     <div className="flex items-center gap-1 mt-2">
                       <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
                       {item.seats.map(seat => (
@@ -1351,7 +1351,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                     item.isCancelled ? 'text-white/30 line-through' : 'text-white'
                   }`}>{formatPrice(item.price * item.qty)}</span>
                 </div>
-                {item.seats.length > 0 && (
+                {selectedGuest.orderType === "Table Order" && item.seats.length > 0 && (
                   <div className="flex items-center gap-1 mt-2">
                     <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
                     {item.seats.map(seat => (
@@ -1850,7 +1850,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                         item.isCancelled ? 'text-white/30 line-through' : 'text-white'
                       }`}>{formatPrice(item.price * item.qty)}</span>
                     </div>
-                    {!isTablet && item.seats.length > 0 && (
+                    {!isTablet && selectedGuest.orderType === "Table Order" && item.seats.length > 0 && (
                       <div className="flex items-center gap-1 mt-2">
                         <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
                         {item.seats.map(seat => (
@@ -1926,7 +1926,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                       item.isCancelled ? 'text-white/30 line-through' : 'text-white'
                     }`}>{formatPrice(item.price * item.qty)}</span>
                   </div>
-                  {!isTablet && item.seats.length > 0 && (
+                  {!isTablet && selectedGuest.orderType === "Table Order" && item.seats.length > 0 && (
                     <div className="flex items-center gap-1 mt-2">
                       <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
                       {item.seats.map(seat => (

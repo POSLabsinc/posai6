@@ -40,7 +40,7 @@ const FilterDropdownWrapper = memo(({ label, children }: { label: string; childr
   <PopoverContent
     align="start"
     sideOffset={8}
-    className="w-auto min-w-[180px] p-0 rounded-xl border-0 shadow-xl z-[100]"
+    className="!w-fit min-w-[160px] max-w-[280px] p-0 rounded-xl border-0 shadow-xl z-[100]"
     style={DROPDOWN_STYLE}
   >
     <div className="px-4 py-2.5 border-b border-white/10">
@@ -173,7 +173,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
                   <CalendarDays className="w-4 h-4 text-white" />
                 </button>
               </PopoverTrigger>
-              <PopoverContent align="start" sideOffset={8} className="w-auto p-0 rounded-xl border-0 shadow-xl z-[100]" style={DROPDOWN_STYLE}>
+              <PopoverContent align="start" sideOffset={8} className="!w-fit p-0 rounded-xl border-0 shadow-xl z-[100]" style={DROPDOWN_STYLE}>
                 <Calendar
                   mode="single"
                   selected={advFilterDate}

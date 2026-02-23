@@ -1206,14 +1206,44 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                         )}
                       </div>
                       {item.modifiers.length > 0 && (
-                        <div className="mt-1 text-xs space-y-0.5">
+                        <div className="mt-1.5 ml-1">
                           {item.modifiers.map((mod, i) => {
                             const modRefunded = isModifierRefunded(selectedGuest.id, index, i);
-                            // Parse modifier to check if it has a price (e.g. "Garlic Butter $2.00")
                             const priceMatch = mod.match(/\$(\d+\.?\d*)/);
                             const modPrice = priceMatch ? parseFloat(priceMatch[1]) : 0;
-                            const modName = mod.replace(/\s*\$\d+\.?\d*/, '');
+                            const modName = mod.replace(/\s*\$\d+\.?\d*/, '').trim();
+                            const isLast = i === item.modifiers.length - 1;
                             
+                            // Determine prefix
+                            let prefix = '•';
+                            if (mod.startsWith('-') || mod.startsWith('No ')) prefix = '-';
+                            else if (mod.startsWith('+') || mod.startsWith('Add ') || mod.startsWith('W/') || mod.startsWith('Extra')) prefix = '+';
+                            else if (mod.startsWith('Side:')) prefix = '•';
+
+                            const modContent = (
+                              <div className={`flex items-center text-xs h-5 ${modRefunded ? 'opacity-50' : ''}`}>
+                                <div className="relative w-4 h-full flex-shrink-0">
+                                  <div className="absolute left-0 w-px bg-white/30" style={{ top: i === 0 ? '0' : '-2px', height: isLast ? '50%' : 'calc(100% + 2px)' }} />
+                                  <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
+                                </div>
+                                <div className="flex items-center flex-1 min-w-0">
+                                  <span className="mr-1.5 text-white/40 w-2 text-center flex-shrink-0">{prefix}</span>
+                                  <span className={`truncate ${modRefunded ? 'line-through text-red-400' : itemRefunded ? 'line-through text-red-400' : prefix === '-' ? 'text-white/40' : 'text-white/50'}`}>
+                                    {modName || mod}
+                                  </span>
+                                  {modPrice > 0 && (
+                                    <span className={`ml-auto pl-2 flex-shrink-0 ${modRefunded ? 'line-through text-red-400' : 'text-white/60'}`}>${modPrice.toFixed(2)}</span>
+                                  )}
+                                  {modPrice === 0 && !mod.match(/\$/) && (
+                                    <span className="ml-auto pl-2 flex-shrink-0 text-white/30">$0.00</span>
+                                  )}
+                                  {modRefunded && (
+                                    <span className="ml-1.5 text-[9px] bg-red-500/20 text-red-400 border border-red-500/40 px-1 py-0.5 rounded font-semibold flex-shrink-0">REFUNDED</span>
+                                  )}
+                                </div>
+                              </div>
+                            );
+
                             if (isPaidTicket && modPrice > 0 && !modRefunded && !itemRefunded) {
                               return (
                                 <SwipeableRefundItem
@@ -1222,20 +1252,11 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                                   label={modName}
                                   isModifier={true}
                                 >
-                                  <div className="flex items-center text-white/50">
-                                    <span>{mod}</span>
-                                  </div>
+                                  {modContent}
                                 </SwipeableRefundItem>
                               );
                             }
-                            return (
-                              <div key={i} className={`${modRefunded ? 'text-red-400 line-through' : itemRefunded ? 'text-red-400 line-through' : 'text-white/50'}`}>
-                                {mod}
-                                {modRefunded && (
-                                  <span className="ml-1 text-[9px] bg-red-500/20 text-red-400 border border-red-500/40 px-1 py-0.5 rounded font-semibold">REFUNDED</span>
-                                )}
-                              </div>
-                            );
+                            return <div key={i}>{modContent}</div>;
                           })}
                         </div>
                       )}
@@ -1699,12 +1720,42 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                           )}
                         </div>
                         {item.modifiers.length > 0 && (
-                          <div className={`mt-${isTablet ? '0.5' : '1'} ${isTablet ? 'text-xs' : 'text-sm'} space-y-0.5`}>
-                            {(isTablet ? item.modifiers.slice(0, 2) : item.modifiers).map((mod, i) => {
+                          <div className={`mt-1.5 ml-1`}>
+                            {item.modifiers.map((mod, i) => {
                               const modRefunded = isModifierRefunded(selectedGuest.id, index, i);
                               const priceMatch = mod.match(/\$(\d+\.?\d*)/);
                               const modPrice = priceMatch ? parseFloat(priceMatch[1]) : 0;
-                              const modName = mod.replace(/\s*\$\d+\.?\d*/, '');
+                              const modName = mod.replace(/\s*\$\d+\.?\d*/, '').trim();
+                              const isLast = i === item.modifiers.length - 1;
+                              
+                              let prefix = '•';
+                              if (mod.startsWith('-') || mod.startsWith('No ')) prefix = '-';
+                              else if (mod.startsWith('+') || mod.startsWith('Add ') || mod.startsWith('W/') || mod.startsWith('Extra')) prefix = '+';
+                              else if (mod.startsWith('Side:')) prefix = '•';
+
+                              const modContent = (
+                                <div className={`flex items-center ${isTablet ? 'text-xs' : 'text-sm'} h-5 ${modRefunded ? 'opacity-50' : ''}`}>
+                                  <div className="relative w-4 h-full flex-shrink-0">
+                                    <div className="absolute left-0 w-px bg-white/30" style={{ top: i === 0 ? '0' : '-2px', height: isLast ? '50%' : 'calc(100% + 2px)' }} />
+                                    <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
+                                  </div>
+                                  <div className="flex items-center flex-1 min-w-0">
+                                    <span className="mr-1.5 text-white/40 w-2 text-center flex-shrink-0">{prefix}</span>
+                                    <span className={`truncate ${modRefunded ? 'line-through text-red-400' : itemRefunded ? 'line-through text-red-400' : prefix === '-' ? 'text-white/40' : 'text-white/50'}`}>
+                                      {modName || mod}
+                                    </span>
+                                    {modPrice > 0 && (
+                                      <span className={`ml-auto pl-2 flex-shrink-0 ${modRefunded ? 'line-through text-red-400' : 'text-white/60'}`}>${modPrice.toFixed(2)}</span>
+                                    )}
+                                    {modPrice === 0 && !mod.match(/\$/) && (
+                                      <span className="ml-auto pl-2 flex-shrink-0 text-white/30">$0.00</span>
+                                    )}
+                                    {modRefunded && (
+                                      <span className="ml-1.5 text-[9px] bg-red-500/20 text-red-400 border border-red-500/40 px-1 py-0.5 rounded font-semibold flex-shrink-0">REFUNDED</span>
+                                    )}
+                                  </div>
+                                </div>
+                              );
 
                               if (isPaidTicket && modPrice > 0 && !modRefunded && !itemRefunded) {
                                 return (
@@ -1714,22 +1765,12 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                                     label={modName}
                                     isModifier={true}
                                   >
-                                    <div className="flex items-center text-white/50">
-                                      <span>{mod}</span>
-                                    </div>
+                                    {modContent}
                                   </SwipeableRefundItem>
                                 );
                               }
-                              return (
-                                <div key={i} className={`${modRefunded ? 'text-red-400 line-through' : itemRefunded ? 'text-red-400 line-through' : 'text-white/50'}`}>
-                                  {mod}
-                                  {modRefunded && (
-                                    <span className="ml-1 text-[9px] bg-red-500/20 text-red-400 border border-red-500/40 px-1 py-0.5 rounded font-semibold">REFUNDED</span>
-                                  )}
-                                </div>
-                              );
+                              return <div key={i}>{modContent}</div>;
                             })}
-                            {isTablet && item.modifiers.length > 2 && <div className="text-white/50">+{item.modifiers.length - 2} more</div>}
                           </div>
                         )}
                         {(item.noTax || item.isCancelled) && !itemRefunded && (

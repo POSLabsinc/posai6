@@ -391,49 +391,49 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
             />
           </div>
 
-          {/* 7. Redemption Limit */}
-          <div>
-            <label className={labelClass}>Redemption Limit</label>
-            <div className="flex items-center gap-3">
-              <button
-                type="button"
-                onClick={() => setRedemptionLimit(prev => {
-                  const n = parseInt(prev) || 0;
-                  return n > 0 ? (n - 1 === 0 ? '' : (n - 1).toString()) : '';
-                })}
-                className="w-10 h-10 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-lg font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
-              >
-                −
-              </button>
-              <span className="text-white text-sm font-medium min-w-[80px] text-center">
-                {redemptionLimit ? redemptionLimit : 'Unlimited'}
-              </span>
-              <button
-                type="button"
-                onClick={() => setRedemptionLimit(prev => {
-                  const n = parseInt(prev) || 0;
-                  return (n + 1).toString();
-                })}
-                className="w-10 h-10 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-lg font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
-              >
-                +
-              </button>
+          {/* 7 & 8. Redemption Limit + Minimum Order */}
+          <div className="grid grid-cols-2 gap-3 max-[360px]:grid-cols-1">
+            <div>
+              <label className={labelClass}>Redemption Limit</label>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setRedemptionLimit(prev => {
+                    const n = parseInt(prev) || 0;
+                    return n > 0 ? (n - 1 === 0 ? '' : (n - 1).toString()) : '';
+                  })}
+                  className="w-10 h-10 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-lg font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center flex-shrink-0"
+                >
+                  −
+                </button>
+                <span className="text-white text-sm font-medium flex-1 text-center truncate">
+                  {redemptionLimit ? redemptionLimit : 'Unlimited'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setRedemptionLimit(prev => {
+                    const n = parseInt(prev) || 0;
+                    return (n + 1).toString();
+                  })}
+                  className="w-10 h-10 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-lg font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center flex-shrink-0"
+                >
+                  +
+                </button>
+              </div>
             </div>
-          </div>
-
-          {/* 8. Minimum Order ($) */}
-          <div>
-            <label className={labelClass}>Minimum Order ($)</label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">$</span>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={minimumOrder}
-                onChange={handleNumericOnly(setMinimumOrder)}
-                placeholder="0.00"
-                className={`${inputClass} pl-8`}
-              />
+            <div>
+              <label className={labelClass}>Minimum Order ($)</label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">$</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={minimumOrder}
+                  onChange={handleNumericOnly(setMinimumOrder)}
+                  placeholder="0.00"
+                  className={`${inputClass} pl-8 h-10`}
+                />
+              </div>
             </div>
           </div>
 

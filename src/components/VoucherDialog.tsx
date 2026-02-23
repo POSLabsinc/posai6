@@ -66,32 +66,48 @@ const MOCK_EMPLOYEES = [
   { id: '8', name: 'Anna Martinez', role: 'Cashier' },
 ];
 
+// Format pattern uses X as digit placeholder. Digits fill in left-to-right.
 const COUNTRY_CODES = [
-  { code: 'US', dial: '+1', flag: '🇺🇸', name: 'United States', phoneLength: 10, placeholder: '(555) 123-4567', hint: '10-digit phone number' },
-  { code: 'GB', dial: '+44', flag: '🇬🇧', name: 'United Kingdom', phoneLength: 11, placeholder: '07123 456789', hint: '11-digit UK phone number' },
-  { code: 'CA', dial: '+1', flag: '🇨🇦', name: 'Canada', phoneLength: 10, placeholder: '(555) 123-4567', hint: '10-digit phone number' },
-  { code: 'AU', dial: '+61', flag: '🇦🇺', name: 'Australia', phoneLength: 9, placeholder: '412 345 678', hint: '9-digit mobile number' },
-  { code: 'IN', dial: '+91', flag: '🇮🇳', name: 'India', phoneLength: 10, placeholder: '98765 43210', hint: '10-digit mobile number' },
-  { code: 'DE', dial: '+49', flag: '🇩🇪', name: 'Germany', phoneLength: 11, placeholder: '151 12345678', hint: '11-digit phone number' },
-  { code: 'FR', dial: '+33', flag: '🇫🇷', name: 'France', phoneLength: 9, placeholder: '6 12 34 56 78', hint: '9-digit phone number' },
-  { code: 'JP', dial: '+81', flag: '🇯🇵', name: 'Japan', phoneLength: 10, placeholder: '90 1234 5678', hint: '10-digit phone number' },
-  { code: 'CN', dial: '+86', flag: '🇨🇳', name: 'China', phoneLength: 11, placeholder: '138 0013 8000', hint: '11-digit mobile number' },
-  { code: 'BR', dial: '+55', flag: '🇧🇷', name: 'Brazil', phoneLength: 11, placeholder: '11 91234 5678', hint: '11-digit phone number' },
-  { code: 'MX', dial: '+52', flag: '🇲🇽', name: 'Mexico', phoneLength: 10, placeholder: '55 1234 5678', hint: '10-digit phone number' },
-  { code: 'IT', dial: '+39', flag: '🇮🇹', name: 'Italy', phoneLength: 10, placeholder: '312 345 6789', hint: '10-digit phone number' },
-  { code: 'ES', dial: '+34', flag: '🇪🇸', name: 'Spain', phoneLength: 9, placeholder: '612 345 678', hint: '9-digit phone number' },
-  { code: 'KR', dial: '+82', flag: '🇰🇷', name: 'South Korea', phoneLength: 10, placeholder: '10 1234 5678', hint: '10-digit phone number' },
-  { code: 'AE', dial: '+971', flag: '🇦🇪', name: 'UAE', phoneLength: 9, placeholder: '50 123 4567', hint: '9-digit mobile number' },
-  { code: 'SA', dial: '+966', flag: '🇸🇦', name: 'Saudi Arabia', phoneLength: 9, placeholder: '51 234 5678', hint: '9-digit mobile number' },
-  { code: 'SG', dial: '+65', flag: '🇸🇬', name: 'Singapore', phoneLength: 8, placeholder: '9123 4567', hint: '8-digit phone number' },
-  { code: 'NZ', dial: '+64', flag: '🇳🇿', name: 'New Zealand', phoneLength: 9, placeholder: '21 123 4567', hint: '9-digit phone number' },
-  { code: 'ZA', dial: '+27', flag: '🇿🇦', name: 'South Africa', phoneLength: 9, placeholder: '71 123 4567', hint: '9-digit phone number' },
-  { code: 'PH', dial: '+63', flag: '🇵🇭', name: 'Philippines', phoneLength: 10, placeholder: '917 123 4567', hint: '10-digit phone number' },
-  { code: 'NG', dial: '+234', flag: '🇳🇬', name: 'Nigeria', phoneLength: 10, placeholder: '801 234 5678', hint: '10-digit phone number' },
-  { code: 'PK', dial: '+92', flag: '🇵🇰', name: 'Pakistan', phoneLength: 10, placeholder: '301 234 5678', hint: '10-digit phone number' },
-  { code: 'BD', dial: '+880', flag: '🇧🇩', name: 'Bangladesh', phoneLength: 10, placeholder: '1712 345678', hint: '10-digit phone number' },
-  { code: 'EG', dial: '+20', flag: '🇪🇬', name: 'Egypt', phoneLength: 10, placeholder: '100 123 4567', hint: '10-digit phone number' },
+  { code: 'US', dial: '+1', flag: '🇺🇸', name: 'United States', phoneLength: 10, placeholder: '(555) 123-4567', hint: '10-digit phone number', format: '(XXX) XXX-XXXX' },
+  { code: 'GB', dial: '+44', flag: '🇬🇧', name: 'United Kingdom', phoneLength: 11, placeholder: '07123 456789', hint: '11-digit UK phone number', format: 'XXXXX XXXXXX' },
+  { code: 'CA', dial: '+1', flag: '🇨🇦', name: 'Canada', phoneLength: 10, placeholder: '(555) 123-4567', hint: '10-digit phone number', format: '(XXX) XXX-XXXX' },
+  { code: 'AU', dial: '+61', flag: '🇦🇺', name: 'Australia', phoneLength: 9, placeholder: '412 345 678', hint: '9-digit mobile number', format: 'XXX XXX XXX' },
+  { code: 'IN', dial: '+91', flag: '🇮🇳', name: 'India', phoneLength: 10, placeholder: '98765 43210', hint: '10-digit mobile number', format: 'XXXXX XXXXX' },
+  { code: 'DE', dial: '+49', flag: '🇩🇪', name: 'Germany', phoneLength: 11, placeholder: '151 12345678', hint: '11-digit phone number', format: 'XXX XXXXXXXX' },
+  { code: 'FR', dial: '+33', flag: '🇫🇷', name: 'France', phoneLength: 9, placeholder: '6 12 34 56 78', hint: '9-digit phone number', format: 'X XX XX XX XX' },
+  { code: 'JP', dial: '+81', flag: '🇯🇵', name: 'Japan', phoneLength: 10, placeholder: '90 1234 5678', hint: '10-digit phone number', format: 'XX XXXX XXXX' },
+  { code: 'CN', dial: '+86', flag: '🇨🇳', name: 'China', phoneLength: 11, placeholder: '138 0013 8000', hint: '11-digit mobile number', format: 'XXX XXXX XXXX' },
+  { code: 'BR', dial: '+55', flag: '🇧🇷', name: 'Brazil', phoneLength: 11, placeholder: '11 91234 5678', hint: '11-digit phone number', format: 'XX XXXXX XXXX' },
+  { code: 'MX', dial: '+52', flag: '🇲🇽', name: 'Mexico', phoneLength: 10, placeholder: '55 1234 5678', hint: '10-digit phone number', format: 'XX XXXX XXXX' },
+  { code: 'IT', dial: '+39', flag: '🇮🇹', name: 'Italy', phoneLength: 10, placeholder: '312 345 6789', hint: '10-digit phone number', format: 'XXX XXX XXXX' },
+  { code: 'ES', dial: '+34', flag: '🇪🇸', name: 'Spain', phoneLength: 9, placeholder: '612 345 678', hint: '9-digit phone number', format: 'XXX XXX XXX' },
+  { code: 'KR', dial: '+82', flag: '🇰🇷', name: 'South Korea', phoneLength: 10, placeholder: '10 1234 5678', hint: '10-digit phone number', format: 'XX XXXX XXXX' },
+  { code: 'AE', dial: '+971', flag: '🇦🇪', name: 'UAE', phoneLength: 9, placeholder: '50 123 4567', hint: '9-digit mobile number', format: 'XX XXX XXXX' },
+  { code: 'SA', dial: '+966', flag: '🇸🇦', name: 'Saudi Arabia', phoneLength: 9, placeholder: '51 234 5678', hint: '9-digit mobile number', format: 'XX XXX XXXX' },
+  { code: 'SG', dial: '+65', flag: '🇸🇬', name: 'Singapore', phoneLength: 8, placeholder: '9123 4567', hint: '8-digit phone number', format: 'XXXX XXXX' },
+  { code: 'NZ', dial: '+64', flag: '🇳🇿', name: 'New Zealand', phoneLength: 9, placeholder: '21 123 4567', hint: '9-digit phone number', format: 'XX XXX XXXX' },
+  { code: 'ZA', dial: '+27', flag: '🇿🇦', name: 'South Africa', phoneLength: 9, placeholder: '71 123 4567', hint: '9-digit phone number', format: 'XX XXX XXXX' },
+  { code: 'PH', dial: '+63', flag: '🇵🇭', name: 'Philippines', phoneLength: 10, placeholder: '917 123 4567', hint: '10-digit phone number', format: 'XXX XXX XXXX' },
+  { code: 'NG', dial: '+234', flag: '🇳🇬', name: 'Nigeria', phoneLength: 10, placeholder: '801 234 5678', hint: '10-digit phone number', format: 'XXX XXX XXXX' },
+  { code: 'PK', dial: '+92', flag: '🇵🇰', name: 'Pakistan', phoneLength: 10, placeholder: '301 234 5678', hint: '10-digit phone number', format: 'XXX XXX XXXX' },
+  { code: 'BD', dial: '+880', flag: '🇧🇩', name: 'Bangladesh', phoneLength: 10, placeholder: '1712 345678', hint: '10-digit phone number', format: 'XXXX XXXXXX' },
+  { code: 'EG', dial: '+20', flag: '🇪🇬', name: 'Egypt', phoneLength: 10, placeholder: '100 123 4567', hint: '10-digit phone number', format: 'XXX XXX XXXX' },
 ];
+
+// Apply format pattern to raw digits
+const formatPhone = (digits: string, pattern: string): string => {
+  if (!digits) return '';
+  let result = '';
+  let digitIdx = 0;
+  for (let i = 0; i < pattern.length && digitIdx < digits.length; i++) {
+    if (pattern[i] === 'X') {
+      result += digits[digitIdx++];
+    } else {
+      result += pattern[i];
+    }
+  }
+  return result;
+};
 
 const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDialogProps) => {
   const [voucherName, setVoucherName] = useState('');
@@ -757,10 +773,10 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                     <input
                       type="tel"
                       inputMode="numeric"
-                      value={recipientPhone}
+                      value={formatPhone(recipientPhone, selectedCountry.format)}
                       onChange={(e) => {
-                        const val = e.target.value.replace(/\D/g, '').slice(0, selectedCountry.phoneLength);
-                        setRecipientPhone(val);
+                        const raw = e.target.value.replace(/\D/g, '').slice(0, selectedCountry.phoneLength);
+                        setRecipientPhone(raw);
                       }}
                       placeholder={selectedCountry.placeholder || `${selectedCountry.phoneLength}-digit phone number`}
                       className={`${inputClass} rounded-l-none flex-1 ${

@@ -117,25 +117,53 @@ const formatPhone = (digits: string, pattern: string): string => {
   return result;
 };
 
+// POS shift-decimal currency helpers
+const MAX_CURRENCY_DIGITS = 8; // $999,999.99
+
+const posCurrencyDigitAppend = (rawDigits: string, key: string): string => {
+  const newDigits = key === '00' ? rawDigits + '00' : rawDigits + key;
+  // Strip leading zeros then cap length
+  const stripped = newDigits.replace(/^0+/, '') || '';
+  return stripped.slice(0, MAX_CURRENCY_DIGITS);
+};
+
+const posCurrencyDigitDelete = (rawDigits: string): string => {
+  return rawDigits.slice(0, -1);
+};
+
+const posCurrencyFormat = (rawDigits: string): string => {
+  const cents = parseInt(rawDigits || '0', 10);
+  return (cents / 100).toFixed(2);
+};
+
+const posCurrencyToNumber = (rawDigits: string): number => {
+  return parseInt(rawDigits || '0', 10) / 100;
+};
+
+const numberToPosDigits = (num: number): string => {
+  if (!num || num <= 0) return '';
+  return Math.round(num * 100).toString();
+};
+
 const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDialogProps) => {
   const [voucherName, setVoucherName] = useState('');
   const voucherType = 'fixed' as const;
-  const [value, setValue] = useState('');
-  const [sellingPrice, setSellingPrice] = useState('');
+  // Raw digit strings for POS shift-decimal entry
+  const [valueDigits, setValueDigits] = useState('');
+  const [sellingPriceDigits, setSellingPriceDigits] = useState('');
+  const [minimumOrderDigits, setMinimumOrderDigits] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [validFrom, setValidFrom] = useState(() => new Date().toISOString().split('T')[0]);
   
   const [quantity, setQuantity] = useState(1);
   const [redemptionLimit, setRedemptionLimit] = useState('1');
-  const [minimumOrder, setMinimumOrder] = useState('');
   const [issuedBy, setIssuedBy] = useState(MOCK_EMPLOYEES[0]?.name || '');
   const [notes, setNotes] = useState('');
   const [voucherCode] = useState(generateVoucherCode);
   const [showStaffDropdown, setShowStaffDropdown] = useState(false);
   const [staffSearch, setStaffSearch] = useState('');
   const [touched, setTouched] = useState({ voucherName: false, value: false, sellingPrice: false });
-  const [showKeypad, setShowKeypad] = useState(false);
-  const [showSellingPriceKeypad, setShowSellingPriceKeypad] = useState(false);
+  const [activeKeypad, setActiveKeypad] = useState<'value' | 'sellingPrice' | 'minimumOrder' | null>(null);
   const [isGift, setIsGift] = useState(false);
   const [recipientFirstName, setRecipientFirstName] = useState('');
   const [recipientLastName, setRecipientLastName] = useState('');
@@ -168,22 +196,22 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     if (isOpen && initialData) {
       setVoucherName(initialData.voucherName || '');
       
-      setValue(initialData.value.toString());
-      setSellingPrice(initialData.sellingPrice.toString());
+      setValueDigits(numberToPosDigits(initialData.value));
+      setSellingPriceDigits(numberToPosDigits(initialData.sellingPrice));
       setExpiryDate(initialData.expiryDate || '');
       setValidFrom(initialData.validFrom || new Date().toISOString().split('T')[0]);
       setQuantity(initialData.quantity);
       setRedemptionLimit(initialData.redemptionLimit?.toString() || '1');
-      setMinimumOrder(initialData.minimumOrder?.toString() || '');
+      setMinimumOrderDigits(numberToPosDigits(initialData.minimumOrder || 0));
       setIssuedBy(initialData.issuedBy || '');
       setNotes(initialData.notes || '');
       setTouched({ voucherName: false, value: false, sellingPrice: false });
-      setShowKeypad(false);
+      setActiveKeypad(null);
     }
   }, [isOpen, initialData]);
 
-  const numericValue = parseFloat(value) || 0;
-  const numericSellingPrice = parseFloat(sellingPrice) || 0;
+  const numericValue = posCurrencyToNumber(valueDigits);
+  const numericSellingPrice = posCurrencyToNumber(sellingPriceDigits);
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   const isValidPhone = (phone: string) => {
@@ -206,21 +234,20 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const resetState = () => {
     setVoucherName('');
     
-    setValue('');
-    setSellingPrice('');
+    setValueDigits('');
+    setSellingPriceDigits('');
+    setMinimumOrderDigits('');
     setExpiryDate('');
     setValidFrom(new Date().toISOString().split('T')[0]);
     
     setQuantity(1);
     setRedemptionLimit('1');
-    setMinimumOrder('');
     setIssuedBy(MOCK_EMPLOYEES[0]?.name || '');
     setShowStaffDropdown(false);
     setStaffSearch('');
     setNotes('');
     setTouched({ voucherName: false, value: false, sellingPrice: false });
-    setShowKeypad(false);
-    setShowSellingPriceKeypad(false);
+    setActiveKeypad(null);
     setIsGift(false);
     setRecipientFirstName('');
     setRecipientLastName('');
@@ -245,7 +272,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
 
 
     const parsedRedemptionLimit = parseInt(redemptionLimit) || undefined;
-    const parsedMinimumOrder = parseFloat(minimumOrder) || undefined;
+    const parsedMinimumOrder = posCurrencyToNumber(minimumOrderDigits) || undefined;
 
     onAddVoucher(numericValue, {
       type: voucherType,
@@ -265,58 +292,14 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     resetState();
   };
 
-  const handleKeyPress = useCallback((key: string) => {
-    setValue(prev => {
-      if (key === '.' && prev.includes('.')) return prev;
-      if (key === '00') {
-        if (prev === '' || prev === '0') return prev;
-        return prev + '00';
-      }
-      if (prev === '0' && key !== '.') return key;
-      return prev + key;
-    });
+  // Generic POS keypad handler for any currency field
+  const handlePosKeyPress = useCallback((setter: React.Dispatch<React.SetStateAction<string>>, key: string) => {
+    setter(prev => posCurrencyDigitAppend(prev, key));
   }, []);
 
-  const handleDeleteKey = useCallback(() => {
-    setValue(prev => prev.slice(0, -1));
+  const handlePosDeleteKey = useCallback((setter: React.Dispatch<React.SetStateAction<string>>) => {
+    setter(prev => posCurrencyDigitDelete(prev));
   }, []);
-
-  const handleSellingPriceKeyPress = useCallback((key: string) => {
-    setSellingPrice(prev => {
-      if (key === '.' && prev.includes('.')) return prev;
-      if (key === '00') {
-        if (prev === '' || prev === '0') return prev;
-        return prev + '00';
-      }
-      if (prev === '0' && key !== '.') return key;
-      return prev + key;
-    });
-  }, []);
-
-  const handleSellingPriceDeleteKey = useCallback(() => {
-    setSellingPrice(prev => prev.slice(0, -1));
-  }, []);
-
-  const handleQuickValue = (amount: number) => {
-    setValue(amount.toString());
-    if (!sellingPrice) {
-      setSellingPrice(amount.toString());
-    }
-  };
-
-  const handleSellingPriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) {
-      setSellingPrice(val);
-    }
-  };
-
-  const handleNumericOnly = (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    const val = e.target.value;
-    if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) {
-      setter(val);
-    }
-  };
 
   const handleIntegerOnly = (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -500,29 +483,29 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
               </label>
               <button
                 type="button"
-                onClick={() => setShowKeypad(prev => !prev)}
-                className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.value && numericValue <= 0 ? 'border-red-500' : showKeypad ? 'border-neutral-400' : 'border-neutral-600'}`}
+                onClick={() => setActiveKeypad(prev => prev === 'value' ? null : 'value')}
+                className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.value && numericValue <= 0 ? 'border-red-500' : activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'}`}
               >
                 <span className="text-neutral-400 mr-1">$</span>
-                <span className="text-white">{value || '0.00'}</span>
+                <span className="text-white">{posCurrencyFormat(valueDigits)}</span>
               </button>
               {touched.value && numericValue <= 0 && (
-                <p className="text-red-400 text-xs mt-1">Redeemable value is required</p>
+                <p className="text-red-400 text-xs mt-1">Amount must be greater than $0.00</p>
               )}
-              {showKeypad && (
+              {activeKeypad === 'value' && (
                 <div className="grid grid-cols-3 gap-1.5 mt-2">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                    <button key={num} onClick={() => handleKeyPress(num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                    <button key={num} onClick={() => handlePosKeyPress(setValueDigits, num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
                       {num}
                     </button>
                   ))}
-                  <button onClick={() => handleKeyPress('00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                  <button onClick={() => handlePosKeyPress(setValueDigits, '00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
                     00
                   </button>
-                  <button onClick={() => handleKeyPress('0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                  <button onClick={() => handlePosKeyPress(setValueDigits, '0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
                     0
                   </button>
-                  <button onClick={handleDeleteKey} className={`h-11 ${keypadBtnClass}`}>
+                  <button onClick={() => handlePosDeleteKey(setValueDigits)} className={`h-11 ${keypadBtnClass}`}>
                     <Delete className="w-5 h-5" />
                   </button>
                 </div>
@@ -536,29 +519,29 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
               </label>
               <button
                 type="button"
-                onClick={() => setShowSellingPriceKeypad(prev => !prev)}
-                className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.sellingPrice && numericSellingPrice <= 0 ? 'border-red-500' : showSellingPriceKeypad ? 'border-neutral-400' : 'border-neutral-600'}`}
+                onClick={() => setActiveKeypad(prev => prev === 'sellingPrice' ? null : 'sellingPrice')}
+                className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.sellingPrice && numericSellingPrice <= 0 ? 'border-red-500' : activeKeypad === 'sellingPrice' ? 'border-neutral-400' : 'border-neutral-600'}`}
               >
                 <span className="text-neutral-400 mr-1">$</span>
-                <span className="text-white">{sellingPrice || '0.00'}</span>
+                <span className="text-white">{posCurrencyFormat(sellingPriceDigits)}</span>
               </button>
               {touched.sellingPrice && numericSellingPrice <= 0 && (
-                <p className="text-red-400 text-xs mt-1">Selling price is required</p>
+                <p className="text-red-400 text-xs mt-1">Amount must be greater than $0.00</p>
               )}
-              {showSellingPriceKeypad && (
+              {activeKeypad === 'sellingPrice' && (
                 <div className="grid grid-cols-3 gap-1.5 mt-2">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                    <button key={num} onClick={() => handleSellingPriceKeyPress(num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                    <button key={num} onClick={() => handlePosKeyPress(setSellingPriceDigits, num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
                       {num}
                     </button>
                   ))}
-                  <button onClick={() => handleSellingPriceKeyPress('00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                  <button onClick={() => handlePosKeyPress(setSellingPriceDigits, '00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
                     00
                   </button>
-                  <button onClick={() => handleSellingPriceKeyPress('0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                  <button onClick={() => handlePosKeyPress(setSellingPriceDigits, '0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
                     0
                   </button>
-                  <button onClick={handleSellingPriceDeleteKey} className={`h-11 ${keypadBtnClass}`}>
+                  <button onClick={() => handlePosDeleteKey(setSellingPriceDigits)} className={`h-11 ${keypadBtnClass}`}>
                     <Delete className="w-5 h-5" />
                   </button>
                 </div>
@@ -626,17 +609,32 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
             {/* RIGHT: Minimum Order */}
             <div>
               <label className={labelClass}>Minimum Order ($)</label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">$</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={minimumOrder}
-                  onChange={handleNumericOnly(setMinimumOrder)}
-                  placeholder="0.00"
-                  className={`${inputClass} pl-8 h-10`}
-                />
-              </div>
+              <button
+                type="button"
+                onClick={() => setActiveKeypad(prev => prev === 'minimumOrder' ? null : 'minimumOrder')}
+                className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minimumOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}
+              >
+                <span className="text-neutral-400 mr-1">$</span>
+                <span className="text-white">{posCurrencyFormat(minimumOrderDigits)}</span>
+              </button>
+              {activeKeypad === 'minimumOrder' && (
+                <div className="grid grid-cols-3 gap-1.5 mt-2">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                    <button key={num} onClick={() => handlePosKeyPress(setMinimumOrderDigits, num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                      {num}
+                    </button>
+                  ))}
+                  <button onClick={() => handlePosKeyPress(setMinimumOrderDigits, '00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                    00
+                  </button>
+                  <button onClick={() => handlePosKeyPress(setMinimumOrderDigits, '0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                    0
+                  </button>
+                  <button onClick={() => handlePosDeleteKey(setMinimumOrderDigits)} className={`h-11 ${keypadBtnClass}`}>
+                    <Delete className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* LEFT: Issued By */}

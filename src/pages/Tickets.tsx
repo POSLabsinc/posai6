@@ -1255,6 +1255,22 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                     </div>
                   </PopoverContent>
                 </Popover>
+                {(selectedRevenueCenter || selectedDateRange || selectedPartySize || selectedOrderType || selectedPriceRange || selectedPaymentType) && (
+                  <button 
+                    className="px-2.5 py-1 rounded-full text-xs font-semibold text-amber-400 hover:opacity-80 transition-opacity whitespace-nowrap"
+                    style={{ background: "rgba(255,165,0,0.15)", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.08)" }}
+                    onClick={() => {
+                      setSelectedRevenueCenter(null);
+                      setSelectedDateRange(null);
+                      setSelectedPartySize(null);
+                      setSelectedOrderType(null);
+                      setSelectedPriceRange(null);
+                      setSelectedPaymentType(null);
+                    }}
+                  >
+                    Clear
+                  </button>
+                )}
                 <button 
                   className="p-2 rounded-full hover:opacity-80 transition-opacity"
                   style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}

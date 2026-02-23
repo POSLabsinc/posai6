@@ -1,43 +1,59 @@
 
-# Fix: Enable Independent Modifier-Level Swipe Refund on Paid Tickets
+# Fix Discount "Access Restricted" MPIN Popup
 
-## Problem
-Modifier rows with prices (e.g., "Garlic Butter $2.00") are wrapped in a `SwipeableRefundItem` that is **nested inside** the product-level `SwipeableRefundItem`. The outer wrapper captures all touch/mouse events via `stopPropagation()`, preventing the inner modifier swipe from ever triggering. Swiping on a modifier actually swipes the entire product card.
+## What's Wrong (Compared to the Screenshot & Price Override MPIN)
 
-## Solution
-Restructure the rendering so that for paid tickets, modifiers are rendered **outside** the product-level `SwipeableRefundItem` wrapper. This way both product rows and modifier rows are independent swipeable elements at the same hierarchy level.
+Comparing the user's screenshot with the working `ItemCustomizationDialog.tsx` MPIN, four issues exist in `src/pages/Orders.tsx`:
 
-## Technical Details
+---
 
-### File: `src/pages/Tickets.tsx`
+### Issue 1 — Default X Close Button Appearing
+The `DialogContent` at line 8998 is missing the `hideCloseButton` prop. This causes Radix UI to render its default X button in the top-right corner, cluttering the header area alongside the custom back button.
 
-**Current structure (broken):**
-```text
-SwipeableRefundItem (product)
-  +-- product card div
-       +-- modifier list
-            +-- SwipeableRefundItem (modifier) <-- BLOCKED by parent
+**Fix:** Add `hideCloseButton` to `DialogContent`.
+
+---
+
+### Issue 2 — Back Button Navigates to Wrong View
+The back button `onClick` at line 9006 does:
+```
+setDiscountDialogView('discounts')
+```
+This is backwards — it sends users **into** the discount list when they press back on the MPIN screen. Since MPIN is always the entry point for the Discount dialog, the back button should **close the dialog entirely**:
+```
+setShowDiscountDialog(false); setDiscountPin(""); setDiscountPinError(false);
 ```
 
-**New structure (fixed):**
-```text
-<div> (wrapper group)
-  SwipeableRefundItem (product - contains card WITHOUT modifiers)
-  modifier list (rendered outside product swipeable)
-    +-- SwipeableRefundItem (modifier) <-- NOW INDEPENDENT
-    +-- plain div (non-priced modifier)
-</div>
+---
+
+### Issue 3 — Numpad Buttons Are Too Short
+All numpad digit buttons use `h-14` (56px height). The screenshot and the reference MPIN in `ItemCustomizationDialog.tsx` both show tall, nearly-square numpad keys. 
+
+**Fix:** Change all numpad buttons from `h-14` to `h-16` to match the taller appearance.
+
+---
+
+### Issue 4 — PIN Boxes Show No Fill Difference
+Both the filled and unfilled PIN box states use identical classes:
 ```
+border-neutral-600 bg-neutral-800
+```
+There's no visual difference when a digit is entered. The `ItemCustomizationDialog.tsx` MPIN (the working reference) uses a brighter border for filled boxes.
 
-Changes needed in **two places** in Tickets.tsx (desktop ~line 1179-1320 and mobile/tablet ~line 1693-1840):
+**Fix:** Change the filled state to `border-neutral-400 bg-neutral-700` so entered digits stand out clearly.
 
-1. **Extract modifier rendering** from inside `productContent` when the ticket is paid
-2. **Move modifier list** to render after the `SwipeableRefundItem` product wrapper
-3. Keep the modifier list inside `productContent` for non-paid tickets (ordering/unpaid) since those use a different swipe component (`SwipeableTicketItem`) that doesn't need modifier-level refund
+---
 
-This ensures:
-- Product-level swipe works for the product card
-- Modifier-level swipe works independently for each priced add-on
-- Non-priced modifiers (e.g., "No Onions", "Medium Rare") remain static
-- Visual hierarchy is preserved (modifiers still appear indented below their product)
-- No changes needed to `SwipeableRefundItem.tsx` itself
+## Technical Changes — `src/pages/Orders.tsx`
+
+| Line | Change |
+|------|--------|
+| 8998 | Add `hideCloseButton` to `<DialogContent>` |
+| 9006 | Fix back button: `setShowDiscountDialog(false)` instead of `setDiscountDialogView('discounts')` |
+| 9022–9028 | Fix PIN box filled state: `border-neutral-400 bg-neutral-700` when digit entered |
+| 9055 | Change `h-14` → `h-16` for digit buttons (rows 1–3) |
+| 9064 | Change `h-14` → `h-16` for backspace button |
+| 9085 | Change `h-14` → `h-16` for zero button |
+| 9093 | Change `h-14` → `h-16` for C (clear) button |
+
+All other existing logic (PIN validation, shake animation, biometric buttons, discount selection view) remains unchanged.

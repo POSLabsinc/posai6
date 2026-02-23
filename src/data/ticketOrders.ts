@@ -102,9 +102,9 @@ export const ticketOrders: TicketOrder[] = [
     table: "T2",
     orderType: "Take Out",
     items: [
-      { qty: 1, name: "New York Strip Steak", price: 28.00, seats: [1], modifiers: ["Medium Rare", "+ Garlic Butter $2.00", "No Onions", "Side: Mashed Potatoes $3.50"] },
-      { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [2], modifiers: ["No Lemon", "+ Extra Sauce $1.50"] },
-      { qty: 1, name: "Caesar Salad", price: 12.00, seats: [3], modifiers: ["Extra Croutons", "+ Grilled Chicken $4.00"] }
+      { qty: 1, name: "New York Strip Steak", price: 28.00, seats: [1], modifiers: ["Medium Rare"] },
+      { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [2], modifiers: ["No Lemon"] },
+      { qty: 1, name: "Caesar Salad", price: 12.00, seats: [3], modifiers: ["Extra Croutons"] }
     ],
     subtotal: 101.00,
     discount: 0,
@@ -162,8 +162,8 @@ export const ticketOrders: TicketOrder[] = [
     table: "T5",
     orderType: "Dine-In",
     items: [
-      { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["+ Extra Butter $2.50", "No Shell", "Side: Asparagus $4.00"] },
-      { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium", "+ Truffle Sauce $5.00", "- No Mushrooms"] }
+      { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter"] },
+      { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium"] }
     ],
     subtotal: 428.00,
     discount: 20.00,

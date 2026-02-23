@@ -13,8 +13,6 @@ interface SwipeableRefundItemProps {
   label?: string;
   isModifier?: boolean;
   disabled?: boolean;
-  embedded?: boolean;
-  containerClassName?: string; // Override default rounding on outer container (e.g. 'rounded-t-xl' for cards with connected modifiers)
 }
 
 const SwipeableRefundItem = ({ 
@@ -22,9 +20,7 @@ const SwipeableRefundItem = ({
   onRefund, 
   label = "Refund",
   isModifier = false,
-  disabled = false,
-  embedded = false,
-  containerClassName
+  disabled = false
 }: SwipeableRefundItemProps) => {
   const [translateX, setTranslateX] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -133,10 +129,8 @@ const SwipeableRefundItem = ({
     return <>{children}</>;
   }
 
-  const outerRounding = containerClassName || (isModifier || embedded ? '' : 'rounded-xl');
-
   return (
-    <div className={`relative overflow-hidden ${outerRounding}`}>
+    <div className={`relative overflow-hidden ${isModifier ? '' : 'rounded-xl'}`}>
       {/* Refund action button - positioned behind the content, revealed when swiping left */}
       <div 
         className="absolute right-1 top-1/2 -translate-y-1/2 flex items-center"
@@ -163,7 +157,7 @@ const SwipeableRefundItem = ({
       {/* Swipeable content */}
       <div
         className={`relative transition-transform duration-200 ease-out cursor-grab active:cursor-grabbing ${
-          isModifier || embedded ? '' : 'bg-[#1B1C20] rounded-xl'
+          isModifier ? '' : 'bg-[#1B1C20] rounded-xl'
         }`}
         style={{
           transform: `translateX(${translateX}px)`,

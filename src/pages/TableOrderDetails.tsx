@@ -7,8 +7,6 @@ import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
 import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
 import RefundDialog from "@/components/RefundDialog";
-import SwipeableRefundItem from "@/components/SwipeableRefundItem";
-import ItemRefundDialog from "@/components/ItemRefundDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, X, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, ArrowRightLeft } from "lucide-react";
@@ -601,81 +599,6 @@ const TableOrderDetails = () => {
   const [showRefundMode, setShowRefundMode] = useState(false);
   const [showRefundDialog, setShowRefundDialog] = useState(false);
   const [expandedCartItems, setExpandedCartItems] = useState<Set<string>>(new Set());
-
-  // Item-level refund state (swipe-to-refund)
-  const [refundedItems, setRefundedItems] = useState<Record<string, Record<string, boolean>>>({});
-  const [itemRefundTarget, setItemRefundTarget] = useState<{
-    itemName: string;
-    itemPrice: number;
-    itemIndex: number;
-    modifierIndex?: number;
-    orderId: string;
-  } | null>(null);
-  const [showItemRefundDialog, setShowItemRefundDialog] = useState(false);
-
-  const isItemRefunded = (orderId: string, itemIndex: number) => 
-    !!refundedItems[orderId]?.[`item-${itemIndex}`];
-  
-  const isModifierRefunded = (orderId: string, itemIndex: number, modIndex: number) =>
-    !!refundedItems[orderId]?.[`mod-${itemIndex}-${modIndex}`];
-
-  const hasAnyRefundedItems = (orderId: string) =>
-    Object.keys(refundedItems[orderId] || {}).length > 0;
-
-  const handleItemRefundSwipe = (item: any, itemIndex: number) => {
-    if (!currentSelectedGuest) return;
-    setItemRefundTarget({
-      itemName: item.name,
-      itemPrice: item.price * item.qty,
-      itemIndex,
-      orderId: currentSelectedGuest.id,
-    });
-    setShowItemRefundDialog(true);
-  };
-
-  const handleModifierRefundSwipe = (modText: string, modPrice: number, itemIndex: number, modIndex: number) => {
-    if (!currentSelectedGuest) return;
-    setItemRefundTarget({
-      itemName: modText,
-      itemPrice: modPrice,
-      itemIndex,
-      modifierIndex: modIndex,
-      orderId: currentSelectedGuest.id,
-    });
-    setShowItemRefundDialog(true);
-  };
-
-  const handleItemRefundComplete = (amount: number, reason: string) => {
-    if (!itemRefundTarget || !currentSelectedGuest) return;
-    const { orderId, itemIndex, modifierIndex } = itemRefundTarget;
-    const key = modifierIndex !== undefined ? `mod-${itemIndex}-${modifierIndex}` : `item-${itemIndex}`;
-    
-    setRefundedItems(prev => ({
-      ...prev,
-      [orderId]: { ...(prev[orderId] || {}), [key]: true }
-    }));
-
-    const updatedGuest = { ...currentSelectedGuest, status: 'PARTIALLY REFUNDED' };
-    setSelectedGuest(updatedGuest);
-    updateUnifiedOrders(prev => prev.map(o => o.id === orderId ? updatedGuest : o));
-    
-    toast.success(`Refund of $${amount.toFixed(2)} processed for ${itemRefundTarget.itemName}`);
-  };
-
-  const getRefundedTotal = (orderId: string) => {
-    const refunded = refundedItems[orderId] || {};
-    let total = 0;
-    const order = guestOrders.find(o => o.id === orderId);
-    if (!order) return 0;
-    Object.keys(refunded).forEach(key => {
-      if (key.startsWith('item-')) {
-        const idx = parseInt(key.split('-')[1]);
-        const item = order.items[idx];
-        if (item) total += item.price * item.qty;
-      }
-    });
-    return total;
-  };
   
   // Transfer intent dialog state
   const [showTransferIntentDialog, setShowTransferIntentDialog] = useState(false);
@@ -1206,149 +1129,7 @@ const TableOrderDetails = () => {
             {(() => {
               const allSeatsSelected = selectedSeats.length === 4;
               const filteredItems = filterItemsBySeats(currentSelectedGuest.items, selectedSeats, allSeatsSelected);
-              return filteredItems.map((item, index) => {
-                const isClosedTicket = currentSelectedGuest.status === "COMPLETED" || currentSelectedGuest.status === "PARTIALLY REFUNDED";
-                const itemRefunded = isItemRefunded(currentSelectedGuest.id, index);
-                const isTransferredOut = localTransferResult?.sourceOrderId === currentSelectedGuest.id && 
-                  localTransferResult.transferredItemNames.includes(item.name);
-
-                // Modifier rendering helper
-                const renderModifiers = () => {
-                  if (item.modifiers.length === 0) return null;
-                  const itemKey = `mobile-${currentSelectedGuest.id}-${index}`;
-                  const displayedModifiers = expandedCartItems.has(itemKey) ? item.modifiers : item.modifiers.slice(0, 2);
-                  const hasShowButton = item.modifiers.length > 2;
-                  
-                  return (
-                    <div className="ml-2 mt-1 relative">
-                      {displayedModifiers.map((mod, idx) => {
-                        const modRefunded = isModifierRefunded(currentSelectedGuest.id, index, idx);
-                        const isAddOn = mod.startsWith("W/") || mod.startsWith("Add") || mod.startsWith("+") || mod.startsWith("Extra");
-                        const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
-                        const priceMatch = mod.match(/\$(\d+\.?\d*)/);
-                        const modPrice = priceMatch ? parseFloat(priceMatch[1]) : 0;
-                        const modName = mod.replace(/\s*\$\d+\.?\d*/, '').trim();
-                        const displayMod = isAddOn ? modName.replace("Add: ", "") : modName;
-                        const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
-                        
-                        const modContent = (
-                          <div key={idx} className={`relative flex items-center text-xs py-[2px] ${modRefunded ? 'opacity-50' : ''}`}>
-                            {!isLastItem && (
-                              <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white/30" style={{ height: '100%' }} />
-                            )}
-                            <div className="absolute left-0 top-0 h-1/2 w-px bg-white/30" />
-                            <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
-                            <div className="flex items-center gap-1.5 ml-4 flex-1 min-w-0">
-                              <span className="text-white/40 w-2 text-center flex-shrink-0">
-                                {isAddOn ? '+' : isRemoval ? '-' : '•'}
-                              </span>
-                              <span className={`truncate ${modRefunded ? 'line-through text-red-400' : itemRefunded ? 'line-through text-red-400' : isRemoval ? 'text-white/40' : 'text-white/50'}`}>
-                                {displayMod || mod}
-                              </span>
-                              {modPrice > 0 && (
-                                <span className={`ml-auto pl-2 flex-shrink-0 ${modRefunded ? 'line-through text-red-400' : 'text-white/60'}`}>${modPrice.toFixed(2)}</span>
-                              )}
-                              {modRefunded && (
-                                <span className="ml-1.5 text-[9px] bg-red-500/20 text-red-400 border border-red-500/40 px-1 py-0.5 rounded font-semibold flex-shrink-0">REFUNDED</span>
-                              )}
-                            </div>
-                          </div>
-                        );
-
-                        if (isClosedTicket && modPrice > 0 && !modRefunded && !itemRefunded) {
-                          return (
-                            <SwipeableRefundItem
-                              key={idx}
-                              onRefund={() => handleModifierRefundSwipe(displayMod, modPrice, index, idx)}
-                              label={displayMod}
-                              isModifier={true}
-                            >
-                              {modContent}
-                            </SwipeableRefundItem>
-                          );
-                        }
-                        return <div key={idx}>{modContent}</div>;
-                      })}
-                      {hasShowButton && (
-                        <div className="relative flex items-center py-[2px]">
-                          <div className="absolute left-0 top-0 h-1/2 w-px bg-white/30" />
-                          <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
-                          <button 
-                            className="text-xs text-white/60 hover:text-white ml-4"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setExpandedCartItems(prev => {
-                                const newSet = new Set(prev);
-                                if (newSet.has(itemKey)) newSet.delete(itemKey);
-                                else newSet.add(itemKey);
-                                return newSet;
-                              });
-                            }}
-                          >
-                            {expandedCartItems.has(itemKey) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                };
-
-                // For closed tickets: SwipeableRefundItem wraps the card from outside
-                if (isClosedTicket) {
-                  const hasModifiers = item.modifiers.length > 0;
-                  const baseCardClasses = itemRefunded ? 'opacity-60 border-red-500/30 bg-red-500/5' : 'bg-white/5 border-white/10';
-
-                  const productCard = (
-                    <div className={`p-3 border transition-all ${baseCardClasses} ${hasModifiers ? 'rounded-t-xl border-b-0' : 'rounded-xl'}`}>
-                      <div className="flex items-start justify-between">
-                        <div className="flex items-start gap-2">
-                          <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${
-                            itemRefunded ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'
-                          }`}>
-                            {item.qty}
-                          </span>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className={`text-white font-medium text-sm ${itemRefunded || isTransferredOut ? 'line-through opacity-50' : ''}`}>{item.name}</span>
-                              {itemRefunded && (
-                                <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-semibold">REFUNDED</span>
-                              )}
-                            </div>
-                          </div>
-                        </div>
-                        <span className={`text-white font-medium text-sm ${itemRefunded || isTransferredOut ? 'line-through opacity-50' : ''}`}>{formatPrice(item.price * item.qty)}</span>
-                      </div>
-                    </div>
-                  );
-
-                  return (
-                    <div key={index}>
-                      {!itemRefunded ? (
-                        <SwipeableRefundItem
-                          onRefund={() => handleItemRefundSwipe(item, index)}
-                          label={item.name}
-                          containerClassName={hasModifiers ? 'rounded-t-xl' : 'rounded-xl'}
-                        >
-                          {productCard}
-                        </SwipeableRefundItem>
-                      ) : (
-                        productCard
-                      )}
-                      {hasModifiers && (
-                        <div className={`border-x border-b rounded-b-xl px-3 pb-2 pt-0.5 ${
-                          itemRefunded ? 'border-red-500/30' : 'border-white/10'
-                        } bg-white/5`}>
-                          <div className="ml-4">
-                            {renderModifiers()}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-                // Default: non-closed ticket rendering (original)
-                return (
+              return filteredItems.map((item, index) => (
                 <div key={index} className="p-3 bg-white/5 rounded-xl border border-white/10">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2">
@@ -1356,18 +1137,94 @@ const TableOrderDetails = () => {
                         {item.qty}
                       </span>
                       <div className="flex-1 min-w-0">
-                        <span className={`text-white font-medium text-sm ${isTransferredOut ? 'line-through opacity-50' : ''}`}>{item.name}</span>
-                        {isTransferredOut && (
-                          <div className="flex items-center gap-1 mt-0.5">
-                            <ArrowRightLeft className="w-3 h-3 text-[#8AC4FF]" />
-                            <span className="text-[10px] text-[#8AC4FF]">Transferred to {localTransferResult?.destinationLabel}</span>
-                          </div>
-                        )}
-                        {renderModifiers()}
+                        {(() => {
+                          const isTransferredOut = localTransferResult?.sourceOrderId === currentSelectedGuest.id && 
+                            localTransferResult.transferredItemNames.includes(item.name);
+                          return (
+                            <>
+                              <span className={`text-white font-medium text-sm ${isTransferredOut ? 'line-through opacity-50' : ''}`}>{item.name}</span>
+                              {isTransferredOut && (
+                                <div className="flex items-center gap-1 mt-0.5">
+                                  <ArrowRightLeft className="w-3 h-3 text-[#8AC4FF]" />
+                                  <span className="text-[10px] text-[#8AC4FF]">Transferred to {localTransferResult.destinationLabel}</span>
+                                </div>
+                              )}
+                            </>
+                          );
+                        })()}
+                        {/* Modifiers with tree hierarchy */}
+                        {item.modifiers.length > 0 && (() => {
+                          const itemKey = `mobile-${currentSelectedGuest.id}-${index}`;
+                          const displayedModifiers = expandedCartItems.has(itemKey) ? item.modifiers : item.modifiers.slice(0, 2);
+                          const hasShowButton = item.modifiers.length > 2;
+                          
+                          return (
+                            <div className="ml-2 mt-1 relative">
+                              {displayedModifiers.map((mod, idx) => {
+                                const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
+                                const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
+                                
+                                return (
+                                  <div key={idx} className="relative flex items-center text-xs py-[2px]">
+                                    {/* Vertical line - only show if not last item */}
+                                    {!isLastItem && (
+                                      <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
+                                    )}
+                                    {/* Vertical line segment to connect to horizontal */}
+                                    <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                    {/* Horizontal connector */}
+                                    <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
+                                    {/* Content */}
+                                    <div className="flex items-center gap-1.5 ml-4">
+                                      <span className="text-white">
+                                        {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                      </span>
+                                      <span className={`text-white/70 ${isRemoval ? 'line-through' : ''}`}>
+                                        {displayMod}
+                                      </span>
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                              {hasShowButton && (
+                                <div className="relative flex items-center py-[2px]">
+                                  {/* Vertical line segment to connect to horizontal (this is the last item) */}
+                                  <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                  {/* Horizontal connector */}
+                                  <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white" />
+                                  <button 
+                                    className="text-xs text-white/60 hover:text-white ml-4"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      setExpandedCartItems(prev => {
+                                        const newSet = new Set(prev);
+                                        if (newSet.has(itemKey)) {
+                                          newSet.delete(itemKey);
+                                        } else {
+                                          newSet.add(itemKey);
+                                        }
+                                        return newSet;
+                                      });
+                                    }}
+                                  >
+                                    {expandedCartItems.has(itemKey) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                          );
+                        })()}
                       </div>
                     </div>
-                    <span className={`text-white font-medium text-sm ${isTransferredOut ? 'line-through opacity-50' : ''}`}>{formatPrice(item.price * item.qty)}</span>
+                    {(() => {
+                      const isTransferredOut = localTransferResult?.sourceOrderId === currentSelectedGuest.id && 
+                        localTransferResult.transferredItemNames.includes(item.name);
+                      return <span className={`text-white font-medium text-sm ${isTransferredOut ? 'line-through opacity-50' : ''}`}>{formatPrice(item.price * item.qty)}</span>;
+                    })()}
                   </div>
+                  {/* Show seat indicator for all items */}
                   <div className="flex items-center gap-1 mt-2">
                     <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
                     {item.isShared || item.seats.length === 0 || item.seats.length === currentSelectedGuest?.partySize ? (
@@ -1381,8 +1238,7 @@ const TableOrderDetails = () => {
                     )}
                   </div>
                 </div>
-              );
-              });
+              ));
             })()}
           </div>
           <ScrollBar orientation="vertical" />
@@ -2400,155 +2256,7 @@ const TableOrderDetails = () => {
               const allSeatsSelected = seatFilter.includes('all') || seatFilter.length === 0;
               const numericSeats = seatFilter.filter((s): s is number => typeof s === 'number');
               const filteredItems = filterItemsBySeats(currentSelectedGuest.items, numericSeats, allSeatsSelected);
-              return filteredItems.map((item, index) => {
-                const isClosedTicket = currentSelectedGuest.status === "COMPLETED" || currentSelectedGuest.status === "PARTIALLY REFUNDED";
-                const itemRefundedState = isItemRefunded(currentSelectedGuest.id, index);
-                const isTransferredOut = (transferSourceOrderId === currentSelectedGuest.id && 
-                  transferredOutItemNames.includes(item.name)) ||
-                  (localTransferResult?.sourceOrderId === currentSelectedGuest.id && 
-                  localTransferResult.transferredItemNames.includes(item.name));
-
-                // Modifier rendering helper for desktop
-                const renderDesktopModifiers = () => {
-                  if (item.modifiers.length === 0) return null;
-                  const itemKey = `desktop-${currentSelectedGuest.id}-${index}`;
-                  const displayedModifiers = expandedCartItems.has(itemKey) ? item.modifiers : item.modifiers.slice(0, 2);
-                  const hasShowButton = item.modifiers.length > 2;
-                  
-                  return (
-                    <div className="mt-1 ml-3 relative">
-                      {displayedModifiers.map((mod, idx) => {
-                        const modRefundedState = isModifierRefunded(currentSelectedGuest.id, index, idx);
-                        const isAddOn = mod.startsWith("W/") || mod.startsWith("Add") || mod.startsWith("+") || mod.startsWith("Extra");
-                        const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
-                        const priceMatch = mod.match(/\$(\d+\.?\d*)/);
-                        const modPrice = priceMatch ? parseFloat(priceMatch[1]) : 0;
-                        const modName = mod.replace(/\s*\$\d+\.?\d*/, '').trim();
-                        const displayMod = isAddOn ? modName.replace("Add: ", "") : modName;
-                        const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
-                        
-                        const modContent = (
-                          <div className={`relative flex items-center text-xs py-[3px] ${modRefundedState ? 'opacity-50' : ''}`}>
-                            {!isLastItem && (
-                              <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white/30" style={{ height: '100%' }} />
-                            )}
-                            <div className="absolute left-0 top-0 h-1/2 w-px bg-white/30" />
-                            <div className="absolute left-0 top-1/2 w-3 h-px bg-white/30" />
-                            <div className="flex items-center gap-2 ml-5 flex-1 min-w-0">
-                              <span className="text-white/40 w-2 text-center flex-shrink-0">
-                                {isAddOn ? '+' : isRemoval ? '-' : '•'}
-                              </span>
-                              <span className={`truncate ${modRefundedState ? 'line-through text-red-400' : itemRefundedState ? 'line-through text-red-400' : isRemoval ? 'text-white/40' : 'text-white/50'}`}>
-                                {displayMod || mod}
-                              </span>
-                              {modPrice > 0 && (
-                                <span className={`ml-auto pl-2 flex-shrink-0 ${modRefundedState ? 'line-through text-red-400' : 'text-white/60'}`}>${modPrice.toFixed(2)}</span>
-                              )}
-                              {modRefundedState && (
-                                <span className="ml-1.5 text-[9px] bg-red-500/20 text-red-400 border border-red-500/40 px-1 py-0.5 rounded font-semibold flex-shrink-0">REFUNDED</span>
-                              )}
-                            </div>
-                          </div>
-                        );
-
-                        if (isClosedTicket && modPrice > 0 && !modRefundedState && !itemRefundedState) {
-                          return (
-                            <SwipeableRefundItem
-                              key={idx}
-                              onRefund={() => handleModifierRefundSwipe(displayMod, modPrice, index, idx)}
-                              label={displayMod}
-                              isModifier={true}
-                            >
-                              {modContent}
-                            </SwipeableRefundItem>
-                          );
-                        }
-                        return <div key={idx}>{modContent}</div>;
-                      })}
-                      {hasShowButton && (
-                        <div className="relative flex items-center py-[3px]">
-                          <div className="absolute left-0 top-0 h-1/2 w-px bg-white/30" />
-                          <div className="absolute left-0 top-1/2 w-3 h-px bg-white/30" />
-                          <button 
-                            className="text-xs text-white/60 hover:text-white ml-5"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setExpandedCartItems(prev => {
-                                const newSet = new Set(prev);
-                                if (newSet.has(itemKey)) newSet.delete(itemKey);
-                                else newSet.add(itemKey);
-                                return newSet;
-                              });
-                            }}
-                          >
-                            {expandedCartItems.has(itemKey) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  );
-                };
-
-                // For closed tickets: SwipeableRefundItem wraps the card from outside
-                if (isClosedTicket) {
-                  const hasModifiers = item.modifiers.length > 0;
-                  const baseCardClasses = itemRefundedState ? 'opacity-60 border-red-500/30 bg-red-500/5' : 'bg-white/5 border-white/10';
-
-                  const productCard = (
-                    <div className={`p-2 border transition-all ${baseCardClasses} ${hasModifiers ? 'rounded-t-md border-b-0' : 'rounded-md'}`}>
-                      <div className="flex items-start gap-2">
-                        <span className={`w-6 h-6 rounded flex items-center justify-center text-xs font-medium flex-shrink-0 ${
-                          itemRefundedState ? 'bg-red-500/20 text-red-400 border-red-500/40' : 'bg-neutral-700 border-neutral-600 text-white'
-                        } border`}>
-                          {item.qty}
-                        </span>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-1">
-                              <span className={`text-sm font-medium text-foreground ${itemRefundedState ? 'line-through text-red-400' : ''} ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
-                                {item.name}
-                              </span>
-                              {itemRefundedState && (
-                                <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-semibold">REFUNDED</span>
-                              )}
-                            </div>
-                            <span className={`text-sm font-medium text-foreground ${itemRefundedState ? 'line-through text-red-400' : ''} ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
-                              {formatPrice(item.price * item.qty)}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-
-                  return (
-                    <div key={`${currentSelectedGuest.id}-${index}`}>
-                      {!itemRefundedState ? (
-                        <SwipeableRefundItem
-                          onRefund={() => handleItemRefundSwipe(item, index)}
-                          label={item.name}
-                          containerClassName={hasModifiers ? 'rounded-t-md' : 'rounded-md'}
-                        >
-                          {productCard}
-                        </SwipeableRefundItem>
-                      ) : (
-                        productCard
-                      )}
-                      {hasModifiers && (
-                        <div className={`border-x border-b rounded-b-md px-2 pb-1.5 pt-0.5 ${
-                          itemRefundedState ? 'border-red-500/30' : 'border-white/10'
-                        } bg-white/5`}>
-                          <div className="ml-4">
-                            {renderDesktopModifiers()}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-                // Default: non-closed ticket (original SwipeableCartItem wrapping)
-                return (
+              return filteredItems.map((item, index) => (
                 <SwipeableCartItem 
                   key={`${currentSelectedGuest.id}-${index}`}
                   onDelete={() => {}}
@@ -2562,20 +2270,105 @@ const TableOrderDetails = () => {
                     style={{ background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
                   >
                     <div className="flex flex-col">
+                      {/* Item header row */}
                       <div className="flex items-start gap-2">
                         <span className="w-6 h-6 rounded bg-neutral-700 border border-neutral-600 text-white text-xs font-medium flex items-center justify-center flex-shrink-0">
                           {item.qty}
                         </span>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center justify-between">
-                            <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
-                              {item.name}
-                            </span>
-                            <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
-                              {formatPrice(item.price * item.qty)}
-                            </span>
-                          </div>
-                          {renderDesktopModifiers()}
+                          {(() => {
+                            // Check if this item was transferred out (via URL params or local state)
+                            const isTransferredOut = (transferSourceOrderId === currentSelectedGuest.id && 
+                              transferredOutItemNames.includes(item.name)) ||
+                              (localTransferResult?.sourceOrderId === currentSelectedGuest.id && 
+                              localTransferResult.transferredItemNames.includes(item.name));
+                            const transferDestLabel = localTransferResult?.sourceOrderId === currentSelectedGuest.id
+                              ? localTransferResult.destinationLabel
+                              : (transferredToOrderId ? `Order #${transferredToOrderId} · ${formatTableName(transferToTable || '')}` : '');
+                            return (
+                              <>
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-1">
+                                    <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
+                                      {item.name}
+                                    </span>
+                                  </div>
+                                  <span className={`text-sm font-medium text-foreground ${isTransferredOut ? 'line-through opacity-50' : ''}`}>
+                                    {formatPrice(item.price * item.qty)}
+                                  </span>
+                                </div>
+                                {/* Per-item transfer label removed - shown as common banner below order notes */}
+                              </>
+                            );
+                          })()}
+                          
+                          {/* Modifiers with tree hierarchy */}
+                          {item.modifiers.length > 0 && (() => {
+                            const itemKey = `desktop-${currentSelectedGuest.id}-${index}`;
+                            const displayedModifiers = expandedCartItems.has(itemKey) ? item.modifiers : item.modifiers.slice(0, 2);
+                            const hasShowButton = item.modifiers.length > 2;
+                            
+                            return (
+                              <div className="mt-1 ml-3 relative">
+                                {displayedModifiers.map((mod, idx) => {
+                                  const isAddOn = mod.startsWith("W/") || mod.startsWith("Add");
+                                  const isRemoval = mod.startsWith("No ") || mod.startsWith("-");
+                                  const displayMod = isAddOn ? mod.replace("Add: ", "") : mod;
+                                  const isLastItem = !hasShowButton && idx === displayedModifiers.length - 1;
+                                  
+                                  return (
+                                    <div key={idx} className="relative flex items-center text-xs py-[3px]">
+                                      {/* Vertical line - only show if not last item */}
+                                      {!isLastItem && (
+                                        <div className="absolute left-0 top-1/2 bottom-0 w-px bg-white" style={{ height: '100%' }} />
+                                      )}
+                                      {/* Vertical line segment to connect to horizontal */}
+                                      <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                      {/* Horizontal connector */}
+                                      <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
+                                      {/* Content */}
+                                      <div className="flex items-center gap-2 ml-5">
+                                        <span className="text-white">
+                                          {isAddOn ? '+' : isRemoval ? '-' : '•'}
+                                        </span>
+                                        <span className={`text-white ${isRemoval ? 'line-through' : ''}`}>
+                                          {displayMod}
+                                        </span>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                                {hasShowButton && (
+                                  <div className="relative flex items-center py-[3px]">
+                                    {/* Vertical line segment to connect to horizontal (this is the last item) */}
+                                    <div className="absolute left-0 top-0 h-1/2 w-px bg-white" />
+                                    {/* Horizontal connector */}
+                                    <div className="absolute left-0 top-1/2 w-3 h-px bg-white" />
+                                    <button 
+                                      className="text-xs text-white/60 hover:text-white ml-5"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setExpandedCartItems(prev => {
+                                          const newSet = new Set(prev);
+                                          if (newSet.has(itemKey)) {
+                                            newSet.delete(itemKey);
+                                          } else {
+                                            newSet.add(itemKey);
+                                          }
+                                          return newSet;
+                                        });
+                                      }}
+                                    >
+                                      {expandedCartItems.has(itemKey) ? 'Show less' : `Show more (+${item.modifiers.length - 2})`}
+                                    </button>
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })()}
+                          
+                          {/* Seat Assignment Display */}
+                          {/* Show seat indicator for all items */}
                           <div className="mt-1.5 flex items-center gap-1.5">
                             <img src={chairWhiteIcon} alt="Seats" className="w-4 h-4 opacity-70" />
                             {item.isShared || item.seats.length === 0 || item.seats.length === currentSelectedGuest?.partySize ? (
@@ -2598,8 +2391,7 @@ const TableOrderDetails = () => {
                     </div>
                   </div>
                 </SwipeableCartItem>
-              );
-              });
+              ));
             })()}
             
             {/* Transferred items moved to bottom - handled at top of scroll area */}
@@ -3776,21 +3568,6 @@ const TableOrderDetails = () => {
           </Dialog>
         );
       })()}
-
-      {/* Item-Level Refund Dialog */}
-      <ItemRefundDialog
-        open={showItemRefundDialog}
-        onOpenChange={setShowItemRefundDialog}
-        itemName={itemRefundTarget?.itemName || ''}
-        itemPrice={itemRefundTarget?.itemPrice || 0}
-        orderId={currentSelectedGuest?.id}
-        guestName={currentSelectedGuest?.name}
-        paymentMethod={currentSelectedGuest?.paymentType === 'Cash' ? 'Cash' : currentSelectedGuest?.paymentType || 'Cash'}
-        orderTotal={currentSelectedGuest?.total || 0}
-        tipAmount={currentSelectedGuest?.tip || 0}
-        isModifier={itemRefundTarget?.modifierIndex !== undefined}
-        onRefundComplete={handleItemRefundComplete}
-      />
     </>;
 };
 export default TableOrderDetails;

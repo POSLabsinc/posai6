@@ -654,6 +654,63 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
     const paymentDisplay = formatPaymentDisplay(guest);
     const paidAmount = getPaidAmount(guest);
 
+    // Mobile card content (matches Table Module ticket layout exactly)
+    const mobileCardContent = (
+      <div className="flex items-stretch w-full">
+        {/* Column 1: Order Number - Mobile compact style */}
+        <div className="flex-shrink-0 px-2 py-2 flex items-center">
+          <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+            <span className="text-lg font-bold text-white">{guest.id}</span>
+            <span className="text-[9px] text-gray-500">{checkId}</span>
+          </div>
+        </div>
+
+        {/* Column 2: Guest Info - 3-row layout matching Table Module */}
+        <div className="flex-1 min-w-0 py-2 pr-2">
+          <div className="flex flex-col gap-1">
+            {/* Row 1: Name + Table, Server, Status */}
+            <div className="flex items-center justify-between">
+              <span className="text-white font-medium text-sm truncate">
+                {guest.name}
+                {guest.orderType === "Table Order" && guest.table !== "--" && ` · ${guest.table}`}
+              </span>
+              <div className="flex items-center gap-2 flex-shrink-0">
+                <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.server}</span>
+                <span className={`text-sm font-medium`} style={{ color: statusStyle.color }}>
+                  {guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}
+                </span>
+              </div>
+            </div>
+
+            {/* Row 2: Party info / Order type, Timer, Total */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
+                <OrderTypeIcon type={guest.orderType} size="small" />
+                {guest.orderType === "Table Order" ? (
+                  <span>{guest.partySize > 1 ? `Party of ${guest.partySize}, ` : ''}{guest.time} | {duration}</span>
+                ) : (
+                  <span>{guest.orderType}, {guest.time} | {duration}</span>
+                )}
+              </div>
+              <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
+            </div>
+
+            {/* Row 3: Revenue Center, Payment status, Tip/Amount */}
+            <div className="flex items-center justify-between">
+              <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.revenueCenter}</span>
+              <div className="flex items-center gap-2">
+                <span className="text-sm" style={{ color: paidAmount > 0 ? '#4ade80' : '#B5B6BB' }}>
+                  {paidAmount > 0 ? 'Paid' : 'Un Paid'}
+                </span>
+                <span className="text-white text-sm">{formatPrice(paidAmount)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+
+    // Desktop/Tablet card content (original horizontal layout)
     const cardContent = (
       <div className={`flex items-stretch w-full ${compact ? 'gap-1.5' : 'gap-0'}`}>
         {/* LEFT BADGE: Ticket Number + ID */}
@@ -863,8 +920,8 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             onMouseLeave={e => handleSwipeEnd(false, e, guest)} 
             onClick={() => handleCardClick(guest)}
           >
-            <div className={`border ${hasTransferBanner ? 'rounded-b-xl' : 'rounded-xl'} overflow-hidden transition-all ${isSelected ? 'border-white/40' : 'border-neutral-700/60 hover:border-neutral-500/60'}`} style={{ backgroundColor: '#1B1C20' }}>
-              {cardContent}
+            <div className={`border ${hasTransferBanner ? 'rounded-b-xl' : 'rounded-xl'} overflow-hidden transition-all ${isSelected ? 'border-white' : 'border-white/10'}`} style={{ backgroundColor: '#1B1C20' }}>
+              {mobileCardContent}
             </div>
           </div>
         </div>
@@ -1395,8 +1452,8 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
       <FilterTabs />
 
       {/* Guest Orders List */}
-      <ScrollArea className="flex-1 px-1.5">
-        <div className="space-y-2 pb-3">
+      <ScrollArea className="flex-1 px-4">
+        <div className="space-y-3 pb-4">
           {filteredOrders.map(guest => (
             <TicketCard 
               key={guest.id}

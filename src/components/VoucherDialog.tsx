@@ -12,12 +12,30 @@ export interface VoucherInitialData {
   expiryDate?: string;
   quantity: number;
   editingItemId?: number;
+  voucherName?: string;
+  validFrom?: string;
+  redemptionLimit?: number;
+  minimumOrder?: number;
+  issuedBy?: string;
+  notes?: string;
 }
 
 interface VoucherDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddVoucher: (amount: number, voucherData: { type: string; value: number; expiryDate?: string; sellingPrice?: number; quantity?: number }) => void;
+  onAddVoucher: (amount: number, voucherData: {
+    type: string;
+    value: number;
+    expiryDate?: string;
+    sellingPrice?: number;
+    quantity?: number;
+    voucherName?: string;
+    validFrom?: string;
+    redemptionLimit?: number;
+    minimumOrder?: number;
+    issuedBy?: string;
+    notes?: string;
+  }) => void;
   onRedeemVoucher?: (voucherCode: string, balance: number) => void;
   initialView?: 'sell' | 'redeem';
   initialData?: VoucherInitialData | null;
@@ -26,26 +44,37 @@ interface VoucherDialogProps {
 const QUICK_VALUES = [10, 25, 50, 100];
 
 const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDialogProps) => {
+  const [voucherName, setVoucherName] = useState('');
   const [voucherType, setVoucherType] = useState<'fixed' | 'percentage'>('fixed');
   const [value, setValue] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
+  const [validFrom, setValidFrom] = useState('');
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [touched, setTouched] = useState({ value: false, sellingPrice: false });
+  const [redemptionLimit, setRedemptionLimit] = useState('');
+  const [minimumOrder, setMinimumOrder] = useState('');
+  const [issuedBy, setIssuedBy] = useState('');
+  const [notes, setNotes] = useState('');
+  const [touched, setTouched] = useState({ voucherName: false, value: false, sellingPrice: false });
   const [showKeypad, setShowKeypad] = useState(false);
 
   const isEditMode = !!(initialData?.editingItemId);
 
-  // Pre-fill when initialData changes
   useEffect(() => {
     if (isOpen && initialData) {
+      setVoucherName(initialData.voucherName || '');
       setVoucherType(initialData.type);
       setValue(initialData.value.toString());
       setSellingPrice(initialData.sellingPrice.toString());
       setExpiryDate(initialData.expiryDate || '');
+      setValidFrom(initialData.validFrom || '');
       setQuantity(initialData.quantity);
-      setTouched({ value: false, sellingPrice: false });
+      setRedemptionLimit(initialData.redemptionLimit?.toString() || '');
+      setMinimumOrder(initialData.minimumOrder?.toString() || '');
+      setIssuedBy(initialData.issuedBy || '');
+      setNotes(initialData.notes || '');
+      setTouched({ voucherName: false, value: false, sellingPrice: false });
       setShowKeypad(false);
     }
   }, [isOpen, initialData]);
@@ -53,16 +82,22 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const numericValue = parseFloat(value) || 0;
   const numericSellingPrice = parseFloat(sellingPrice) || 0;
 
-  const isValid = numericValue > 0 && numericSellingPrice > 0;
+  const isValid = voucherName.trim().length > 0 && numericValue > 0 && numericSellingPrice > 0;
 
   const resetState = () => {
+    setVoucherName('');
     setVoucherType('fixed');
     setValue('');
     setSellingPrice('');
     setExpiryDate('');
+    setValidFrom('');
     setShowTypeDropdown(false);
     setQuantity(1);
-    setTouched({ value: false, sellingPrice: false });
+    setRedemptionLimit('');
+    setMinimumOrder('');
+    setIssuedBy('');
+    setNotes('');
+    setTouched({ voucherName: false, value: false, sellingPrice: false });
     setShowKeypad(false);
   };
 
@@ -72,7 +107,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   };
 
   const handleAddToOrder = () => {
-    setTouched({ value: true, sellingPrice: true });
+    setTouched({ voucherName: true, value: true, sellingPrice: true });
     if (!isValid) return;
 
     if (voucherType === 'percentage' && numericValue > 100) {
@@ -80,18 +115,26 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
       return;
     }
 
+    const parsedRedemptionLimit = parseInt(redemptionLimit) || undefined;
+    const parsedMinimumOrder = parseFloat(minimumOrder) || undefined;
+
     onAddVoucher(numericValue, {
       type: voucherType,
       value: numericValue,
       expiryDate: expiryDate || undefined,
       sellingPrice: numericSellingPrice,
       quantity,
+      voucherName: voucherName.trim(),
+      validFrom: validFrom || undefined,
+      redemptionLimit: parsedRedemptionLimit,
+      minimumOrder: parsedMinimumOrder,
+      issuedBy: issuedBy.trim() || undefined,
+      notes: notes.trim() || undefined,
     });
     toast({ title: isEditMode ? "Voucher updated" : "Voucher added to order" });
     resetState();
   };
 
-  // POS Keypad handler for voucher value
   const handleKeyPress = useCallback((key: string) => {
     setValue(prev => {
       if (key === '.' && prev.includes('.')) return prev;
@@ -122,7 +165,23 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     }
   };
 
+  const handleNumericOnly = (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val === '' || /^\d*\.?\d{0,2}$/.test(val)) {
+      setter(val);
+    }
+  };
+
+  const handleIntegerOnly = (setter: (v: string) => void) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (val === '' || /^\d+$/.test(val)) {
+      setter(val);
+    }
+  };
+
   const keypadBtnClass = "rounded-xl bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600 border border-neutral-700 text-white transition-all duration-100 active:scale-95 flex items-center justify-center";
+  const inputClass = "w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors";
+  const labelClass = "text-neutral-400 text-xs font-medium mb-1.5 block";
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -172,9 +231,27 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
 
         {/* Form Fields */}
         <div className="flex-1 px-4 pb-2 space-y-3 overflow-y-auto scrollbar-hide">
-          {/* Voucher Type */}
+          {/* 1. Voucher Name */}
           <div>
-            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
+            <label className={labelClass}>
+              Voucher Name <span className="text-red-400">*</span>
+            </label>
+            <input
+              type="text"
+              value={voucherName}
+              onChange={(e) => setVoucherName(e.target.value.slice(0, 100))}
+              onBlur={() => setTouched(prev => ({ ...prev, voucherName: true }))}
+              placeholder="e.g. Summer Sale 20% Off"
+              className={`${inputClass} ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
+            />
+            {touched.voucherName && !voucherName.trim() && (
+              <p className="text-red-400 text-xs mt-1">Voucher name is required</p>
+            )}
+          </div>
+
+          {/* 2. Voucher Type */}
+          <div>
+            <label className={labelClass}>
               Voucher Type <span className="text-red-400">*</span>
             </label>
             <div className="relative">
@@ -204,12 +281,11 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
             </div>
           </div>
 
-          {/* Voucher Value with POS Keypad */}
+          {/* 3. Voucher Value with POS Keypad */}
           <div>
-            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
+            <label className={labelClass}>
               Voucher Value {voucherType === 'percentage' ? '(%)' : '($)'} <span className="text-red-400">*</span>
             </label>
-            {/* Tappable Display */}
             <button
               type="button"
               onClick={() => setShowKeypad(prev => !prev)}
@@ -235,7 +311,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
               ))}
             </div>
 
-            {/* Inbuilt POS Keypad — shown only when tapped */}
+            {/* Inbuilt POS Keypad */}
             {showKeypad && (
               <div className="grid grid-cols-3 gap-1.5 mt-2">
                 {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
@@ -256,20 +332,9 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
             )}
           </div>
 
-          {/* Expiry Date */}
+          {/* 4. Selling Price */}
           <div>
-            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">Expiry Date</label>
-            <input
-              type="date"
-              value={expiryDate}
-              onChange={(e) => setExpiryDate(e.target.value)}
-              className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors [color-scheme:dark]"
-            />
-          </div>
-
-          {/* Selling Price */}
-          <div>
-            <label className="text-neutral-400 text-xs font-medium mb-1.5 block">
+            <label className={labelClass}>
               Selling Price <span className="text-red-400">*</span>
             </label>
             <div className="relative">
@@ -281,12 +346,87 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                 onChange={handleSellingPriceChange}
                 onBlur={() => setTouched(prev => ({ ...prev, sellingPrice: true }))}
                 placeholder="0.00"
-                className={`w-full bg-neutral-800 border rounded-lg pl-8 pr-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors ${touched.sellingPrice && numericSellingPrice <= 0 ? 'border-red-500' : 'border-neutral-600'}`}
+                className={`${inputClass} pl-8 ${touched.sellingPrice && numericSellingPrice <= 0 ? 'border-red-500' : ''}`}
               />
             </div>
             {touched.sellingPrice && numericSellingPrice <= 0 && (
               <p className="text-red-400 text-xs mt-1">Selling price is required</p>
             )}
+          </div>
+
+          {/* 5. Expiry Date */}
+          <div>
+            <label className={labelClass}>Expiry Date</label>
+            <input
+              type="date"
+              value={expiryDate}
+              onChange={(e) => setExpiryDate(e.target.value)}
+              className={`${inputClass} [color-scheme:dark]`}
+            />
+          </div>
+
+          {/* 6. Valid From */}
+          <div>
+            <label className={labelClass}>Valid From</label>
+            <input
+              type="date"
+              value={validFrom}
+              onChange={(e) => setValidFrom(e.target.value)}
+              className={`${inputClass} [color-scheme:dark]`}
+            />
+          </div>
+
+          {/* 7. Redemption Limit */}
+          <div>
+            <label className={labelClass}>Redemption Limit</label>
+            <input
+              type="text"
+              inputMode="numeric"
+              value={redemptionLimit}
+              onChange={handleIntegerOnly(setRedemptionLimit)}
+              placeholder="Unlimited (leave empty)"
+              className={inputClass}
+            />
+          </div>
+
+          {/* 8. Minimum Order ($) */}
+          <div>
+            <label className={labelClass}>Minimum Order ($)</label>
+            <div className="relative">
+              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">$</span>
+              <input
+                type="text"
+                inputMode="decimal"
+                value={minimumOrder}
+                onChange={handleNumericOnly(setMinimumOrder)}
+                placeholder="0.00"
+                className={`${inputClass} pl-8`}
+              />
+            </div>
+          </div>
+
+          {/* 9. Issued By */}
+          <div>
+            <label className={labelClass}>Issued By (Staff Name)</label>
+            <input
+              type="text"
+              value={issuedBy}
+              onChange={(e) => setIssuedBy(e.target.value.slice(0, 100))}
+              placeholder="Auto-populated or enter name"
+              className={inputClass}
+            />
+          </div>
+
+          {/* 10. Notes */}
+          <div>
+            <label className={labelClass}>Notes</label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value.slice(0, 500))}
+              placeholder="Internal notes (not printed on voucher)"
+              rows={2}
+              className={`${inputClass} min-h-[60px] resize-none`}
+            />
           </div>
         </div>
 

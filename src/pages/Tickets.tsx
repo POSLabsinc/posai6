@@ -1034,8 +1034,8 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
     { icon: Wallet, label: "Payment" },
   ];
 
-  // ===== HEADER COMPONENT =====
-  const TicketHeader = () => (
+  // ===== HEADER JSX =====
+  const renderTicketHeader = () => (
     <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
       {showSearch ? (
         <>
@@ -1067,7 +1067,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 {filterIconItems.map(item => {
                   if (item.label === "Amount") {
                     return (
-                      <Popover key={item.label} open={revenueCenterOpen} onOpenChange={setRevenueCenterOpen}>
+                      <Popover key={item.label}>
                         <PopoverTrigger asChild>
                           <button 
                             className="p-2 rounded-full hover:opacity-80 transition-opacity"
@@ -1397,7 +1397,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   // Mobile Layout
   const MobileLayout = () => (
     <div className="flex flex-col h-full bg-black">
-      <TicketHeader />
+      {renderTicketHeader()}
       <FilterTabs />
 
       {/* Guest Orders List */}
@@ -1456,7 +1456,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           <TransferLeftPanel />
         ) : (
           <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-            <TicketHeader />
+            {renderTicketHeader()}
             <FilterTabs style="glass" />
             <ScrollArea className="flex-1 px-1.5">
               <div className="space-y-2 pb-3">
@@ -1488,7 +1488,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           <TransferLeftPanel isTablet />
         ) : (
           <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-            <TicketHeader />
+            {renderTicketHeader()}
             <FilterTabs />
             <ScrollArea className="flex-1 px-1.5">
               <div className="space-y-2 pb-3">

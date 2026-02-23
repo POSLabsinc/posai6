@@ -157,12 +157,6 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const [showFilterIcons, setShowFilterIcons] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRevenueCenter, setSelectedRevenueCenter] = useState<string | null>(null);
-  const [selectedDateRange, setSelectedDateRange] = useState<string | null>(null);
-  const [selectedPartySize, setSelectedPartySize] = useState<string | null>(null);
-  const [selectedOrderType, setSelectedOrderType] = useState<string | null>(null);
-  const [selectedPriceRange, setSelectedPriceRange] = useState<string | null>(null);
-  const [selectedPaymentType, setSelectedPaymentType] = useState<string | null>(null);
 
   // Per-product swipe state for ticket detail view
   const [activeSwipedProductIndex, setActiveSwipedProductIndex] = useState<number | null>(null);
@@ -358,35 +352,6 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         default: return true;
       }
     });
-    if (selectedRevenueCenter) {
-      filtered = filtered.filter(g => g.revenueCenter === selectedRevenueCenter);
-    }
-    if (selectedOrderType) {
-      filtered = filtered.filter(g => g.orderType === selectedOrderType);
-    }
-    if (selectedPaymentType) {
-      filtered = filtered.filter(g => g.paymentType === selectedPaymentType);
-    }
-    if (selectedPartySize) {
-      if (selectedPartySize === "1") filtered = filtered.filter(g => g.partySize === 1);
-      else if (selectedPartySize === "2") filtered = filtered.filter(g => g.partySize === 2);
-      else if (selectedPartySize === "3-4") filtered = filtered.filter(g => g.partySize >= 3 && g.partySize <= 4);
-      else if (selectedPartySize === "5-8") filtered = filtered.filter(g => g.partySize >= 5 && g.partySize <= 8);
-      else if (selectedPartySize === "9+") filtered = filtered.filter(g => g.partySize >= 9);
-    }
-    if (selectedPriceRange) {
-      if (selectedPriceRange === "Under $25") filtered = filtered.filter(g => g.total < 25);
-      else if (selectedPriceRange === "$25 - $50") filtered = filtered.filter(g => g.total >= 25 && g.total <= 50);
-      else if (selectedPriceRange === "$50 - $100") filtered = filtered.filter(g => g.total >= 50 && g.total <= 100);
-      else if (selectedPriceRange === "$100 - $250") filtered = filtered.filter(g => g.total >= 100 && g.total <= 250);
-      else if (selectedPriceRange === "$250+") filtered = filtered.filter(g => g.total >= 250);
-    }
-    if (selectedDateRange) {
-      // Date filter - filter by time period labels
-      if (selectedDateRange === "Morning") filtered = filtered.filter(g => { const h = parseInt(g.time); return g.time.includes("AM") || h < 12; });
-      else if (selectedDateRange === "Afternoon") filtered = filtered.filter(g => { const h = parseInt(g.time); return g.time.includes("PM") && h >= 12 && h < 5; });
-      else if (selectedDateRange === "Evening") filtered = filtered.filter(g => { const h = parseInt(g.time); return g.time.includes("PM") && h >= 5; });
-    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(g =>
@@ -1064,8 +1029,8 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
     { icon: Wallet, label: "Payment" },
   ];
 
-  // ===== HEADER JSX =====
-  const renderTicketHeader = () => (
+  // ===== HEADER COMPONENT =====
+  const TicketHeader = () => (
     <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
       {showSearch ? (
         <>
@@ -1092,185 +1057,18 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         <>
           <span className="text-white font-semibold text-lg pl-2">Tickets</span>
           <div className="flex items-center gap-1.5 z-10">
-            {showFilterIcons ? (
+            {showFilterIcons && (
               <>
-                {/* Revenue Center ($) */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button 
-                      className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                      style={{ 
-                        background: selectedRevenueCenter ? "rgba(255,165,0,0.5)" : "#7575754D", 
-                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" 
-                      }}
-                      title="Revenue Center"
-                    >
-                      <DollarSign className="w-4 h-4 text-white" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" sideOffset={8} className="w-52 p-0 border-neutral-700 rounded-xl overflow-hidden" style={{ background: "#1a1a1a" }}>
-                    <div className="px-4 pt-3 pb-1.5">
-                      <span className="text-amber-500/70 text-sm font-medium">Revenue Center</span>
-                    </div>
-                    <div className="flex flex-col pb-1">
-                      {[...new Set(orders.map(o => o.revenueCenter))].sort().map(center => (
-                        <button key={center} className={`text-left px-4 py-2.5 text-[15px] font-medium transition-colors ${selectedRevenueCenter === center ? "text-amber-400 bg-white/5" : "text-white hover:bg-white/5"}`}
-                          onClick={() => setSelectedRevenueCenter(selectedRevenueCenter === center ? null : center)}>{center}</button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Date */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button 
-                      className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                      style={{ 
-                        background: selectedDateRange ? "rgba(255,165,0,0.5)" : "#7575754D", 
-                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" 
-                      }}
-                      title="Date"
-                    >
-                      <CalendarDays className="w-4 h-4 text-white" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" sideOffset={8} className="w-52 p-0 border-neutral-700 rounded-xl overflow-hidden" style={{ background: "#1a1a1a" }}>
-                    <div className="px-4 pt-3 pb-1.5">
-                      <span className="text-amber-500/70 text-sm font-medium">Time of Day</span>
-                    </div>
-                    <div className="flex flex-col pb-1">
-                      {["Morning", "Afternoon", "Evening"].map(range => (
-                        <button key={range} className={`text-left px-4 py-2.5 text-[15px] font-medium transition-colors ${selectedDateRange === range ? "text-amber-400 bg-white/5" : "text-white hover:bg-white/5"}`}
-                          onClick={() => setSelectedDateRange(selectedDateRange === range ? null : range)}>{range}</button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Party Size */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button 
-                      className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                      style={{ 
-                        background: selectedPartySize ? "rgba(255,165,0,0.5)" : "#7575754D", 
-                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" 
-                      }}
-                      title="Party"
-                    >
-                      <UsersRound className="w-4 h-4 text-white" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" sideOffset={8} className="w-52 p-0 border-neutral-700 rounded-xl overflow-hidden" style={{ background: "#1a1a1a" }}>
-                    <div className="px-4 pt-3 pb-1.5">
-                      <span className="text-amber-500/70 text-sm font-medium">Party Size</span>
-                    </div>
-                    <div className="flex flex-col pb-1">
-                      {["1", "2", "3-4", "5-8", "9+"].map(size => (
-                        <button key={size} className={`text-left px-4 py-2.5 text-[15px] font-medium transition-colors ${selectedPartySize === size ? "text-amber-400 bg-white/5" : "text-white hover:bg-white/5"}`}
-                          onClick={() => setSelectedPartySize(selectedPartySize === size ? null : size)}>{size} {size === "1" ? "Guest" : "Guests"}</button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Order Type */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button 
-                      className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                      style={{ 
-                        background: selectedOrderType ? "rgba(255,165,0,0.5)" : "#7575754D", 
-                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" 
-                      }}
-                      title="Order Type"
-                    >
-                      <ClipboardList className="w-4 h-4 text-white" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" sideOffset={8} className="w-52 p-0 border-neutral-700 rounded-xl overflow-hidden" style={{ background: "#1a1a1a" }}>
-                    <div className="px-4 pt-3 pb-1.5">
-                      <span className="text-amber-500/70 text-sm font-medium">Order Type</span>
-                    </div>
-                    <div className="flex flex-col pb-1">
-                      {[...new Set(orders.map(o => o.orderType))].sort().map(type => (
-                        <button key={type} className={`text-left px-4 py-2.5 text-[15px] font-medium transition-colors ${selectedOrderType === type ? "text-amber-400 bg-white/5" : "text-white hover:bg-white/5"}`}
-                          onClick={() => setSelectedOrderType(selectedOrderType === type ? null : type)}>{type}</button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Price Range */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button 
-                      className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                      style={{ 
-                        background: selectedPriceRange ? "rgba(255,165,0,0.5)" : "#7575754D", 
-                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" 
-                      }}
-                      title="Price"
-                    >
-                      <CircleDollarSign className="w-4 h-4 text-white" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" sideOffset={8} className="w-52 p-0 border-neutral-700 rounded-xl overflow-hidden" style={{ background: "#1a1a1a" }}>
-                    <div className="px-4 pt-3 pb-1.5">
-                      <span className="text-amber-500/70 text-sm font-medium">Price Range</span>
-                    </div>
-                    <div className="flex flex-col pb-1">
-                      {["Under $25", "$25 - $50", "$50 - $100", "$100 - $250", "$250+"].map(range => (
-                        <button key={range} className={`text-left px-4 py-2.5 text-[15px] font-medium transition-colors ${selectedPriceRange === range ? "text-amber-400 bg-white/5" : "text-white hover:bg-white/5"}`}
-                          onClick={() => setSelectedPriceRange(selectedPriceRange === range ? null : range)}>{range}</button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-
-                {/* Payment Type */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button 
-                      className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                      style={{ 
-                        background: selectedPaymentType ? "rgba(255,165,0,0.5)" : "#7575754D", 
-                        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" 
-                      }}
-                      title="Payment"
-                    >
-                      <Wallet className="w-4 h-4 text-white" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent align="start" sideOffset={8} className="w-52 p-0 border-neutral-700 rounded-xl overflow-hidden" style={{ background: "#1a1a1a" }}>
-                    <div className="px-4 pt-3 pb-1.5">
-                      <span className="text-amber-500/70 text-sm font-medium">Payment Type</span>
-                    </div>
-                    <div className="flex flex-col pb-1">
-                      {[...new Set(orders.map(o => o.paymentType))].sort().map(type => (
-                        <button key={type} className={`text-left px-4 py-2.5 text-[15px] font-medium transition-colors ${selectedPaymentType === type ? "text-amber-400 bg-white/5" : "text-white hover:bg-white/5"}`}
-                          onClick={() => setSelectedPaymentType(selectedPaymentType === type ? null : type)}>{type === "--" ? "Unpaid" : type}</button>
-                      ))}
-                    </div>
-                  </PopoverContent>
-                </Popover>
-                {(selectedRevenueCenter || selectedDateRange || selectedPartySize || selectedOrderType || selectedPriceRange || selectedPaymentType) && (
+                {filterIconItems.map(item => (
                   <button 
-                    className="px-2.5 py-1 rounded-full text-xs font-semibold text-amber-400 hover:opacity-80 transition-opacity whitespace-nowrap"
-                    style={{ background: "rgba(255,165,0,0.15)", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.08)" }}
-                    onClick={() => {
-                      setSelectedRevenueCenter(null);
-                      setSelectedDateRange(null);
-                      setSelectedPartySize(null);
-                      setSelectedOrderType(null);
-                      setSelectedPriceRange(null);
-                      setSelectedPaymentType(null);
-                    }}
+                    key={item.label}
+                    className="p-2 rounded-full hover:opacity-80 transition-opacity"
+                    style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                    title={item.label}
                   >
-                    Clear
+                    <item.icon className="w-4 h-4 text-white" />
                   </button>
-                )}
+                ))}
                 <button 
                   className="p-2 rounded-full hover:opacity-80 transition-opacity"
                   style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
@@ -1279,19 +1077,14 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                   <X className="w-4 h-4 text-white" />
                 </button>
               </>
-            ) : (
+            )}
+            {!showFilterIcons && (
               <button 
-                className="relative p-2 rounded-full hover:opacity-80 transition-opacity"
+                className="p-2 rounded-full hover:opacity-80 transition-opacity"
                 style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
                 onClick={() => setShowFilterIcons(true)}
               >
                 <SlidersHorizontal className="w-4 h-4 text-white" />
-                {(() => {
-                  const count = [selectedRevenueCenter, selectedDateRange, selectedPartySize, selectedOrderType, selectedPriceRange, selectedPaymentType].filter(Boolean).length;
-                  return count > 0 ? (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-black text-[10px] font-bold flex items-center justify-center">{count}</span>
-                  ) : null;
-                })()}
               </button>
             )}
             <button 
@@ -1549,7 +1342,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   // Mobile Layout
   const MobileLayout = () => (
     <div className="flex flex-col h-full bg-black">
-      {renderTicketHeader()}
+      <TicketHeader />
       <FilterTabs />
 
       {/* Guest Orders List */}
@@ -1608,7 +1401,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           <TransferLeftPanel />
         ) : (
           <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-            {renderTicketHeader()}
+            <TicketHeader />
             <FilterTabs style="glass" />
             <ScrollArea className="flex-1 px-1.5">
               <div className="space-y-2 pb-3">
@@ -1640,7 +1433,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           <TransferLeftPanel isTablet />
         ) : (
           <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-            {renderTicketHeader()}
+            <TicketHeader />
             <FilterTabs />
             <ScrollArea className="flex-1 px-1.5">
               <div className="space-y-2 pb-3">

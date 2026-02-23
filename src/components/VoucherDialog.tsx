@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { ChevronDown, Ticket, Delete } from "lucide-react";
+import { ChevronDown, Ticket, Delete, RefreshCw, Pencil } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -35,6 +35,7 @@ interface VoucherDialogProps {
     minimumOrder?: number;
     issuedBy?: string;
     notes?: string;
+    voucherCode?: string;
   }) => void;
   onRedeemVoucher?: (voucherCode: string, balance: number) => void;
   initialView?: 'sell' | 'redeem';
@@ -42,6 +43,15 @@ interface VoucherDialogProps {
 }
 
 const QUICK_VALUES = [10, 25, 50, 100];
+
+const generateVoucherCode = () => {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+  let code = 'VC-';
+  for (let i = 0; i < 8; i++) {
+    code += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+  return code;
+};
 
 const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDialogProps) => {
   const [voucherName, setVoucherName] = useState('');
@@ -56,6 +66,8 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const [minimumOrder, setMinimumOrder] = useState('');
   const [issuedBy, setIssuedBy] = useState('');
   const [notes, setNotes] = useState('');
+  const [voucherCode, setVoucherCode] = useState(generateVoucherCode);
+  const [isCustomCode, setIsCustomCode] = useState(false);
   const [touched, setTouched] = useState({ voucherName: false, value: false, sellingPrice: false });
   const [showKeypad, setShowKeypad] = useState(false);
 
@@ -97,6 +109,8 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setMinimumOrder('');
     setIssuedBy('');
     setNotes('');
+    setVoucherCode(generateVoucherCode());
+    setIsCustomCode(false);
     setTouched({ voucherName: false, value: false, sellingPrice: false });
     setShowKeypad(false);
   };
@@ -130,6 +144,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
       minimumOrder: parsedMinimumOrder,
       issuedBy: issuedBy.trim() || undefined,
       notes: notes.trim() || undefined,
+      voucherCode: voucherCode.trim() || undefined,
     });
     toast({ title: isEditMode ? "Voucher updated" : "Voucher added to order" });
     resetState();
@@ -403,6 +418,44 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                 className={`${inputClass} pl-8`}
               />
             </div>
+          </div>
+
+          {/* 8b. Voucher Code */}
+          <div>
+            <label className={labelClass}>Voucher Code</label>
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={voucherCode}
+                onChange={(e) => {
+                  if (isCustomCode) setVoucherCode(e.target.value.toUpperCase().slice(0, 20));
+                }}
+                readOnly={!isCustomCode}
+                className={`${inputClass} flex-1 font-mono tracking-wider ${!isCustomCode ? 'opacity-80' : ''}`}
+              />
+              <button
+                type="button"
+                onClick={() => {
+                  setVoucherCode(generateVoucherCode());
+                  setIsCustomCode(false);
+                }}
+                title="Generate new code"
+                className="p-2.5 rounded-lg bg-neutral-800 border border-neutral-600 text-neutral-300 hover:text-white hover:bg-neutral-700 transition-colors"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsCustomCode(prev => !prev)}
+                title={isCustomCode ? "Use auto-generated" : "Enter custom code"}
+                className={`p-2.5 rounded-lg border transition-colors ${isCustomCode ? 'bg-neutral-600 border-neutral-500 text-white' : 'bg-neutral-800 border-neutral-600 text-neutral-300 hover:text-white hover:bg-neutral-700'}`}
+              >
+                <Pencil className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-neutral-500 text-xs mt-1">
+              {isCustomCode ? 'Enter a custom voucher code' : 'Auto-generated code (tap pencil to customize)'}
+            </p>
           </div>
 
           {/* 9. Issued By */}

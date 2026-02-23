@@ -314,15 +314,15 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent
-        className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[95vw] md:w-full overflow-hidden rounded-2xl flex flex-col max-h-[90vh] [&>button]:hidden"
+        className="bg-neutral-900 border-neutral-700 p-0 w-[95vw] max-w-md md:max-w-3xl overflow-hidden rounded-2xl flex flex-col max-h-[90vh] [&>button]:hidden"
       >
         {/* Grabber Handle */}
-        <div className="flex justify-center pt-2 pb-1">
+        <div className="flex justify-center pt-2 pb-1 md:hidden">
           <div className="w-12 h-1 bg-neutral-600 rounded-full" />
         </div>
 
         {/* Header */}
-        <div className="px-4 pb-2">
+        <div className="px-4 md:px-6 pb-2 pt-2 md:pt-4">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 border-2 border-white bg-neutral-800 flex items-center justify-center">
               <Ticket className="w-6 h-6 text-white" />
@@ -357,199 +357,194 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
           </div>
         </div>
 
-        {/* Form Fields */}
-        <div className="flex-1 px-4 pb-2 space-y-3 overflow-y-auto scrollbar-hide">
-          {/* 1. Voucher Name - Searchable Dropdown with Custom Option */}
-          <div className="relative" ref={voucherNameDropdownRef}>
-            <label className={labelClass}>
-              Voucher Name <span className="text-red-400">*</span>
-            </label>
-            {isCustomVoucherName ? (
-              <div className="flex gap-2">
-                <input
-                  type="text"
-                  value={voucherName}
-                  onChange={(e) => setVoucherName(e.target.value.slice(0, 50))}
-                  onBlur={() => setTouched(prev => ({ ...prev, voucherName: true }))}
-                  placeholder="Enter custom voucher name"
-                  autoFocus
-                  className={`flex-1 ${inputClass} ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (voucherName.trim()) {
-                      setIsCustomVoucherName(false);
-                      setShowVoucherNameDropdown(false);
-                    }
-                  }}
-                  className="p-3 rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors"
-                  title="Confirm"
-                >
-                  <Check className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setVoucherName('');
-                    setIsCustomVoucherName(false);
-                  }}
-                  className="p-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white transition-colors"
-                  title="Cancel"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => {
-                  setShowVoucherNameDropdown(prev => !prev);
-                  setVoucherNameSearch('');
-                }}
-                onBlur={() => setTimeout(() => setTouched(prev => ({ ...prev, voucherName: true })), 200)}
-                className={`w-full flex items-center justify-between ${inputClass} cursor-pointer hover:border-neutral-500 ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
-              >
-                <span className={voucherName ? 'text-white' : 'text-neutral-500'}>
-                  {voucherName || 'Select voucher name'}
-                </span>
-                <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showVoucherNameDropdown ? 'rotate-180' : ''}`} />
-              </button>
-            )}
+        {/* Form Fields — 2-column on md+ */}
+        <div className="flex-1 px-4 md:px-6 pb-2 overflow-y-auto scrollbar-hide">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
 
-            {/* Dropdown List */}
-            {showVoucherNameDropdown && !isCustomVoucherName && (
-              <div className="absolute z-[9999] w-full mt-1 bg-neutral-800 border border-neutral-600 rounded-lg shadow-xl overflow-hidden">
-                {/* Search */}
-                <div className="p-2 border-b border-neutral-700">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-                    <input
-                      type="text"
-                      value={voucherNameSearch}
-                      onChange={(e) => setVoucherNameSearch(e.target.value)}
-                      placeholder="Search voucher names..."
-                      autoFocus
-                      className="w-full bg-neutral-900 border border-neutral-700 rounded-md pl-9 pr-3 py-2 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500"
-                    />
-                  </div>
-                </div>
-                <div className="max-h-48 overflow-y-auto scrollbar-hide">
-                  {PREDEFINED_VOUCHER_NAMES
-                    .filter(name => name.toLowerCase().includes(voucherNameSearch.toLowerCase()))
-                    .map((name) => (
-                      <button
-                        key={name}
-                        type="button"
-                        onClick={() => {
-                          setVoucherName(name);
-                          setShowVoucherNameDropdown(false);
-                          setVoucherNameSearch('');
-                        }}
-                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-neutral-700 ${voucherName === name ? 'bg-neutral-700 text-white' : 'text-neutral-300'}`}
-                      >
-                        {name}
-                      </button>
-                    ))}
-                  {/* Create Custom Option */}
+            {/* ===== LEFT COLUMN ===== */}
+
+            {/* Voucher Name (spans full width) */}
+            <div className="relative md:col-span-2" ref={voucherNameDropdownRef}>
+              <label className={labelClass}>
+                Voucher Name <span className="text-red-400">*</span>
+              </label>
+              {isCustomVoucherName ? (
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={voucherName}
+                    onChange={(e) => setVoucherName(e.target.value.slice(0, 50))}
+                    onBlur={() => setTouched(prev => ({ ...prev, voucherName: true }))}
+                    placeholder="Enter custom voucher name"
+                    autoFocus
+                    className={`flex-1 ${inputClass} ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (voucherName.trim()) {
+                        setIsCustomVoucherName(false);
+                        setShowVoucherNameDropdown(false);
+                      }
+                    }}
+                    className="p-3 rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors"
+                    title="Confirm"
+                  >
+                    <Check className="w-4 h-4" />
+                  </button>
                   <button
                     type="button"
                     onClick={() => {
                       setVoucherName('');
-                      setIsCustomVoucherName(true);
-                      setShowVoucherNameDropdown(false);
-                      setVoucherNameSearch('');
+                      setIsCustomVoucherName(false);
                     }}
-                    className="w-full text-left px-4 py-2.5 text-sm text-emerald-400 hover:bg-neutral-700 transition-colors flex items-center gap-2 border-t border-neutral-700"
+                    className="p-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white transition-colors"
+                    title="Cancel"
                   >
-                    <Plus className="w-4 h-4" />
-                    Create Custom Voucher Name
+                    <X className="w-4 h-4" />
                   </button>
                 </div>
-              </div>
-            )}
-
-            {touched.voucherName && !voucherName.trim() && (
-              <p className="text-red-400 text-xs mt-1">Voucher name is required</p>
-            )}
-          </div>
-
-
-          {/* 3. Voucher Value with POS Keypad */}
-          <div>
-            <label className={labelClass}>
-              Voucher Value ($) <span className="text-red-400">*</span>
-            </label>
-            <button
-              type="button"
-              onClick={() => setShowKeypad(prev => !prev)}
-              className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.value && numericValue <= 0 ? 'border-red-500' : showKeypad ? 'border-neutral-400' : 'border-neutral-600'}`}
-            >
-              <span className="text-neutral-400 mr-1">$</span>
-              <span className="text-white">{value || '0.00'}</span>
-            </button>
-            {touched.value && numericValue <= 0 && (
-              <p className="text-red-400 text-xs mt-1">Voucher value is required</p>
-            )}
-
-            {/* Quick Add Values */}
-            <div className="flex gap-2 mt-2">
-              {QUICK_VALUES.map((amt) => (
+              ) : (
                 <button
-                  key={amt}
-                  onClick={() => handleQuickValue(amt)}
-                  className="flex-1 py-1.5 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-xs font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  type="button"
+                  onClick={() => {
+                    setShowVoucherNameDropdown(prev => !prev);
+                    setVoucherNameSearch('');
+                  }}
+                  onBlur={() => setTimeout(() => setTouched(prev => ({ ...prev, voucherName: true })), 200)}
+                  className={`w-full flex items-center justify-between ${inputClass} cursor-pointer hover:border-neutral-500 ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
                 >
-                  {`$${amt}`}
+                  <span className={voucherName ? 'text-white' : 'text-neutral-500'}>
+                    {voucherName || 'Select voucher name'}
+                  </span>
+                  <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showVoucherNameDropdown ? 'rotate-180' : ''}`} />
                 </button>
-              ))}
+              )}
+
+              {showVoucherNameDropdown && !isCustomVoucherName && (
+                <div className="absolute z-[9999] w-full md:w-1/2 mt-1 bg-neutral-800 border border-neutral-600 rounded-lg shadow-xl overflow-hidden">
+                  <div className="p-2 border-b border-neutral-700">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                      <input
+                        type="text"
+                        value={voucherNameSearch}
+                        onChange={(e) => setVoucherNameSearch(e.target.value)}
+                        placeholder="Search voucher names..."
+                        autoFocus
+                        className="w-full bg-neutral-900 border border-neutral-700 rounded-md pl-9 pr-3 py-2 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500"
+                      />
+                    </div>
+                  </div>
+                  <div className="max-h-48 overflow-y-auto scrollbar-hide">
+                    {PREDEFINED_VOUCHER_NAMES
+                      .filter(name => name.toLowerCase().includes(voucherNameSearch.toLowerCase()))
+                      .map((name) => (
+                        <button
+                          key={name}
+                          type="button"
+                          onClick={() => {
+                            setVoucherName(name);
+                            setShowVoucherNameDropdown(false);
+                            setVoucherNameSearch('');
+                          }}
+                          className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-neutral-700 ${voucherName === name ? 'bg-neutral-700 text-white' : 'text-neutral-300'}`}
+                        >
+                          {name}
+                        </button>
+                      ))}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setVoucherName('');
+                        setIsCustomVoucherName(true);
+                        setShowVoucherNameDropdown(false);
+                        setVoucherNameSearch('');
+                      }}
+                      className="w-full text-left px-4 py-2.5 text-sm text-emerald-400 hover:bg-neutral-700 transition-colors flex items-center gap-2 border-t border-neutral-700"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Create Custom Voucher Name
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {touched.voucherName && !voucherName.trim() && (
+                <p className="text-red-400 text-xs mt-1">Voucher name is required</p>
+              )}
             </div>
 
-            {/* Inbuilt POS Keypad */}
-            {showKeypad && (
-              <div className="grid grid-cols-3 gap-1.5 mt-2">
-                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                  <button key={num} onClick={() => handleKeyPress(num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
-                    {num}
+            {/* LEFT: Voucher Value */}
+            <div>
+              <label className={labelClass}>
+                Voucher Value ($) <span className="text-red-400">*</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => setShowKeypad(prev => !prev)}
+                className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.value && numericValue <= 0 ? 'border-red-500' : showKeypad ? 'border-neutral-400' : 'border-neutral-600'}`}
+              >
+                <span className="text-neutral-400 mr-1">$</span>
+                <span className="text-white">{value || '0.00'}</span>
+              </button>
+              {touched.value && numericValue <= 0 && (
+                <p className="text-red-400 text-xs mt-1">Voucher value is required</p>
+              )}
+              <div className="flex gap-2 mt-2">
+                {QUICK_VALUES.map((amt) => (
+                  <button
+                    key={amt}
+                    onClick={() => handleQuickValue(amt)}
+                    className="flex-1 py-1.5 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-xs font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  >
+                    {`$${amt}`}
                   </button>
                 ))}
-                <button onClick={() => handleKeyPress('00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
-                  00
-                </button>
-                <button onClick={() => handleKeyPress('0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
-                  0
-                </button>
-                <button onClick={handleDeleteKey} className={`h-11 ${keypadBtnClass}`}>
-                  <Delete className="w-5 h-5" />
-                </button>
               </div>
-            )}
-          </div>
-
-          {/* 4. Selling Price */}
-          <div>
-            <label className={labelClass}>
-              Selling Price <span className="text-red-400">*</span>
-            </label>
-            <div className="relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">$</span>
-              <input
-                type="text"
-                inputMode="decimal"
-                value={sellingPrice}
-                onChange={handleSellingPriceChange}
-                onBlur={() => setTouched(prev => ({ ...prev, sellingPrice: true }))}
-                placeholder="0.00"
-                className={`${inputClass} pl-8 ${touched.sellingPrice && numericSellingPrice <= 0 ? 'border-red-500' : ''}`}
-              />
+              {showKeypad && (
+                <div className="grid grid-cols-3 gap-1.5 mt-2">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                    <button key={num} onClick={() => handleKeyPress(num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                      {num}
+                    </button>
+                  ))}
+                  <button onClick={() => handleKeyPress('00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                    00
+                  </button>
+                  <button onClick={() => handleKeyPress('0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                    0
+                  </button>
+                  <button onClick={handleDeleteKey} className={`h-11 ${keypadBtnClass}`}>
+                    <Delete className="w-5 h-5" />
+                  </button>
+                </div>
+              )}
             </div>
-            {touched.sellingPrice && numericSellingPrice <= 0 && (
-              <p className="text-red-400 text-xs mt-1">Selling price is required</p>
-            )}
-          </div>
 
-          {/* 5 & 6. Valid From + Expiry Date */}
-          <div className="grid grid-cols-2 gap-3 max-[360px]:grid-cols-1">
+            {/* RIGHT: Selling Price */}
+            <div>
+              <label className={labelClass}>
+                Selling Price <span className="text-red-400">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">$</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={sellingPrice}
+                  onChange={handleSellingPriceChange}
+                  onBlur={() => setTouched(prev => ({ ...prev, sellingPrice: true }))}
+                  placeholder="0.00"
+                  className={`${inputClass} pl-8 ${touched.sellingPrice && numericSellingPrice <= 0 ? 'border-red-500' : ''}`}
+                />
+              </div>
+              {touched.sellingPrice && numericSellingPrice <= 0 && (
+                <p className="text-red-400 text-xs mt-1">Selling price is required</p>
+              )}
+            </div>
+
+            {/* LEFT: Valid From */}
             <div>
               <label className={labelClass}>Valid From</label>
               <input
@@ -564,6 +559,8 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                 className={`${inputClass} [color-scheme:dark]`}
               />
             </div>
+
+            {/* RIGHT: Expiry Date */}
             <div>
               <label className={labelClass}>Expiry Date</label>
               <input
@@ -574,10 +571,8 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                 className={`${inputClass} [color-scheme:dark]`}
               />
             </div>
-          </div>
 
-          {/* 7 & 8. Redemption Limit + Minimum Order */}
-          <div className="grid grid-cols-2 gap-3 max-[360px]:grid-cols-1">
+            {/* LEFT: Redemption Limit */}
             <div>
               <label className={labelClass}>Redemption Limit</label>
               <div className="flex items-center gap-2">
@@ -606,6 +601,8 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                 </button>
               </div>
             </div>
+
+            {/* RIGHT: Minimum Order */}
             <div>
               <label className={labelClass}>Minimum Order ($)</label>
               <div className="relative">
@@ -620,242 +617,239 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                 />
               </div>
             </div>
-          </div>
 
-
-          {/* 9. Issued By */}
-          <div className="relative" ref={staffDropdownRef}>
-            <label className={labelClass}>Issued By (Staff Name)</label>
-            <button
-              type="button"
-              onClick={() => { setShowStaffDropdown(prev => !prev); setStaffSearch(''); }}
-              className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-sm text-left flex items-center justify-between focus:outline-none focus:border-neutral-500 transition-colors"
-            >
-              <span className={issuedBy ? 'text-white' : 'text-neutral-500'}>
-                {issuedBy || 'Select Employee'}
-              </span>
-              <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showStaffDropdown ? 'rotate-180' : ''}`} />
-            </button>
-            {showStaffDropdown && (
-              <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
-                {MOCK_EMPLOYEES.length > 6 && (
-                  <div className="p-2 border-b border-neutral-700">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-                      <input
-                        type="text"
-                        value={staffSearch}
-                        onChange={(e) => setStaffSearch(e.target.value)}
-                        placeholder="Search employee..."
-                        autoFocus
-                        className="w-full bg-neutral-900 border border-neutral-600 rounded-md pl-8 pr-3 py-2 text-white text-xs placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500"
-                      />
+            {/* LEFT: Issued By */}
+            <div className="relative" ref={staffDropdownRef}>
+              <label className={labelClass}>Issued By (Staff Name)</label>
+              <button
+                type="button"
+                onClick={() => { setShowStaffDropdown(prev => !prev); setStaffSearch(''); }}
+                className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-sm text-left flex items-center justify-between focus:outline-none focus:border-neutral-500 transition-colors"
+              >
+                <span className={issuedBy ? 'text-white' : 'text-neutral-500'}>
+                  {issuedBy || 'Select Employee'}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showStaffDropdown ? 'rotate-180' : ''}`} />
+              </button>
+              {showStaffDropdown && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
+                  {MOCK_EMPLOYEES.length > 6 && (
+                    <div className="p-2 border-b border-neutral-700">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                        <input
+                          type="text"
+                          value={staffSearch}
+                          onChange={(e) => setStaffSearch(e.target.value)}
+                          placeholder="Search employee..."
+                          autoFocus
+                          className="w-full bg-neutral-900 border border-neutral-600 rounded-md pl-8 pr-3 py-2 text-white text-xs placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500"
+                        />
+                      </div>
                     </div>
-                  </div>
-                )}
-                <div className="max-h-48 overflow-y-auto scrollbar-hide">
-                  {MOCK_EMPLOYEES
-                    .filter(emp => emp.name.toLowerCase().includes(staffSearch.toLowerCase()) || emp.role.toLowerCase().includes(staffSearch.toLowerCase()))
-                    .map(emp => (
-                      <button
-                        key={emp.id}
-                        onClick={() => { setIssuedBy(emp.name); setShowStaffDropdown(false); setStaffSearch(''); }}
-                        className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between transition-colors ${issuedBy === emp.name ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5'}`}
-                      >
-                        <span>{emp.name}</span>
-                        <span className="text-neutral-500 text-xs">{emp.role}</span>
-                      </button>
-                    ))
-                  }
-                  {MOCK_EMPLOYEES.filter(emp => emp.name.toLowerCase().includes(staffSearch.toLowerCase())).length === 0 && (
-                    <p className="px-4 py-3 text-neutral-500 text-xs text-center">No employees found</p>
                   )}
+                  <div className="max-h-48 overflow-y-auto scrollbar-hide">
+                    {MOCK_EMPLOYEES
+                      .filter(emp => emp.name.toLowerCase().includes(staffSearch.toLowerCase()) || emp.role.toLowerCase().includes(staffSearch.toLowerCase()))
+                      .map(emp => (
+                        <button
+                          key={emp.id}
+                          onClick={() => { setIssuedBy(emp.name); setShowStaffDropdown(false); setStaffSearch(''); }}
+                          className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between transition-colors ${issuedBy === emp.name ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5'}`}
+                        >
+                          <span>{emp.name}</span>
+                          <span className="text-neutral-500 text-xs">{emp.role}</span>
+                        </button>
+                      ))
+                    }
+                    {MOCK_EMPLOYEES.filter(emp => emp.name.toLowerCase().includes(staffSearch.toLowerCase())).length === 0 && (
+                      <p className="px-4 py-3 text-neutral-500 text-xs text-center">No employees found</p>
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* 10. Notes */}
-          <div>
-            <label className={labelClass}>Notes</label>
-            <textarea
-              value={notes}
-              onChange={(e) => setNotes(e.target.value.slice(0, 500))}
-              placeholder="Internal notes (not printed on voucher)"
-              rows={2}
-              className={`${inputClass} min-h-[60px] resize-none`}
-            />
-          </div>
-
-          {/* 11. Gift Toggle */}
-          <div className="border border-neutral-700 rounded-lg p-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Gift className="w-4 h-4 text-neutral-400" />
-                <span className="text-white text-sm font-medium">Gift It to Friends / Family</span>
-              </div>
-              <Switch
-                checked={isGift}
-                onCheckedChange={(checked) => {
-                  setIsGift(checked);
-                  if (!checked) {
-                    setRecipientFirstName('');
-                    setRecipientLastName('');
-                    setRecipientEmail('');
-                    setRecipientPhone('');
-                    setShowCountryDropdown(false);
-                    setCountrySearch('');
-                  }
-                }}
+            {/* RIGHT: Notes */}
+            <div>
+              <label className={labelClass}>Notes</label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value.slice(0, 500))}
+                placeholder="Internal notes (not printed on voucher)"
+                rows={2}
+                className={`${inputClass} min-h-[60px] resize-none`}
               />
             </div>
 
-            {isGift && (
-              <div className="mt-3 space-y-3 animate-fade-in">
-                <div className="grid grid-cols-2 gap-3 max-[360px]:grid-cols-1">
-                  <div>
-                    <label className={labelClass}>First Name <span className="text-red-400">*</span></label>
-                    <input
-                      type="text"
-                      value={recipientFirstName}
-                      onChange={(e) => setRecipientFirstName(e.target.value.slice(0, 50))}
-                      placeholder="Recipient first name"
-                      className={`${inputClass} ${isGift && !recipientFirstName.trim() ? 'border-red-500/50' : ''}`}
-                    />
-                  </div>
-                  <div>
-                    <label className={labelClass}>Last Name <span className="text-red-400">*</span></label>
-                    <input
-                      type="text"
-                      value={recipientLastName}
-                      onChange={(e) => setRecipientLastName(e.target.value.slice(0, 50))}
-                      placeholder="Recipient last name"
-                      className={`${inputClass} ${isGift && !recipientLastName.trim() ? 'border-red-500/50' : ''}`}
-                    />
-                  </div>
+            {/* Gift Toggle — spans full width */}
+            <div className="md:col-span-2 border border-neutral-700 rounded-lg p-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Gift className="w-4 h-4 text-neutral-400" />
+                  <span className="text-white text-sm font-medium">Gift It to Friends / Family</span>
                 </div>
-                <div>
-                  <label className={labelClass}>Email</label>
-                  <input
-                    type="email"
-                    value={recipientEmail}
-                    onChange={(e) => setRecipientEmail(e.target.value.slice(0, 100))}
-                    placeholder="recipient@email.com"
-                    className={`${inputClass} ${
-                      !recipientEmail && !recipientPhone && recipientFirstName.trim() && recipientLastName.trim()
-                        ? 'border-amber-500/50'
-                        : recipientEmail && !isValidEmail(recipientEmail)
-                          ? 'border-red-500/50'
-                          : ''
-                    }`}
-                  />
-                  {recipientEmail && !isValidEmail(recipientEmail) && (
-                    <p className="text-red-400 text-xs mt-1">Invalid email format</p>
-                  )}
-                </div>
+                <Switch
+                  checked={isGift}
+                  onCheckedChange={(checked) => {
+                    setIsGift(checked);
+                    if (!checked) {
+                      setRecipientFirstName('');
+                      setRecipientLastName('');
+                      setRecipientEmail('');
+                      setRecipientPhone('');
+                      setShowCountryDropdown(false);
+                      setCountrySearch('');
+                    }
+                  }}
+                />
+              </div>
 
-                {/* Phone with Country Code */}
-                <div>
-                  <label className={labelClass}>Phone Number</label>
-                  <div className="flex">
-                    {/* Country Code Selector */}
-                    <div className="relative" ref={countryDropdownRef}>
-                      <button
-                        type="button"
-                        onClick={() => { setShowCountryDropdown(prev => !prev); setCountrySearch(''); }}
-                        className="h-[46px] bg-neutral-800 border border-neutral-600 border-r-0 rounded-l-lg px-3 text-sm text-white flex items-center gap-1.5 hover:bg-neutral-700 transition-colors whitespace-nowrap"
-                      >
-                        <span className="text-base">{selectedCountry.flag}</span>
-                        <span className="text-neutral-300 text-xs">{selectedCountry.dial}</span>
-                        <ChevronDown className={`w-3 h-3 text-neutral-400 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
-                      </button>
-                      {showCountryDropdown && (
-                        <div className="absolute top-full left-0 mt-1 w-64 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
-                          <div className="p-2 border-b border-neutral-700">
-                            <div className="relative">
-                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
-                              <input
-                                type="text"
-                                value={countrySearch}
-                                onChange={(e) => setCountrySearch(e.target.value)}
-                                placeholder="Search country..."
-                                autoFocus
-                                className="w-full bg-neutral-900 border border-neutral-600 rounded-md pl-8 pr-3 py-2 text-white text-xs placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500"
-                              />
-                            </div>
-                          </div>
-                          <div className="max-h-48 overflow-y-auto scrollbar-hide">
-                            {COUNTRY_CODES
-                              .filter(c =>
-                                c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
-                                c.dial.includes(countrySearch) ||
-                                c.code.toLowerCase().includes(countrySearch.toLowerCase())
-                              )
-                              .map(c => (
-                                <button
-                                  key={c.code}
-                                  onClick={() => {
-                                    setSelectedCountry(c);
-                                    setShowCountryDropdown(false);
-                                    setCountrySearch('');
-                                    setRecipientPhone('');
-                                  }}
-                                  className={`w-full px-3 py-2.5 text-sm text-left flex items-center gap-2.5 transition-colors ${
-                                    selectedCountry.code === c.code ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5'
-                                  }`}
-                                >
-                                  <span className="text-base">{c.flag}</span>
-                                  <span className="flex-1 truncate">{c.name}</span>
-                                  <span className="text-neutral-500 text-xs">{c.dial}</span>
-                                </button>
-                              ))
-                            }
-                            {COUNTRY_CODES.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).length === 0 && (
-                              <p className="px-3 py-3 text-neutral-500 text-xs text-center">No countries found</p>
-                            )}
-                          </div>
-                        </div>
-                      )}
+              {isGift && (
+                <div className="mt-3 space-y-3 animate-fade-in">
+                  <div className="grid grid-cols-2 gap-3 max-[360px]:grid-cols-1">
+                    <div>
+                      <label className={labelClass}>First Name <span className="text-red-400">*</span></label>
+                      <input
+                        type="text"
+                        value={recipientFirstName}
+                        onChange={(e) => setRecipientFirstName(e.target.value.slice(0, 50))}
+                        placeholder="Recipient first name"
+                        className={`${inputClass} ${isGift && !recipientFirstName.trim() ? 'border-red-500/50' : ''}`}
+                      />
                     </div>
-                    {/* Phone Input */}
+                    <div>
+                      <label className={labelClass}>Last Name <span className="text-red-400">*</span></label>
+                      <input
+                        type="text"
+                        value={recipientLastName}
+                        onChange={(e) => setRecipientLastName(e.target.value.slice(0, 50))}
+                        placeholder="Recipient last name"
+                        className={`${inputClass} ${isGift && !recipientLastName.trim() ? 'border-red-500/50' : ''}`}
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className={labelClass}>Email</label>
                     <input
-                      type="tel"
-                      inputMode="numeric"
-                      value={formatPhone(recipientPhone, selectedCountry.format)}
-                      onChange={(e) => {
-                        const raw = e.target.value.replace(/\D/g, '').slice(0, selectedCountry.phoneLength);
-                        setRecipientPhone(raw);
-                      }}
-                      placeholder={selectedCountry.placeholder || `${selectedCountry.phoneLength}-digit phone number`}
-                      className={`${inputClass} rounded-l-none flex-1 ${
+                      type="email"
+                      value={recipientEmail}
+                      onChange={(e) => setRecipientEmail(e.target.value.slice(0, 100))}
+                      placeholder="recipient@email.com"
+                      className={`${inputClass} ${
                         !recipientEmail && !recipientPhone && recipientFirstName.trim() && recipientLastName.trim()
                           ? 'border-amber-500/50'
-                          : recipientPhone && !isValidPhone(recipientPhone)
+                          : recipientEmail && !isValidEmail(recipientEmail)
                             ? 'border-red-500/50'
                             : ''
                       }`}
                     />
+                    {recipientEmail && !isValidEmail(recipientEmail) && (
+                      <p className="text-red-400 text-xs mt-1">Invalid email format</p>
+                    )}
                   </div>
-                  {recipientPhone && !isValidPhone(recipientPhone) && (
-                    <p className="text-red-400 text-xs mt-1">Invalid phone number for {selectedCountry.name} — {selectedCountry.hint} (e.g. {selectedCountry.placeholder})</p>
-                  )}
-                </div>
 
-                {/* Helper text / validation */}
-                <p className={`text-xs ${
-                  recipientFirstName.trim() && recipientLastName.trim() && !recipientEmail.trim() && !recipientPhone.trim()
-                    ? 'text-amber-400'
-                    : 'text-neutral-500'
-                }`}>
-                  Either Email or Phone Number must be provided.
-                </p>
-              </div>
-            )}
+                  {/* Phone with Country Code */}
+                  <div>
+                    <label className={labelClass}>Phone Number</label>
+                    <div className="flex">
+                      <div className="relative" ref={countryDropdownRef}>
+                        <button
+                          type="button"
+                          onClick={() => { setShowCountryDropdown(prev => !prev); setCountrySearch(''); }}
+                          className="h-[46px] bg-neutral-800 border border-neutral-600 border-r-0 rounded-l-lg px-3 text-sm text-white flex items-center gap-1.5 hover:bg-neutral-700 transition-colors whitespace-nowrap"
+                        >
+                          <span className="text-base">{selectedCountry.flag}</span>
+                          <span className="text-neutral-300 text-xs">{selectedCountry.dial}</span>
+                          <ChevronDown className={`w-3 h-3 text-neutral-400 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
+                        </button>
+                        {showCountryDropdown && (
+                          <div className="absolute top-full left-0 mt-1 w-64 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
+                            <div className="p-2 border-b border-neutral-700">
+                              <div className="relative">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                                <input
+                                  type="text"
+                                  value={countrySearch}
+                                  onChange={(e) => setCountrySearch(e.target.value)}
+                                  placeholder="Search country..."
+                                  autoFocus
+                                  className="w-full bg-neutral-900 border border-neutral-600 rounded-md pl-8 pr-3 py-2 text-white text-xs placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500"
+                                />
+                              </div>
+                            </div>
+                            <div className="max-h-48 overflow-y-auto scrollbar-hide">
+                              {COUNTRY_CODES
+                                .filter(c =>
+                                  c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+                                  c.dial.includes(countrySearch) ||
+                                  c.code.toLowerCase().includes(countrySearch.toLowerCase())
+                                )
+                                .map(c => (
+                                  <button
+                                    key={c.code}
+                                    onClick={() => {
+                                      setSelectedCountry(c);
+                                      setShowCountryDropdown(false);
+                                      setCountrySearch('');
+                                      setRecipientPhone('');
+                                    }}
+                                    className={`w-full px-3 py-2.5 text-sm text-left flex items-center gap-2.5 transition-colors ${
+                                      selectedCountry.code === c.code ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5'
+                                    }`}
+                                  >
+                                    <span className="text-base">{c.flag}</span>
+                                    <span className="flex-1 truncate">{c.name}</span>
+                                    <span className="text-neutral-500 text-xs">{c.dial}</span>
+                                  </button>
+                                ))
+                              }
+                              {COUNTRY_CODES.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).length === 0 && (
+                                <p className="px-3 py-3 text-neutral-500 text-xs text-center">No countries found</p>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      <input
+                        type="tel"
+                        inputMode="numeric"
+                        value={formatPhone(recipientPhone, selectedCountry.format)}
+                        onChange={(e) => {
+                          const raw = e.target.value.replace(/\D/g, '').slice(0, selectedCountry.phoneLength);
+                          setRecipientPhone(raw);
+                        }}
+                        placeholder={selectedCountry.placeholder || `${selectedCountry.phoneLength}-digit phone number`}
+                        className={`${inputClass} rounded-l-none flex-1 ${
+                          !recipientEmail && !recipientPhone && recipientFirstName.trim() && recipientLastName.trim()
+                            ? 'border-amber-500/50'
+                            : recipientPhone && !isValidPhone(recipientPhone)
+                              ? 'border-red-500/50'
+                              : ''
+                        }`}
+                      />
+                    </div>
+                    {recipientPhone && !isValidPhone(recipientPhone) && (
+                      <p className="text-red-400 text-xs mt-1">Invalid phone number for {selectedCountry.name} — {selectedCountry.hint} (e.g. {selectedCountry.placeholder})</p>
+                    )}
+                  </div>
+
+                  <p className={`text-xs ${
+                    recipientFirstName.trim() && recipientLastName.trim() && !recipientEmail.trim() && !recipientPhone.trim()
+                      ? 'text-amber-400'
+                      : 'text-neutral-500'
+                  }`}>
+                    Either Email or Phone Number must be provided.
+                  </p>
+                </div>
+              )}
+            </div>
+
           </div>
         </div>
 
-        {/* Footer */}
-        <div className="px-4 py-3 border-t border-neutral-700 mt-auto flex items-center gap-2">
+        {/* Footer — fixed at bottom */}
+        <div className="px-4 md:px-6 py-3 border-t border-neutral-700 mt-auto flex items-center gap-2">
           <Button
             variant="outline"
             onClick={handleClose}

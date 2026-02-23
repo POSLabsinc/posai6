@@ -673,12 +673,12 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
             {/* RIGHT: Notes */}
             <div>
               <label className={labelClass}>Notes</label>
-              <textarea
+              <input
+                type="text"
                 value={notes}
                 onChange={(e) => setNotes(e.target.value.slice(0, 500))}
                 placeholder="Internal notes (not printed on voucher)"
-                rows={2}
-                className={`${inputClass} min-h-[60px] resize-none`}
+                className={inputClass}
               />
             </div>
 

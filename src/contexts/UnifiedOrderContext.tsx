@@ -1,5 +1,5 @@
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
-import { ticketOrders as seedTicketOrders, TicketOrder, TicketOrderItem } from '@/data/ticketOrders';
+import { ticketOrders as seedTicketOrders, TicketOrder, TicketOrderItem } from '@/data/ticketOrders'; // v2 - enriched modifiers
 
 // localStorage keys
 const UNIFIED_STORAGE_KEY = 'pos-unified-orders';

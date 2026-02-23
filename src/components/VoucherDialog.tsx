@@ -66,6 +66,33 @@ const MOCK_EMPLOYEES = [
   { id: '8', name: 'Anna Martinez', role: 'Cashier' },
 ];
 
+const COUNTRY_CODES = [
+  { code: 'US', dial: '+1', flag: '🇺🇸', name: 'United States', phoneLength: 10 },
+  { code: 'GB', dial: '+44', flag: '🇬🇧', name: 'United Kingdom', phoneLength: 10 },
+  { code: 'CA', dial: '+1', flag: '🇨🇦', name: 'Canada', phoneLength: 10 },
+  { code: 'AU', dial: '+61', flag: '🇦🇺', name: 'Australia', phoneLength: 9 },
+  { code: 'IN', dial: '+91', flag: '🇮🇳', name: 'India', phoneLength: 10 },
+  { code: 'DE', dial: '+49', flag: '🇩🇪', name: 'Germany', phoneLength: 11 },
+  { code: 'FR', dial: '+33', flag: '🇫🇷', name: 'France', phoneLength: 9 },
+  { code: 'JP', dial: '+81', flag: '🇯🇵', name: 'Japan', phoneLength: 10 },
+  { code: 'CN', dial: '+86', flag: '🇨🇳', name: 'China', phoneLength: 11 },
+  { code: 'BR', dial: '+55', flag: '🇧🇷', name: 'Brazil', phoneLength: 11 },
+  { code: 'MX', dial: '+52', flag: '🇲🇽', name: 'Mexico', phoneLength: 10 },
+  { code: 'IT', dial: '+39', flag: '🇮🇹', name: 'Italy', phoneLength: 10 },
+  { code: 'ES', dial: '+34', flag: '🇪🇸', name: 'Spain', phoneLength: 9 },
+  { code: 'KR', dial: '+82', flag: '🇰🇷', name: 'South Korea', phoneLength: 10 },
+  { code: 'AE', dial: '+971', flag: '🇦🇪', name: 'UAE', phoneLength: 9 },
+  { code: 'SA', dial: '+966', flag: '🇸🇦', name: 'Saudi Arabia', phoneLength: 9 },
+  { code: 'SG', dial: '+65', flag: '🇸🇬', name: 'Singapore', phoneLength: 8 },
+  { code: 'NZ', dial: '+64', flag: '🇳🇿', name: 'New Zealand', phoneLength: 9 },
+  { code: 'ZA', dial: '+27', flag: '🇿🇦', name: 'South Africa', phoneLength: 9 },
+  { code: 'PH', dial: '+63', flag: '🇵🇭', name: 'Philippines', phoneLength: 10 },
+  { code: 'NG', dial: '+234', flag: '🇳🇬', name: 'Nigeria', phoneLength: 10 },
+  { code: 'PK', dial: '+92', flag: '🇵🇰', name: 'Pakistan', phoneLength: 10 },
+  { code: 'BD', dial: '+880', flag: '🇧🇩', name: 'Bangladesh', phoneLength: 10 },
+  { code: 'EG', dial: '+20', flag: '🇪🇬', name: 'Egypt', phoneLength: 10 },
+];
+
 const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDialogProps) => {
   const [voucherName, setVoucherName] = useState('');
   const [voucherType, setVoucherType] = useState<'fixed' | 'percentage'>('fixed');
@@ -90,7 +117,11 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const [recipientLastName, setRecipientLastName] = useState('');
   const [recipientEmail, setRecipientEmail] = useState('');
   const [recipientPhone, setRecipientPhone] = useState('');
+  const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
+  const [showCountryDropdown, setShowCountryDropdown] = useState(false);
+  const [countrySearch, setCountrySearch] = useState('');
   const staffDropdownRef = useRef<HTMLDivElement>(null);
+  const countryDropdownRef = useRef<HTMLDivElement>(null);
 
   const isEditMode = !!(initialData?.editingItemId);
 
@@ -116,15 +147,19 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const numericSellingPrice = parseFloat(sellingPrice) || 0;
 
   const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-  const isValidPhone = (phone: string) => /^\d{10}$/.test(phone);
+  const isValidPhone = (phone: string) => {
+    const digits = phone.replace(/\D/g, '');
+    return digits.length === selectedCountry.phoneLength;
+  };
+
+  const hasValidContact = 
+    (recipientEmail.trim().length > 0 && isValidEmail(recipientEmail)) ||
+    (recipientPhone.trim().length > 0 && isValidPhone(recipientPhone));
 
   const giftValid = !isGift || (
     recipientFirstName.trim().length > 0 &&
     recipientLastName.trim().length > 0 &&
-    (
-      (recipientEmail.trim().length > 0 && isValidEmail(recipientEmail)) ||
-      (recipientPhone.trim().length > 0 && isValidPhone(recipientPhone))
-    )
+    hasValidContact
   );
 
   const isValid = voucherName.trim().length > 0 && numericValue > 0 && numericSellingPrice > 0 && giftValid;
@@ -153,6 +188,9 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setRecipientLastName('');
     setRecipientEmail('');
     setRecipientPhone('');
+    setSelectedCountry(COUNTRY_CODES[0]);
+    setShowCountryDropdown(false);
+    setCountrySearch('');
   };
 
   const handleClose = () => {
@@ -601,6 +639,8 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                     setRecipientLastName('');
                     setRecipientEmail('');
                     setRecipientPhone('');
+                    setShowCountryDropdown(false);
+                    setCountrySearch('');
                   }
                 }}
               />
@@ -637,32 +677,114 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                     value={recipientEmail}
                     onChange={(e) => setRecipientEmail(e.target.value.slice(0, 100))}
                     placeholder="recipient@email.com"
-                    className={`${inputClass} ${recipientEmail && !isValidEmail(recipientEmail) ? 'border-red-500/50' : ''}`}
+                    className={`${inputClass} ${
+                      !recipientEmail && !recipientPhone && recipientFirstName.trim() && recipientLastName.trim()
+                        ? 'border-amber-500/50'
+                        : recipientEmail && !isValidEmail(recipientEmail)
+                          ? 'border-red-500/50'
+                          : ''
+                    }`}
                   />
                   {recipientEmail && !isValidEmail(recipientEmail) && (
                     <p className="text-red-400 text-xs mt-1">Invalid email format</p>
                   )}
                 </div>
+
+                {/* Phone with Country Code */}
                 <div>
                   <label className={labelClass}>Phone Number</label>
-                  <input
-                    type="tel"
-                    inputMode="numeric"
-                    value={recipientPhone}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, '').slice(0, 10);
-                      setRecipientPhone(val);
-                    }}
-                    placeholder="10-digit phone number"
-                    className={`${inputClass} ${recipientPhone && !isValidPhone(recipientPhone) ? 'border-red-500/50' : ''}`}
-                  />
+                  <div className="flex">
+                    {/* Country Code Selector */}
+                    <div className="relative" ref={countryDropdownRef}>
+                      <button
+                        type="button"
+                        onClick={() => { setShowCountryDropdown(prev => !prev); setCountrySearch(''); }}
+                        className="h-[46px] bg-neutral-800 border border-neutral-600 border-r-0 rounded-l-lg px-3 text-sm text-white flex items-center gap-1.5 hover:bg-neutral-700 transition-colors whitespace-nowrap"
+                      >
+                        <span className="text-base">{selectedCountry.flag}</span>
+                        <span className="text-neutral-300 text-xs">{selectedCountry.dial}</span>
+                        <ChevronDown className={`w-3 h-3 text-neutral-400 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
+                      </button>
+                      {showCountryDropdown && (
+                        <div className="absolute top-full left-0 mt-1 w-64 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
+                          <div className="p-2 border-b border-neutral-700">
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                              <input
+                                type="text"
+                                value={countrySearch}
+                                onChange={(e) => setCountrySearch(e.target.value)}
+                                placeholder="Search country..."
+                                autoFocus
+                                className="w-full bg-neutral-900 border border-neutral-600 rounded-md pl-8 pr-3 py-2 text-white text-xs placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500"
+                              />
+                            </div>
+                          </div>
+                          <div className="max-h-48 overflow-y-auto scrollbar-hide">
+                            {COUNTRY_CODES
+                              .filter(c =>
+                                c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+                                c.dial.includes(countrySearch) ||
+                                c.code.toLowerCase().includes(countrySearch.toLowerCase())
+                              )
+                              .map(c => (
+                                <button
+                                  key={c.code}
+                                  onClick={() => {
+                                    setSelectedCountry(c);
+                                    setShowCountryDropdown(false);
+                                    setCountrySearch('');
+                                    setRecipientPhone('');
+                                  }}
+                                  className={`w-full px-3 py-2.5 text-sm text-left flex items-center gap-2.5 transition-colors ${
+                                    selectedCountry.code === c.code ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5'
+                                  }`}
+                                >
+                                  <span className="text-base">{c.flag}</span>
+                                  <span className="flex-1 truncate">{c.name}</span>
+                                  <span className="text-neutral-500 text-xs">{c.dial}</span>
+                                </button>
+                              ))
+                            }
+                            {COUNTRY_CODES.filter(c => c.name.toLowerCase().includes(countrySearch.toLowerCase())).length === 0 && (
+                              <p className="px-3 py-3 text-neutral-500 text-xs text-center">No countries found</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    {/* Phone Input */}
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      value={recipientPhone}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, '').slice(0, selectedCountry.phoneLength);
+                        setRecipientPhone(val);
+                      }}
+                      placeholder={`${selectedCountry.phoneLength}-digit phone number`}
+                      className={`${inputClass} rounded-l-none flex-1 ${
+                        !recipientEmail && !recipientPhone && recipientFirstName.trim() && recipientLastName.trim()
+                          ? 'border-amber-500/50'
+                          : recipientPhone && !isValidPhone(recipientPhone)
+                            ? 'border-red-500/50'
+                            : ''
+                      }`}
+                    />
+                  </div>
                   {recipientPhone && !isValidPhone(recipientPhone) && (
-                    <p className="text-red-400 text-xs mt-1">Phone must be exactly 10 digits</p>
+                    <p className="text-red-400 text-xs mt-1">Phone must be {selectedCountry.phoneLength} digits for {selectedCountry.name}</p>
                   )}
                 </div>
-                {isGift && recipientFirstName.trim() && recipientLastName.trim() && !recipientEmail.trim() && !recipientPhone.trim() && (
-                  <p className="text-amber-400 text-xs">Please provide at least an email or phone number</p>
-                )}
+
+                {/* Helper text / validation */}
+                <p className={`text-xs ${
+                  recipientFirstName.trim() && recipientLastName.trim() && !recipientEmail.trim() && !recipientPhone.trim()
+                    ? 'text-amber-400'
+                    : 'text-neutral-500'
+                }`}>
+                  Either Email or Phone Number must be provided.
+                </p>
               </div>
             )}
           </div>

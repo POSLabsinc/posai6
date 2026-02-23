@@ -218,6 +218,17 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   // Per-product swipe state for ticket detail view
   const [activeSwipedProductIndex, setActiveSwipedProductIndex] = useState<number | null>(null);
 
+  // Expanded modifiers state for product cards
+  const [expandedModifiers, setExpandedModifiers] = useState<Set<string>>(new Set());
+  const toggleModifierExpand = (key: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setExpandedModifiers(prev => {
+      const next = new Set(prev);
+      next.has(key) ? next.delete(key) : next.add(key);
+      return next;
+    });
+  };
+
   // Transfer Check dialog state
   const [showTransferCheckDialog, setShowTransferCheckDialog] = useState(false);
 
@@ -1564,12 +1575,26 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                       </span>
                       <div>
                         <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${isRefunded ? 'text-white/40 line-through' : item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
-                        {item.modifiers.length > 0 && (
-                          <div className={`mt-${isTablet ? '0.5' : '1'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} space-y-0.5`}>
-                            {(isTablet ? item.modifiers.slice(0, 2) : item.modifiers).map((mod, i) => <div key={i}>{mod}</div>)}
-                            {isTablet && item.modifiers.length > 2 && <div>+{item.modifiers.length - 2} more</div>}
-                          </div>
-                        )}
+                        {item.modifiers.length > 0 && (() => {
+                          const modKey = `right-${selectedGuest.id}-${index}`;
+                          const isExpanded = expandedModifiers.has(modKey);
+                          const showAll = !isTablet || isExpanded;
+                          const visibleMods = showAll ? item.modifiers : item.modifiers.slice(0, 2);
+                          const hiddenCount = item.modifiers.length - 2;
+                          return (
+                            <div className={`mt-${isTablet ? '0.5' : '1'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} space-y-0.5`}>
+                              {visibleMods.map((mod, i) => <div key={i}>{mod}</div>)}
+                              {isTablet && hiddenCount > 0 && (
+                                <button
+                                  onClick={(e) => toggleModifierExpand(modKey, e)}
+                                  className="text-blue-400 hover:text-blue-300 transition-colors"
+                                >
+                                  {isExpanded ? 'Show less' : `+${hiddenCount} more`}
+                                </button>
+                              )}
+                            </div>
+                          );
+                        })()}
                         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                           {isRefunded && (
                             <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">REFUNDED</span>

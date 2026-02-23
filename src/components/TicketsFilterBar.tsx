@@ -40,10 +40,10 @@ const FilterDropdownWrapper = memo(({ label, children }: { label: string; childr
   <PopoverContent
     align="start"
     sideOffset={8}
-    className="!w-fit min-w-[160px] max-w-[280px] p-0 rounded-xl border-0 shadow-xl z-[100]"
+    className="!w-fit min-w-[140px] max-w-[220px] p-0 rounded-xl border-0 shadow-xl z-[100]"
     style={DROPDOWN_STYLE}
   >
-    <div className="px-4 py-2.5 border-b border-white/10">
+    <div className="px-3 py-2 border-b border-white/10">
       <span className="text-white/50 text-xs font-medium">{label}</span>
     </div>
     <div className="py-1">{children}</div>
@@ -159,7 +159,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
               </PopoverTrigger>
               <FilterDropdownWrapper label="Revenue Center">
                 {REVENUE_CENTER_OPTIONS.map(opt => (
-                  <button key={opt} onClick={() => toggleRevenueCenter(opt)} className={`w-full text-left px-4 py-2 text-sm ${advFilterRevenueCenter === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
+                  <button key={opt} onClick={() => toggleRevenueCenter(opt)} className={`w-full text-left px-3 py-2 text-sm ${advFilterRevenueCenter === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
                     {opt}
                   </button>
                 ))}
@@ -192,7 +192,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
               </PopoverTrigger>
               <FilterDropdownWrapper label="Employee">
                 {EMPLOYEE_OPTIONS.map(opt => (
-                  <button key={opt} onClick={() => toggleEmployee(opt)} className={`w-full text-left px-4 py-2 text-sm ${advFilterEmployee === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
+                  <button key={opt} onClick={() => toggleEmployee(opt)} className={`w-full text-left px-3 py-2 text-sm ${advFilterEmployee === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
                     {opt}
                   </button>
                 ))}
@@ -208,7 +208,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
               </PopoverTrigger>
               <FilterDropdownWrapper label="Order Type">
                 {ORDER_TYPE_OPTIONS.map(opt => (
-                  <button key={opt.label} onClick={() => toggleOrderType(opt.label)} className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2.5 ${advFilterOrderType === opt.label ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
+                  <button key={opt.label} onClick={() => toggleOrderType(opt.label)} className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 ${advFilterOrderType === opt.label ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
                     <img src={opt.icon} alt={opt.label} className="w-4 h-4 object-contain" />
                     {opt.label}
                   </button>
@@ -225,7 +225,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
               </PopoverTrigger>
               <FilterDropdownWrapper label="Order Status">
                 {ORDER_STATUS_OPTIONS.map(opt => (
-                  <button key={opt} onClick={() => toggleOrderStatus(opt)} className={`w-full text-left px-4 py-2 text-sm font-medium ${advFilterOrderStatus === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
+                  <button key={opt} onClick={() => toggleOrderStatus(opt)} className={`w-full text-left px-3 py-2 text-sm font-medium ${advFilterOrderStatus === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
                     {opt}
                   </button>
                 ))}
@@ -241,7 +241,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
               </PopoverTrigger>
               <FilterDropdownWrapper label="Payment Type">
                 {PAYMENT_TYPE_OPTIONS.map(opt => (
-                  <button key={opt} onClick={() => togglePaymentType(opt)} className={`w-full text-left px-4 py-2 text-sm ${advFilterPaymentType === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
+                  <button key={opt} onClick={() => togglePaymentType(opt)} className={`w-full text-left px-3 py-2 text-sm ${advFilterPaymentType === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
                     {opt}
                   </button>
                 ))}

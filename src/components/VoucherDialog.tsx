@@ -135,6 +135,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const [staffSearch, setStaffSearch] = useState('');
   const [touched, setTouched] = useState({ voucherName: false, value: false, sellingPrice: false });
   const [showKeypad, setShowKeypad] = useState(false);
+  const [showSellingPriceKeypad, setShowSellingPriceKeypad] = useState(false);
   const [isGift, setIsGift] = useState(false);
   const [recipientFirstName, setRecipientFirstName] = useState('');
   const [recipientLastName, setRecipientLastName] = useState('');
@@ -219,6 +220,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setNotes('');
     setTouched({ voucherName: false, value: false, sellingPrice: false });
     setShowKeypad(false);
+    setShowSellingPriceKeypad(false);
     setIsGift(false);
     setRecipientFirstName('');
     setRecipientLastName('');
@@ -277,6 +279,22 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
 
   const handleDeleteKey = useCallback(() => {
     setValue(prev => prev.slice(0, -1));
+  }, []);
+
+  const handleSellingPriceKeyPress = useCallback((key: string) => {
+    setSellingPrice(prev => {
+      if (key === '.' && prev.includes('.')) return prev;
+      if (key === '00') {
+        if (prev === '' || prev === '0') return prev;
+        return prev + '00';
+      }
+      if (prev === '0' && key !== '.') return key;
+      return prev + key;
+    });
+  }, []);
+
+  const handleSellingPriceDeleteKey = useCallback(() => {
+    setSellingPrice(prev => prev.slice(0, -1));
   }, []);
 
   const handleQuickValue = (amount: number) => {
@@ -516,20 +534,34 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
               <label className={labelClass}>
                 Selling Price <span className="text-red-400">*</span>
               </label>
-              <div className="relative">
-                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-neutral-400 text-sm">$</span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  value={sellingPrice}
-                  onChange={handleSellingPriceChange}
-                  onBlur={() => setTouched(prev => ({ ...prev, sellingPrice: true }))}
-                  placeholder="0.00"
-                  className={`${inputClass} pl-8 ${touched.sellingPrice && numericSellingPrice <= 0 ? 'border-red-500' : ''}`}
-                />
-              </div>
+              <button
+                type="button"
+                onClick={() => setShowSellingPriceKeypad(prev => !prev)}
+                className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.sellingPrice && numericSellingPrice <= 0 ? 'border-red-500' : showSellingPriceKeypad ? 'border-neutral-400' : 'border-neutral-600'}`}
+              >
+                <span className="text-neutral-400 mr-1">$</span>
+                <span className="text-white">{sellingPrice || '0.00'}</span>
+              </button>
               {touched.sellingPrice && numericSellingPrice <= 0 && (
                 <p className="text-red-400 text-xs mt-1">Selling price is required</p>
+              )}
+              {showSellingPriceKeypad && (
+                <div className="grid grid-cols-3 gap-1.5 mt-2">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
+                    <button key={num} onClick={() => handleSellingPriceKeyPress(num.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                      {num}
+                    </button>
+                  ))}
+                  <button onClick={() => handleSellingPriceKeyPress('00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                    00
+                  </button>
+                  <button onClick={() => handleSellingPriceKeyPress('0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
+                    0
+                  </button>
+                  <button onClick={handleSellingPriceDeleteKey} className={`h-11 ${keypadBtnClass}`}>
+                    <Delete className="w-5 h-5" />
+                  </button>
+                </div>
               )}
             </div>
 

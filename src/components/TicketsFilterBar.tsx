@@ -162,8 +162,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
       <div className="flex items-center gap-1.5 z-10">
         {showFilterIcons && (
           <>
-            {/* Revenue Center - hidden in table context */}
-            {!tableContext && (
+            {/* Revenue Center */}
             <Popover>
               <PopoverTrigger asChild>
                 <button className={ICON_BTN_CLASS} style={advFilterRevenueCenter ? ACTIVE_ICON_BTN_STYLE : ICON_BTN_STYLE} title="Revenue Center">
@@ -178,7 +177,6 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
                 ))}
               </FilterDropdownWrapper>
             </Popover>
-            )}
 
             {/* Date */}
             <Popover>

@@ -394,14 +394,31 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
           {/* 7. Redemption Limit */}
           <div>
             <label className={labelClass}>Redemption Limit</label>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={redemptionLimit}
-              onChange={handleIntegerOnly(setRedemptionLimit)}
-              placeholder="Unlimited (leave empty)"
-              className={inputClass}
-            />
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => setRedemptionLimit(prev => {
+                  const n = parseInt(prev) || 0;
+                  return n > 0 ? (n - 1 === 0 ? '' : (n - 1).toString()) : '';
+                })}
+                className="w-10 h-10 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-lg font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+              >
+                −
+              </button>
+              <span className="text-white text-sm font-medium min-w-[80px] text-center">
+                {redemptionLimit ? redemptionLimit : 'Unlimited'}
+              </span>
+              <button
+                type="button"
+                onClick={() => setRedemptionLimit(prev => {
+                  const n = parseInt(prev) || 0;
+                  return (n + 1).toString();
+                })}
+                className="w-10 h-10 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-lg font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+              >
+                +
+              </button>
+            </div>
           </div>
 
           {/* 8. Minimum Order ($) */}

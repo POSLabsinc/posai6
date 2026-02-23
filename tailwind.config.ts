@@ -105,6 +105,10 @@ export default {
           "10%, 30%, 50%, 70%, 90%": { transform: "translateX(-2px)" },
           "20%, 40%, 60%, 80%": { transform: "translateX(2px)" },
         },
+        "slide-up": {
+          from: { transform: "translateY(100%)" },
+          to: { transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -114,6 +118,7 @@ export default {
         "slide-in-top": "slide-in-top 0.4s ease-out",
         "slide-in-bottom": "slide-in-bottom 0.4s ease-out",
         "shake": "shake 0.5s ease-in-out",
+        "slide-up": "slide-up 0.3s ease-out",
       },
     },
   },

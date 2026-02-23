@@ -1240,6 +1240,75 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
               );
             };
 
+            // For paid tickets: card container with embedded product swipeable + independent modifier swipeables
+            if (isPaidTicket) {
+              const cardClasses = `p-3 rounded-xl border transition-all ${
+                itemRefunded ? 'opacity-60 border-red-500/30 bg-red-500/5' :
+                item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : 
+                item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'
+              }`;
+
+              const productHeader = (
+                <>
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-start gap-2">
+                      <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${
+                        itemRefunded ? 'bg-red-500/20 text-red-400' :
+                        item.isCancelled ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'
+                      }`}>
+                        {item.qty}
+                      </span>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className={`font-medium text-sm ${
+                            itemRefunded ? 'text-red-400 line-through' :
+                            item.isCancelled ? 'text-white/40 line-through' : 'text-white'
+                          }`}>{item.name}</span>
+                          {itemRefunded && (
+                            <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-semibold">REFUNDED</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <span className={`font-medium text-sm ${
+                      itemRefunded ? 'text-red-400 line-through' :
+                      item.isCancelled ? 'text-white/30 line-through' : 'text-white'
+                    }`}>{formatPrice(item.price * item.qty)}</span>
+                  </div>
+                  {item.seats.length > 0 && (
+                    <div className="flex items-center gap-1 mt-2">
+                      <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                      {item.seats.map(seat => (
+                        <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                          {seat}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                </>
+              );
+
+              return (
+                <div key={index} className={cardClasses}>
+                  {!itemRefunded && !item.isCancelled ? (
+                    <SwipeableRefundItem
+                      onRefund={() => handleItemRefundSwipe(item, index)}
+                      label={item.name}
+                      embedded={true}
+                    >
+                      {productHeader}
+                    </SwipeableRefundItem>
+                  ) : (
+                    productHeader
+                  )}
+                  {/* Modifiers inside card but outside product swipeable */}
+                  <div className="ml-7">
+                    {renderModifiers()}
+                  </div>
+                </div>
+              );
+            }
+
             const productContent = (
               <div className={`p-3 rounded-xl border transition-all ${
                 itemRefunded ? 'opacity-60 border-red-500/30 bg-red-500/5' :
@@ -1264,8 +1333,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                           <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-semibold">REFUNDED</span>
                         )}
                       </div>
-                      {/* For non-paid tickets, render modifiers inside the card */}
-                      {!isPaidTicket && renderModifiers()}
+                      {renderModifiers()}
                       {(item.noTax || item.isCancelled) && !itemRefunded && (
                         <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                           {item.noTax && !item.isCancelled && (
@@ -1295,24 +1363,6 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 )}
               </div>
             );
-
-            // For paid tickets: wrap with SwipeableRefundItem, modifiers rendered OUTSIDE
-            if (isPaidTicket && !itemRefunded && !item.isCancelled) {
-              return (
-                <div key={index}>
-                  <SwipeableRefundItem
-                    onRefund={() => handleItemRefundSwipe(item, index)}
-                    label={item.name}
-                  >
-                    {productContent}
-                  </SwipeableRefundItem>
-                  {/* Modifiers rendered outside product swipeable for independent swiping */}
-                  <div className="ml-8">
-                    {renderModifiers()}
-                  </div>
-                </div>
-              );
-            }
 
             // For active tickets: wrap with SwipeableTicketItem (no-tax/cancel)
             if (canSwipe) {
@@ -1765,6 +1815,75 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 );
               };
 
+              // For paid tickets: card container with embedded product swipeable + independent modifier swipeables
+              if (isPaidTicket) {
+                const cardClasses = `${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} border transition-all ${
+                  itemRefunded ? 'opacity-60 border-red-500/30 bg-red-500/5' :
+                  item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : 
+                  item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'
+                }`;
+
+                const productHeader = (
+                  <>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2">
+                        <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} rounded flex items-center justify-center font-bold ${
+                          itemRefunded ? 'bg-red-500/20 text-red-400' :
+                          item.isCancelled ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'
+                        }`}>
+                          {item.qty}
+                        </span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${
+                              itemRefunded ? 'text-red-400 line-through' :
+                              item.isCancelled ? 'text-white/40 line-through' : 'text-white'
+                            }`}>{item.name}</span>
+                            {itemRefunded && (
+                              <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-semibold">REFUNDED</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                      <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${
+                        itemRefunded ? 'text-red-400 line-through' :
+                        item.isCancelled ? 'text-white/30 line-through' : 'text-white'
+                      }`}>{formatPrice(item.price * item.qty)}</span>
+                    </div>
+                    {!isTablet && item.seats.length > 0 && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                        {item.seats.map(seat => (
+                          <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                            {seat}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+                  </>
+                );
+
+                return (
+                  <div key={index} className={cardClasses}>
+                    {!itemRefunded && !item.isCancelled ? (
+                      <SwipeableRefundItem
+                        onRefund={() => handleItemRefundSwipe(item, index)}
+                        label={item.name}
+                        embedded={true}
+                      >
+                        {productHeader}
+                      </SwipeableRefundItem>
+                    ) : (
+                      productHeader
+                    )}
+                    {/* Modifiers inside card but outside product swipeable */}
+                    <div className={`${isTablet ? 'ml-6' : 'ml-7'}`}>
+                      {renderModifiers()}
+                    </div>
+                  </div>
+                );
+              }
+
               const productContent = (
                 <div className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} border transition-all ${
                   itemRefunded ? 'opacity-60 border-red-500/30 bg-red-500/5' :
@@ -1789,8 +1908,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                             <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-semibold">REFUNDED</span>
                           )}
                         </div>
-                        {/* For non-paid tickets, render modifiers inside the card */}
-                        {!isPaidTicket && renderModifiers()}
+                        {renderModifiers()}
                         {(item.noTax || item.isCancelled) && !itemRefunded && (
                           <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
                             {item.noTax && !item.isCancelled && (
@@ -1820,24 +1938,6 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                   )}
                 </div>
               );
-
-              // For paid tickets: wrap with SwipeableRefundItem, modifiers rendered OUTSIDE
-              if (isPaidTicket && !itemRefunded && !item.isCancelled) {
-                return (
-                  <div key={index}>
-                    <SwipeableRefundItem
-                      onRefund={() => handleItemRefundSwipe(item, index)}
-                      label={item.name}
-                    >
-                      {productContent}
-                    </SwipeableRefundItem>
-                    {/* Modifiers rendered outside product swipeable for independent swiping */}
-                    <div className="ml-8">
-                      {renderModifiers()}
-                    </div>
-                  </div>
-                );
-              }
 
               // For active tickets: wrap with SwipeableTicketItem
               if (canSwipe) {

@@ -2,9 +2,10 @@ import { useState, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Phone, X, Check, Info } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, X, Check, Info } from "lucide-react";
 import { toast } from "sonner";
 import TicketsFilterBar from "@/components/TicketsFilterBar";
+import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
 import TicketsTransferView from "@/components/TicketsTransferView";
 import SwipeableTicketItem from "@/components/SwipeableTicketItem";
 
@@ -158,6 +159,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const [showFilterIcons, setShowFilterIcons] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [showMobileFilterSheet, setShowMobileFilterSheet] = useState(false);
 
   // Advanced filter state
   const [advFilterRevenueCenter, setAdvFilterRevenueCenter] = useState<string | null>(null);
@@ -1062,6 +1064,21 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
 
 
+  const handleMobileFilterApply = useCallback((filters: {
+    revenueCenter: string | null;
+    date: Date | undefined;
+    employee: string | null;
+    orderType: string | null;
+    orderStatus: string | null;
+    paymentType: string | null;
+  }) => {
+    setAdvFilterRevenueCenter(filters.revenueCenter);
+    setAdvFilterDate(filters.date);
+    setAdvFilterEmployee(filters.employee);
+    setAdvFilterOrderType(filters.orderType);
+    setAdvFilterOrderStatus(filters.orderStatus);
+    setAdvFilterPaymentType(filters.paymentType);
+  }, []);
 
   const hasAnyAdvancedFilter = !!(advFilterRevenueCenter || advFilterDate || advFilterEmployee || advFilterOrderType || advFilterOrderStatus || advFilterPaymentType);
 
@@ -1326,7 +1343,55 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   // Mobile Layout
   const MobileLayout = () => (
     <div className="flex flex-col h-full bg-black">
-      <TicketsFilterBar showSearch={showSearch} searchQuery={searchQuery} showFilterIcons={showFilterIcons} advFilterRevenueCenter={advFilterRevenueCenter} advFilterDate={advFilterDate} advFilterEmployee={advFilterEmployee} advFilterOrderType={advFilterOrderType} advFilterOrderStatus={advFilterOrderStatus} advFilterPaymentType={advFilterPaymentType} onSearchQueryChange={handleSearchQueryChange} onShowSearchChange={handleShowSearchChange} onShowFilterIconsChange={handleShowFilterIconsChange} onAdvFilterRevenueCenterChange={handleAdvFilterRevenueCenterChange} onAdvFilterDateChange={handleAdvFilterDateChange} onAdvFilterEmployeeChange={handleAdvFilterEmployeeChange} onAdvFilterOrderTypeChange={handleAdvFilterOrderTypeChange} onAdvFilterOrderStatusChange={handleAdvFilterOrderStatusChange} onAdvFilterPaymentTypeChange={handleAdvFilterPaymentTypeChange} onResetAllAdvancedFilters={resetAllAdvancedFilters} hasAnyAdvancedFilter={hasAnyAdvancedFilter} />
+      {/* Mobile Header with filter icon opening bottom sheet */}
+      {showSearch ? (
+        <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+          <div className="flex items-center gap-2 flex-1 mr-2">
+            <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+            <input
+              autoFocus
+              type="text"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              placeholder="Search by name, order ID, or check..."
+              className="bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none w-full"
+            />
+          </div>
+          <button
+            className="p-2 rounded-full hover:opacity-80"
+            style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+            onClick={() => { setShowSearch(false); setSearchQuery(""); }}
+          >
+            <X className="w-4 h-4 text-white" />
+          </button>
+        </div>
+      ) : (
+        <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+          <span className="text-white font-semibold text-lg pl-2">Tickets</span>
+          <div className="flex items-center gap-1.5">
+            <button
+              className="p-2 rounded-full hover:opacity-80 relative"
+              style={hasAnyAdvancedFilter
+                ? { background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }
+                : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
+              }
+              onClick={() => setShowMobileFilterSheet(true)}
+            >
+              <SlidersHorizontal className="w-4 h-4 text-white" />
+              {hasAnyAdvancedFilter && (
+                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 text-[8px] text-white font-bold flex items-center justify-center">!</span>
+              )}
+            </button>
+            <button
+              className="p-2 rounded-full hover:opacity-80"
+              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+              onClick={() => setShowSearch(true)}
+            >
+              <Search className="w-4 h-4 text-white" />
+            </button>
+          </div>
+        </div>
+      )}
       <FilterTabs />
 
       {/* Guest Orders List */}
@@ -1348,6 +1413,18 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
       </ScrollArea>
 
       {showMobileOrderPanel && <MobileOrderPanel />}
+
+      <MobileFilterBottomSheet
+        isOpen={showMobileFilterSheet}
+        onClose={() => setShowMobileFilterSheet(false)}
+        advFilterRevenueCenter={advFilterRevenueCenter}
+        advFilterDate={advFilterDate}
+        advFilterEmployee={advFilterEmployee}
+        advFilterOrderType={advFilterOrderType}
+        advFilterOrderStatus={advFilterOrderStatus}
+        advFilterPaymentType={advFilterPaymentType}
+        onApply={handleMobileFilterApply}
+      />
     </div>
   );
 

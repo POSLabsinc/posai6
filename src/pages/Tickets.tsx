@@ -1969,6 +1969,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         open={showTipDialog}
         onOpenChange={setShowTipDialog}
         orderTotal={selectedGuest?.total || 0}
+        existingTip={selectedGuest?.tip || 0}
         onTipSelected={(tip) => {
           if (selectedGuest) {
             const updatedGuest = { ...selectedGuest, tip: tip };

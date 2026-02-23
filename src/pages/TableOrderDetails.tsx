@@ -1316,8 +1316,8 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Guest Orders List */}
-      <ScrollArea className="flex-1 px-3">
-        <div className="space-y-2 pb-3">
+      <ScrollArea className="flex-1 px-4">
+        <div className="space-y-3 pb-4">
           {filteredGuestOrders.map((guest, guestIndex) => <div key={guest.id} className="space-y-2">
               {/* Merged Order Indicator - Destination */}
               {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
@@ -1608,10 +1608,10 @@ const TableOrderDetails = () => {
       </ScrollArea>
 
       {/* Add Order Button */}
-      <div className="px-3 py-2">
+      <div className="px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))]">
         <button 
           onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
-          className="w-full py-2 text-black text-sm font-medium rounded-full hover:opacity-90 transition-opacity" 
+          className="w-full py-3 text-black text-sm font-semibold rounded-full hover:opacity-90 transition-opacity" 
           style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
         >
           ADD ORDER TO TABLE

@@ -67,30 +67,30 @@ const MOCK_EMPLOYEES = [
 ];
 
 const COUNTRY_CODES = [
-  { code: 'US', dial: '+1', flag: '🇺🇸', name: 'United States', phoneLength: 10 },
-  { code: 'GB', dial: '+44', flag: '🇬🇧', name: 'United Kingdom', phoneLength: 10 },
-  { code: 'CA', dial: '+1', flag: '🇨🇦', name: 'Canada', phoneLength: 10 },
-  { code: 'AU', dial: '+61', flag: '🇦🇺', name: 'Australia', phoneLength: 9 },
-  { code: 'IN', dial: '+91', flag: '🇮🇳', name: 'India', phoneLength: 10 },
-  { code: 'DE', dial: '+49', flag: '🇩🇪', name: 'Germany', phoneLength: 11 },
-  { code: 'FR', dial: '+33', flag: '🇫🇷', name: 'France', phoneLength: 9 },
-  { code: 'JP', dial: '+81', flag: '🇯🇵', name: 'Japan', phoneLength: 10 },
-  { code: 'CN', dial: '+86', flag: '🇨🇳', name: 'China', phoneLength: 11 },
-  { code: 'BR', dial: '+55', flag: '🇧🇷', name: 'Brazil', phoneLength: 11 },
-  { code: 'MX', dial: '+52', flag: '🇲🇽', name: 'Mexico', phoneLength: 10 },
-  { code: 'IT', dial: '+39', flag: '🇮🇹', name: 'Italy', phoneLength: 10 },
-  { code: 'ES', dial: '+34', flag: '🇪🇸', name: 'Spain', phoneLength: 9 },
-  { code: 'KR', dial: '+82', flag: '🇰🇷', name: 'South Korea', phoneLength: 10 },
-  { code: 'AE', dial: '+971', flag: '🇦🇪', name: 'UAE', phoneLength: 9 },
-  { code: 'SA', dial: '+966', flag: '🇸🇦', name: 'Saudi Arabia', phoneLength: 9 },
-  { code: 'SG', dial: '+65', flag: '🇸🇬', name: 'Singapore', phoneLength: 8 },
-  { code: 'NZ', dial: '+64', flag: '🇳🇿', name: 'New Zealand', phoneLength: 9 },
-  { code: 'ZA', dial: '+27', flag: '🇿🇦', name: 'South Africa', phoneLength: 9 },
-  { code: 'PH', dial: '+63', flag: '🇵🇭', name: 'Philippines', phoneLength: 10 },
-  { code: 'NG', dial: '+234', flag: '🇳🇬', name: 'Nigeria', phoneLength: 10 },
-  { code: 'PK', dial: '+92', flag: '🇵🇰', name: 'Pakistan', phoneLength: 10 },
-  { code: 'BD', dial: '+880', flag: '🇧🇩', name: 'Bangladesh', phoneLength: 10 },
-  { code: 'EG', dial: '+20', flag: '🇪🇬', name: 'Egypt', phoneLength: 10 },
+  { code: 'US', dial: '+1', flag: '🇺🇸', name: 'United States', phoneLength: 10, placeholder: '(555) 123-4567', hint: '10-digit phone number' },
+  { code: 'GB', dial: '+44', flag: '🇬🇧', name: 'United Kingdom', phoneLength: 11, placeholder: '07123 456789', hint: '11-digit UK phone number' },
+  { code: 'CA', dial: '+1', flag: '🇨🇦', name: 'Canada', phoneLength: 10, placeholder: '(555) 123-4567', hint: '10-digit phone number' },
+  { code: 'AU', dial: '+61', flag: '🇦🇺', name: 'Australia', phoneLength: 9, placeholder: '412 345 678', hint: '9-digit mobile number' },
+  { code: 'IN', dial: '+91', flag: '🇮🇳', name: 'India', phoneLength: 10, placeholder: '98765 43210', hint: '10-digit mobile number' },
+  { code: 'DE', dial: '+49', flag: '🇩🇪', name: 'Germany', phoneLength: 11, placeholder: '151 12345678', hint: '11-digit phone number' },
+  { code: 'FR', dial: '+33', flag: '🇫🇷', name: 'France', phoneLength: 9, placeholder: '6 12 34 56 78', hint: '9-digit phone number' },
+  { code: 'JP', dial: '+81', flag: '🇯🇵', name: 'Japan', phoneLength: 10, placeholder: '90 1234 5678', hint: '10-digit phone number' },
+  { code: 'CN', dial: '+86', flag: '🇨🇳', name: 'China', phoneLength: 11, placeholder: '138 0013 8000', hint: '11-digit mobile number' },
+  { code: 'BR', dial: '+55', flag: '🇧🇷', name: 'Brazil', phoneLength: 11, placeholder: '11 91234 5678', hint: '11-digit phone number' },
+  { code: 'MX', dial: '+52', flag: '🇲🇽', name: 'Mexico', phoneLength: 10, placeholder: '55 1234 5678', hint: '10-digit phone number' },
+  { code: 'IT', dial: '+39', flag: '🇮🇹', name: 'Italy', phoneLength: 10, placeholder: '312 345 6789', hint: '10-digit phone number' },
+  { code: 'ES', dial: '+34', flag: '🇪🇸', name: 'Spain', phoneLength: 9, placeholder: '612 345 678', hint: '9-digit phone number' },
+  { code: 'KR', dial: '+82', flag: '🇰🇷', name: 'South Korea', phoneLength: 10, placeholder: '10 1234 5678', hint: '10-digit phone number' },
+  { code: 'AE', dial: '+971', flag: '🇦🇪', name: 'UAE', phoneLength: 9, placeholder: '50 123 4567', hint: '9-digit mobile number' },
+  { code: 'SA', dial: '+966', flag: '🇸🇦', name: 'Saudi Arabia', phoneLength: 9, placeholder: '51 234 5678', hint: '9-digit mobile number' },
+  { code: 'SG', dial: '+65', flag: '🇸🇬', name: 'Singapore', phoneLength: 8, placeholder: '9123 4567', hint: '8-digit phone number' },
+  { code: 'NZ', dial: '+64', flag: '🇳🇿', name: 'New Zealand', phoneLength: 9, placeholder: '21 123 4567', hint: '9-digit phone number' },
+  { code: 'ZA', dial: '+27', flag: '🇿🇦', name: 'South Africa', phoneLength: 9, placeholder: '71 123 4567', hint: '9-digit phone number' },
+  { code: 'PH', dial: '+63', flag: '🇵🇭', name: 'Philippines', phoneLength: 10, placeholder: '917 123 4567', hint: '10-digit phone number' },
+  { code: 'NG', dial: '+234', flag: '🇳🇬', name: 'Nigeria', phoneLength: 10, placeholder: '801 234 5678', hint: '10-digit phone number' },
+  { code: 'PK', dial: '+92', flag: '🇵🇰', name: 'Pakistan', phoneLength: 10, placeholder: '301 234 5678', hint: '10-digit phone number' },
+  { code: 'BD', dial: '+880', flag: '🇧🇩', name: 'Bangladesh', phoneLength: 10, placeholder: '1712 345678', hint: '10-digit phone number' },
+  { code: 'EG', dial: '+20', flag: '🇪🇬', name: 'Egypt', phoneLength: 10, placeholder: '100 123 4567', hint: '10-digit phone number' },
 ];
 
 const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDialogProps) => {
@@ -762,7 +762,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                         const val = e.target.value.replace(/\D/g, '').slice(0, selectedCountry.phoneLength);
                         setRecipientPhone(val);
                       }}
-                      placeholder={`${selectedCountry.phoneLength}-digit phone number`}
+                      placeholder={selectedCountry.placeholder || `${selectedCountry.phoneLength}-digit phone number`}
                       className={`${inputClass} rounded-l-none flex-1 ${
                         !recipientEmail && !recipientPhone && recipientFirstName.trim() && recipientLastName.trim()
                           ? 'border-amber-500/50'
@@ -773,7 +773,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                     />
                   </div>
                   {recipientPhone && !isValidPhone(recipientPhone) && (
-                    <p className="text-red-400 text-xs mt-1">Phone must be {selectedCountry.phoneLength} digits for {selectedCountry.name}</p>
+                    <p className="text-red-400 text-xs mt-1">Invalid phone number for {selectedCountry.name} — {selectedCountry.hint} (e.g. {selectedCountry.placeholder})</p>
                   )}
                 </div>
 

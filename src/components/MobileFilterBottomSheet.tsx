@@ -40,6 +40,8 @@ export interface MobileFilterBottomSheetProps {
     orderStatus: string | null;
     paymentType: string | null;
   }) => void;
+  /** When true, hides Revenue Center and Order Type filters */
+  tableContext?: boolean;
 }
 
 // ── Expandable Section ──
@@ -117,6 +119,7 @@ const MobileFilterBottomSheet = memo<MobileFilterBottomSheetProps>(({
   advFilterOrderStatus,
   advFilterPaymentType,
   onApply,
+  tableContext,
 }) => {
   // Local temp state — initialized from current applied filters when sheet opens
   const [tempRevenueCenter, setTempRevenueCenter] = useState<string | null>(advFilterRevenueCenter);
@@ -217,7 +220,8 @@ const MobileFilterBottomSheet = memo<MobileFilterBottomSheetProps>(({
         {/* Filter Sections */}
         <ScrollArea className="flex-1" style={{ maxHeight: "calc(85vh - 140px)" }}>
           <div>
-            {/* Revenue Center */}
+            {/* Revenue Center - hidden in table context */}
+            {!tableContext && (
             <FilterSection
               title="Revenue Center"
               icon={DollarSign}
@@ -235,6 +239,7 @@ const MobileFilterBottomSheet = memo<MobileFilterBottomSheetProps>(({
                 ))}
               </div>
             </FilterSection>
+            )}
 
             {/* Date */}
             <FilterSection
@@ -270,7 +275,8 @@ const MobileFilterBottomSheet = memo<MobileFilterBottomSheetProps>(({
               </div>
             </FilterSection>
 
-            {/* Order Type */}
+            {/* Order Type - hidden in table context */}
+            {!tableContext && (
             <FilterSection
               title="Order Type"
               icon={ClipboardList}
@@ -289,6 +295,7 @@ const MobileFilterBottomSheet = memo<MobileFilterBottomSheetProps>(({
                 ))}
               </div>
             </FilterSection>
+            )}
 
             {/* Order Status */}
             <FilterSection

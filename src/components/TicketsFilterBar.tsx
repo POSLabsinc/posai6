@@ -73,6 +73,12 @@ export interface TicketsFilterBarProps {
   onAdvFilterPaymentTypeChange: (v: string | null) => void;
   onResetAllAdvancedFilters: () => void;
   hasAnyAdvancedFilter: boolean;
+  /** When true, hides Revenue Center and Order Type filters (table-specific context) */
+  tableContext?: boolean;
+  /** Custom title to show instead of "Tickets" */
+  title?: string;
+  /** Optional left element (e.g., back button) to render before the title */
+  leftElement?: React.ReactNode;
 }
 
 const TicketsFilterBar = memo<TicketsFilterBarProps>(({
@@ -96,6 +102,9 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
   onAdvFilterPaymentTypeChange,
   onResetAllAdvancedFilters,
   hasAnyAdvancedFilter,
+  tableContext,
+  title = "Tickets",
+  leftElement,
 }) => {
   // Toggle helpers — stable via useCallback
   const toggleRevenueCenter = useCallback(
@@ -146,11 +155,15 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
 
   return (
     <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
-      <span className="text-white font-semibold text-lg pl-2">Tickets</span>
+      <div className="flex items-center gap-3">
+        {leftElement}
+        <span className="text-white font-semibold text-lg pl-2">{title}</span>
+      </div>
       <div className="flex items-center gap-1.5 z-10">
         {showFilterIcons && (
           <>
-            {/* Revenue Center */}
+            {/* Revenue Center - hidden in table context */}
+            {!tableContext && (
             <Popover>
               <PopoverTrigger asChild>
                 <button className={ICON_BTN_CLASS} style={advFilterRevenueCenter ? ACTIVE_ICON_BTN_STYLE : ICON_BTN_STYLE} title="Revenue Center">
@@ -165,6 +178,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
                 ))}
               </FilterDropdownWrapper>
             </Popover>
+            )}
 
             {/* Date */}
             <Popover>
@@ -199,7 +213,8 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
               </FilterDropdownWrapper>
             </Popover>
 
-            {/* Order Type */}
+            {/* Order Type - hidden in table context */}
+            {!tableContext && (
             <Popover>
               <PopoverTrigger asChild>
                 <button className={ICON_BTN_CLASS} style={advFilterOrderType ? ACTIVE_ICON_BTN_STYLE : ICON_BTN_STYLE} title="Order Type">
@@ -215,6 +230,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
                 ))}
               </FilterDropdownWrapper>
             </Popover>
+            )}
 
             {/* Order Status */}
             <Popover>

@@ -11,6 +11,8 @@ import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, X, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, ArrowRightLeft } from "lucide-react";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
+import TicketsFilterBar from "@/components/TicketsFilterBar";
+import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
@@ -619,6 +621,17 @@ const TableOrderDetails = () => {
   // Discount state
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
+  // Advanced filter state (table context)
+  const [showFilterIcons, setShowFilterIcons] = useState(false);
+  const [showSearch, setShowSearch] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [advFilterDate, setAdvFilterDate] = useState<Date | undefined>(undefined);
+  const [advFilterEmployee, setAdvFilterEmployee] = useState<string | null>(null);
+  const [advFilterOrderStatus, setAdvFilterOrderStatus] = useState<string | null>(null);
+  const [advFilterPaymentType, setAdvFilterPaymentType] = useState<string | null>(null);
+  const [showMobileFilterSheet, setShowMobileFilterSheet] = useState(false);
+  const hasAnyAdvancedFilter = !!(advFilterDate || advFilterEmployee || advFilterOrderStatus || advFilterPaymentType);
+  const resetAllAdvancedFilters = () => { setAdvFilterDate(undefined); setAdvFilterEmployee(null); setAdvFilterOrderStatus(null); setAdvFilterPaymentType(null); };
   // discountPin removed — AccessRestrictedModal manages its own PIN state
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
   
@@ -768,22 +781,43 @@ const TableOrderDetails = () => {
     if (filter === "Ordering") return guestOrders.filter(g => g.status === "ORDERING").length;
     return 0;
   };
-  const filteredGuestOrders = activeFilter === "All" ? guestOrders : guestOrders.filter(guest => {
-    switch (activeFilter) {
-      case "Open":
-        return guest.status === "ORDERING";
-      case "Completed":
-        return guest.status === "COMPLETED";
-      case "Paid":
-        return guest.status === "PAID" || guest.paymentType !== "--";
-      case "Unpaid":
-        return guest.status === "UNPAID" || guest.paymentType === "--";
-      case "Ordering":
-        return guest.status === "ORDERING";
-      default:
-        return true;
+  const filteredGuestOrders = useMemo(() => {
+    let result = activeFilter === "All" ? guestOrders : guestOrders.filter(guest => {
+      switch (activeFilter) {
+        case "Open": return guest.status === "ORDERING";
+        case "Completed": return guest.status === "COMPLETED";
+        case "Paid": return guest.status === "PAID" || guest.paymentType !== "--";
+        case "Unpaid": return guest.status === "UNPAID" || guest.paymentType === "--";
+        case "Ordering": return guest.status === "ORDERING";
+        default: return true;
+      }
+    });
+    // Advanced filters
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(g => g.name?.toLowerCase().includes(q) || g.id?.toLowerCase().includes(q) || g.server?.toLowerCase().includes(q));
     }
-  });
+    if (advFilterDate) {
+      // Filter by date (compare date portion only)
+      result = result.filter(g => g.time?.includes(advFilterDate.toLocaleDateString()));
+    }
+    if (advFilterEmployee) {
+      result = result.filter(g => g.server === advFilterEmployee);
+    }
+    if (advFilterOrderStatus) {
+      result = result.filter(g => g.status === advFilterOrderStatus);
+    }
+    if (advFilterPaymentType) {
+      if (advFilterPaymentType === "Unpaid") {
+        result = result.filter(g => g.paymentType === "--" || g.status === "UNPAID");
+      } else if (advFilterPaymentType === "Cash") {
+        result = result.filter(g => g.paymentType === "Cash");
+      } else {
+        result = result.filter(g => g.paymentType === advFilterPaymentType);
+      }
+    }
+    return result;
+  }, [guestOrders, activeFilter, searchQuery, advFilterDate, advFilterEmployee, advFilterOrderStatus, advFilterPaymentType]);
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
   };
@@ -1271,32 +1305,32 @@ const TableOrderDetails = () => {
 
   // Mobile Layout - render function (not component) to prevent scroll reset
   const renderMobileLayout = () => <div className="flex flex-col h-full bg-black">
-      {/* Header */}
-      <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
-        <button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity z-10" style={{
-        background: "#7575754D",
-        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-      }}>
-          <ChevronLeft className="w-5 h-5 text-white" />
-        </button>
-        
-        <span className="absolute left-1/2 -translate-x-1/2 text-white font-semibold text-lg">{formatTableName(tableId || "")}</span>
-        
-        <div className="flex items-center gap-2 z-10">
-          <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
-          background: "#7575754D",
-          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-        }}>
-            <SlidersHorizontal className="w-4 h-4 text-white" />
-          </button>
-          <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
-          background: "#7575754D",
-          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-        }}>
-            <Search className="w-4 h-4 text-white" />
-          </button>
-        </div>
-      </div>
+      {/* Header - reusing TicketsFilterBar with tableContext */}
+      <TicketsFilterBar
+        tableContext
+        title={formatTableName(tableId || "")}
+        leftElement={<button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}><ChevronLeft className="w-5 h-5 text-white" /></button>}
+        showSearch={showSearch}
+        searchQuery={searchQuery}
+        showFilterIcons={showFilterIcons}
+        advFilterRevenueCenter={null}
+        advFilterDate={advFilterDate}
+        advFilterEmployee={advFilterEmployee}
+        advFilterOrderType={null}
+        advFilterOrderStatus={advFilterOrderStatus}
+        advFilterPaymentType={advFilterPaymentType}
+        onSearchQueryChange={setSearchQuery}
+        onShowSearchChange={setShowSearch}
+        onShowFilterIconsChange={setShowFilterIcons}
+        onAdvFilterRevenueCenterChange={() => {}}
+        onAdvFilterDateChange={setAdvFilterDate}
+        onAdvFilterEmployeeChange={setAdvFilterEmployee}
+        onAdvFilterOrderTypeChange={() => {}}
+        onAdvFilterOrderStatusChange={setAdvFilterOrderStatus}
+        onAdvFilterPaymentTypeChange={setAdvFilterPaymentType}
+        onResetAllAdvancedFilters={resetAllAdvancedFilters}
+        hasAnyAdvancedFilter={hasAnyAdvancedFilter}
+      />
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
@@ -1626,32 +1660,32 @@ const TableOrderDetails = () => {
   const renderDesktopLayout = () => <div className="flex h-full bg-black">
       {/* Left Panel - Order List */}
       <div className="flex flex-col flex-1 mx-2 mb-2 rounded-[20px] overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}>
-              <ChevronLeft className="w-5 h-5 text-white" />
-            </button>
-            <span className="text-white font-semibold text-lg">{formatTableName(tableId || "")}</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}>
-              <SlidersHorizontal className="w-4 h-4 text-white" />
-            </button>
-            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}>
-              <Search className="w-4 h-4 text-white" />
-            </button>
-          </div>
-        </div>
+        {/* Header - reusing TicketsFilterBar with tableContext */}
+        <TicketsFilterBar
+          tableContext
+          title={formatTableName(tableId || "")}
+          leftElement={<button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}><ChevronLeft className="w-5 h-5 text-white" /></button>}
+          showSearch={showSearch}
+          searchQuery={searchQuery}
+          showFilterIcons={showFilterIcons}
+          advFilterRevenueCenter={null}
+          advFilterDate={advFilterDate}
+          advFilterEmployee={advFilterEmployee}
+          advFilterOrderType={null}
+          advFilterOrderStatus={advFilterOrderStatus}
+          advFilterPaymentType={advFilterPaymentType}
+          onSearchQueryChange={setSearchQuery}
+          onShowSearchChange={setShowSearch}
+          onShowFilterIconsChange={setShowFilterIcons}
+          onAdvFilterRevenueCenterChange={() => {}}
+          onAdvFilterDateChange={setAdvFilterDate}
+          onAdvFilterEmployeeChange={setAdvFilterEmployee}
+          onAdvFilterOrderTypeChange={() => {}}
+          onAdvFilterOrderStatusChange={setAdvFilterOrderStatus}
+          onAdvFilterPaymentTypeChange={setAdvFilterPaymentType}
+          onResetAllAdvancedFilters={resetAllAdvancedFilters}
+          hasAnyAdvancedFilter={hasAnyAdvancedFilter}
+        />
 
         {/* Filter Tabs */}
         <div className="flex items-center gap-2 p-3 overflow-x-auto">
@@ -2458,32 +2492,32 @@ const TableOrderDetails = () => {
   const renderTabletLayout = () => <div className="flex h-full bg-black">
       {/* Left Panel - Order List (Mobile-style cards) */}
       <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-        {/* Header */}
-        <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
-          <button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity z-10" style={{
-          background: "#7575754D",
-          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-        }}>
-            <ChevronLeft className="w-5 h-5 text-white" />
-          </button>
-          
-          <span className="absolute left-1/2 -translate-x-1/2 text-white font-semibold text-lg">{formatTableName(tableId || "")}</span>
-          
-          <div className="flex items-center gap-2 z-10">
-            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}>
-              <SlidersHorizontal className="w-4 h-4 text-white" />
-            </button>
-            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
-            background: "#7575754D",
-            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
-          }}>
-              <Search className="w-4 h-4 text-white" />
-            </button>
-          </div>
-        </div>
+        {/* Header - reusing TicketsFilterBar with tableContext */}
+        <TicketsFilterBar
+          tableContext
+          title={formatTableName(tableId || "")}
+          leftElement={<button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}><ChevronLeft className="w-5 h-5 text-white" /></button>}
+          showSearch={showSearch}
+          searchQuery={searchQuery}
+          showFilterIcons={showFilterIcons}
+          advFilterRevenueCenter={null}
+          advFilterDate={advFilterDate}
+          advFilterEmployee={advFilterEmployee}
+          advFilterOrderType={null}
+          advFilterOrderStatus={advFilterOrderStatus}
+          advFilterPaymentType={advFilterPaymentType}
+          onSearchQueryChange={setSearchQuery}
+          onShowSearchChange={setShowSearch}
+          onShowFilterIconsChange={setShowFilterIcons}
+          onAdvFilterRevenueCenterChange={() => {}}
+          onAdvFilterDateChange={setAdvFilterDate}
+          onAdvFilterEmployeeChange={setAdvFilterEmployee}
+          onAdvFilterOrderTypeChange={() => {}}
+          onAdvFilterOrderStatusChange={setAdvFilterOrderStatus}
+          onAdvFilterPaymentTypeChange={setAdvFilterPaymentType}
+          onResetAllAdvancedFilters={resetAllAdvancedFilters}
+          hasAnyAdvancedFilter={hasAnyAdvancedFilter}
+        />
 
         {/* Filter Tabs */}
         <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">

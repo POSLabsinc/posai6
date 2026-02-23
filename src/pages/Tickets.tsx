@@ -1057,7 +1057,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         <>
           <span className="text-white font-semibold text-lg pl-2">Tickets</span>
           <div className="flex items-center gap-1.5 z-10">
-            {showFilterIcons && (
+            {showFilterIcons ? (
               <>
                 {filterIconItems.map(item => (
                   <button 
@@ -1077,8 +1077,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                   <X className="w-4 h-4 text-white" />
                 </button>
               </>
-            )}
-            {!showFilterIcons && (
+            ) : (
               <button 
                 className="p-2 rounded-full hover:opacity-80 transition-opacity"
                 style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}

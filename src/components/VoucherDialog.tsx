@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { ChevronDown, Ticket, Delete, RefreshCw, Pencil, Search } from "lucide-react";
+import { ChevronDown, Ticket, Delete, RefreshCw, Pencil, Search, Gift } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -84,6 +85,11 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const [staffSearch, setStaffSearch] = useState('');
   const [touched, setTouched] = useState({ voucherName: false, value: false, sellingPrice: false });
   const [showKeypad, setShowKeypad] = useState(false);
+  const [isGift, setIsGift] = useState(false);
+  const [recipientFirstName, setRecipientFirstName] = useState('');
+  const [recipientLastName, setRecipientLastName] = useState('');
+  const [recipientEmail, setRecipientEmail] = useState('');
+  const [recipientPhone, setRecipientPhone] = useState('');
   const staffDropdownRef = useRef<HTMLDivElement>(null);
 
   const isEditMode = !!(initialData?.editingItemId);
@@ -109,7 +115,19 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const numericValue = parseFloat(value) || 0;
   const numericSellingPrice = parseFloat(sellingPrice) || 0;
 
-  const isValid = voucherName.trim().length > 0 && numericValue > 0 && numericSellingPrice > 0;
+  const isValidEmail = (email: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const isValidPhone = (phone: string) => /^\d{10}$/.test(phone);
+
+  const giftValid = !isGift || (
+    recipientFirstName.trim().length > 0 &&
+    recipientLastName.trim().length > 0 &&
+    (
+      (recipientEmail.trim().length > 0 && isValidEmail(recipientEmail)) ||
+      (recipientPhone.trim().length > 0 && isValidPhone(recipientPhone))
+    )
+  );
+
+  const isValid = voucherName.trim().length > 0 && numericValue > 0 && numericSellingPrice > 0 && giftValid;
 
   const resetState = () => {
     setVoucherName('');
@@ -130,6 +148,11 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setIsCustomCode(false);
     setTouched({ voucherName: false, value: false, sellingPrice: false });
     setShowKeypad(false);
+    setIsGift(false);
+    setRecipientFirstName('');
+    setRecipientLastName('');
+    setRecipientEmail('');
+    setRecipientPhone('');
   };
 
   const handleClose = () => {
@@ -560,6 +583,88 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
               rows={2}
               className={`${inputClass} min-h-[60px] resize-none`}
             />
+          </div>
+
+          {/* 11. Gift Toggle */}
+          <div className="border border-neutral-700 rounded-lg p-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Gift className="w-4 h-4 text-neutral-400" />
+                <span className="text-white text-sm font-medium">Gift It to Friends / Family</span>
+              </div>
+              <Switch
+                checked={isGift}
+                onCheckedChange={(checked) => {
+                  setIsGift(checked);
+                  if (!checked) {
+                    setRecipientFirstName('');
+                    setRecipientLastName('');
+                    setRecipientEmail('');
+                    setRecipientPhone('');
+                  }
+                }}
+              />
+            </div>
+
+            {isGift && (
+              <div className="mt-3 space-y-3 animate-fade-in">
+                <div className="grid grid-cols-2 gap-3 max-[360px]:grid-cols-1">
+                  <div>
+                    <label className={labelClass}>First Name <span className="text-red-400">*</span></label>
+                    <input
+                      type="text"
+                      value={recipientFirstName}
+                      onChange={(e) => setRecipientFirstName(e.target.value.slice(0, 50))}
+                      placeholder="Recipient first name"
+                      className={`${inputClass} ${isGift && !recipientFirstName.trim() ? 'border-red-500/50' : ''}`}
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClass}>Last Name <span className="text-red-400">*</span></label>
+                    <input
+                      type="text"
+                      value={recipientLastName}
+                      onChange={(e) => setRecipientLastName(e.target.value.slice(0, 50))}
+                      placeholder="Recipient last name"
+                      className={`${inputClass} ${isGift && !recipientLastName.trim() ? 'border-red-500/50' : ''}`}
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label className={labelClass}>Email</label>
+                  <input
+                    type="email"
+                    value={recipientEmail}
+                    onChange={(e) => setRecipientEmail(e.target.value.slice(0, 100))}
+                    placeholder="recipient@email.com"
+                    className={`${inputClass} ${recipientEmail && !isValidEmail(recipientEmail) ? 'border-red-500/50' : ''}`}
+                  />
+                  {recipientEmail && !isValidEmail(recipientEmail) && (
+                    <p className="text-red-400 text-xs mt-1">Invalid email format</p>
+                  )}
+                </div>
+                <div>
+                  <label className={labelClass}>Phone Number</label>
+                  <input
+                    type="tel"
+                    inputMode="numeric"
+                    value={recipientPhone}
+                    onChange={(e) => {
+                      const val = e.target.value.replace(/\D/g, '').slice(0, 10);
+                      setRecipientPhone(val);
+                    }}
+                    placeholder="10-digit phone number"
+                    className={`${inputClass} ${recipientPhone && !isValidPhone(recipientPhone) ? 'border-red-500/50' : ''}`}
+                  />
+                  {recipientPhone && !isValidPhone(recipientPhone) && (
+                    <p className="text-red-400 text-xs mt-1">Phone must be exactly 10 digits</p>
+                  )}
+                </div>
+                {isGift && recipientFirstName.trim() && recipientLastName.trim() && !recipientEmail.trim() && !recipientPhone.trim() && (
+                  <p className="text-amber-400 text-xs">Please provide at least an email or phone number</p>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

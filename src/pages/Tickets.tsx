@@ -259,7 +259,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   // Modifier-level refund state
   const [refundedModifiers, setRefundedModifiers] = useState<Set<string>>(new Set());
 
-  const isPaidOrCompleted = (status: string) => status === "PAID" || status === "COMPLETED";
+  const isPaidOrCompleted = (status: string) => status === "PAID" || status === "COMPLETED" || status === "PARTIALLY REFUNDED";
 
   // Parse price from modifier string like "+ Extra Cheese $1.50"
   const parseModifierPrice = (mod: string): number => {
@@ -388,10 +388,14 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const [transferStep, setTransferStep] = useState<'intent' | 'active' | null>(null);
   const [transferType, setTransferType] = useState<'items' | 'entire' | 'entireToOrder' | null>(null);
 
-  // Reset refund mode when selected guest changes
+  // Reset refund mode when selected guest changes; auto-enable for partially refunded
   useEffect(() => {
-    setShowRefundMode(false);
-  }, [selectedGuest?.id]);
+    if (selectedGuest?.status === 'PARTIALLY REFUNDED') {
+      setShowRefundMode(true);
+    } else {
+      setShowRefundMode(false);
+    }
+  }, [selectedGuest?.id, selectedGuest?.status]);
 
 
   // Swipe state for mobile cards
@@ -982,7 +986,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         {/* FAR RIGHT: Action Strip - Status dependent */}
         {showActions && (
           <div className="flex-shrink-0 flex flex-col rounded-r-xl overflow-hidden border-l border-neutral-700/50">
-            {guest.status === "PAID" || guest.status === "COMPLETED" ? (
+            {guest.status === "PAID" || guest.status === "COMPLETED" || guest.status === "PARTIALLY REFUNDED" ? (
               <>
                 {/* Print icon */}
                 <button 
@@ -1299,7 +1303,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
       </div>
 
       {/* Action Buttons - mobile */}
-      {selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" ? (
+      {selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED" ? (
         <div className="px-3 py-2 border-t border-neutral-700/50">
           <Button 
             variant="secondary"
@@ -1335,7 +1339,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
       {/* Bottom Actions */}
       <div className="px-3 py-3 border-t border-neutral-700/50 flex items-center gap-2">
-        {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED") ? (
+        {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED") ? (
           showRefundMode ? (
             <button 
               onClick={() => setShowRefundDialog(true)}
@@ -1480,7 +1484,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             </div>
           </div>
         </div>
-        {selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" ? (
+        {selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED" ? (
           <div className="flex gap-2">
             <Button 
               variant="secondary"
@@ -1791,7 +1795,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
                 {/* Bottom Actions */}
                 <div className={`${isTablet ? 'px-0 py-2' : 'px-2 py-3'} flex items-center gap-2`}>
-                  {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED") ? (
+                  {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED") ? (
                     showRefundMode ? (
                       <button 
                         onClick={() => setShowRefundDialog(true)}

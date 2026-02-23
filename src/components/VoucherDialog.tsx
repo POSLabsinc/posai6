@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from "react";
-import { ChevronDown, Ticket, Delete, Search, Gift } from "lucide-react";
+import { ChevronDown, Ticket, Delete, Search, Gift, Plus, Check, X } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -42,6 +42,14 @@ interface VoucherDialogProps {
   initialView?: 'sell' | 'redeem';
   initialData?: VoucherInitialData | null;
 }
+
+const PREDEFINED_VOUCHER_NAMES = [
+  'Summer Sale 20% Off',
+  'Welcome Offer',
+  'Loyalty Reward',
+  'Festive Discount',
+  'Birthday Special',
+];
 
 const QUICK_VALUES = [10, 25, 50, 100];
 
@@ -135,10 +143,25 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const [selectedCountry, setSelectedCountry] = useState(COUNTRY_CODES[0]);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
+  const [isCustomVoucherName, setIsCustomVoucherName] = useState(false);
+  const [showVoucherNameDropdown, setShowVoucherNameDropdown] = useState(false);
+  const [voucherNameSearch, setVoucherNameSearch] = useState('');
   const staffDropdownRef = useRef<HTMLDivElement>(null);
   const countryDropdownRef = useRef<HTMLDivElement>(null);
+  const voucherNameDropdownRef = useRef<HTMLDivElement>(null);
 
   const isEditMode = !!(initialData?.editingItemId);
+
+  // Close voucher name dropdown on click outside
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (voucherNameDropdownRef.current && !voucherNameDropdownRef.current.contains(e.target as Node)) {
+        setShowVoucherNameDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     if (isOpen && initialData) {
@@ -204,6 +227,9 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setSelectedCountry(COUNTRY_CODES[0]);
     setShowCountryDropdown(false);
     setCountrySearch('');
+    setIsCustomVoucherName(false);
+    setShowVoucherNameDropdown(false);
+    setVoucherNameSearch('');
   };
 
   const handleClose = () => {
@@ -333,19 +359,116 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
 
         {/* Form Fields */}
         <div className="flex-1 px-4 pb-2 space-y-3 overflow-y-auto scrollbar-hide">
-          {/* 1. Voucher Name */}
-          <div>
+          {/* 1. Voucher Name - Searchable Dropdown with Custom Option */}
+          <div className="relative" ref={voucherNameDropdownRef}>
             <label className={labelClass}>
               Voucher Name <span className="text-red-400">*</span>
             </label>
-            <input
-              type="text"
-              value={voucherName}
-              onChange={(e) => setVoucherName(e.target.value.slice(0, 100))}
-              onBlur={() => setTouched(prev => ({ ...prev, voucherName: true }))}
-              placeholder="e.g. Summer Sale 20% Off"
-              className={`${inputClass} ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
-            />
+            {isCustomVoucherName ? (
+              <div className="flex gap-2">
+                <input
+                  type="text"
+                  value={voucherName}
+                  onChange={(e) => setVoucherName(e.target.value.slice(0, 50))}
+                  onBlur={() => setTouched(prev => ({ ...prev, voucherName: true }))}
+                  placeholder="Enter custom voucher name"
+                  autoFocus
+                  className={`flex-1 ${inputClass} ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (voucherName.trim()) {
+                      setIsCustomVoucherName(false);
+                      setShowVoucherNameDropdown(false);
+                    }
+                  }}
+                  className="p-3 rounded-lg bg-green-600 hover:bg-green-500 text-white transition-colors"
+                  title="Confirm"
+                >
+                  <Check className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVoucherName('');
+                    setIsCustomVoucherName(false);
+                  }}
+                  className="p-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white transition-colors"
+                  title="Cancel"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setShowVoucherNameDropdown(prev => !prev);
+                  setVoucherNameSearch('');
+                }}
+                onBlur={() => setTimeout(() => setTouched(prev => ({ ...prev, voucherName: true })), 200)}
+                className={`w-full flex items-center justify-between ${inputClass} cursor-pointer hover:border-neutral-500 ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
+              >
+                <span className={voucherName ? 'text-white' : 'text-neutral-500'}>
+                  {voucherName || 'Select voucher name'}
+                </span>
+                <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showVoucherNameDropdown ? 'rotate-180' : ''}`} />
+              </button>
+            )}
+
+            {/* Dropdown List */}
+            {showVoucherNameDropdown && !isCustomVoucherName && (
+              <div className="absolute z-[9999] w-full mt-1 bg-neutral-800 border border-neutral-600 rounded-lg shadow-xl overflow-hidden">
+                {/* Search */}
+                <div className="p-2 border-b border-neutral-700">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                    <input
+                      type="text"
+                      value={voucherNameSearch}
+                      onChange={(e) => setVoucherNameSearch(e.target.value)}
+                      placeholder="Search voucher names..."
+                      autoFocus
+                      className="w-full bg-neutral-900 border border-neutral-700 rounded-md pl-9 pr-3 py-2 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500"
+                    />
+                  </div>
+                </div>
+                <div className="max-h-48 overflow-y-auto scrollbar-hide">
+                  {PREDEFINED_VOUCHER_NAMES
+                    .filter(name => name.toLowerCase().includes(voucherNameSearch.toLowerCase()))
+                    .map((name) => (
+                      <button
+                        key={name}
+                        type="button"
+                        onClick={() => {
+                          setVoucherName(name);
+                          setShowVoucherNameDropdown(false);
+                          setVoucherNameSearch('');
+                        }}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-neutral-700 ${voucherName === name ? 'bg-neutral-700 text-white' : 'text-neutral-300'}`}
+                      >
+                        {name}
+                      </button>
+                    ))}
+                  {/* Create Custom Option */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setVoucherName('');
+                      setIsCustomVoucherName(true);
+                      setShowVoucherNameDropdown(false);
+                      setVoucherNameSearch('');
+                    }}
+                    className="w-full text-left px-4 py-2.5 text-sm text-emerald-400 hover:bg-neutral-700 transition-colors flex items-center gap-2 border-t border-neutral-700"
+                  >
+                    <Plus className="w-4 h-4" />
+                    Create Custom Voucher Name
+                  </button>
+                </div>
+              </div>
+            )}
+
             {touched.voucherName && !voucherName.trim() && (
               <p className="text-red-400 text-xs mt-1">Voucher name is required</p>
             )}

@@ -1211,8 +1211,9 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 { label: "No Tax", icon: noTaxBtnIcon },
                 { label: "Register", icon: registerBtnIcon },
               ] : []),
-            ].map(({ label, icon }) => (
-              <Button key={label} variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5">
+              { label: "Transfer Check", icon: transferCheckIcon, action: () => setShowTransferCheckDialog(true) },
+            ].map(({ label, icon, action }) => (
+              <Button key={label} variant="secondary" size="sm" onClick={action} className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5">
                 <img src={icon} alt="" className="w-4 h-4" />
                 {label}
               </Button>

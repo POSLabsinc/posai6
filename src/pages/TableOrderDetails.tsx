@@ -630,8 +630,9 @@ const TableOrderDetails = () => {
   const [advFilterOrderStatus, setAdvFilterOrderStatus] = useState<string | null>(null);
   const [advFilterPaymentType, setAdvFilterPaymentType] = useState<string | null>(null);
   const [showMobileFilterSheet, setShowMobileFilterSheet] = useState(false);
-  const hasAnyAdvancedFilter = !!(advFilterDate || advFilterEmployee || advFilterOrderStatus || advFilterPaymentType);
-  const resetAllAdvancedFilters = () => { setAdvFilterDate(undefined); setAdvFilterEmployee(null); setAdvFilterOrderStatus(null); setAdvFilterPaymentType(null); };
+  const [advFilterRevenueCenter, setAdvFilterRevenueCenter] = useState<string | null>(null);
+  const hasAnyAdvancedFilter = !!(advFilterRevenueCenter || advFilterDate || advFilterEmployee || advFilterOrderStatus || advFilterPaymentType);
+  const resetAllAdvancedFilters = () => { setAdvFilterRevenueCenter(null); setAdvFilterDate(undefined); setAdvFilterEmployee(null); setAdvFilterOrderStatus(null); setAdvFilterPaymentType(null); };
   // discountPin removed — AccessRestrictedModal manages its own PIN state
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
   
@@ -1313,7 +1314,7 @@ const TableOrderDetails = () => {
         showSearch={showSearch}
         searchQuery={searchQuery}
         showFilterIcons={showFilterIcons}
-        advFilterRevenueCenter={null}
+        advFilterRevenueCenter={advFilterRevenueCenter}
         advFilterDate={advFilterDate}
         advFilterEmployee={advFilterEmployee}
         advFilterOrderType={null}
@@ -1322,7 +1323,7 @@ const TableOrderDetails = () => {
         onSearchQueryChange={setSearchQuery}
         onShowSearchChange={setShowSearch}
         onShowFilterIconsChange={setShowFilterIcons}
-        onAdvFilterRevenueCenterChange={() => {}}
+        onAdvFilterRevenueCenterChange={setAdvFilterRevenueCenter}
         onAdvFilterDateChange={setAdvFilterDate}
         onAdvFilterEmployeeChange={setAdvFilterEmployee}
         onAdvFilterOrderTypeChange={() => {}}
@@ -1668,7 +1669,7 @@ const TableOrderDetails = () => {
           showSearch={showSearch}
           searchQuery={searchQuery}
           showFilterIcons={showFilterIcons}
-          advFilterRevenueCenter={null}
+          advFilterRevenueCenter={advFilterRevenueCenter}
           advFilterDate={advFilterDate}
           advFilterEmployee={advFilterEmployee}
           advFilterOrderType={null}
@@ -1677,7 +1678,7 @@ const TableOrderDetails = () => {
           onSearchQueryChange={setSearchQuery}
           onShowSearchChange={setShowSearch}
           onShowFilterIconsChange={setShowFilterIcons}
-          onAdvFilterRevenueCenterChange={() => {}}
+          onAdvFilterRevenueCenterChange={setAdvFilterRevenueCenter}
           onAdvFilterDateChange={setAdvFilterDate}
           onAdvFilterEmployeeChange={setAdvFilterEmployee}
           onAdvFilterOrderTypeChange={() => {}}
@@ -2500,7 +2501,7 @@ const TableOrderDetails = () => {
           showSearch={showSearch}
           searchQuery={searchQuery}
           showFilterIcons={showFilterIcons}
-          advFilterRevenueCenter={null}
+          advFilterRevenueCenter={advFilterRevenueCenter}
           advFilterDate={advFilterDate}
           advFilterEmployee={advFilterEmployee}
           advFilterOrderType={null}
@@ -2509,7 +2510,7 @@ const TableOrderDetails = () => {
           onSearchQueryChange={setSearchQuery}
           onShowSearchChange={setShowSearch}
           onShowFilterIconsChange={setShowFilterIcons}
-          onAdvFilterRevenueCenterChange={() => {}}
+          onAdvFilterRevenueCenterChange={setAdvFilterRevenueCenter}
           onAdvFilterDateChange={setAdvFilterDate}
           onAdvFilterEmployeeChange={setAdvFilterEmployee}
           onAdvFilterOrderTypeChange={() => {}}

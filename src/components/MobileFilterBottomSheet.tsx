@@ -220,8 +220,7 @@ const MobileFilterBottomSheet = memo<MobileFilterBottomSheetProps>(({
         {/* Filter Sections */}
         <ScrollArea className="flex-1" style={{ maxHeight: "calc(85vh - 140px)" }}>
           <div>
-            {/* Revenue Center - hidden in table context */}
-            {!tableContext && (
+            {/* Revenue Center */}
             <FilterSection
               title="Revenue Center"
               icon={DollarSign}
@@ -239,7 +238,6 @@ const MobileFilterBottomSheet = memo<MobileFilterBottomSheetProps>(({
                 ))}
               </div>
             </FilterSection>
-            )}
 
             {/* Date */}
             <FilterSection

@@ -6298,9 +6298,7 @@ const OrdersF = () => {
   
   // Determine what to charge based on payment status
   const chargeAmount = addItemMode && isExistingOrderPaid ? newItemsTotal : total;
-  const chargeLabel = addItemMode 
-    ? (isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER') 
-    : '';
+  const chargeLabel = '';
   return <div className="relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden">
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />

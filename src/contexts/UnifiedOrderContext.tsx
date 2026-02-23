@@ -3,7 +3,9 @@ import { ticketOrders as seedTicketOrders, TicketOrder, TicketOrderItem } from '
 
 // localStorage keys
 const UNIFIED_STORAGE_KEY = 'pos-unified-orders';
+const UNIFIED_VERSION_KEY = 'pos-unified-orders-version';
 const TRANSFER_STORAGE_KEY = 'pos-table-transfers';
+const CURRENT_DATA_VERSION = '2'; // Bump this to force localStorage refresh when seed data changes
 
 interface UnifiedOrderContextType {
   orders: TicketOrder[];
@@ -22,10 +24,16 @@ const UnifiedOrderContext = createContext<UnifiedOrderContextType | undefined>(u
 export function UnifiedOrderProvider({ children }: { children: ReactNode }) {
   const [orders, setOrders] = useState<TicketOrder[]>(() => {
     try {
+      const storedVersion = localStorage.getItem(UNIFIED_VERSION_KEY);
+      // If version mismatch, clear stale data and use fresh seed
+      if (storedVersion !== CURRENT_DATA_VERSION) {
+        localStorage.removeItem(UNIFIED_STORAGE_KEY);
+        localStorage.setItem(UNIFIED_VERSION_KEY, CURRENT_DATA_VERSION);
+        return [...seedTicketOrders];
+      }
       const stored = localStorage.getItem(UNIFIED_STORAGE_KEY);
       if (stored) {
         const parsed = JSON.parse(stored) as TicketOrder[];
-        // Merge any new seed orders that might have been added
         const storedIds = new Set(parsed.map(o => o.id));
         const newSeeds = seedTicketOrders.filter(o => !storedIds.has(o.id));
         return [...parsed, ...newSeeds];

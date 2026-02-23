@@ -332,7 +332,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                 {isEditMode ? 'Edit Voucher' : 'Sell Voucher'}
               </span>
               <p className="text-neutral-400 text-xs mt-0.5">
-                {isEditMode ? 'Update voucher details' : 'Add voucher to the order'}
+                {isEditMode ? 'Update voucher details' : 'For bulk voucher creation, manage vouchers from Dashboard.'}
               </p>
             </div>
             <div className="flex items-center gap-2 flex-shrink-0">

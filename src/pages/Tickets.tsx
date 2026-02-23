@@ -2,7 +2,8 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, Wallet, X, Check, Info } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, Users, ReceiptText, ArrowRightLeft, ChevronRight, DollarSign, CalendarDays, UsersRound, ClipboardList, CircleDollarSign, CreditCard, X, Check, Info, RotateCcw } from "lucide-react";
+import { Calendar } from "@/components/ui/calendar";
 import { toast } from "sonner";
 import TicketsTransferView from "@/components/TicketsTransferView";
 import SwipeableTicketItem from "@/components/SwipeableTicketItem";
@@ -157,6 +158,14 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const [showFilterIcons, setShowFilterIcons] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+
+  // Advanced filter state
+  const [advFilterRevenueCenter, setAdvFilterRevenueCenter] = useState<string | null>(null);
+  const [advFilterDate, setAdvFilterDate] = useState<Date | undefined>(undefined);
+  const [advFilterEmployee, setAdvFilterEmployee] = useState<string | null>(null);
+  const [advFilterOrderType, setAdvFilterOrderType] = useState<string | null>(null);
+  const [advFilterOrderStatus, setAdvFilterOrderStatus] = useState<string | null>(null);
+  const [advFilterPaymentType, setAdvFilterPaymentType] = useState<string | null>(null);
 
   // Per-product swipe state for ticket detail view
   const [activeSwipedProductIndex, setActiveSwipedProductIndex] = useState<number | null>(null);
@@ -361,6 +370,38 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         g.table.toLowerCase().includes(q) ||
         g.server.toLowerCase().includes(q)
       );
+    }
+    // Advanced filters
+    if (advFilterRevenueCenter) {
+      filtered = filtered.filter(g => g.revenueCenter === advFilterRevenueCenter);
+    }
+    if (advFilterDate) {
+      // Filter by date portion of the order time (not implemented deeply; placeholder match)
+      // Since orders don't have a date field, this is a UI-only filter for now
+    }
+    if (advFilterEmployee) {
+      filtered = filtered.filter(g => g.server === advFilterEmployee);
+    }
+    if (advFilterOrderType) {
+      filtered = filtered.filter(g => {
+        const type = advFilterOrderType.toLowerCase();
+        if (type === "table") return g.orderType === "Table Order" || g.orderType === "Dine-In";
+        if (type === "takeaway") return g.orderType === "Takeout" || g.orderType === "Take Out" || g.orderType === "Takeaway";
+        if (type === "drive-thru") return g.orderType === "Drive Thru" || g.orderType === "Drive-thru";
+        return g.orderType.toLowerCase().includes(type);
+      });
+    }
+    if (advFilterOrderStatus) {
+      filtered = filtered.filter(g => g.status === advFilterOrderStatus);
+    }
+    if (advFilterPaymentType) {
+      filtered = filtered.filter(g => {
+        const pt = advFilterPaymentType.toLowerCase();
+        if (pt === "cash") return g.paymentType === "Cash";
+        if (pt === "split payment") return (g.payments && g.payments.length > 1);
+        if (pt === "unpaid") return g.paymentType === "--" || g.paymentType === "";
+        return true;
+      });
     }
     return filtered;
   })();
@@ -1019,86 +1060,229 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
     </div>
   );
 
-  // Filter icon bar items
-  const filterIconItems = [
-    { icon: DollarSign, label: "Amount" },
-    { icon: CalendarDays, label: "Date" },
-    { icon: UsersRound, label: "Party" },
-    { icon: ClipboardList, label: "Order Type" },
-    { icon: CircleDollarSign, label: "Price" },
-    { icon: Wallet, label: "Payment" },
+
+
+
+  const hasAnyAdvancedFilter = !!(advFilterRevenueCenter || advFilterDate || advFilterEmployee || advFilterOrderType || advFilterOrderStatus || advFilterPaymentType);
+
+  const resetAllAdvancedFilters = () => {
+    setAdvFilterRevenueCenter(null);
+    setAdvFilterDate(undefined);
+    setAdvFilterEmployee(null);
+    setAdvFilterOrderType(null);
+    setAdvFilterOrderStatus(null);
+    setAdvFilterPaymentType(null);
+  };
+
+  const revenueCenterOptions = ["FF Balcony", "Main Dining", "Bar", "Patio", "Online", "Counter"];
+  const employeeOptions = ["Mia Jone", "Dustin H"];
+  const orderTypeOptions = [
+    { label: "Table", icon: tableOrderSvg },
+    { label: "Takeaway", icon: takeOutSvg },
+    { label: "Drive-thru", icon: driveThruSvg },
   ];
+  const orderStatusOptions = ["ORDERING", "PAID", "UNPAID"];
+  const paymentTypeOptions = ["Cash", "Split Payment", "Unpaid"];
+
+  // Dropdown styling constants
+  const dropdownStyle = { backgroundColor: '#2A2A2E', border: '1px solid rgba(255,255,255,0.12)' };
+  const dropdownItemHover = "hover:bg-white/10 transition-colors cursor-pointer";
 
   // ===== HEADER COMPONENT =====
-  const TicketHeader = () => (
-    <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
-      {showSearch ? (
-        <>
-          <div className="flex items-center gap-2 flex-1 mr-2">
-            <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
-            <input
-              autoFocus
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search by name, order ID, or check..."
-              className="bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none w-full"
-            />
-          </div>
-          <button 
-            className="p-2 rounded-full hover:opacity-80 transition-opacity flex-shrink-0"
-            style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-            onClick={() => { setShowSearch(false); setSearchQuery(""); }}
-          >
-            <X className="w-4 h-4 text-white" />
-          </button>
-        </>
-      ) : (
-        <>
-          <span className="text-white font-semibold text-lg pl-2">Tickets</span>
-          <div className="flex items-center gap-1.5 z-10">
-            {showFilterIcons && (
-              <>
-                {filterIconItems.map(item => (
-                  <button 
-                    key={item.label}
-                    className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                    style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-                    title={item.label}
-                  >
-                    <item.icon className="w-4 h-4 text-white" />
-                  </button>
-                ))}
-                <button 
-                  className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-                  onClick={() => setShowFilterIcons(false)}
-                >
-                  <X className="w-4 h-4 text-white" />
-                </button>
-              </>
-            )}
-            {!showFilterIcons && (
-              <button 
-                className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-                onClick={() => setShowFilterIcons(true)}
-              >
-                <SlidersHorizontal className="w-4 h-4 text-white" />
-              </button>
-            )}
-            <button 
-              className="p-2 rounded-full hover:opacity-80 transition-opacity" 
-              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-              onClick={() => setShowSearch(true)}
+  const TicketHeader = () => {
+    const iconBtnClass = "p-2 rounded-full hover:opacity-80 transition-opacity";
+    const iconBtnStyle = { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" };
+    const activeIconBtnStyle = { background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" };
+
+    const FilterDropdown = ({ label, children, isActive }: { label: string; children: React.ReactNode; isActive: boolean }) => (
+      <PopoverContent
+        align="start"
+        sideOffset={8}
+        className="w-auto min-w-[180px] p-0 rounded-xl border-0 shadow-xl z-[100]"
+        style={dropdownStyle}
+      >
+        <div className="px-4 py-2.5 border-b border-white/10">
+          <span className="text-white/50 text-xs font-medium">{label}</span>
+        </div>
+        <div className="py-1">
+          {children}
+        </div>
+      </PopoverContent>
+    );
+
+    return (
+      <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+        {showSearch ? (
+          <>
+            <div className="flex items-center gap-2 flex-1 mr-2">
+              <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+              <input
+                autoFocus
+                type="text"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search by name, order ID, or check..."
+                className="bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none w-full"
+              />
+            </div>
+            <button
+              className={iconBtnClass}
+              style={iconBtnStyle}
+              onClick={() => { setShowSearch(false); setSearchQuery(""); }}
             >
-              <Search className="w-4 h-4 text-white" />
+              <X className="w-4 h-4 text-white" />
             </button>
-          </div>
-        </>
-      )}
-    </div>
-  );
+          </>
+        ) : (
+          <>
+            <span className="text-white font-semibold text-lg pl-2">Tickets</span>
+            <div className="flex items-center gap-1.5 z-10">
+              {showFilterIcons && (
+                <>
+                  {/* Revenue Center */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className={iconBtnClass} style={advFilterRevenueCenter ? activeIconBtnStyle : iconBtnStyle} title="Revenue Center">
+                        <DollarSign className="w-4 h-4 text-white" />
+                      </button>
+                    </PopoverTrigger>
+                    <FilterDropdown label="Revenue Center" isActive={!!advFilterRevenueCenter}>
+                      {revenueCenterOptions.map(opt => (
+                        <button key={opt} onClick={() => setAdvFilterRevenueCenter(advFilterRevenueCenter === opt ? null : opt)} className={`w-full text-left px-4 py-2 text-sm ${advFilterRevenueCenter === opt ? 'text-orange-400' : 'text-white'} ${dropdownItemHover}`}>
+                          {opt}
+                        </button>
+                      ))}
+                    </FilterDropdown>
+                  </Popover>
+
+                  {/* Date */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className={iconBtnClass} style={advFilterDate ? activeIconBtnStyle : iconBtnStyle} title="Date">
+                        <CalendarDays className="w-4 h-4 text-white" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" sideOffset={8} className="w-auto p-0 rounded-xl border-0 shadow-xl z-[100]" style={dropdownStyle}>
+                      <Calendar
+                        mode="single"
+                        selected={advFilterDate}
+                        onSelect={setAdvFilterDate}
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+
+                  {/* Employee */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className={iconBtnClass} style={advFilterEmployee ? activeIconBtnStyle : iconBtnStyle} title="Employee">
+                        <UsersRound className="w-4 h-4 text-white" />
+                      </button>
+                    </PopoverTrigger>
+                    <FilterDropdown label="Employee" isActive={!!advFilterEmployee}>
+                      {employeeOptions.map(opt => (
+                        <button key={opt} onClick={() => setAdvFilterEmployee(advFilterEmployee === opt ? null : opt)} className={`w-full text-left px-4 py-2 text-sm ${advFilterEmployee === opt ? 'text-orange-400' : 'text-white'} ${dropdownItemHover}`}>
+                          {opt}
+                        </button>
+                      ))}
+                    </FilterDropdown>
+                  </Popover>
+
+                  {/* Order Type */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className={iconBtnClass} style={advFilterOrderType ? activeIconBtnStyle : iconBtnStyle} title="Order Type">
+                        <ClipboardList className="w-4 h-4 text-white" />
+                      </button>
+                    </PopoverTrigger>
+                    <FilterDropdown label="Order Type" isActive={!!advFilterOrderType}>
+                      {orderTypeOptions.map(opt => (
+                        <button key={opt.label} onClick={() => setAdvFilterOrderType(advFilterOrderType === opt.label ? null : opt.label)} className={`w-full text-left px-4 py-2 text-sm flex items-center gap-2.5 ${advFilterOrderType === opt.label ? 'text-orange-400' : 'text-white'} ${dropdownItemHover}`}>
+                          <img src={opt.icon} alt={opt.label} className="w-4 h-4 object-contain" />
+                          {opt.label}
+                        </button>
+                      ))}
+                    </FilterDropdown>
+                  </Popover>
+
+                  {/* Order Status */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className={iconBtnClass} style={advFilterOrderStatus ? activeIconBtnStyle : iconBtnStyle} title="Order Status">
+                        <CircleDollarSign className="w-4 h-4 text-white" />
+                      </button>
+                    </PopoverTrigger>
+                    <FilterDropdown label="Order Status" isActive={!!advFilterOrderStatus}>
+                      {orderStatusOptions.map(opt => (
+                        <button key={opt} onClick={() => setAdvFilterOrderStatus(advFilterOrderStatus === opt ? null : opt)} className={`w-full text-left px-4 py-2 text-sm font-medium ${advFilterOrderStatus === opt ? 'text-orange-400' : 'text-white'} ${dropdownItemHover}`}>
+                          {opt}
+                        </button>
+                      ))}
+                    </FilterDropdown>
+                  </Popover>
+
+                  {/* Payment Type */}
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className={iconBtnClass} style={advFilterPaymentType ? activeIconBtnStyle : iconBtnStyle} title="Payment Type">
+                        <CreditCard className="w-4 h-4 text-white" />
+                      </button>
+                    </PopoverTrigger>
+                    <FilterDropdown label="Payment Type" isActive={!!advFilterPaymentType}>
+                      {paymentTypeOptions.map(opt => (
+                        <button key={opt} onClick={() => setAdvFilterPaymentType(advFilterPaymentType === opt ? null : opt)} className={`w-full text-left px-4 py-2 text-sm ${advFilterPaymentType === opt ? 'text-orange-400' : 'text-white'} ${dropdownItemHover}`}>
+                          {opt}
+                        </button>
+                      ))}
+                    </FilterDropdown>
+                  </Popover>
+
+                  {/* Close / Reset */}
+                  {hasAnyAdvancedFilter ? (
+                    <button
+                      className={iconBtnClass}
+                      style={{ background: "rgba(239, 68, 68, 0.25)", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                      onClick={resetAllAdvancedFilters}
+                      title="Reset Filters"
+                    >
+                      <RotateCcw className="w-4 h-4 text-red-400" />
+                    </button>
+                  ) : (
+                    <button
+                      className={iconBtnClass}
+                      style={iconBtnStyle}
+                      onClick={() => setShowFilterIcons(false)}
+                    >
+                      <X className="w-4 h-4 text-white" />
+                    </button>
+                  )}
+                </>
+              )}
+              {!showFilterIcons && (
+                <button
+                  className={iconBtnClass}
+                  style={iconBtnStyle}
+                  onClick={() => setShowFilterIcons(true)}
+                >
+                  <SlidersHorizontal className="w-4 h-4 text-white" />
+                  {hasAnyAdvancedFilter && (
+                    <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 text-[8px] text-white font-bold flex items-center justify-center">!</span>
+                  )}
+                </button>
+              )}
+              <button
+                className={iconBtnClass}
+                style={iconBtnStyle}
+                onClick={() => setShowSearch(true)}
+              >
+                <Search className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  };
 
   // ===== RIGHT PANEL (shared between desktop & tablet) =====
   const RightPanel = ({ width, isTablet = false }: { width: string; isTablet?: boolean }) => (

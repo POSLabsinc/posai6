@@ -1281,11 +1281,17 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
               </>
             ) : (
               <button 
-                className="p-2 rounded-full hover:opacity-80 transition-opacity"
+                className="relative p-2 rounded-full hover:opacity-80 transition-opacity"
                 style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
                 onClick={() => setShowFilterIcons(true)}
               >
                 <SlidersHorizontal className="w-4 h-4 text-white" />
+                {(() => {
+                  const count = [selectedRevenueCenter, selectedDateRange, selectedPartySize, selectedOrderType, selectedPriceRange, selectedPaymentType].filter(Boolean).length;
+                  return count > 0 ? (
+                    <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-amber-500 text-black text-[10px] font-bold flex items-center justify-center">{count}</span>
+                  ) : null;
+                })()}
               </button>
             )}
             <button 

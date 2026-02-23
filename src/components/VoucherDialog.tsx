@@ -369,26 +369,32 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
             )}
           </div>
 
-          {/* 5. Expiry Date */}
-          <div>
-            <label className={labelClass}>Expiry Date</label>
-            <input
-              type="date"
-              value={expiryDate}
-              onChange={(e) => setExpiryDate(e.target.value)}
-              className={`${inputClass} [color-scheme:dark]`}
-            />
-          </div>
-
-          {/* 6. Valid From */}
-          <div>
-            <label className={labelClass}>Valid From</label>
-            <input
-              type="date"
-              value={validFrom}
-              onChange={(e) => setValidFrom(e.target.value)}
-              className={`${inputClass} [color-scheme:dark]`}
-            />
+          {/* 5 & 6. Valid From + Expiry Date */}
+          <div className="grid grid-cols-2 gap-3 max-[360px]:grid-cols-1">
+            <div>
+              <label className={labelClass}>Valid From</label>
+              <input
+                type="date"
+                value={validFrom}
+                onChange={(e) => {
+                  setValidFrom(e.target.value);
+                  if (expiryDate && e.target.value && e.target.value > expiryDate) {
+                    setExpiryDate(e.target.value);
+                  }
+                }}
+                className={`${inputClass} [color-scheme:dark]`}
+              />
+            </div>
+            <div>
+              <label className={labelClass}>Expiry Date</label>
+              <input
+                type="date"
+                value={expiryDate}
+                min={validFrom || undefined}
+                onChange={(e) => setExpiryDate(e.target.value)}
+                className={`${inputClass} [color-scheme:dark]`}
+              />
+            </div>
           </div>
 
           {/* 7 & 8. Redemption Limit + Minimum Order */}

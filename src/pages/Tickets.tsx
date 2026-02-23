@@ -1062,19 +1062,19 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 {filterIconItems.map(item => (
                   <button 
                     key={item.label}
-                    className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-600 transition-colors border border-neutral-600/50"
-                    style={{ backgroundColor: '#2A2A2E' }}
+                    className="p-2 rounded-full hover:opacity-80 transition-opacity"
+                    style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
                     title={item.label}
                   >
-                    <item.icon className="w-4 h-4 text-white/80" />
+                    <item.icon className="w-4 h-4 text-white" />
                   </button>
                 ))}
                 <button 
-                  className="w-9 h-9 rounded-lg flex items-center justify-center hover:bg-neutral-600 transition-colors"
-                  style={{ backgroundColor: '#2A2A2E' }}
+                  className="p-2 rounded-full hover:opacity-80 transition-opacity"
+                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
                   onClick={() => setShowFilterIcons(false)}
                 >
-                  <X className="w-4 h-4 text-white/80" />
+                  <X className="w-4 h-4 text-white" />
                 </button>
               </>
             )}

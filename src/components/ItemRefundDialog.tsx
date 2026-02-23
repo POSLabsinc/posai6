@@ -7,6 +7,8 @@ interface ItemRefundDialogProps {
   itemName: string;
   itemPrice: number;
   itemQty: number;
+  /** If set, this is a modifier-level refund */
+  isModifier?: boolean;
   onRefundComplete: (reason: string) => void;
 }
 
@@ -26,12 +28,13 @@ const ItemRefundDialog: React.FC<ItemRefundDialogProps> = ({
   itemName,
   itemPrice,
   itemQty,
+  isModifier = false,
   onRefundComplete,
 }) => {
   const [step, setStep] = useState<Step>('reason');
   const [selectedReason, setSelectedReason] = useState<string | null>(null);
 
-  const totalRefund = itemPrice * itemQty;
+  const totalRefund = isModifier ? itemPrice : itemPrice * itemQty;
   const formatPrice = (p: number) => `$${p.toFixed(2)}`;
 
   const handleClose = () => {
@@ -67,7 +70,7 @@ const ItemRefundDialog: React.FC<ItemRefundDialogProps> = ({
               </button>
             )}
             <h2 className="text-white font-semibold text-base">
-              {step === 'reason' ? 'Refund Product' : step === 'confirm' ? 'Confirm Refund' : 'Refund Successful'}
+              {step === 'reason' ? (isModifier ? 'Refund Add-on' : 'Refund Product') : step === 'confirm' ? 'Confirm Refund' : 'Refund Successful'}
             </h2>
           </div>
           <button
@@ -83,9 +86,11 @@ const ItemRefundDialog: React.FC<ItemRefundDialogProps> = ({
           <div className="px-4 py-3 border-b border-white/10" style={{ background: 'rgba(239, 68, 68, 0.08)' }}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="w-6 h-6 rounded bg-red-500/20 text-red-400 flex items-center justify-center text-sm font-bold">
-                  {itemQty}
-                </span>
+                {!isModifier && (
+                  <span className="w-6 h-6 rounded bg-red-500/20 text-red-400 flex items-center justify-center text-sm font-bold">
+                    {itemQty}
+                  </span>
+                )}
                 <span className="text-white font-medium text-sm">{itemName}</span>
               </div>
               <span className="text-white font-bold text-sm">{formatPrice(totalRefund)}</span>
@@ -128,8 +133,8 @@ const ItemRefundDialog: React.FC<ItemRefundDialogProps> = ({
           <div className="p-4">
             <div className="rounded-xl bg-white/5 border border-white/10 p-4 mb-4 space-y-2">
               <div className="flex justify-between text-sm">
-                <span className="text-white/60">Product</span>
-                <span className="text-white">{itemName} × {itemQty}</span>
+                <span className="text-white/60">{isModifier ? 'Add-on' : 'Product'}</span>
+                <span className="text-white">{isModifier ? itemName : `${itemName} × ${itemQty}`}</span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-white/60">Refund Amount</span>

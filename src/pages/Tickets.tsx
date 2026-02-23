@@ -254,21 +254,58 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   // Product-level refund state
   const [refundedProducts, setRefundedProducts] = useState<Set<string>>(new Set());
   const [showItemRefundDialog, setShowItemRefundDialog] = useState(false);
-  const [itemRefundTarget, setItemRefundTarget] = useState<{ index: number; item: OrderItem } | null>(null);
+  const [itemRefundTarget, setItemRefundTarget] = useState<{ index: number; item: OrderItem; modifierIndex?: number; modifierName?: string; modifierPrice?: number } | null>(null);
+
+  // Modifier-level refund state
+  const [refundedModifiers, setRefundedModifiers] = useState<Set<string>>(new Set());
 
   const isPaidOrCompleted = (status: string) => status === "PAID" || status === "COMPLETED";
+
+  // Parse price from modifier string like "+ Extra Cheese $1.50"
+  const parseModifierPrice = (mod: string): number => {
+    const match = mod.match(/\$(\d+\.?\d*)/);
+    return match ? parseFloat(match[1]) : 0;
+  };
+
+  // Check if modifier is a priced add-on (starts with +)
+  const isRefundableModifier = (mod: string): boolean => {
+    return mod.trim().startsWith('+') && parseModifierPrice(mod) > 0;
+  };
 
   const handleProductRefundSwipe = (index: number, item: OrderItem) => {
     setItemRefundTarget({ index, item });
     setShowItemRefundDialog(true);
   };
 
+  const handleModifierRefundSwipe = (itemIndex: number, item: OrderItem, modIndex: number, mod: string) => {
+    const price = parseModifierPrice(mod);
+    setItemRefundTarget({ index: itemIndex, item, modifierIndex: modIndex, modifierName: mod, modifierPrice: price });
+    setShowItemRefundDialog(true);
+  };
+
   const handleItemRefundComplete = (reason: string) => {
     if (!itemRefundTarget || !selectedGuest) return;
+
+    // Modifier-level refund
+    if (itemRefundTarget.modifierIndex !== undefined) {
+      const modKey = `${selectedGuest.id}-${itemRefundTarget.index}-mod-${itemRefundTarget.modifierIndex}`;
+      setRefundedModifiers(prev => new Set(prev).add(modKey));
+      const refundAmount = itemRefundTarget.modifierPrice || 0;
+      const updated = {
+        ...selectedGuest,
+        total: Math.max(0, selectedGuest.total - refundAmount),
+        subtotal: Math.max(0, selectedGuest.subtotal - refundAmount),
+        status: 'PARTIALLY REFUNDED' as any,
+      };
+      updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updated : o));
+      setSelectedGuest(updated);
+      toast.success(`Modifier refunded: ${itemRefundTarget.modifierName}`);
+      return;
+    }
+
+    // Product-level refund
     const key = `${selectedGuest.id}-${itemRefundTarget.index}`;
     setRefundedProducts(prev => new Set(prev).add(key));
-    
-    // Recalculate totals excluding refunded product
     const refundAmount = itemRefundTarget.item.price * itemRefundTarget.item.qty;
     const updated = {
       ...selectedGuest,
@@ -1148,7 +1185,34 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                       <span className={`font-medium text-sm ${isRefunded ? 'text-white/40 line-through' : item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
                       {item.modifiers.length > 0 && (
                         <div className="mt-1 text-white/50 text-xs space-y-0.5">
-                          {item.modifiers.map((mod, i) => <div key={i}>{mod}</div>)}
+                          {item.modifiers.map((mod, mi) => {
+                            const modRefundKey = `${selectedGuest.id}-${index}-mod-${mi}`;
+                            const isModRefunded = refundedModifiers.has(modRefundKey);
+                            const canRefundMod = isPaid && showRefundMode && isRefundableModifier(mod) && !isModRefunded && !isRefunded;
+
+                            const modContent = (
+                              <div className={`flex items-center justify-between ${isModRefunded ? 'opacity-50' : ''}`}>
+                                <span className={isModRefunded ? 'line-through text-white/30' : ''}>{mod}</span>
+                                {isModRefunded && (
+                                  <span className="text-[9px] bg-red-500/20 text-red-400 border border-red-500/40 px-1 py-0.5 rounded font-medium ml-1">REFUNDED</span>
+                                )}
+                              </div>
+                            );
+
+                            if (canRefundMod) {
+                              return (
+                                <SwipeableRefundItem
+                                  key={mi}
+                                  onRefund={() => handleModifierRefundSwipe(index, item, mi, mod)}
+                                  label={mod}
+                                  isModifier
+                                >
+                                  {modContent}
+                                </SwipeableRefundItem>
+                              );
+                            }
+                            return <div key={mi}>{modContent}</div>;
+                          })}
                         </div>
                       )}
                       <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
@@ -1576,17 +1640,44 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                       <div>
                         <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${isRefunded ? 'text-white/40 line-through' : item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
                         {item.modifiers.length > 0 && (() => {
-                          const modKey = `right-${selectedGuest.id}-${index}`;
-                          const isExpanded = expandedModifiers.has(modKey);
+                          const modExpandKey = `right-${selectedGuest.id}-${index}`;
+                          const isExpanded = expandedModifiers.has(modExpandKey);
                           const showAll = !isTablet || isExpanded;
-                          const visibleMods = showAll ? item.modifiers : item.modifiers.slice(0, 2);
+                          const visibleMods = showAll ? item.modifiers.map((m, i) => ({ mod: m, origIndex: i })) : item.modifiers.slice(0, 2).map((m, i) => ({ mod: m, origIndex: i }));
                           const hiddenCount = item.modifiers.length - 2;
                           return (
                             <div className={`mt-${isTablet ? '0.5' : '1'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} space-y-0.5`}>
-                              {visibleMods.map((mod, i) => <div key={i}>{mod}</div>)}
+                              {visibleMods.map(({ mod, origIndex: mi }) => {
+                                const modRefundKey = `${selectedGuest.id}-${index}-mod-${mi}`;
+                                const isModRefunded = refundedModifiers.has(modRefundKey);
+                                const canRefundMod = isPaid && showRefundMode && isRefundableModifier(mod) && !isModRefunded && !isRefunded;
+
+                                const modContent = (
+                                  <div className={`flex items-center justify-between ${isModRefunded ? 'opacity-50' : ''}`}>
+                                    <span className={isModRefunded ? 'line-through text-white/30' : ''}>{mod}</span>
+                                    {isModRefunded && (
+                                      <span className="text-[9px] bg-red-500/20 text-red-400 border border-red-500/40 px-1 py-0.5 rounded font-medium ml-1">REFUNDED</span>
+                                    )}
+                                  </div>
+                                );
+
+                                if (canRefundMod) {
+                                  return (
+                                    <SwipeableRefundItem
+                                      key={mi}
+                                      onRefund={() => handleModifierRefundSwipe(index, item, mi, mod)}
+                                      label={mod}
+                                      isModifier
+                                    >
+                                      {modContent}
+                                    </SwipeableRefundItem>
+                                  );
+                                }
+                                return <div key={mi}>{modContent}</div>;
+                              })}
                               {isTablet && hiddenCount > 0 && (
                                 <button
-                                  onClick={(e) => toggleModifierExpand(modKey, e)}
+                                  onClick={(e) => toggleModifierExpand(modExpandKey, e)}
                                   className="text-blue-400 hover:text-blue-300 transition-colors"
                                 >
                                   {isExpanded ? 'Show less' : `+${hiddenCount} more`}
@@ -2136,9 +2227,10 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
       <ItemRefundDialog
         open={showItemRefundDialog}
         onOpenChange={setShowItemRefundDialog}
-        itemName={itemRefundTarget?.item.name || ''}
-        itemPrice={itemRefundTarget?.item.price || 0}
-        itemQty={itemRefundTarget?.item.qty || 1}
+        itemName={itemRefundTarget?.modifierName || itemRefundTarget?.item.name || ''}
+        itemPrice={itemRefundTarget?.modifierPrice ?? itemRefundTarget?.item.price ?? 0}
+        itemQty={itemRefundTarget?.modifierIndex !== undefined ? 1 : (itemRefundTarget?.item.qty || 1)}
+        isModifier={itemRefundTarget?.modifierIndex !== undefined}
         onRefundComplete={handleItemRefundComplete}
       />
     </div>

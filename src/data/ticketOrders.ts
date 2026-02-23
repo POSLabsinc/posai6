@@ -73,10 +73,10 @@ export const ticketOrders: TicketOrder[] = [
     table: "T2",
     orderType: "Table Order",
     items: [
-      { qty: 2, name: "Classic Crispy Burger", price: 12.00, seats: [1, 2], modifiers: [] },
-      { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: ["Extra Sauce"] },
-      { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
-      { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette"] }
+      { qty: 2, name: "Classic Crispy Burger", price: 12.00, seats: [1, 2], modifiers: ["+ Extra Cheese $1.50", "+ Bacon $2.00", "- Pickles", "Side: Fries"] },
+      { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: ["Extra Sauce", "+ Parmesan $0.75"] },
+      { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: ["+ Grilled Chicken $4.00", "Alfredo Sauce", "- Onions"] },
+      { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette", "+ Asparagus $3.50", "+ Lemon Butter Sauce $1.00"] }
     ],
     subtotal: 68.00,
     discount: 5.00,
@@ -102,9 +102,9 @@ export const ticketOrders: TicketOrder[] = [
     table: "T2",
     orderType: "Take Out",
     items: [
-      { qty: 1, name: "New York Strip Steak", price: 28.00, seats: [1], modifiers: ["Medium Rare"] },
-      { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [2], modifiers: ["No Lemon"] },
-      { qty: 1, name: "Caesar Salad", price: 12.00, seats: [3], modifiers: ["Extra Croutons"] }
+      { qty: 1, name: "New York Strip Steak", price: 28.00, seats: [1], modifiers: ["Medium Rare", "+ Truffle Butter $3.00", "+ Loaded Mashed Potatoes $4.50", "Side: Grilled Asparagus"] },
+      { qty: 1, name: "Grilled Salmon", price: 24.00, seats: [2], modifiers: ["No Lemon", "+ Teriyaki Glaze $2.00", "+ Steamed Rice $3.00"] },
+      { qty: 1, name: "Caesar Salad", price: 12.00, seats: [3], modifiers: ["Extra Croutons", "+ Grilled Shrimp $6.00", "- Anchovies", "Dressing on Side"] }
     ],
     subtotal: 101.00,
     discount: 0,
@@ -130,8 +130,8 @@ export const ticketOrders: TicketOrder[] = [
     table: "T1",
     orderType: "Delivery",
     items: [
-      { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust"] },
-      { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"] }
+      { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust", "+ Buffalo Mozzarella $2.50", "+ Fresh Basil $0.75"] },
+      { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil", "+ Prosciutto $4.00", "Balsamic Reduction"] }
     ],
     subtotal: 72.00,
     discount: 10.00,
@@ -162,8 +162,10 @@ export const ticketOrders: TicketOrder[] = [
     table: "T5",
     orderType: "Dine-In",
     items: [
-      { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter"] },
-      { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium"] }
+      { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter", "+ Drawn Garlic Butter $2.00", "+ Baked Potato $3.50", "Side: Creamed Spinach"] },
+      { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium", "+ Peppercorn Sauce $3.00", "+ Foie Gras $12.00", "- Mushrooms", "Side: Truffle Fries $5.00"] },
+      { qty: 3, name: "Oysters Rockefeller", price: 18.00, seats: [5, 6], modifiers: ["+ Mignonette Sauce $1.50", "Extra Lemon"] },
+      { qty: 2, name: "Crème Brûlée", price: 12.00, seats: [], modifiers: ["+ Espresso Shot $2.00", "Vanilla Bean"] }
     ],
     subtotal: 428.00,
     discount: 20.00,
@@ -189,8 +191,8 @@ export const ticketOrders: TicketOrder[] = [
     table: "Bar",
     orderType: "Dine-In",
     items: [
-      { qty: 1, name: "Classic Burger", price: 15.00, seats: [1], modifiers: ["No Pickles", "+ Bacon"] },
-      { qty: 1, name: "Craft IPA", price: 8.00, seats: [], modifiers: [] }
+      { qty: 1, name: "Classic Burger", price: 15.00, seats: [1], modifiers: ["No Pickles", "+ Bacon $2.50", "+ Avocado $1.75", "+ Fried Egg $1.50", "Side: Onion Rings $3.00"] },
+      { qty: 1, name: "Craft IPA", price: 8.00, seats: [], modifiers: ["16oz Draft", "+ Extra Hoppy $1.00"] }
     ],
     subtotal: 23.00,
     discount: 0,
@@ -216,7 +218,8 @@ export const ticketOrders: TicketOrder[] = [
     table: "T7",
     orderType: "Table Order",
     items: [
-      { qty: 2, name: "Champagne", price: 25.00, seats: [], modifiers: [] }
+      { qty: 2, name: "Champagne", price: 25.00, seats: [], modifiers: ["Dom Pérignon", "+ Strawberry Garnish $2.00"] },
+      { qty: 1, name: "Chocolate Fondue", price: 22.00, seats: [], modifiers: ["+ Extra Marshmallows $1.50", "+ Fresh Berries $3.00", "Dark Chocolate"] }
     ],
     subtotal: 50.00,
     discount: 0,
@@ -242,8 +245,9 @@ export const ticketOrders: TicketOrder[] = [
     table: "--",
     orderType: "Delivery",
     items: [
-      { qty: 2, name: "Pepperoni Pizza", price: 18.00, seats: [], modifiers: [] },
-      { qty: 1, name: "Garlic Bread", price: 6.00, seats: [], modifiers: [] }
+      { qty: 2, name: "Pepperoni Pizza", price: 18.00, seats: [], modifiers: ["+ Extra Pepperoni $2.00", "+ Jalapeños $1.00", "Thin Crust"] },
+      { qty: 1, name: "Garlic Bread", price: 6.00, seats: [], modifiers: ["+ Cheese $1.50", "With Marinara"] },
+      { qty: 1, name: "Tiramisu", price: 9.00, seats: [], modifiers: ["+ Extra Mascarpone $1.50"] }
     ],
     subtotal: 42.00,
     discount: 0,
@@ -269,8 +273,8 @@ export const ticketOrders: TicketOrder[] = [
     table: "--",
     orderType: "Take Out",
     items: [
-      { qty: 2, name: "Fish Tacos", price: 14.00, seats: [], modifiers: ["Extra Lime"] },
-      { qty: 2, name: "Churros", price: 7.00, seats: [], modifiers: [] }
+      { qty: 2, name: "Fish Tacos", price: 14.00, seats: [], modifiers: ["Extra Lime", "+ Guacamole $2.50", "+ Pico de Gallo $1.00", "Corn Tortilla"] },
+      { qty: 2, name: "Churros", price: 7.00, seats: [], modifiers: ["+ Chocolate Dipping Sauce $1.50", "+ Caramel Drizzle $1.00"] }
     ],
     subtotal: 42.00,
     discount: 0,
@@ -296,9 +300,9 @@ export const ticketOrders: TicketOrder[] = [
     table: "--",
     orderType: "Drive Thru",
     items: [
-      { qty: 2, name: "Cheeseburger Combo", price: 11.00, seats: [], modifiers: ["No Onions"] },
-      { qty: 1, name: "Large Fries", price: 5.00, seats: [], modifiers: [] },
-      { qty: 2, name: "Soda", price: 3.00, seats: [], modifiers: [] }
+      { qty: 2, name: "Cheeseburger Combo", price: 11.00, seats: [], modifiers: ["No Onions", "+ Large Size $2.00", "+ Extra Patty $3.50"] },
+      { qty: 1, name: "Large Fries", price: 5.00, seats: [], modifiers: ["+ Cheese Sauce $1.25", "Seasoned"] },
+      { qty: 2, name: "Soda", price: 3.00, seats: [], modifiers: ["Coca-Cola", "Extra Ice"] }
     ],
     subtotal: 33.00,
     discount: 0,
@@ -324,9 +328,9 @@ export const ticketOrders: TicketOrder[] = [
     table: "--",
     orderType: "Phone-In",
     items: [
-      { qty: 1, name: "Family Pasta Bowl", price: 32.00, seats: [], modifiers: ["Alfredo Sauce"] },
-      { qty: 1, name: "Garlic Breadsticks", price: 8.00, seats: [], modifiers: [] },
-      { qty: 1, name: "Tiramisu", price: 10.00, seats: [], modifiers: [] }
+      { qty: 1, name: "Family Pasta Bowl", price: 32.00, seats: [], modifiers: ["Alfredo Sauce", "+ Grilled Chicken $5.00", "+ Sun-Dried Tomatoes $2.00"] },
+      { qty: 1, name: "Garlic Breadsticks", price: 8.00, seats: [], modifiers: ["+ Marinara Dip $1.50", "Extra Butter"] },
+      { qty: 1, name: "Tiramisu", price: 10.00, seats: [], modifiers: ["+ Espresso Drizzle $1.00", "Extra Large"] }
     ],
     subtotal: 50.00,
     discount: 0,
@@ -352,8 +356,8 @@ export const ticketOrders: TicketOrder[] = [
     table: "--",
     orderType: "Scheduled",
     items: [
-      { qty: 4, name: "BBQ Ribs Half Rack", price: 18.00, seats: [], modifiers: [] },
-      { qty: 4, name: "Coleslaw", price: 5.00, seats: [], modifiers: [] }
+      { qty: 4, name: "BBQ Ribs Half Rack", price: 18.00, seats: [], modifiers: ["+ Extra BBQ Sauce $0.75", "+ Cornbread $2.00", "Hickory Smoked"] },
+      { qty: 4, name: "Coleslaw", price: 5.00, seats: [], modifiers: ["+ Ranch Dressing $0.50", "Extra Creamy"] }
     ],
     subtotal: 92.00,
     discount: 0,
@@ -379,8 +383,8 @@ export const ticketOrders: TicketOrder[] = [
     table: "BQ1",
     orderType: "Banquet",
     items: [
-      { qty: 50, name: "Prix Fixe Dinner", price: 65.00, seats: [], modifiers: ["Chicken or Fish"] },
-      { qty: 10, name: "Bottle of Wine", price: 45.00, seats: [], modifiers: [] }
+      { qty: 50, name: "Prix Fixe Dinner", price: 65.00, seats: [], modifiers: ["Chicken or Fish", "+ Wine Pairing $15.00", "+ Dessert Course $8.00"] },
+      { qty: 10, name: "Bottle of Wine", price: 45.00, seats: [], modifiers: ["Cabernet Sauvignon", "+ Corkage Fee $5.00"] }
     ],
     subtotal: 3700.00,
     discount: 200.00,
@@ -406,9 +410,9 @@ export const ticketOrders: TicketOrder[] = [
     table: "--",
     orderType: "Curb Side",
     items: [
-      { qty: 1, name: "Grilled Chicken Wrap", price: 13.00, seats: [], modifiers: ["No Tomato"] },
-      { qty: 1, name: "Sweet Potato Fries", price: 6.00, seats: [], modifiers: [] },
-      { qty: 1, name: "Iced Tea", price: 3.50, seats: [], modifiers: [] }
+      { qty: 1, name: "Grilled Chicken Wrap", price: 13.00, seats: [], modifiers: ["No Tomato", "+ Avocado $1.75", "+ Chipotle Mayo $0.50", "Whole Wheat Wrap"] },
+      { qty: 1, name: "Sweet Potato Fries", price: 6.00, seats: [], modifiers: ["+ Truffle Aioli $1.50", "Extra Crispy"] },
+      { qty: 1, name: "Iced Tea", price: 3.50, seats: [], modifiers: ["Peach Flavor", "+ Lemon $0.25"] }
     ],
     subtotal: 22.50,
     discount: 0,
@@ -434,8 +438,8 @@ export const ticketOrders: TicketOrder[] = [
     table: "T10",
     orderType: "Custom",
     items: [
-      { qty: 1, name: "Tasting Menu 7-Course", price: 120.00, seats: [1], modifiers: ["Wine Pairing"] },
-      { qty: 1, name: "Cheese Board", price: 28.00, seats: [2], modifiers: ["No Blue Cheese"] }
+      { qty: 1, name: "Tasting Menu 7-Course", price: 120.00, seats: [1], modifiers: ["Wine Pairing", "+ Premium Sake Flight $18.00", "+ Amuse-Bouche $5.00", "Chef's Selection"] },
+      { qty: 1, name: "Cheese Board", price: 28.00, seats: [2], modifiers: ["No Blue Cheese", "+ Honeycomb $3.00", "+ Fig Jam $2.50", "+ Marcona Almonds $2.00"] }
     ],
     subtotal: 148.00,
     discount: 0,
@@ -461,10 +465,10 @@ export const ticketOrders: TicketOrder[] = [
     table: "T3",
     orderType: "Table Order",
     items: [
-      { qty: 2, name: "Shrimp Scampi", price: 22.00, seats: [1, 2], modifiers: ["Extra Garlic"] },
-      { qty: 1, name: "Bruschetta", price: 10.00, seats: [], modifiers: [] },
-      { qty: 1, name: "Mushroom Risotto", price: 18.00, seats: [3], modifiers: [] },
-      { qty: 1, name: "Lamb Chops", price: 34.00, seats: [4], modifiers: ["Medium Rare"] }
+      { qty: 2, name: "Shrimp Scampi", price: 22.00, seats: [1, 2], modifiers: ["Extra Garlic", "+ Linguine Upgrade $2.00", "+ White Wine Sauce $1.50"] },
+      { qty: 1, name: "Bruschetta", price: 10.00, seats: [], modifiers: ["+ Burrata $4.00", "+ Prosciutto $3.50", "Sourdough Base"] },
+      { qty: 1, name: "Mushroom Risotto", price: 18.00, seats: [3], modifiers: ["+ Truffle Oil $3.00", "+ Porcini Mushrooms $2.50", "- Parmesan"] },
+      { qty: 1, name: "Lamb Chops", price: 34.00, seats: [4], modifiers: ["Medium Rare", "+ Mint Jelly $1.00", "+ Rosemary Potatoes $3.50", "Side: Mediterranean Salad"] }
     ],
     subtotal: 128.00,
     discount: 5.00,

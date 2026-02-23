@@ -1,5 +1,5 @@
-import { useState, useCallback, useEffect } from "react";
-import { ChevronDown, Ticket, Delete, RefreshCw, Pencil } from "lucide-react";
+import { useState, useCallback, useEffect, useRef } from "react";
+import { ChevronDown, Ticket, Delete, RefreshCw, Pencil, Search } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -53,6 +53,18 @@ const generateVoucherCode = () => {
   return code;
 };
 
+// Mock employee list – replace with real data source when available
+const MOCK_EMPLOYEES = [
+  { id: '1', name: 'John Smith', role: 'Manager' },
+  { id: '2', name: 'Sarah Johnson', role: 'Server' },
+  { id: '3', name: 'Mike Chen', role: 'Cashier' },
+  { id: '4', name: 'Emily Davis', role: 'Server' },
+  { id: '5', name: 'Alex Wilson', role: 'Bartender' },
+  { id: '6', name: 'Lisa Brown', role: 'Manager' },
+  { id: '7', name: 'David Lee', role: 'Server' },
+  { id: '8', name: 'Anna Martinez', role: 'Cashier' },
+];
+
 const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDialogProps) => {
   const [voucherName, setVoucherName] = useState('');
   const [voucherType, setVoucherType] = useState<'fixed' | 'percentage'>('fixed');
@@ -64,12 +76,15 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const [quantity, setQuantity] = useState(1);
   const [redemptionLimit, setRedemptionLimit] = useState('');
   const [minimumOrder, setMinimumOrder] = useState('');
-  const [issuedBy, setIssuedBy] = useState('');
+  const [issuedBy, setIssuedBy] = useState(MOCK_EMPLOYEES[0]?.name || '');
   const [notes, setNotes] = useState('');
   const [voucherCode, setVoucherCode] = useState(generateVoucherCode);
   const [isCustomCode, setIsCustomCode] = useState(false);
+  const [showStaffDropdown, setShowStaffDropdown] = useState(false);
+  const [staffSearch, setStaffSearch] = useState('');
   const [touched, setTouched] = useState({ voucherName: false, value: false, sellingPrice: false });
   const [showKeypad, setShowKeypad] = useState(false);
+  const staffDropdownRef = useRef<HTMLDivElement>(null);
 
   const isEditMode = !!(initialData?.editingItemId);
 
@@ -107,7 +122,9 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setQuantity(1);
     setRedemptionLimit('');
     setMinimumOrder('');
-    setIssuedBy('');
+    setIssuedBy(MOCK_EMPLOYEES[0]?.name || '');
+    setShowStaffDropdown(false);
+    setStaffSearch('');
     setNotes('');
     setVoucherCode(generateVoucherCode());
     setIsCustomCode(false);
@@ -482,15 +499,55 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
           </div>
 
           {/* 9. Issued By */}
-          <div>
+          <div className="relative" ref={staffDropdownRef}>
             <label className={labelClass}>Issued By (Staff Name)</label>
-            <input
-              type="text"
-              value={issuedBy}
-              onChange={(e) => setIssuedBy(e.target.value.slice(0, 100))}
-              placeholder="Auto-populated or enter name"
-              className={inputClass}
-            />
+            <button
+              type="button"
+              onClick={() => { setShowStaffDropdown(prev => !prev); setStaffSearch(''); }}
+              className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-sm text-left flex items-center justify-between focus:outline-none focus:border-neutral-500 transition-colors"
+            >
+              <span className={issuedBy ? 'text-white' : 'text-neutral-500'}>
+                {issuedBy || 'Select Employee'}
+              </span>
+              <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showStaffDropdown ? 'rotate-180' : ''}`} />
+            </button>
+            {showStaffDropdown && (
+              <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
+                {MOCK_EMPLOYEES.length > 6 && (
+                  <div className="p-2 border-b border-neutral-700">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />
+                      <input
+                        type="text"
+                        value={staffSearch}
+                        onChange={(e) => setStaffSearch(e.target.value)}
+                        placeholder="Search employee..."
+                        autoFocus
+                        className="w-full bg-neutral-900 border border-neutral-600 rounded-md pl-8 pr-3 py-2 text-white text-xs placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500"
+                      />
+                    </div>
+                  </div>
+                )}
+                <div className="max-h-48 overflow-y-auto scrollbar-hide">
+                  {MOCK_EMPLOYEES
+                    .filter(emp => emp.name.toLowerCase().includes(staffSearch.toLowerCase()) || emp.role.toLowerCase().includes(staffSearch.toLowerCase()))
+                    .map(emp => (
+                      <button
+                        key={emp.id}
+                        onClick={() => { setIssuedBy(emp.name); setShowStaffDropdown(false); setStaffSearch(''); }}
+                        className={`w-full px-4 py-2.5 text-sm text-left flex items-center justify-between transition-colors ${issuedBy === emp.name ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5'}`}
+                      >
+                        <span>{emp.name}</span>
+                        <span className="text-neutral-500 text-xs">{emp.role}</span>
+                      </button>
+                    ))
+                  }
+                  {MOCK_EMPLOYEES.filter(emp => emp.name.toLowerCase().includes(staffSearch.toLowerCase())).length === 0 && (
+                    <p className="px-4 py-3 text-neutral-500 text-xs text-center">No employees found</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* 10. Notes */}

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import ReceiptDialog from "@/components/ReceiptDialog";
+import TipDialog from "@/components/TipDialog";
 import TicketsFilterBar from "@/components/TicketsFilterBar";
 import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
 import TicketsTransferView from "@/components/TicketsTransferView";
@@ -228,6 +229,9 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
   // Receipt dialog state
   const [showReceiptDialog, setShowReceiptDialog] = useState(false);
+
+  // Tip dialog state - reuses TipDialog component from Table Order
+  const [showTipDialog, setShowTipDialog] = useState(false);
 
   // Calculate applied discount
   const appliedDiscount = useMemo(() => {
@@ -1193,27 +1197,48 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
       {/* Bottom Actions */}
       <div className="px-3 py-3 border-t border-neutral-700/50 flex items-center gap-2">
-        <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
-          <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
-        </button>
-        <button 
-          className="px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium" 
-          style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
-        >
-          <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
-          <span>FIRE</span>
-        </button>
-        <button 
-          className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" 
-          style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-        >
-          {(() => {
-            const mobileTotal = isTaxExempt 
-              ? selectedGuest.subtotal - selectedGuest.discount + selectedGuest.serviceCharge + (selectedGuest.tip ?? 0)
-              : selectedGuest.total;
-            return `CHARGE ${formatPrice(mobileTotal)}`;
-          })()}
-        </button>
+        {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED") ? (
+          <>
+            <button 
+              onClick={() => setShowTipDialog(true)}
+              className="flex-1 py-2.5 rounded-full text-white text-sm font-bold border border-white/20"
+              style={{ background: '#1B1C20' }}
+            >
+              ADD TIP
+            </button>
+            <button 
+              onClick={() => setShowMobileOrderPanel(false)}
+              className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"
+              style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+            >
+              CLOSE
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+              <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+            </button>
+            <button 
+              className="px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium" 
+              style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+            >
+              <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+              <span>FIRE</span>
+            </button>
+            <button 
+              className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" 
+              style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+            >
+              {(() => {
+                const mobileTotal = isTaxExempt 
+                  ? selectedGuest.subtotal - selectedGuest.discount + selectedGuest.serviceCharge + (selectedGuest.tip ?? 0)
+                  : selectedGuest.total;
+                return `CHARGE ${formatPrice(mobileTotal)}`;
+              })()}
+            </button>
+          </>
+        )}
       </div>
     </div>
   );
@@ -1554,22 +1579,47 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
                 {/* Bottom Actions */}
                 <div className={`${isTablet ? 'px-0 py-2' : 'px-2 py-3'} flex items-center gap-2`}>
-                  <button className={`${isTablet ? 'w-7 h-7' : 'w-8 h-8'} rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors`}>
-                    <img src={clearIcon} alt="Clear" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
-                  </button>
-                  <button 
-                    className={`${isTablet ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'} rounded-full flex items-center gap-1 text-white font-medium`}
-                    style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
-                  >
-                    <img src={fireIcon} alt="Fire" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
-                    <span>FIRE</span>
-                  </button>
-                  <button 
-                    className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
-                    style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-                  >
-                    CHARGE {formatPrice(chargeTotal)}
-                  </button>
+                  {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED") ? (
+                    <>
+                      <button 
+                        onClick={() => setShowTipDialog(true)}
+                        className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-white font-bold border border-white/20`}
+                        style={{ background: '#1B1C20' }}
+                      >
+                        ADD TIP
+                      </button>
+                      <button 
+                        onClick={() => {
+                          // Navigate back to first available ticket
+                          const otherOrder = orders.find(o => o.id !== selectedGuest.id);
+                          if (otherOrder) setSelectedGuest(otherOrder);
+                        }}
+                        className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
+                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                      >
+                        CLOSE
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button className={`${isTablet ? 'w-7 h-7' : 'w-8 h-8'} rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors`}>
+                        <img src={clearIcon} alt="Clear" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
+                      </button>
+                      <button 
+                        className={`${isTablet ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'} rounded-full flex items-center gap-1 text-white font-medium`}
+                        style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                      >
+                        <img src={fireIcon} alt="Fire" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
+                        <span>FIRE</span>
+                      </button>
+                      <button 
+                        className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
+                        style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+                      >
+                        CHARGE {formatPrice(chargeTotal)}
+                      </button>
+                    </>
+                  )}
                 </div>
               </>
             );
@@ -1913,6 +1963,23 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           </div>
         </div>
       )}
+
+      {/* Tip Dialog - reuses same component as Table Order */}
+      <TipDialog
+        open={showTipDialog}
+        onOpenChange={setShowTipDialog}
+        orderTotal={selectedGuest?.total || 0}
+        onTipSelected={(tip) => {
+          if (selectedGuest) {
+            const updatedGuest = { ...selectedGuest, tip: tip };
+            const totals = recalcTotals(updatedGuest.items, updatedGuest);
+            const finalGuest = { ...updatedGuest, ...totals };
+            setSelectedGuest(finalGuest);
+            updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? finalGuest : o));
+            toast.success(`Tip of ${formatPrice(tip)} added`);
+          }
+        }}
+      />
     </div>
   );
 };

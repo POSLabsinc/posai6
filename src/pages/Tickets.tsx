@@ -2,9 +2,10 @@ import { useState, useRef, useCallback, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Search, SlidersHorizontal, Phone, X, Check, Info } from "lucide-react";
+import { Search, SlidersHorizontal, Phone, X, Check, Info, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import TicketsFilterBar from "@/components/TicketsFilterBar";
 import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
 import TicketsTransferView from "@/components/TicketsTransferView";
@@ -153,6 +154,39 @@ const getStatusBadgeStyle = (status: string): { color: string; bg: string } => {
   }
 };
 
+// Discount types - same as TableOrderDetails
+interface DiscountType {
+  id: string;
+  name: string;
+  description: string;
+  percentage?: number;
+  fixedAmount?: number;
+  icon: string;
+}
+
+const discountTypes: DiscountType[] = [
+  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
+  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
+  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
+  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
+  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
+  { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
+  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
+  { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
+  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
+  { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
+  { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
+  { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
+];
+
+const getDiscountIcon = (iconName: string) => {
+  const icons: Record<string, React.ComponentType<{ className?: string }>> = {
+    briefcase: Briefcase, heart: Heart, graduation: GraduationCap, shield: Shield,
+    star: Star, clock: Clock, cake: Cake, mappin: MapPin, dollar: BadgeDollarSign, tag: Tag
+  };
+  return icons[iconName] || Tag;
+};
+
 const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
 const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => {
@@ -181,6 +215,20 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
   // Transfer Check dialog state
   const [showTransferCheckDialog, setShowTransferCheckDialog] = useState(false);
+
+  // Discount state - same as TableOrderDetails
+  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
+  const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
+  const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+
+  // Calculate applied discount
+  const appliedDiscount = useMemo(() => {
+    if (!selectedDiscountId || !selectedGuest) return 0;
+    const discountType = discountTypes.find(d => d.id === selectedDiscountId);
+    if (!discountType) return 0;
+    const subtotal = selectedGuest.items.filter(it => !it.isCancelled).reduce((sum, it) => sum + it.price * it.qty, 0);
+    return discountType.fixedAmount || (subtotal * ((discountType.percentage || 0) / 100));
+  }, [selectedDiscountId, selectedGuest]);
 
   // Check if current ticket allows swipe actions (only unpaid/ordering)
   const isTicketEditable = (status: string) =>
@@ -1205,15 +1253,15 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           <div className={`flex gap-2 overflow-x-auto scrollbar-hide ${isTablet ? 'flex-wrap' : ''}`}>
             {[
               { label: "Add Product", icon: customItemIcon, action: () => navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`) },
-              { label: "Discount", icon: discountBtnIcon },
+              { label: "Discount", icon: discountBtnIcon, action: () => { setDiscountDialogView('mpin'); setShowDiscountDialog(true); }, highlight: !!selectedDiscountId },
               { label: "Receipt", icon: printIcon },
               ...(!isTablet ? [
                 { label: "No Tax", icon: noTaxBtnIcon },
                 { label: "Register", icon: registerBtnIcon },
               ] : []),
               { label: "Transfer Check", icon: transferCheckIcon, action: () => setShowTransferCheckDialog(true) },
-            ].map(({ label, icon, action }) => (
-              <Button key={label} variant="secondary" size="sm" onClick={action} className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5">
+            ].map(({ label, icon, action, highlight }: any) => (
+              <Button key={label} variant="secondary" size="sm" onClick={action} className={`text-xs rounded-[10px] ${highlight ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-7 px-3 whitespace-nowrap flex items-center gap-1.5`}>
                 <img src={icon} alt="" className="w-4 h-4" />
                 {label}
               </Button>
@@ -1397,12 +1445,12 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           <div className={`text-xs rounded px-2 ${isTablet ? 'py-1' : 'py-1.5'} space-y-0.5`} style={{ background: '#7575754D', ...(isTablet ? {} : { boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }) }}>
             <div className="flex justify-between gap-3">
               <span className="text-white">Sub Total: <span className="font-medium">{formatPrice(selectedGuest.subtotal)}</span></span>
-              <span className="text-white">Discount: <span className="font-medium">{formatPrice(selectedGuest.discount)}</span></span>
+              <span className={`${appliedDiscount > 0 ? 'text-orange-400' : 'text-white'}`}>Discount: <span className="font-medium">-{formatPrice(selectedGuest.discount + appliedDiscount)}</span></span>
             </div>
             {!isTablet && (
               <div className="flex justify-between gap-3">
                 <span className="text-white">Service Charge: <span className="font-medium">{formatPrice(selectedGuest.serviceCharge)}</span></span>
-                <span className="text-white">Tax: <span className="font-medium">{formatPrice(selectedGuest.tax)}</span></span>
+                <span className="text-white">Tax: <span className="font-medium">{formatPrice(Math.max(0, (selectedGuest.tax - appliedDiscount * 0.0735)))}</span></span>
               </div>
             )}
           </div>
@@ -1424,7 +1472,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
             style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
           >
-            CHARGE {formatPrice(selectedGuest.total)}
+            CHARGE {formatPrice(Math.max(0, selectedGuest.total - appliedDiscount - appliedDiscount * 0.0735))}
           </button>
         </div>
       </div>
@@ -1650,6 +1698,60 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
               }, 50);
             }}
           />
+        </div>
+      )}
+      {/* Discount Dialog with integrated MPIN - same as TableOrderDetails */}
+      {showDiscountDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
+            {discountDialogView === 'mpin' ? (
+              <AccessRestrictedModal
+                subtitle="Manager approval required to apply discount."
+                onBack={() => { setShowDiscountDialog(false); setDiscountDialogView('mpin'); }}
+                onSuccess={() => setDiscountDialogView('discounts')}
+              />
+            ) : (
+              <>
+                <div className="flex items-center justify-between p-4 border-b border-neutral-700">
+                  <h2 className="text-white text-lg font-semibold">Select Discount</h2>
+                  <button onClick={() => setShowDiscountDialog(false)} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
+                    <X className="w-5 h-5 text-neutral-400" />
+                  </button>
+                </div>
+
+                <div className="p-2 max-h-[400px] overflow-y-auto space-y-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                  {discountTypes.map((discountType) => {
+                    const subtotal = selectedGuest?.items.filter(it => !it.isCancelled).reduce((sum, it) => sum + it.price * it.qty, 0) || 0;
+                    const discountAmount = discountType.fixedAmount || (subtotal * ((discountType.percentage || 0) / 100));
+                    const isSelected = selectedDiscountId === discountType.id;
+                    const IconComponent = getDiscountIcon(discountType.icon);
+                    
+                    return (
+                      <button key={discountType.id} onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
+                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
+                          isSelected ? 'bg-orange-500/20 border border-orange-500' : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
+                        }`}>
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'}`}>
+                          <IconComponent className="w-4 h-4 text-neutral-400" />
+                        </div>
+                        <div className="flex-1 text-left">
+                          <div className="text-white text-sm font-medium">{discountType.name}</div>
+                          <div className="text-neutral-400 text-xs">{discountType.description}</div>
+                        </div>
+                        <div className="text-white text-sm font-medium">-${discountAmount.toFixed(2)}</div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="p-3 border-t border-neutral-700">
+                  <button onClick={() => { setShowDiscountDialog(false); toast.success('Discount applied'); }} className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm">
+                    Apply
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
         </div>
       )}
       {/* Transfer Check Dialog */}

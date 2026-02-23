@@ -1240,16 +1240,15 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
               );
             };
 
-            // For paid tickets: card container with embedded product swipeable + independent modifier swipeables
+            // For paid tickets: SwipeableRefundItem wraps the card from OUTSIDE
             if (isPaidTicket) {
-              const cardClasses = `p-3 rounded-xl border transition-all ${
-                itemRefunded ? 'opacity-60 border-red-500/30 bg-red-500/5' :
+              const hasModifiers = item.modifiers.length > 0;
+              const baseCardClasses = itemRefunded ? 'opacity-60 border-red-500/30 bg-red-500/5' :
                 item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : 
-                item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'
-              }`;
+                item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10';
 
-              const productHeader = (
-                <>
+              const productCard = (
+                <div className={`p-3 border transition-all ${baseCardClasses} ${hasModifiers ? 'rounded-t-xl border-b-0' : 'rounded-xl'}`}>
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-2">
                       <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${
@@ -1285,26 +1284,33 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                       ))}
                     </div>
                   )}
-                </>
+                </div>
               );
 
               return (
-                <div key={index} className={cardClasses}>
+                <div key={index}>
                   {!itemRefunded && !item.isCancelled ? (
                     <SwipeableRefundItem
                       onRefund={() => handleItemRefundSwipe(item, index)}
                       label={item.name}
-                      embedded={true}
+                      containerClassName={hasModifiers ? 'rounded-t-xl' : 'rounded-xl'}
                     >
-                      {productHeader}
+                      {productCard}
                     </SwipeableRefundItem>
                   ) : (
-                    productHeader
+                    productCard
                   )}
-                  {/* Modifiers inside card but outside product swipeable */}
-                  <div className="ml-7">
-                    {renderModifiers()}
-                  </div>
+                  {/* Modifiers in connected container - visually part of the card */}
+                  {hasModifiers && (
+                    <div className={`border-x border-b rounded-b-xl px-3 pb-2 pt-0.5 ${baseCardClasses.replace(/border-\S+/g, '')} ${
+                      itemRefunded ? 'border-red-500/30' :
+                      item.noTax ? 'border-orange-500/40' : 'border-white/10'
+                    } bg-white/5`}>
+                      <div className="ml-4">
+                        {renderModifiers()}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             }
@@ -1836,16 +1842,18 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 );
               };
 
-              // For paid tickets: card container with embedded product swipeable + independent modifier swipeables
+              // For paid tickets: SwipeableRefundItem wraps the card from OUTSIDE
               if (isPaidTicket) {
-                const cardClasses = `${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} border transition-all ${
-                  itemRefunded ? 'opacity-60 border-red-500/30 bg-red-500/5' :
+                const hasModifiers = item.modifiers.length > 0;
+                const baseCardClasses = itemRefunded ? 'opacity-60 border-red-500/30 bg-red-500/5' :
                   item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : 
-                  item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'
-                }`;
+                  item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10';
+                const rounding = isTablet ? 'rounded-lg' : 'rounded-xl';
+                const roundingT = isTablet ? 'rounded-t-lg' : 'rounded-t-xl';
+                const roundingB = isTablet ? 'rounded-b-lg' : 'rounded-b-xl';
 
-                const productHeader = (
-                  <>
+                const productCard = (
+                  <div className={`${isTablet ? 'p-2' : 'p-3'} border transition-all ${baseCardClasses} ${hasModifiers ? `${roundingT} border-b-0` : rounding}`}>
                     <div className="flex items-start justify-between">
                       <div className="flex items-start gap-2">
                         <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} rounded flex items-center justify-center font-bold ${
@@ -1881,26 +1889,33 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                         ))}
                       </div>
                     )}
-                  </>
+                  </div>
                 );
 
                 return (
-                  <div key={index} className={cardClasses}>
+                  <div key={index}>
                     {!itemRefunded && !item.isCancelled ? (
                       <SwipeableRefundItem
                         onRefund={() => handleItemRefundSwipe(item, index)}
                         label={item.name}
-                        embedded={true}
+                        containerClassName={hasModifiers ? roundingT : rounding}
                       >
-                        {productHeader}
+                        {productCard}
                       </SwipeableRefundItem>
                     ) : (
-                      productHeader
+                      productCard
                     )}
-                    {/* Modifiers inside card but outside product swipeable */}
-                    <div className={`${isTablet ? 'ml-6' : 'ml-7'}`}>
-                      {renderModifiers()}
-                    </div>
+                    {/* Modifiers in connected container */}
+                    {hasModifiers && (
+                      <div className={`border-x border-b ${roundingB} ${isTablet ? 'px-2' : 'px-3'} pb-2 pt-0.5 ${
+                        itemRefunded ? 'border-red-500/30' :
+                        item.noTax ? 'border-orange-500/40' : 'border-white/10'
+                      } bg-white/5`}>
+                        <div className={`${isTablet ? 'ml-3' : 'ml-4'}`}>
+                          {renderModifiers()}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 );
               }

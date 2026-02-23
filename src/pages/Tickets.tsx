@@ -8,6 +8,8 @@ import TicketsFilterBar from "@/components/TicketsFilterBar";
 import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
 import TicketsTransferView from "@/components/TicketsTransferView";
 import SwipeableTicketItem from "@/components/SwipeableTicketItem";
+import { TransferCheckDialog } from "@/components/TransferCheckDialog";
+import transferCheckIcon from "@/assets/icons/transfer-check.svg";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -171,6 +173,9 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
   // Per-product swipe state for ticket detail view
   const [activeSwipedProductIndex, setActiveSwipedProductIndex] = useState<number | null>(null);
+
+  // Transfer Check dialog state
+  const [showTransferCheckDialog, setShowTransferCheckDialog] = useState(false);
 
   // Check if current ticket allows swipe actions (only unpaid/ordering)
   const isTicketEditable = (status: string) =>
@@ -1179,13 +1184,25 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             </div>
           </div>
         </div>
-        <div className={`flex gap-${isTablet ? '1' : '2'} ${isTablet ? 'flex-wrap' : ''}`}>
-          {["Add Product", "Discount", "Receipt", ...(isTablet ? [] : ["No Tax", "Register"])].map(label => (
-            <button key={label} className={`${isTablet ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-xs'} bg-neutral-700 text-white rounded-full hover:bg-neutral-600 transition-colors`}>
-              {label}
+        {selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" ? (
+          <div className={`flex gap-${isTablet ? '1' : '2'}`}>
+            <button 
+              onClick={() => setShowTransferCheckDialog(true)}
+              className={`${isTablet ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-xs'} bg-neutral-700 text-white rounded-full hover:bg-neutral-600 transition-colors flex items-center gap-1.5`}
+            >
+              <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
+              Transfer Check
             </button>
-          ))}
-        </div>
+          </div>
+        ) : (
+          <div className={`flex gap-${isTablet ? '1' : '2'} ${isTablet ? 'flex-wrap' : ''}`}>
+            {["Add Product", "Discount", "Receipt", ...(isTablet ? [] : ["No Tax", "Register"])].map(label => (
+              <button key={label} className={`${isTablet ? 'px-2 py-1 text-xs' : 'px-3 py-1.5 text-xs'} bg-neutral-700 text-white rounded-full hover:bg-neutral-600 transition-colors`}>
+                {label}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Main Panel Box */}
@@ -1618,6 +1635,21 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           />
         </div>
       )}
+      {/* Transfer Check Dialog */}
+      <TransferCheckDialog
+        isOpen={showTransferCheckDialog}
+        onClose={() => setShowTransferCheckDialog(false)}
+        currentServer={selectedGuest?.server || ""}
+        onTransfer={(newServerName) => {
+          if (selectedGuest) {
+            const updatedGuest = { ...selectedGuest, server: newServerName };
+            setSelectedGuest(updatedGuest);
+            updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updatedGuest : o));
+            toast.success(`Check transferred to ${newServerName}`);
+          }
+          setShowTransferCheckDialog(false);
+        }}
+      />
     </>
   );
 };

@@ -892,7 +892,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 <button 
                   className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors"
                   style={{ background: 'linear-gradient(180deg, #5A5A5A 0%, #3A3A3A 100%)' }}
-                  onClick={e => { e.stopPropagation(); }}
+                  onClick={e => { e.stopPropagation(); setSelectedGuest(guest); setShowReceiptDialog(true); }}
                 >
                   <img src={printIcon} alt="Print" className="w-4 h-4 object-contain" />
                 </button>

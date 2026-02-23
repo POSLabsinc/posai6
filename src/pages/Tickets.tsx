@@ -11,6 +11,10 @@ import TicketsTransferView from "@/components/TicketsTransferView";
 import SwipeableTicketItem from "@/components/SwipeableTicketItem";
 import { TransferCheckDialog } from "@/components/TransferCheckDialog";
 import transferCheckIcon from "@/assets/icons/transfer-check.svg";
+import customItemIcon from "@/assets/icons/custom-item.svg";
+import discountBtnIcon from "@/assets/icons/discount-icon.svg";
+import noTaxBtnIcon from "@/assets/icons/no-tax.svg";
+import registerBtnIcon from "@/assets/icons/register.svg";
 
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
@@ -1199,8 +1203,17 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           </div>
         ) : (
           <div className={`flex gap-2 ${isTablet ? 'flex-wrap' : ''}`}>
-            {["Add Product", "Discount", "Receipt", ...(isTablet ? [] : ["No Tax", "Register"])].map(label => (
-              <Button key={label} variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
+            {[
+              { label: "Add Product", icon: customItemIcon },
+              { label: "Discount", icon: discountBtnIcon },
+              { label: "Receipt", icon: printIcon },
+              ...(!isTablet ? [
+                { label: "No Tax", icon: noTaxBtnIcon },
+                { label: "Register", icon: registerBtnIcon },
+              ] : []),
+            ].map(({ label, icon }) => (
+              <Button key={label} variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5">
+                <img src={icon} alt="" className="w-4 h-4" />
                 {label}
               </Button>
             ))}

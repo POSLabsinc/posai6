@@ -1169,7 +1169,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             );
 
             // For paid tickets: wrap with SwipeableRefundItem
-            if (isPaid && !isRefunded && !item.isCancelled) {
+            if (isPaid && showRefundMode && !isRefunded && !item.isCancelled) {
               return (
                 <SwipeableRefundItem
                   key={index}
@@ -1599,7 +1599,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
               );
 
               // For paid tickets: wrap with SwipeableRefundItem
-              if (isPaid && !isRefunded && !item.isCancelled) {
+              if (isPaid && showRefundMode && !isRefunded && !item.isCancelled) {
                 return (
                   <SwipeableRefundItem
                     key={index}

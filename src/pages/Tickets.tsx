@@ -1442,38 +1442,64 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
         {/* Order Summary */}
         <div className="p-2 border-t border-white/10 flex-shrink-0">
-          <div className={`text-xs rounded px-2 ${isTablet ? 'py-1' : 'py-1.5'} space-y-0.5`} style={{ background: '#7575754D', ...(isTablet ? {} : { boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }) }}>
-            <div className="flex justify-between gap-3">
-              <span className="text-white">Sub Total: <span className="font-medium">{formatPrice(selectedGuest.subtotal)}</span></span>
-              <span className={`${appliedDiscount > 0 ? 'text-orange-400' : 'text-white'}`}>Discount: <span className="font-medium">-{formatPrice(selectedGuest.discount + appliedDiscount)}</span></span>
-            </div>
-            {!isTablet && (
-              <div className="flex justify-between gap-3">
-                <span className="text-white">Service Charge: <span className="font-medium">{formatPrice(selectedGuest.serviceCharge)}</span></span>
-                <span className="text-white">Tax: <span className="font-medium">{formatPrice(Math.max(0, (selectedGuest.tax - appliedDiscount * 0.0735)))}</span></span>
-              </div>
-            )}
-          </div>
-        </div>
+          {(() => {
+            const totalDiscount = selectedGuest.discount + appliedDiscount;
+            const adjustedTax = Math.max(0, selectedGuest.tax - appliedDiscount * 0.0735);
+            const chargeTotal = Math.max(0, selectedGuest.subtotal - totalDiscount + selectedGuest.serviceCharge + adjustedTax + (selectedGuest.tip ?? 0));
+            const discountName = selectedDiscountId ? discountTypes.find(d => d.id === selectedDiscountId)?.name : null;
+            
+            return (
+              <>
+                <div className={`text-xs rounded px-2 ${isTablet ? 'py-1' : 'py-1.5'} space-y-0.5`} style={{ background: '#7575754D', ...(isTablet ? {} : { boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }) }}>
+                  <div className="flex justify-between gap-3">
+                    <span className="text-white"><span className="font-medium">Sub Total</span> <span className="font-bold">{formatPrice(selectedGuest.subtotal)}</span></span>
+                    {totalDiscount > 0 && (
+                      <span className="text-red-400 flex items-center gap-1">
+                        <span className="font-medium" title={discountName || undefined}>Discount</span> 
+                        <span className="font-bold">-{formatPrice(totalDiscount)}</span>
+                        {appliedDiscount > 0 && (
+                          <button 
+                            onClick={() => setSelectedDiscountId(null)}
+                            className="w-4 h-4 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center transition-colors ml-0.5"
+                          >
+                            <X className="w-2.5 h-2.5 text-red-400" />
+                          </button>
+                        )}
+                      </span>
+                    )}
+                  </div>
+                  {!isTablet && (
+                    <div className="flex justify-between gap-3">
+                      {selectedGuest.serviceCharge > 0 && (
+                        <span className="text-white"><span className="font-medium">Service Charge</span> <span className="font-bold">+{formatPrice(selectedGuest.serviceCharge)}</span></span>
+                      )}
+                      <span className="text-white"><span className="font-medium">Tax</span> <span className="font-bold">{formatPrice(adjustedTax)}</span></span>
+                    </div>
+                  )}
+                </div>
 
-        {/* Bottom Actions */}
-        <div className={`${isTablet ? 'px-3 py-2' : 'px-4 py-3'} border-t border-white/10 flex items-center gap-2`}>
-          <button className={`${isTablet ? 'w-7 h-7' : 'w-8 h-8'} rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors`}>
-            <img src={clearIcon} alt="Clear" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
-          </button>
-          <button 
-            className={`${isTablet ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'} rounded-full flex items-center gap-1 text-white font-medium`}
-            style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
-          >
-            <img src={fireIcon} alt="Fire" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
-            <span>FIRE</span>
-          </button>
-          <button 
-            className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
-            style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-          >
-            CHARGE {formatPrice(Math.max(0, selectedGuest.total - appliedDiscount - appliedDiscount * 0.0735))}
-          </button>
+                {/* Bottom Actions */}
+                <div className={`${isTablet ? 'px-0 py-2' : 'px-2 py-3'} flex items-center gap-2`}>
+                  <button className={`${isTablet ? 'w-7 h-7' : 'w-8 h-8'} rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors`}>
+                    <img src={clearIcon} alt="Clear" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
+                  </button>
+                  <button 
+                    className={`${isTablet ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'} rounded-full flex items-center gap-1 text-white font-medium`}
+                    style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
+                  >
+                    <img src={fireIcon} alt="Fire" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
+                    <span>FIRE</span>
+                  </button>
+                  <button 
+                    className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
+                    style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+                  >
+                    CHARGE {formatPrice(chargeTotal)}
+                  </button>
+                </div>
+              </>
+            );
+          })()}
         </div>
       </div>
     </div>

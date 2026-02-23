@@ -126,7 +126,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   const [validFrom, setValidFrom] = useState(() => new Date().toISOString().split('T')[0]);
   
   const [quantity, setQuantity] = useState(1);
-  const [redemptionLimit, setRedemptionLimit] = useState('');
+  const [redemptionLimit, setRedemptionLimit] = useState('1');
   const [minimumOrder, setMinimumOrder] = useState('');
   const [issuedBy, setIssuedBy] = useState(MOCK_EMPLOYEES[0]?.name || '');
   const [notes, setNotes] = useState('');
@@ -172,7 +172,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
       setExpiryDate(initialData.expiryDate || '');
       setValidFrom(initialData.validFrom || new Date().toISOString().split('T')[0]);
       setQuantity(initialData.quantity);
-      setRedemptionLimit(initialData.redemptionLimit?.toString() || '');
+      setRedemptionLimit(initialData.redemptionLimit?.toString() || '1');
       setMinimumOrder(initialData.minimumOrder?.toString() || '');
       setIssuedBy(initialData.issuedBy || '');
       setNotes(initialData.notes || '');
@@ -211,7 +211,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setValidFrom(new Date().toISOString().split('T')[0]);
     
     setQuantity(1);
-    setRedemptionLimit('');
+    setRedemptionLimit('1');
     setMinimumOrder('');
     setIssuedBy(MOCK_EMPLOYEES[0]?.name || '');
     setShowStaffDropdown(false);

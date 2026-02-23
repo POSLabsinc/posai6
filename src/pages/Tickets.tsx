@@ -1170,7 +1170,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
   // ===== RIGHT PANEL (shared between desktop & tablet) =====
   const RightPanel = ({ width, isTablet = false }: { width: string; isTablet?: boolean }) => (
-    <div className={`${width} flex flex-col m-2 ml-0`}>
+    <div className={`${width} flex flex-col m-2 ml-0 min-w-0`}>
       {/* Guest Header */}
       <div className={`px-2 ${isTablet ? 'py-2' : 'py-3'}`}>
         <div className="flex items-center justify-between mb-2">
@@ -1202,7 +1202,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             </Button>
           </div>
         ) : (
-          <div className={`flex gap-2 ${isTablet ? 'flex-wrap' : ''}`}>
+          <div className={`flex gap-2 overflow-x-auto scrollbar-hide ${isTablet ? 'flex-wrap' : ''}`}>
             {[
               { label: "Add Product", icon: customItemIcon },
               { label: "Discount", icon: discountBtnIcon },
@@ -1548,7 +1548,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const DesktopLayout = () => {
     const isTransferActive = transferStep === 'active' && transferSource && transferType;
     return (
-      <div className="flex h-full bg-black">
+      <div className="flex h-full bg-black overflow-hidden">
         {isTransferActive ? (
           <TransferLeftPanel />
         ) : (
@@ -1580,7 +1580,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const TabletLayout = () => {
     const isTransferActive = transferStep === 'active' && transferSource && transferType;
     return (
-      <div className="flex h-full bg-black">
+      <div className="flex h-full bg-black overflow-hidden">
         {isTransferActive ? (
           <TransferLeftPanel isTablet />
         ) : (
@@ -1611,7 +1611,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
   // Responsive rendering
   return (
-    <>
+    <div className="w-full max-w-full overflow-x-hidden h-full">
       {/* Mobile */}
       <div className="md:hidden h-full">
         <MobileLayout />
@@ -1667,7 +1667,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           setShowTransferCheckDialog(false);
         }}
       />
-    </>
+    </div>
   );
 };
 

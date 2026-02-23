@@ -6,6 +6,7 @@ import { Search, SlidersHorizontal, Phone, X, Check, Info, Briefcase, Heart, Gra
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
+import ReceiptDialog from "@/components/ReceiptDialog";
 import TicketsFilterBar from "@/components/TicketsFilterBar";
 import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
 import TicketsTransferView from "@/components/TicketsTransferView";
@@ -220,6 +221,9 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+
+  // Receipt dialog state
+  const [showReceiptDialog, setShowReceiptDialog] = useState(false);
 
   // Calculate applied discount
   const appliedDiscount = useMemo(() => {
@@ -1254,7 +1258,7 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             {[
               { label: "Add Product", icon: customItemIcon, action: () => navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`) },
               { label: "Discount", icon: discountBtnIcon, action: () => { setDiscountDialogView('mpin'); setShowDiscountDialog(true); }, highlight: !!selectedDiscountId },
-              { label: "Receipt", icon: printIcon },
+              { label: "Receipt", icon: printIcon, action: () => setShowReceiptDialog(true) },
               ...(!isTablet ? [
                 { label: "No Tax", icon: noTaxBtnIcon },
                 { label: "Register", icon: registerBtnIcon },
@@ -1794,6 +1798,21 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           }
           setShowTransferCheckDialog(false);
         }}
+      />
+
+      {/* Receipt Dialog - same as TableOrderDetails */}
+      <ReceiptDialog
+        open={showReceiptDialog}
+        onOpenChange={setShowReceiptDialog}
+        orderTotal={selectedGuest?.total || 0}
+        orderId={selectedGuest?.id}
+        mergedOrderIds={(selectedGuest as any)?.mergedFrom ? [selectedGuest!.id, ...(selectedGuest as any).mergedFrom.map((m: any) => m.orderId)] : undefined}
+        guestName={selectedGuest?.name}
+        items={selectedGuest?.items?.map(item => ({
+          name: item.name,
+          price: item.price * item.qty,
+          qty: item.qty
+        }))}
       />
     </div>
   );

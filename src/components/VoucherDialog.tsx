@@ -475,10 +475,10 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
               )}
             </div>
 
-            {/* LEFT: Voucher Value */}
+            {/* LEFT: Redeemable Value */}
             <div>
               <label className={labelClass}>
-                Voucher Value ($) <span className="text-red-400">*</span>
+                Redeemable Value ($) <span className="text-red-400">*</span>
               </label>
               <button
                 type="button"
@@ -489,7 +489,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                 <span className="text-white">{value || '0.00'}</span>
               </button>
               {touched.value && numericValue <= 0 && (
-                <p className="text-red-400 text-xs mt-1">Voucher value is required</p>
+                <p className="text-red-400 text-xs mt-1">Redeemable value is required</p>
               )}
               <div className="flex gap-2 mt-2">
                 {QUICK_VALUES.map((amt) => (

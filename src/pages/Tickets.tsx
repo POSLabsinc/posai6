@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback, useMemo } from "react";
+import { useState, useRef, useCallback, useMemo, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
@@ -8,6 +8,7 @@ import { toast } from "sonner";
 import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import ReceiptDialog from "@/components/ReceiptDialog";
 import TipDialog from "@/components/TipDialog";
+import RefundDialog from "@/components/RefundDialog";
 import TicketsFilterBar from "@/components/TicketsFilterBar";
 import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
 import TicketsTransferView from "@/components/TicketsTransferView";
@@ -233,6 +234,10 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   // Tip dialog state - reuses TipDialog component from Table Order
   const [showTipDialog, setShowTipDialog] = useState(false);
 
+  // Refund state - matches Table Order flow
+  const [showRefundMode, setShowRefundMode] = useState(false);
+  const [showRefundDialog, setShowRefundDialog] = useState(false);
+
   // Calculate applied discount
   const appliedDiscount = useMemo(() => {
     if (!selectedDiscountId || !selectedGuest) return 0;
@@ -304,6 +309,10 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const [transferStep, setTransferStep] = useState<'intent' | 'active' | null>(null);
   const [transferType, setTransferType] = useState<'items' | 'entire' | 'entireToOrder' | null>(null);
 
+  // Reset refund mode when selected guest changes
+  useEffect(() => {
+    setShowRefundMode(false);
+  }, [selectedGuest?.id]);
 
 
   // Swipe state for mobile cards
@@ -1198,22 +1207,32 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
       {/* Bottom Actions */}
       <div className="px-3 py-3 border-t border-neutral-700/50 flex items-center gap-2">
         {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED") ? (
-          <>
+          showRefundMode ? (
             <button 
-              onClick={() => setShowTipDialog(true)}
-              className="flex-1 py-2.5 rounded-full text-white text-sm font-bold border border-white/20"
-              style={{ background: '#1B1C20' }}
+              onClick={() => setShowRefundDialog(true)}
+              className="flex-1 py-2.5 rounded-full text-white text-sm font-bold"
+              style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
             >
-              ADD TIP
+              REFUND
             </button>
-            <button 
-              onClick={() => setShowMobileOrderPanel(false)}
-              className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"
-              style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-            >
-              CLOSE
-            </button>
-          </>
+          ) : (
+            <>
+              <button 
+                onClick={() => setShowTipDialog(true)}
+                className="flex-1 py-2.5 rounded-full text-white text-sm font-bold border border-white/20"
+                style={{ background: '#1B1C20' }}
+              >
+                ADD TIP
+              </button>
+              <button 
+                onClick={() => setShowRefundMode(true)}
+                className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"
+                style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+              >
+                CLOSE
+              </button>
+            </>
+          )
         ) : (
           <>
             <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
@@ -1580,26 +1599,32 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
                 {/* Bottom Actions */}
                 <div className={`${isTablet ? 'px-0 py-2' : 'px-2 py-3'} flex items-center gap-2`}>
                   {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED") ? (
-                    <>
+                    showRefundMode ? (
                       <button 
-                        onClick={() => setShowTipDialog(true)}
-                        className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-white font-bold border border-white/20`}
-                        style={{ background: '#1B1C20' }}
+                        onClick={() => setShowRefundDialog(true)}
+                        className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-white font-bold`}
+                        style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
                       >
-                        ADD TIP
+                        REFUND
                       </button>
-                      <button 
-                        onClick={() => {
-                          // Navigate back to first available ticket
-                          const otherOrder = orders.find(o => o.id !== selectedGuest.id);
-                          if (otherOrder) setSelectedGuest(otherOrder);
-                        }}
-                        className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
-                        style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                      >
-                        CLOSE
-                      </button>
-                    </>
+                    ) : (
+                      <>
+                        <button 
+                          onClick={() => setShowTipDialog(true)}
+                          className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-white font-bold border border-white/20`}
+                          style={{ background: '#1B1C20' }}
+                        >
+                          ADD TIP
+                        </button>
+                        <button 
+                          onClick={() => setShowRefundMode(true)}
+                          className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
+                          style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                        >
+                          CLOSE
+                        </button>
+                      </>
+                    )
                   ) : (
                     <>
                       <button className={`${isTablet ? 'w-7 h-7' : 'w-8 h-8'} rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors`}>
@@ -1979,6 +2004,29 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
             updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? finalGuest : o));
             toast.success(`Tip of ${formatPrice(tip)} added`);
           }
+        }}
+      />
+
+      {/* Refund Dialog - reuses same component as Table Order */}
+      <RefundDialog
+        open={showRefundDialog}
+        onOpenChange={setShowRefundDialog}
+        orderTotal={selectedGuest?.subtotal || 0}
+        tipAmount={selectedGuest?.tip || 0}
+        orderId={selectedGuest?.id}
+        guestName={selectedGuest?.name}
+        orderItems={selectedGuest?.items?.map(item => ({
+          name: item.name,
+          price: item.price,
+          qty: item.qty,
+          modifiers: item.modifiers?.map((mod, idx) => ({
+            name: mod,
+            price: idx % 2 === 1 ? (idx + 1) * 1.5 : 0
+          }))
+        }))}
+        onRefundComplete={(amount, reason) => {
+          console.log("Refund completed:", amount, reason);
+          setShowRefundMode(false);
         }}
       />
     </div>

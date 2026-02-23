@@ -157,6 +157,8 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
   const [showFilterIcons, setShowFilterIcons] = useState(false);
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedRevenueCenter, setSelectedRevenueCenter] = useState<string | null>(null);
+  const [revenueCenterOpen, setRevenueCenterOpen] = useState(false);
 
   // Per-product swipe state for ticket detail view
   const [activeSwipedProductIndex, setActiveSwipedProductIndex] = useState<number | null>(null);
@@ -352,6 +354,9 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
         default: return true;
       }
     });
+    if (selectedRevenueCenter) {
+      filtered = filtered.filter(g => g.revenueCenter === selectedRevenueCenter);
+    }
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase().trim();
       filtered = filtered.filter(g =>
@@ -1059,16 +1064,67 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           <div className="flex items-center gap-1.5 z-10">
             {showFilterIcons ? (
               <>
-                {filterIconItems.map(item => (
-                  <button 
-                    key={item.label}
-                    className="p-2 rounded-full hover:opacity-80 transition-opacity"
-                    style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-                    title={item.label}
-                  >
-                    <item.icon className="w-4 h-4 text-white" />
-                  </button>
-                ))}
+                {filterIconItems.map(item => {
+                  if (item.label === "Amount") {
+                    return (
+                      <Popover key={item.label} open={revenueCenterOpen} onOpenChange={setRevenueCenterOpen}>
+                        <PopoverTrigger asChild>
+                          <button 
+                            className="p-2 rounded-full hover:opacity-80 transition-opacity"
+                            style={{ 
+                              background: selectedRevenueCenter ? "rgba(255,165,0,0.5)" : "#7575754D", 
+                              boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" 
+                            }}
+                            title={item.label}
+                          >
+                            <item.icon className="w-4 h-4 text-white" />
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent 
+                          align="start" 
+                          sideOffset={8}
+                          className="w-52 p-0 border-neutral-700 rounded-xl overflow-hidden"
+                          style={{ background: "#1a1a1a" }}
+                        >
+                          <div className="px-4 pt-3 pb-1.5">
+                            <span className="text-amber-500/70 text-sm font-medium">Revenue Center</span>
+                          </div>
+                          <div className="flex flex-col">
+                            {(() => {
+                              const centers = [...new Set(orders.map(o => o.revenueCenter))].sort();
+                              return centers.map(center => (
+                                <button
+                                  key={center}
+                                  className={`text-left px-4 py-2.5 text-[15px] font-medium transition-colors ${
+                                    selectedRevenueCenter === center 
+                                      ? "text-amber-400 bg-white/5" 
+                                      : "text-white hover:bg-white/5"
+                                  }`}
+                                  onClick={() => {
+                                    setSelectedRevenueCenter(selectedRevenueCenter === center ? null : center);
+                                    setRevenueCenterOpen(false);
+                                  }}
+                                >
+                                  {center}
+                                </button>
+                              ));
+                            })()}
+                          </div>
+                        </PopoverContent>
+                      </Popover>
+                    );
+                  }
+                  return (
+                    <button 
+                      key={item.label}
+                      className="p-2 rounded-full hover:opacity-80 transition-opacity"
+                      style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                      title={item.label}
+                    >
+                      <item.icon className="w-4 h-4 text-white" />
+                    </button>
+                  );
+                })}
                 <button 
                   className="p-2 rounded-full hover:opacity-80 transition-opacity"
                   style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}

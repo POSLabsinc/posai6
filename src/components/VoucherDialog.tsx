@@ -111,12 +111,12 @@ const formatPhone = (digits: string, pattern: string): string => {
 
 const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDialogProps) => {
   const [voucherName, setVoucherName] = useState('');
-  const [voucherType, setVoucherType] = useState<'fixed' | 'percentage'>('fixed');
+  const voucherType = 'fixed' as const;
   const [value, setValue] = useState('');
   const [sellingPrice, setSellingPrice] = useState('');
   const [expiryDate, setExpiryDate] = useState('');
   const [validFrom, setValidFrom] = useState(() => new Date().toISOString().split('T')[0]);
-  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+  
   const [quantity, setQuantity] = useState(1);
   const [redemptionLimit, setRedemptionLimit] = useState('');
   const [minimumOrder, setMinimumOrder] = useState('');
@@ -143,7 +143,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
   useEffect(() => {
     if (isOpen && initialData) {
       setVoucherName(initialData.voucherName || '');
-      setVoucherType(initialData.type);
+      
       setValue(initialData.value.toString());
       setSellingPrice(initialData.sellingPrice.toString());
       setExpiryDate(initialData.expiryDate || '');
@@ -181,12 +181,12 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
 
   const resetState = () => {
     setVoucherName('');
-    setVoucherType('fixed');
+    
     setValue('');
     setSellingPrice('');
     setExpiryDate('');
     setValidFrom(new Date().toISOString().split('T')[0]);
-    setShowTypeDropdown(false);
+    
     setQuantity(1);
     setRedemptionLimit('');
     setMinimumOrder('');
@@ -215,10 +215,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setTouched({ voucherName: true, value: true, sellingPrice: true });
     if (!isValid) return;
 
-    if (voucherType === 'percentage' && numericValue > 100) {
-      toast({ title: "Invalid value", description: "Percentage cannot exceed 100%", variant: "destructive" });
-      return;
-    }
 
     const parsedRedemptionLimit = parseInt(redemptionLimit) || undefined;
     const parsedMinimumOrder = parseFloat(minimumOrder) || undefined;
@@ -355,49 +351,18 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
             )}
           </div>
 
-          {/* 2. Voucher Type */}
-          <div>
-            <label className={labelClass}>
-              Voucher Type <span className="text-red-400">*</span>
-            </label>
-            <div className="relative">
-              <button
-                onClick={() => setShowTypeDropdown(!showTypeDropdown)}
-                className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm text-left flex items-center justify-between focus:outline-none focus:border-neutral-500 transition-colors"
-              >
-                <span>{voucherType === 'fixed' ? 'Fixed Amount' : 'Percentage'}</span>
-                <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showTypeDropdown ? 'rotate-180' : ''}`} />
-              </button>
-              {showTypeDropdown && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-20">
-                  <button
-                    onClick={() => { setVoucherType('fixed'); setShowTypeDropdown(false); }}
-                    className={`w-full px-4 py-2.5 text-sm text-left transition-colors ${voucherType === 'fixed' ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5'}`}
-                  >
-                    Fixed Amount
-                  </button>
-                  <button
-                    onClick={() => { setVoucherType('percentage'); setShowTypeDropdown(false); }}
-                    className={`w-full px-4 py-2.5 text-sm text-left transition-colors ${voucherType === 'percentage' ? 'bg-white/10 text-white' : 'text-neutral-300 hover:bg-white/5'}`}
-                  >
-                    Percentage
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
 
           {/* 3. Voucher Value with POS Keypad */}
           <div>
             <label className={labelClass}>
-              Voucher Value {voucherType === 'percentage' ? '(%)' : '($)'} <span className="text-red-400">*</span>
+              Voucher Value ($) <span className="text-red-400">*</span>
             </label>
             <button
               type="button"
               onClick={() => setShowKeypad(prev => !prev)}
               className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.value && numericValue <= 0 ? 'border-red-500' : showKeypad ? 'border-neutral-400' : 'border-neutral-600'}`}
             >
-              <span className="text-neutral-400 mr-1">{voucherType === 'fixed' ? '$' : '%'}</span>
+              <span className="text-neutral-400 mr-1">$</span>
               <span className="text-white">{value || '0.00'}</span>
             </button>
             {touched.value && numericValue <= 0 && (
@@ -412,7 +377,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                   onClick={() => handleQuickValue(amt)}
                   className="flex-1 py-1.5 rounded-lg bg-neutral-800 border border-neutral-600 text-white text-xs font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
                 >
-                  {voucherType === 'fixed' ? `$${amt}` : `${amt}%`}
+                  {`$${amt}`}
                 </button>
               ))}
             </div>

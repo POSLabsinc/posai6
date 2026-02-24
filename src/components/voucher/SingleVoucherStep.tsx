@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Delete, Search, Plus, Check } from "lucide-react";
+import { Delete, Search, Plus, Check, Sparkles, Gift, Star } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES, REDEMPTION_LIMIT_OPTIONS,
@@ -34,6 +34,115 @@ interface SingleVoucherStepProps {
   companyProfile?: CompanyProfile | null;
 }
 
+// Visual themes for voucher cards
+type CardTheme = {
+  bg: string;
+  border: string;
+  glow: string;
+  accent: string;
+  accentText: string;
+  badgeBg: string;
+  badgeText: string;
+  valueBg: string;
+  subtitle: string;
+  pattern: React.ReactNode;
+};
+
+const CARD_THEMES: CardTheme[] = [
+  // Elegant: dark + gold
+  {
+    bg: 'bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900',
+    border: 'border-amber-900/40',
+    glow: 'shadow-[0_0_20px_rgba(217,169,78,0.25)] border-amber-500/60 ring-1 ring-amber-400/30',
+    accent: 'text-amber-400',
+    accentText: 'text-amber-300',
+    badgeBg: 'bg-amber-500/15 border-amber-500/30',
+    badgeText: 'text-amber-300',
+    valueBg: 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 bg-clip-text text-transparent',
+    subtitle: 'text-amber-500/70',
+    pattern: (
+      <>
+        <div className="absolute top-0 right-0 w-24 h-24 opacity-[0.04]" style={{ background: 'radial-gradient(circle at 70% 30%, #d4af37 0%, transparent 70%)' }} />
+        <div className="absolute bottom-0 left-0 w-20 h-20 opacity-[0.03]" style={{ background: 'radial-gradient(circle at 30% 70%, #d4af37 0%, transparent 70%)' }} />
+        <div className="absolute top-3 right-3 opacity-[0.06]"><Star className="w-8 h-8 text-amber-400" /></div>
+      </>
+    ),
+  },
+  // Modern: gradient + bold
+  {
+    bg: 'bg-gradient-to-br from-slate-900 via-blue-950 to-slate-900',
+    border: 'border-blue-800/40',
+    glow: 'shadow-[0_0_20px_rgba(96,165,250,0.25)] border-blue-400/60 ring-1 ring-blue-400/30',
+    accent: 'text-blue-400',
+    accentText: 'text-blue-300',
+    badgeBg: 'bg-blue-500/15 border-blue-500/30',
+    badgeText: 'text-blue-300',
+    valueBg: 'bg-gradient-to-r from-blue-300 via-cyan-200 to-blue-300 bg-clip-text text-transparent',
+    subtitle: 'text-blue-500/70',
+    pattern: (
+      <>
+        <div className="absolute top-0 left-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(135deg, transparent, transparent 20px, rgba(96,165,250,0.3) 20px, rgba(96,165,250,0.3) 21px)' }} />
+        <div className="absolute -top-4 -right-4 w-20 h-20 rounded-full opacity-[0.06]" style={{ background: 'radial-gradient(circle, #60a5fa 0%, transparent 70%)' }} />
+      </>
+    ),
+  },
+  // Festive: warm accent
+  {
+    bg: 'bg-gradient-to-br from-neutral-900 via-rose-950/30 to-neutral-900',
+    border: 'border-rose-800/40',
+    glow: 'shadow-[0_0_20px_rgba(244,114,182,0.25)] border-rose-400/60 ring-1 ring-rose-400/30',
+    accent: 'text-rose-400',
+    accentText: 'text-rose-300',
+    badgeBg: 'bg-rose-500/15 border-rose-500/30',
+    badgeText: 'text-rose-300',
+    valueBg: 'bg-gradient-to-r from-rose-300 via-pink-200 to-rose-300 bg-clip-text text-transparent',
+    subtitle: 'text-rose-500/70',
+    pattern: (
+      <>
+        <div className="absolute top-0 right-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, rgba(244,114,182,0.4) 0%, transparent 50%), radial-gradient(circle at 20% 80%, rgba(244,114,182,0.3) 0%, transparent 50%)' }} />
+        <div className="absolute top-2 right-3 opacity-[0.08]"><Sparkles className="w-6 h-6 text-rose-400" /></div>
+      </>
+    ),
+  },
+  // Emerald luxury
+  {
+    bg: 'bg-gradient-to-br from-neutral-900 via-emerald-950/30 to-neutral-900',
+    border: 'border-emerald-800/40',
+    glow: 'shadow-[0_0_20px_rgba(52,211,153,0.25)] border-emerald-400/60 ring-1 ring-emerald-400/30',
+    accent: 'text-emerald-400',
+    accentText: 'text-emerald-300',
+    badgeBg: 'bg-emerald-500/15 border-emerald-500/30',
+    badgeText: 'text-emerald-300',
+    valueBg: 'bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-300 bg-clip-text text-transparent',
+    subtitle: 'text-emerald-500/70',
+    pattern: (
+      <>
+        <div className="absolute bottom-0 right-0 w-28 h-28 opacity-[0.04]" style={{ background: 'radial-gradient(circle at 80% 80%, #34d399 0%, transparent 60%)' }} />
+        <div className="absolute top-2 left-3 opacity-[0.07]"><Gift className="w-5 h-5 text-emerald-400" /></div>
+      </>
+    ),
+  },
+  // Violet premium
+  {
+    bg: 'bg-gradient-to-br from-neutral-900 via-violet-950/30 to-neutral-900',
+    border: 'border-violet-800/40',
+    glow: 'shadow-[0_0_20px_rgba(167,139,250,0.25)] border-violet-400/60 ring-1 ring-violet-400/30',
+    accent: 'text-violet-400',
+    accentText: 'text-violet-300',
+    badgeBg: 'bg-violet-500/15 border-violet-500/30',
+    badgeText: 'text-violet-300',
+    valueBg: 'bg-gradient-to-r from-violet-300 via-purple-200 to-violet-300 bg-clip-text text-transparent',
+    subtitle: 'text-violet-500/70',
+    pattern: (
+      <>
+        <div className="absolute top-0 left-0 w-full h-full opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 15px, rgba(167,139,250,0.2) 15px, rgba(167,139,250,0.2) 16px)' }} />
+      </>
+    ),
+  },
+];
+
+const getTheme = (index: number) => CARD_THEMES[index % CARD_THEMES.length];
+
 const SingleVoucherStep = ({
   voucherName, isCustomVoucherName, valueDigits, serviceFeeDigits,
   serviceFeeReadOnly, serviceFeeType, serviceFeeConfigValue,
@@ -60,7 +169,6 @@ const SingleVoucherStep = ({
   const totalPayable = numericValue + computedServiceFee;
   const minOrderWarning = minimumOrderValue > 0 && numericValue > 0 && minimumOrderValue > numericValue;
 
-  // Determine voucher types (company-preferred first)
   const voucherTypes = (() => {
     if (companyProfile?.preferredVoucherTypes?.length) {
       const preferred = PREDEFINED_VOUCHER_TYPES.filter(t => companyProfile.preferredVoucherTypes!.includes(t.name));
@@ -87,10 +195,10 @@ const SingleVoucherStep = ({
     setActiveKeypad(null);
   };
 
-  const formatServiceFeeLabel = (config: VoucherTypeConfig) => {
-    if (config.serviceFeeType === 'none') return 'No fee';
-    if (config.serviceFeeType === 'percentage') return `${config.serviceFeeValue}%`;
-    return `${CURRENCY_SYMBOL}${config.serviceFeeValue.toFixed(2)} fixed`;
+  const formatServiceFeeBadge = (config: VoucherTypeConfig) => {
+    if (config.serviceFeeType === 'none') return 'No Fee';
+    if (config.serviceFeeType === 'percentage') return `${config.serviceFeeValue}% Fee`;
+    return `${CURRENCY_SYMBOL}${config.serviceFeeValue.toFixed(2)} Fixed`;
   };
 
   const handlePosKeyPress = useCallback((setter: (d: string) => void, currentDigits: string, key: string) => {
@@ -133,72 +241,103 @@ const SingleVoucherStep = ({
         </div>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[340px] overflow-y-auto scrollbar-hide pr-0.5">
           {/* Custom Voucher Card */}
           <button
             onClick={handleSelectCustom}
-            className="text-left border border-dashed border-neutral-600 hover:border-emerald-500/50 rounded-xl p-3 transition-all hover:bg-neutral-800/60 group"
+            className="text-left border-2 border-dashed border-neutral-600 hover:border-emerald-500/50 rounded-2xl p-4 transition-all duration-300 hover:bg-emerald-500/5 group relative overflow-hidden"
           >
-            <div className="flex items-center gap-2 mb-1">
-              <div className="w-7 h-7 rounded-lg bg-emerald-600/20 flex items-center justify-center flex-shrink-0">
-                <Plus className="w-4 h-4 text-emerald-400" />
+            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(52,211,153,0.3) 10px, rgba(52,211,153,0.3) 11px)' }} />
+            <div className="relative flex flex-col items-center justify-center py-3 gap-2">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Plus className="w-5 h-5 text-emerald-400" />
               </div>
-              <span className="text-emerald-400 font-medium text-sm">Custom Voucher</span>
+              <div className="text-center">
+                <span className="text-emerald-400 font-semibold text-sm block">Custom Voucher</span>
+                <span className="text-neutral-500 text-[11px]">Create your own voucher</span>
+              </div>
             </div>
-            <p className="text-neutral-500 text-xs">Create a voucher with custom pricing & rules</p>
           </button>
 
           {/* Template cards */}
-          {filteredTypes.map(config => {
+          {filteredTypes.map((config, idx) => {
             const selected = isTemplateSelected && voucherName === config.name;
+            const theme = getTheme(idx);
             return (
               <button
                 key={config.name}
                 onClick={() => handleSelectTemplate(config)}
-                className={`text-left rounded-xl p-3 transition-all border ${
+                className={`text-left rounded-2xl transition-all duration-300 relative overflow-hidden ${theme.bg} border ${
                   selected
-                    ? 'border-white bg-neutral-800 ring-1 ring-white/20'
-                    : 'border-neutral-700 hover:border-neutral-500 bg-neutral-800/40 hover:bg-neutral-800/70'
+                    ? `${theme.glow} scale-[1.02]`
+                    : `${theme.border} hover:scale-[1.01] hover:shadow-lg`
                 }`}
               >
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className={`font-medium text-sm truncate ${selected ? 'text-white' : 'text-neutral-200'}`}>
-                    {config.name}
-                  </span>
-                  {selected && (
-                    <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center flex-shrink-0 ml-2">
-                      <Check className="w-3 h-3 text-neutral-900" />
-                    </div>
-                  )}
-                </div>
-                <div className="grid grid-cols-2 gap-x-3 gap-y-0.5 text-xs">
-                  <div>
-                    <span className="text-neutral-500">Value: </span>
-                    <span className="text-neutral-300">{CURRENCY_SYMBOL}{(config.redeemableValue || 0).toFixed(2)}</span>
-                  </div>
-                  <div>
-                    <span className="text-neutral-500">Fee: </span>
-                    <span className="text-neutral-300">{formatServiceFeeLabel(config)}</span>
-                  </div>
-                  <div>
-                    <span className="text-neutral-500">Min Order: </span>
-                    <span className="text-neutral-300">{config.minOrderDefault ? `${CURRENCY_SYMBOL}${config.minOrderDefault.toFixed(2)}` : 'None'}</span>
-                  </div>
-                  <div>
-                    <span className="text-neutral-500">Limit: </span>
-                    <span className="text-neutral-300">
-                      {REDEMPTION_LIMIT_OPTIONS.find(o => o.value === config.redemptionLimitDefault)?.label || '1 time'}
+                {/* Pattern overlay */}
+                {theme.pattern}
+
+                <div className="relative p-3.5">
+                  {/* Top: Name + Badge */}
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className={`font-bold text-sm leading-tight ${selected ? 'text-white' : 'text-neutral-100'}`}>
+                      {config.name}
+                    </h3>
+                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border whitespace-nowrap flex-shrink-0 ${theme.badgeBg} ${theme.badgeText}`}>
+                      {formatServiceFeeBadge(config)}
                     </span>
                   </div>
-                  <div>
-                    <span className="text-neutral-500">From: </span>
-                    <span className="text-neutral-300">{config.validFromDefault || 'Today'}</span>
+
+                  {/* Center: Hero value */}
+                  <div className="my-2">
+                    <div className={`text-2xl font-extrabold tracking-tight ${theme.valueBg}`}>
+                      {CURRENCY_SYMBOL}{(config.redeemableValue || 0).toFixed(2)}
+                    </div>
+                    <div className={`text-[10px] font-medium uppercase tracking-widest mt-0.5 ${theme.subtitle}`}>
+                      Gift Voucher
+                    </div>
                   </div>
-                  <div>
-                    <span className="text-neutral-500">Expiry: </span>
-                    <span className="text-neutral-300">{config.expiryDefault || 'None'}</span>
+
+                  {/* Decorative divider */}
+                  <div className="flex items-center gap-2 my-2">
+                    <div className={`flex-1 h-px opacity-20 ${theme.accent.replace('text-', 'bg-')}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full opacity-30 ${theme.accent.replace('text-', 'bg-')}`} />
+                    <div className={`flex-1 h-px opacity-20 ${theme.accent.replace('text-', 'bg-')}`} />
+                  </div>
+
+                  {/* Bottom: Details */}
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+                    <div className="flex justify-between">
+                      <span className="text-neutral-500">Min Order</span>
+                      <span className="text-neutral-300">{config.minOrderDefault ? `${CURRENCY_SYMBOL}${config.minOrderDefault.toFixed(2)}` : '—'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-500">Limit</span>
+                      <span className="text-neutral-300">
+                        {REDEMPTION_LIMIT_OPTIONS.find(o => o.value === config.redemptionLimitDefault)?.label || '1 time'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-500">From</span>
+                      <span className="text-neutral-300">{config.validFromDefault || 'Today'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-neutral-500">Expires</span>
+                      <span className="text-neutral-300">{config.expiryDefault || '—'}</span>
+                    </div>
+                  </div>
+
+                  {/* Footer */}
+                  <div className={`mt-2 pt-1.5 border-t border-white/5 text-[9px] tracking-wide uppercase ${theme.subtitle}`}>
+                    Powered by POS AI
                   </div>
                 </div>
+
+                {/* Selection checkmark */}
+                {selected && (
+                  <div className={`absolute top-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center ${theme.accent.replace('text-', 'bg-')} animate-scale-in`}>
+                    <Check className="w-3.5 h-3.5 text-neutral-900" strokeWidth={3} />
+                  </div>
+                )}
               </button>
             );
           })}
@@ -208,9 +347,9 @@ const SingleVoucherStep = ({
           <p className="text-neutral-500 text-sm text-center py-4">No templates match "{searchQuery}"</p>
         )}
 
-        {/* Summary (only when a template is selected) */}
+        {/* Summary */}
         {isTemplateSelected && (
-          <div className="bg-neutral-800/50 border border-neutral-700 rounded-xl p-4 space-y-2">
+          <div className="bg-neutral-800/50 border border-neutral-700 rounded-xl p-4 space-y-2 animate-fade-in">
             <div className="flex justify-between text-sm">
               <span className="text-neutral-400">Redeemable Value</span>
               <span className="text-white">{CURRENCY_SYMBOL}{numericValue.toFixed(2)}</span>
@@ -234,7 +373,6 @@ const SingleVoucherStep = ({
   // ---- CUSTOM FORM VIEW ----
   return (
     <div className="space-y-3">
-      {/* Back to cards link */}
       <button
         onClick={() => {
           onVoucherNameChange('', false);
@@ -247,7 +385,6 @@ const SingleVoucherStep = ({
         ← Back to templates
       </button>
 
-      {/* Voucher Name */}
       <div>
         <label className={labelClass}>Voucher Name <span className="text-red-400">*</span></label>
         <input
@@ -262,52 +399,31 @@ const SingleVoucherStep = ({
         {touched.voucherName && !voucherName.trim() && <p className="text-red-400 text-xs mt-1">Voucher name is required</p>}
       </div>
 
-      {/* Row 1: Redeemable Value, Service Fee, Minimum Order */}
+      {/* Row 1 */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
-        {/* Redeemable Value */}
         <div>
           <label className={labelClass}>Redeemable Value <span className="text-red-400">*</span></label>
-          <button
-            type="button"
-            onClick={() => setActiveKeypad(p => p === 'value' ? null : 'value')}
-            onBlur={() => setTouched(p => ({ ...p, value: true }))}
-            className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${
-              touched.value && numericValue <= 0 ? 'border-red-500' : activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'
-            }`}
-          >
+          <button type="button" onClick={() => setActiveKeypad(p => p === 'value' ? null : 'value')} onBlur={() => setTouched(p => ({ ...p, value: true }))}
+            className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.value && numericValue <= 0 ? 'border-red-500' : activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'}`}>
             <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
             <span className="text-white">{posCurrencyFormat(valueDigits)}</span>
           </button>
           {touched.value && numericValue <= 0 && <p className="text-red-400 text-xs mt-1">Amount required</p>}
           {activeKeypad === 'value' && renderKeypad(valueDigits, onValueDigitsChange)}
         </div>
-
-        {/* Service Fee */}
         <div>
           <label className={labelClass}>Service Fee</label>
-          <button
-            type="button"
-            onClick={() => setActiveKeypad(p => p === 'serviceFee' ? null : 'serviceFee')}
-            className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${
-              activeKeypad === 'serviceFee' ? 'border-neutral-400' : 'border-neutral-600'
-            }`}
-          >
+          <button type="button" onClick={() => setActiveKeypad(p => p === 'serviceFee' ? null : 'serviceFee')}
+            className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'serviceFee' ? 'border-neutral-400' : 'border-neutral-600'}`}>
             <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
             <span className="text-white">{posCurrencyFormat(serviceFeeDigits)}</span>
           </button>
           {activeKeypad === 'serviceFee' && renderKeypad(serviceFeeDigits, onServiceFeeDigitsChange)}
         </div>
-
-        {/* Minimum Order */}
         <div>
           <label className={labelClass}>Minimum Order</label>
-          <button
-            type="button"
-            onClick={() => setActiveKeypad(p => p === 'minimumOrder' ? null : 'minimumOrder')}
-            className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${
-              activeKeypad === 'minimumOrder' ? 'border-neutral-400' : 'border-neutral-600'
-            }`}
-          >
+          <button type="button" onClick={() => setActiveKeypad(p => p === 'minimumOrder' ? null : 'minimumOrder')}
+            className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minimumOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
             <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
             <span className="text-white">{posCurrencyFormat(minimumOrderDigits)}</span>
           </button>
@@ -316,57 +432,34 @@ const SingleVoucherStep = ({
         </div>
       </div>
 
-      {/* Row 2: Redemption Limit, Valid From, Expiry Date */}
+      {/* Row 2 */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
         <div>
           <label className={labelClass}>Redemption Limit</label>
           <Select value={redemptionLimit} onValueChange={onRedemptionLimitChange}>
-            <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg">
-              <SelectValue />
-            </SelectTrigger>
+            <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
             <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
               {REDEMPTION_LIMIT_OPTIONS.map(opt => (
-                <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
-                  {opt.label}
-                </SelectItem>
+                <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">{opt.label}</SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
         <div>
           <label className={labelClass}>Valid From</label>
-          <input
-            type="date"
-            value={validFrom}
-            onChange={(e) => { onValidFromChange(e.target.value); if (expiryDate && e.target.value > expiryDate) onExpiryDateChange(e.target.value); }}
-            className={`${inputClass} [color-scheme:dark]`}
-          />
+          <input type="date" value={validFrom} onChange={(e) => { onValidFromChange(e.target.value); if (expiryDate && e.target.value > expiryDate) onExpiryDateChange(e.target.value); }} className={`${inputClass} [color-scheme:dark]`} />
         </div>
         <div>
           <label className={labelClass}>Expiry Date</label>
-          <input
-            type="date"
-            value={expiryDate}
-            min={validFrom || undefined}
-            onChange={(e) => onExpiryDateChange(e.target.value)}
-            className={`${inputClass} [color-scheme:dark]`}
-          />
+          <input type="date" value={expiryDate} min={validFrom || undefined} onChange={(e) => onExpiryDateChange(e.target.value)} className={`${inputClass} [color-scheme:dark]`} />
         </div>
       </div>
 
-      {/* Notes */}
       <div>
         <label className={labelClass}>Notes</label>
-        <input
-          type="text"
-          value={notes}
-          onChange={(e) => onNotesChange(e.target.value.slice(0, 500))}
-          placeholder="Internal notes (not printed on voucher)"
-          className={inputClass}
-        />
+        <input type="text" value={notes} onChange={(e) => onNotesChange(e.target.value.slice(0, 500))} placeholder="Internal notes (not printed on voucher)" className={inputClass} />
       </div>
 
-      {/* Summary */}
       <div className="bg-neutral-800/50 border border-neutral-700 rounded-xl p-4 space-y-2">
         <div className="flex justify-between text-sm">
           <span className="text-neutral-400">Redeemable Value</span>

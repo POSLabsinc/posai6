@@ -394,7 +394,45 @@ const MultiVoucherStep = ({
         {/* ===== SHARED MODE (ON) ===== */}
         {sharedRulesOn && (
           <>
-            {/* Shared Settings Block */}
+            {/* Custom Voucher Names List (Now at the top) */}
+            <div className="space-y-2">
+              <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Voucher Names</span>
+              {customEntries.map((ce, idx) => (
+                <div key={ce.id} className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
+                  <input
+                    type="text"
+                    value={ce.voucherName}
+                    onChange={(e) => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, voucherName: e.target.value.slice(0, 50) } : c))}
+                    placeholder={`Voucher Name #${idx + 1}`}
+                    className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
+                  />
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c))}
+                      className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-white font-bold text-sm w-6 text-center">{ce.quantity}</span>
+                    <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.min(50, c.quantity + 1) } : c))}
+                      className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  {customEntries.length > 1 && (
+                    <button onClick={() => removeBuilderEntry(idx)} className="text-neutral-500 hover:text-red-400 transition-colors flex-shrink-0">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                onClick={handleAddAnother}
+                className="text-emerald-400 hover:text-emerald-300 text-xs font-medium flex items-center gap-1 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Another
+              </button>
+            </div>
+
+            {/* Shared Settings Block (Now at the bottom) */}
             <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3 space-y-2">
               <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Settings</span>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
@@ -450,44 +488,6 @@ const MultiVoucherStep = ({
                   <input type="text" value={sharedRules.notes} onChange={(e) => setSharedRules(p => ({ ...p, notes: e.target.value.slice(0, 500) }))} placeholder="Internal notes (not printed on voucher)" className={inputClass} />
                 </div>
               </div>
-            </div>
-
-            {/* Custom Voucher Names List */}
-            <div className="space-y-2">
-              <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Voucher Names</span>
-              {customEntries.map((ce, idx) => (
-                <div key={ce.id} className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
-                  <input
-                    type="text"
-                    value={ce.voucherName}
-                    onChange={(e) => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, voucherName: e.target.value.slice(0, 50) } : c))}
-                    placeholder={`Voucher Name #${idx + 1}`}
-                    className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
-                  />
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c))}
-                      className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                      <Minus className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="text-white font-bold text-sm w-6 text-center">{ce.quantity}</span>
-                    <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.min(50, c.quantity + 1) } : c))}
-                      className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                  {customEntries.length > 1 && (
-                    <button onClick={() => removeBuilderEntry(idx)} className="text-neutral-500 hover:text-red-400 transition-colors flex-shrink-0">
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
-              <button
-                onClick={handleAddAnother}
-                className="text-emerald-400 hover:text-emerald-300 text-xs font-medium flex items-center gap-1 transition-colors"
-              >
-                <Plus className="w-3.5 h-3.5" /> Add Another
-              </button>
             </div>
           </>
         )}

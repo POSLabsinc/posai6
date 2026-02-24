@@ -712,6 +712,26 @@ const MultiVoucherStep = ({
                   </div>
                 </div>
               </div>
+
+              {/* Quantity adjuster (same as template cards) */}
+              <div className="relative px-3.5 pb-3 pt-1 flex items-center justify-between">
+                <span className="text-neutral-400 text-[11px] font-medium">Quantity</span>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setCustomEntries(prev => prev.map(e2 => e2.id === ce.id ? { ...e2, quantity: Math.max(1, e2.quantity - 1) } : e2)); }}
+                    className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors"
+                  >
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="text-white font-bold text-sm w-6 text-center">{ce.quantity}</span>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setCustomEntries(prev => prev.map(e2 => e2.id === ce.id ? { ...e2, quantity: Math.min(50, e2.quantity + 1) } : e2)); }}
+                    className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              </div>
             </div>
           );
         })}

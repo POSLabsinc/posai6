@@ -13,11 +13,14 @@ export const posCurrencyDigitDelete = (rawDigits: string): string => {
 
 export const posCurrencyFormat = (rawDigits: string): string => {
   const cents = parseInt(rawDigits || '0', 10);
+  if (isNaN(cents)) return '0.00';
   return (cents / 100).toFixed(2);
 };
 
 export const posCurrencyToNumber = (rawDigits: string): number => {
-  return parseInt(rawDigits || '0', 10) / 100;
+  const cents = parseInt(rawDigits || '0', 10);
+  if (isNaN(cents)) return 0;
+  return cents / 100;
 };
 
 export const numberToPosDigits = (num: number): string => {

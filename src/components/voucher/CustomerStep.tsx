@@ -145,7 +145,7 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue }: CustomerSt
       </div>
 
       {/* Search Input */}
-      <div className="relative" ref={resultsRef}>
+      <div className="relative" ref={resultsRef} style={{ overflow: 'visible' }}>
         {searchMode === 'phone' ? (
           <div className="flex">
             <div className="relative" ref={countryRef}>

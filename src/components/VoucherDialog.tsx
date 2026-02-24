@@ -263,7 +263,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="bg-neutral-900 border-neutral-700 p-0 w-[95vw] max-w-md md:max-w-3xl overflow-hidden rounded-2xl flex flex-col max-h-[90vh] [&>button]:hidden">
+      <DialogContent className="bg-neutral-900 border-neutral-700 p-0 w-[95vw] max-w-md md:max-w-3xl rounded-2xl flex flex-col max-h-[90vh] [&>button]:hidden">
         {/* Grabber */}
         <div className="flex justify-center pt-2 pb-1 md:hidden">
           <div className="w-12 h-1 bg-neutral-600 rounded-full" />
@@ -308,7 +308,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
         </div>
 
         {/* Body */}
-        <div className="flex-1 px-4 md:px-6 pb-2 overflow-y-auto scrollbar-hide">
+        <div className={`flex-1 px-4 md:px-6 pb-2 scrollbar-hide ${step === 'customer' ? 'overflow-visible' : 'overflow-y-auto'}`}>
           {step === 'customer' && (
             <CustomerStep
               customer={customer}

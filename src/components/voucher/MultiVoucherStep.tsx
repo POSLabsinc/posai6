@@ -455,6 +455,16 @@ const MultiVoucherStep = ({
                   {activeKeypad === 'fee' && renderKeypad(sharedRules.serviceFeeDigits, (d) => setSharedRules(p => ({ ...p, serviceFeeDigits: d })))}
                 </div>
                 <div>
+                  <label className={labelClass}>Minimum Order</label>
+                  <button type="button" onClick={() => setActiveKeypad(p => p === 'sharedMinOrder' ? null : 'sharedMinOrder')}
+                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'sharedMinOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                    <span className="text-white">{posCurrencyFormat(sharedRules.minimumOrderDigits)}</span>
+                  </button>
+                  {sharedMinOrderWarning && <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>}
+                  {activeKeypad === 'sharedMinOrder' && renderKeypad(sharedRules.minimumOrderDigits, (d) => setSharedRules(p => ({ ...p, minimumOrderDigits: d })))}
+                </div>
+                <div>
                   <label className={labelClass}>Redemption Limit</label>
                   <Select value={sharedRules.redemptionLimit} onValueChange={(v) => setSharedRules(p => ({ ...p, redemptionLimit: v }))}>
                     <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
@@ -472,16 +482,6 @@ const MultiVoucherStep = ({
                 <div>
                   <label className={labelClass}>Expiry Date</label>
                   <input type="date" value={sharedRules.expiryDate} min={sharedRules.validFrom || undefined} onChange={(e) => setSharedRules(p => ({ ...p, expiryDate: e.target.value }))} className={`${inputClass} [color-scheme:dark]`} />
-                </div>
-                <div>
-                  <label className={labelClass}>Minimum Order</label>
-                  <button type="button" onClick={() => setActiveKeypad(p => p === 'sharedMinOrder' ? null : 'sharedMinOrder')}
-                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'sharedMinOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                    <span className="text-white">{posCurrencyFormat(sharedRules.minimumOrderDigits)}</span>
-                  </button>
-                  {sharedMinOrderWarning && <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>}
-                  {activeKeypad === 'sharedMinOrder' && renderKeypad(sharedRules.minimumOrderDigits, (d) => setSharedRules(p => ({ ...p, minimumOrderDigits: d })))}
                 </div>
                 <div className="col-span-2 md:col-span-3">
                   <label className={labelClass}>Notes</label>

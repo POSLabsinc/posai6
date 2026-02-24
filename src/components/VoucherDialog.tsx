@@ -419,7 +419,33 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
 
         {/* Footer */}
         {step === 'voucherConfig' && (
-          <div className="px-4 md:px-6 py-3 border-t border-neutral-700 mt-auto flex items-center gap-2">
+          <div className="border-t border-neutral-700 mt-auto">
+            {/* Breakdown summary */}
+            {isConfigValid && totalPayable > 0 && (
+              <div className="px-4 md:px-6 pt-3 pb-1 space-y-1 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-neutral-400 font-medium">Redeemable Value</span>
+                  <span className="text-white font-bold">
+                    {CURRENCY_SYMBOL}
+                    {(purchaseMode === 'single' ? numericValue : multiTotalRedeemable).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-neutral-400 font-medium">Service Fee</span>
+                  <span className="text-white font-bold">
+                    {CURRENCY_SYMBOL}
+                    {(purchaseMode === 'single' ? computedSingleServiceFee : multiTotalServiceFee).toFixed(2)}
+                  </span>
+                </div>
+                <div className="flex justify-between pt-1 border-t border-neutral-700">
+                  <span className="text-white font-medium">Total</span>
+                  <span className="text-white font-bold">
+                    {CURRENCY_SYMBOL}{totalPayable.toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
+            <div className="px-4 md:px-6 py-3 flex items-center gap-2">
             {!isEditMode && (
               <Button
                 variant="outline"
@@ -452,6 +478,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                 : (isEditMode ? 'UPDATE' : 'ADD TO ORDER')
               }
             </Button>
+            </div>
           </div>
         )}
       </DialogContent>

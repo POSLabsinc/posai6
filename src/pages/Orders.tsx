@@ -6099,7 +6099,8 @@ const Orders = () => {
   const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
-  const [orderType, setOrderType] = useState("DINE IN");
+  const tableLabel = tableIdFromParams ? `TABLE ${tableIdFromParams.replace(/^T/i, '')}` : null;
+  const [orderType, setOrderType] = useState(tableLabel || "DINE IN");
   const [showDineInForm, setShowDineInForm] = useState(false);
   const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
   const [showTakeOutForm, setShowTakeOutForm] = useState(false);
@@ -6968,7 +6969,7 @@ const Orders = () => {
                     <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
                   background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
                 }}>
-                      <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
+                      <img src={orderTypes.find((t) => t.label === orderType)?.icon || dineInIcon} alt="" className="w-4 h-4 invert" />
                       {orderType} <ChevronDown className="w-3 h-3" />
                     </button>
                   </DropdownMenuTrigger>

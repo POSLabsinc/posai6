@@ -153,6 +153,7 @@ const SingleVoucherStep = ({
   companyProfile,
 }: SingleVoucherStepProps) => {
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeFilter, setActiveFilter] = useState<string>('all');
   const [activeKeypad, setActiveKeypad] = useState<'value' | 'serviceFee' | 'minimumOrder' | null>(null);
   const [touched, setTouched] = useState({ voucherName: false, value: false });
 
@@ -178,9 +179,56 @@ const SingleVoucherStep = ({
     return PREDEFINED_VOUCHER_TYPES;
   })();
 
-  const filteredTypes = voucherTypes.filter(t =>
+  // Filter logic
+  const today = new Date().toISOString().split('T')[0];
+
+  const applyFilter = (types: VoucherTypeConfig[]) => {
+    if (activeFilter === 'all' || activeFilter === 'custom') return types;
+    return types.filter(t => {
+      switch (activeFilter) {
+        case 'personal': return t.buyerType === 'personal' || t.buyerType === 'both';
+        case 'company': return t.buyerType === 'company' || t.buyerType === 'both';
+        case 'noFee': return t.serviceFeeType === 'none' || t.serviceFeeValue === 0;
+        case 'withFee': return t.serviceFeeType !== 'none' && t.serviceFeeValue > 0;
+        case 'expiring': return !!t.expiryDefault && t.expiryDefault >= today;
+        case 'noExpiry': return !t.expiryDefault;
+        default: return true;
+      }
+    });
+  };
+
+  const categoryFiltered = applyFilter(voucherTypes);
+
+  const filteredTypes = categoryFiltered.filter(t =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  // Counts for filter chips
+  const filterCounts: Record<string, number> = {
+    all: voucherTypes.length,
+    personal: voucherTypes.filter(t => t.buyerType === 'personal' || t.buyerType === 'both').length,
+    company: voucherTypes.filter(t => t.buyerType === 'company' || t.buyerType === 'both').length,
+    noFee: voucherTypes.filter(t => t.serviceFeeType === 'none' || t.serviceFeeValue === 0).length,
+    withFee: voucherTypes.filter(t => t.serviceFeeType !== 'none' && t.serviceFeeValue > 0).length,
+    expiring: voucherTypes.filter(t => !!t.expiryDefault && t.expiryDefault >= today).length,
+    noExpiry: voucherTypes.filter(t => !t.expiryDefault).length,
+    custom: 1,
+  };
+
+  type FilterOption = { key: string; label: string };
+  const FILTER_OPTIONS: FilterOption[] = [
+    { key: 'all', label: 'All' },
+    { key: 'personal', label: 'Personal' },
+    { key: 'company', label: 'Company' },
+    { key: 'noFee', label: 'No Fee' },
+    { key: 'withFee', label: 'With Fee' },
+    { key: 'expiring', label: 'Expiring' },
+    { key: 'noExpiry', label: 'No Expiry' },
+    { key: 'custom', label: 'Custom' },
+  ];
+
+  const showCustomCard = activeFilter === 'all' || activeFilter === 'custom';
+  const showTemplateCards = activeFilter !== 'custom';
 
   const isTemplateSelected = !isCustomVoucherName && voucherName.trim().length > 0;
   const isCustomMode = isCustomVoucherName;
@@ -240,27 +288,49 @@ const SingleVoucherStep = ({
           />
         </div>
 
-        {/* Cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[340px] overflow-y-auto scrollbar-hide p-1">
-          {/* Custom Voucher Card */}
-          <button
-            onClick={handleSelectCustom}
-            className="text-left border-2 border-dashed border-neutral-600 hover:border-emerald-500/50 rounded-2xl p-4 transition-all duration-300 hover:bg-emerald-500/5 group relative overflow-hidden"
-          >
-            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(52,211,153,0.3) 10px, rgba(52,211,153,0.3) 11px)' }} />
-            <div className="relative flex flex-col items-center justify-center py-3 gap-2">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <Plus className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div className="text-center">
-                <span className="text-emerald-400 font-semibold text-sm block">Custom Voucher</span>
-                <span className="text-neutral-500 text-[11px]">Create your own voucher</span>
-              </div>
-            </div>
-          </button>
+        {/* Category Filters */}
+        <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-0.5">
+          {FILTER_OPTIONS.map(f => {
+            const isActive = activeFilter === f.key;
+            const count = filterCounts[f.key];
+            return (
+              <button
+                key={f.key}
+                onClick={() => setActiveFilter(isActive ? 'all' : f.key)}
+                className={`whitespace-nowrap px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-200 flex-shrink-0 ${
+                  isActive
+                    ? 'bg-white text-neutral-900 border-white'
+                    : 'bg-neutral-800 text-neutral-400 border-neutral-700 hover:border-neutral-500 hover:text-neutral-200'
+                }`}
+              >
+                {f.label}{count > 0 ? ` (${count})` : ''}
+              </button>
+            );
+          })}
+        </div>
 
-          {/* Template cards */}
-          {filteredTypes.map((config, idx) => {
+        {/* Cards grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto scrollbar-hide p-1">
+          {/* Custom Voucher Card */}
+          {showCustomCard && (
+            <button
+              onClick={handleSelectCustom}
+              className="text-left border-2 border-dashed border-neutral-600 hover:border-emerald-500/50 rounded-2xl p-4 transition-all duration-300 hover:bg-emerald-500/5 group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(52,211,153,0.3) 10px, rgba(52,211,153,0.3) 11px)' }} />
+              <div className="relative flex flex-col items-center justify-center py-3 gap-2">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Plus className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div className="text-center">
+                  <span className="text-emerald-400 font-semibold text-sm block">Custom Voucher</span>
+                  <span className="text-neutral-500 text-[11px]">Create your own voucher</span>
+                </div>
+              </div>
+            </button>
+          )}
+
+          {showTemplateCards && filteredTypes.map((config, idx) => {
             const selected = isTemplateSelected && voucherName === config.name;
             const theme = getTheme(idx);
             return (
@@ -273,15 +343,10 @@ const SingleVoucherStep = ({
                     : `${theme.border} hover:scale-[1.01] hover:shadow-lg`
                 }`}
               >
-                {/* Pattern overlay */}
                 {theme.pattern}
-
                 <div className="relative p-3.5">
-                  {/* Top: Name + Badge + Check */}
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className="font-bold text-[15px] leading-tight text-white">
-                      {config.name}
-                    </h3>
+                    <h3 className="font-bold text-[15px] leading-tight text-white">{config.name}</h3>
                     <div className="flex items-center gap-1.5 flex-shrink-0">
                       <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${theme.badgeBg} ${theme.badgeText}`}>
                         {formatServiceFeeBadge(config)}
@@ -293,25 +358,17 @@ const SingleVoucherStep = ({
                       )}
                     </div>
                   </div>
-
-                  {/* Center: Hero value */}
                   <div className="my-2">
                     <div className={`text-2xl font-extrabold tracking-tight ${theme.valueBg}`}>
                       {CURRENCY_SYMBOL}{(config.redeemableValue || 0).toFixed(2)}
                     </div>
-                    <div className={`text-[11px] font-semibold uppercase tracking-widest mt-0.5 ${theme.accentText}`}>
-                      Gift Voucher
-                    </div>
+                    <div className={`text-[11px] font-semibold uppercase tracking-widest mt-0.5 ${theme.accentText}`}>Gift Voucher</div>
                   </div>
-
-                  {/* Decorative divider */}
                   <div className="flex items-center gap-2 my-2">
                     <div className={`flex-1 h-px opacity-30 ${theme.accent.replace('text-', 'bg-')}`} />
                     <div className={`w-1.5 h-1.5 rounded-full opacity-40 ${theme.accent.replace('text-', 'bg-')}`} />
                     <div className={`flex-1 h-px opacity-30 ${theme.accent.replace('text-', 'bg-')}`} />
                   </div>
-
-                  {/* Bottom: Details */}
                   <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px]">
                     <div className="flex justify-between">
                       <span className="text-neutral-400 font-medium">Min Order</span>
@@ -319,9 +376,7 @@ const SingleVoucherStep = ({
                     </div>
                     <div className="flex justify-between">
                       <span className="text-neutral-400 font-medium">Limit</span>
-                      <span className="text-white font-bold">
-                        {REDEMPTION_LIMIT_OPTIONS.find(o => o.value === config.redemptionLimitDefault)?.label || '1 time'}
-                      </span>
+                      <span className="text-white font-bold">{REDEMPTION_LIMIT_OPTIONS.find(o => o.value === config.redemptionLimitDefault)?.label || '1 time'}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-neutral-400 font-medium">From</span>
@@ -332,20 +387,22 @@ const SingleVoucherStep = ({
                       <span className="text-white font-bold">{config.expiryDefault || '—'}</span>
                     </div>
                   </div>
-
-                  {/* Footer */}
                   <div className={`mt-2 pt-1.5 border-t border-white/10 text-[10px] font-medium tracking-wide uppercase ${theme.accentText}`}>
                     Powered by POS AI
                   </div>
                 </div>
-
               </button>
             );
           })}
         </div>
 
-        {filteredTypes.length === 0 && searchQuery && (
-          <p className="text-neutral-500 text-sm text-center py-4">No templates match "{searchQuery}"</p>
+        {showTemplateCards && filteredTypes.length === 0 && (
+          <div className="text-center py-6">
+            <p className="text-neutral-400 text-sm">No vouchers found.</p>
+            <button onClick={() => { setActiveFilter('all'); setSearchQuery(''); }} className="text-neutral-300 hover:text-white text-xs mt-1 underline underline-offset-2 transition-colors">
+              Show all vouchers
+            </button>
+          </div>
         )}
 
         {/* Summary */}

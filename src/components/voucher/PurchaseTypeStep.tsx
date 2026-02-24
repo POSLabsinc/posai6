@@ -85,7 +85,7 @@ const PurchaseTypeStep = ({
 
       {/* Company selector */}
       {buyerType === 'company' && (
-        <div className="relative animate-fade-in" ref={companyRef}>
+        <div className="relative animate-fade-in" ref={companyRef} style={{ overflow: 'visible' }}>
           <label className="text-neutral-400 text-xs font-medium mb-1.5 block">Select Company</label>
           <button
             type="button"
@@ -98,7 +98,7 @@ const PurchaseTypeStep = ({
             <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform ${showCompanyDropdown ? 'rotate-180' : ''}`} />
           </button>
           {showCompanyDropdown && (
-            <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
+            <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-[100] shadow-xl">
               <div className="p-2 border-b border-neutral-700">
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-neutral-500" />

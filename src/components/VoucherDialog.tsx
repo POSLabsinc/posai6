@@ -308,7 +308,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
         </div>
 
         {/* Body */}
-        <div className={`flex-1 px-4 md:px-6 pb-2 scrollbar-hide ${step === 'customer' ? 'overflow-visible' : 'overflow-y-auto'}`}>
+        <div className={`flex-1 px-4 md:px-6 pb-2 scrollbar-hide ${step === 'customer' || step === 'purchaseType' ? 'overflow-visible' : 'overflow-y-auto'}`}>
           {step === 'customer' && (
             <CustomerStep
               customer={customer}

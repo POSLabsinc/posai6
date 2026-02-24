@@ -241,7 +241,7 @@ const SingleVoucherStep = ({
         </div>
 
         {/* Cards grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[340px] overflow-y-auto scrollbar-hide pr-0.5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[340px] overflow-y-auto scrollbar-hide p-1">
           {/* Custom Voucher Card */}
           <button
             onClick={handleSelectCustom}
@@ -277,14 +277,21 @@ const SingleVoucherStep = ({
                 {theme.pattern}
 
                 <div className="relative p-3.5">
-                  {/* Top: Name + Badge */}
+                  {/* Top: Name + Badge + Check */}
                   <div className="flex items-start justify-between gap-2 mb-2">
                     <h3 className="font-bold text-[15px] leading-tight text-white">
                       {config.name}
                     </h3>
-                    <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border whitespace-nowrap flex-shrink-0 ${theme.badgeBg} ${theme.badgeText}`}>
-                      {formatServiceFeeBadge(config)}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border whitespace-nowrap ${theme.badgeBg} ${theme.badgeText}`}>
+                        {formatServiceFeeBadge(config)}
+                      </span>
+                      {selected && (
+                        <div className={`w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 ${theme.accent.replace('text-', 'bg-')} animate-scale-in`}>
+                          <Check className="w-3 h-3 text-neutral-900" strokeWidth={3} />
+                        </div>
+                      )}
+                    </div>
                   </div>
 
                   {/* Center: Hero value */}
@@ -332,12 +339,6 @@ const SingleVoucherStep = ({
                   </div>
                 </div>
 
-                {/* Selection checkmark */}
-                {selected && (
-                  <div className={`absolute top-2.5 right-2.5 w-6 h-6 rounded-full flex items-center justify-center ${theme.accent.replace('text-', 'bg-')} animate-scale-in`}>
-                    <Check className="w-3.5 h-3.5 text-neutral-900" strokeWidth={3} />
-                  </div>
-                )}
               </button>
             );
           })}

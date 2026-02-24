@@ -171,8 +171,8 @@ const SingleVoucherStep = ({
         {touched.voucherName && !voucherName.trim() && <p className="text-red-400 text-xs mt-1">Voucher name is required</p>}
       </div>
 
-      {/* Redeemable Value, Service Fee, Redemption Limit, Minimum Order — 4 columns */}
-      <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-3">
+      {/* Row 1: Redeemable Value, Service Fee, Minimum Order — 3 columns */}
+      <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
         {/* Redeemable Value */}
         <div>
           <label className={labelClass}>Redeemable Value <span className="text-red-400">*</span></label>
@@ -212,29 +212,6 @@ const SingleVoucherStep = ({
           )}
         </div>
 
-        {/* Redemption Limit */}
-        <div>
-          <label className={labelClass}>Redemption Limit</label>
-          {!isCustomVoucherName && voucherName ? (
-            <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-3 text-sm text-neutral-300">
-              {REDEMPTION_LIMIT_OPTIONS.find(o => o.value === redemptionLimit)?.label || redemptionLimit}
-            </div>
-          ) : (
-            <Select value={redemptionLimit} onValueChange={onRedemptionLimitChange}>
-              <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-                {REDEMPTION_LIMIT_OPTIONS.map(opt => (
-                  <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
-                    {opt.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          )}
-        </div>
-
         {/* Minimum Order */}
         <div>
           <label className={labelClass}>Minimum Order</label>
@@ -258,24 +235,50 @@ const SingleVoucherStep = ({
         </div>
       </div>
 
-      {/* Valid From */}
-      <div>
-        <label className={labelClass}>Valid From</label>
-        {!isCustomVoucherName && voucherName ? (
-          <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-4 py-3 text-sm text-neutral-300 [color-scheme:dark]">{validFrom || 'Not set'}</div>
-        ) : (
-          <input type="date" value={validFrom} onChange={(e) => { onValidFromChange(e.target.value); if (expiryDate && e.target.value > expiryDate) onExpiryDateChange(e.target.value); }} className={`${inputClass} [color-scheme:dark]`} />
-        )}
-      </div>
+      {/* Row 2: Redemption Limit, Valid From, Expiry Date — 3 columns */}
+      <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
+        {/* Redemption Limit */}
+        <div>
+          <label className={labelClass}>Redemption Limit</label>
+          {!isCustomVoucherName && voucherName ? (
+            <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-3 text-sm text-neutral-300">
+              {REDEMPTION_LIMIT_OPTIONS.find(o => o.value === redemptionLimit)?.label || redemptionLimit}
+            </div>
+          ) : (
+            <Select value={redemptionLimit} onValueChange={onRedemptionLimitChange}>
+              <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                {REDEMPTION_LIMIT_OPTIONS.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
 
-      {/* Expiry Date */}
-      <div>
-        <label className={labelClass}>Expiry Date</label>
-        {!isCustomVoucherName && voucherName ? (
-          <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-4 py-3 text-sm text-neutral-300 [color-scheme:dark]">{expiryDate || 'No expiry'}</div>
-        ) : (
-          <input type="date" value={expiryDate} min={validFrom || undefined} onChange={(e) => onExpiryDateChange(e.target.value)} className={`${inputClass} [color-scheme:dark]`} />
-        )}
+        {/* Valid From */}
+        <div>
+          <label className={labelClass}>Valid From</label>
+          {!isCustomVoucherName && voucherName ? (
+            <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-3 text-sm text-neutral-300 [color-scheme:dark]">{validFrom || 'Not set'}</div>
+          ) : (
+            <input type="date" value={validFrom} onChange={(e) => { onValidFromChange(e.target.value); if (expiryDate && e.target.value > expiryDate) onExpiryDateChange(e.target.value); }} className={`${inputClass} [color-scheme:dark]`} />
+          )}
+        </div>
+
+        {/* Expiry Date */}
+        <div>
+          <label className={labelClass}>Expiry Date</label>
+          {!isCustomVoucherName && voucherName ? (
+            <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-3 text-sm text-neutral-300 [color-scheme:dark]">{expiryDate || 'No expiry'}</div>
+          ) : (
+            <input type="date" value={expiryDate} min={validFrom || undefined} onChange={(e) => onExpiryDateChange(e.target.value)} className={`${inputClass} [color-scheme:dark]`} />
+          )}
+        </div>
       </div>
 
       {/* Notes - full width */}

@@ -195,11 +195,6 @@ const SingleVoucherStep = ({
       <div>
         <label className={labelClass}>
           Service Fee
-          {serviceFeeReadOnly && serviceFeeType !== 'none' && (
-            <span className="text-neutral-500 ml-1">
-              ({serviceFeeType === 'percentage' ? `${serviceFeeConfigValue}%` : `${CURRENCY_SYMBOL}${serviceFeeConfigValue.toFixed(2)} fixed`})
-            </span>
-          )}
         </label>
         {serviceFeeReadOnly ? (
           <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-4 py-3 text-sm">

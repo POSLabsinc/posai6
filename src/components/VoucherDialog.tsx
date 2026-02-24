@@ -47,10 +47,14 @@ interface VoucherDialogProps {
     issuedBy?: string;
     notes?: string;
     voucherCode?: string;
+    customerName?: string;
+    customerPhone?: string;
+    customerEmail?: string;
   }) => void;
   onRedeemVoucher?: (voucherCode: string, balance: number) => void;
   initialView?: 'sell' | 'redeem';
   initialData?: VoucherInitialData | null;
+  guestData?: { name?: string; phone?: string; email?: string } | null;
 }
 
 type WizardStep = 'customer' | 'purchaseType' | 'voucherConfig';
@@ -61,7 +65,7 @@ const STEP_LABELS: Record<WizardStep, string> = {
   voucherConfig: 'Configure',
 };
 
-const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDialogProps) => {
+const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }: VoucherDialogProps) => {
   const isEditMode = !!(initialData?.editingItemId);
 
   // Wizard step
@@ -240,6 +244,9 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
         minimumOrder: parsedMinimumOrder,
         notes: notes.trim() || undefined,
         voucherCode: generateVoucherCode(),
+        customerName: customer?.name,
+        customerPhone: customer?.phone,
+        customerEmail: customer?.email,
       });
     } else {
       // Multiple: add each as separate line item
@@ -265,6 +272,9 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
           minimumOrder: parsedMinimumOrder,
           notes: notes.trim() || undefined,
           voucherCode: generateVoucherCode(),
+          customerName: customer?.name,
+          customerPhone: customer?.phone,
+          customerEmail: customer?.email,
         });
       }
     }
@@ -335,6 +345,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
           {step === 'customer' && (
             <CustomerStep
               customer={customer}
+              initialGuestData={guestData}
               onCustomerIdentified={(c) => {
                 setCustomer(c);
                 // Auto-detect company association

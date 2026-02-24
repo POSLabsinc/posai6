@@ -1,24 +1,25 @@
 
 
-## Add More Vouchers in Multi-Voucher Step
+## Fix: Make Summary Breakdown Scroll with Voucher Cards
 
-### Current Behavior
-When selecting "Multiple Vouchers" on Step 2, users pick a fixed quantity (2-10) and then configure each voucher. There is no way to add more vouchers after the initial selection.
+### Problem
+The voucher cards grid in `MultiVoucherStep.tsx` has its own scroll container (`max-h-[300px] overflow-y-auto` on line 633), creating a separate scroll context. The Summary breakdown card sits **below** this scroll container, so it appears "fixed" in place while the cards scroll independently above it.
 
-### Proposed Solution
-Add an **"+ Add Voucher"** button at the bottom of the voucher entries list (before the shared fields section). This button will append a new blank voucher entry to the existing list, allowing users to incrementally add as many vouchers as needed beyond the initial quantity.
+### Solution
+Remove the independent scroll constraint from the cards grid and let the entire content (cards + summary) scroll together within the parent dialog's scrollable body (`overflow-y-auto` on `VoucherDialog.tsx` line 334).
 
-### UI Details
-- The button will appear below the last voucher card and above the pagination controls
-- Styled as a dashed-border button with a "+" icon, matching the dark theme
-- Each new voucher gets a unique ID and blank defaults (same as the generated entries)
-- The view auto-navigates to the last page so the newly added voucher is visible
-
-### Technical Changes
+### Changes
 
 **File: `src/components/voucher/MultiVoucherStep.tsx`**
-- Add a `addEntry` function that appends a new blank `VoucherEntry` to the entries array using `generateVoucherCode()` for the ID
-- After adding, auto-set `currentPage` to the last page so the new entry is immediately visible
-- Render an "+ Add Voucher" button between the voucher cards and the pagination controls
-- Button styled with dashed border (`border-dashed border-neutral-600`) and a Plus icon from lucide-react
 
+1. **Remove `max-h-[300px] overflow-y-auto`** from the cards grid container (line 633)
+   - Change: `grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto scrollbar-hide p-1`
+   - To: `grid grid-cols-1 md:grid-cols-2 gap-2.5 p-1`
+
+This single change ensures the cards grid expands to its natural height, and the summary card flows directly after the cards. The parent dialog body container already handles scrolling for the entire content area.
+
+### What stays the same
+- Summary card styling and content unchanged
+- Footer (BACK / ADD TO ORDER) remains pinned at the bottom of the dialog
+- Search bar and category filters remain at the top
+- No changes to SingleVoucherStep or any other file

@@ -8,9 +8,10 @@ interface CustomerStepProps {
   customer: VoucherCustomer | null;
   onCustomerIdentified: (customer: VoucherCustomer) => void;
   onContinue: () => void;
+  initialGuestData?: { name?: string; phone?: string; email?: string } | null;
 }
 
-const CustomerStep = ({ customer, onCustomerIdentified, onContinue }: CustomerStepProps) => {
+const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuestData }: CustomerStepProps) => {
   const [searchMode, setSearchMode] = useState<'phone' | 'email'>('phone');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCountry, setSelectedCountry] = useState<CountryCodeEntry>(COUNTRY_CODES[0]);
@@ -23,6 +24,27 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue }: CustomerSt
   const [isNewCustomer, setIsNewCustomer] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const [didPrefill, setDidPrefill] = useState(false);
+
+  // Pre-fill from guest data (order section)
+  useEffect(() => {
+    if (didPrefill || customer) return;
+    if (!initialGuestData) return;
+    const { name, phone, email } = initialGuestData;
+    if (phone && phone.replace(/\D/g, '').length >= 3) {
+      setSearchMode('phone');
+      setSearchQuery(phone.replace(/\D/g, ''));
+      if (name) setCustomerName(name);
+    } else if (email && email.includes('@')) {
+      setSearchMode('email');
+      setSearchQuery(email);
+      if (name) setCustomerName(name);
+    } else if (name) {
+      setCustomerName(name);
+      setIsNewCustomer(true);
+    }
+    setDidPrefill(true);
+  }, [initialGuestData, customer, didPrefill]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {

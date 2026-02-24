@@ -9288,11 +9288,20 @@ const Orders = () => {
       isOpen={showVoucherDialog}
       onClose={() => { setShowVoucherDialog(false); setEditingVoucherData(null); }}
       initialData={editingVoucherData}
+      guestData={(guestName || guestPhone) ? { name: guestName, phone: guestPhone } : null}
       onAddVoucher={(amount, voucherData) => {
         const price = voucherData.sellingPrice || amount;
         const voucherLabel = voucherData.voucherName?.trim() || 'Voucher';
         const label = `${voucherLabel} - $${voucherData.value.toFixed(2)}`;
         const meta = { type: voucherData.type, value: voucherData.value, expiryDate: voucherData.expiryDate, voucherName: voucherData.voucherName?.trim() };
+
+        // Pre-fill guest details from voucher customer
+        if (voucherData.customerName && !guestName) {
+          setGuestName(voucherData.customerName);
+        }
+        if (voucherData.customerPhone && !guestPhone) {
+          setGuestPhone(voucherData.customerPhone.replace(/\D/g, ''));
+        }
 
         if (editingVoucherData?.editingItemId) {
           // Update existing voucher item

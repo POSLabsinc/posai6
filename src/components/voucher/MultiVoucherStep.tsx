@@ -8,7 +8,7 @@ import {
 } from "./voucherConstants";
 import {
   posCurrencyDigitAppend, posCurrencyDigitDelete, posCurrencyFormat, posCurrencyToNumber,
-  generateVoucherCode,
+  generateVoucherCode, numberToPosDigits,
 } from "./voucherHelpers";
 
 interface MultiVoucherStepProps {
@@ -75,6 +75,8 @@ const MultiVoucherStep = ({
         serviceFeeReadOnly: true,
         serviceFeeType: config.serviceFeeType,
         serviceFeeConfigValue: config.serviceFeeValue,
+        // Prefill redeemable value from template
+        valueDigits: config.redeemableValue ? numberToPosDigits(config.redeemableValue) : '',
       });
     }
   };
@@ -148,7 +150,7 @@ const MultiVoucherStep = ({
             <div className="grid grid-cols-2 gap-2">
               <Select value={entry.voucherName || '_placeholder'} onValueChange={(val) => {
                 if (val === '__custom') {
-                  updateEntry(entry.id, { voucherName: '', isCustom: true, serviceFeeReadOnly: false, serviceFeeType: 'fixed', serviceFeeConfigValue: 0 });
+                  updateEntry(entry.id, { voucherName: '', isCustom: true, serviceFeeReadOnly: false, serviceFeeType: 'fixed', serviceFeeConfigValue: 0, valueDigits: '', serviceFeeDigits: '' });
                 } else {
                   selectVoucherType(entry.id, val);
                 }
@@ -163,14 +165,22 @@ const MultiVoucherStep = ({
                   <SelectItem value="__custom" className="text-emerald-400 hover:bg-neutral-700 focus:bg-neutral-700 focus:text-emerald-400 text-xs">+ Custom</SelectItem>
                 </SelectContent>
               </Select>
-              <button
-                type="button"
-                onClick={() => setActiveKeypad(activeKeypad && typeof activeKeypad === 'object' && activeKeypad.entryId === entry.id ? null : { entryId: entry.id, field: 'value' })}
-                className={`bg-neutral-800 border rounded-lg px-3 py-2 text-xs text-left cursor-pointer hover:border-neutral-500 transition-colors ${typeof activeKeypad === 'object' && activeKeypad?.entryId === entry.id ? 'border-neutral-400' : 'border-neutral-600'}`}
-              >
-                <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                <span className="text-white">{posCurrencyFormat(entry.valueDigits)}</span>
-              </button>
+              {/* Value field: locked for pre-created, editable for custom */}
+              {!entry.isCustom && entry.voucherName ? (
+                <div className="bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-2 text-xs">
+                  <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                  <span className="text-neutral-300">{posCurrencyFormat(entry.valueDigits)}</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setActiveKeypad(activeKeypad && typeof activeKeypad === 'object' && activeKeypad.entryId === entry.id ? null : { entryId: entry.id, field: 'value' })}
+                  className={`bg-neutral-800 border rounded-lg px-3 py-2 text-xs text-left cursor-pointer hover:border-neutral-500 transition-colors ${typeof activeKeypad === 'object' && activeKeypad?.entryId === entry.id ? 'border-neutral-400' : 'border-neutral-600'}`}
+                >
+                  <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                  <span className="text-white">{posCurrencyFormat(entry.valueDigits)}</span>
+                </button>
+              )}
             </div>
             {entry.isCustom && (
               <input
@@ -181,7 +191,7 @@ const MultiVoucherStep = ({
                 className={`${inputClass} text-xs py-2`}
               />
             )}
-            {typeof activeKeypad === 'object' && activeKeypad?.entryId === entry.id && (
+            {entry.isCustom && typeof activeKeypad === 'object' && activeKeypad?.entryId === entry.id && (
               <div className="grid grid-cols-3 gap-1 mt-1">
                 {[1,2,3,4,5,6,7,8,9].map(n => (
                   <button key={n} onClick={() => updateEntry(entry.id, { valueDigits: handlePosKeyPress(entry.valueDigits, n.toString()) })} className={`h-9 text-sm font-medium ${keypadBtnClass}`}>{n}</button>

@@ -630,7 +630,7 @@ const MultiVoucherStep = ({
       </div>
 
       {/* Cards grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto scrollbar-hide p-1">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 p-1">
         {/* Custom Voucher Card (add new) */}
         {showCustomCard && (
           <button

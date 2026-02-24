@@ -7366,6 +7366,7 @@ const Orders = () => {
                         expiryDate: (item as any).voucherMeta?.expiryDate,
                         quantity: item.qty,
                         editingItemId: item.id,
+                        voucherName: (item as any).voucherMeta?.voucherName,
                       });
                       setShowVoucherDialog(true);
                       return;
@@ -8478,6 +8479,7 @@ const Orders = () => {
                             expiryDate: (item as any).voucherMeta?.expiryDate,
                             quantity: item.qty,
                             editingItemId: item.id,
+                            voucherName: (item as any).voucherMeta?.voucherName,
                           });
                           setShowVoucherDialog(true);
                           return;
@@ -9288,10 +9290,9 @@ const Orders = () => {
       initialData={editingVoucherData}
       onAddVoucher={(amount, voucherData) => {
         const price = voucherData.sellingPrice || amount;
-        const label = voucherData.type === 'percentage'
-          ? `Voucher \u2013 ${amount}%`
-          : `Voucher - $${amount.toFixed(2)}`;
-        const meta = { type: voucherData.type, value: amount, expiryDate: voucherData.expiryDate };
+        const voucherLabel = voucherData.voucherName?.trim() || 'Voucher';
+        const label = `${voucherLabel} - $${voucherData.value.toFixed(2)}`;
+        const meta = { type: voucherData.type, value: voucherData.value, expiryDate: voucherData.expiryDate, voucherName: voucherData.voucherName?.trim() };
 
         if (editingVoucherData?.editingItemId) {
           // Update existing voucher item

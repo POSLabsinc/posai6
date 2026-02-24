@@ -47,16 +47,16 @@ const PurchaseTypeStep = ({
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => onPurchaseModeChange('single')}
-            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${purchaseMode === 'single' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
+            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all ${purchaseMode === 'single' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
           >
-            <User className="w-6 h-6" />
+            <User className="w-5 h-5" />
             <span className="text-sm font-medium">Single Voucher</span>
           </button>
           <button
             onClick={() => onPurchaseModeChange('multiple')}
-            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${purchaseMode === 'multiple' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
+            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all ${purchaseMode === 'multiple' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
           >
-            <Users className="w-6 h-6" />
+            <Users className="w-5 h-5" />
             <span className="text-sm font-medium">Multiple Vouchers</span>
           </button>
         </div>
@@ -68,14 +68,14 @@ const PurchaseTypeStep = ({
         <div className="grid grid-cols-2 gap-2">
           <button
             onClick={() => { onBuyerTypeChange('personal'); onCompanySelect(null); }}
-            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${buyerType === 'personal' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
+            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all ${buyerType === 'personal' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
           >
             <User className="w-5 h-5" />
             <span className="text-sm font-medium">Personal</span>
           </button>
           <button
             onClick={() => onBuyerTypeChange('company')}
-            className={`flex flex-col items-center gap-2 p-4 rounded-xl border transition-all ${buyerType === 'company' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
+            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all ${buyerType === 'company' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
           >
             <Building2 className="w-5 h-5" />
             <span className="text-sm font-medium">Company</span>

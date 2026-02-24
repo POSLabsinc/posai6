@@ -279,10 +279,10 @@ const SingleVoucherStep = ({
                 <div className="relative p-3.5">
                   {/* Top: Name + Badge */}
                   <div className="flex items-start justify-between gap-2 mb-2">
-                    <h3 className={`font-bold text-sm leading-tight ${selected ? 'text-white' : 'text-neutral-100'}`}>
+                    <h3 className="font-bold text-[15px] leading-tight text-white">
                       {config.name}
                     </h3>
-                    <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full border whitespace-nowrap flex-shrink-0 ${theme.badgeBg} ${theme.badgeText}`}>
+                    <span className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border whitespace-nowrap flex-shrink-0 ${theme.badgeBg} ${theme.badgeText}`}>
                       {formatServiceFeeBadge(config)}
                     </span>
                   </div>
@@ -292,42 +292,42 @@ const SingleVoucherStep = ({
                     <div className={`text-2xl font-extrabold tracking-tight ${theme.valueBg}`}>
                       {CURRENCY_SYMBOL}{(config.redeemableValue || 0).toFixed(2)}
                     </div>
-                    <div className={`text-[10px] font-medium uppercase tracking-widest mt-0.5 ${theme.subtitle}`}>
+                    <div className={`text-[11px] font-semibold uppercase tracking-widest mt-0.5 ${theme.accentText}`}>
                       Gift Voucher
                     </div>
                   </div>
 
                   {/* Decorative divider */}
                   <div className="flex items-center gap-2 my-2">
-                    <div className={`flex-1 h-px opacity-20 ${theme.accent.replace('text-', 'bg-')}`} />
-                    <div className={`w-1.5 h-1.5 rounded-full opacity-30 ${theme.accent.replace('text-', 'bg-')}`} />
-                    <div className={`flex-1 h-px opacity-20 ${theme.accent.replace('text-', 'bg-')}`} />
+                    <div className={`flex-1 h-px opacity-30 ${theme.accent.replace('text-', 'bg-')}`} />
+                    <div className={`w-1.5 h-1.5 rounded-full opacity-40 ${theme.accent.replace('text-', 'bg-')}`} />
+                    <div className={`flex-1 h-px opacity-30 ${theme.accent.replace('text-', 'bg-')}`} />
                   </div>
 
                   {/* Bottom: Details */}
-                  <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-[11px]">
+                  <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-[11px]">
                     <div className="flex justify-between">
-                      <span className="text-neutral-500">Min Order</span>
-                      <span className="text-neutral-300">{config.minOrderDefault ? `${CURRENCY_SYMBOL}${config.minOrderDefault.toFixed(2)}` : '—'}</span>
+                      <span className="text-neutral-400 font-medium">Min Order</span>
+                      <span className="text-white font-bold">{config.minOrderDefault ? `${CURRENCY_SYMBOL}${config.minOrderDefault.toFixed(2)}` : '—'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-neutral-500">Limit</span>
-                      <span className="text-neutral-300">
+                      <span className="text-neutral-400 font-medium">Limit</span>
+                      <span className="text-white font-bold">
                         {REDEMPTION_LIMIT_OPTIONS.find(o => o.value === config.redemptionLimitDefault)?.label || '1 time'}
                       </span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-neutral-500">From</span>
-                      <span className="text-neutral-300">{config.validFromDefault || 'Today'}</span>
+                      <span className="text-neutral-400 font-medium">From</span>
+                      <span className="text-white font-bold">{config.validFromDefault || 'Today'}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-neutral-500">Expires</span>
-                      <span className="text-neutral-300">{config.expiryDefault || '—'}</span>
+                      <span className="text-neutral-400 font-medium">Expires</span>
+                      <span className="text-white font-bold">{config.expiryDefault || '—'}</span>
                     </div>
                   </div>
 
                   {/* Footer */}
-                  <div className={`mt-2 pt-1.5 border-t border-white/5 text-[9px] tracking-wide uppercase ${theme.subtitle}`}>
+                  <div className={`mt-2 pt-1.5 border-t border-white/10 text-[10px] font-medium tracking-wide uppercase ${theme.accentText}`}>
                     Powered by POS AI
                   </div>
                 </div>

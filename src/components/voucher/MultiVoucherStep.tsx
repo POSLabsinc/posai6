@@ -547,16 +547,14 @@ const MultiVoucherStep = ({
                   {activeKeypad === 'fee' && renderKeypad(entry.serviceFeeDigits, (d) => updateCurrentEntry({ serviceFeeDigits: d }))}
                 </div>
                 <div>
-                  <label className={labelClass}>Quantity</label>
-                  <div className="flex items-center gap-2 h-[46px]">
-                    <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="text-white font-bold text-sm w-8 text-center">{entry.quantity}</span>
-                    <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
+                  <label className={labelClass}>Minimum Order</label>
+                  <button type="button" onClick={() => setActiveKeypad(p => p === 'minOrder' ? null : 'minOrder')}
+                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                    <span className="text-white">{posCurrencyFormat(entry.minimumOrderDigits)}</span>
+                  </button>
+                  {indepMinOrderWarning && <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>}
+                  {activeKeypad === 'minOrder' && renderKeypad(entry.minimumOrderDigits, (d) => updateCurrentEntry({ minimumOrderDigits: d }))}
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
@@ -579,15 +577,17 @@ const MultiVoucherStep = ({
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="col-span-2 md:col-span-3">
-                  <label className={labelClass}>Minimum Order</label>
-                  <button type="button" onClick={() => setActiveKeypad(p => p === 'minOrder' ? null : 'minOrder')}
-                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                    <span className="text-white">{posCurrencyFormat(entry.minimumOrderDigits)}</span>
-                  </button>
-                  {indepMinOrderWarning && <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>}
-                  {activeKeypad === 'minOrder' && renderKeypad(entry.minimumOrderDigits, (d) => updateCurrentEntry({ minimumOrderDigits: d }))}
+                <div>
+                  <label className={labelClass}>Quantity</label>
+                  <div className="flex items-center gap-2 h-[46px]">
+                    <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="text-white font-bold text-sm w-8 text-center">{entry.quantity}</span>
+                    <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
               </div>
               <div>

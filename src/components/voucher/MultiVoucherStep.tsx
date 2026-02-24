@@ -574,14 +574,6 @@ const MultiVoucherStep = ({
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <div>
-                  <label className={labelClass}>Valid From</label>
-                  <input type="date" value={entry.validFrom} onChange={(e) => updateCurrentEntry({ validFrom: e.target.value })} className={`${inputClass} [color-scheme:dark]`} />
-                </div>
-                <div>
-                  <label className={labelClass}>Expiry Date</label>
-                  <input type="date" value={entry.expiryDate} min={entry.validFrom || undefined} onChange={(e) => updateCurrentEntry({ expiryDate: e.target.value })} className={`${inputClass} [color-scheme:dark]`} />
-                </div>
-                <div>
                   <label className={labelClass}>Redemption Limit</label>
                   <Select value={entry.redemptionLimit} onValueChange={(v) => updateCurrentEntry({ redemptionLimit: v })}>
                     <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
@@ -591,6 +583,14 @@ const MultiVoucherStep = ({
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <label className={labelClass}>Valid From</label>
+                  <input type="date" value={entry.validFrom} onChange={(e) => updateCurrentEntry({ validFrom: e.target.value })} className={`${inputClass} [color-scheme:dark]`} />
+                </div>
+                <div>
+                  <label className={labelClass}>Expiry Date</label>
+                  <input type="date" value={entry.expiryDate} min={entry.validFrom || undefined} onChange={(e) => updateCurrentEntry({ expiryDate: e.target.value })} className={`${inputClass} [color-scheme:dark]`} />
                 </div>
               </div>
               <div>

@@ -8698,6 +8698,7 @@ const Orders = () => {
                   {/* Order Summary - Only show when cart has items */}
                   {orderItems.length > 0 &&
               <div className="p-2 border-t border-sidebar-border flex-shrink-0">
+                <ScrollArea className="max-h-[120px]">
                 <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
                   background: '#7575754D',
                   boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
@@ -8821,6 +8822,7 @@ const Orders = () => {
                     </div>
                   }
                 </div>
+                </ScrollArea>
 
                 {/* Action Buttons - Inside background container */}
                 <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">

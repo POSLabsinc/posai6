@@ -10,12 +10,13 @@ interface PurchaseTypeStepProps {
   onBuyerTypeChange: (type: BuyerType) => void;
   onCompanySelect: (company: CompanyProfile | null) => void;
   onContinue: () => void;
+  onBack: () => void;
 }
 
 const PurchaseTypeStep = ({
   purchaseMode, buyerType, selectedCompany,
   onPurchaseModeChange, onBuyerTypeChange, onCompanySelect,
-  onContinue,
+  onContinue, onBack,
 }: PurchaseTypeStepProps) => {
   const [showCompanyDropdown, setShowCompanyDropdown] = useState(false);
   const [companySearch, setCompanySearch] = useState('');
@@ -131,15 +132,23 @@ const PurchaseTypeStep = ({
         </div>
       )}
 
-      <button
-        onClick={onContinue}
-        disabled={buyerType === 'company' && !selectedCompany}
-        className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors ${
-          !(buyerType === 'company' && !selectedCompany) ? 'bg-white text-black hover:bg-neutral-200' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
-        }`}
-      >
-        Continue
-      </button>
+      <div className="flex gap-2">
+        <button
+          onClick={onBack}
+          className="flex-1 py-3 rounded-xl font-semibold text-sm border border-neutral-500 text-white hover:bg-neutral-800 transition-colors"
+        >
+          Back
+        </button>
+        <button
+          onClick={onContinue}
+          disabled={buyerType === 'company' && !selectedCompany}
+          className={`flex-[2] py-3 rounded-xl font-semibold text-sm transition-colors ${
+            !(buyerType === 'company' && !selectedCompany) ? 'bg-white text-black hover:bg-neutral-200' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+          }`}
+        >
+          Continue
+        </button>
+      </div>
     </div>
   );
 };

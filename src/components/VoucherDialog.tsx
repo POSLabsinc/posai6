@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Ticket, ChevronLeft, Gift } from "lucide-react";
+import { Ticket, X, Gift } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -272,11 +272,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
         {/* Header */}
         <div className="px-4 md:px-6 pb-2 pt-2 md:pt-4">
           <div className="flex items-center gap-3">
-            {currentStepIdx > 0 && !isEditMode && (
-              <button onClick={goBack} className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors">
-                <ChevronLeft className="w-5 h-5" />
-              </button>
-            )}
             <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border-2 border-white bg-neutral-800 flex items-center justify-center">
               <Ticket className="w-5 h-5 text-white" />
             </div>
@@ -295,6 +290,9 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
                 <span className="text-white font-medium text-sm">{CURRENCY_SYMBOL}{totalPayable.toFixed(2)}</span>
               </div>
             )}
+            <button onClick={handleClose} className="p-1.5 rounded-lg hover:bg-neutral-800 text-neutral-400 hover:text-white transition-colors">
+              <X className="w-5 h-5" />
+            </button>
           </div>
 
           {/* Step indicator */}
@@ -336,6 +334,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
               onBuyerTypeChange={setBuyerType}
               onCompanySelect={setSelectedCompany}
               onContinue={() => setStep('voucherConfig')}
+              onBack={() => setStep('customer')}
             />
           )}
 
@@ -408,13 +407,24 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
         {/* Footer */}
         {step === 'voucherConfig' && (
           <div className="px-4 md:px-6 py-3 border-t border-neutral-700 mt-auto flex items-center gap-2">
-            <Button
-              variant="outline"
-              onClick={handleClose}
-              className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-transparent border border-neutral-500 hover:bg-neutral-800 h-10"
-            >
-              CANCEL
-            </Button>
+            {!isEditMode && (
+              <Button
+                variant="outline"
+                onClick={goBack}
+                className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-transparent border border-neutral-500 hover:bg-neutral-800 h-10"
+              >
+                BACK
+              </Button>
+            )}
+            {isEditMode && (
+              <Button
+                variant="outline"
+                onClick={handleClose}
+                className="flex-1 py-2 rounded-full text-white font-medium text-sm bg-transparent border border-neutral-500 hover:bg-neutral-800 h-10"
+              >
+                CANCEL
+              </Button>
+            )}
             <Button
               onClick={handleAddToOrder}
               disabled={!isConfigValid}

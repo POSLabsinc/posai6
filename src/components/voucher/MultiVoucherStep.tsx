@@ -1,17 +1,18 @@
-import { useState, useCallback, useEffect } from "react";
-import { Delete, Search, Plus, Check, Minus, X, ChevronLeft, ChevronRight, Edit2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Search, Plus, Check, Minus, X, ChevronLeft, ChevronRight, Edit2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES, REDEMPTION_LIMIT_OPTIONS,
-  inputClass, labelClass, keypadBtnClass,
+  inputClass, labelClass,
   type VoucherEntry, type VoucherTypeConfig, type CompanyProfile,
 } from "./voucherConstants";
 import {
-  posCurrencyDigitAppend, posCurrencyDigitDelete, posCurrencyFormat, posCurrencyToNumber,
+  posCurrencyToNumber,
   generateVoucherCode, numberToPosDigits,
 } from "./voucherHelpers";
 import { getCardTheme } from "./voucherCardThemes";
 import { Switch } from "@/components/ui/switch";
+import VoucherCurrencyInput from "./VoucherCurrencyInput";
 
 interface MultiVoucherStepProps {
   entries: VoucherEntry[];
@@ -80,9 +81,6 @@ const MultiVoucherStep = ({
   const [builderIndex, setBuilderIndex] = useState(0);
   const [sharedRulesOn, setSharedRulesOn] = useState(true);
   const [sharedRules, setSharedRules] = useState<SharedRules>({ ...DEFAULT_SHARED_RULES });
-
-  // Keypad state (builder)
-  const [activeKeypad, setActiveKeypad] = useState<'value' | 'fee' | 'minOrder' | 'sharedMinOrder' | null>(null);
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -252,7 +250,6 @@ const MultiVoucherStep = ({
     } else {
       setBuilderIndex(index ?? 0);
     }
-    setActiveKeypad(null);
     setShowBuilder(true);
   };
 
@@ -260,7 +257,6 @@ const MultiVoucherStep = ({
     const idx = customEntries.findIndex(e => e.id === entryId);
     if (idx >= 0) {
       setBuilderIndex(idx);
-      setActiveKeypad(null);
       setShowBuilder(true);
     }
   };
@@ -275,7 +271,6 @@ const MultiVoucherStep = ({
     }
     setCustomEntries(prev => [...prev, newEntry]);
     setBuilderIndex(customEntries.length);
-    setActiveKeypad(null);
   };
 
   const removeBuilderEntry = (idx: number) => {
@@ -286,14 +281,6 @@ const MultiVoucherStep = ({
       setBuilderIndex(Math.max(0, customEntries.length - 2));
     }
   };
-
-  const handlePosKeyPress = useCallback((setter: (d: string) => void, currentDigits: string, key: string) => {
-    setter(posCurrencyDigitAppend(currentDigits, key));
-  }, []);
-
-  const handlePosDeleteKey = useCallback((setter: (d: string) => void, currentDigits: string) => {
-    setter(posCurrencyDigitDelete(currentDigits));
-  }, []);
 
   // --- Totals ---
   const totalTemplateCount = templateSelections.reduce((s, t) => s + t.quantity, 0);
@@ -331,21 +318,6 @@ const MultiVoucherStep = ({
 
   const totalPayable = totalRedeemable + totalServiceFee;
 
-  const renderKeypad = (currentDigits: string, onChange: (digits: string) => void) => (
-    <div className="grid grid-cols-3 gap-1.5 mt-2">
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-        <button key={n} onClick={() => handlePosKeyPress(onChange, currentDigits, n.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
-          {n}
-        </button>
-      ))}
-      <button onClick={() => handlePosKeyPress(onChange, currentDigits, '00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>00</button>
-      <button onClick={() => handlePosKeyPress(onChange, currentDigits, '0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>0</button>
-      <button onClick={() => handlePosDeleteKey(onChange, currentDigits)} className={`h-11 ${keypadBtnClass}`}>
-        <Delete className="w-5 h-5" />
-      </button>
-    </div>
-  );
-
   // =============================
   // CUSTOM VOUCHER BUILDER VIEW
   // =============================
@@ -369,7 +341,7 @@ const MultiVoucherStep = ({
         {/* Back + header */}
         <div className="flex items-center justify-between">
           <button
-            onClick={() => { setShowBuilder(false); setActiveKeypad(null); }}
+            onClick={() => { setShowBuilder(false); }}
             className="text-neutral-400 hover:text-white text-xs transition-colors flex items-center gap-1"
           >
             <ChevronLeft className="w-3.5 h-3.5" /> Back to templates
@@ -394,7 +366,7 @@ const MultiVoucherStep = ({
         {/* ===== SHARED MODE (ON) ===== */}
         {sharedRulesOn && (
           <>
-            {/* Custom Voucher Names List (Now at the top) */}
+            {/* Custom Voucher Names List */}
             <div className="space-y-2">
               <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Voucher Names</span>
               {customEntries.map((ce, idx) => (
@@ -432,38 +404,27 @@ const MultiVoucherStep = ({
               </button>
             </div>
 
-            {/* Shared Settings Block (Now at the bottom) */}
+            {/* Shared Settings Block */}
             <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3 space-y-2">
               <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Settings</span>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
-                <div>
-                  <label className={labelClass}>Redeemable Value <span className="text-red-400">*</span></label>
-                  <button type="button" onClick={() => setActiveKeypad(p => p === 'value' ? null : 'value')}
-                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                    <span className="text-white">{posCurrencyFormat(sharedRules.valueDigits)}</span>
-                  </button>
-                  {activeKeypad === 'value' && renderKeypad(sharedRules.valueDigits, (d) => setSharedRules(p => ({ ...p, valueDigits: d })))}
-                </div>
-                <div>
-                  <label className={labelClass}>Service Fee</label>
-                  <button type="button" onClick={() => setActiveKeypad(p => p === 'fee' ? null : 'fee')}
-                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'fee' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                    <span className="text-white">{posCurrencyFormat(sharedRules.serviceFeeDigits)}</span>
-                  </button>
-                  {activeKeypad === 'fee' && renderKeypad(sharedRules.serviceFeeDigits, (d) => setSharedRules(p => ({ ...p, serviceFeeDigits: d })))}
-                </div>
-                <div>
-                  <label className={labelClass}>Minimum Order</label>
-                  <button type="button" onClick={() => setActiveKeypad(p => p === 'sharedMinOrder' ? null : 'sharedMinOrder')}
-                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'sharedMinOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                    <span className="text-white">{posCurrencyFormat(sharedRules.minimumOrderDigits)}</span>
-                  </button>
-                  {sharedMinOrderWarning && <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>}
-                  {activeKeypad === 'sharedMinOrder' && renderKeypad(sharedRules.minimumOrderDigits, (d) => setSharedRules(p => ({ ...p, minimumOrderDigits: d })))}
-                </div>
+                <VoucherCurrencyInput
+                  label="Redeemable Value"
+                  required
+                  rawDigits={sharedRules.valueDigits}
+                  onRawDigitsChange={(d) => setSharedRules(p => ({ ...p, valueDigits: d }))}
+                />
+                <VoucherCurrencyInput
+                  label="Service Fee"
+                  rawDigits={sharedRules.serviceFeeDigits}
+                  onRawDigitsChange={(d) => setSharedRules(p => ({ ...p, serviceFeeDigits: d }))}
+                />
+                <VoucherCurrencyInput
+                  label="Minimum Order"
+                  rawDigits={sharedRules.minimumOrderDigits}
+                  onRawDigitsChange={(d) => setSharedRules(p => ({ ...p, minimumOrderDigits: d }))}
+                  warning={sharedMinOrderWarning ? "⚠ Exceeds value" : undefined}
+                />
                 <div>
                   <label className={labelClass}>Redemption Limit</label>
                   <Select value={sharedRules.redemptionLimit} onValueChange={(v) => setSharedRules(p => ({ ...p, redemptionLimit: v }))}>
@@ -501,7 +462,7 @@ const MultiVoucherStep = ({
                 {customEntries.map((ce, idx) => (
                   <button
                     key={ce.id}
-                    onClick={() => { setBuilderIndex(idx); setActiveKeypad(null); }}
+                    onClick={() => { setBuilderIndex(idx); }}
                     className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all duration-200 flex-shrink-0 flex items-center gap-1.5 ${
                       idx === builderIndex
                         ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
@@ -543,34 +504,23 @@ const MultiVoucherStep = ({
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
-                <div>
-                  <label className={labelClass}>Redeemable Value <span className="text-red-400">*</span></label>
-                  <button type="button" onClick={() => setActiveKeypad(p => p === 'value' ? null : 'value')}
-                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                    <span className="text-white">{posCurrencyFormat(entry.valueDigits)}</span>
-                  </button>
-                  {activeKeypad === 'value' && renderKeypad(entry.valueDigits, (d) => updateCurrentEntry({ valueDigits: d }))}
-                </div>
-                <div>
-                  <label className={labelClass}>Service Fee</label>
-                  <button type="button" onClick={() => setActiveKeypad(p => p === 'fee' ? null : 'fee')}
-                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'fee' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                    <span className="text-white">{posCurrencyFormat(entry.serviceFeeDigits)}</span>
-                  </button>
-                  {activeKeypad === 'fee' && renderKeypad(entry.serviceFeeDigits, (d) => updateCurrentEntry({ serviceFeeDigits: d }))}
-                </div>
-                <div>
-                  <label className={labelClass}>Minimum Order</label>
-                  <button type="button" onClick={() => setActiveKeypad(p => p === 'minOrder' ? null : 'minOrder')}
-                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                    <span className="text-white">{posCurrencyFormat(entry.minimumOrderDigits)}</span>
-                  </button>
-                  {indepMinOrderWarning && <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>}
-                  {activeKeypad === 'minOrder' && renderKeypad(entry.minimumOrderDigits, (d) => updateCurrentEntry({ minimumOrderDigits: d }))}
-                </div>
+                <VoucherCurrencyInput
+                  label="Redeemable Value"
+                  required
+                  rawDigits={entry.valueDigits}
+                  onRawDigitsChange={(d) => updateCurrentEntry({ valueDigits: d })}
+                />
+                <VoucherCurrencyInput
+                  label="Service Fee"
+                  rawDigits={entry.serviceFeeDigits}
+                  onRawDigitsChange={(d) => updateCurrentEntry({ serviceFeeDigits: d })}
+                />
+                <VoucherCurrencyInput
+                  label="Minimum Order"
+                  rawDigits={entry.minimumOrderDigits}
+                  onRawDigitsChange={(d) => updateCurrentEntry({ minimumOrderDigits: d })}
+                  warning={indepMinOrderWarning ? "⚠ Exceeds value" : undefined}
+                />
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <div>
@@ -605,11 +555,11 @@ const MultiVoucherStep = ({
                 <Plus className="w-3.5 h-3.5" /> Add another custom voucher
               </button>
               <div className="flex items-center gap-1.5">
-                <button disabled={builderIndex <= 0} onClick={() => { setBuilderIndex(p => p - 1); setActiveKeypad(null); }}
+                <button disabled={builderIndex <= 0} onClick={() => { setBuilderIndex(p => p - 1); }}
                   className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors">
                   <ChevronLeft className="w-4 h-4" />
                 </button>
-                <button disabled={builderIndex >= customEntries.length - 1} onClick={() => { setBuilderIndex(p => p + 1); setActiveKeypad(null); }}
+                <button disabled={builderIndex >= customEntries.length - 1} onClick={() => { setBuilderIndex(p => p + 1); }}
                   className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors">
                   <ChevronRight className="w-4 h-4" />
                 </button>
@@ -783,7 +733,7 @@ const MultiVoucherStep = ({
                 </div>
               </div>
 
-              {/* Quantity adjuster (same as template cards) */}
+              {/* Quantity adjuster */}
               <div className="relative px-3.5 pb-3 pt-1 flex items-center justify-between">
                 <span className="text-neutral-400 text-[11px] font-medium">Quantity</span>
                 <div className="flex items-center gap-2">

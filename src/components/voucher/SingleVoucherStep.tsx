@@ -171,46 +171,91 @@ const SingleVoucherStep = ({
         {touched.voucherName && !voucherName.trim() && <p className="text-red-400 text-xs mt-1">Voucher name is required</p>}
       </div>
 
-      {/* Redeemable Value */}
-      <div>
-        <label className={labelClass}>Redeemable Value <span className="text-red-400">*</span></label>
-        {!isCustomVoucherName && voucherName ? (
-          <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-4 py-3 text-sm">
-            <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-            <span className="text-neutral-300">{posCurrencyFormat(valueDigits)}</span>
-          </div>
-        ) : (
-          <>
-            <button type="button" onClick={() => setActiveKeypad(p => p === 'value' ? null : 'value')} className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.value && numericValue <= 0 ? 'border-red-500' : activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+      {/* Redeemable Value, Service Fee, Redemption Limit, Minimum Order — 4 columns */}
+      <div className="md:col-span-2 grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-3">
+        {/* Redeemable Value */}
+        <div>
+          <label className={labelClass}>Redeemable Value <span className="text-red-400">*</span></label>
+          {!isCustomVoucherName && voucherName ? (
+            <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-3 text-sm">
               <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-              <span className="text-white">{posCurrencyFormat(valueDigits)}</span>
-            </button>
-            {touched.value && numericValue <= 0 && <p className="text-red-400 text-xs mt-1">Amount must be greater than {CURRENCY_SYMBOL}0.00</p>}
-            {activeKeypad === 'value' && renderKeypad(valueDigits, onValueDigitsChange)}
-          </>
-        )}
-      </div>
+              <span className="text-neutral-300">{posCurrencyFormat(valueDigits)}</span>
+            </div>
+          ) : (
+            <>
+              <button type="button" onClick={() => setActiveKeypad(p => p === 'value' ? null : 'value')} className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.value && numericValue <= 0 ? 'border-red-500' : activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                <span className="text-white">{posCurrencyFormat(valueDigits)}</span>
+              </button>
+              {touched.value && numericValue <= 0 && <p className="text-red-400 text-xs mt-1">Amount required</p>}
+              {activeKeypad === 'value' && renderKeypad(valueDigits, onValueDigitsChange)}
+            </>
+          )}
+        </div>
 
-      {/* Service Fee */}
-      <div>
-        <label className={labelClass}>
-          Service Fee
-        </label>
-        {serviceFeeReadOnly ? (
-          <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-4 py-3 text-sm">
-            <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-            <span className="text-neutral-300">{computedServiceFee.toFixed(2)}</span>
-            {serviceFeeType === 'none' && <span className="text-neutral-500 ml-2 text-xs">No service fee</span>}
-          </div>
-        ) : (
-          <>
-            <button type="button" onClick={() => setActiveKeypad(p => p === 'serviceFee' ? null : 'serviceFee')} className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'serviceFee' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+        {/* Service Fee */}
+        <div>
+          <label className={labelClass}>Service Fee</label>
+          {serviceFeeReadOnly ? (
+            <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-3 text-sm">
               <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-              <span className="text-white">{posCurrencyFormat(serviceFeeDigits)}</span>
-            </button>
-            {activeKeypad === 'serviceFee' && renderKeypad(serviceFeeDigits, onServiceFeeDigitsChange)}
-          </>
-        )}
+              <span className="text-neutral-300">{computedServiceFee.toFixed(2)}</span>
+            </div>
+          ) : (
+            <>
+              <button type="button" onClick={() => setActiveKeypad(p => p === 'serviceFee' ? null : 'serviceFee')} className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'serviceFee' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                <span className="text-white">{posCurrencyFormat(serviceFeeDigits)}</span>
+              </button>
+              {activeKeypad === 'serviceFee' && renderKeypad(serviceFeeDigits, onServiceFeeDigitsChange)}
+            </>
+          )}
+        </div>
+
+        {/* Redemption Limit */}
+        <div>
+          <label className={labelClass}>Redemption Limit</label>
+          {!isCustomVoucherName && voucherName ? (
+            <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-3 text-sm text-neutral-300">
+              {REDEMPTION_LIMIT_OPTIONS.find(o => o.value === redemptionLimit)?.label || redemptionLimit}
+            </div>
+          ) : (
+            <Select value={redemptionLimit} onValueChange={onRedemptionLimitChange}>
+              <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                {REDEMPTION_LIMIT_OPTIONS.map(opt => (
+                  <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
+                    {opt.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
+
+        {/* Minimum Order */}
+        <div>
+          <label className={labelClass}>Minimum Order</label>
+          {!isCustomVoucherName && voucherName ? (
+            <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-3 text-sm">
+              <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+              <span className="text-neutral-300">{posCurrencyFormat(minimumOrderDigits)}</span>
+            </div>
+          ) : (
+            <>
+              <button type="button" onClick={() => setActiveKeypad(p => p === 'minimumOrder' ? null : 'minimumOrder')} className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minimumOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                <span className="text-white">{posCurrencyFormat(minimumOrderDigits)}</span>
+              </button>
+              {minOrderWarning && (
+                <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>
+              )}
+              {activeKeypad === 'minimumOrder' && renderKeypad(minimumOrderDigits, onMinimumOrderDigitsChange)}
+            </>
+          )}
+        </div>
       </div>
 
       {/* Valid From */}
@@ -230,51 +275,6 @@ const SingleVoucherStep = ({
           <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-4 py-3 text-sm text-neutral-300 [color-scheme:dark]">{expiryDate || 'No expiry'}</div>
         ) : (
           <input type="date" value={expiryDate} min={validFrom || undefined} onChange={(e) => onExpiryDateChange(e.target.value)} className={`${inputClass} [color-scheme:dark]`} />
-        )}
-      </div>
-
-      {/* Redemption Limit - DROPDOWN */}
-      <div>
-        <label className={labelClass}>Redemption Limit</label>
-        {!isCustomVoucherName && voucherName ? (
-          <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-4 py-3 text-sm text-neutral-300">
-            {REDEMPTION_LIMIT_OPTIONS.find(o => o.value === redemptionLimit)?.label || redemptionLimit}
-          </div>
-        ) : (
-          <Select value={redemptionLimit} onValueChange={onRedemptionLimitChange}>
-            <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-              {REDEMPTION_LIMIT_OPTIONS.map(opt => (
-                <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">
-                  {opt.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
-      </div>
-
-      {/* Minimum Order */}
-      <div>
-        <label className={labelClass}>Minimum Order</label>
-        {!isCustomVoucherName && voucherName ? (
-          <div className="w-full bg-neutral-800/50 border border-neutral-700 rounded-lg px-4 py-3 text-sm">
-            <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-            <span className="text-neutral-300">{posCurrencyFormat(minimumOrderDigits)}</span>
-          </div>
-        ) : (
-          <>
-            <button type="button" onClick={() => setActiveKeypad(p => p === 'minimumOrder' ? null : 'minimumOrder')} className={`w-full bg-neutral-800 border rounded-lg px-4 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minimumOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-              <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-              <span className="text-white">{posCurrencyFormat(minimumOrderDigits)}</span>
-            </button>
-            {minOrderWarning && (
-              <p className="text-amber-400 text-xs mt-1">⚠ Minimum order exceeds redeemable value</p>
-            )}
-            {activeKeypad === 'minimumOrder' && renderKeypad(minimumOrderDigits, onMinimumOrderDigitsChange)}
-          </>
         )}
       </div>
 

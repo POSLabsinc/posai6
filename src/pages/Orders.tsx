@@ -67,7 +67,7 @@ import scheduledIcon from "@/assets/icons/scheduled.svg";
 import phoneInIcon from "@/assets/icons/phone-in.svg";
 import customOrderIcon from "@/assets/icons/custom-order.svg";
 import menuIcon from "@/assets/icons/menu-icon.svg";
-import tableOrderIcon from "@/assets/icons/table-order.png";
+import tableOrderIcon from "@/assets/icons/table-order-2.svg";
 import mergeIcon from "@/assets/icons/link-merge.png";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
@@ -6969,7 +6969,7 @@ const Orders = () => {
                     <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
                   background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
                 }}>
-                      <img src={orderTypes.find((t) => t.label === orderType)?.icon || (orderType.startsWith('TABLE') ? tableOrderIcon : dineInIcon)} alt="" className="w-4 h-4 invert" />
+                      <img src={orderTypes.find((t) => t.label === orderType)?.icon || (orderType.startsWith('TABLE') ? tableOrderIcon : dineInIcon)} alt="" className="w-4 h-4" />
                       {orderType} <ChevronDown className="w-3 h-3" />
                     </button>
                   </DropdownMenuTrigger>

@@ -523,9 +523,23 @@ const MultiVoucherStep = ({
 
             {/* Full per-entry form */}
             <div className="space-y-3">
-              <div>
-                <label className={labelClass}>Voucher Name <span className="text-red-400">*</span></label>
-                <input type="text" value={entry.voucherName} onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })} placeholder="Enter custom voucher name" autoFocus className={inputClass} />
+              <div className="flex items-end gap-3">
+                <div className="flex-1">
+                  <label className={labelClass}>Voucher Name <span className="text-red-400">*</span></label>
+                  <input type="text" value={entry.voucherName} onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })} placeholder="Enter custom voucher name" autoFocus className={inputClass} />
+                </div>
+                <div className="flex-shrink-0">
+                  <label className={labelClass}>Qty</label>
+                  <div className="flex items-center gap-1.5 h-[46px]">
+                    <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="text-white font-bold text-sm w-6 text-center">{entry.quantity}</span>
+                    <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <div>
@@ -576,18 +590,6 @@ const MultiVoucherStep = ({
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <div>
-                  <label className={labelClass}>Quantity</label>
-                  <div className="flex items-center gap-2 h-[46px]">
-                    <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                      <Minus className="w-4 h-4" />
-                    </button>
-                    <span className="text-white font-bold text-sm w-8 text-center">{entry.quantity}</span>
-                    <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
                 </div>
               </div>
               <div>

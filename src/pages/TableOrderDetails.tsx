@@ -84,9 +84,9 @@ const discountTypes: DiscountType[] = [
   { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
   { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
   { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
-  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
+  { id: 'birthday', name: 'Birthday Special', description: '100% off', percentage: 100, icon: 'cake' },
   { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
-  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
+  { id: 'comp5', name: 'Manager Comp', description: '100% off', percentage: 100, icon: 'dollar' },
   { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
   { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
   { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
@@ -3328,9 +3328,10 @@ const TableOrderDetails = () => {
                         </div>
                         <div className="flex-1 text-left">
                           <div className="text-white text-sm font-medium">{discountType.name}</div>
-                          <div className="text-neutral-400 text-xs">{discountType.description}</div>
                         </div>
-                        <div className="text-white text-sm font-medium">-${discountAmount.toFixed(2)}</div>
+                        <div className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isSelected ? 'bg-orange-500/30 text-orange-300' : 'bg-neutral-700 text-neutral-300'}`}>
+                          {discountType.percentage ? `${discountType.percentage}% off` : `$${discountType.fixedAmount?.toFixed(2)} off`}
+                        </div>
                       </button>
                     );
                   })}

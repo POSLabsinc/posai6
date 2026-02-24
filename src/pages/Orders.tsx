@@ -6969,7 +6969,7 @@ const Orders = () => {
                     <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
                   background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
                 }}>
-                      <img src={orderTypes.find((t) => t.label === orderType)?.icon || dineInIcon} alt="" className="w-4 h-4 invert" />
+                      <img src={orderTypes.find((t) => t.label === orderType)?.icon || (orderType.startsWith('TABLE') ? tableOrderIcon : dineInIcon)} alt="" className="w-4 h-4 invert" />
                       {orderType} <ChevronDown className="w-3 h-3" />
                     </button>
                   </DropdownMenuTrigger>

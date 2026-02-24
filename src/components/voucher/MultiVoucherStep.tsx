@@ -21,6 +21,8 @@ interface MultiVoucherStepProps {
 
 type TemplateSelection = { templateName: string; quantity: number };
 type SharedRules = {
+  valueDigits: string;
+  serviceFeeDigits: string;
   validFrom: string;
   expiryDate: string;
   redemptionLimit: string;
@@ -41,6 +43,8 @@ type CustomEntry = {
 };
 
 const DEFAULT_SHARED_RULES: SharedRules = {
+  valueDigits: '',
+  serviceFeeDigits: '',
   validFrom: '',
   expiryDate: '',
   redemptionLimit: '1',
@@ -94,6 +98,8 @@ const MultiVoucherStep = ({
     if (checked && customEntries.length > 0) {
       const first = customEntries[0];
       setSharedRules({
+        valueDigits: first.valueDigits,
+        serviceFeeDigits: first.serviceFeeDigits,
         validFrom: first.validFrom,
         expiryDate: first.expiryDate,
         redemptionLimit: first.redemptionLimit,
@@ -101,12 +107,16 @@ const MultiVoucherStep = ({
         notes: first.notes,
       });
     } else if (!checked) {
+      // Distribute shared values to all entries
       setCustomEntries(prev => prev.map(ce => ({
         ...ce,
+        valueDigits: ce.valueDigits || sharedRules.valueDigits,
+        serviceFeeDigits: ce.serviceFeeDigits || sharedRules.serviceFeeDigits,
         validFrom: ce.validFrom || sharedRules.validFrom,
         expiryDate: ce.expiryDate || sharedRules.expiryDate,
         redemptionLimit: ce.redemptionLimit || sharedRules.redemptionLimit,
         minimumOrderDigits: ce.minimumOrderDigits || sharedRules.minimumOrderDigits,
+        notes: ce.notes || sharedRules.notes,
       })));
     }
     setSharedRulesOn(checked);
@@ -132,13 +142,15 @@ const MultiVoucherStep = ({
       }
     }
     for (const ce of customEntries) {
+      const effectiveValue = sharedRulesOn ? sharedRules.valueDigits : ce.valueDigits;
+      const effectiveFee = sharedRulesOn ? sharedRules.serviceFeeDigits : ce.serviceFeeDigits;
       for (let i = 0; i < ce.quantity; i++) {
         newEntries.push({
           id: ce.id + (i > 0 ? `-${i}` : ''),
           voucherName: ce.voucherName,
           isCustom: true,
-          valueDigits: ce.valueDigits,
-          serviceFeeDigits: ce.serviceFeeDigits,
+          valueDigits: effectiveValue,
+          serviceFeeDigits: effectiveFee,
           serviceFeeReadOnly: false,
           serviceFeeType: 'fixed',
           serviceFeeConfigValue: 0,
@@ -147,7 +159,7 @@ const MultiVoucherStep = ({
     }
     onEntriesChange(newEntries);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [templateSelections, customEntries]);
+  }, [templateSelections, customEntries, sharedRulesOn, sharedRules]);
 
   // --- Filter logic ---
   const voucherTypes = (() => {
@@ -295,7 +307,8 @@ const MultiVoucherStep = ({
       sum += (cfg?.redeemableValue || 0) * sel.quantity;
     }
     for (const ce of customEntries) {
-      sum += posCurrencyToNumber(ce.valueDigits) * ce.quantity;
+      const effectiveValue = sharedRulesOn ? sharedRules.valueDigits : ce.valueDigits;
+      sum += posCurrencyToNumber(effectiveValue) * ce.quantity;
     }
     return sum;
   })();
@@ -310,7 +323,8 @@ const MultiVoucherStep = ({
       else if (cfg.serviceFeeType === 'fixed') sum += cfg.serviceFeeValue * sel.quantity;
     }
     for (const ce of customEntries) {
-      sum += posCurrencyToNumber(ce.serviceFeeDigits) * ce.quantity;
+      const effectiveFee = sharedRulesOn ? sharedRules.serviceFeeDigits : ce.serviceFeeDigits;
+      sum += posCurrencyToNumber(effectiveFee) * ce.quantity;
     }
     return sum;
   })();
@@ -342,10 +356,13 @@ const MultiVoucherStep = ({
       return null;
     }
 
+    const sharedValue = posCurrencyToNumber(sharedRules.valueDigits);
+    const sharedMinOrder = posCurrencyToNumber(sharedRules.minimumOrderDigits);
+    const sharedMinOrderWarning = sharedMinOrder > 0 && sharedValue > 0 && sharedMinOrder > sharedValue;
+
     const entryValue = posCurrencyToNumber(entry.valueDigits);
-    const entryFee = posCurrencyToNumber(entry.serviceFeeDigits);
-    const entryMinOrder = posCurrencyToNumber(sharedRulesOn ? sharedRules.minimumOrderDigits : entry.minimumOrderDigits);
-    const minOrderWarning = entryMinOrder > 0 && entryValue > 0 && entryMinOrder > entryValue;
+    const entryMinOrder = posCurrencyToNumber(entry.minimumOrderDigits);
+    const indepMinOrderWarning = entryMinOrder > 0 && entryValue > 0 && entryMinOrder > entryValue;
 
     return (
       <div className="space-y-3">
@@ -358,131 +375,14 @@ const MultiVoucherStep = ({
             <ChevronLeft className="w-3.5 h-3.5" /> Back to templates
           </button>
           <span className="text-neutral-500 text-[11px]">
-            {builderIndex + 1} of {customEntries.length}
+            {customEntries.length} custom voucher{customEntries.length !== 1 ? 's' : ''}
           </span>
-        </div>
-
-        {/* Entry navigator (compact pill list) */}
-        {customEntries.length > 1 && (
-          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-0.5">
-            {customEntries.map((ce, idx) => (
-              <button
-                key={ce.id}
-                onClick={() => { setBuilderIndex(idx); setActiveKeypad(null); }}
-                className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all duration-200 flex-shrink-0 flex items-center gap-1.5 ${
-                  idx === builderIndex
-                    ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
-                    : 'bg-neutral-800 text-neutral-400 border-neutral-700 hover:border-neutral-500'
-                }`}
-              >
-                {ce.voucherName || `Custom #${idx + 1}`}
-                {ce.quantity > 1 && <span className="text-[9px] opacity-70">×{ce.quantity}</span>}
-                <button
-                  onClick={(e) => { e.stopPropagation(); removeBuilderEntry(idx); }}
-                  className="ml-0.5 text-neutral-500 hover:text-red-400 transition-colors"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </button>
-            ))}
-          </div>
-        )}
-
-        {/* Current entry form (Single Voucher style) */}
-        <div className="space-y-3">
-          <div>
-            <label className={labelClass}>Voucher Name <span className="text-red-400">*</span></label>
-            <input
-              type="text"
-              value={entry.voucherName}
-              onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })}
-              placeholder="Enter custom voucher name"
-              autoFocus
-              className={inputClass}
-            />
-          </div>
-
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
-            <div>
-              <label className={labelClass}>Redeemable Value <span className="text-red-400">*</span></label>
-              <button type="button" onClick={() => setActiveKeypad(p => p === 'value' ? null : 'value')}
-                className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                <span className="text-white">{posCurrencyFormat(entry.valueDigits)}</span>
-              </button>
-              {activeKeypad === 'value' && renderKeypad(entry.valueDigits, (d) => updateCurrentEntry({ valueDigits: d }))}
-            </div>
-            <div>
-              <label className={labelClass}>Service Fee</label>
-              <button type="button" onClick={() => setActiveKeypad(p => p === 'fee' ? null : 'fee')}
-                className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'fee' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                <span className="text-white">{posCurrencyFormat(entry.serviceFeeDigits)}</span>
-              </button>
-              {activeKeypad === 'fee' && renderKeypad(entry.serviceFeeDigits, (d) => updateCurrentEntry({ serviceFeeDigits: d }))}
-            </div>
-            <div>
-              <label className={labelClass}>Quantity</label>
-              <div className="flex items-center gap-2 h-[46px]">
-                <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                  <Minus className="w-4 h-4" />
-                </button>
-                <span className="text-white font-bold text-sm w-8 text-center">{entry.quantity}</span>
-                <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                  <Plus className="w-4 h-4" />
-                </button>
-              </div>
-            </div>
-          </div>
-
-          {/* Independent rules (when toggle OFF) */}
-          {!sharedRulesOn && (
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
-              <div>
-                <label className={labelClass}>Valid From</label>
-                <input type="date" value={entry.validFrom} onChange={(e) => updateCurrentEntry({ validFrom: e.target.value })} className={`${inputClass} [color-scheme:dark]`} />
-              </div>
-              <div>
-                <label className={labelClass}>Expiry Date</label>
-                <input type="date" value={entry.expiryDate} min={entry.validFrom || undefined} onChange={(e) => updateCurrentEntry({ expiryDate: e.target.value })} className={`${inputClass} [color-scheme:dark]`} />
-              </div>
-              <div>
-                <label className={labelClass}>Redemption Limit</label>
-                <Select value={entry.redemptionLimit} onValueChange={(v) => updateCurrentEntry({ redemptionLimit: v })}>
-                  <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-                  <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-                    {REDEMPTION_LIMIT_OPTIONS.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">{opt.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="col-span-2 md:col-span-3">
-                <label className={labelClass}>Minimum Order</label>
-                <button type="button" onClick={() => setActiveKeypad(p => p === 'minOrder' ? null : 'minOrder')}
-                  className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                  <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                  <span className="text-white">{posCurrencyFormat(entry.minimumOrderDigits)}</span>
-                </button>
-                {minOrderWarning && <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>}
-                {activeKeypad === 'minOrder' && renderKeypad(entry.minimumOrderDigits, (d) => updateCurrentEntry({ minimumOrderDigits: d }))}
-              </div>
-            </div>
-          )}
-
-          {/* Notes field only shown per-entry when toggle is OFF */}
-          {!sharedRulesOn && (
-            <div>
-              <label className={labelClass}>Notes</label>
-              <input type="text" value={entry.notes} onChange={(e) => updateCurrentEntry({ notes: e.target.value.slice(0, 500) })} placeholder="Internal notes (not printed on voucher)" className={inputClass} />
-            </div>
-          )}
         </div>
 
         {/* Toggle */}
         <div className="flex items-center justify-between bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-2">
           <label className="text-neutral-300 text-[11px] font-medium cursor-pointer">
-            Apply same validity & rules to all custom vouchers
+            Apply same settings to all custom vouchers
           </label>
           <Switch
             checked={sharedRulesOn}
@@ -491,72 +391,229 @@ const MultiVoucherStep = ({
           />
         </div>
 
-        {/* Shared rules section (when ON) */}
+        {/* ===== SHARED MODE (ON) ===== */}
         {sharedRulesOn && (
-          <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3 space-y-2">
-            <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Rules</span>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
-              <div>
-                <label className={labelClass}>Valid From</label>
-                <input type="date" value={sharedRules.validFrom} onChange={(e) => setSharedRules(p => ({ ...p, validFrom: e.target.value }))} className={`${inputClass} [color-scheme:dark]`} />
-              </div>
-              <div>
-                <label className={labelClass}>Expiry Date</label>
-                <input type="date" value={sharedRules.expiryDate} min={sharedRules.validFrom || undefined} onChange={(e) => setSharedRules(p => ({ ...p, expiryDate: e.target.value }))} className={`${inputClass} [color-scheme:dark]`} />
-              </div>
-              <div>
-                <label className={labelClass}>Redemption Limit</label>
-                <Select value={sharedRules.redemptionLimit} onValueChange={(v) => setSharedRules(p => ({ ...p, redemptionLimit: v }))}>
-                  <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-                  <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-                    {REDEMPTION_LIMIT_OPTIONS.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">{opt.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="col-span-2 md:col-span-3">
-                <label className={labelClass}>Minimum Order</label>
-                <button type="button" onClick={() => setActiveKeypad(p => p === 'sharedMinOrder' ? null : 'sharedMinOrder')}
-                  className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'sharedMinOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                  <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                  <span className="text-white">{posCurrencyFormat(sharedRules.minimumOrderDigits)}</span>
-                </button>
-                {activeKeypad === 'sharedMinOrder' && renderKeypad(sharedRules.minimumOrderDigits, (d) => setSharedRules(p => ({ ...p, minimumOrderDigits: d })))}
-              </div>
-              <div className="col-span-2 md:col-span-3">
-                <label className={labelClass}>Notes</label>
-                <input type="text" value={sharedRules.notes} onChange={(e) => setSharedRules(p => ({ ...p, notes: e.target.value.slice(0, 500) }))} placeholder="Internal notes (not printed on voucher)" className={inputClass} />
+          <>
+            {/* Shared Settings Block */}
+            <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3 space-y-2">
+              <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Settings</span>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
+                <div>
+                  <label className={labelClass}>Redeemable Value <span className="text-red-400">*</span></label>
+                  <button type="button" onClick={() => setActiveKeypad(p => p === 'value' ? null : 'value')}
+                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                    <span className="text-white">{posCurrencyFormat(sharedRules.valueDigits)}</span>
+                  </button>
+                  {activeKeypad === 'value' && renderKeypad(sharedRules.valueDigits, (d) => setSharedRules(p => ({ ...p, valueDigits: d })))}
+                </div>
+                <div>
+                  <label className={labelClass}>Service Fee</label>
+                  <button type="button" onClick={() => setActiveKeypad(p => p === 'fee' ? null : 'fee')}
+                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'fee' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                    <span className="text-white">{posCurrencyFormat(sharedRules.serviceFeeDigits)}</span>
+                  </button>
+                  {activeKeypad === 'fee' && renderKeypad(sharedRules.serviceFeeDigits, (d) => setSharedRules(p => ({ ...p, serviceFeeDigits: d })))}
+                </div>
+                <div>
+                  <label className={labelClass}>Redemption Limit</label>
+                  <Select value={sharedRules.redemptionLimit} onValueChange={(v) => setSharedRules(p => ({ ...p, redemptionLimit: v }))}>
+                    <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                      {REDEMPTION_LIMIT_OPTIONS.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className={labelClass}>Valid From</label>
+                  <input type="date" value={sharedRules.validFrom} onChange={(e) => setSharedRules(p => ({ ...p, validFrom: e.target.value }))} className={`${inputClass} [color-scheme:dark]`} />
+                </div>
+                <div>
+                  <label className={labelClass}>Expiry Date</label>
+                  <input type="date" value={sharedRules.expiryDate} min={sharedRules.validFrom || undefined} onChange={(e) => setSharedRules(p => ({ ...p, expiryDate: e.target.value }))} className={`${inputClass} [color-scheme:dark]`} />
+                </div>
+                <div>
+                  <label className={labelClass}>Minimum Order</label>
+                  <button type="button" onClick={() => setActiveKeypad(p => p === 'sharedMinOrder' ? null : 'sharedMinOrder')}
+                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'sharedMinOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                    <span className="text-white">{posCurrencyFormat(sharedRules.minimumOrderDigits)}</span>
+                  </button>
+                  {sharedMinOrderWarning && <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>}
+                  {activeKeypad === 'sharedMinOrder' && renderKeypad(sharedRules.minimumOrderDigits, (d) => setSharedRules(p => ({ ...p, minimumOrderDigits: d })))}
+                </div>
+                <div className="col-span-2 md:col-span-3">
+                  <label className={labelClass}>Notes</label>
+                  <input type="text" value={sharedRules.notes} onChange={(e) => setSharedRules(p => ({ ...p, notes: e.target.value.slice(0, 500) }))} placeholder="Internal notes (not printed on voucher)" className={inputClass} />
+                </div>
               </div>
             </div>
-          </div>
+
+            {/* Custom Voucher Names List */}
+            <div className="space-y-2">
+              <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Voucher Names</span>
+              {customEntries.map((ce, idx) => (
+                <div key={ce.id} className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
+                  <input
+                    type="text"
+                    value={ce.voucherName}
+                    onChange={(e) => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, voucherName: e.target.value.slice(0, 50) } : c))}
+                    placeholder={`Voucher Name #${idx + 1}`}
+                    className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
+                  />
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c))}
+                      className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-white font-bold text-sm w-6 text-center">{ce.quantity}</span>
+                    <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.min(50, c.quantity + 1) } : c))}
+                      className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                  {customEntries.length > 1 && (
+                    <button onClick={() => removeBuilderEntry(idx)} className="text-neutral-500 hover:text-red-400 transition-colors flex-shrink-0">
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+              <button
+                onClick={handleAddAnother}
+                className="text-emerald-400 hover:text-emerald-300 text-xs font-medium flex items-center gap-1 transition-colors"
+              >
+                <Plus className="w-3.5 h-3.5" /> Add Another
+              </button>
+            </div>
+          </>
         )}
 
-        {/* Add another + navigation */}
-        <div className="flex items-center justify-between">
-          <button
-            onClick={handleAddAnother}
-            className="text-emerald-400 hover:text-emerald-300 text-xs font-medium flex items-center gap-1 transition-colors"
-          >
-            <Plus className="w-3.5 h-3.5" /> Add another custom voucher
-          </button>
-          <div className="flex items-center gap-1.5">
-            <button
-              disabled={builderIndex <= 0}
-              onClick={() => { setBuilderIndex(p => p - 1); setActiveKeypad(null); }}
-              className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              disabled={builderIndex >= customEntries.length - 1}
-              onClick={() => { setBuilderIndex(p => p + 1); setActiveKeypad(null); }}
-              className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
+        {/* ===== INDEPENDENT MODE (OFF) ===== */}
+        {!sharedRulesOn && (
+          <>
+            {/* Entry navigator (compact pill list) */}
+            {customEntries.length > 1 && (
+              <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-0.5">
+                {customEntries.map((ce, idx) => (
+                  <button
+                    key={ce.id}
+                    onClick={() => { setBuilderIndex(idx); setActiveKeypad(null); }}
+                    className={`whitespace-nowrap px-3 py-1.5 rounded-full text-[11px] font-medium border transition-all duration-200 flex-shrink-0 flex items-center gap-1.5 ${
+                      idx === builderIndex
+                        ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                        : 'bg-neutral-800 text-neutral-400 border-neutral-700 hover:border-neutral-500'
+                    }`}
+                  >
+                    {ce.voucherName || `Custom #${idx + 1}`}
+                    {ce.quantity > 1 && <span className="text-[9px] opacity-70">×{ce.quantity}</span>}
+                    <button
+                      onClick={(e) => { e.stopPropagation(); removeBuilderEntry(idx); }}
+                      className="ml-0.5 text-neutral-500 hover:text-red-400 transition-colors"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </button>
+                ))}
+              </div>
+            )}
+
+            {/* Full per-entry form */}
+            <div className="space-y-3">
+              <div>
+                <label className={labelClass}>Voucher Name <span className="text-red-400">*</span></label>
+                <input type="text" value={entry.voucherName} onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })} placeholder="Enter custom voucher name" autoFocus className={inputClass} />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
+                <div>
+                  <label className={labelClass}>Redeemable Value <span className="text-red-400">*</span></label>
+                  <button type="button" onClick={() => setActiveKeypad(p => p === 'value' ? null : 'value')}
+                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                    <span className="text-white">{posCurrencyFormat(entry.valueDigits)}</span>
+                  </button>
+                  {activeKeypad === 'value' && renderKeypad(entry.valueDigits, (d) => updateCurrentEntry({ valueDigits: d }))}
+                </div>
+                <div>
+                  <label className={labelClass}>Service Fee</label>
+                  <button type="button" onClick={() => setActiveKeypad(p => p === 'fee' ? null : 'fee')}
+                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'fee' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                    <span className="text-white">{posCurrencyFormat(entry.serviceFeeDigits)}</span>
+                  </button>
+                  {activeKeypad === 'fee' && renderKeypad(entry.serviceFeeDigits, (d) => updateCurrentEntry({ serviceFeeDigits: d }))}
+                </div>
+                <div>
+                  <label className={labelClass}>Quantity</label>
+                  <div className="flex items-center gap-2 h-[46px]">
+                    <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Minus className="w-4 h-4" />
+                    </button>
+                    <span className="text-white font-bold text-sm w-8 text-center">{entry.quantity}</span>
+                    <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-9 h-9 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Plus className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
+                <div>
+                  <label className={labelClass}>Valid From</label>
+                  <input type="date" value={entry.validFrom} onChange={(e) => updateCurrentEntry({ validFrom: e.target.value })} className={`${inputClass} [color-scheme:dark]`} />
+                </div>
+                <div>
+                  <label className={labelClass}>Expiry Date</label>
+                  <input type="date" value={entry.expiryDate} min={entry.validFrom || undefined} onChange={(e) => updateCurrentEntry({ expiryDate: e.target.value })} className={`${inputClass} [color-scheme:dark]`} />
+                </div>
+                <div>
+                  <label className={labelClass}>Redemption Limit</label>
+                  <Select value={entry.redemptionLimit} onValueChange={(v) => updateCurrentEntry({ redemptionLimit: v })}>
+                    <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                      {REDEMPTION_LIMIT_OPTIONS.map(opt => (
+                        <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">{opt.label}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="col-span-2 md:col-span-3">
+                  <label className={labelClass}>Minimum Order</label>
+                  <button type="button" onClick={() => setActiveKeypad(p => p === 'minOrder' ? null : 'minOrder')}
+                    className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                    <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                    <span className="text-white">{posCurrencyFormat(entry.minimumOrderDigits)}</span>
+                  </button>
+                  {indepMinOrderWarning && <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>}
+                  {activeKeypad === 'minOrder' && renderKeypad(entry.minimumOrderDigits, (d) => updateCurrentEntry({ minimumOrderDigits: d }))}
+                </div>
+              </div>
+              <div>
+                <label className={labelClass}>Notes</label>
+                <input type="text" value={entry.notes} onChange={(e) => updateCurrentEntry({ notes: e.target.value.slice(0, 500) })} placeholder="Internal notes (not printed on voucher)" className={inputClass} />
+              </div>
+            </div>
+
+            {/* Add another + navigation */}
+            <div className="flex items-center justify-between">
+              <button onClick={handleAddAnother} className="text-emerald-400 hover:text-emerald-300 text-xs font-medium flex items-center gap-1 transition-colors">
+                <Plus className="w-3.5 h-3.5" /> Add another custom voucher
+              </button>
+              <div className="flex items-center gap-1.5">
+                <button disabled={builderIndex <= 0} onClick={() => { setBuilderIndex(p => p - 1); setActiveKeypad(null); }}
+                  className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors">
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+                <button disabled={builderIndex >= customEntries.length - 1} onClick={() => { setBuilderIndex(p => p + 1); setActiveKeypad(null); }}
+                  className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 disabled:opacity-30 disabled:cursor-not-allowed flex items-center justify-center text-white transition-colors">
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </>
+        )}
 
         {/* Totals (all vouchers including templates) */}
         {totalVoucherCount > 0 && (
@@ -653,8 +710,8 @@ const MultiVoucherStep = ({
 
         {/* Created custom voucher preview cards */}
         {showCustomCard && customEntries.map((ce) => {
-          const ceValue = posCurrencyToNumber(ce.valueDigits);
-          const ceFee = posCurrencyToNumber(ce.serviceFeeDigits);
+          const ceValue = posCurrencyToNumber(sharedRulesOn ? sharedRules.valueDigits : ce.valueDigits);
+          const ceFee = posCurrencyToNumber(sharedRulesOn ? sharedRules.serviceFeeDigits : ce.serviceFeeDigits);
           const ceMinOrder = posCurrencyToNumber(sharedRulesOn ? sharedRules.minimumOrderDigits : ce.minimumOrderDigits);
           const ceLimit = sharedRulesOn ? sharedRules.redemptionLimit : ce.redemptionLimit;
           const ceValidFrom = sharedRulesOn ? sharedRules.validFrom : ce.validFrom;
@@ -861,8 +918,8 @@ const MultiVoucherStep = ({
               );
             })}
             {customEntries.map(ce => {
-              const val = posCurrencyToNumber(ce.valueDigits);
-              const fee = posCurrencyToNumber(ce.serviceFeeDigits);
+              const val = posCurrencyToNumber(sharedRulesOn ? sharedRules.valueDigits : ce.valueDigits);
+              const fee = posCurrencyToNumber(sharedRulesOn ? sharedRules.serviceFeeDigits : ce.serviceFeeDigits);
               return (
                 <div key={ce.id} className="flex justify-between text-[11px]">
                   <span className="text-neutral-400">{ce.voucherName || 'Custom'} ×{ce.quantity}</span>

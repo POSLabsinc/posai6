@@ -1,10 +1,10 @@
 import { useState, useRef, useCallback } from "react";
-import { CURRENCY_SYMBOL, inputClass } from "./voucherConstants";
+import { CURRENCY_SYMBOL } from "./voucherConstants";
 
 interface VoucherCurrencyInputProps {
-  /** Raw POS digit string (e.g. "2500" = $25.00) */
+  /** Raw POS digit string (e.g. "2500" = $25.00) stored as integer cents */
   rawDigits: string;
-  /** Called with new raw digits string */
+  /** Called with new raw digits string (integer cents) */
   onRawDigitsChange: (digits: string) => void;
   label: string;
   required?: boolean;
@@ -12,38 +12,75 @@ interface VoucherCurrencyInputProps {
   warning?: string;
 }
 
-/** Convert raw POS digits to display value string */
-const digitsToDisplay = (raw: string): string => {
+/** Convert raw POS cents string → display string for editing */
+const centsToDisplay = (raw: string): string => {
   const cents = parseInt(raw || "0", 10);
   if (isNaN(cents) || cents === 0) return "";
   return (cents / 100).toFixed(2);
 };
 
-/** Convert a display value string back to raw POS digits */
-const displayToDigits = (display: string): string => {
+/** Convert display string → raw cents string */
+const displayToCents = (display: string): string => {
+  if (!display || display === "." || display === "0." || display === "0.0" || display === "0.00") return "";
   const num = parseFloat(display);
   if (isNaN(num) || num <= 0) return "";
   return Math.round(num * 100).toString();
 };
 
-/** Sanitize input: only digits and one decimal, max 2 decimal places, no negatives */
-const sanitizeCurrencyInput = (value: string): string => {
-  // Remove everything except digits and dot
+/** Format a raw display string on blur: normalize leading zeros, ensure 2 decimals */
+const formatOnBlur = (raw: string): string => {
+  if (!raw || raw.trim() === "" || raw === ".") return "";
+  // Parse to number to normalize (handles .5 → 0.5, 00025 → 25, etc.)
+  const num = parseFloat(raw);
+  if (isNaN(num) || num < 0) return "";
+  if (num === 0) return "";
+  // Cap at max
+  const capped = Math.min(num, 999999.99);
+  // Round to 2 decimals using integer cents to avoid floating point drift
+  const cents = Math.round(capped * 100);
+  return (cents / 100).toFixed(2);
+};
+
+/**
+ * Sanitize currency input while preserving cursor-friendly editing.
+ * Rules:
+ * - Only digits and one decimal point
+ * - Max 2 digits after decimal
+ * - No negatives, no letters, no spaces
+ * - Max value 999999.99
+ */
+const sanitize = (value: string, previous: string): string => {
+  // Strip everything except digits and dots
   let cleaned = value.replace(/[^0-9.]/g, "");
-  // Only allow one decimal point
-  const parts = cleaned.split(".");
-  if (parts.length > 2) {
-    cleaned = parts[0] + "." + parts.slice(1).join("");
+
+  // Handle multiple decimal points: keep only the first
+  const firstDot = cleaned.indexOf(".");
+  if (firstDot !== -1) {
+    const beforeDot = cleaned.slice(0, firstDot + 1);
+    const afterDot = cleaned.slice(firstDot + 1).replace(/\./g, "");
+    // Max 2 decimal digits
+    cleaned = beforeDot + afterDot.slice(0, 2);
   }
-  // Max 2 decimal places
-  if (parts.length === 2 && parts[1].length > 2) {
-    cleaned = parts[0] + "." + parts[1].slice(0, 2);
+
+  // Cap integer part length (6 digits max for 999999)
+  const dotIdx = cleaned.indexOf(".");
+  if (dotIdx === -1) {
+    // No decimal: max 6 digits
+    if (cleaned.length > 6) cleaned = cleaned.slice(0, 6);
+  } else {
+    // With decimal: max 6 integer digits
+    const intPart = cleaned.slice(0, dotIdx);
+    if (intPart.length > 6) {
+      cleaned = intPart.slice(0, 6) + cleaned.slice(dotIdx);
+    }
   }
-  // Max value guard (999999.99)
-  const num = parseFloat(cleaned);
+
+  // Final numeric cap check
+  const num = parseFloat(cleaned || "0");
   if (!isNaN(num) && num > 999999.99) {
-    cleaned = "999999.99";
+    return previous; // block the change
   }
+
   return cleaned;
 };
 
@@ -59,57 +96,68 @@ const VoucherCurrencyInput = ({
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Display: when focused show local editable value, otherwise show formatted from rawDigits
-  const displayValue = isFocused && localValue !== null ? localValue : digitsToDisplay(rawDigits);
+  // When focused: show local editable value. When blurred: show formatted from rawDigits.
+  const displayValue = isFocused && localValue !== null ? localValue : centsToDisplay(rawDigits);
 
   const handleFocus = useCallback(() => {
     setIsFocused(true);
-    const display = digitsToDisplay(rawDigits);
+    const display = centsToDisplay(rawDigits);
     setLocalValue(display);
   }, [rawDigits]);
 
   const handleBlur = useCallback(() => {
     setIsFocused(false);
     if (localValue !== null) {
-      const sanitized = sanitizeCurrencyInput(localValue);
-      const newDigits = displayToDigits(sanitized);
-      onRawDigitsChange(newDigits);
+      const formatted = formatOnBlur(localValue);
+      const newCents = displayToCents(formatted);
+      onRawDigitsChange(newCents);
       setLocalValue(null);
     }
   }, [localValue, onRawDigitsChange]);
 
   const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const raw = e.target.value;
-    const sanitized = sanitizeCurrencyInput(raw);
+    const newVal = e.target.value;
+    const prev = localValue || "";
+    const sanitized = sanitize(newVal, prev);
     setLocalValue(sanitized);
-    // Live update for totals
-    const newDigits = displayToDigits(sanitized);
-    onRawDigitsChange(newDigits);
-  }, [onRawDigitsChange]);
+    // Live update totals using cents
+    const liveCents = displayToCents(sanitized);
+    onRawDigitsChange(liveCents);
+  }, [localValue, onRawDigitsChange]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    // Block minus key
-    if (e.key === "-") {
+    // Block minus, plus, e (scientific notation)
+    if (e.key === "-" || e.key === "+" || e.key === "e" || e.key === "E") {
       e.preventDefault();
       return;
     }
-    // Enter → move to next field
+    // Enter → blur and move to next field
     if (e.key === "Enter") {
       e.preventDefault();
       inputRef.current?.blur();
-      // Focus next focusable element
-      const form = inputRef.current?.closest("form, div");
-      if (form) {
-        const focusable = form.querySelectorAll<HTMLElement>(
-          'input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+      const container = inputRef.current?.closest(".space-y-3, .space-y-2, form");
+      if (container) {
+        const focusable = container.querySelectorAll<HTMLElement>(
+          'input:not([disabled]):not([type="date"]), select:not([disabled])'
         );
-        const idx = Array.from(focusable).indexOf(inputRef.current!);
-        if (idx >= 0 && idx < focusable.length - 1) {
-          focusable[idx + 1].focus();
+        const arr = Array.from(focusable);
+        const idx = arr.indexOf(inputRef.current!);
+        if (idx >= 0 && idx < arr.length - 1) {
+          arr[idx + 1].focus();
         }
       }
     }
   }, []);
+
+  const handlePaste = useCallback((e: React.ClipboardEvent<HTMLInputElement>) => {
+    e.preventDefault();
+    const pasted = e.clipboardData.getData("text/plain");
+    const prev = localValue || "";
+    const sanitized = sanitize(pasted, prev);
+    setLocalValue(sanitized);
+    const liveCents = displayToCents(sanitized);
+    onRawDigitsChange(liveCents);
+  }, [localValue, onRawDigitsChange]);
 
   const borderClass = error
     ? "border-red-500"
@@ -130,12 +178,14 @@ const VoucherCurrencyInput = ({
           ref={inputRef}
           type="text"
           inputMode="decimal"
+          autoComplete="off"
           value={displayValue}
           placeholder="0.00"
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
+          onPaste={handlePaste}
           className="w-full bg-transparent pl-7 pr-3 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none"
         />
       </div>

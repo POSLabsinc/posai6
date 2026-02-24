@@ -1,9 +1,8 @@
 import { useState, useCallback, useEffect } from "react";
 import { Delete, Search, Plus, Check, Minus, X } from "lucide-react";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES, REDEMPTION_LIMIT_OPTIONS,
-  inputClass, labelClass, keypadBtnClass,
+  keypadBtnClass,
   type VoucherEntry, type VoucherTypeConfig, type CompanyProfile,
 } from "./voucherConstants";
 import {
@@ -15,16 +14,6 @@ import { getCardTheme } from "./voucherCardThemes";
 interface MultiVoucherStepProps {
   entries: VoucherEntry[];
   onEntriesChange: (entries: VoucherEntry[]) => void;
-  validFrom: string;
-  expiryDate: string;
-  redemptionLimit: string;
-  minimumOrderDigits: string;
-  notes: string;
-  onValidFromChange: (date: string) => void;
-  onExpiryDateChange: (date: string) => void;
-  onRedemptionLimitChange: (limit: string) => void;
-  onMinimumOrderDigitsChange: (digits: string) => void;
-  onNotesChange: (notes: string) => void;
   companyProfile?: CompanyProfile | null;
 }
 
@@ -39,9 +28,6 @@ type CustomEntry = {
 
 const MultiVoucherStep = ({
   entries, onEntriesChange,
-  validFrom, expiryDate, redemptionLimit, minimumOrderDigits, notes,
-  onValidFromChange, onExpiryDateChange, onRedemptionLimitChange,
-  onMinimumOrderDigitsChange, onNotesChange,
   companyProfile,
 }: MultiVoucherStepProps) => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -221,8 +207,6 @@ const MultiVoucherStep = ({
     return sum + posCurrencyToNumber(e.serviceFeeDigits);
   }, 0);
   const totalPayable = totalRedeemable + totalServiceFee;
-  const minimumOrderValue = posCurrencyToNumber(minimumOrderDigits);
-  const minOrderWarning = minimumOrderValue > 0 && totalRedeemable > 0 && minimumOrderValue > totalRedeemable;
 
   const renderKeypad = (currentDigits: string, onChange: (digits: string) => void) => (
     <div className="grid grid-cols-3 gap-1 mt-2">
@@ -480,52 +464,6 @@ const MultiVoucherStep = ({
         </div>
       )}
 
-      {/* Shared fields */}
-      <div className="border-t border-neutral-700 pt-3 grid grid-cols-2 md:grid-cols-4 gap-x-3 gap-y-3">
-        <div>
-          <label className={labelClass}>Valid From</label>
-          <input type="date" value={validFrom} onChange={(e) => { onValidFromChange(e.target.value); if (expiryDate && e.target.value > expiryDate) onExpiryDateChange(e.target.value); }} className={`${inputClass} text-xs py-2.5 [color-scheme:dark]`} />
-        </div>
-        <div>
-          <label className={labelClass}>Expiry Date</label>
-          <input type="date" value={expiryDate} min={validFrom || undefined} onChange={(e) => onExpiryDateChange(e.target.value)} className={`${inputClass} text-xs py-2.5 [color-scheme:dark]`} />
-        </div>
-        <div>
-          <label className={labelClass}>Redemption Limit</label>
-          <Select value={redemptionLimit} onValueChange={onRedemptionLimitChange}>
-            <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[38px] rounded-lg text-xs"><SelectValue /></SelectTrigger>
-            <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-              {REDEMPTION_LIMIT_OPTIONS.map(opt => (
-                <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white text-xs">{opt.label}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-        <div>
-          <label className={labelClass}>Min Order</label>
-          <button type="button" onClick={() => setActiveKeypad(activeKeypad === 'minimumOrder' ? null : 'minimumOrder')} className={`w-full bg-neutral-800 border rounded-lg px-3 py-2.5 text-xs text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minimumOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-            <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-            <span className="text-white">{posCurrencyFormat(minimumOrderDigits)}</span>
-          </button>
-          {minOrderWarning && <p className="text-amber-400 text-[10px] mt-0.5">⚠ Exceeds total value</p>}
-        </div>
-      </div>
-      {activeKeypad === 'minimumOrder' && (
-        <div className="grid grid-cols-3 gap-1.5">
-          {[1,2,3,4,5,6,7,8,9].map(n => (
-            <button key={n} onClick={() => onMinimumOrderDigitsChange(posCurrencyDigitAppend(minimumOrderDigits, n.toString()))} className={`h-10 text-base font-medium ${keypadBtnClass}`}>{n}</button>
-          ))}
-          <button onClick={() => onMinimumOrderDigitsChange(posCurrencyDigitAppend(minimumOrderDigits, '00'))} className={`h-10 text-base font-medium ${keypadBtnClass}`}>00</button>
-          <button onClick={() => onMinimumOrderDigitsChange(posCurrencyDigitAppend(minimumOrderDigits, '0'))} className={`h-10 text-base font-medium ${keypadBtnClass}`}>0</button>
-          <button onClick={() => onMinimumOrderDigitsChange(posCurrencyDigitDelete(minimumOrderDigits))} className={`h-10 ${keypadBtnClass}`}><Delete className="w-4 h-4" /></button>
-        </div>
-      )}
-
-      {/* Notes */}
-      <div>
-        <label className={labelClass}>Notes</label>
-        <input type="text" value={notes} onChange={(e) => onNotesChange(e.target.value.slice(0, 500))} placeholder="Internal notes (all vouchers)" className={`${inputClass} text-xs py-2.5`} />
-      </div>
 
       {/* Summary */}
       {totalVoucherCount > 0 && (

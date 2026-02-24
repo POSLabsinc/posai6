@@ -412,16 +412,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
             <MultiVoucherStep
               entries={multiEntries}
               onEntriesChange={setMultiEntries}
-              validFrom={validFrom}
-              expiryDate={expiryDate}
-              redemptionLimit={redemptionLimit}
-              minimumOrderDigits={minimumOrderDigits}
-              notes={notes}
-              onValidFromChange={setValidFrom}
-              onExpiryDateChange={setExpiryDate}
-              onRedemptionLimitChange={setRedemptionLimit}
-              onMinimumOrderDigitsChange={setMinimumOrderDigits}
-              onNotesChange={setNotes}
               companyProfile={selectedCompany}
             />
           )}

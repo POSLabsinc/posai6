@@ -45,7 +45,7 @@ type CustomEntry = {
 const DEFAULT_SHARED_RULES: SharedRules = {
   valueDigits: '',
   serviceFeeDigits: '',
-  validFrom: '',
+  validFrom: new Date().toISOString().split('T')[0],
   expiryDate: '',
   redemptionLimit: '1',
   minimumOrderDigits: '',
@@ -59,7 +59,7 @@ const createEmptyCustomEntry = (): CustomEntry => ({
   serviceFeeDigits: '',
   notes: '',
   quantity: 1,
-  validFrom: '',
+  validFrom: new Date().toISOString().split('T')[0],
   expiryDate: '',
   redemptionLimit: '1',
   minimumOrderDigits: '',

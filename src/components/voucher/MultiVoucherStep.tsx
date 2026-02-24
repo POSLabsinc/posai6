@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
-import { Delete, Search, Plus, Check, Minus, X } from "lucide-react";
+import { Delete, Search, Plus, Check, Minus, X, AlertTriangle } from "lucide-react";
 import {
   CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES, REDEMPTION_LIMIT_OPTIONS,
   keypadBtnClass,
@@ -10,6 +10,7 @@ import {
   generateVoucherCode, numberToPosDigits,
 } from "./voucherHelpers";
 import { getCardTheme } from "./voucherCardThemes";
+import { Switch } from "@/components/ui/switch";
 
 interface MultiVoucherStepProps {
   entries: VoucherEntry[];
@@ -17,13 +18,30 @@ interface MultiVoucherStepProps {
   companyProfile?: CompanyProfile | null;
 }
 
-// Track selections: template name → quantity, plus custom entries
 type TemplateSelection = { templateName: string; quantity: number };
+type SharedRules = {
+  validFrom: string;
+  expiryDate: string;
+  redemptionLimit: string;
+  minimumOrderDigits: string;
+};
 type CustomEntry = {
   id: string;
   voucherName: string;
   valueDigits: string;
   serviceFeeDigits: string;
+  quantity: number;
+  validFrom: string;
+  expiryDate: string;
+  redemptionLimit: string;
+  minimumOrderDigits: string;
+};
+
+const DEFAULT_SHARED_RULES: SharedRules = {
+  validFrom: '',
+  expiryDate: '',
+  redemptionLimit: '1',
+  minimumOrderDigits: '',
 };
 
 const MultiVoucherStep = ({
@@ -35,11 +53,50 @@ const MultiVoucherStep = ({
   const [templateSelections, setTemplateSelections] = useState<TemplateSelection[]>([]);
   const [customEntries, setCustomEntries] = useState<CustomEntry[]>([]);
   const [showCustomForm, setShowCustomForm] = useState(false);
-  const [activeKeypad, setActiveKeypad] = useState<{ id: string; field: 'value' | 'fee' } | 'minimumOrder' | null>(null);
+  const [activeKeypad, setActiveKeypad] = useState<{ id: string; field: 'value' | 'fee' | 'minOrder' } | null>(null);
+  const [sharedRulesOn, setSharedRulesOn] = useState(true);
+  const [sharedRules, setSharedRules] = useState<SharedRules>({ ...DEFAULT_SHARED_RULES });
+  const [sharedMinOrderKeypad, setSharedMinOrderKeypad] = useState(false);
 
   const today = new Date().toISOString().split('T')[0];
 
-  // Sync internal state → parent entries whenever selections change
+  // Toggle switching logic
+  const handleToggleChange = (checked: boolean) => {
+    if (checked) {
+      // OFF → ON: use first custom entry's rules as shared defaults
+      if (customEntries.length > 0) {
+        const first = customEntries[0];
+        // Check if there are conflicts
+        const hasConflicts = customEntries.length > 1 && customEntries.some(ce =>
+          ce.validFrom !== first.validFrom ||
+          ce.expiryDate !== first.expiryDate ||
+          ce.redemptionLimit !== first.redemptionLimit ||
+          ce.minimumOrderDigits !== first.minimumOrderDigits
+        );
+        if (hasConflicts) {
+          // Still switch, but warn by using first entry's values
+        }
+        setSharedRules({
+          validFrom: first.validFrom,
+          expiryDate: first.expiryDate,
+          redemptionLimit: first.redemptionLimit,
+          minimumOrderDigits: first.minimumOrderDigits,
+        });
+      }
+    } else {
+      // ON → OFF: pre-fill each custom voucher with shared values
+      setCustomEntries(prev => prev.map(ce => ({
+        ...ce,
+        validFrom: ce.validFrom || sharedRules.validFrom,
+        expiryDate: ce.expiryDate || sharedRules.expiryDate,
+        redemptionLimit: ce.redemptionLimit || sharedRules.redemptionLimit,
+        minimumOrderDigits: ce.minimumOrderDigits || sharedRules.minimumOrderDigits,
+      })));
+    }
+    setSharedRulesOn(checked);
+  };
+
+  // Sync internal state → parent entries
   useEffect(() => {
     const newEntries: VoucherEntry[] = [];
 
@@ -61,22 +118,25 @@ const MultiVoucherStep = ({
     }
 
     for (const ce of customEntries) {
-      newEntries.push({
-        id: ce.id,
-        voucherName: ce.voucherName,
-        isCustom: true,
-        valueDigits: ce.valueDigits,
-        serviceFeeDigits: ce.serviceFeeDigits,
-        serviceFeeReadOnly: false,
-        serviceFeeType: 'fixed',
-        serviceFeeConfigValue: 0,
-      });
+      for (let i = 0; i < ce.quantity; i++) {
+        newEntries.push({
+          id: ce.id + (i > 0 ? `-${i}` : ''),
+          voucherName: ce.voucherName,
+          isCustom: true,
+          valueDigits: ce.valueDigits,
+          serviceFeeDigits: ce.serviceFeeDigits,
+          serviceFeeReadOnly: false,
+          serviceFeeType: 'fixed',
+          serviceFeeConfigValue: 0,
+        });
+      }
     }
 
     onEntriesChange(newEntries);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [templateSelections, customEntries]);
 
+  // --- Filtering logic (unchanged) ---
   const voucherTypes = (() => {
     if (companyProfile?.preferredVoucherTypes?.length) {
       const preferred = PREDEFINED_VOUCHER_TYPES.filter(t => companyProfile.preferredVoucherTypes!.includes(t.name));
@@ -86,7 +146,6 @@ const MultiVoucherStep = ({
     return PREDEFINED_VOUCHER_TYPES;
   })();
 
-  // Filtering
   const applyFilter = (types: VoucherTypeConfig[]) => {
     if (activeFilter === 'all' || activeFilter === 'custom') return types;
     return types.filter(t => {
@@ -133,7 +192,7 @@ const MultiVoucherStep = ({
   const showCustomCard = activeFilter === 'all' || activeFilter === 'custom';
   const showTemplateCards = activeFilter !== 'custom';
 
-  // Selection helpers
+  // --- Selection helpers ---
   const getTemplateQty = (name: string) => templateSelections.find(s => s.templateName === name)?.quantity || 0;
 
   const setTemplateQty = (name: string, qty: number) => {
@@ -150,20 +209,23 @@ const MultiVoucherStep = ({
 
   const toggleTemplate = (name: string) => {
     const current = getTemplateQty(name);
-    if (current > 0) {
-      setTemplateQty(name, 0);
-    } else {
-      setTemplateQty(name, 1);
-    }
+    if (current > 0) setTemplateQty(name, 0);
+    else setTemplateQty(name, 1);
   };
 
   const addCustomEntry = () => {
-    setCustomEntries(prev => [...prev, {
+    const newEntry: CustomEntry = {
       id: generateVoucherCode(),
       voucherName: '',
       valueDigits: '',
       serviceFeeDigits: '',
-    }]);
+      quantity: 1,
+      validFrom: sharedRulesOn ? '' : sharedRules.validFrom,
+      expiryDate: sharedRulesOn ? '' : sharedRules.expiryDate,
+      redemptionLimit: sharedRulesOn ? '1' : sharedRules.redemptionLimit,
+      minimumOrderDigits: sharedRulesOn ? '' : sharedRules.minimumOrderDigits,
+    };
+    setCustomEntries(prev => [...prev, newEntry]);
     setShowCustomForm(true);
   };
 
@@ -193,19 +255,38 @@ const MultiVoucherStep = ({
     setter(posCurrencyDigitDelete(currentDigits));
   }, []);
 
-  // Totals
+  // --- Totals ---
   const totalTemplateCount = templateSelections.reduce((s, t) => s + t.quantity, 0);
-  const totalCustomCount = customEntries.length;
+  const totalCustomCount = customEntries.reduce((s, c) => s + c.quantity, 0);
   const totalVoucherCount = totalTemplateCount + totalCustomCount;
 
-  const totalRedeemable = entries.reduce((sum, e) => sum + posCurrencyToNumber(e.valueDigits), 0);
-  const totalServiceFee = entries.reduce((sum, e) => {
-    const val = posCurrencyToNumber(e.valueDigits);
-    if (e.serviceFeeType === 'none') return sum;
-    if (e.serviceFeeType === 'percentage') return sum + val * (e.serviceFeeConfigValue / 100);
-    if (e.serviceFeeReadOnly) return sum + e.serviceFeeConfigValue;
-    return sum + posCurrencyToNumber(e.serviceFeeDigits);
-  }, 0);
+  const totalRedeemable = (() => {
+    let sum = 0;
+    for (const sel of templateSelections) {
+      const cfg = PREDEFINED_VOUCHER_TYPES.find(t => t.name === sel.templateName);
+      sum += (cfg?.redeemableValue || 0) * sel.quantity;
+    }
+    for (const ce of customEntries) {
+      sum += posCurrencyToNumber(ce.valueDigits) * ce.quantity;
+    }
+    return sum;
+  })();
+
+  const totalServiceFee = (() => {
+    let sum = 0;
+    for (const sel of templateSelections) {
+      const cfg = PREDEFINED_VOUCHER_TYPES.find(t => t.name === sel.templateName);
+      if (!cfg) continue;
+      const val = cfg.redeemableValue || 0;
+      if (cfg.serviceFeeType === 'percentage') sum += val * (cfg.serviceFeeValue / 100) * sel.quantity;
+      else if (cfg.serviceFeeType === 'fixed') sum += cfg.serviceFeeValue * sel.quantity;
+    }
+    for (const ce of customEntries) {
+      sum += posCurrencyToNumber(ce.serviceFeeDigits) * ce.quantity;
+    }
+    return sum;
+  })();
+
   const totalPayable = totalRedeemable + totalServiceFee;
 
   const renderKeypad = (currentDigits: string, onChange: (digits: string) => void) => (
@@ -220,6 +301,64 @@ const MultiVoucherStep = ({
       <button onClick={() => handlePosDeleteKey(onChange, currentDigits)} className={`h-9 ${keypadBtnClass}`}>
         <Delete className="w-4 h-4" />
       </button>
+    </div>
+  );
+
+  const renderRuleFields = (
+    values: { validFrom: string; expiryDate: string; redemptionLimit: string; minimumOrderDigits: string },
+    onChange: (field: string, value: string) => void,
+    keypadId: string,
+  ) => (
+    <div className="grid grid-cols-3 gap-2 mt-2">
+      <div>
+        <label className="text-neutral-500 text-[10px] mb-0.5 block">Valid From</label>
+        <input
+          type="date"
+          value={values.validFrom}
+          onChange={(e) => onChange('validFrom', e.target.value)}
+          className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-2 py-1.5 text-white text-[11px] focus:outline-none focus:border-neutral-500 transition-colors"
+        />
+      </div>
+      <div>
+        <label className="text-neutral-500 text-[10px] mb-0.5 block">Expiry Date</label>
+        <input
+          type="date"
+          value={values.expiryDate}
+          onChange={(e) => onChange('expiryDate', e.target.value)}
+          min={values.validFrom || today}
+          className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-2 py-1.5 text-white text-[11px] focus:outline-none focus:border-neutral-500 transition-colors"
+        />
+      </div>
+      <div>
+        <label className="text-neutral-500 text-[10px] mb-0.5 block">Redemption Limit</label>
+        <select
+          value={values.redemptionLimit}
+          onChange={(e) => onChange('redemptionLimit', e.target.value)}
+          className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-2 py-1.5 text-white text-[11px] focus:outline-none focus:border-neutral-500 transition-colors"
+        >
+          {REDEMPTION_LIMIT_OPTIONS.map(opt => (
+            <option key={opt.value} value={opt.value}>{opt.label}</option>
+          ))}
+        </select>
+      </div>
+      <div className="col-span-3">
+        <label className="text-neutral-500 text-[10px] mb-0.5 block">Minimum Order</label>
+        <button
+          type="button"
+          onClick={() => setActiveKeypad(
+            activeKeypad?.id === keypadId && activeKeypad?.field === 'minOrder' ? null : { id: keypadId, field: 'minOrder' }
+          )}
+          className={`w-full bg-neutral-800 border rounded-lg px-3 py-1.5 text-[11px] text-left cursor-pointer hover:border-neutral-500 transition-colors ${
+            activeKeypad?.id === keypadId && activeKeypad?.field === 'minOrder' ? 'border-neutral-400' : 'border-neutral-600'
+          }`}
+        >
+          <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+          <span className="text-white">{posCurrencyFormat(values.minimumOrderDigits)}</span>
+        </button>
+        {activeKeypad?.id === keypadId && activeKeypad?.field === 'minOrder' && (
+          renderKeypad(values.minimumOrderDigits, (d) => onChange('minimumOrderDigits', d))
+        )}
+      </div>
     </div>
   );
 
@@ -307,11 +446,7 @@ const MultiVoucherStep = ({
                   : `${theme.border} hover:scale-[1.01] hover:shadow-lg`
               }`}
             >
-              {/* Clickable area */}
-              <button
-                onClick={() => toggleTemplate(config.name)}
-                className="w-full text-left"
-              >
+              <button onClick={() => toggleTemplate(config.name)} className="w-full text-left">
                 {theme.pattern}
                 <div className="relative p-3.5 pb-2">
                   <div className="flex items-start justify-between gap-2 mb-2">
@@ -359,7 +494,6 @@ const MultiVoucherStep = ({
                 </div>
               </button>
 
-              {/* Quantity controls — inline when selected */}
               {selected && (
                 <div className="relative px-3.5 pb-3 pt-1 flex items-center justify-between">
                   <span className="text-neutral-400 text-[11px] font-medium">Quantity</span>
@@ -407,6 +541,32 @@ const MultiVoucherStep = ({
             </button>
           </div>
 
+          {/* Toggle: shared vs independent rules */}
+          {customEntries.length > 0 && (
+            <div className="flex items-center justify-between bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-2">
+              <label className="text-neutral-300 text-[11px] font-medium cursor-pointer">
+                Apply same validity & rules to all custom vouchers
+              </label>
+              <Switch
+                checked={sharedRulesOn}
+                onCheckedChange={handleToggleChange}
+                className="scale-90"
+              />
+            </div>
+          )}
+
+          {/* Shared rules section (when toggle ON) */}
+          {sharedRulesOn && (
+            <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3">
+              <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider mb-1 block">Shared Rules</span>
+              {renderRuleFields(
+                sharedRules,
+                (field, value) => setSharedRules(prev => ({ ...prev, [field]: value })),
+                'shared'
+              )}
+            </div>
+          )}
+
           {customEntries.map((ce) => (
             <div key={ce.id} className="bg-neutral-800/50 border border-neutral-700 rounded-lg p-3 space-y-2">
               <div className="flex items-center justify-between">
@@ -421,16 +581,18 @@ const MultiVoucherStep = ({
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <div className="grid grid-cols-2 gap-2">
+
+              {/* Value, Fee, Quantity row */}
+              <div className="grid grid-cols-3 gap-2">
                 <div>
                   <label className="text-neutral-500 text-[10px] mb-0.5 block">Value <span className="text-red-400">*</span></label>
                   <button
                     type="button"
                     onClick={() => setActiveKeypad(
-                      typeof activeKeypad === 'object' && activeKeypad?.id === ce.id && activeKeypad?.field === 'value' ? null : { id: ce.id, field: 'value' }
+                      activeKeypad?.id === ce.id && activeKeypad?.field === 'value' ? null : { id: ce.id, field: 'value' }
                     )}
                     className={`w-full bg-neutral-800 border rounded-lg px-3 py-2 text-xs text-left cursor-pointer hover:border-neutral-500 transition-colors ${
-                      typeof activeKeypad === 'object' && activeKeypad?.id === ce.id && activeKeypad?.field === 'value' ? 'border-neutral-400' : 'border-neutral-600'
+                      activeKeypad?.id === ce.id && activeKeypad?.field === 'value' ? 'border-neutral-400' : 'border-neutral-600'
                     }`}
                   >
                     <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
@@ -442,33 +604,59 @@ const MultiVoucherStep = ({
                   <button
                     type="button"
                     onClick={() => setActiveKeypad(
-                      typeof activeKeypad === 'object' && activeKeypad?.id === ce.id && activeKeypad?.field === 'fee' ? null : { id: ce.id, field: 'fee' }
+                      activeKeypad?.id === ce.id && activeKeypad?.field === 'fee' ? null : { id: ce.id, field: 'fee' }
                     )}
                     className={`w-full bg-neutral-800 border rounded-lg px-3 py-2 text-xs text-left cursor-pointer hover:border-neutral-500 transition-colors ${
-                      typeof activeKeypad === 'object' && activeKeypad?.id === ce.id && activeKeypad?.field === 'fee' ? 'border-neutral-400' : 'border-neutral-600'
+                      activeKeypad?.id === ce.id && activeKeypad?.field === 'fee' ? 'border-neutral-400' : 'border-neutral-600'
                     }`}
                   >
                     <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
                     <span className="text-white">{posCurrencyFormat(ce.serviceFeeDigits)}</span>
                   </button>
                 </div>
+                <div>
+                  <label className="text-neutral-500 text-[10px] mb-0.5 block">Qty</label>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => updateCustomEntry(ce.id, { quantity: Math.max(1, ce.quantity - 1) })}
+                      className="w-7 h-[30px] rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors"
+                    >
+                      <Minus className="w-3 h-3" />
+                    </button>
+                    <span className="text-white font-bold text-xs w-5 text-center">{ce.quantity}</span>
+                    <button
+                      onClick={() => updateCustomEntry(ce.id, { quantity: Math.min(50, ce.quantity + 1) })}
+                      className="w-7 h-[30px] rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors"
+                    >
+                      <Plus className="w-3 h-3" />
+                    </button>
+                  </div>
+                </div>
               </div>
-              {typeof activeKeypad === 'object' && activeKeypad?.id === ce.id && activeKeypad?.field === 'value' && (
+
+              {activeKeypad?.id === ce.id && activeKeypad?.field === 'value' && (
                 renderKeypad(ce.valueDigits, (d) => updateCustomEntry(ce.id, { valueDigits: d }))
               )}
-              {typeof activeKeypad === 'object' && activeKeypad?.id === ce.id && activeKeypad?.field === 'fee' && (
+              {activeKeypad?.id === ce.id && activeKeypad?.field === 'fee' && (
                 renderKeypad(ce.serviceFeeDigits, (d) => updateCustomEntry(ce.id, { serviceFeeDigits: d }))
+              )}
+
+              {/* Independent rule fields (when toggle OFF) */}
+              {!sharedRulesOn && (
+                renderRuleFields(
+                  ce,
+                  (field, value) => updateCustomEntry(ce.id, { [field]: value }),
+                  ce.id
+                )
               )}
             </div>
           ))}
         </div>
       )}
 
-
       {/* Summary */}
       {totalVoucherCount > 0 && (
         <div className="bg-neutral-800/50 border border-neutral-700 rounded-xl p-4 space-y-2 animate-fade-in">
-          {/* Selected breakdown */}
           <div className="space-y-1 pb-2 border-b border-neutral-700">
             {templateSelections.map(sel => {
               const cfg = PREDEFINED_VOUCHER_TYPES.find(t => t.name === sel.templateName);
@@ -489,8 +677,8 @@ const MultiVoucherStep = ({
               const fee = posCurrencyToNumber(ce.serviceFeeDigits);
               return (
                 <div key={ce.id} className="flex justify-between text-[11px]">
-                  <span className="text-neutral-400">{ce.voucherName || 'Custom'} ×1</span>
-                  <span className="text-white font-medium">{CURRENCY_SYMBOL}{(val + fee).toFixed(2)}</span>
+                  <span className="text-neutral-400">{ce.voucherName || 'Custom'} ×{ce.quantity}</span>
+                  <span className="text-white font-medium">{CURRENCY_SYMBOL}{((val + fee) * ce.quantity).toFixed(2)}</span>
                 </div>
               );
             })}

@@ -385,55 +385,6 @@ const MultiVoucherStep = ({
           </div>
         )}
 
-        {/* Toggle */}
-        <div className="flex items-center justify-between bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-2">
-          <label className="text-neutral-300 text-[11px] font-medium cursor-pointer">
-            Apply same validity & rules to all custom vouchers
-          </label>
-          <Switch
-            checked={sharedRulesOn}
-            onCheckedChange={handleToggleChange}
-            className="scale-90"
-          />
-        </div>
-
-        {/* Shared rules section (when ON) */}
-        {sharedRulesOn && (
-          <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3 space-y-2">
-            <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Rules</span>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
-              <div>
-                <label className={labelClass}>Valid From</label>
-                <input type="date" value={sharedRules.validFrom} onChange={(e) => setSharedRules(p => ({ ...p, validFrom: e.target.value }))} className={`${inputClass} [color-scheme:dark]`} />
-              </div>
-              <div>
-                <label className={labelClass}>Expiry Date</label>
-                <input type="date" value={sharedRules.expiryDate} min={sharedRules.validFrom || undefined} onChange={(e) => setSharedRules(p => ({ ...p, expiryDate: e.target.value }))} className={`${inputClass} [color-scheme:dark]`} />
-              </div>
-              <div>
-                <label className={labelClass}>Redemption Limit</label>
-                <Select value={sharedRules.redemptionLimit} onValueChange={(v) => setSharedRules(p => ({ ...p, redemptionLimit: v }))}>
-                  <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-                  <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-                    {REDEMPTION_LIMIT_OPTIONS.map(opt => (
-                      <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">{opt.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="col-span-2 md:col-span-3">
-                <label className={labelClass}>Minimum Order</label>
-                <button type="button" onClick={() => setActiveKeypad(p => p === 'sharedMinOrder' ? null : 'sharedMinOrder')}
-                  className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'sharedMinOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-                  <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-                  <span className="text-white">{posCurrencyFormat(sharedRules.minimumOrderDigits)}</span>
-                </button>
-                {activeKeypad === 'sharedMinOrder' && renderKeypad(sharedRules.minimumOrderDigits, (d) => setSharedRules(p => ({ ...p, minimumOrderDigits: d })))}
-              </div>
-            </div>
-          </div>
-        )}
-
         {/* Current entry form (Single Voucher style) */}
         <div className="space-y-3">
           <div>
@@ -521,6 +472,55 @@ const MultiVoucherStep = ({
             <input type="text" value={entry.notes} onChange={(e) => updateCurrentEntry({ notes: e.target.value.slice(0, 500) })} placeholder="Internal notes (not printed on voucher)" className={inputClass} />
           </div>
         </div>
+
+        {/* Toggle */}
+        <div className="flex items-center justify-between bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-2">
+          <label className="text-neutral-300 text-[11px] font-medium cursor-pointer">
+            Apply same validity & rules to all custom vouchers
+          </label>
+          <Switch
+            checked={sharedRulesOn}
+            onCheckedChange={handleToggleChange}
+            className="scale-90"
+          />
+        </div>
+
+        {/* Shared rules section (when ON) */}
+        {sharedRulesOn && (
+          <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3 space-y-2">
+            <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Rules</span>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
+              <div>
+                <label className={labelClass}>Valid From</label>
+                <input type="date" value={sharedRules.validFrom} onChange={(e) => setSharedRules(p => ({ ...p, validFrom: e.target.value }))} className={`${inputClass} [color-scheme:dark]`} />
+              </div>
+              <div>
+                <label className={labelClass}>Expiry Date</label>
+                <input type="date" value={sharedRules.expiryDate} min={sharedRules.validFrom || undefined} onChange={(e) => setSharedRules(p => ({ ...p, expiryDate: e.target.value }))} className={`${inputClass} [color-scheme:dark]`} />
+              </div>
+              <div>
+                <label className={labelClass}>Redemption Limit</label>
+                <Select value={sharedRules.redemptionLimit} onValueChange={(v) => setSharedRules(p => ({ ...p, redemptionLimit: v }))}>
+                  <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
+                  <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                    {REDEMPTION_LIMIT_OPTIONS.map(opt => (
+                      <SelectItem key={opt.value} value={opt.value} className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">{opt.label}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="col-span-2 md:col-span-3">
+                <label className={labelClass}>Minimum Order</label>
+                <button type="button" onClick={() => setActiveKeypad(p => p === 'sharedMinOrder' ? null : 'sharedMinOrder')}
+                  className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'sharedMinOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
+                  <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
+                  <span className="text-white">{posCurrencyFormat(sharedRules.minimumOrderDigits)}</span>
+                </button>
+                {activeKeypad === 'sharedMinOrder' && renderKeypad(sharedRules.minimumOrderDigits, (d) => setSharedRules(p => ({ ...p, minimumOrderDigits: d })))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Add another + navigation */}
         <div className="flex items-center justify-between">

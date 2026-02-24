@@ -9,7 +9,7 @@ import PurchaseTypeStep from "./voucher/PurchaseTypeStep";
 import SingleVoucherStep from "./voucher/SingleVoucherStep";
 import MultiVoucherStep from "./voucher/MultiVoucherStep";
 import {
-  CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES,
+  CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES, detectCompanyForCustomer,
   type PurchaseMode, type BuyerType, type VoucherCustomer, type VoucherEntry, type CompanyProfile, type VoucherTypeConfig,
 } from "./voucher/voucherConstants";
 import {
@@ -314,7 +314,15 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
           {step === 'customer' && (
             <CustomerStep
               customer={customer}
-              onCustomerIdentified={setCustomer}
+              onCustomerIdentified={(c) => {
+                setCustomer(c);
+                // Auto-detect company association
+                const detectedCompany = detectCompanyForCustomer(c.email);
+                if (detectedCompany) {
+                  setBuyerType('company');
+                  setSelectedCompany(detectedCompany);
+                }
+              }}
               onContinue={() => setStep('purchaseType')}
             />
           )}

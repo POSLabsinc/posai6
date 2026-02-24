@@ -62,6 +62,7 @@ const SingleVoucherStep = ({
   }, []);
 
   const numericValue = posCurrencyToNumber(valueDigits);
+  const minimumOrderValue = posCurrencyToNumber(minimumOrderDigits);
 
   // Compute service fee amount
   const computedServiceFee = (() => {
@@ -72,6 +73,7 @@ const SingleVoucherStep = ({
   })();
 
   const totalPayable = numericValue + computedServiceFee;
+  const minOrderWarning = minimumOrderValue > 0 && numericValue > 0 && minimumOrderValue > numericValue;
 
   const handlePosKeyPress = useCallback((setter: (d: string) => void, currentDigits: string, key: string) => {
     setter(posCurrencyDigitAppend(currentDigits, key));
@@ -240,6 +242,9 @@ const SingleVoucherStep = ({
           <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
           <span className="text-white">{posCurrencyFormat(minimumOrderDigits)}</span>
         </button>
+        {minOrderWarning && (
+          <p className="text-amber-400 text-xs mt-1">⚠ Minimum order exceeds redeemable value</p>
+        )}
         {activeKeypad === 'minimumOrder' && renderKeypad(minimumOrderDigits, onMinimumOrderDigitsChange)}
       </div>
 

@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Delete, Plus, Trash2, ChevronDown, Search } from "lucide-react";
+import { Delete, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES, REDEMPTION_LIMIT_OPTIONS,
@@ -14,7 +14,6 @@ import {
 interface MultiVoucherStepProps {
   entries: VoucherEntry[];
   onEntriesChange: (entries: VoucherEntry[]) => void;
-  // Shared fields
   validFrom: string;
   expiryDate: string;
   redemptionLimit: string;
@@ -28,6 +27,8 @@ interface MultiVoucherStepProps {
   companyProfile?: CompanyProfile | null;
 }
 
+const QUANTITY_OPTIONS = [2, 3, 4, 5, 6, 7, 8, 9, 10];
+
 const MultiVoucherStep = ({
   entries, onEntriesChange,
   validFrom, expiryDate, redemptionLimit, minimumOrderDigits, notes,
@@ -37,20 +38,23 @@ const MultiVoucherStep = ({
 }: MultiVoucherStepProps) => {
   const [activeKeypad, setActiveKeypad] = useState<{ entryId: string; field: 'value' } | 'minimumOrder' | null>(null);
   const [currentPage, setCurrentPage] = useState(0);
+  const [quantityConfirmed, setQuantityConfirmed] = useState(entries.length > 1);
   const PAGE_SIZE = 5;
 
-  const addEntry = () => {
-    const newEntry: VoucherEntry = {
+  const generateEntries = (count: number) => {
+    const newEntries: VoucherEntry[] = Array.from({ length: count }, () => ({
       id: generateVoucherCode(),
       voucherName: '',
       isCustom: false,
       valueDigits: '',
       serviceFeeDigits: '',
       serviceFeeReadOnly: true,
-      serviceFeeType: 'none',
+      serviceFeeType: 'none' as const,
       serviceFeeConfigValue: 0,
-    };
-    onEntriesChange([...entries, newEntry]);
+    }));
+    onEntriesChange(newEntries);
+    setQuantityConfirmed(true);
+    setCurrentPage(0);
   };
 
   const removeEntry = (id: string) => {
@@ -88,6 +92,8 @@ const MultiVoucherStep = ({
     return sum + posCurrencyToNumber(e.serviceFeeDigits);
   }, 0);
   const totalPayable = totalRedeemable + totalServiceFee;
+  const minimumOrderValue = posCurrencyToNumber(minimumOrderDigits);
+  const minOrderWarning = minimumOrderValue > 0 && totalRedeemable > 0 && minimumOrderValue > totalRedeemable;
 
   const pagedEntries = entries.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE);
   const totalPages = Math.ceil(entries.length / PAGE_SIZE);
@@ -100,6 +106,30 @@ const MultiVoucherStep = ({
     }
     return PREDEFINED_VOUCHER_TYPES;
   })();
+
+  // Quantity selection screen
+  if (!quantityConfirmed) {
+    return (
+      <div className="space-y-4">
+        <div className="text-center mb-2">
+          <h3 className="text-white font-semibold text-sm">How many vouchers?</h3>
+          <p className="text-neutral-400 text-xs mt-0.5">Select the number of vouchers to create</p>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {QUANTITY_OPTIONS.map(q => (
+            <button
+              key={q}
+              onClick={() => generateEntries(q)}
+              className="flex flex-col items-center gap-1 p-4 rounded-xl border border-neutral-700 text-neutral-400 hover:border-white hover:text-white hover:bg-white/10 transition-all"
+            >
+              <span className="text-lg font-bold">{q}</span>
+              <span className="text-xs">vouchers</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-3">
@@ -116,7 +146,6 @@ const MultiVoucherStep = ({
               )}
             </div>
             <div className="grid grid-cols-2 gap-2">
-              {/* Voucher type */}
               <Select value={entry.voucherName || '_placeholder'} onValueChange={(val) => {
                 if (val === '__custom') {
                   updateEntry(entry.id, { voucherName: '', isCustom: true, serviceFeeReadOnly: false, serviceFeeType: 'fixed', serviceFeeConfigValue: 0 });
@@ -134,7 +163,6 @@ const MultiVoucherStep = ({
                   <SelectItem value="__custom" className="text-emerald-400 hover:bg-neutral-700 focus:bg-neutral-700 focus:text-emerald-400 text-xs">+ Custom</SelectItem>
                 </SelectContent>
               </Select>
-              {/* Value */}
               <button
                 type="button"
                 onClick={() => setActiveKeypad(activeKeypad && typeof activeKeypad === 'object' && activeKeypad.entryId === entry.id ? null : { entryId: entry.id, field: 'value' })}
@@ -176,11 +204,6 @@ const MultiVoucherStep = ({
         </div>
       )}
 
-      {/* Add more */}
-      <button onClick={addEntry} className="w-full py-2 rounded-lg border border-dashed border-neutral-600 text-neutral-400 hover:text-white hover:border-neutral-400 transition-colors text-sm flex items-center justify-center gap-1.5">
-        <Plus className="w-4 h-4" />Add Voucher
-      </button>
-
       {/* Shared fields */}
       <div className="border-t border-neutral-700 pt-3 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-3">
         <div>
@@ -208,6 +231,9 @@ const MultiVoucherStep = ({
             <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
             <span className="text-white">{posCurrencyFormat(minimumOrderDigits)}</span>
           </button>
+          {minOrderWarning && (
+            <p className="text-amber-400 text-xs mt-1">⚠ Minimum order exceeds total redeemable value</p>
+          )}
           {activeKeypad === 'minimumOrder' && (
             <div className="grid grid-cols-3 gap-1.5 mt-2">
               {[1,2,3,4,5,6,7,8,9].map(n => (
@@ -238,7 +264,7 @@ const MultiVoucherStep = ({
           </div>
         )}
         <div className="border-t border-neutral-700 pt-2 flex justify-between text-sm font-semibold">
-          <span className="text-white">Total Payable</span>
+          <span className="text-white">Grand Total</span>
           <span className="text-white text-base">{CURRENCY_SYMBOL}{totalPayable.toFixed(2)}</span>
         </div>
       </div>

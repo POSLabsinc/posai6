@@ -27,19 +27,22 @@ export const COUNTRY_CODES = [
 export type CountryCodeEntry = typeof COUNTRY_CODES[number];
 
 // ---- Predefined voucher types with backend pricing config ----
+export type RedemptionMode = 'in-person' | 'online' | 'both';
+
 export interface VoucherTypeConfig {
   name: string;
   serviceFeeType: 'percentage' | 'fixed' | 'none';
   serviceFeeValue: number; // percentage or fixed amount
   description?: string;
+  redemptionMode?: RedemptionMode;
 }
 
 export const PREDEFINED_VOUCHER_TYPES: VoucherTypeConfig[] = [
-  { name: 'Summer Sale 20% Off', serviceFeeType: 'fixed', serviceFeeValue: 2.00, description: 'Seasonal promotion voucher' },
-  { name: 'Welcome Offer', serviceFeeType: 'percentage', serviceFeeValue: 5, description: 'New customer welcome voucher' },
-  { name: 'Loyalty Reward', serviceFeeType: 'none', serviceFeeValue: 0, description: 'Points-based loyalty redemption' },
-  { name: 'Festive Discount', serviceFeeType: 'fixed', serviceFeeValue: 3.00, description: 'Holiday special voucher' },
-  { name: 'Birthday Special', serviceFeeType: 'none', serviceFeeValue: 0, description: 'Birthday celebration voucher' },
+  { name: 'Summer Sale 20% Off', serviceFeeType: 'fixed', serviceFeeValue: 2.00, description: 'Seasonal promotion voucher', redemptionMode: 'both' },
+  { name: 'Welcome Offer', serviceFeeType: 'percentage', serviceFeeValue: 5, description: 'New customer welcome voucher', redemptionMode: 'both' },
+  { name: 'Loyalty Reward', serviceFeeType: 'none', serviceFeeValue: 0, description: 'Points-based loyalty redemption', redemptionMode: 'in-person' },
+  { name: 'Festive Discount', serviceFeeType: 'fixed', serviceFeeValue: 3.00, description: 'Holiday special voucher', redemptionMode: 'both' },
+  { name: 'Birthday Special', serviceFeeType: 'none', serviceFeeValue: 0, description: 'Birthday celebration voucher', redemptionMode: 'in-person' },
 ];
 
 // ---- Redemption limit options ----
@@ -61,12 +64,20 @@ export interface CompanyProfile {
   email?: string;
   phone?: string;
   preferredVoucherTypes?: string[];
+  employeeEmails?: string[];
 }
 
+/** Detect if a customer belongs to a company by email */
+export const detectCompanyForCustomer = (customerEmail?: string): CompanyProfile | null => {
+  if (!customerEmail) return null;
+  const lowerEmail = customerEmail.toLowerCase();
+  return MOCK_COMPANIES.find(c => c.employeeEmails?.some(e => e.toLowerCase() === lowerEmail)) || null;
+};
+
 export const MOCK_COMPANIES: CompanyProfile[] = [
-  { id: 'c1', name: 'Acme Corp', email: 'orders@acme.com', phone: '(555) 100-2000', preferredVoucherTypes: ['Welcome Offer', 'Festive Discount'] },
-  { id: 'c2', name: 'TechStart Inc', email: 'admin@techstart.io', phone: '(555) 200-3000', preferredVoucherTypes: ['Loyalty Reward'] },
-  { id: 'c3', name: 'Global Foods LLC', email: 'purchasing@globalfoods.com', phone: '(555) 300-4000' },
+  { id: 'c1', name: 'Acme Corp', email: 'orders@acme.com', phone: '(555) 100-2000', preferredVoucherTypes: ['Welcome Offer', 'Festive Discount'], employeeEmails: ['john@example.com'] },
+  { id: 'c2', name: 'TechStart Inc', email: 'admin@techstart.io', phone: '(555) 200-3000', preferredVoucherTypes: ['Loyalty Reward'], employeeEmails: ['jane@example.com'] },
+  { id: 'c3', name: 'Global Foods LLC', email: 'purchasing@globalfoods.com', phone: '(555) 300-4000', employeeEmails: [] },
 ];
 
 // ---- Shared style classes ----

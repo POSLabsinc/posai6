@@ -153,15 +153,18 @@ const SingleVoucherStep = ({
               </div>
             </div>
             <div className="max-h-48 overflow-y-auto scrollbar-hide">
+              <button 
+                onClick={() => { onVoucherNameChange('', true); setShowCustomInput(true); setShowVoucherNameDropdown(false); }} 
+                className="w-full text-left px-4 py-2.5 text-sm text-emerald-400 hover:bg-neutral-700 transition-colors flex items-center gap-2 border-b border-neutral-700"
+              >
+                <Plus className="w-4 h-4" />Create Custom Voucher Name
+              </button>
               {filteredTypes.map(t => (
                 <button key={t.name} onClick={() => { onVoucherNameChange(t.name, false, t); setShowVoucherNameDropdown(false); }} className={`w-full text-left px-4 py-2.5 text-sm transition-colors hover:bg-neutral-700 ${voucherName === t.name ? 'bg-neutral-700 text-white' : 'text-neutral-300'}`}>
                   <span>{t.name}</span>
                   {t.description && <span className="text-neutral-500 text-xs ml-2">— {t.description}</span>}
                 </button>
               ))}
-              <button onClick={() => { onVoucherNameChange('', true); setShowCustomInput(true); setShowVoucherNameDropdown(false); }} className="w-full text-left px-4 py-2.5 text-sm text-emerald-400 hover:bg-neutral-700 transition-colors flex items-center gap-2 border-t border-neutral-700">
-                <Plus className="w-4 h-4" />Create Custom Voucher Name
-              </button>
             </div>
           </div>
         )}

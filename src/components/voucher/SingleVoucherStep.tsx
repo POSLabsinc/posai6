@@ -1,15 +1,16 @@
-import { useState, useCallback } from "react";
-import { Delete, Search, Plus, Check, Minus } from "lucide-react";
+import { useState } from "react";
+import { Search, Plus, Check } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES, REDEMPTION_LIMIT_OPTIONS,
-  inputClass, labelClass, keypadBtnClass,
+  inputClass, labelClass,
   type VoucherTypeConfig, type CompanyProfile,
 } from "./voucherConstants";
 import {
-  posCurrencyDigitAppend, posCurrencyDigitDelete, posCurrencyFormat, posCurrencyToNumber,
+  posCurrencyFormat, posCurrencyToNumber,
 } from "./voucherHelpers";
 import { getCardTheme } from "./voucherCardThemes";
+import VoucherCurrencyInput from "./VoucherCurrencyInput";
 
 interface SingleVoucherStepProps {
   voucherName: string;
@@ -46,7 +47,6 @@ const SingleVoucherStep = ({
 }: SingleVoucherStepProps) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string>('all');
-  const [activeKeypad, setActiveKeypad] = useState<'value' | 'serviceFee' | 'minimumOrder' | null>(null);
   const [touched, setTouched] = useState({ voucherName: false, value: false });
 
   const numericValue = posCurrencyToNumber(valueDigits);
@@ -71,7 +71,6 @@ const SingleVoucherStep = ({
     return PREDEFINED_VOUCHER_TYPES;
   })();
 
-  // Filter logic
   const today = new Date().toISOString().split('T')[0];
 
   const applyFilter = (types: VoucherTypeConfig[]) => {
@@ -90,12 +89,10 @@ const SingleVoucherStep = ({
   };
 
   const categoryFiltered = applyFilter(voucherTypes);
-
   const filteredTypes = categoryFiltered.filter(t =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // Counts for filter chips
   const filterCounts: Record<string, number> = {
     all: voucherTypes.length,
     personal: voucherTypes.filter(t => t.buyerType === 'personal' || t.buyerType === 'both').length,
@@ -127,12 +124,10 @@ const SingleVoucherStep = ({
 
   const handleSelectTemplate = (config: VoucherTypeConfig) => {
     onVoucherNameChange(config.name, false, config);
-    setActiveKeypad(null);
   };
 
   const handleSelectCustom = () => {
     onVoucherNameChange('', true);
-    setActiveKeypad(null);
   };
 
   const formatServiceFeeBadge = (config: VoucherTypeConfig) => {
@@ -140,29 +135,6 @@ const SingleVoucherStep = ({
     if (config.serviceFeeType === 'percentage') return `${config.serviceFeeValue}% Fee`;
     return `${CURRENCY_SYMBOL}${config.serviceFeeValue.toFixed(2)} Fixed`;
   };
-
-  const handlePosKeyPress = useCallback((setter: (d: string) => void, currentDigits: string, key: string) => {
-    setter(posCurrencyDigitAppend(currentDigits, key));
-  }, []);
-
-  const handlePosDeleteKey = useCallback((setter: (d: string) => void, currentDigits: string) => {
-    setter(posCurrencyDigitDelete(currentDigits));
-  }, []);
-
-  const renderKeypad = (currentDigits: string, onChange: (digits: string) => void) => (
-    <div className="grid grid-cols-3 gap-1.5 mt-2">
-      {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(n => (
-        <button key={n} onClick={() => handlePosKeyPress(onChange, currentDigits, n.toString())} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>
-          {n}
-        </button>
-      ))}
-      <button onClick={() => handlePosKeyPress(onChange, currentDigits, '00')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>00</button>
-      <button onClick={() => handlePosKeyPress(onChange, currentDigits, '0')} className={`h-11 text-lg font-medium ${keypadBtnClass}`}>0</button>
-      <button onClick={() => handlePosDeleteKey(onChange, currentDigits)} className={`h-11 ${keypadBtnClass}`}>
-        <Delete className="w-5 h-5" />
-      </button>
-    </div>
-  );
 
   // ---- CARD SELECTION VIEW ----
   if (!isCustomMode) {
@@ -327,7 +299,6 @@ const SingleVoucherStep = ({
         onClick={() => {
           onVoucherNameChange('', false);
           setSearchQuery('');
-          setActiveKeypad(null);
           setTouched({ voucherName: false, value: false });
         }}
         className="text-neutral-400 hover:text-white text-xs transition-colors flex items-center gap-1"
@@ -351,35 +322,24 @@ const SingleVoucherStep = ({
 
       {/* Row 1 */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
-        <div>
-          <label className={labelClass}>Redeemable Value <span className="text-red-400">*</span></label>
-          <button type="button" onClick={() => setActiveKeypad(p => p === 'value' ? null : 'value')} onBlur={() => setTouched(p => ({ ...p, value: true }))}
-            className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${touched.value && numericValue <= 0 ? 'border-red-500' : activeKeypad === 'value' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-            <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-            <span className="text-white">{posCurrencyFormat(valueDigits)}</span>
-          </button>
-          {touched.value && numericValue <= 0 && <p className="text-red-400 text-xs mt-1">Amount required</p>}
-          {activeKeypad === 'value' && renderKeypad(valueDigits, onValueDigitsChange)}
-        </div>
-        <div>
-          <label className={labelClass}>Service Fee</label>
-          <button type="button" onClick={() => setActiveKeypad(p => p === 'serviceFee' ? null : 'serviceFee')}
-            className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'serviceFee' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-            <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-            <span className="text-white">{posCurrencyFormat(serviceFeeDigits)}</span>
-          </button>
-          {activeKeypad === 'serviceFee' && renderKeypad(serviceFeeDigits, onServiceFeeDigitsChange)}
-        </div>
-        <div>
-          <label className={labelClass}>Minimum Order</label>
-          <button type="button" onClick={() => setActiveKeypad(p => p === 'minimumOrder' ? null : 'minimumOrder')}
-            className={`w-full bg-neutral-800 border rounded-lg px-3 py-3 text-sm text-left cursor-pointer hover:border-neutral-500 transition-colors ${activeKeypad === 'minimumOrder' ? 'border-neutral-400' : 'border-neutral-600'}`}>
-            <span className="text-neutral-400 mr-1">{CURRENCY_SYMBOL}</span>
-            <span className="text-white">{posCurrencyFormat(minimumOrderDigits)}</span>
-          </button>
-          {minOrderWarning && <p className="text-amber-400 text-xs mt-1">⚠ Exceeds value</p>}
-          {activeKeypad === 'minimumOrder' && renderKeypad(minimumOrderDigits, onMinimumOrderDigitsChange)}
-        </div>
+        <VoucherCurrencyInput
+          label="Redeemable Value"
+          required
+          rawDigits={valueDigits}
+          onRawDigitsChange={(d) => { onValueDigitsChange(d); setTouched(p => ({ ...p, value: true })); }}
+          error={touched.value && numericValue <= 0 ? "Amount required" : undefined}
+        />
+        <VoucherCurrencyInput
+          label="Service Fee"
+          rawDigits={serviceFeeDigits}
+          onRawDigitsChange={onServiceFeeDigitsChange}
+        />
+        <VoucherCurrencyInput
+          label="Minimum Order"
+          rawDigits={minimumOrderDigits}
+          onRawDigitsChange={onMinimumOrderDigitsChange}
+          warning={minOrderWarning ? "⚠ Exceeds value" : undefined}
+        />
       </div>
 
       {/* Row 2 */}

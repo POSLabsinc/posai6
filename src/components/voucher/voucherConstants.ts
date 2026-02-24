@@ -35,14 +35,20 @@ export interface VoucherTypeConfig {
   serviceFeeValue: number; // percentage or fixed amount
   description?: string;
   redemptionMode?: RedemptionMode;
+  // Template defaults for prefill (all fields locked when pre-created)
+  redeemableValue?: number;
+  validFromDefault?: string; // ISO date string or empty for today
+  expiryDefault?: string; // ISO date string or empty
+  redemptionLimitDefault?: string; // matches REDEMPTION_LIMIT_OPTIONS values
+  minOrderDefault?: number;
 }
 
 export const PREDEFINED_VOUCHER_TYPES: VoucherTypeConfig[] = [
-  { name: 'Summer Sale 20% Off', serviceFeeType: 'fixed', serviceFeeValue: 2.00, description: 'Seasonal promotion voucher', redemptionMode: 'both' },
-  { name: 'Welcome Offer', serviceFeeType: 'percentage', serviceFeeValue: 5, description: 'New customer welcome voucher', redemptionMode: 'both' },
-  { name: 'Loyalty Reward', serviceFeeType: 'none', serviceFeeValue: 0, description: 'Points-based loyalty redemption', redemptionMode: 'in-person' },
-  { name: 'Festive Discount', serviceFeeType: 'fixed', serviceFeeValue: 3.00, description: 'Holiday special voucher', redemptionMode: 'both' },
-  { name: 'Birthday Special', serviceFeeType: 'none', serviceFeeValue: 0, description: 'Birthday celebration voucher', redemptionMode: 'in-person' },
+  { name: 'Summer Sale 20% Off', serviceFeeType: 'fixed', serviceFeeValue: 2.00, description: 'Seasonal promotion voucher', redemptionMode: 'both', redeemableValue: 25.00, expiryDefault: '2026-08-31', redemptionLimitDefault: '1', minOrderDefault: 50 },
+  { name: 'Welcome Offer', serviceFeeType: 'percentage', serviceFeeValue: 5, description: 'New customer welcome voucher', redemptionMode: 'both', redeemableValue: 15.00, expiryDefault: '2026-06-30', redemptionLimitDefault: '1', minOrderDefault: 0 },
+  { name: 'Loyalty Reward', serviceFeeType: 'none', serviceFeeValue: 0, description: 'Points-based loyalty redemption', redemptionMode: 'in-person', redeemableValue: 10.00, redemptionLimitDefault: '3', minOrderDefault: 0 },
+  { name: 'Festive Discount', serviceFeeType: 'fixed', serviceFeeValue: 3.00, description: 'Holiday special voucher', redemptionMode: 'both', redeemableValue: 50.00, expiryDefault: '2026-12-31', redemptionLimitDefault: '1', minOrderDefault: 75 },
+  { name: 'Birthday Special', serviceFeeType: 'none', serviceFeeValue: 0, description: 'Birthday celebration voucher', redemptionMode: 'in-person', redeemableValue: 20.00, redemptionLimitDefault: '1', minOrderDefault: 0 },
 ];
 
 // ---- Redemption limit options ----

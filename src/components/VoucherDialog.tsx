@@ -161,14 +161,37 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData }: VoucherDi
     setVoucherName(name);
     setIsCustomVoucherName(isCustom);
     if (config) {
+      // Pre-created voucher: prefill all fields from template and lock
       setServiceFeeReadOnly(true);
       setServiceFeeType(config.serviceFeeType);
       setServiceFeeConfigValue(config.serviceFeeValue);
       setServiceFeeDigits('');
+      // Prefill redeemable value
+      if (config.redeemableValue != null && config.redeemableValue > 0) {
+        setValueDigits(numberToPosDigits(config.redeemableValue));
+      }
+      // Prefill validity dates
+      setValidFrom(config.validFromDefault || new Date().toISOString().split('T')[0]);
+      if (config.expiryDefault) setExpiryDate(config.expiryDefault);
+      // Prefill redemption limit
+      if (config.redemptionLimitDefault) setRedemptionLimit(config.redemptionLimitDefault);
+      // Prefill minimum order
+      if (config.minOrderDefault != null && config.minOrderDefault > 0) {
+        setMinimumOrderDigits(numberToPosDigits(config.minOrderDefault));
+      } else {
+        setMinimumOrderDigits('');
+      }
     } else if (isCustom) {
+      // Custom voucher: clear all template values and unlock
       setServiceFeeReadOnly(false);
       setServiceFeeType('fixed');
       setServiceFeeConfigValue(0);
+      setServiceFeeDigits('');
+      setValueDigits('');
+      setValidFrom(new Date().toISOString().split('T')[0]);
+      setExpiryDate('');
+      setRedemptionLimit('1');
+      setMinimumOrderDigits('');
     }
   };
 

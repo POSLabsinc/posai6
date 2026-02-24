@@ -25,6 +25,7 @@ type SharedRules = {
   expiryDate: string;
   redemptionLimit: string;
   minimumOrderDigits: string;
+  notes: string;
 };
 type CustomEntry = {
   id: string;
@@ -44,6 +45,7 @@ const DEFAULT_SHARED_RULES: SharedRules = {
   expiryDate: '',
   redemptionLimit: '1',
   minimumOrderDigits: '',
+  notes: '',
 };
 
 const createEmptyCustomEntry = (): CustomEntry => ({
@@ -96,6 +98,7 @@ const MultiVoucherStep = ({
         expiryDate: first.expiryDate,
         redemptionLimit: first.redemptionLimit,
         minimumOrderDigits: first.minimumOrderDigits,
+        notes: first.notes,
       });
     } else if (!checked) {
       setCustomEntries(prev => prev.map(ce => ({
@@ -467,10 +470,13 @@ const MultiVoucherStep = ({
             </div>
           )}
 
-          <div>
-            <label className={labelClass}>Notes</label>
-            <input type="text" value={entry.notes} onChange={(e) => updateCurrentEntry({ notes: e.target.value.slice(0, 500) })} placeholder="Internal notes (not printed on voucher)" className={inputClass} />
-          </div>
+          {/* Notes field only shown per-entry when toggle is OFF */}
+          {!sharedRulesOn && (
+            <div>
+              <label className={labelClass}>Notes</label>
+              <input type="text" value={entry.notes} onChange={(e) => updateCurrentEntry({ notes: e.target.value.slice(0, 500) })} placeholder="Internal notes (not printed on voucher)" className={inputClass} />
+            </div>
+          )}
         </div>
 
         {/* Toggle */}
@@ -517,6 +523,10 @@ const MultiVoucherStep = ({
                   <span className="text-white">{posCurrencyFormat(sharedRules.minimumOrderDigits)}</span>
                 </button>
                 {activeKeypad === 'sharedMinOrder' && renderKeypad(sharedRules.minimumOrderDigits, (d) => setSharedRules(p => ({ ...p, minimumOrderDigits: d })))}
+              </div>
+              <div className="col-span-2 md:col-span-3">
+                <label className={labelClass}>Notes</label>
+                <input type="text" value={sharedRules.notes} onChange={(e) => setSharedRules(p => ({ ...p, notes: e.target.value.slice(0, 500) }))} placeholder="Internal notes (not printed on voucher)" className={inputClass} />
               </div>
             </div>
           </div>

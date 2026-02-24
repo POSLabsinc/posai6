@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { Delete, Trash2 } from "lucide-react";
+import { Delete, Trash2, Plus } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES, REDEMPTION_LIMIT_OPTIONS,
@@ -194,6 +194,30 @@ const MultiVoucherStep = ({
           </div>
         ))}
       </div>
+
+      {/* Add Voucher Button */}
+      <button
+        type="button"
+        onClick={() => {
+          const newEntry: VoucherEntry = {
+            id: generateVoucherCode(),
+            voucherName: '',
+            isCustom: false,
+            valueDigits: '',
+            serviceFeeDigits: '',
+            serviceFeeReadOnly: true,
+            serviceFeeType: 'none' as const,
+            serviceFeeConfigValue: 0,
+          };
+          const updatedEntries = [...entries, newEntry];
+          onEntriesChange(updatedEntries);
+          setCurrentPage(Math.ceil(updatedEntries.length / PAGE_SIZE) - 1);
+        }}
+        className="w-full py-2.5 rounded-lg border border-dashed border-neutral-600 text-neutral-400 hover:border-neutral-400 hover:text-white flex items-center justify-center gap-2 transition-colors text-xs"
+      >
+        <Plus className="w-4 h-4" />
+        <span>Add Voucher</span>
+      </button>
 
       {/* Pagination */}
       {totalPages > 1 && (

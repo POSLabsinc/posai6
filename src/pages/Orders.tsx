@@ -6197,6 +6197,14 @@ const Orders = () => {
       return next;
     }, { replace: true });
   }, [voucherMode, setSearchParams]);
+
+  // Reverse sync: if URL mode param is cleared externally (e.g. sidebar nav), exit voucher mode
+  useEffect(() => {
+    if (voucherMode && searchParams.get('mode') !== 'voucher') {
+      setVoucherMode(false);
+      setEditingVoucherData(null);
+    }
+  }, [searchParams]);
   const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
   const [showVoucherOptionsPopup, setShowVoucherOptionsPopup] = useState(false);
   const [showCreateVoucherForm, setShowCreateVoucherForm] = useState(false);

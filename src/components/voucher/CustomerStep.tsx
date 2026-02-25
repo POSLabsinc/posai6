@@ -73,18 +73,21 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
       const results = customers.filter(c => c.phone.replace(/\D/g, '').includes(digits));
       setSearchResults(results);
       setShowResults(results.length > 0);
-      if (results.length === 0) {
-        setIsNewCustomer(true);
-      } else if (digits.length === selectedCountry.phoneLength) {
-        const exact = results.find(c => c.phone.replace(/\D/g, '') === digits);
-        if (exact) {
-          setMatchedCustomer(exact);
-          const [f, ...r] = exact.name.split(' '); setFirstName(f); setLastName(r.join(' '));
-          setEmailQuery(exact.email || '');
-          setIsNewCustomer(false);
-        } else {
-          setMatchedCustomer(null);
+      if (digits.length === selectedCountry.phoneLength) {
+        if (results.length === 0) {
           setIsNewCustomer(true);
+          setMatchedCustomer(null);
+        } else {
+          const exact = results.find(c => c.phone.replace(/\D/g, '') === digits);
+          if (exact) {
+            setMatchedCustomer(exact);
+            const [f, ...r] = exact.name.split(' '); setFirstName(f); setLastName(r.join(' '));
+            setEmailQuery(exact.email || '');
+            setIsNewCustomer(false);
+          } else {
+            setMatchedCustomer(null);
+            setIsNewCustomer(true);
+          }
         }
       } else {
         setMatchedCustomer(null);
@@ -104,7 +107,7 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
       const results = customers.filter(c => c.email?.toLowerCase().includes(emailQuery.toLowerCase()));
       setSearchResults(results);
       setShowResults(results.length > 0);
-      if (results.length === 0) {
+      if (emailQuery.includes('.') && results.length === 0) {
         setIsNewCustomer(true);
       } else {
         const exact = results.find(c => c.email?.toLowerCase() === emailQuery.toLowerCase());
@@ -115,7 +118,6 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
           setIsNewCustomer(false);
         } else {
           setMatchedCustomer(null);
-          setIsNewCustomer(true);
         }
       }
     } else {
@@ -287,22 +289,26 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
               type="text"
               value={firstName}
               onChange={(e) => handleNameChange(e.target.value, lastName)}
-              onBlur={confirmNewGuest}
-              onKeyDown={(e) => { if (e.key === 'Enter') confirmNewGuest(); }}
               placeholder="First name"
               className={`${inputClass} flex-1`}
-              autoFocus
             />
             <input
               type="text"
               value={lastName}
               onChange={(e) => handleNameChange(firstName, e.target.value)}
-              onBlur={confirmNewGuest}
               onKeyDown={(e) => { if (e.key === 'Enter') confirmNewGuest(); }}
               placeholder="Last name"
               className={`${inputClass} flex-1`}
             />
           </div>
+          <button
+            type="button"
+            onClick={confirmNewGuest}
+            disabled={!firstName.trim()}
+            className="mt-2 w-full bg-primary hover:bg-primary/90 text-primary-foreground text-sm font-medium py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Confirm Guest
+          </button>
         </div>
       )}
     </div>

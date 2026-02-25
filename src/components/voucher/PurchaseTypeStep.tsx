@@ -36,45 +36,45 @@ const PurchaseTypeStep = ({
 
   return (
     <div className="space-y-4">
-      {/* Single vs Multiple */}
-      <div>
-        <label className="text-neutral-400 text-xs font-medium mb-2 block">How many vouchers?</label>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => onPurchaseModeChange('single')}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all ${purchaseMode === 'single' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
-          >
-            <User className="w-5 h-5" />
-            <span className="text-sm font-medium">Single Voucher</span>
-          </button>
-          <button
-            onClick={() => onPurchaseModeChange('multiple')}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all ${purchaseMode === 'multiple' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
-          >
-            <Users className="w-5 h-5" />
-            <span className="text-sm font-medium">Multiple Vouchers</span>
-          </button>
+      {/* How many & Buyer type in one row */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <label className="text-neutral-400 text-xs font-medium mb-2 block">How many vouchers?</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => onPurchaseModeChange('single')}
+              className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border transition-all ${purchaseMode === 'single' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
+            >
+              <User className="w-4 h-4" />
+              <span className="text-sm font-medium">Single</span>
+            </button>
+            <button
+              onClick={() => onPurchaseModeChange('multiple')}
+              className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border transition-all ${purchaseMode === 'multiple' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
+            >
+              <Users className="w-4 h-4" />
+              <span className="text-sm font-medium">Multiple</span>
+            </button>
+          </div>
         </div>
-      </div>
-
-      {/* Personal vs Company */}
-      <div>
-        <label className="text-neutral-400 text-xs font-medium mb-2 block">Buyer type</label>
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            onClick={() => { onBuyerTypeChange('personal'); onCompanySelect(null); }}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all ${buyerType === 'personal' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
-          >
-            <User className="w-5 h-5" />
-            <span className="text-sm font-medium">Personal</span>
-          </button>
-          <button
-            onClick={() => onBuyerTypeChange('company')}
-            className={`flex items-center justify-center gap-2 py-3 px-4 rounded-xl border transition-all ${buyerType === 'company' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
-          >
-            <Building2 className="w-5 h-5" />
-            <span className="text-sm font-medium">Company</span>
-          </button>
+        <div>
+          <label className="text-neutral-400 text-xs font-medium mb-2 block">Buyer type</label>
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              onClick={() => { onBuyerTypeChange('personal'); onCompanySelect(null); }}
+              className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border transition-all ${buyerType === 'personal' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
+            >
+              <User className="w-4 h-4" />
+              <span className="text-sm font-medium">Personal</span>
+            </button>
+            <button
+              onClick={() => onBuyerTypeChange('company')}
+              className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border transition-all ${buyerType === 'company' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
+            >
+              <Building2 className="w-4 h-4" />
+              <span className="text-sm font-medium">Company</span>
+            </button>
+          </div>
         </div>
       </div>
 

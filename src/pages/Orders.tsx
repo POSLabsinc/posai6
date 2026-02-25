@@ -6046,7 +6046,7 @@ const getCategoryHoverTextColor = (category: string) => {
 };
 const Orders = () => {
   // Read URL params for add-item mode
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const { panelLayout } = usePanelPosition();
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
@@ -6184,6 +6184,19 @@ const Orders = () => {
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
   const [voucherMode, setVoucherMode] = useState(false);
   const [editingVoucherData, setEditingVoucherData] = useState<import('@/components/VoucherDialog').VoucherInitialData | null>(null);
+
+  // Sync voucherMode with URL search params for sidebar active state
+  useEffect(() => {
+    setSearchParams(prev => {
+      const next = new URLSearchParams(prev);
+      if (voucherMode) {
+        next.set('mode', 'voucher');
+      } else if (next.get('mode') === 'voucher') {
+        next.delete('mode');
+      }
+      return next;
+    }, { replace: true });
+  }, [voucherMode, setSearchParams]);
   const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
   const [showVoucherOptionsPopup, setShowVoucherOptionsPopup] = useState(false);
   const [showCreateVoucherForm, setShowCreateVoucherForm] = useState(false);
@@ -8946,7 +8959,7 @@ const Orders = () => {
                   </button>
                   <button
                 onClick={() => { setVoucherMode(true); setEditingVoucherData(null); }}
-                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                className={`flex-1 flex flex-col items-center justify-center gap-1 rounded-xl transition-colors ${voucherMode ? 'bg-sidebar-accent border-2 border-white' : 'hover:bg-sidebar-accent'}`}>
 
                     <Ticket className="w-5 h-5 text-white" />
                     <span className="text-[9px] text-white text-center leading-tight">Sell<br />Voucher</span>

@@ -309,8 +309,8 @@ const SingleVoucherStep = ({
         ← Back to templates
       </button>
 
-      <div className="grid grid-cols-2 gap-x-3">
-        <div>
+      <div className="grid grid-cols-3 gap-x-3">
+        <div className="col-span-2">
           <label className={labelClass}>Voucher Name <span className="text-red-400">*</span></label>
           <input
             type="text"

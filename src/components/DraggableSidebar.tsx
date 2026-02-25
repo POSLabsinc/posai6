@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
 import { toast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -27,6 +27,7 @@ const menuItems = [
 export function DraggableSidebar() {
   const { position, setIsDragging, isLocked, setIsLocked, isAnimating, hasSeenOnboarding, dismissOnboarding } = useSidebarPosition();
   const [searchParams] = useSearchParams();
+  const sidebarNavigate = useNavigate();
   const isVoucherMode = searchParams.get('mode') === 'voucher';
   const isHorizontal = position === 'top' || position === 'bottom';
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -259,6 +260,10 @@ export function DraggableSidebar() {
                   ) : (
                     <NavLink
                       to={item.url}
+                      onClick={isVoucherMode && item.url === '/orders' ? (e: React.MouseEvent) => {
+                        e.preventDefault();
+                        sidebarNavigate('/orders', { replace: true });
+                      } : undefined}
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors ${isVoucherMode && item.url === '/orders' ? 'opacity-50' : ''}`}
                       activeClassName={isVoucherMode && item.url === '/orders' ? '' : 'bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white'}
                     >

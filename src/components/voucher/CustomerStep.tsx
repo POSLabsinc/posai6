@@ -73,7 +73,9 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
       const results = customers.filter(c => c.phone.replace(/\D/g, '').includes(digits));
       setSearchResults(results);
       setShowResults(results.length > 0);
-      if (digits.length === selectedCountry.phoneLength) {
+      if (results.length === 0) {
+        setIsNewCustomer(true);
+      } else if (digits.length === selectedCountry.phoneLength) {
         const exact = results.find(c => c.phone.replace(/\D/g, '') === digits);
         if (exact) {
           setMatchedCustomer(exact);
@@ -102,15 +104,19 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
       const results = customers.filter(c => c.email?.toLowerCase().includes(emailQuery.toLowerCase()));
       setSearchResults(results);
       setShowResults(results.length > 0);
-      const exact = results.find(c => c.email?.toLowerCase() === emailQuery.toLowerCase());
-      if (exact) {
-        setMatchedCustomer(exact);
-        const [f, ...r] = exact.name.split(' '); setFirstName(f); setLastName(r.join(' '));
-        setSearchQuery(exact.phone.replace(/\D/g, ''));
-        setIsNewCustomer(false);
+      if (results.length === 0) {
+        setIsNewCustomer(true);
       } else {
-        setMatchedCustomer(null);
-        setIsNewCustomer(emailQuery.includes('@') && emailQuery.includes('.'));
+        const exact = results.find(c => c.email?.toLowerCase() === emailQuery.toLowerCase());
+        if (exact) {
+          setMatchedCustomer(exact);
+          const [f, ...r] = exact.name.split(' '); setFirstName(f); setLastName(r.join(' '));
+          setSearchQuery(exact.phone.replace(/\D/g, ''));
+          setIsNewCustomer(false);
+        } else {
+          setMatchedCustomer(null);
+          setIsNewCustomer(true);
+        }
       }
     } else {
       setSearchResults([]);
@@ -138,13 +144,15 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
 
   const customerName = `${firstName} ${lastName}`.trim();
 
-  // Auto-confirm new customer when name fields change
+  // Update name fields without auto-confirming on every keystroke
   const handleNameChange = (first: string, last: string) => {
-    const f = first.slice(0, 40);
-    const l = last.slice(0, 40);
-    setFirstName(f);
-    setLastName(l);
-    const fullName = `${f} ${l}`.trim();
+    setFirstName(first.slice(0, 40));
+    setLastName(last.slice(0, 40));
+  };
+
+  // Confirm new guest explicitly or on blur
+  const confirmNewGuest = () => {
+    const fullName = `${firstName} ${lastName}`.trim();
     if (fullName.length > 0) {
       const cust: VoucherCustomer = {
         name: fullName,
@@ -279,6 +287,8 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
               type="text"
               value={firstName}
               onChange={(e) => handleNameChange(e.target.value, lastName)}
+              onBlur={confirmNewGuest}
+              onKeyDown={(e) => { if (e.key === 'Enter') confirmNewGuest(); }}
               placeholder="First name"
               className={`${inputClass} flex-1`}
               autoFocus
@@ -287,6 +297,8 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
               type="text"
               value={lastName}
               onChange={(e) => handleNameChange(firstName, e.target.value)}
+              onBlur={confirmNewGuest}
+              onKeyDown={(e) => { if (e.key === 'Enter') confirmNewGuest(); }}
               placeholder="Last name"
               className={`${inputClass} flex-1`}
             />

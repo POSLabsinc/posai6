@@ -504,7 +504,7 @@ const MultiVoucherStep = ({
                     type="text"
                     value={entry.voucherName}
                     onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })}
-                    placeholder="Enter custom voucher name"
+                    placeholder="Enter voucher name"
                     autoFocus
                     className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
                   />

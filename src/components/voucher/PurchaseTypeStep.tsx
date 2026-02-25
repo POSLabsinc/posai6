@@ -35,12 +35,7 @@ const PurchaseTypeStep = ({
   );
 
   return (
-    <div className="space-y-5">
-      <div className="text-center mb-1">
-        <h3 className="text-white font-semibold text-sm">Purchase Type</h3>
-        <p className="text-neutral-400 text-xs mt-0.5">Choose quantity and buyer type</p>
-      </div>
-
+    <div className="space-y-4">
       {/* Single vs Multiple */}
       <div>
         <label className="text-neutral-400 text-xs font-medium mb-2 block">How many vouchers?</label>
@@ -131,24 +126,6 @@ const PurchaseTypeStep = ({
           )}
         </div>
       )}
-
-      <div className="flex gap-2">
-        <button
-          onClick={onBack}
-          className="flex-1 py-3 rounded-xl font-semibold text-sm border border-neutral-500 text-white hover:bg-neutral-800 transition-colors"
-        >
-          Back
-        </button>
-        <button
-          onClick={onContinue}
-          disabled={buyerType === 'company' && !selectedCompany}
-          className={`flex-[2] py-3 rounded-xl font-semibold text-sm transition-colors ${
-            !(buyerType === 'company' && !selectedCompany) ? 'bg-white text-black hover:bg-neutral-200' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
-          }`}
-        >
-          Continue
-        </button>
-      </div>
     </div>
   );
 };

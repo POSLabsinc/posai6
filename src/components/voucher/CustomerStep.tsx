@@ -119,37 +119,34 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
     } else {
       setSearchQuery(c.email || '');
     }
-    onCustomerIdentified({
+    const cust: VoucherCustomer = {
       id: c.id,
       name: c.name,
       phone: c.phone,
       email: c.email || '',
       isNew: false,
-    });
-  };
-
-  const handleContinue = () => {
-    const cust: VoucherCustomer = matchedCustomer
-      ? { id: matchedCustomer.id, name: matchedCustomer.name, phone: matchedCustomer.phone, email: matchedCustomer.email || '', isNew: false }
-      : {
-          name: customerName.trim(),
-          phone: searchMode === 'phone' ? searchQuery : '',
-          email: searchMode === 'email' ? searchQuery : '',
-          isNew: true,
-        };
+    };
     onCustomerIdentified(cust);
     onContinue();
   };
 
-  const canContinue = (matchedCustomer || (isNewCustomer && customerName.trim().length > 0));
+  // Auto-confirm new customer when name is entered
+  const handleNewCustomerNameChange = (name: string) => {
+    setCustomerName(name.slice(0, 80));
+    if (name.trim().length > 0) {
+      const cust: VoucherCustomer = {
+        name: name.trim(),
+        phone: searchMode === 'phone' ? searchQuery : '',
+        email: searchMode === 'email' ? searchQuery : '',
+        isNew: true,
+      };
+      onCustomerIdentified(cust);
+      onContinue();
+    }
+  };
 
   return (
-    <div className="space-y-4">
-      <div className="text-center mb-2">
-        <h3 className="text-white font-semibold text-sm">Who is this voucher for?</h3>
-        <p className="text-neutral-400 text-xs mt-0.5">Identify the customer before proceeding</p>
-      </div>
-
+    <div className="space-y-3">
       {/* Toggle: Phone / Email */}
       <div className="flex bg-neutral-800 rounded-lg p-0.5 gap-0.5">
         <button
@@ -280,21 +277,12 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
           <input
             type="text"
             value={customerName}
-            onChange={(e) => setCustomerName(e.target.value.slice(0, 80))}
+            onChange={(e) => handleNewCustomerNameChange(e.target.value)}
             placeholder="Customer name"
             className={inputClass}
           />
         </div>
       )}
-
-      {/* Continue button */}
-      <button
-        onClick={handleContinue}
-        disabled={!canContinue}
-        className={`w-full py-3 rounded-xl font-semibold text-sm transition-colors ${canContinue ? 'bg-white text-black hover:bg-neutral-200' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'}`}
-      >
-        Continue
-      </button>
     </div>
   );
 };

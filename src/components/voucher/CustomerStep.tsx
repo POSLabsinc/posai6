@@ -14,6 +14,7 @@ interface CustomerStepProps {
 const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuestData }: CustomerStepProps) => {
   const [searchMode, setSearchMode] = useState<'phone' | 'email'>('phone');
   const [searchQuery, setSearchQuery] = useState('');
+  const [emailQuery, setEmailQuery] = useState('');
   const [selectedCountry, setSelectedCountry] = useState<CountryCodeEntry>(COUNTRY_CODES[0]);
   const [showCountryDropdown, setShowCountryDropdown] = useState(false);
   const [countrySearch, setCountrySearch] = useState('');
@@ -32,14 +33,14 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
     if (!initialGuestData) return;
     const { name, phone, email } = initialGuestData;
     if (phone && phone.replace(/\D/g, '').length >= 3) {
-      setSearchMode('phone');
       setSearchQuery(phone.replace(/\D/g, ''));
       if (name) setCustomerName(name);
-    } else if (email && email.includes('@')) {
-      setSearchMode('email');
-      setSearchQuery(email);
+    }
+    if (email && email.includes('@')) {
+      setEmailQuery(email);
       if (name) setCustomerName(name);
-    } else if (name) {
+    }
+    if (!phone && !email && name) {
       setCustomerName(name);
       setIsNewCustomer(true);
     }
@@ -55,70 +56,74 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
     return () => document.removeEventListener('mousedown', handler);
   }, []);
 
+  // Search by phone
   useEffect(() => {
     if (!searchQuery.trim()) {
-      setSearchResults([]);
-      setMatchedCustomer(null);
-      setIsNewCustomer(false);
+      if (!emailQuery.trim()) {
+        setSearchResults([]);
+        setMatchedCustomer(null);
+        setIsNewCustomer(false);
+      }
       return;
     }
 
-    if (searchMode === 'phone') {
-      const digits = searchQuery.replace(/\D/g, '');
-      if (digits.length >= 3) {
-        const results = customers.filter(c => c.phone.replace(/\D/g, '').includes(digits));
-        setSearchResults(results);
-        setShowResults(results.length > 0);
-        if (digits.length === selectedCountry.phoneLength) {
-          const exact = results.find(c => c.phone.replace(/\D/g, '') === digits);
-          if (exact) {
-            setMatchedCustomer(exact);
-            setCustomerName(exact.name);
-            setIsNewCustomer(false);
-          } else {
-            setMatchedCustomer(null);
-            setIsNewCustomer(true);
-          }
-        } else {
-          setMatchedCustomer(null);
-          setIsNewCustomer(false);
-        }
-      } else {
-        setSearchResults([]);
-        setMatchedCustomer(null);
-      }
-    } else {
-      // email search
-      if (searchQuery.includes('@')) {
-        const results = customers.filter(c => c.email?.toLowerCase().includes(searchQuery.toLowerCase()));
-        setSearchResults(results);
-        setShowResults(results.length > 0);
-        const exact = results.find(c => c.email?.toLowerCase() === searchQuery.toLowerCase());
+    const digits = searchQuery.replace(/\D/g, '');
+    if (digits.length >= 3) {
+      const results = customers.filter(c => c.phone.replace(/\D/g, '').includes(digits));
+      setSearchResults(results);
+      setShowResults(results.length > 0);
+      if (digits.length === selectedCountry.phoneLength) {
+        const exact = results.find(c => c.phone.replace(/\D/g, '') === digits);
         if (exact) {
           setMatchedCustomer(exact);
           setCustomerName(exact.name);
+          setEmailQuery(exact.email || '');
           setIsNewCustomer(false);
         } else {
           setMatchedCustomer(null);
-          setIsNewCustomer(searchQuery.includes('@') && searchQuery.includes('.'));
+          setIsNewCustomer(true);
         }
       } else {
-        setSearchResults([]);
         setMatchedCustomer(null);
+        setIsNewCustomer(false);
       }
+    } else {
+      setSearchResults([]);
+      setMatchedCustomer(null);
     }
-  }, [searchQuery, searchMode, selectedCountry.phoneLength]);
+  }, [searchQuery, selectedCountry.phoneLength]);
+
+  // Search by email
+  useEffect(() => {
+    if (!emailQuery.trim() || searchQuery.trim()) return;
+
+    if (emailQuery.includes('@')) {
+      const results = customers.filter(c => c.email?.toLowerCase().includes(emailQuery.toLowerCase()));
+      setSearchResults(results);
+      setShowResults(results.length > 0);
+      const exact = results.find(c => c.email?.toLowerCase() === emailQuery.toLowerCase());
+      if (exact) {
+        setMatchedCustomer(exact);
+        setCustomerName(exact.name);
+        setSearchQuery(exact.phone.replace(/\D/g, ''));
+        setIsNewCustomer(false);
+      } else {
+        setMatchedCustomer(null);
+        setIsNewCustomer(emailQuery.includes('@') && emailQuery.includes('.'));
+      }
+    } else {
+      setSearchResults([]);
+      setMatchedCustomer(null);
+    }
+  }, [emailQuery]);
 
   const selectCustomer = (c: Customer) => {
     setMatchedCustomer(c);
     setCustomerName(c.name);
     setIsNewCustomer(false);
     setShowResults(false);
-    if (searchMode === 'phone') {
-      setSearchQuery(c.phone.replace(/\D/g, ''));
-    } else {
-      setSearchQuery(c.email || '');
-    }
+    setSearchQuery(c.phone.replace(/\D/g, ''));
+    setEmailQuery(c.email || '');
     const cust: VoucherCustomer = {
       id: c.id,
       name: c.name,
@@ -136,8 +141,8 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
     if (name.trim().length > 0) {
       const cust: VoucherCustomer = {
         name: name.trim(),
-        phone: searchMode === 'phone' ? searchQuery : '',
-        email: searchMode === 'email' ? searchQuery : '',
+        phone: searchQuery || '',
+        email: emailQuery || '',
         isNew: true,
       };
       onCustomerIdentified(cust);
@@ -147,34 +152,20 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
 
   return (
     <div className="space-y-3">
-      {/* Toggle: Phone / Email */}
-      <div className="flex bg-neutral-800 rounded-lg p-0.5 gap-0.5">
-        <button
-          onClick={() => { setSearchMode('phone'); setSearchQuery(''); setMatchedCustomer(null); setIsNewCustomer(false); }}
-          className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${searchMode === 'phone' ? 'bg-neutral-600 text-white' : 'text-neutral-400 hover:text-white'}`}
-        >
-          Phone
-        </button>
-        <button
-          onClick={() => { setSearchMode('email'); setSearchQuery(''); setMatchedCustomer(null); setIsNewCustomer(false); }}
-          className={`flex-1 py-2 rounded-md text-sm font-medium transition-colors ${searchMode === 'email' ? 'bg-neutral-600 text-white' : 'text-neutral-400 hover:text-white'}`}
-        >
-          Email
-        </button>
-      </div>
-
-      {/* Search Input */}
-      <div className="relative" ref={resultsRef} style={{ overflow: 'visible' }}>
-        {searchMode === 'phone' ? (
+      {/* Phone + Email in one row */}
+      <div className="flex gap-2 items-start" ref={resultsRef} style={{ overflow: 'visible' }}>
+        {/* Phone field */}
+        <div className="flex-1 relative">
+          <label className={`${labelClass} mb-1 block`}>Phone Number</label>
           <div className="flex">
             <div className="relative" ref={countryRef}>
               <button
                 type="button"
                 onClick={() => { setShowCountryDropdown(p => !p); setCountrySearch(''); }}
-                className="h-[46px] bg-neutral-800 border border-neutral-600 border-r-0 rounded-l-lg px-3 text-sm text-white flex items-center gap-1.5 hover:bg-neutral-700 transition-colors whitespace-nowrap"
+                className="h-[42px] bg-neutral-800 border border-neutral-600 border-r-0 rounded-l-lg px-2.5 text-sm text-white flex items-center gap-1 hover:bg-neutral-700 transition-colors whitespace-nowrap"
               >
-                <span className="text-base">{selectedCountry.flag}</span>
-                <span className="text-neutral-300 text-xs">{selectedCountry.dial}</span>
+                <span className="text-sm">{selectedCountry.flag}</span>
+                <span className="text-neutral-300 text-[11px]">{selectedCountry.dial}</span>
                 <ChevronDown className={`w-3 h-3 text-neutral-400 transition-transform ${showCountryDropdown ? 'rotate-180' : ''}`} />
               </button>
               {showCountryDropdown && (
@@ -217,41 +208,44 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
               onChange={(e) => setSearchQuery(e.target.value.replace(/\D/g, '').slice(0, selectedCountry.phoneLength))}
               placeholder={selectedCountry.placeholder}
               autoFocus
-              className={`${inputClass} rounded-l-none flex-1`}
+              className={`${inputClass} rounded-l-none flex-1 !h-[42px]`}
             />
           </div>
-        ) : (
+        </div>
+
+        {/* Email field */}
+        <div className="flex-1 relative">
+          <label className={`${labelClass} mb-1 block`}>Email</label>
           <input
             type="email"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value.slice(0, 100))}
-            placeholder="customer@email.com"
-            autoFocus
-            className={inputClass}
+            value={emailQuery}
+            onChange={(e) => setEmailQuery(e.target.value.slice(0, 100))}
+            placeholder="guest@email.com"
+            className={`${inputClass} !h-[42px]`}
           />
-        )}
-
-        {/* Search results dropdown */}
-        {showResults && searchResults.length > 0 && !matchedCustomer && (
-          <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
-            <div className="max-h-40 overflow-y-auto scrollbar-hide">
-              {searchResults.map(c => (
-                <button
-                  key={c.id}
-                  onClick={() => selectCustomer(c)}
-                  className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between hover:bg-white/5 transition-colors"
-                >
-                  <div>
-                    <span className="text-white">{c.name}</span>
-                    <span className="text-neutral-500 text-xs ml-2">{c.phone}</span>
-                  </div>
-                  {c.email && <span className="text-neutral-500 text-xs">{c.email}</span>}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
+        </div>
       </div>
+
+      {/* Search results dropdown */}
+      {showResults && searchResults.length > 0 && !matchedCustomer && (
+        <div className="bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
+          <div className="max-h-40 overflow-y-auto scrollbar-hide">
+            {searchResults.map(c => (
+              <button
+                key={c.id}
+                onClick={() => selectCustomer(c)}
+                className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between hover:bg-white/5 transition-colors"
+              >
+                <div>
+                  <span className="text-white">{c.name}</span>
+                  <span className="text-neutral-500 text-xs ml-2">{c.phone}</span>
+                </div>
+                {c.email && <span className="text-neutral-500 text-xs">{c.email}</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Matched customer card */}
       {matchedCustomer && (
@@ -272,13 +266,13 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
         <div className="bg-amber-900/20 border border-amber-700/40 rounded-lg p-3 animate-fade-in">
           <div className="flex items-center gap-2 mb-2">
             <UserPlus className="w-4 h-4 text-amber-400" />
-            <span className="text-amber-300 text-xs font-medium">New customer — enter their name</span>
+            <span className="text-amber-300 text-xs font-medium">New guest — enter their name</span>
           </div>
           <input
             type="text"
             value={customerName}
             onChange={(e) => handleNewCustomerNameChange(e.target.value)}
-            placeholder="Customer name"
+            placeholder="Guest name"
             className={inputClass}
           />
         </div>

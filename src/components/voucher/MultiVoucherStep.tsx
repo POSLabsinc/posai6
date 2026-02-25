@@ -708,7 +708,7 @@ const MultiVoucherStep = ({
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-[15px] leading-tight text-white">{ce.voucherName || 'Untitled Custom'}</h3>
-                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">Custom</span>
+                    
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {ceFee > 0 && (
@@ -730,9 +730,11 @@ const MultiVoucherStep = ({
                   <div className={`text-2xl font-extrabold tracking-tight ${theme.valueBg}`}>
                     {CURRENCY_SYMBOL}{ceValue.toFixed(2)}
                   </div>
-                  <div className={`text-[11px] font-semibold uppercase tracking-widest mt-0.5 ${theme.accentText}`}>
-                    Custom Voucher{ce.quantity > 1 ? ` ×${ce.quantity}` : ''}
-                  </div>
+                  {ce.quantity > 1 && (
+                    <div className={`text-[11px] font-semibold uppercase tracking-widest mt-0.5 ${theme.accentText}`}>
+                      ×{ce.quantity}
+                    </div>
+                  )}
                 </div>
                 <div className="flex items-center gap-2 my-1.5">
                   <div className={`flex-1 h-px opacity-30 ${theme.accent.replace('text-', 'bg-')}`} />

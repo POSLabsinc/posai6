@@ -644,7 +644,7 @@ const MultiVoucherStep = ({
             }`}
           >
             <Plus className="w-4 h-4" />
-            Custom{customEntries.length > 0 ? ` (${customEntries.length})` : ''}
+            Create Voucher{customEntries.length > 0 ? ` (${customEntries.length})` : ''}
           </button>
         )}
       </div>

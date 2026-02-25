@@ -256,7 +256,7 @@ const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData }: Sel
         {!isEditMode && (
           <div className="bg-neutral-800/40 border border-neutral-700/50 rounded-xl p-3 md:p-4">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-white font-semibold text-xs uppercase tracking-wider">Customer</h3>
+              <h3 className="text-white font-semibold text-xs uppercase tracking-wider">Guest Details</h3>
               {customerConfirmed && customer && (
                 <button
                   onClick={() => { setCustomerConfirmed(false); setCustomer(null); }}
@@ -321,7 +321,7 @@ const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData }: Sel
               </TooltipTrigger>
               {!sectionsEnabled && (
                 <TooltipContent side="top">
-                  <p>Select customer to continue</p>
+                   <p>Select guest to continue</p>
                 </TooltipContent>
               )}
             </Tooltip>

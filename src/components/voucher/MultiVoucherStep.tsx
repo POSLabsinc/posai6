@@ -352,16 +352,27 @@ const MultiVoucherStep = ({
           </span>
         </div>
 
-        {/* Toggle */}
-        <div className="flex items-center justify-between bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-2">
-          <label className="text-neutral-300 text-[11px] font-medium cursor-pointer">
-            Apply same settings to all custom vouchers
-          </label>
-          <Switch
-            checked={sharedRulesOn}
-            onCheckedChange={handleToggleChange}
-            className="scale-90"
-          />
+        {/* Toggle + Voucher Type row */}
+        <div className="grid grid-cols-2 gap-x-3">
+          <div className="flex items-center bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-2">
+            <label className="text-neutral-300 text-[11px] font-medium cursor-pointer flex-1">
+              Apply same settings to all
+            </label>
+            <Switch
+              checked={sharedRulesOn}
+              onCheckedChange={handleToggleChange}
+              className="scale-90"
+            />
+          </div>
+          <div>
+            <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
+              <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue placeholder="Voucher Type" /></SelectTrigger>
+              <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
+                <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* ===== SHARED MODE (ON) ===== */}
@@ -408,18 +419,6 @@ const MultiVoucherStep = ({
             {/* Shared Settings Block */}
             <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3 space-y-2">
               <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Settings</span>
-              <div className="grid grid-cols-2 gap-x-3 gap-y-3 mb-2">
-                <div>
-                  <label className={labelClass}>Voucher Type</label>
-                  <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
-                    <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-                    <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-                      <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
-                      <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <VoucherCurrencyInput
                   label={multiVoucherValueType === 'percentage' ? "Redeemable (%)" : "Redeemable Value"}
@@ -516,16 +515,6 @@ const MultiVoucherStep = ({
                     <Plus className="w-3.5 h-3.5" />
                   </button>
                 </div>
-              </div>
-              <div>
-                <label className={labelClass}>Voucher Type</label>
-                <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
-                  <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-                  <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-                    <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
-                    <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
-                  </SelectContent>
-                </Select>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <VoucherCurrencyInput

@@ -637,11 +637,7 @@ const MultiVoucherStep = ({
         {showCustomCard && (
           <button
             onClick={() => openBuilder()}
-            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex-shrink-0 ${
-              customEntries.length > 0
-                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
-                : 'bg-emerald-500 text-neutral-900 hover:bg-emerald-400'
-            }`}
+            className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-dashed border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-sm font-medium transition-all whitespace-nowrap"
           >
             <Plus className="w-4 h-4" />
             Create Voucher{customEntries.length > 0 ? ` (${customEntries.length})` : ''}

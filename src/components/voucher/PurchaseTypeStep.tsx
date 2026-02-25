@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { User, Users, Building2, Search, ChevronDown } from "lucide-react";
+import { User, Ticket, Tickets, Building2, Search, ChevronDown } from "lucide-react";
 import { MOCK_COMPANIES, inputClass, type PurchaseMode, type BuyerType, type CompanyProfile } from "./voucherConstants";
 
 interface PurchaseTypeStepProps {
@@ -45,14 +45,14 @@ const PurchaseTypeStep = ({
               onClick={() => onPurchaseModeChange('single')}
               className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border transition-all ${purchaseMode === 'single' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
             >
-              <User className="w-4 h-4" />
+              <Ticket className="w-4 h-4" />
               <span className="text-sm font-medium">Single</span>
             </button>
             <button
               onClick={() => onPurchaseModeChange('multiple')}
               className={`flex items-center justify-center gap-2 py-3 px-3 rounded-xl border transition-all ${purchaseMode === 'multiple' ? 'border-white bg-white/10 text-white' : 'border-neutral-700 text-neutral-400 hover:border-neutral-500'}`}
             >
-              <Users className="w-4 h-4" />
+              <Tickets className="w-4 h-4" />
               <span className="text-sm font-medium">Multiple</span>
             </button>
           </div>

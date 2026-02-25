@@ -352,27 +352,16 @@ const MultiVoucherStep = ({
           </span>
         </div>
 
-        {/* Toggle + Voucher Type row */}
-        <div className="grid grid-cols-2 gap-x-3">
-          <div className="flex items-center bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-2">
-            <label className="text-neutral-300 text-[11px] font-medium cursor-pointer flex-1">
-              Apply same settings to all
-            </label>
-            <Switch
-              checked={sharedRulesOn}
-              onCheckedChange={handleToggleChange}
-              className="scale-90"
-            />
-          </div>
-          <div>
-            <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
-              <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue placeholder="Voucher Type" /></SelectTrigger>
-              <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-                <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
-                <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
+        {/* Toggle */}
+        <div className="flex items-center justify-between bg-neutral-800/50 border border-neutral-700 rounded-lg px-3 py-2">
+          <label className="text-neutral-300 text-[11px] font-medium cursor-pointer">
+            Apply same settings to all custom vouchers
+          </label>
+          <Switch
+            checked={sharedRulesOn}
+            onCheckedChange={handleToggleChange}
+            className="scale-90"
+          />
         </div>
 
         {/* ===== SHARED MODE (ON) ===== */}
@@ -380,7 +369,19 @@ const MultiVoucherStep = ({
           <>
             {/* Custom Voucher Names List */}
             <div className="space-y-2">
-              <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Voucher Names</span>
+              <div className="grid grid-cols-2 gap-x-3 items-end">
+                <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Voucher Names</span>
+                <div>
+                  <label className={labelClass}>Voucher Type</label>
+                  <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
+                    <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[38px] rounded-lg text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                      <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
+                      <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               {customEntries.map((ce, idx) => (
                 <div key={ce.id} className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
                   <input
@@ -497,23 +498,34 @@ const MultiVoucherStep = ({
 
             {/* Full per-entry form */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
-                <input
-                  type="text"
-                  value={entry.voucherName}
-                  onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })}
-                  placeholder="Enter custom voucher name"
-                  autoFocus
-                  className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
-                />
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                    <Minus className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="text-white font-bold text-sm w-6 text-center">{entry.quantity}</span>
-                  <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
+              <div className="grid grid-cols-2 gap-x-3">
+                <div className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
+                  <input
+                    type="text"
+                    value={entry.voucherName}
+                    onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })}
+                    placeholder="Enter custom voucher name"
+                    autoFocus
+                    className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
+                  />
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-white font-bold text-sm w-6 text-center">{entry.quantity}</span>
+                    <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
+                    <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                      <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
+                      <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">

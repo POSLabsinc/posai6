@@ -89,6 +89,7 @@ import CustomOrderGuestForm, { CustomOrderGuestData } from "@/components/CustomO
 import MPINDialog from "@/components/MPINDialog";
 import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 import VoucherDialog from "@/components/VoucherDialog";
+import SellVoucherScreen from "@/components/SellVoucherScreen";
 import CreateVoucherForm from "@/components/CreateVoucherForm";
 import { Drawer, DrawerContent } from "@/components/ui/drawer";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -6181,6 +6182,7 @@ const Orders = () => {
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
+  const [voucherMode, setVoucherMode] = useState(false);
   const [editingVoucherData, setEditingVoucherData] = useState<import('@/components/VoucherDialog').VoucherInitialData | null>(null);
   const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
   const [showVoucherOptionsPopup, setShowVoucherOptionsPopup] = useState(false);
@@ -7161,7 +7163,7 @@ const Orders = () => {
                       Add Guest
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                  onClick={() => setShowVoucherDialog(true)}
+                  onClick={() => { setVoucherMode(true); setEditingVoucherData(null); }}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
                       <Ticket className="w-3.5 h-3.5" />
@@ -7368,7 +7370,7 @@ const Orders = () => {
                         editingItemId: item.id,
                         voucherName: (item as any).voucherMeta?.voucherName,
                       });
-                      setShowVoucherDialog(true);
+                      setVoucherMode(true);
                       return;
                     }
                     if (item.isOpenPrice) {
@@ -7745,9 +7747,42 @@ const Orders = () => {
           {showInlineCustomization && selectedItemForCustomization || isSearchMode ? <div className="w-8" /> : null}
         </div>
         {/* Menu Content - Hidden when minimized */}
-      <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-[12px] md:rounded-[16px] ${showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
+      <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-[12px] md:rounded-[16px] ${voucherMode ? 'p-0' : showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
         {/* Custom Product is now handled via bottom sheet overlay */}
-        {
+        {voucherMode ? (
+          <SellVoucherScreen
+            onBack={() => { setVoucherMode(false); setEditingVoucherData(null); }}
+            initialData={editingVoucherData}
+            guestData={(guestName || guestPhone) ? { name: guestName, phone: guestPhone } : null}
+            onAddVoucher={(amount, voucherData) => {
+              const price = voucherData.sellingPrice || amount;
+              const voucherLabel = voucherData.voucherName?.trim() || 'Voucher';
+              const label = `${voucherLabel} - $${voucherData.value.toFixed(2)}`;
+              const meta = { type: voucherData.type, value: voucherData.value, expiryDate: voucherData.expiryDate, voucherName: voucherData.voucherName?.trim() };
+              if (voucherData.customerName && !guestName) setGuestName(voucherData.customerName);
+              if (voucherData.customerPhone && !guestPhone) setGuestPhone(voucherData.customerPhone.replace(/\D/g, ''));
+              if (editingVoucherData?.editingItemId) {
+                setOrderItems((prev) => prev.map(item =>
+                  item.id === editingVoucherData.editingItemId
+                    ? { ...item, qty: voucherData.quantity || 1, name: label, price, voucherMeta: meta } as any
+                    : item
+                ));
+              } else {
+                setOrderItems((prev) => [...prev, {
+                  id: Date.now(),
+                  qty: voucherData.quantity || 1,
+                  name: label,
+                  price: price,
+                  itemOrderType: 'VOUCHER',
+                  noTax: true,
+                  voucherMeta: meta,
+                } as any]);
+              }
+              setVoucherMode(false);
+              setEditingVoucherData(null);
+            }}
+          />
+        ) :
         showInlineCustomization && selectedItemForCustomization ?
         isProductInfoFullScreen ?
         // Full-screen product info overlay on mobile
@@ -7910,7 +7945,7 @@ const Orders = () => {
         </>}
         
         {/* Desktop/Tablet Search Bar - At Bottom */}
-        {isDesktopSearchOpen && <div className="hidden md:flex items-center gap-2 px-3 py-2.5 bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
+        {!voucherMode && isDesktopSearchOpen && <div className="hidden md:flex items-center gap-2 px-3 py-2.5 bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
           <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
             <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
             <input type="text" placeholder="Search items..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
@@ -8481,7 +8516,7 @@ const Orders = () => {
                             editingItemId: item.id,
                             voucherName: (item as any).voucherMeta?.voucherName,
                           });
-                          setShowVoucherDialog(true);
+                          setVoucherMode(true);
                           return;
                         }
                         if (item.isOpenPrice) {
@@ -8910,7 +8945,7 @@ const Orders = () => {
                     <span className="text-[9px] text-white text-center leading-tight">Add<br />Guest</span>
                   </button>
                   <button
-                onClick={() => setShowVoucherDialog(true)}
+                onClick={() => { setVoucherMode(true); setEditingVoucherData(null); }}
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
                     <Ticket className="w-5 h-5 text-white" />
@@ -9283,48 +9318,7 @@ const Orders = () => {
       }} />
 
 
-      {/* Voucher Dialog */}
-      <VoucherDialog
-      isOpen={showVoucherDialog}
-      onClose={() => { setShowVoucherDialog(false); setEditingVoucherData(null); }}
-      initialData={editingVoucherData}
-      guestData={(guestName || guestPhone) ? { name: guestName, phone: guestPhone } : null}
-      onAddVoucher={(amount, voucherData) => {
-        const price = voucherData.sellingPrice || amount;
-        const voucherLabel = voucherData.voucherName?.trim() || 'Voucher';
-        const label = `${voucherLabel} - $${voucherData.value.toFixed(2)}`;
-        const meta = { type: voucherData.type, value: voucherData.value, expiryDate: voucherData.expiryDate, voucherName: voucherData.voucherName?.trim() };
-
-        // Pre-fill guest details from voucher customer
-        if (voucherData.customerName && !guestName) {
-          setGuestName(voucherData.customerName);
-        }
-        if (voucherData.customerPhone && !guestPhone) {
-          setGuestPhone(voucherData.customerPhone.replace(/\D/g, ''));
-        }
-
-        if (editingVoucherData?.editingItemId) {
-          // Update existing voucher item
-          setOrderItems((prev) => prev.map(item =>
-            item.id === editingVoucherData.editingItemId
-              ? { ...item, qty: voucherData.quantity || 1, name: label, price, voucherMeta: meta } as any
-              : item
-          ));
-        } else {
-          // Add new voucher item
-          setOrderItems((prev) => [...prev, {
-            id: Date.now(),
-            qty: voucherData.quantity || 1,
-            name: label,
-            price: price,
-            itemOrderType: 'VOUCHER',
-            noTax: true,
-            voucherMeta: meta,
-          } as any]);
-        }
-        setShowVoucherDialog(false);
-        setEditingVoucherData(null);
-      }} />
+      {/* VoucherDialog removed — Sell Voucher is now inline in the menu panel */}
 
 
       {/* LEGACY: Voucher Options Popup — commented out, restore if needed

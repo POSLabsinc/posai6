@@ -622,16 +622,31 @@ const MultiVoucherStep = ({
   // =============================
   return (
     <div className="space-y-3">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
-        <input
-          type="text"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search voucher templates..."
-          className="w-full bg-neutral-800 border border-neutral-700 rounded-lg pl-10 pr-3 py-2.5 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors"
-        />
+      {/* Search + Custom Voucher CTA */}
+      <div className="flex gap-2">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search voucher templates..."
+            className="w-full bg-neutral-800 border border-neutral-700 rounded-lg pl-10 pr-3 py-2.5 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors"
+          />
+        </div>
+        {showCustomCard && (
+          <button
+            onClick={() => openBuilder()}
+            className={`flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 flex-shrink-0 ${
+              customEntries.length > 0
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 hover:bg-emerald-500/30'
+                : 'bg-emerald-500 text-neutral-900 hover:bg-emerald-400'
+            }`}
+          >
+            <Plus className="w-4 h-4" />
+            Custom{customEntries.length > 0 ? ` (${customEntries.length})` : ''}
+          </button>
+        )}
       </div>
 
       {/* Category Filters */}
@@ -657,37 +672,6 @@ const MultiVoucherStep = ({
 
       {/* Cards grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 p-1">
-        {/* Custom Voucher Card (add new) */}
-        {showCustomCard && (
-          <button
-            onClick={() => openBuilder()}
-            className={`text-left border-2 border-dashed rounded-2xl p-4 transition-all duration-300 group relative overflow-hidden ${
-              customEntries.length > 0
-                ? 'border-emerald-500/50 bg-emerald-500/5'
-                : 'border-neutral-600 hover:border-emerald-500/50 hover:bg-emerald-500/5'
-            }`}
-          >
-            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(52,211,153,0.3) 10px, rgba(52,211,153,0.3) 11px)' }} />
-            <div className="relative flex flex-col items-center justify-center py-3 gap-2">
-              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                <Plus className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div className="text-center">
-                <span className="text-emerald-400 font-semibold text-sm block">Custom Voucher</span>
-                <span className="text-neutral-500 text-[11px]">
-                  {customEntries.length > 0 ? `${customEntries.length} custom added — tap to manage` : 'Create your own voucher'}
-                </span>
-              </div>
-              {customEntries.length > 0 && (
-                <span className="absolute top-0 right-0 bg-emerald-500 text-neutral-900 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
-                  {customEntries.length}
-                </span>
-              )}
-            </div>
-          </button>
-        )}
-
-        {/* Created custom voucher preview cards */}
         {showCustomCard && customEntries.map((ce) => {
           const ceValue = posCurrencyToNumber(sharedRulesOn ? sharedRules.valueDigits : ce.valueDigits);
           const ceFee = posCurrencyToNumber(sharedRulesOn ? sharedRules.serviceFeeDigits : ce.serviceFeeDigits);

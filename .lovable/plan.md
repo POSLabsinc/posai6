@@ -1,34 +1,36 @@
 
 
-## Fix: Guest Search Selection, Email Search, and Empty Voucher Section
+## Fix: Guest Name Input Issues
 
-### Issues Found
+### Problems
 
-**1. Phone search results click not updating**
-The search results dropdown (lines 230-248) is rendered **outside** the `resultsRef` div (which only wraps the phone+email input row at line 156). When clicking a search result, the `mousedown` event handler (line 53) fires first, detects the click is outside `resultsRef`, and sets `showResults = false` -- hiding the dropdown before the `onClick` on the button can fire.
+1. **New guest section appears too early**: After typing just 3 digits with no results, `isNewCustomer` becomes `true`, showing the name fields. The `autoFocus` on the first name input steals focus from the phone/email field, preventing further typing.
 
-**2. Email search blocked when phone field has value**
-Line 98: `if (!emailQuery.trim() || searchQuery.trim()) return;` -- the email search `useEffect` exits early whenever the phone field contains any text, making email search non-functional if you've typed anything in the phone field first.
+2. **Can't enter last name**: The `onBlur` handler on the first name input calls `confirmNewGuest()`, which triggers `onContinue()` (navigates to next step). When clicking/tabbing to the last name field, the blur fires first and saves immediately.
 
-**3. "Select Vouchers" section is blank**
-After making `purchaseMode` default to `null`, the voucher configuration section (lines 344-397) only renders content when `purchaseMode === 'single'` or `purchaseMode === 'multiple'`. When `null`, nothing renders -- leaving the section empty.
-
-### Fix Plan
+### Solution
 
 **File: `src/components/voucher/CustomerStep.tsx`**
 
-- **Fix 1**: Move the search results dropdown **inside** the `resultsRef` wrapper div so clicks on results are not treated as "outside" clicks.
-- **Fix 2**: Remove the `searchQuery.trim()` guard from the email search `useEffect`, allowing email search to work independently of the phone field. Instead, only skip email search if the phone field has already produced an exact match.
+1. **Delay showing new guest section**: Only set `isNewCustomer(true)` when:
+   - Phone: the full phone length is entered and no exact match is found (not on partial typing with 0 results)
+   - Email: contains both `@` and `.` with no results found
+   - Remove the early `results.length === 0` triggers that fire during partial input
 
-**File: `src/components/SellVoucherScreen.tsx`**
+2. **Remove `autoFocus` from first name input**: Stop stealing focus from the phone/email fields.
 
-- **Fix 3**: Add a placeholder/empty state inside the voucher configuration section when `purchaseMode` is `null`. This will show a brief message like "Select a purchase type above to configure vouchers" so the section is not blank.
+3. **Replace `onBlur` with a "Confirm Guest" button**: Remove both `onBlur` and `onKeyDown` handlers from the name inputs. Add a dedicated button below the name fields that calls `confirmNewGuest()`. This prevents accidental saves when moving between fields.
 
-### Technical Details
+4. **Keep Enter key on last name only**: Optionally allow Enter on the last name field to confirm, since it's the final input.
 
-1. **CustomerStep.tsx -- resultsRef fix**: Restructure the JSX so the search results dropdown sits within the same `ref={resultsRef}` container, preventing the mousedown-outside handler from closing it prematurely.
+### Changes Summary
 
-2. **CustomerStep.tsx -- email search fix**: Change the email `useEffect` condition from `if (!emailQuery.trim() || searchQuery.trim()) return;` to `if (!emailQuery.trim() || matchedCustomer) return;` so email search only skips when a customer is already matched, not just because the phone field has text.
-
-3. **SellVoucherScreen.tsx -- empty state**: Add a conditional block when `purchaseMode` is `null` showing a neutral message guiding the user to select a purchase type first.
+- Lines 76-77: Remove `if (results.length === 0) setIsNewCustomer(true)` from phone search; keep the existing logic at full phone length
+- Lines 107-108: Remove `if (results.length === 0) setIsNewCustomer(true)` from email search; instead set `isNewCustomer(true)` only when email has `@` and `.` with no results
+- Line 290: Remove `onBlur={confirmNewGuest}` from first name
+- Line 291: Remove `onKeyDown` from first name
+- Line 294: Remove `autoFocus` from first name
+- Line 300: Remove `onBlur={confirmNewGuest}` from last name
+- Line 301: Keep `onKeyDown` Enter on last name only (optional)
+- Add a "Confirm Guest" button after the name fields that calls `confirmNewGuest()`
 

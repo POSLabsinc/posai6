@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, Check, Minus, X, ChevronLeft, ChevronRight, Edit2 } from "lucide-react";
+import { Search, Plus, Check, Minus, X, ChevronLeft, ChevronRight, Edit2, Trash2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES, REDEMPTION_LIMIT_OPTIONS,
@@ -708,6 +708,12 @@ const MultiVoucherStep = ({
                     <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-400 animate-scale-in">
                       <Edit2 className="w-3 h-3 text-neutral-900" strokeWidth={3} />
                     </div>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); setCustomEntries(prev => prev.filter(c => c.id !== ce.id)); }}
+                      className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-red-500/80 hover:bg-red-500 transition-colors"
+                    >
+                      <Trash2 className="w-3 h-3 text-white" strokeWidth={3} />
+                    </button>
                   </div>
                 </div>
                 <div className="my-1">

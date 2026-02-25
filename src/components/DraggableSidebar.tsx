@@ -264,7 +264,7 @@ export function DraggableSidebar() {
                         e.preventDefault();
                         sidebarNavigate('/orders', { replace: true });
                       } : undefined}
-                      className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors ${isVoucherMode && item.url === '/orders' ? 'opacity-50' : ''}`}
+                      className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName={isVoucherMode && item.url === '/orders' ? '' : 'bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white'}
                     >
                       {item.lucideIcon ? (

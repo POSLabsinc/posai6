@@ -21,7 +21,8 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
   const [matchedCustomer, setMatchedCustomer] = useState<Customer | null>(null);
   const [searchResults, setSearchResults] = useState<Customer[]>([]);
   const [showResults, setShowResults] = useState(false);
-  const [customerName, setCustomerName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [isNewCustomer, setIsNewCustomer] = useState(false);
   const countryRef = useRef<HTMLDivElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
@@ -34,14 +35,14 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
     const { name, phone, email } = initialGuestData;
     if (phone && phone.replace(/\D/g, '').length >= 3) {
       setSearchQuery(phone.replace(/\D/g, ''));
-      if (name) setCustomerName(name);
+      if (name) { const [f, ...r] = name.split(' '); setFirstName(f); setLastName(r.join(' ')); }
     }
     if (email && email.includes('@')) {
       setEmailQuery(email);
-      if (name) setCustomerName(name);
+      if (name) { const [f, ...r] = name.split(' '); setFirstName(f); setLastName(r.join(' ')); }
     }
     if (!phone && !email && name) {
-      setCustomerName(name);
+      const [f, ...r] = name.split(' '); setFirstName(f); setLastName(r.join(' '));
       setIsNewCustomer(true);
     }
     setDidPrefill(true);
@@ -76,7 +77,7 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
         const exact = results.find(c => c.phone.replace(/\D/g, '') === digits);
         if (exact) {
           setMatchedCustomer(exact);
-          setCustomerName(exact.name);
+          const [f, ...r] = exact.name.split(' '); setFirstName(f); setLastName(r.join(' '));
           setEmailQuery(exact.email || '');
           setIsNewCustomer(false);
         } else {
@@ -104,7 +105,7 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
       const exact = results.find(c => c.email?.toLowerCase() === emailQuery.toLowerCase());
       if (exact) {
         setMatchedCustomer(exact);
-        setCustomerName(exact.name);
+        const [f, ...r] = exact.name.split(' '); setFirstName(f); setLastName(r.join(' '));
         setSearchQuery(exact.phone.replace(/\D/g, ''));
         setIsNewCustomer(false);
       } else {
@@ -119,7 +120,7 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
 
   const selectCustomer = (c: Customer) => {
     setMatchedCustomer(c);
-    setCustomerName(c.name);
+    const [f, ...r] = c.name.split(' '); setFirstName(f); setLastName(r.join(' '));
     setIsNewCustomer(false);
     setShowResults(false);
     setSearchQuery(c.phone.replace(/\D/g, ''));
@@ -135,12 +136,18 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
     onContinue();
   };
 
-  // Auto-confirm new customer when name is entered
-  const handleNewCustomerNameChange = (name: string) => {
-    setCustomerName(name.slice(0, 80));
-    if (name.trim().length > 0) {
+  const customerName = `${firstName} ${lastName}`.trim();
+
+  // Auto-confirm new customer when name fields change
+  const handleNameChange = (first: string, last: string) => {
+    const f = first.slice(0, 40);
+    const l = last.slice(0, 40);
+    setFirstName(f);
+    setLastName(l);
+    const fullName = `${f} ${l}`.trim();
+    if (fullName.length > 0) {
       const cust: VoucherCustomer = {
-        name: name.trim(),
+        name: fullName,
         phone: searchQuery || '',
         email: emailQuery || '',
         isNew: true,
@@ -267,13 +274,23 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
             <UserPlus className="w-4 h-4 text-amber-400" />
             <span className="text-amber-300 text-xs font-medium">New guest — enter their name</span>
           </div>
-          <input
-            type="text"
-            value={customerName}
-            onChange={(e) => handleNewCustomerNameChange(e.target.value)}
-            placeholder="Guest name"
-            className={inputClass}
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={firstName}
+              onChange={(e) => handleNameChange(e.target.value, lastName)}
+              placeholder="First name"
+              className={`${inputClass} flex-1`}
+              autoFocus
+            />
+            <input
+              type="text"
+              value={lastName}
+              onChange={(e) => handleNameChange(firstName, e.target.value)}
+              placeholder="Last name"
+              className={`${inputClass} flex-1`}
+            />
+          </div>
         </div>
       )}
     </div>

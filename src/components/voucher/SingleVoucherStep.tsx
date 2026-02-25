@@ -343,6 +343,7 @@ const SingleVoucherStep = ({
           rawDigits={valueDigits}
           onRawDigitsChange={(d) => { onValueDigitsChange(d); setTouched(p => ({ ...p, value: true })); }}
           error={touched.value && numericValue <= 0 ? "Amount required" : undefined}
+          symbolOverride={voucherValueType === 'percentage' ? '%' : undefined}
         />
         <VoucherCurrencyInput
           label="Service Fee"

@@ -48,8 +48,8 @@ const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData }: Sel
   const [customerConfirmed, setCustomerConfirmed] = useState(isEditMode);
 
   // Purchase type
-  const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>('single');
-  const [buyerType, setBuyerType] = useState<BuyerType>('personal');
+  const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>(null);
+  const [buyerType, setBuyerType] = useState<BuyerType>(null);
   const [selectedCompany, setSelectedCompany] = useState<CompanyProfile | null>(null);
 
   // Single voucher fields

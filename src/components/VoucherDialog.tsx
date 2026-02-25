@@ -75,8 +75,8 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
   const [customer, setCustomer] = useState<VoucherCustomer | null>(null);
 
   // Step 1: Purchase type
-  const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>('single');
-  const [buyerType, setBuyerType] = useState<BuyerType>('personal');
+  const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>(null);
+  const [buyerType, setBuyerType] = useState<BuyerType>(null);
   const [selectedCompany, setSelectedCompany] = useState<CompanyProfile | null>(null);
 
   // Step 2: Single voucher fields
@@ -135,8 +135,8 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
   const resetState = () => {
     setStep('customer');
     setCustomer(null);
-    setPurchaseMode('single');
-    setBuyerType('personal');
+    setPurchaseMode(null);
+    setBuyerType(null);
     setSelectedCompany(null);
     setVoucherName('');
     setIsCustomVoucherName(false);

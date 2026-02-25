@@ -95,8 +95,8 @@ export const labelClass = "text-neutral-400 text-xs font-medium mb-1.5 block";
 export const keypadBtnClass = "rounded-xl bg-neutral-800 hover:bg-neutral-700 active:bg-neutral-600 border border-neutral-700 text-white transition-all duration-100 active:scale-95 flex items-center justify-center";
 
 // ---- Types for wizard state ----
-export type PurchaseMode = 'single' | 'multiple';
-export type BuyerType = 'personal' | 'company';
+export type PurchaseMode = 'single' | 'multiple' | null;
+export type BuyerType = 'personal' | 'company' | null;
 
 export interface VoucherCustomer {
   id?: string;

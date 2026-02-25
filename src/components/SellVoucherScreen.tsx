@@ -38,9 +38,10 @@ interface SellVoucherScreenProps {
   }) => void;
   initialData?: VoucherInitialData | null;
   guestData?: { name?: string; phone?: string; email?: string } | null;
+  onGuestIdentified?: (guest: { name: string; phone: string; email: string }) => void;
 }
 
-const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData }: SellVoucherScreenProps) => {
+const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData, onGuestIdentified }: SellVoucherScreenProps) => {
   const isEditMode = !!(initialData?.editingItemId);
 
   // Customer
@@ -272,6 +273,7 @@ const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData }: Sel
                 initialGuestData={guestData}
                 onCustomerIdentified={(c) => {
                   setCustomer(c);
+                  onGuestIdentified?.({ name: c.name, phone: c.phone || '', email: c.email || '' });
                   const detectedCompany = detectCompanyForCustomer(c.email);
                   if (detectedCompany) {
                     setBuyerType('company');

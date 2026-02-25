@@ -7775,6 +7775,10 @@ const Orders = () => {
             onBack={() => { setVoucherMode(false); setEditingVoucherData(null); }}
             initialData={editingVoucherData}
             guestData={(guestName || guestPhone) ? { name: guestName, phone: guestPhone } : null}
+            onGuestIdentified={(guest) => {
+              setGuestName(guest.name);
+              if (guest.phone) setGuestPhone(guest.phone.replace(/\D/g, ''));
+            }}
             onAddVoucher={(amount, voucherData) => {
               const price = voucherData.sellingPrice || amount;
               const voucherLabel = voucherData.voucherName?.trim() || 'Voucher';

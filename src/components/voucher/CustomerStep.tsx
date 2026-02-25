@@ -95,7 +95,7 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
 
   // Search by email
   useEffect(() => {
-    if (!emailQuery.trim() || searchQuery.trim()) return;
+    if (!emailQuery.trim() || matchedCustomer) return;
 
     if (emailQuery.includes('@')) {
       const results = customers.filter(c => c.email?.toLowerCase().includes(emailQuery.toLowerCase()));
@@ -153,7 +153,7 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
   return (
     <div className="space-y-3">
       {/* Phone + Email in one row */}
-      <div className="flex gap-2 items-start" ref={resultsRef} style={{ overflow: 'visible' }}>
+      <div className="flex gap-2 items-start relative" ref={resultsRef} style={{ overflow: 'visible' }}>
         {/* Phone field */}
         <div className="flex-1 relative">
           <label className={`${labelClass} mb-1 block`}>Phone Number</label>
@@ -224,28 +224,27 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
             className={`${inputClass} !h-[42px]`}
           />
         </div>
-      </div>
-
-      {/* Search results dropdown */}
-      {showResults && searchResults.length > 0 && !matchedCustomer && (
-        <div className="bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
-          <div className="max-h-40 overflow-y-auto scrollbar-hide">
-            {searchResults.map(c => (
-              <button
-                key={c.id}
-                onClick={() => selectCustomer(c)}
-                className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between hover:bg-white/5 transition-colors"
-              >
-                <div>
-                  <span className="text-white">{c.name}</span>
-                  <span className="text-neutral-500 text-xs ml-2">{c.phone}</span>
-                </div>
-                {c.email && <span className="text-neutral-500 text-xs">{c.email}</span>}
-              </button>
-            ))}
+        {/* Search results dropdown - inside resultsRef so clicks register */}
+        {showResults && searchResults.length > 0 && !matchedCustomer && (
+          <div className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 border border-neutral-600 rounded-lg overflow-hidden z-50 shadow-xl">
+            <div className="max-h-40 overflow-y-auto scrollbar-hide">
+              {searchResults.map(c => (
+                <button
+                  key={c.id}
+                  onClick={() => selectCustomer(c)}
+                  className="w-full px-4 py-2.5 text-sm text-left flex items-center justify-between hover:bg-white/5 transition-colors"
+                >
+                  <div>
+                    <span className="text-white">{c.name}</span>
+                    <span className="text-neutral-500 text-xs ml-2">{c.phone}</span>
+                  </div>
+                  {c.email && <span className="text-neutral-500 text-xs">{c.email}</span>}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Matched customer card */}
       {matchedCustomer && (

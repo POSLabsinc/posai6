@@ -341,6 +341,12 @@ const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData }: Sel
                   {purchaseMode === 'single' ? 'Select Voucher' : 'Select Vouchers'}
                 </h3>
 
+                {purchaseMode === null && (
+                  <div className="flex flex-col items-center justify-center py-8 text-center">
+                    <p className="text-neutral-500 text-sm">Select a purchase type above to configure vouchers</p>
+                  </div>
+                )}
+
                 {purchaseMode === 'single' && (
                   <>
                     <SingleVoucherStep

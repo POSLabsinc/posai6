@@ -369,8 +369,8 @@ const MultiVoucherStep = ({
           <>
             {/* Custom Voucher Names List */}
             <div className="space-y-2">
-              <div className="grid grid-cols-2 gap-x-3 items-end">
-                <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Voucher Names</span>
+              <div className="grid grid-cols-3 gap-x-3 items-end">
+                <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block col-span-2">Voucher Names</span>
                 <div>
                   <label className={labelClass}>Voucher Type</label>
                   <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
@@ -498,8 +498,8 @@ const MultiVoucherStep = ({
 
             {/* Full per-entry form */}
             <div className="space-y-3">
-              <div className="grid grid-cols-2 gap-x-3">
-                <div className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
+              <div className="grid grid-cols-3 gap-x-3">
+                <div className="col-span-2 flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
                   <input
                     type="text"
                     value={entry.voucherName}

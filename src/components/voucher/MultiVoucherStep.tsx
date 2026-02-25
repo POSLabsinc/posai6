@@ -81,6 +81,7 @@ const MultiVoucherStep = ({
   const [builderIndex, setBuilderIndex] = useState(0);
   const [sharedRulesOn, setSharedRulesOn] = useState(true);
   const [sharedRules, setSharedRules] = useState<SharedRules>({ ...DEFAULT_SHARED_RULES });
+  const [multiVoucherValueType, setMultiVoucherValueType] = useState<'fixed' | 'percentage'>('fixed');
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -407,12 +408,25 @@ const MultiVoucherStep = ({
             {/* Shared Settings Block */}
             <div className="bg-neutral-800/30 border border-neutral-700/50 rounded-lg p-3 space-y-2">
               <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Settings</span>
+              <div className="grid grid-cols-2 gap-x-3 gap-y-3 mb-2">
+                <div>
+                  <label className={labelClass}>Voucher Type</label>
+                  <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
+                    <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
+                    <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                      <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
+                      <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <VoucherCurrencyInput
-                  label="Redeemable Value"
+                  label={multiVoucherValueType === 'percentage' ? "Redeemable (%)" : "Redeemable Value"}
                   required
                   rawDigits={sharedRules.valueDigits}
                   onRawDigitsChange={(d) => setSharedRules(p => ({ ...p, valueDigits: d }))}
+                  symbolOverride={multiVoucherValueType === 'percentage' ? '%' : undefined}
                 />
                 <VoucherCurrencyInput
                   label="Service Fee"
@@ -503,12 +517,23 @@ const MultiVoucherStep = ({
                   </button>
                 </div>
               </div>
+              <div>
+                <label className={labelClass}>Voucher Type</label>
+                <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
+                  <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
+                  <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
+                    <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
+                    <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <VoucherCurrencyInput
-                  label="Redeemable Value"
+                  label={multiVoucherValueType === 'percentage' ? "Redeemable (%)" : "Redeemable Value"}
                   required
                   rawDigits={entry.valueDigits}
                   onRawDigitsChange={(d) => updateCurrentEntry({ valueDigits: d })}
+                  symbolOverride={multiVoucherValueType === 'percentage' ? '%' : undefined}
                 />
                 <VoucherCurrencyInput
                   label="Service Fee"

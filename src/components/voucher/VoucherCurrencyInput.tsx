@@ -182,7 +182,7 @@ const VoucherCurrencyInput = ({
           inputMode="decimal"
           autoComplete="off"
           value={displayValue}
-          placeholder="0.00"
+          placeholder={symbolOverride === '%' ? "0" : "0.00"}
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}

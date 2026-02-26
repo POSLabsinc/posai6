@@ -153,7 +153,7 @@ const Header = () => {
 
             <img src={dinnerIcon} alt="Dinner" className="hidden md:block w-4 h-4" />
 
-            <span className="hidden md:inline text-sm">Dinner Service (8:00 PM)</span>
+            <span className="hidden md:inline text-sm">Dinner Service (9:00 PM)</span>
           </div>
         </div>
 

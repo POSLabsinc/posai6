@@ -66,7 +66,7 @@ const hoursToTimeString = (h: number): string => {
 const snapTo15 = (h: number): number => Math.round(h * 4) / 4;
 
 const GridLines = () => (
-  <div className="absolute inset-0 flex">
+  <div className="absolute inset-0 flex pointer-events-none">
     {HOURS.map((h) => (
       <div key={h} className="flex-shrink-0 border-l border-calendar-border/50 h-full" style={{ width: COL_WIDTH }} />
     ))}

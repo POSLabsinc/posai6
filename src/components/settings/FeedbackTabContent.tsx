@@ -37,7 +37,7 @@ const FeedbackTabContent = ({ guest }: FeedbackTabContentProps) => {
   useEffect(() => {
     const fetchFeedback = async () => {
       setLoading(true);
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("guest_feedback")
         .select("id, feedback_date, sentiment, comment, platform")
         .eq("guest_name", guest.name)

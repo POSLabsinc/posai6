@@ -59,7 +59,7 @@ const EditShiftContent = ({ showHeader = true, onBack }: EditShiftContentProps) 
     queryKey: ["shift_detail", shiftId],
     queryFn: async () => {
       if (!shiftId) return null;
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("employee_shifts")
         .select("*")
         .eq("id", shiftId)
@@ -134,7 +134,7 @@ const EditShiftContent = ({ showHeader = true, onBack }: EditShiftContentProps) 
     }
 
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("employee_shifts")
         .update({
           employee_id: selectedEmployeeId,
@@ -168,7 +168,7 @@ const EditShiftContent = ({ showHeader = true, onBack }: EditShiftContentProps) 
   const handleDelete = async () => {
     if (!shiftId) return;
     try {
-      const { error } = await supabase.from("employee_shifts").delete().eq("id", shiftId);
+      const { error } = await (supabase as any).from("employee_shifts").delete().eq("id", shiftId);
       if (error) throw error;
       queryClient.invalidateQueries({ queryKey: ["weekly_shifts"] });
       queryClient.invalidateQueries({ queryKey: ["employee_shifts"] });

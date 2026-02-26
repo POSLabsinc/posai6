@@ -136,7 +136,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
         end_date: format(endDate, "yyyy-MM-dd"),
       }));
 
-      const { error } = await supabase.from("employee_shifts").insert(shiftRows);
+      const { error } = await (supabase as any).from("employee_shifts").insert(shiftRows);
       if (error) throw error;
 
       queryClient.invalidateQueries({ queryKey: ["weekly_shifts"] });

@@ -2,6 +2,7 @@ import { format } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useState, useRef, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 interface ShiftDayViewProps {
@@ -225,6 +226,7 @@ const DraggableShiftBlock = ({ shift, onDragEnd, onDragEndWithEmployee, employee
 
   return (
     <div
+      data-shift-block
       ref={blockRef}
       onPointerDown={handlePointerDown}
       onPointerMove={isDragging ? handlePointerMove : undefined}
@@ -272,7 +274,27 @@ const DraggableShiftBlock = ({ shift, onDragEnd, onDragEndWithEmployee, employee
 const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
   const dateStr = format(currentDate, "yyyy-MM-dd");
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const employeeRowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
+
+  const handleTimelineClick = useCallback((e: React.MouseEvent, employeeId: string, employeeName: string) => {
+    // Only handle clicks on the timeline background, not on shift blocks
+    if ((e.target as HTMLElement).closest('[data-shift-block]')) return;
+    const rect = e.currentTarget.getBoundingClientRect();
+    const clickX = e.clientX - rect.left;
+    const clickedHour = snapTo15(HOURS[0] + clickX / COL_WIDTH);
+    const clampedHour = Math.max(HOURS[0], Math.min(HOURS[HOURS.length - 1], clickedHour));
+    const startTime = hoursToTimeString(clampedHour);
+    const endTime = hoursToTimeString(Math.min(clampedHour + 1, HOURS[HOURS.length - 1] + 1));
+    const params = new URLSearchParams({
+      employee_id: employeeId,
+      employee_name: employeeName,
+      start_time: startTime,
+      end_time: endTime,
+      shift_date: dateStr,
+    });
+    navigate(`/settings/workforce/shift/add?${params.toString()}`);
+  }, [dateStr, navigate]);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["shift_day_view", dateStr],
@@ -459,8 +481,13 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
                 </div>
               </div>
 
-              {/* Timeline cells */}
-              <div className="flex-1 relative" style={{ width: HOURS.length * COL_WIDTH }}>
+              {/* Timeline cells - clickable to add shift */}
+              <div
+                className="flex-1 relative cursor-pointer hover:bg-accent/20 transition-colors"
+                style={{ width: HOURS.length * COL_WIDTH }}
+                onClick={(e) => handleTimelineClick(e, row.id, row.name)}
+                title="Click to add shift"
+              >
                 <GridLines />
                 {row.shifts.map((shift) => (
                   <DraggableShiftBlock

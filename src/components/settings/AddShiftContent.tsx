@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight, X, User, Search, Check, Clock, Plus, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, User, Search, Check, Clock, Plus, Calendar as CalendarIcon, Copy } from "lucide-react";
 import { format, eachDayOfInterval } from "date-fns";
 import { useEmployees } from "@/hooks/use-employees";
 import { useQueryClient } from "@tanstack/react-query";
@@ -138,6 +138,14 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   );
   const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [daySelectionMode, setDaySelectionMode] = useState<"all" | "weekends" | "mon-fri" | "select">("all");
+  const [showDaysSection, setShowDaysSection] = useState(false);
+  const [dayStartTime, setDayStartTime] = useState("12:00 PM");
+  const [dayEndTime, setDayEndTime] = useState("05:00 PM");
+  const [nextDay, setNextDay] = useState(false);
+  const [recurring, setRecurring] = useState(false);
+  const [showDayStartTimePicker, setShowDayStartTimePicker] = useState(false);
+  const [showDayEndTimePicker, setShowDayEndTimePicker] = useState(false);
   const [allowOvertime, setAllowOvertime] = useState(false);
   const [payRateAsEmployee, setPayRateAsEmployee] = useState(false);
   const [breaks, setBreaks] = useState<ShiftBreak[]>([{ name: "Tea Break", durationH: "00", durationM: "15", startTime: "12:00 PM" }]);
@@ -149,6 +157,8 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const [showShiftTypePicker, setShowShiftTypePicker] = useState(false);
   const [showJobRolePicker, setShowJobRolePicker] = useState(false);
   const [showDaysPicker, setShowDaysPicker] = useState(false);
+  const dayStartTimeRef = useRef<HTMLButtonElement>(null);
+  const dayEndTimeRef = useRef<HTMLButtonElement>(null);
   const [activeBreakTimePicker, setActiveBreakTimePicker] = useState<number | null>(null);
   const [activeBreakDurationPicker, setActiveBreakDurationPicker] = useState<number | null>(null);
 
@@ -218,12 +228,33 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
     return { top: 200, right: 20 };
   };
 
+  const allWeekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
   const toggleDay = (day: string) => {
     setSelectedDays((prev) =>
       prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
     );
   };
 
+  const handleDayModeChange = (mode: "all" | "weekends" | "mon-fri" | "select") => {
+    setDaySelectionMode(mode);
+    if (mode === "all") setSelectedDays([...allWeekdays]);
+    else if (mode === "weekends") setSelectedDays(["Saturday", "Sunday"]);
+    else if (mode === "mon-fri") setSelectedDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]);
+    // "select" keeps current selection
+  };
+
+  const copyTimeToSelectedDays = () => {
+    toast.success("Time settings copied to all selected weekdays");
+  };
+
+  const getDaysLabel = () => {
+    if (daySelectionMode === "all") return "All Days";
+    if (daySelectionMode === "weekends") return "Weekends";
+    if (daySelectionMode === "mon-fri") return "Mon to Fri";
+    if (selectedDays.length > 0) return selectedDays.map((d) => d.slice(0, 3)).join(", ");
+    return "Select";
+  };
   const addBreak = () => {
     setBreaks((prev) => [...prev, { name: "", durationH: "00", durationM: "15", startTime: "12:00 PM" }]);
   };
@@ -231,10 +262,6 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const updateBreak = (index: number, field: keyof ShiftBreak, value: string) => {
     setBreaks((prev) => prev.map((b, i) => (i === index ? { ...b, [field]: value } : b)));
   };
-
-  const daysLabel = selectedDays.length > 0
-    ? selectedDays.map((d) => d.slice(0, 3)).join(", ")
-    : "Select";
 
   /* ── Field Row ── */
   const FieldRow = ({
@@ -374,7 +401,162 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
 
         {/* Days of the Week */}
         <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
-          <FieldRow label="Days of the Week" value={daysLabel} onClick={() => setShowDaysPicker(true)} />
+          <button
+            onClick={() => setShowDaysSection(!showDaysSection)}
+            className="flex items-center justify-between w-full px-4 py-3.5"
+          >
+            <span className="text-sm text-foreground font-medium">Days of the Week</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-neutral-400">{getDaysLabel()}</span>
+              <ChevronRight className={`w-4 h-4 text-neutral-600 shrink-0 transition-transform ${showDaysSection ? "rotate-90" : ""}`} />
+            </div>
+          </button>
+
+          {showDaysSection && (
+            <div>
+              <Divider />
+              {([
+                { key: "all", label: "All Days" },
+                { key: "weekends", label: "Weekends" },
+                { key: "mon-fri", label: "Monday to Friday" },
+                { key: "select", label: "Select Days" },
+              ] as const).map(({ key, label }) => (
+                <div key={key}>
+                  <button
+                    onClick={() => handleDayModeChange(key)}
+                    className="flex items-center justify-between w-full px-4 py-3.5 active:opacity-70 transition-opacity"
+                  >
+                    <span className="text-sm text-foreground font-medium">{label}</span>
+                    <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 ${daySelectionMode === key ? "border-foreground" : "border-neutral-600"}`}>
+                      {daySelectionMode === key && <div className="w-2.5 h-2.5 rounded-full bg-foreground" />}
+                    </div>
+                  </button>
+                  <Divider />
+                </div>
+              ))}
+
+              {daySelectionMode === "select" && (
+                <>
+                  {allWeekdays.map((day, idx) => {
+                    const isChecked = selectedDays.includes(day);
+                    const isLastChecked = isChecked && allWeekdays.slice(idx + 1).every(d => !selectedDays.includes(d));
+
+                    return (
+                      <div key={day}>
+                        <button
+                          onClick={() => toggleDay(day)}
+                          className="flex items-center justify-between w-full px-4 py-3.5 active:opacity-70 transition-opacity"
+                        >
+                          <span className="text-sm text-foreground font-medium">{day}</span>
+                          <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${isChecked ? "bg-foreground border-foreground" : "border-neutral-600 bg-transparent"}`}>
+                            {isChecked && <Check className="w-3 h-3 text-background" />}
+                          </div>
+                        </button>
+
+                        {isLastChecked && selectedDays.length > 0 && (
+                          <>
+                            <Divider />
+                            <button
+                              ref={dayStartTimeRef}
+                              onClick={() => setShowDayStartTimePicker(!showDayStartTimePicker)}
+                              className="flex items-center justify-between w-full px-8 py-3.5"
+                            >
+                              <span className="text-sm text-foreground font-medium">Start Time</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-sm text-primary">{dayStartTime}</span>
+                                <Clock className="w-4 h-4 text-primary shrink-0" />
+                              </div>
+                            </button>
+                            <Divider />
+                            <button
+                              ref={dayEndTimeRef}
+                              onClick={() => setShowDayEndTimePicker(!showDayEndTimePicker)}
+                              className="flex items-center justify-between w-full px-8 py-3.5"
+                            >
+                              <span className="text-sm text-foreground font-medium">End Time</span>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-sm text-primary">{dayEndTime}</span>
+                                <Clock className="w-4 h-4 text-primary shrink-0" />
+                              </div>
+                            </button>
+                            <Divider />
+                            <div className="flex items-center justify-between px-8 py-3.5">
+                              <span className="text-sm text-foreground font-medium">Next day</span>
+                              <button
+                                onClick={() => setNextDay(!nextDay)}
+                                className={`w-12 h-7 rounded-full transition-colors ${nextDay ? "bg-white" : "bg-neutral-700"} relative`}
+                              >
+                                <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${nextDay ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+                              </button>
+                            </div>
+                            <Divider />
+                            <button
+                              onClick={copyTimeToSelectedDays}
+                              className="flex items-center justify-between w-full px-8 py-3.5 active:opacity-70 transition-opacity"
+                            >
+                              <span className="text-sm text-foreground font-medium">Copy it for selected weekday</span>
+                              <Copy className="w-4 h-4 text-neutral-400 shrink-0" />
+                            </button>
+                          </>
+                        )}
+
+                        {idx < allWeekdays.length - 1 && <Divider />}
+                      </div>
+                    );
+                  })}
+                </>
+              )}
+
+              {daySelectionMode !== "select" && (
+                <>
+                  <button
+                    ref={dayStartTimeRef}
+                    onClick={() => setShowDayStartTimePicker(!showDayStartTimePicker)}
+                    className="flex items-center justify-between w-full px-4 py-3.5"
+                  >
+                    <span className="text-sm text-foreground font-medium">Start Time</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm text-primary">{dayStartTime}</span>
+                      <Clock className="w-4 h-4 text-primary shrink-0" />
+                    </div>
+                  </button>
+                  <Divider />
+                  <button
+                    ref={dayEndTimeRef}
+                    onClick={() => setShowDayEndTimePicker(!showDayEndTimePicker)}
+                    className="flex items-center justify-between w-full px-4 py-3.5"
+                  >
+                    <span className="text-sm text-foreground font-medium">End Time</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-sm text-primary">{dayEndTime}</span>
+                      <Clock className="w-4 h-4 text-primary shrink-0" />
+                    </div>
+                  </button>
+                  <Divider />
+                  <div className="flex items-center justify-between px-4 py-3.5">
+                    <span className="text-sm text-foreground font-medium">Next day</span>
+                    <button
+                      onClick={() => setNextDay(!nextDay)}
+                      className={`w-12 h-7 rounded-full transition-colors ${nextDay ? "bg-white" : "bg-neutral-700"} relative`}
+                    >
+                      <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${nextDay ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+                    </button>
+                  </div>
+                </>
+              )}
+
+              <Divider />
+              <div className="flex items-center justify-between px-4 py-3.5">
+                <span className="text-sm text-foreground font-medium">Recurring</span>
+                <button
+                  onClick={() => setRecurring(!recurring)}
+                  className={`w-12 h-7 rounded-full transition-colors ${recurring ? "bg-white" : "bg-neutral-700"} relative`}
+                >
+                  <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${recurring ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+                </button>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Allow Overtime */}
@@ -609,9 +791,32 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
         />
       )}
 
-      {/* Days of Week Popup */}
-      {showDaysPicker && (
-        <DaysOfWeekPopup selected={selectedDays} onToggle={toggleDay} onClose={() => setShowDaysPicker(false)} />
+      {/* Day Start Time Picker */}
+      {showDayStartTimePicker && (
+        <InlineTimePicker
+          isOpen={true}
+          onClose={() => setShowDayStartTimePicker(false)}
+          selectedTime={dayStartTime}
+          onTimeChange={(val) => {
+            setDayStartTime(val);
+            setShowDayStartTimePicker(false);
+          }}
+          position={getPickerPosition(dayStartTimeRef)}
+        />
+      )}
+
+      {/* Day End Time Picker */}
+      {showDayEndTimePicker && (
+        <InlineTimePicker
+          isOpen={true}
+          onClose={() => setShowDayEndTimePicker(false)}
+          selectedTime={dayEndTime}
+          onTimeChange={(val) => {
+            setDayEndTime(val);
+            setShowDayEndTimePicker(false);
+          }}
+          position={getPickerPosition(dayEndTimeRef)}
+        />
       )}
     </div>
   );

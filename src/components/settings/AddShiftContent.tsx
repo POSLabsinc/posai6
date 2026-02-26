@@ -127,8 +127,23 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const { data: employees = [] } = useEmployees(false);
   
 
-  const prefillEmployeeId = searchParams.get("employeeId");
-  const prefillDate = searchParams.get("date");
+  // Query param pre-fill from Day/Week views
+  const prefillEmployeeId = searchParams.get("employee_id") || searchParams.get("employeeId");
+  const prefillDate = searchParams.get("shift_date") || searchParams.get("date");
+  const prefillStartTime = searchParams.get("start_time");
+  const prefillEndTime = searchParams.get("end_time");
+
+  // Convert 24h "HH:mm" to 12h "hh:mm AM/PM"
+  const to12h = (t: string | null, fallback: string): string => {
+    if (!t) return fallback;
+    const [hStr, mStr] = t.split(":");
+    let h = parseInt(hStr);
+    const m = mStr || "00";
+    const ampm = h >= 12 ? "PM" : "AM";
+    if (h === 0) h = 12;
+    else if (h > 12) h -= 12;
+    return `${h.toString().padStart(2, "0")}:${m} ${ampm}`;
+  };
 
   // Fields matching reference
   const [shiftName, setShiftName] = useState("");
@@ -142,8 +157,8 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [daySelectionMode, setDaySelectionMode] = useState<"all" | "weekends" | "mon-fri" | "select">("all");
   const [showDaysSection, setShowDaysSection] = useState(false);
-  const [dayStartTime, setDayStartTime] = useState("12:00 PM");
-  const [dayEndTime, setDayEndTime] = useState("05:00 PM");
+  const [dayStartTime, setDayStartTime] = useState(to12h(prefillStartTime, "12:00 PM"));
+  const [dayEndTime, setDayEndTime] = useState(to12h(prefillEndTime, "05:00 PM"));
   const [nextDay, setNextDay] = useState(false);
   const [recurring, setRecurring] = useState(false);
   const [showDayStartTimePicker, setShowDayStartTimePicker] = useState(false);

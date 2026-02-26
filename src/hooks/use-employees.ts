@@ -101,7 +101,10 @@ export const useClockIn = () => {
         if (error) throw error;
       }
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["employee_shifts"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employee_shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["all_employee_shifts"] });
+    },
   });
 };
 
@@ -117,7 +120,10 @@ export const useClockOut = () => {
         .eq("shift_date", dateStr);
       if (error) throw error;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["employee_shifts"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employee_shifts"] });
+      queryClient.invalidateQueries({ queryKey: ["all_employee_shifts"] });
+    },
   });
 };
 

@@ -175,6 +175,11 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const wordCount = shiftNote.trim() ? shiftNote.trim().split(/\s+/).length : 0;
 
   const handleCreate = async () => {
+    // If no data entered, just go back without saving
+    if (!shiftName.trim() && selectedEmployeeIds.length === 0) {
+      goBack();
+      return;
+    }
     if (!shiftName.trim()) {
       toast.error("Please enter a shift name");
       return;

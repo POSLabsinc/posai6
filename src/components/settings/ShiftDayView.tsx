@@ -54,7 +54,6 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["shift_day_view", dateStr],
     queryFn: async () => {
-      // Fetch all employees (non-archived)
       const { data: employees, error: empErr } = await supabase
         .from("employees")
         .select("id, full_name, role, avatar_url, hourly_rate")
@@ -62,7 +61,6 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
         .order("full_name");
       if (empErr) throw empErr;
 
-      // Fetch shifts for the date
       const { data: shifts, error: shiftErr } = await (supabase as any)
         .from("employee_shifts")
         .select("*")
@@ -109,18 +107,27 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
     );
   }
 
-  const colWidth = 80; // px per hour column
+  const colWidth = 80;
   const nameColWidth = 180;
+
+  // Shared grid lines component
+  const GridLines = () => (
+    <div className="absolute inset-0 flex">
+      {HOURS.map((h) => (
+        <div key={h} className="flex-shrink-0 border-l border-border/30 h-full" style={{ width: colWidth }} />
+      ))}
+    </div>
+  );
 
   return (
     <div className="w-full">
       {/* Desktop */}
-      <div className="hidden md:block overflow-x-auto scrollbar-hide rounded-2xl border border-neutral-700/30 bg-neutral-800/20">
+      <div className="hidden md:block overflow-x-auto scrollbar-hide rounded-2xl border border-border/60 bg-card/50">
         <div style={{ minWidth: nameColWidth + HOURS.length * colWidth }}>
           {/* Header row */}
-          <div className="flex border-b border-neutral-700/30">
+          <div className="flex border-b border-border/60">
             <div
-              className="flex-shrink-0 px-4 py-3 text-xs font-semibold text-foreground"
+              className="flex-shrink-0 px-4 py-3 text-xs font-semibold text-foreground border-r border-border/40"
               style={{ width: nameColWidth }}
             >
               Team Member
@@ -128,7 +135,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
             {HOURS.map((h) => (
               <div
                 key={h}
-                className="flex-shrink-0 px-1 py-3 text-center text-[11px] text-muted-foreground font-medium border-l border-neutral-700/20"
+                className="flex-shrink-0 px-1 py-3 text-center text-[11px] text-muted-foreground font-medium border-l border-border/30"
                 style={{ width: colWidth }}
               >
                 {formatHourLabel(h)}
@@ -136,13 +143,33 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
             ))}
           </div>
 
+          {/* Events row */}
+          <div className="flex border-b border-border/50 relative" style={{ minHeight: 56 }}>
+            <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-border/40" style={{ width: nameColWidth }}>
+              <span className="text-sm font-semibold text-foreground">Events</span>
+            </div>
+            <div className="flex-1 relative">
+              <GridLines />
+            </div>
+          </div>
+
+          {/* Open Shifts row */}
+          <div className="flex border-b border-border/50 relative" style={{ minHeight: 56 }}>
+            <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-border/40" style={{ width: nameColWidth }}>
+              <span className="text-sm font-semibold text-foreground">Open Shifts</span>
+            </div>
+            <div className="flex-1 relative">
+              <GridLines />
+            </div>
+          </div>
+
           {/* Employee rows */}
           {rows.map((row) => (
-            <div key={row.id} className="flex border-b border-neutral-700/20 relative" style={{ minHeight: 72 }}>
+            <div key={row.id} className="flex border-b border-border/40 relative" style={{ minHeight: 72 }}>
               {/* Employee info */}
-              <div className="flex-shrink-0 px-4 py-3 flex flex-col justify-center" style={{ width: nameColWidth }}>
+              <div className="flex-shrink-0 px-4 py-3 flex flex-col justify-center border-r border-border/40" style={{ width: nameColWidth }}>
                 <div className="flex items-baseline gap-1.5">
-                  <span className="text-sm font-semibold text-foreground">{row.name}</span>
+                  <span className="text-sm font-semibold text-foreground truncate max-w-[100px]">{row.name}</span>
                   <span className="text-[11px] text-muted-foreground">{row.role}</span>
                 </div>
                 <div className="flex items-center gap-3 mt-0.5">
@@ -157,16 +184,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
 
               {/* Timeline cells */}
               <div className="flex-1 relative" style={{ width: HOURS.length * colWidth }}>
-                {/* Grid lines */}
-                <div className="absolute inset-0 flex">
-                  {HOURS.map((h) => (
-                    <div
-                      key={h}
-                      className="flex-shrink-0 border-l border-neutral-700/15 h-full"
-                      style={{ width: colWidth }}
-                    />
-                  ))}
-                </div>
+                <GridLines />
 
                 {/* Shift blocks */}
                 {row.shifts.map((shift) => {
@@ -176,26 +194,19 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
 
                   const left = (start - HOURS[0]) * colWidth;
                   const width = (end - start) * colWidth;
-                  const hours = end - start;
 
                   return (
                     <div
                       key={shift.id}
-                      className="absolute top-2 bottom-2 rounded-lg border border-orange-400/30 bg-orange-400/10 flex flex-col justify-center px-3 overflow-hidden cursor-pointer hover:bg-orange-400/20 transition-colors"
+                      className="absolute top-2 bottom-2 rounded-lg border border-green-500/30 bg-green-500/10 flex flex-col justify-center px-3 overflow-hidden cursor-pointer hover:bg-green-500/15 transition-colors"
                       style={{ left, width }}
                     >
-                      <span className="text-xs font-semibold text-orange-400 truncate">
+                      <span className="text-xs font-semibold text-green-700 dark:text-green-400 truncate">
                         {shift.job_type || shift.shift_type || "Shift"}
                       </span>
-                      <span className="text-[10px] text-orange-300/80 truncate">
+                      <span className="text-[10px] text-green-600/70 dark:text-green-400/70 truncate">
                         {shift.start_time} - {shift.end_time}
                       </span>
-                      {/* Hours badge at right end */}
-                      {width > 100 && (
-                        <span className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-orange-300/60">
-                          {hours.toFixed(1)}h
-                        </span>
-                      )}
                     </div>
                   );
                 })}
@@ -204,8 +215,8 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
           ))}
 
           {/* Totals row */}
-          <div className="flex border-t border-neutral-700/40">
-            <div className="flex-shrink-0 px-4 py-3" style={{ width: nameColWidth }}>
+          <div className="flex border-t border-border/60">
+            <div className="flex-shrink-0 px-4 py-3 border-r border-border/40" style={{ width: nameColWidth }}>
               <span className="text-sm font-bold text-foreground">Totals</span>
               <div className="flex items-center gap-3 mt-0.5">
                 <span className="text-[11px] text-muted-foreground">
@@ -222,8 +233,18 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
 
       {/* Mobile */}
       <div className="md:hidden flex flex-col gap-3">
+        {/* Events & Open Shifts placeholders */}
+        <div className="rounded-xl bg-card/50 border border-border/40 px-4 py-3">
+          <span className="text-sm font-semibold text-foreground">Events</span>
+          <p className="text-[11px] text-muted-foreground mt-0.5">No events</p>
+        </div>
+        <div className="rounded-xl bg-card/50 border border-border/40 px-4 py-3">
+          <span className="text-sm font-semibold text-foreground">Open Shifts</span>
+          <p className="text-[11px] text-muted-foreground mt-0.5">No open shifts</p>
+        </div>
+
         {rows.map((row) => (
-          <div key={row.id} className="rounded-xl bg-neutral-800/40 border border-neutral-700/30 p-3">
+          <div key={row.id} className="rounded-xl bg-card/50 border border-border/40 p-3">
             <div className="flex items-baseline gap-1.5 mb-1">
               <span className="text-sm font-semibold text-foreground">{row.name}</span>
               <span className="text-[11px] text-muted-foreground">{row.role}</span>
@@ -237,7 +258,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
               </span>
             </div>
             {row.shifts.length === 0 ? (
-              <div className="text-[11px] text-neutral-600">No shifts</div>
+              <div className="text-[11px] text-muted-foreground">No shifts</div>
             ) : (
               <div className="flex flex-col gap-1.5">
                 {row.shifts.map((shift) => {
@@ -247,18 +268,18 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
                   return (
                     <div
                       key={shift.id}
-                      className="rounded-lg border border-orange-400/30 bg-orange-400/10 px-3 py-2 flex items-center justify-between"
+                      className="rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 flex items-center justify-between"
                     >
                       <div>
-                        <span className="text-xs font-semibold text-orange-400">
+                        <span className="text-xs font-semibold text-green-700 dark:text-green-400">
                           {shift.job_type || shift.shift_type || "Shift"}
                         </span>
-                        <span className="text-[10px] text-orange-300/80 ml-2">
+                        <span className="text-[10px] text-green-600/70 dark:text-green-400/70 ml-2">
                           {shift.start_time} - {shift.end_time}
                         </span>
                       </div>
                       {hours > 0 && (
-                        <span className="text-[11px] font-semibold text-orange-300/60">{hours.toFixed(1)}h</span>
+                        <span className="text-[11px] font-semibold text-green-600/60 dark:text-green-400/60">{hours.toFixed(1)}h</span>
                       )}
                     </div>
                   );
@@ -268,7 +289,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
           </div>
         ))}
         {/* Totals */}
-        <div className="rounded-xl bg-neutral-800/60 border border-neutral-700/40 p-3">
+        <div className="rounded-xl bg-card/60 border border-border/50 p-3">
           <span className="text-sm font-bold text-foreground">Totals</span>
           <div className="flex items-center gap-4 mt-1">
             <span className="text-xs text-muted-foreground">

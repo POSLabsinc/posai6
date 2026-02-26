@@ -240,22 +240,22 @@ const EmployeeContent = ({
 
                       // Determine status and sub-line from shift data
                       let statusLabel = "Off";
-                      let statusBg = "bg-neutral-700 text-neutral-300";
+                      let statusBg = "bg-neutral-500/30 text-neutral-400";
                       let subLine = "";
                       let footerLine = "";
 
                       if (employee.is_archived) {
                         statusLabel = "Archived";
-                        statusBg = "bg-neutral-600/80 text-neutral-200";
+                        statusBg = "bg-neutral-500/30 text-neutral-400";
                       } else if (shift) {
                         if (shift.clock_in && !shift.clock_out) {
                           if (shift.break_minutes > 0) {
                             statusLabel = "On Break";
-                            statusBg = "bg-orange-500/20 text-orange-400";
+                            statusBg = "bg-orange-500 text-white";
                             subLine = `Break at ${format(new Date(shift.clock_in), "h:mm a")}`;
                           } else {
                             statusLabel = "Working";
-                            statusBg = "bg-neutral-700 text-foreground";
+                            statusBg = "bg-neutral-800 text-white border border-neutral-600";
                             subLine = `Clocked in at ${format(new Date(shift.clock_in), "h:mm a")}`;
                             // Calculate working duration without break
                             const mins = differenceInMinutes(new Date(), new Date(shift.clock_in));
@@ -267,8 +267,13 @@ const EmployeeContent = ({
                           }
                         } else if (shift.clock_in && shift.clock_out) {
                           statusLabel = "Clocked Out";
-                          statusBg = "bg-red-500/20 text-red-400";
+                          statusBg = "bg-red-500 text-white";
                           subLine = `Clocked Out at ${format(new Date(shift.clock_out), "h:mm a")}`;
+                        } else {
+                          // Shift assigned but no clock-in yet
+                          statusLabel = "Scheduled";
+                          statusBg = "bg-blue-500/20 text-blue-400";
+                          subLine = `Shift: ${(shift as any).start_time || ""} – ${(shift as any).end_time || ""}`;
                         }
                       }
 

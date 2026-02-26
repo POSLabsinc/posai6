@@ -253,9 +253,9 @@ const ShiftCard = ({ card, onClick }: { card: ShiftCardData; onClick: () => void
       </div>
 
       {/* Days */}
-      {card.days.length > 0 && (
+      {(card.days || []).length > 0 && (
         <div className="flex items-center gap-1.5 mb-3 pl-[22px] flex-wrap">
-          {card.days.map((day) => (
+          {(card.days || []).map((day) => (
             <span key={day} className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-muted/30 text-muted-foreground">
               {day}
             </span>

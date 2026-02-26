@@ -41,6 +41,21 @@ export const useEmployees = (showArchived: boolean = false) => {
   });
 };
 
+export const useAllEmployeeShiftsForDate = (date: Date) => {
+  const dateStr = format(date, "yyyy-MM-dd");
+  return useQuery({
+    queryKey: ["all_employee_shifts", dateStr],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("employee_shifts")
+        .select("*")
+        .eq("shift_date", dateStr);
+      if (error) throw error;
+      return (data as EmployeeShift[]) || [];
+    },
+  });
+};
+
 export const useEmployeeShifts = (employeeId: string | null, date: Date) => {
   const dateStr = format(date, "yyyy-MM-dd");
   return useQuery({

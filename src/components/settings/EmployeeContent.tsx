@@ -1,10 +1,10 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownAZ, Calendar as CalendarIcon, Archive, Mic, Check } from "lucide-react";
-import { format } from "date-fns";
+import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownAZ, Calendar as CalendarIcon, Archive, Mic, Check, Clock } from "lucide-react";
+import { format, differenceInMinutes } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { CompactWheelDatePicker } from "@/components/ui/compact-wheel-date-picker";
-import { useEmployees, useArchiveEmployee } from "@/hooks/use-employees";
+import { useEmployees, useArchiveEmployee, useAllEmployeeShiftsForDate } from "@/hooks/use-employees";
 import EmployeeExpanded from "@/components/settings/EmployeeExpanded";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
 import { toast } from "sonner";
@@ -31,7 +31,15 @@ const EmployeeContent = ({
   const [expandedEmployee, setExpandedEmployee] = useState<string | null>(null);
 
   const { data: employees = [], isLoading } = useEmployees(showArchived);
+  const { data: allShifts = [] } = useAllEmployeeShiftsForDate(selectedDate);
   const archiveEmployee = useArchiveEmployee();
+
+  // Build a map of employeeId -> shift for selected date
+  const shiftMap = useMemo(() => {
+    const map: Record<string, typeof allShifts[0]> = {};
+    allShifts.forEach((s) => { map[s.employee_id] = s; });
+    return map;
+  }, [allShifts]);
 
   const handleArchive = (employee: { id: string; full_name: string; is_archived: boolean }) => {
     const archive = !employee.is_archived;
@@ -228,10 +236,41 @@ const EmployeeContent = ({
                   <div className="space-y-2.5">
                     {grouped[letter].map((employee) => {
                       const isExpanded = expandedEmployee === employee.id;
-                      const statusLabel = employee.is_archived ? "Archived" : "Working";
-                      const statusBg = employee.is_archived
-                        ? "bg-neutral-600/80 text-neutral-200"
-                        : "bg-neutral-700 text-foreground";
+                      const shift = shiftMap[employee.id];
+
+                      // Determine status and sub-line from shift data
+                      let statusLabel = "Off";
+                      let statusBg = "bg-neutral-700 text-neutral-300";
+                      let subLine = "";
+                      let footerLine = "";
+
+                      if (employee.is_archived) {
+                        statusLabel = "Archived";
+                        statusBg = "bg-neutral-600/80 text-neutral-200";
+                      } else if (shift) {
+                        if (shift.clock_in && !shift.clock_out) {
+                          if (shift.break_minutes > 0) {
+                            statusLabel = "On Break";
+                            statusBg = "bg-orange-500/20 text-orange-400";
+                            subLine = `Break at ${format(new Date(shift.clock_in), "h:mm a")}`;
+                          } else {
+                            statusLabel = "Working";
+                            statusBg = "bg-neutral-700 text-foreground";
+                            subLine = `Clocked in at ${format(new Date(shift.clock_in), "h:mm a")}`;
+                            // Calculate working duration without break
+                            const mins = differenceInMinutes(new Date(), new Date(shift.clock_in));
+                            if (mins >= 180 && shift.break_minutes === 0) {
+                              const h = Math.floor(mins / 60);
+                              const m = mins % 60;
+                              footerLine = `Working for ${h}h${m > 0 ? `${m}m` : ""} without break`;
+                            }
+                          }
+                        } else if (shift.clock_in && shift.clock_out) {
+                          statusLabel = "Clocked Out";
+                          statusBg = "bg-red-500/20 text-red-400";
+                          subLine = `Clocked Out at ${format(new Date(shift.clock_out), "h:mm a")}`;
+                        }
+                      }
 
                       return (
                         <SwipeableSettingsItem
@@ -253,15 +292,25 @@ const EmployeeContent = ({
                                     {employee.full_name}
                                     <span className="text-muted-foreground font-normal text-[14px]"> • {employee.role}</span>
                                   </p>
-                                  <p className="text-muted-foreground text-[13px] mt-1">
-                                    {employee.phone || employee.email || "No contact info"}
-                                  </p>
+                                  {subLine && (
+                                    <p className="text-muted-foreground text-[13px] mt-1">{subLine}</p>
+                                  )}
                                 </div>
                               </div>
                               <span className={`text-[12px] font-semibold px-3 py-1.5 rounded-md whitespace-nowrap mt-0.5 ${statusBg}`}>
                                 {statusLabel}
                               </span>
                             </div>
+
+                            {footerLine && (
+                              <div className="flex items-center justify-between px-3.5 py-2.5 bg-red-500/10 border-t border-red-500/20">
+                                <div className="flex items-center gap-2 text-red-400 text-[12px]">
+                                  <Clock className="w-3.5 h-3.5" />
+                                  <span>{footerLine}</span>
+                                </div>
+                                <span className="text-red-400 text-[12px] font-semibold">Put on break</span>
+                              </div>
+                            )}
 
                             {isExpanded && (
                               <EmployeeExpanded employee={employee} selectedDate={selectedDate} />

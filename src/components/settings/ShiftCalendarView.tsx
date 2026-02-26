@@ -2,6 +2,7 @@ import { format, startOfWeek, addDays } from "date-fns";
 import { ShiftCardData } from "@/hooks/use-shift-cards";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 interface ShiftCalendarViewProps {
   cards: ShiftCardData[];
@@ -10,13 +11,18 @@ interface ShiftCalendarViewProps {
 }
 
 const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarViewProps) => {
+  const navigate = useNavigate();
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const dayAbbrs = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-  // Map cards to days based on their `days` array
   const getCardsForDay = (dayAbbr: string) =>
     cards.filter((card) => (card.days || []).includes(dayAbbr));
+
+  const handleEmptyCellClick = (day: Date) => {
+    const dateStr = format(day, "yyyy-MM-dd");
+    navigate(`/settings/workforce/shift/add?shift_date=${dateStr}&start_time=09:00&end_time=10:00`);
+  };
 
   const getInitials = (name: string) =>
     name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
@@ -47,7 +53,10 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
           return (
             <div
               key={`cell-${i}`}
-              className={`min-h-[140px] p-2 ${i < 6 ? "border-r border-neutral-700/30" : ""} flex flex-col gap-1.5`}
+              onClick={() => {
+                if (dayCards.length === 0) handleEmptyCellClick(day);
+              }}
+              className={`min-h-[140px] p-2 ${i < 6 ? "border-r border-neutral-700/30" : ""} flex flex-col gap-1.5 ${dayCards.length === 0 ? "cursor-pointer hover:bg-muted/30 transition-colors" : ""}`}
             >
               {dayCards.length === 0 && (
                 <span className="text-[11px] text-neutral-600 mt-4 text-center">—</span>
@@ -55,6 +64,14 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
               {dayCards.map((card, ci) => (
                 <CalendarShiftBlock key={`${card.id}-${ci}`} card={card} onClick={() => onShiftClick(card)} getInitials={getInitials} />
               ))}
+              {dayCards.length > 0 && (
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleEmptyCellClick(day); }}
+                  className="mt-auto text-[10px] text-muted-foreground hover:text-foreground transition-colors py-1 rounded hover:bg-muted/30"
+                >
+                  + Add
+                </button>
+              )}
             </div>
           );
         })}
@@ -74,14 +91,23 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                 <span className="text-sm text-muted-foreground">{format(day, "dd MMM")}</span>
               </div>
               {dayCards.length === 0 ? (
-                <div className="rounded-xl bg-neutral-800/30 border border-neutral-700/20 px-4 py-4 text-center">
-                  <span className="text-xs text-neutral-600">No shifts</span>
-                </div>
+                <button
+                  onClick={() => handleEmptyCellClick(day)}
+                  className="rounded-xl bg-neutral-800/30 border border-neutral-700/20 px-4 py-4 text-center w-full hover:bg-muted/30 transition-colors"
+                >
+                  <span className="text-xs text-muted-foreground">+ Add Shift</span>
+                </button>
               ) : (
                 <div className="flex flex-col gap-2">
                   {dayCards.map((card, ci) => (
                     <CalendarShiftBlock key={`${card.id}-${ci}`} card={card} onClick={() => onShiftClick(card)} getInitials={getInitials} mobile />
                   ))}
+                  <button
+                    onClick={() => handleEmptyCellClick(day)}
+                    className="rounded-xl border border-dashed border-neutral-700/30 px-4 py-2.5 text-center hover:bg-muted/30 transition-colors"
+                  >
+                    <span className="text-xs text-muted-foreground">+ Add Shift</span>
+                  </button>
                 </div>
               )}
             </div>

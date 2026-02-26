@@ -331,7 +331,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
       {/* Header */}
       {showHeader && (
         <div className="flex items-center px-4 py-3 shrink-0 relative">
-          <button onClick={goBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+          <button onClick={handleCreate} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
           <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Create New Shift</h1>
@@ -709,21 +709,6 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
           <span className="text-xs text-neutral-500">{wordCount} / {MAX_NOTE_WORDS} words</span>
         </div>
 
-        {/* Buttons */}
-        <div className="mx-4 mb-6 space-y-3">
-          <button
-            onClick={handleCreate}
-            className="w-full py-3.5 rounded-2xl bg-neutral-600/50 text-neutral-300 text-sm font-bold tracking-wider active:opacity-80 transition-opacity"
-          >
-            CREATE
-          </button>
-          <button
-            onClick={goBack}
-            className="w-full py-3.5 rounded-2xl border border-neutral-600 text-foreground text-sm font-bold tracking-wider active:opacity-80 transition-opacity"
-          >
-            CANCEL
-          </button>
-        </div>
       </div>
 
       {/* (date picker removed – inline calendar used above) */}

@@ -248,6 +248,24 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
     toast.success("Time settings copied to all selected weekdays");
   };
 
+  const calcHours = (): string => {
+    const parse = (t: string) => {
+      const m = t.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+      if (!m) return 0;
+      let h = parseInt(m[1]);
+      const min = parseInt(m[2]);
+      const p = m[3].toUpperCase();
+      if (p === "AM" && h === 12) h = 0;
+      else if (p === "PM" && h !== 12) h += 12;
+      return h * 60 + min;
+    };
+    let diff = parse(dayEndTime) - parse(dayStartTime);
+    if (nextDay || diff <= 0) diff += 24 * 60;
+    const h = Math.floor(diff / 60);
+    const m = diff % 60;
+    return `${h.toString().padStart(2, "0")} H ${m.toString().padStart(2, "0")} M`;
+  };
+
   const getDaysLabel = () => {
     if (daySelectionMode === "all") return "All Days";
     if (daySelectionMode === "weekends") return "Weekends";
@@ -490,6 +508,10 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                               </button>
                             </div>
                             <Divider />
+                            <div className="flex items-center justify-between px-8 py-3.5">
+                              <span className="text-sm text-foreground font-medium">Hours</span>
+                              <span className="text-sm text-neutral-400">{calcHours()}</span>
+                            </div>
                             <button
                               onClick={copyTimeToSelectedDays}
                               className="flex items-center justify-between w-full px-8 py-3.5 active:opacity-70 transition-opacity"
@@ -541,6 +563,11 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                     >
                       <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${nextDay ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
                     </button>
+                  </div>
+                  <Divider />
+                  <div className="flex items-center justify-between px-4 py-3.5">
+                    <span className="text-sm text-foreground font-medium">Hours</span>
+                    <span className="text-sm text-neutral-400">{calcHours()}</span>
                   </div>
                 </>
               )}

@@ -9,7 +9,7 @@ export interface ShiftCardData {
   badgeColor: string;
   timeRange: string;
   dateRange: string;
-  recurring: string;
+  days: string[];
   employees: { id: string; name: string; avatar_url: string | null }[];
 }
 
@@ -102,6 +102,21 @@ export const useShiftCards = (weekStart: Date, searchQuery: string, selectedShif
           return { id: eid, name: emp?.name || "Unknown", avatar_url: emp?.avatar_url || null };
         });
 
+        // Compute day abbreviations from the date range
+        const dayAbbrs: string[] = [];
+        try {
+          const s = new Date(val.start_date + "T00:00:00");
+          const e = new Date(val.end_date + "T00:00:00");
+          const abbrs = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+          const cur = new Date(s);
+          const seen = new Set<number>();
+          while (cur <= e && seen.size < 7) {
+            const d = cur.getDay();
+            if (!seen.has(d)) { seen.add(d); dayAbbrs.push(abbrs[d]); }
+            cur.setDate(cur.getDate() + 1);
+          }
+        } catch { /* fallback empty */ }
+
         cards.push({
           id: val.id,
           name: val.shift_type,
@@ -109,7 +124,7 @@ export const useShiftCards = (weekStart: Date, searchQuery: string, selectedShif
           badgeColor,
           timeRange: val.start_time && val.end_time ? `${val.start_time} - ${val.end_time}` : "Not set",
           dateRange: `${formatDate(val.start_date)} - ${formatDate(val.end_date)}`,
-          recurring: val.recurring === "Yes" ? "Recurring" : "One-time",
+          days: dayAbbrs,
           employees: empList,
         });
       });

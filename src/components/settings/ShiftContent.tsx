@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays, LayoutGrid, Calendar } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays, LayoutGrid, Calendar, Filter, Download, Printer, Info } from "lucide-react";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useShiftCards, ShiftCardData } from "@/hooks/use-shift-cards";
+import { useWeeklySchedule } from "@/hooks/use-weekly-schedule";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ShiftCalendarView from "@/components/settings/ShiftCalendarView";
 
@@ -27,10 +28,11 @@ const ShiftContent = ({
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
   const [selectedShifts, setSelectedShifts] = useState<string[]>([]);
 
-  const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
-  const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });
+  const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 1 });
 
   const { data: shiftCards = [], isLoading } = useShiftCards(currentWeek, searchQuery, selectedShifts, selectedJobTypes);
+  const { data: scheduleData, isLoading: scheduleLoading } = useWeeklySchedule(currentWeek);
 
   const jobTypes = ["Server", "Manager", "Host", "Admin"];
   const shiftTypes = ["Opening", "Afternoon", "Evening", "Regular"];
@@ -54,11 +56,13 @@ const ShiftContent = ({
     return true;
   });
 
+  const isCalendar = viewMode === "calendar";
+
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      <div className="px-4 pb-28">
+      <div className={`pb-28 ${isCalendar ? "px-0" : "px-4"}`}>
         {/* Header */}
-        {showHeader && (
+        {showHeader && !isCalendar && (
           <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-0">
             {onBack && (
               <button
@@ -76,149 +80,230 @@ const ShiftContent = ({
           </div>
         )}
 
-        {/* Description */}
-        <div className="mb-4 px-1 pt-2">
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Refers to a scheduled period during which a specific group of employees works, ensuring continuous operations and productivity.
-          </p>
-        </div>
-
-        {/* Search + Add row */}
-        <div className="flex items-center gap-2 mb-4">
-          <div className="flex-1 min-w-[140px] rounded-full bg-neutral-800/60 px-4 py-3 flex items-center gap-3">
-            <Search className="h-5 w-5 flex-shrink-0 text-neutral-500" />
-            <input
-              type="text"
-              placeholder="Search"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-[15px]"
-            />
-            <Mic className="h-5 w-5 flex-shrink-0 text-neutral-500" />
-          </div>
-          <button onClick={() => navigate("/settings/workforce/shift/add")} className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity">
-            <Plus className="h-5 w-5" />
-            <span className="text-sm font-medium">Add</span>
-          </button>
-        </div>
-
-        {/* Filters row */}
-        <div className="flex items-center gap-2 mb-5 flex-wrap">
-          {/* Job Type dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => { setShowJobTypeDropdown(!showJobTypeDropdown); setShowShiftDropdown(false); }}
-              className={`h-10 rounded-full px-4 flex items-center gap-2 border text-sm font-medium transition-colors ${
-                selectedJobTypes.length > 0
-                  ? "bg-foreground text-background border-foreground"
-                  : "bg-neutral-800/60 text-foreground border-neutral-700/50"
-              }`}
-            >
-              Job Type {selectedJobTypes.length > 0 && `(${selectedJobTypes.length})`}
-              <ChevronRight className="w-3.5 h-3.5 rotate-90" />
-            </button>
-            {showJobTypeDropdown && (
-              <div className="absolute top-12 left-0 z-50 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-lg py-1 min-w-[140px]">
-                {jobTypes.map((jt) => (
+        {/* Calendar mode header */}
+        {showHeader && isCalendar && (
+          <div className="px-4 pt-4 pb-3">
+            <div className="flex items-center justify-between flex-wrap gap-3">
+              {/* Left: nav + date */}
+              <div className="flex items-center gap-2">
+                {onBack && (
                   <button
-                    key={jt}
-                    onClick={() => toggleJobType(jt)}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                      selectedJobTypes.includes(jt)
-                        ? "text-foreground bg-neutral-800"
-                        : "text-neutral-400 hover:text-foreground hover:bg-neutral-800/50"
-                    }`}
+                    onClick={onBack}
+                    className="w-9 h-9 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70"
+                    aria-label="Back"
                   >
-                    {jt}
+                    <ChevronLeft className="w-4 h-4 text-foreground" />
                   </button>
-                ))}
+                )}
+                <button
+                  onClick={() => setCurrentWeek(subWeeks(currentWeek, 1))}
+                  className="w-9 h-9 rounded-full border border-border/50 flex items-center justify-center active:opacity-70 hover:bg-muted/30 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4 text-foreground" />
+                </button>
+                <h1 className="text-lg font-bold text-foreground px-1 whitespace-nowrap">
+                  {format(currentWeek, "MMM d, yyyy")}
+                </h1>
+                <button
+                  onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
+                  className="w-9 h-9 rounded-full border border-border/50 flex items-center justify-center active:opacity-70 hover:bg-muted/30 transition-colors"
+                >
+                  <ChevronRight className="w-4 h-4 text-foreground" />
+                </button>
+
+                {/* Day / Week / Month toggle */}
+                <div className="flex items-center rounded-lg overflow-hidden border border-border/50 ml-3">
+                  {(["Day", "Week", "Month"] as const).map((v) => (
+                    <button
+                      key={v}
+                      className={`px-4 py-2 text-sm font-medium transition-colors ${
+                        v === "Week"
+                          ? "bg-foreground text-background"
+                          : "text-muted-foreground hover:text-foreground hover:bg-muted/30"
+                      }`}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
               </div>
-            )}
-          </div>
 
-          {/* Shift dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => { setShowShiftDropdown(!showShiftDropdown); setShowJobTypeDropdown(false); }}
-              className={`h-10 rounded-full px-4 flex items-center gap-2 border text-sm font-medium transition-colors ${
-                selectedShifts.length > 0
-                  ? "bg-foreground text-background border-foreground"
-                  : "bg-neutral-800/60 text-foreground border-neutral-700/50"
-              }`}
-            >
-              Shift {selectedShifts.length > 0 && `(${selectedShifts.length})`}
-              <ChevronRight className="w-3.5 h-3.5 rotate-90" />
-            </button>
-            {showShiftDropdown && (
-              <div className="absolute top-12 left-0 z-50 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-lg py-1 min-w-[140px]">
-                {shiftTypes.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => toggleShift(s)}
-                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                      selectedShifts.includes(s)
-                        ? "text-foreground bg-neutral-800"
-                        : "text-neutral-400 hover:text-foreground hover:bg-neutral-800/50"
-                    }`}
-                  >
-                    {s}
-                  </button>
-                ))}
+              {/* Right: icons + Add Shift */}
+              <div className="flex items-center gap-2">
+                <button className="w-9 h-9 rounded-lg border border-border/50 flex items-center justify-center hover:bg-muted/30 transition-colors">
+                  <Filter className="w-4 h-4 text-foreground" />
+                </button>
+                <button className="w-9 h-9 rounded-lg border border-border/50 flex items-center justify-center hover:bg-muted/30 transition-colors">
+                  <Download className="w-4 h-4 text-foreground" />
+                </button>
+                <button className="w-9 h-9 rounded-lg border border-border/50 flex items-center justify-center hover:bg-muted/30 transition-colors">
+                  <Printer className="w-4 h-4 text-foreground" />
+                </button>
+                <button className="w-9 h-9 rounded-lg border border-border/50 flex items-center justify-center hover:bg-muted/30 transition-colors">
+                  <Info className="w-4 h-4 text-foreground" />
+                </button>
+                <button
+                  onClick={() => navigate("/settings/workforce/shift/add")}
+                  className="h-9 rounded-lg px-4 flex items-center gap-2 bg-foreground text-background font-medium text-sm hover:opacity-90 transition-opacity"
+                >
+                  <Plus className="w-4 h-4" />
+                  Add Shift
+                </button>
               </div>
-            )}
+            </div>
           </div>
+        )}
 
-          {/* Week Navigation */}
-          <div className="flex items-center gap-1">
-            <button
-              onClick={() => setCurrentWeek(subWeeks(currentWeek, 1))}
-              className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70"
-            >
-              <ChevronLeft className="w-4 h-4 text-foreground" />
-            </button>
-            <span className="text-sm font-medium text-foreground px-2 whitespace-nowrap">
-              {format(weekStart, "dd MMM")} - {format(weekEnd, "dd MMM yyyy")}
-            </span>
-            <button
-              onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
-              className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70"
-            >
-              <ChevronRight className="w-4 h-4 text-foreground" />
-            </button>
+        {/* Card mode: description, search, filters */}
+        {!isCalendar && (
+          <>
+            {/* Description */}
+            <div className="mb-4 px-1 pt-2">
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Refers to a scheduled period during which a specific group of employees works, ensuring continuous operations and productivity.
+              </p>
+            </div>
+
+            {/* Search + Add row */}
+            <div className="flex items-center gap-2 mb-4">
+              <div className="flex-1 min-w-[140px] rounded-full bg-neutral-800/60 px-4 py-3 flex items-center gap-3">
+                <Search className="h-5 w-5 flex-shrink-0 text-neutral-500" />
+                <input
+                  type="text"
+                  placeholder="Search"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-[15px]"
+                />
+                <Mic className="h-5 w-5 flex-shrink-0 text-neutral-500" />
+              </div>
+              <button onClick={() => navigate("/settings/workforce/shift/add")} className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity">
+                <Plus className="h-5 w-5" />
+                <span className="text-sm font-medium">Add</span>
+              </button>
+            </div>
+
+            {/* Filters row */}
+            <div className="flex items-center gap-2 mb-5 flex-wrap">
+              {/* Job Type dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => { setShowJobTypeDropdown(!showJobTypeDropdown); setShowShiftDropdown(false); }}
+                  className={`h-10 rounded-full px-4 flex items-center gap-2 border text-sm font-medium transition-colors ${
+                    selectedJobTypes.length > 0
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-neutral-800/60 text-foreground border-neutral-700/50"
+                  }`}
+                >
+                  Job Type {selectedJobTypes.length > 0 && `(${selectedJobTypes.length})`}
+                  <ChevronRight className="w-3.5 h-3.5 rotate-90" />
+                </button>
+                {showJobTypeDropdown && (
+                  <div className="absolute top-12 left-0 z-50 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-lg py-1 min-w-[140px]">
+                    {jobTypes.map((jt) => (
+                      <button
+                        key={jt}
+                        onClick={() => toggleJobType(jt)}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                          selectedJobTypes.includes(jt)
+                            ? "text-foreground bg-neutral-800"
+                            : "text-neutral-400 hover:text-foreground hover:bg-neutral-800/50"
+                        }`}
+                      >
+                        {jt}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Shift dropdown */}
+              <div className="relative">
+                <button
+                  onClick={() => { setShowShiftDropdown(!showShiftDropdown); setShowJobTypeDropdown(false); }}
+                  className={`h-10 rounded-full px-4 flex items-center gap-2 border text-sm font-medium transition-colors ${
+                    selectedShifts.length > 0
+                      ? "bg-foreground text-background border-foreground"
+                      : "bg-neutral-800/60 text-foreground border-neutral-700/50"
+                  }`}
+                >
+                  Shift {selectedShifts.length > 0 && `(${selectedShifts.length})`}
+                  <ChevronRight className="w-3.5 h-3.5 rotate-90" />
+                </button>
+                {showShiftDropdown && (
+                  <div className="absolute top-12 left-0 z-50 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-lg py-1 min-w-[140px]">
+                    {shiftTypes.map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => toggleShift(s)}
+                        className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                          selectedShifts.includes(s)
+                            ? "text-foreground bg-neutral-800"
+                            : "text-neutral-400 hover:text-foreground hover:bg-neutral-800/50"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Week Navigation */}
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => setCurrentWeek(subWeeks(currentWeek, 1))}
+                  className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70"
+                >
+                  <ChevronLeft className="w-4 h-4 text-foreground" />
+                </button>
+                <span className="text-sm font-medium text-foreground px-2 whitespace-nowrap">
+                  {format(weekStart, "dd MMM")} - {format(weekEnd, "dd MMM yyyy")}
+                </span>
+                <button
+                  onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
+                  className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70"
+                >
+                  <ChevronRight className="w-4 h-4 text-foreground" />
+                </button>
+              </div>
+
+              <div className="flex-1" />
+
+              {/* View Toggle */}
+              <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
+
+              {/* Sort */}
+              <button className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50">
+                <ArrowDownUp className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* View toggle in calendar mode */}
+        {isCalendar && (
+          <div className="px-4 mb-3 flex items-center gap-2">
+            <ViewToggle viewMode={viewMode} setViewMode={setViewMode} />
           </div>
-
-          <div className="flex-1" />
-
-          {/* View Toggle */}
-          <div className="flex items-center rounded-xl overflow-hidden border border-neutral-700/50">
-            <button
-              onClick={() => setViewMode("card")}
-              className={`w-10 h-10 flex items-center justify-center transition-colors ${
-                viewMode === "card" ? "bg-foreground text-background" : "bg-neutral-800/60 text-foreground"
-              }`}
-              aria-label="Card view"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("calendar")}
-              className={`w-10 h-10 flex items-center justify-center transition-colors ${
-                viewMode === "calendar" ? "bg-foreground text-background" : "bg-neutral-800/60 text-foreground"
-              }`}
-              aria-label="Calendar view"
-            >
-              <Calendar className="w-4 h-4" />
-            </button>
-          </div>
-
-          {/* Sort */}
-          <button className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50">
-            <ArrowDownUp className="w-5 h-5 text-foreground" />
-          </button>
-        </div>
+        )}
 
         {/* Shift Views */}
-        {isLoading ? (
+        {isCalendar ? (
+          scheduleLoading ? (
+            <div className="px-4 py-12 text-center text-muted-foreground text-sm">
+              Loading schedule...
+            </div>
+          ) : (
+            <div className="px-4">
+              <ShiftCalendarView
+                roleGroups={scheduleData?.roleGroups || []}
+                weekDays={scheduleData?.weekDays || []}
+                totalShiftCount={scheduleData?.totalShiftCount || 0}
+              />
+            </div>
+          )
+        ) : isLoading ? (
           <div className="px-4 py-12 text-center text-muted-foreground text-sm">
             Loading shifts...
           </div>
@@ -226,12 +311,6 @@ const ShiftContent = ({
           <div className="px-4 py-12 text-center text-muted-foreground text-sm">
             No shifts found for this week
           </div>
-        ) : viewMode === "calendar" ? (
-          <ShiftCalendarView
-            cards={filteredCards}
-            currentWeek={currentWeek}
-            onShiftClick={(card) => navigate(`/settings/workforce/shift/edit?id=${card.id}`)}
-          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredCards.map((card, idx) => (
@@ -248,6 +327,29 @@ const ShiftContent = ({
     </div>
   );
 };
+
+const ViewToggle = ({ viewMode, setViewMode }: { viewMode: "card" | "calendar"; setViewMode: (v: "card" | "calendar") => void }) => (
+  <div className="flex items-center rounded-xl overflow-hidden border border-neutral-700/50">
+    <button
+      onClick={() => setViewMode("card")}
+      className={`w-10 h-10 flex items-center justify-center transition-colors ${
+        viewMode === "card" ? "bg-foreground text-background" : "bg-neutral-800/60 text-foreground"
+      }`}
+      aria-label="Card view"
+    >
+      <LayoutGrid className="w-4 h-4" />
+    </button>
+    <button
+      onClick={() => setViewMode("calendar")}
+      className={`w-10 h-10 flex items-center justify-center transition-colors ${
+        viewMode === "calendar" ? "bg-foreground text-background" : "bg-neutral-800/60 text-foreground"
+      }`}
+      aria-label="Calendar view"
+    >
+      <Calendar className="w-4 h-4" />
+    </button>
+  </div>
+);
 
 const ShiftCard = ({ card, onClick }: { card: ShiftCardData; onClick: () => void }) => {
   const maxAvatars = 4;

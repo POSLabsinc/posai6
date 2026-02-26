@@ -6,7 +6,7 @@ import { useEmployees } from "@/hooks/use-employees";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { InlineDatePicker } from "@/components/ui/inline-date-picker";
-import { InlineTimePicker } from "@/components/ui/inline-time-picker";
+import { CompactTimePicker } from "@/components/ui/compact-time-picker";
 import { toast } from "sonner";
 
 interface EditShiftContentProps {
@@ -117,8 +117,6 @@ const EditShiftContent = ({ showHeader = true, onBack }: EditShiftContentProps) 
 
   const startDateRef = useRef<HTMLButtonElement>(null);
   const endDateRef = useRef<HTMLButtonElement>(null);
-  const startTimeRef = useRef<HTMLButtonElement>(null);
-  const endTimeRef = useRef<HTMLButtonElement>(null);
 
   const selectedEmployees = employees.filter((e) => selectedEmployeeIds.includes(e.id));
   const filteredEmployees = employees.filter((emp) =>
@@ -281,15 +279,19 @@ const EditShiftContent = ({ showHeader = true, onBack }: EditShiftContentProps) 
           <div className="border-b border-neutral-700/30 mx-0" />
           <FieldRow label="Assign Section" value={assignSection || "Choose"} required onClick={() => setShowSectionPicker(true)} />
           <div className="border-b border-neutral-700/30 mx-0" />
-          <FieldRow label="Start Time" value={startTime} required onClick={() => setShowStartTimePicker(true)} buttonRef={startTimeRef} />
+          <FieldRow label="Start Time" value={startTime} required onClick={() => setShowStartTimePicker(!showStartTimePicker)} />
+          {showStartTimePicker && (
+            <CompactTimePicker selectedTime={startTime} onTimeChange={setStartTime} />
+          )}
           <div className="border-b border-neutral-700/30 mx-0" />
-          <FieldRow label="End Time" value={endTime} required onClick={() => setShowEndTimePicker(true)} buttonRef={endTimeRef} />
+          <FieldRow label="End Time" value={endTime} required onClick={() => setShowEndTimePicker(!showEndTimePicker)} />
+          {showEndTimePicker && (
+            <CompactTimePicker selectedTime={endTime} onTimeChange={setEndTime} />
+          )}
         </div>
 
         <InlineDatePicker isOpen={showStartDatePicker} onClose={() => setShowStartDatePicker(false)} selectedDate={startDate} onDateChange={setStartDate} position={getPickerPosition(startDateRef)} />
         <InlineDatePicker isOpen={showEndDatePicker} onClose={() => setShowEndDatePicker(false)} selectedDate={endDate} onDateChange={setEndDate} position={getPickerPosition(endDateRef)} />
-        <InlineTimePicker isOpen={showStartTimePicker} onClose={() => setShowStartTimePicker(false)} selectedTime={startTime} onTimeChange={setStartTime} position={getPickerPosition(startTimeRef)} />
-        <InlineTimePicker isOpen={showEndTimePicker} onClose={() => setShowEndTimePicker(false)} selectedTime={endTime} onTimeChange={setEndTime} position={getPickerPosition(endTimeRef)} />
 
         <div className="mx-4 rounded-2xl overflow-hidden mb-4">
           <div className="flex items-center justify-between px-4 py-3.5">

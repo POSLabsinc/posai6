@@ -313,7 +313,9 @@ const EmployeeContent = ({
                             )}
 
                             {isExpanded && (
-                              <EmployeeExpanded employee={employee} selectedDate={selectedDate} />
+                              <div onMouseDown={e => e.stopPropagation()} onTouchStart={e => e.stopPropagation()}>
+                                <EmployeeExpanded employee={employee} selectedDate={selectedDate} />
+                              </div>
                             )}
                           </div>
                         </SwipeableSettingsItem>

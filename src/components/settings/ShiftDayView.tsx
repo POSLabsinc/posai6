@@ -79,9 +79,10 @@ interface DraggableShiftBlockProps {
   onDragEndWithEmployee: (shiftId: string, newStartHours: number, duration: number, newEmployeeId: string | null) => void;
   employeeRowRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
   currentEmployeeId: string;
+  onShiftClick: (shiftId: string) => void;
 }
 
-const DraggableShiftBlock = ({ shift, onDragEnd, onDragEndWithEmployee, employeeRowRefs, currentEmployeeId }: DraggableShiftBlockProps) => {
+const DraggableShiftBlock = ({ shift, onDragEnd, onDragEndWithEmployee, employeeRowRefs, currentEmployeeId, onShiftClick }: DraggableShiftBlockProps) => {
   const [dragOffset, setDragOffset] = useState(0);
   const [dragOffsetY, setDragOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
@@ -138,6 +139,16 @@ const DraggableShiftBlock = ({ shift, onDragEnd, onDragEndWithEmployee, employee
     setIsDragging(false);
     const duration = end - start;
     const dx = e.clientX - dragStartX.current;
+    const dy = e.clientY - dragStartY.current;
+
+    // If movement is tiny, treat as a click → open edit
+    if (Math.abs(dx) < 5 && Math.abs(dy) < 5) {
+      setDragOffset(0);
+      setDragOffsetY(0);
+      onShiftClick(shift.id);
+      return;
+    }
+
     const newStart = snapTo15(start + dx / COL_WIDTH);
     const clamped = Math.max(HOURS[0], Math.min(HOURS[HOURS.length - 1] + 1 - duration, newStart));
     setDragOffset(0);
@@ -150,7 +161,7 @@ const DraggableShiftBlock = ({ shift, onDragEnd, onDragEndWithEmployee, employee
     if (employeeChanged || timeChanged) {
       onDragEndWithEmployee(shift.id, timeChanged ? clamped : start, duration, employeeChanged ? targetEmp : null);
     }
-  }, [isDragging, start, end, shift.id, onDragEndWithEmployee, findTargetEmployee, currentEmployeeId]);
+  }, [isDragging, start, end, shift.id, onDragEndWithEmployee, onShiftClick, findTargetEmployee, currentEmployeeId]);
 
   // --- Resize handlers ---
   const handleResizePointerDown = useCallback((edge: "left" | "right", e: React.PointerEvent) => {
@@ -295,6 +306,10 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
     });
     navigate(`/settings/workforce/shift/add?${params.toString()}`);
   }, [dateStr, navigate]);
+
+  const handleShiftClick = useCallback((shiftId: string) => {
+    navigate(`/settings/workforce/shift/edit?id=${shiftId}`);
+  }, [navigate]);
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["shift_day_view", dateStr],
@@ -497,6 +512,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
                     onDragEndWithEmployee={handleShiftDragWithEmployee}
                     employeeRowRefs={employeeRowRefs}
                     currentEmployeeId={row.id}
+                    onShiftClick={handleShiftClick}
                   />
                 ))}
               </div>
@@ -556,7 +572,8 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
                   return (
                     <div
                       key={shift.id}
-                      className="rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 flex items-center justify-between"
+                      onClick={() => handleShiftClick(shift.id)}
+                      className="rounded-lg border border-green-500/30 bg-green-500/10 px-3 py-2 flex items-center justify-between cursor-pointer hover:bg-green-500/15 transition-colors"
                     >
                       <div>
                         <span className="text-xs font-semibold text-green-700 dark:text-green-400">

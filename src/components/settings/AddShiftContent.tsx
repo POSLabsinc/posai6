@@ -7,6 +7,8 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar } from "@/components/ui/calendar";
 import { InlineTimePicker } from "@/components/ui/inline-time-picker";
+import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
@@ -124,6 +126,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { data: employees = [] } = useEmployees(false);
+  const isMobile = useIsMobile();
 
   const prefillEmployeeId = searchParams.get("employeeId");
   const prefillDate = searchParams.get("date");
@@ -820,30 +823,54 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
 
       {/* Day Start Time Picker */}
       {showDayStartTimePicker && (
-        <InlineTimePicker
-          isOpen={true}
-          onClose={() => setShowDayStartTimePicker(false)}
-          selectedTime={dayStartTime}
-          onTimeChange={(val) => {
-            setDayStartTime(val);
-            setShowDayStartTimePicker(false);
-          }}
-          position={getPickerPosition(dayStartTimeRef)}
-        />
+        isMobile ? (
+          <AppleWheelTimePicker
+            isOpen={true}
+            onClose={() => setShowDayStartTimePicker(false)}
+            onConfirm={(val) => {
+              setDayStartTime(val);
+              setShowDayStartTimePicker(false);
+            }}
+            selectedTime={dayStartTime}
+          />
+        ) : (
+          <InlineTimePicker
+            isOpen={true}
+            onClose={() => setShowDayStartTimePicker(false)}
+            selectedTime={dayStartTime}
+            onTimeChange={(val) => {
+              setDayStartTime(val);
+              setShowDayStartTimePicker(false);
+            }}
+            position={getPickerPosition(dayStartTimeRef)}
+          />
+        )
       )}
 
       {/* Day End Time Picker */}
       {showDayEndTimePicker && (
-        <InlineTimePicker
-          isOpen={true}
-          onClose={() => setShowDayEndTimePicker(false)}
-          selectedTime={dayEndTime}
-          onTimeChange={(val) => {
-            setDayEndTime(val);
-            setShowDayEndTimePicker(false);
-          }}
-          position={getPickerPosition(dayEndTimeRef)}
-        />
+        isMobile ? (
+          <AppleWheelTimePicker
+            isOpen={true}
+            onClose={() => setShowDayEndTimePicker(false)}
+            onConfirm={(val) => {
+              setDayEndTime(val);
+              setShowDayEndTimePicker(false);
+            }}
+            selectedTime={dayEndTime}
+          />
+        ) : (
+          <InlineTimePicker
+            isOpen={true}
+            onClose={() => setShowDayEndTimePicker(false)}
+            selectedTime={dayEndTime}
+            onTimeChange={(val) => {
+              setDayEndTime(val);
+              setShowDayEndTimePicker(false);
+            }}
+            position={getPickerPosition(dayEndTimeRef)}
+          />
+        )
       )}
     </div>
   );

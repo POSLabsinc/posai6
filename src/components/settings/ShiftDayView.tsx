@@ -75,20 +75,45 @@ const GridLines = () => (
 interface DraggableShiftBlockProps {
   shift: DayShift;
   onDragEnd: (shiftId: string, newStartHours: number, duration: number) => void;
+  onDragEndWithEmployee: (shiftId: string, newStartHours: number, duration: number, newEmployeeId: string | null) => void;
+  employeeRowRefs: React.MutableRefObject<Map<string, HTMLDivElement>>;
+  currentEmployeeId: string;
 }
 
-const DraggableShiftBlock = ({ shift, onDragEnd }: DraggableShiftBlockProps) => {
+const DraggableShiftBlock = ({ shift, onDragEnd, onDragEndWithEmployee, employeeRowRefs, currentEmployeeId }: DraggableShiftBlockProps) => {
   const [dragOffset, setDragOffset] = useState(0);
+  const [dragOffsetY, setDragOffsetY] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
   const [resizing, setResizing] = useState<"left" | "right" | null>(null);
   const [resizeOffset, setResizeOffset] = useState(0);
   const dragStartX = useRef(0);
+  const dragStartY = useRef(0);
   const blockRef = useRef<HTMLDivElement>(null);
 
   const start = parseTimeToHours(shift.start_time);
   const end = parseTimeToHours(shift.end_time);
 
   const MIN_DURATION = 0.25; // 15 min minimum
+
+  // Helper: find which employee row the pointer Y lands on
+  const findTargetEmployee = useCallback((clientY: number): string | null => {
+    let closest: string | null = null;
+    let closestDist = Infinity;
+    employeeRowRefs.current.forEach((el, empId) => {
+      const rect = el.getBoundingClientRect();
+      if (clientY >= rect.top && clientY <= rect.bottom) {
+        closest = empId;
+        closestDist = 0;
+      } else {
+        const dist = Math.min(Math.abs(clientY - rect.top), Math.abs(clientY - rect.bottom));
+        if (dist < closestDist) {
+          closestDist = dist;
+          closest = empId;
+        }
+      }
+    });
+    return closest;
+  }, [employeeRowRefs]);
 
   // --- Move handlers ---
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
@@ -97,12 +122,14 @@ const DraggableShiftBlock = ({ shift, onDragEnd }: DraggableShiftBlockProps) => 
     e.stopPropagation();
     setIsDragging(true);
     dragStartX.current = e.clientX;
+    dragStartY.current = e.clientY;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
   }, [resizing]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDragging) return;
     setDragOffset(e.clientX - dragStartX.current);
+    setDragOffsetY(e.clientY - dragStartY.current);
   }, [isDragging]);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
@@ -113,10 +140,16 @@ const DraggableShiftBlock = ({ shift, onDragEnd }: DraggableShiftBlockProps) => 
     const newStart = snapTo15(start + dx / COL_WIDTH);
     const clamped = Math.max(HOURS[0], Math.min(HOURS[HOURS.length - 1] + 1 - duration, newStart));
     setDragOffset(0);
-    if (Math.abs(clamped - start) > 0.01) {
-      onDragEnd(shift.id, clamped, duration);
+    setDragOffsetY(0);
+
+    const targetEmp = findTargetEmployee(e.clientY);
+    const employeeChanged = targetEmp && targetEmp !== currentEmployeeId;
+    const timeChanged = Math.abs(clamped - start) > 0.01;
+
+    if (employeeChanged || timeChanged) {
+      onDragEndWithEmployee(shift.id, timeChanged ? clamped : start, duration, employeeChanged ? targetEmp : null);
     }
-  }, [isDragging, start, end, shift.id, onDragEnd]);
+  }, [isDragging, start, end, shift.id, onDragEndWithEmployee, findTargetEmployee, currentEmployeeId]);
 
   // --- Resize handlers ---
   const handleResizePointerDown = useCallback((edge: "left" | "right", e: React.PointerEvent) => {
@@ -199,7 +232,7 @@ const DraggableShiftBlock = ({ shift, onDragEnd }: DraggableShiftBlockProps) => 
       className={`absolute top-2 bottom-2 rounded-lg border border-green-500/30 bg-green-500/10 flex items-center select-none transition-shadow group ${
         isActive ? "z-30 shadow-lg ring-2 ring-green-500/40 opacity-90" : "hover:bg-green-500/15"
       } ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
-      style={{ left: visualLeft, width: visualWidth, touchAction: "none" }}
+      style={{ left: visualLeft, width: visualWidth, touchAction: "none", transform: isDragging ? `translateY(${dragOffsetY}px)` : undefined }}
     >
       {/* Left resize handle */}
       <div
@@ -239,6 +272,7 @@ const DraggableShiftBlock = ({ shift, onDragEnd }: DraggableShiftBlockProps) => 
 const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
   const dateStr = format(currentDate, "yyyy-MM-dd");
   const queryClient = useQueryClient();
+  const employeeRowRefs = useRef<Map<string, HTMLDivElement>>(new Map());
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["shift_day_view", dateStr],
@@ -287,7 +321,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
     },
   });
 
-  const handleShiftDrag = useCallback(async (shiftId: string, newStartHours: number, duration: number) => {
+  const handleShiftDragWithEmployee = useCallback(async (shiftId: string, newStartHours: number, duration: number, newEmployeeId: string | null) => {
     const newEndHours = newStartHours + duration;
     const newStartTime = hoursToTimeString(newStartHours);
     const newEndTime = hoursToTimeString(newEndHours);
@@ -295,6 +329,21 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
     // Optimistic update
     queryClient.setQueryData(["shift_day_view", dateStr], (old: EmployeeRow[] | undefined) => {
       if (!old) return old;
+      if (newEmployeeId) {
+        const shiftData = old.flatMap(r => r.shifts).find(s => s.id === shiftId);
+        if (!shiftData) return old;
+        const updatedShift = { ...shiftData, start_time: newStartTime, end_time: newEndTime, employee_id: newEmployeeId };
+        return old.map((row) => {
+          let newShifts = row.shifts.filter(s => s.id !== shiftId);
+          if (row.id === newEmployeeId) newShifts = [...newShifts, updatedShift];
+          const totalHrs = newShifts.reduce((acc, s) => {
+            const st = parseTimeToHours(s.start_time);
+            const en = parseTimeToHours(s.end_time);
+            return st !== null && en !== null && en > st ? acc + (en - st) : acc;
+          }, 0);
+          return { ...row, shifts: newShifts, totalHours: totalHrs, totalPay: totalHrs * row.hourly_rate };
+        });
+      }
       return old.map((row) => ({
         ...row,
         shifts: row.shifts.map((s) =>
@@ -315,18 +364,28 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
       }));
     });
 
+    const updateData: any = { start_time: newStartTime, end_time: newEndTime };
+    if (newEmployeeId) updateData.employee_id = newEmployeeId;
+
     const { error } = await (supabase as any)
       .from("employee_shifts")
-      .update({ start_time: newStartTime, end_time: newEndTime })
+      .update(updateData)
       .eq("id", shiftId);
 
     if (error) {
-      toast.error("Failed to update shift time");
+      toast.error("Failed to update shift");
       queryClient.invalidateQueries({ queryKey: ["shift_day_view", dateStr] });
     } else {
-      toast.success(`Shift moved to ${newStartTime} - ${newEndTime}`);
+      const msg = newEmployeeId
+        ? `Shift reassigned & moved to ${newStartTime} - ${newEndTime}`
+        : `Shift moved to ${newStartTime} - ${newEndTime}`;
+      toast.success(msg);
     }
   }, [dateStr, queryClient]);
+
+  const handleShiftDrag = useCallback(async (shiftId: string, newStartHours: number, duration: number) => {
+    handleShiftDragWithEmployee(shiftId, newStartHours, duration, null);
+  }, [handleShiftDragWithEmployee]);
 
   const totalHours = rows.reduce((s, r) => s + r.totalHours, 0);
   const totalPay = rows.reduce((s, r) => s + r.totalPay, 0);
@@ -383,7 +442,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
 
           {/* Employee rows */}
           {rows.map((row) => (
-            <div key={row.id} className="flex border-b border-calendar-border relative" style={{ minHeight: 72 }}>
+            <div key={row.id} ref={(el) => { if (el) employeeRowRefs.current.set(row.id, el); else employeeRowRefs.current.delete(row.id); }} className="flex border-b border-calendar-border relative" style={{ minHeight: 72 }}>
               {/* Employee info */}
               <div className="flex-shrink-0 px-4 py-3 flex flex-col justify-center border-r border-calendar-border" style={{ width: NAME_COL_WIDTH }}>
                 <div className="flex items-baseline gap-1.5">
@@ -408,6 +467,9 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
                     key={shift.id}
                     shift={shift}
                     onDragEnd={handleShiftDrag}
+                    onDragEndWithEmployee={handleShiftDragWithEmployee}
+                    employeeRowRefs={employeeRowRefs}
+                    currentEmployeeId={row.id}
                   />
                 ))}
               </div>

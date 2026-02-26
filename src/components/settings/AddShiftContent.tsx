@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight, X, User, Search, Briefcase } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, User, Search, Briefcase, Check } from "lucide-react";
 import { format, parse, eachDayOfInterval } from "date-fns";
 import { useEmployees } from "@/hooks/use-employees";
 import { useQueryClient } from "@tanstack/react-query";
@@ -73,7 +73,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const prefillEmployeeId = searchParams.get("employeeId");
   const prefillDate = searchParams.get("date");
 
-  const [selectedEmployeeId, setSelectedEmployeeId] = useState<string | null>(prefillEmployeeId);
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(prefillEmployeeId ? [prefillEmployeeId] : []);
   const [startDate, setStartDate] = useState<Date>(prefillDate ? new Date(prefillDate + "T00:00:00") : new Date());
   const [endDate, setEndDate] = useState<Date>(prefillDate ? new Date(prefillDate + "T00:00:00") : new Date());
   const [shift, setShift] = useState("");
@@ -104,37 +104,38 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const startTimeRef = useRef<HTMLButtonElement>(null);
   const endTimeRef = useRef<HTMLButtonElement>(null);
 
-  const selectedEmployee = employees.find((e) => e.id === selectedEmployeeId);
+  const selectedEmployees = employees.filter((e) => selectedEmployeeIds.includes(e.id));
   const filteredEmployees = employees.filter((emp) =>
     emp.full_name.toLowerCase().includes(employeeSearch.toLowerCase())
   );
   const goBack = onBack || (() => navigate("/settings/workforce/shift"));
 
   const handleBack = async () => {
-    // If no employee selected, just navigate back
-    if (!selectedEmployeeId) {
+    if (selectedEmployeeIds.length === 0) {
       goBack();
       return;
     }
 
     try {
-      // Create a shift record for each day in the date range
+      // Create a shift record for each employee × each day in the date range
       const days = eachDayOfInterval({ start: startDate, end: endDate });
-      const shiftRows = days.map((day) => ({
-        employee_id: selectedEmployeeId,
-        shift_date: format(day, "yyyy-MM-dd"),
-        shift_type: shift || "Regular",
-        assign_section: assignSection || null,
-        start_time: startTime,
-        end_time: endTime,
-        allow_overtime: allowOvertime,
-        recurring: recurring,
-        job_type: jobType || null,
-        pay_rate: payRate ? parseFloat(payRate) : 0,
-        shift_notes: shiftNotes || null,
-        start_date: format(startDate, "yyyy-MM-dd"),
-        end_date: format(endDate, "yyyy-MM-dd"),
-      }));
+      const shiftRows = selectedEmployeeIds.flatMap((empId) =>
+        days.map((day) => ({
+          employee_id: empId,
+          shift_date: format(day, "yyyy-MM-dd"),
+          shift_type: shift || "Regular",
+          assign_section: assignSection || null,
+          start_time: startTime,
+          end_time: endTime,
+          allow_overtime: allowOvertime,
+          recurring: recurring,
+          job_type: jobType || null,
+          pay_rate: payRate ? parseFloat(payRate) : 0,
+          shift_notes: shiftNotes || null,
+          start_date: format(startDate, "yyyy-MM-dd"),
+          end_date: format(endDate, "yyyy-MM-dd"),
+        }))
+      );
 
       const { error } = await (supabase as any).from("employee_shifts").insert(shiftRows);
       if (error) throw error;
@@ -205,12 +206,43 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
       <div className="flex-1 overflow-y-auto scrollbar-hide pb-28">
         {/* Shift Details */}
         <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
-          <FieldRow
-            label="Employee"
-            value={selectedEmployee ? selectedEmployee.full_name : "Select"}
-            required
+          {/* Employee multi-select field */}
+          <button
             onClick={() => setShowEmployeePicker(true)}
-          />
+            className="flex items-center justify-between w-full px-4 py-3.5"
+          >
+            <span className="text-sm text-foreground font-medium">Employees *</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-neutral-400">
+                {selectedEmployees.length === 0
+                  ? "Select"
+                  : `${selectedEmployees.length} selected`}
+              </span>
+              <ChevronRight className="w-4 h-4 text-neutral-600 shrink-0" />
+            </div>
+          </button>
+          {/* Selected employee chips */}
+          {selectedEmployees.length > 0 && (
+            <div className="px-4 pb-3 flex flex-wrap gap-2">
+              {selectedEmployees.map((emp) => (
+                <span
+                  key={emp.id}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-700/60 text-xs font-medium text-foreground"
+                >
+                  {emp.full_name}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedEmployeeIds((prev) => prev.filter((id) => id !== emp.id));
+                    }}
+                    className="w-3.5 h-3.5 rounded-full bg-neutral-500/50 flex items-center justify-center hover:bg-neutral-500/80 transition-colors"
+                  >
+                    <X className="w-2.5 h-2.5 text-foreground" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
           <div className="border-b border-neutral-700/30 mx-0" />
           <FieldRow
             label="Start Date"
@@ -372,7 +404,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
         </div>
       </div>
 
-      {/* Employee Picker Popup */}
+      {/* Employee Multi-Select Picker Popup */}
       {showEmployeePicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => { setShowEmployeePicker(false); setEmployeeSearch(""); }}>
           <div className="absolute inset-0 bg-black/60" />
@@ -383,9 +415,12 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
             >
               <X className="w-4 h-4 text-foreground" />
             </button>
-            <div className="bg-neutral-800 rounded-2xl w-[340px] max-h-[500px] overflow-hidden">
-              <div className="px-4 py-3 border-b border-neutral-700/50">
-                <h3 className="text-sm font-semibold text-foreground text-center">Select Employee</h3>
+            <div className="bg-neutral-800 rounded-2xl w-[340px] max-h-[500px] overflow-hidden flex flex-col">
+              <div className="px-4 py-3 border-b border-neutral-700/50 flex items-center justify-between">
+                <h3 className="text-sm font-semibold text-foreground text-center flex-1">Select Employees</h3>
+                {selectedEmployeeIds.length > 0 && (
+                  <span className="text-xs text-neutral-400">{selectedEmployeeIds.length} selected</span>
+                )}
               </div>
               <div className="px-3 py-2 border-b border-neutral-700/50">
                 <div className="flex items-center gap-2 bg-neutral-700/50 rounded-lg px-3 py-2">
@@ -400,44 +435,59 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                   />
                 </div>
               </div>
-              <div className="overflow-y-auto max-h-[390px] scrollbar-hide">
+              <div className="overflow-y-auto max-h-[340px] scrollbar-hide">
                 {filteredEmployees.length === 0 ? (
                   <div className="px-4 py-8 text-center">
                     <User className="w-8 h-8 text-neutral-600 mx-auto mb-2" />
                     <p className="text-sm text-neutral-500">No employees found</p>
                   </div>
                 ) : (
-                  filteredEmployees.map((emp) => (
-                    <button
-                      key={emp.id}
-                      onClick={() => {
-                        setSelectedEmployeeId(emp.id);
-                        setShowEmployeePicker(false);
-                        setEmployeeSearch("");
-                      }}
-                      className={`flex items-center gap-3 w-full px-4 py-3 active:opacity-70 transition-opacity ${
-                        selectedEmployeeId === emp.id ? "bg-neutral-700/40" : ""
-                      }`}
-                    >
-                      <div className="w-9 h-9 rounded-full bg-neutral-700 flex items-center justify-center shrink-0">
-                        {emp.avatar_url ? (
-                          <img src={emp.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover" />
-                        ) : (
-                          <User className="w-4 h-4 text-neutral-400" />
-                        )}
-                      </div>
-                      <div className="flex-1 text-left">
-                        <p className="text-sm font-medium text-foreground">{emp.full_name}</p>
-                        <p className="text-xs text-neutral-500">{emp.role}</p>
-                      </div>
-                      {selectedEmployeeId === emp.id && (
-                        <div className="w-5 h-5 rounded-full bg-white flex items-center justify-center">
-                          <div className="w-2.5 h-2.5 rounded-full bg-neutral-800" />
+                  filteredEmployees.map((emp) => {
+                    const isSelected = selectedEmployeeIds.includes(emp.id);
+                    return (
+                      <button
+                        key={emp.id}
+                        onClick={() => {
+                          setSelectedEmployeeIds((prev) =>
+                            isSelected ? prev.filter((id) => id !== emp.id) : [...prev, emp.id]
+                          );
+                        }}
+                        className={`flex items-center gap-3 w-full px-4 py-3 active:opacity-70 transition-opacity ${
+                          isSelected ? "bg-neutral-700/40" : ""
+                        }`}
+                      >
+                        {/* Checkbox */}
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${
+                          isSelected
+                            ? "bg-foreground border-foreground"
+                            : "border-neutral-600 bg-transparent"
+                        }`}>
+                          {isSelected && <Check className="w-3 h-3 text-background" />}
                         </div>
-                      )}
-                    </button>
-                  ))
+                        <div className="w-9 h-9 rounded-full bg-neutral-700 flex items-center justify-center shrink-0">
+                          {emp.avatar_url ? (
+                            <img src={emp.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover" />
+                          ) : (
+                            <User className="w-4 h-4 text-neutral-400" />
+                          )}
+                        </div>
+                        <div className="flex-1 text-left">
+                          <p className="text-sm font-medium text-foreground">{emp.full_name}</p>
+                          <p className="text-xs text-neutral-500">{emp.role}</p>
+                        </div>
+                      </button>
+                    );
+                  })
                 )}
+              </div>
+              {/* Done button */}
+              <div className="px-4 py-3 border-t border-neutral-700/50">
+                <button
+                  onClick={() => { setShowEmployeePicker(false); setEmployeeSearch(""); }}
+                  className="w-full py-2.5 rounded-xl bg-foreground text-background text-sm font-semibold active:opacity-80 transition-opacity"
+                >
+                  Done
+                </button>
               </div>
             </div>
           </div>

@@ -318,7 +318,7 @@ const EmployeeContent = ({
                             )}
 
                             {isExpanded && (
-                              <div onMouseDown={e => e.stopPropagation()} onTouchStart={e => e.stopPropagation()}>
+                              <div onMouseDown={e => e.stopPropagation()} onMouseUp={e => e.stopPropagation()} onTouchStart={e => e.stopPropagation()} onTouchEnd={e => e.stopPropagation()} onClick={e => e.stopPropagation()}>
                                 <EmployeeExpanded employee={employee} selectedDate={selectedDate} />
                               </div>
                             )}

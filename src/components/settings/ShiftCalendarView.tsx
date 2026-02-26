@@ -42,19 +42,19 @@ interface RoleGroup {
 }
 
 const ROLE_COLORS: Record<string, string> = {
-  Manager: "bg-green-500/5 dark:bg-green-500/8",
-  Server: "bg-blue-500/5 dark:bg-blue-500/8",
-  Bartender: "bg-orange-500/5 dark:bg-orange-500/8",
-  Kitchen: "bg-amber-500/5 dark:bg-amber-500/8",
-  Host: "bg-rose-500/5 dark:bg-rose-500/8",
+  Manager: "bg-green-100/60 dark:bg-green-500/10",
+  Server: "bg-blue-100/60 dark:bg-blue-500/10",
+  Bartender: "bg-orange-100/60 dark:bg-orange-500/10",
+  Kitchen: "bg-lime-100/60 dark:bg-lime-500/10",
+  Host: "bg-rose-100/50 dark:bg-rose-500/10",
 };
 
 const getRoleColor = (role: string, index: number) => {
   if (ROLE_COLORS[role]) return ROLE_COLORS[role];
   const fallbacks = [
-    "bg-purple-500/5 dark:bg-purple-500/8",
-    "bg-cyan-500/5 dark:bg-cyan-500/8",
-    "bg-pink-500/5 dark:bg-pink-500/8",
+    "bg-purple-100/60 dark:bg-purple-500/10",
+    "bg-cyan-100/60 dark:bg-cyan-500/10",
+    "bg-pink-100/60 dark:bg-pink-500/10",
   ];
   return fallbacks[index % fallbacks.length];
 };
@@ -253,14 +253,12 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                   className={`w-full flex items-center border-b border-calendar-border hover:bg-muted/20 transition-colors ${bgColor}`}
                   style={{ minHeight: 44 }}
                 >
-                  <div className="flex-shrink-0 px-4 py-2.5 flex items-center gap-2" style={{ width: NAME_COL_W }}>
+                  <div className="px-4 py-2.5 flex items-center gap-3">
                     <ChevronRight
                       className={`w-4 h-4 text-muted-foreground transition-transform ${isExpanded ? "rotate-90" : ""}`}
                     />
                     <span className="text-sm font-bold text-foreground">{group.role}</span>
                     <span className="text-xs text-muted-foreground">{group.totalEmployees} employees</span>
-                  </div>
-                  <div className="flex-1 px-3">
                     <span className="text-xs text-muted-foreground font-medium">{Math.round(group.totalHours)}h scheduled</span>
                   </div>
                 </button>

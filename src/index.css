@@ -59,7 +59,7 @@ All colors MUST be HSL.
 
     --stat-surface: 0 0% 0% / 0.08;
     --stat-inset-shadow: inset 4px 4px 24px 0px rgba(0, 0, 0, 0.08);
-    --calendar-border: 0 0% 30.2%;
+    --calendar-border: 220 13% 91%;
   }
 
   .dark {

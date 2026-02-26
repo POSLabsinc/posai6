@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays, LayoutGrid, Calendar } from "lucide-react";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useShiftCards, ShiftCardData } from "@/hooks/use-shift-cards";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ShiftCalendarView from "@/components/settings/ShiftCalendarView";
 
 interface ShiftContentProps {
   showHeader?: boolean;
@@ -20,6 +21,7 @@ const ShiftContent = ({
   const navigate = useNavigate();
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewMode, setViewMode] = useState<"card" | "calendar">("card");
   const [showJobTypeDropdown, setShowJobTypeDropdown] = useState(false);
   const [showShiftDropdown, setShowShiftDropdown] = useState(false);
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
@@ -187,13 +189,35 @@ const ShiftContent = ({
 
           <div className="flex-1" />
 
+          {/* View Toggle */}
+          <div className="flex items-center rounded-xl overflow-hidden border border-neutral-700/50">
+            <button
+              onClick={() => setViewMode("card")}
+              className={`w-10 h-10 flex items-center justify-center transition-colors ${
+                viewMode === "card" ? "bg-foreground text-background" : "bg-neutral-800/60 text-foreground"
+              }`}
+              aria-label="Card view"
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode("calendar")}
+              className={`w-10 h-10 flex items-center justify-center transition-colors ${
+                viewMode === "calendar" ? "bg-foreground text-background" : "bg-neutral-800/60 text-foreground"
+              }`}
+              aria-label="Calendar view"
+            >
+              <Calendar className="w-4 h-4" />
+            </button>
+          </div>
+
           {/* Sort */}
           <button className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50">
             <ArrowDownUp className="w-5 h-5 text-foreground" />
           </button>
         </div>
 
-        {/* Shift Cards Grid */}
+        {/* Shift Views */}
         {isLoading ? (
           <div className="px-4 py-12 text-center text-muted-foreground text-sm">
             Loading shifts...
@@ -202,6 +226,12 @@ const ShiftContent = ({
           <div className="px-4 py-12 text-center text-muted-foreground text-sm">
             No shifts found for this week
           </div>
+        ) : viewMode === "calendar" ? (
+          <ShiftCalendarView
+            cards={filteredCards}
+            currentWeek={currentWeek}
+            onShiftClick={(card) => navigate(`/settings/workforce/shift/edit?id=${card.id}`)}
+          />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredCards.map((card, idx) => (

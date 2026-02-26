@@ -58,7 +58,7 @@ const ShiftContent = ({
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      <div className="px-4 pb-28">
+      <div className="px-4 pb-28 flex flex-col h-full">
         {/* Header */}
         {showHeader &&
         <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-0">
@@ -221,7 +221,7 @@ const ShiftContent = ({
         </div>
 
         {/* Shift Views — wrapped in a visually distinct container */}
-        <div className="rounded-2xl border border-border/60 bg-muted/30 backdrop-blur-sm p-4 md:p-5 px-0 py-0">
+        <div className="rounded-2xl border border-border/60 bg-muted/30 backdrop-blur-sm">
           {isLoading ?
           <div className="px-4 py-12 text-center text-muted-foreground text-sm">
               Loading shifts...

@@ -210,49 +210,77 @@ const EmployeeContent = ({
             <p className="text-neutral-500 text-sm">Loading employees...</p>
           </div>
         ) : (
-          <div className="space-y-1">
-            {filteredEmployees.map((employee) => {
-              const isExpanded = expandedEmployee === employee.id;
-              return (
-                <SwipeableSettingsItem
-                  key={employee.id}
-                  onTap={() => setExpandedEmployee(isExpanded ? null : employee.id)}
-                  onArchive={() => handleArchive(employee)}
-                  isArchived={employee.is_archived}
-                >
-                  <div className={`rounded-2xl overflow-hidden transition-all duration-300`}>
-                    <div
-                      className={`flex items-center justify-between w-full py-3 px-3 rounded-2xl ${
-                        isExpanded ? "bg-neutral-800/70" : "bg-neutral-800/40"
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <img
-                          src={employee.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.full_name)}&background=2a2a2a&color=fff&size=36&font-size=0.4&bold=true`}
-                          alt={employee.full_name}
-                          className="w-9 h-9 rounded-full object-cover flex-shrink-0"
-                        />
-                        <div className="text-left">
-                          <p className="text-foreground text-sm font-medium">{employee.full_name}</p>
-                          <p className="text-neutral-500 text-xs">{employee.role}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <div className="text-right hidden sm:block">
-                          <p className="text-foreground text-xs">{employee.phone || "—"}</p>
-                          <p className="text-neutral-500 text-[11px]">{employee.email || "—"}</p>
-                        </div>
-                        <ChevronRight className={`w-4 h-4 text-neutral-500 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
-                      </div>
-                    </div>
+          <div>
+            {(() => {
+              const grouped: Record<string, typeof filteredEmployees> = {};
+              filteredEmployees.forEach((emp) => {
+                const letter = emp.full_name.charAt(0).toUpperCase();
+                if (!grouped[letter]) grouped[letter] = [];
+                grouped[letter].push(emp);
+              });
+              const letters = Object.keys(grouped).sort();
 
-                    {isExpanded && (
-                      <EmployeeExpanded employee={employee} selectedDate={selectedDate} />
-                    )}
+              return letters.map((letter) => (
+                <div key={letter}>
+                  <div className="px-1 pt-4 pb-2">
+                    <span className="text-xs font-semibold text-neutral-500">{letter}</span>
                   </div>
-                </SwipeableSettingsItem>
-              );
-            })}
+                  <div className="space-y-1">
+                    {grouped[letter].map((employee) => {
+                      const isExpanded = expandedEmployee === employee.id;
+                      const statusLabel = employee.is_archived ? "Archived" : "Working";
+                      const statusColor = employee.is_archived
+                        ? "bg-neutral-600 text-neutral-300"
+                        : "bg-emerald-500/15 text-emerald-400";
+
+                      return (
+                        <SwipeableSettingsItem
+                          key={employee.id}
+                          onTap={() => setExpandedEmployee(isExpanded ? null : employee.id)}
+                          onArchive={() => handleArchive(employee)}
+                          isArchived={employee.is_archived}
+                        >
+                          <div className="rounded-2xl overflow-hidden transition-all duration-300">
+                            <div
+                              className={`flex items-center justify-between w-full py-3 px-3 rounded-2xl ${
+                                isExpanded ? "bg-neutral-800/70" : "bg-neutral-800/40"
+                              }`}
+                            >
+                              <div className="flex items-center gap-3">
+                                <img
+                                  src={employee.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.full_name)}&background=2a2a2a&color=fff&size=44&font-size=0.4&bold=true`}
+                                  alt={employee.full_name}
+                                  className="w-11 h-11 rounded-full object-cover flex-shrink-0"
+                                />
+                                <div className="text-left">
+                                  <p className="text-foreground text-sm font-semibold">
+                                    {employee.full_name}
+                                    <span className="text-neutral-500 font-normal"> • {employee.role}</span>
+                                  </p>
+                                  <p className="text-neutral-500 text-xs mt-0.5">
+                                    {employee.phone || employee.email || "No contact info"}
+                                  </p>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-md ${statusColor}`}>
+                                  {statusLabel}
+                                </span>
+                                <ChevronRight className={`w-4 h-4 text-neutral-500 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
+                              </div>
+                            </div>
+
+                            {isExpanded && (
+                              <EmployeeExpanded employee={employee} selectedDate={selectedDate} />
+                            )}
+                          </div>
+                        </SwipeableSettingsItem>
+                      );
+                    })}
+                  </div>
+                </div>
+              ));
+            })()}
           </div>
         )}
 

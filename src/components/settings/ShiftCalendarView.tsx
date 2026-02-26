@@ -1,10 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { format, startOfWeek, addDays } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { ShiftCardData } from "@/hooks/use-shift-cards";
+import { toast } from "@/hooks/use-toast";
 
 interface ShiftCalendarViewProps {
   cards: ShiftCardData[];
@@ -35,7 +36,7 @@ interface RoleGroup {
     id: string;
     name: string;
     role: string;
-    shifts: Map<string, WeekShift[]>; // dateStr -> shifts
+    shifts: Map<string, WeekShift[]>;
     totalHours: number;
     totalPay: number;
   }[];
@@ -75,7 +76,7 @@ const getShiftBlockColor = (role: string) => {
   return SHIFT_BLOCK_COLORS[role] || DEFAULT_SHIFT_COLOR;
 };
 
-const PAY_RATE = 16.50; // default hourly rate
+const PAY_RATE = 16.50;
 
 const parseTimeToHours = (t: string | null): number | null => {
   if (!t) return null;
@@ -93,12 +94,14 @@ const formatTime12 = (t: string | null): string => {
 
 const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarViewProps) => {
   const navigate = useNavigate();
-  const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 }); // Monday start per reference
+  const queryClient = useQueryClient();
+  const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
   const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
   const dayStrs = days.map((d) => format(d, "yyyy-MM-dd"));
   const todayStr = format(new Date(), "yyyy-MM-dd");
 
   const [expandedRoles, setExpandedRoles] = useState<Set<string>>(new Set());
+  const [dragOverCell, setDragOverCell] = useState<string | null>(null); // "empId-dateStr"
 
   const startStr = dayStrs[0];
   const endStr = dayStrs[6];
@@ -128,7 +131,6 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
     if (!weekData) return [];
     const { employees, shifts } = weekData;
 
-    // Map shifts by employee
     const shiftsByEmp = new Map<string, WeekShift[]>();
     shifts.forEach((s) => {
       const list = shiftsByEmp.get(s.employee_id) || [];
@@ -136,7 +138,6 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
       shiftsByEmp.set(s.employee_id, list);
     });
 
-    // Group employees by role
     const roleMap = new Map<string, EmployeeInfo[]>();
     employees.forEach((emp) => {
       const role = emp.role || "Other";
@@ -164,12 +165,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
         return { id: emp.id, name: emp.full_name, role: emp.role || role, shifts: byDate, totalHours, totalPay: totalHours * PAY_RATE };
       });
 
-      groups.push({
-        role,
-        employees: empRows,
-        totalEmployees: empRows.length,
-        totalHours: groupTotalHours,
-      });
+      groups.push({ role, employees: empRows, totalEmployees: empRows.length, totalHours: groupTotalHours });
     });
 
     return groups;
@@ -194,6 +190,55 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
   const handleShiftClick = (shiftId: string) => {
     navigate(`/settings/workforce/shift/edit?id=${shiftId}`);
   };
+
+  // Drag and drop handlers
+  const handleDragStart = useCallback((e: React.DragEvent, shift: WeekShift) => {
+    e.dataTransfer.setData("application/json", JSON.stringify({ shiftId: shift.id, fromEmployee: shift.employee_id, fromDate: shift.shift_date }));
+    e.dataTransfer.effectAllowed = "move";
+  }, []);
+
+  const handleDragOver = useCallback((e: React.DragEvent, empId: string, dateStr: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverCell(`${empId}-${dateStr}`);
+  }, []);
+
+  const handleDragLeave = useCallback(() => {
+    setDragOverCell(null);
+  }, []);
+
+  const handleDrop = useCallback(async (e: React.DragEvent, targetEmpId: string, targetDate: string, targetEmpName: string) => {
+    e.preventDefault();
+    setDragOverCell(null);
+
+    try {
+      const data = JSON.parse(e.dataTransfer.getData("application/json"));
+      const { shiftId, fromEmployee, fromDate } = data;
+
+      // No change
+      if (fromEmployee === targetEmpId && fromDate === targetDate) return;
+
+      const updates: Record<string, string> = {};
+      if (fromDate !== targetDate) updates.shift_date = targetDate;
+      if (fromEmployee !== targetEmpId) updates.employee_id = targetEmpId;
+
+      const { error } = await (supabase as any)
+        .from("employee_shifts")
+        .update(updates)
+        .eq("id", shiftId);
+
+      if (error) throw error;
+
+      const action = fromEmployee !== targetEmpId
+        ? `Shift reassigned to ${targetEmpName}`
+        : `Shift moved to ${format(new Date(targetDate + "T00:00:00"), "EEE, MMM d")}`;
+
+      toast({ title: action });
+      queryClient.invalidateQueries({ queryKey: ["shift_week_view"] });
+    } catch (err) {
+      toast({ title: "Failed to move shift", variant: "destructive" });
+    }
+  }, [queryClient]);
 
   const NAME_COL_W = 160;
 
@@ -242,10 +287,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
             {days.map((_, i) => {
               const isToday = dayStrs[i] === todayStr;
               return (
-                <div
-                  key={i}
-                  className={`flex-1 border-r border-calendar-border last:border-r-0 ${isToday ? "bg-primary/5" : ""}`}
-                />
+                <div key={i} className={`flex-1 border-r border-calendar-border last:border-r-0 ${isToday ? "bg-primary/5" : ""}`} />
               );
             })}
           </div>
@@ -258,10 +300,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
             {days.map((_, i) => {
               const isToday = dayStrs[i] === todayStr;
               return (
-                <div
-                  key={i}
-                  className={`flex-1 border-r border-calendar-border last:border-r-0 ${isToday ? "bg-primary/5" : ""}`}
-                />
+                <div key={i} className={`flex-1 border-r border-calendar-border last:border-r-0 ${isToday ? "bg-primary/5" : ""}`} />
               );
             })}
           </div>
@@ -273,7 +312,6 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
 
             return (
               <div key={group.role}>
-                {/* Role header row */}
                 <button
                   onClick={() => toggleRole(group.role)}
                   className={`w-full flex items-center border-b border-calendar-border hover:bg-muted/20 transition-colors ${bgColor}`}
@@ -309,6 +347,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                       const isToday = dateStr === todayStr;
                       const isPast = dateStr < todayStr;
                       const dayShifts = emp.shifts.get(dateStr) || [];
+                      const isDropTarget = dragOverCell === `${emp.id}-${dateStr}`;
 
                       return (
                         <div
@@ -316,9 +355,14 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                           onClick={() => {
                             if (dayShifts.length === 0 && !isPast) handleCellClick(day, emp.id, emp.name);
                           }}
-                          className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 ${
+                          onDragOver={!isPast ? (e) => handleDragOver(e, emp.id, dateStr) : undefined}
+                          onDragLeave={handleDragLeave}
+                          onDrop={!isPast ? (e) => handleDrop(e, emp.id, dateStr, emp.name) : undefined}
+                          className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 transition-colors ${
                             isToday ? "bg-primary/5" : ""
-                          } ${isPast ? "opacity-40" : ""} ${dayShifts.length === 0 && !isPast ? "cursor-pointer hover:bg-muted/20 transition-colors" : ""}`}
+                          } ${isPast ? "opacity-40" : ""} ${
+                            isDropTarget ? "bg-primary/10 ring-2 ring-inset ring-primary/30" : ""
+                          } ${dayShifts.length === 0 && !isPast ? "cursor-pointer hover:bg-muted/20" : ""}`}
                         >
                           {dayShifts.map((s) => {
                             const shiftRole = s.job_type || s.shift_type || group.role;
@@ -326,13 +370,15 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                               ? { bg: "bg-muted/20", border: "border-border/30", text: "text-muted-foreground", textSub: "text-muted-foreground/70" }
                               : getShiftBlockColor(shiftRole);
                             return (
-                              <button
+                              <div
                                 key={s.id}
+                                draggable={!isPast}
+                                onDragStart={!isPast ? (e) => handleDragStart(e, s) : undefined}
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleShiftClick(s.id);
                                 }}
-                                className={`w-full text-left rounded-md px-2 py-1.5 transition-colors border ${colors.bg} ${colors.border}`}
+                                className={`w-full text-left rounded-md px-2 py-1.5 transition-colors border cursor-grab active:cursor-grabbing ${colors.bg} ${colors.border}`}
                               >
                                 <span className={`text-[10px] font-medium block truncate ${colors.text}`}>
                                   {shiftRole}
@@ -340,7 +386,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                                 <span className={`text-[10px] block truncate ${colors.textSub}`}>
                                   {formatTime12(s.start_time)}-{formatTime12(s.end_time)}
                                 </span>
-                              </button>
+                              </div>
                             );
                           })}
                         </div>
@@ -356,12 +402,10 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
 
       {/* Mobile: stacked role groups */}
       <div className="md:hidden flex flex-col gap-3">
-        {/* Events */}
         <div className="rounded-xl bg-card/50 border border-border/40 px-4 py-3">
           <span className="text-sm font-semibold text-foreground">Events</span>
           <p className="text-[11px] text-muted-foreground mt-0.5">No events</p>
         </div>
-        {/* Open Shifts */}
         <div className="rounded-xl bg-card/50 border border-border/40 px-4 py-3">
           <span className="text-sm font-semibold text-foreground">Open Shifts</span>
           <p className="text-[11px] text-muted-foreground mt-0.5">No open shifts</p>
@@ -403,9 +447,9 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                                 <button
                                   key={s.id}
                                   onClick={() => handleShiftClick(s.id)}
-                                  className="rounded-md bg-green-500/10 border border-green-500/20 px-2 py-0.5 hover:bg-green-500/20 transition-colors"
+                                  className="rounded-md bg-muted/30 border border-border/40 px-2 py-0.5 hover:bg-muted/50 transition-colors"
                                 >
-                                  <span className="text-[10px] text-green-700 dark:text-green-400">
+                                  <span className="text-[10px] text-muted-foreground">
                                     {format(day, "EEE")} {s.start_time?.slice(0, 5)}-{s.end_time?.slice(0, 5)}
                                   </span>
                                 </button>

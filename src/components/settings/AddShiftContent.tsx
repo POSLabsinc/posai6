@@ -823,28 +823,28 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
 
       {/* Day Start Time Picker */}
       {showDayStartTimePicker && (
-        isMobile ? (
-          <AppleWheelTimePicker
-            isOpen={true}
-            onClose={() => setShowDayStartTimePicker(false)}
-            onConfirm={(val) => {
-              setDayStartTime(val);
-              setShowDayStartTimePicker(false);
-            }}
-            selectedTime={dayStartTime}
-          />
-        ) : (
-          <InlineTimePicker
-            isOpen={true}
-            onClose={() => setShowDayStartTimePicker(false)}
-            selectedTime={dayStartTime}
-            onTimeChange={(val) => {
-              setDayStartTime(val);
-              setShowDayStartTimePicker(false);
-            }}
-            position={getPickerPosition(dayStartTimeRef)}
-          />
-        )
+        <AppleWheelTimePicker
+          isOpen={true}
+          onClose={() => setShowDayStartTimePicker(false)}
+          onConfirm={(val) => {
+            setDayStartTime(val);
+            setShowDayStartTimePicker(false);
+          }}
+          selectedTime={dayStartTime}
+        />
+      )}
+
+      {/* Day End Time Picker */}
+      {showDayEndTimePicker && (
+        <AppleWheelTimePicker
+          isOpen={true}
+          onClose={() => setShowDayEndTimePicker(false)}
+          onConfirm={(val) => {
+            setDayEndTime(val);
+            setShowDayEndTimePicker(false);
+          }}
+          selectedTime={dayEndTime}
+        />
       )}
 
       {/* Day End Time Picker */}
@@ -864,10 +864,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
             isOpen={true}
             onClose={() => setShowDayEndTimePicker(false)}
             selectedTime={dayEndTime}
-            onTimeChange={(val) => {
-              setDayEndTime(val);
-              setShowDayEndTimePicker(false);
-            }}
+            onTimeChange={(val) => setDayEndTime(val)}
             position={getPickerPosition(dayEndTimeRef)}
           />
         )

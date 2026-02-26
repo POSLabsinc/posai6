@@ -1,10 +1,9 @@
 import { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownAZ, Mic } from "lucide-react";
-import { format, addWeeks, subWeeks, startOfWeek, differenceInMinutes, parseISO } from "date-fns";
+import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays } from "lucide-react";
+import { format, addWeeks, subWeeks, startOfWeek, endOfWeek } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import { useEmployees } from "@/hooks/use-employees";
-import { useWeeklyShifts, getWeekDays } from "@/hooks/use-weekly-shifts";
+import { useWeeklyShifts } from "@/hooks/use-weekly-shifts";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ShiftContentProps {
@@ -12,6 +11,46 @@ interface ShiftContentProps {
   onBack?: () => void;
   onAIClick?: () => void;
 }
+
+// Mock shift card data for the card-based view
+const mockShiftCards = [
+  {
+    id: "1",
+    name: "First Shift",
+    badge: "Opening",
+    badgeColor: "text-orange-400 bg-orange-400/15",
+    timeRange: "9:00 AM - 2:00 PM",
+    dateRange: "20 Nov 24 - 20 Nov 25",
+    recurring: "Monday - Friday",
+    avatars: ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg", "/placeholder.svg"],
+    extraCount: 2,
+  },
+  {
+    id: "2",
+    name: "Weekday Shift",
+    badge: "Afternoon",
+    badgeColor: "text-blue-400 bg-blue-400/15",
+    timeRange: "2:00 AM - 5:00 PM",
+    dateRange: "20 Nov 24 - 20 Nov 25",
+    recurring: "Weekend",
+    avatars: ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg"],
+    extraCount: 0,
+  },
+  {
+    id: "3",
+    name: "First Shift",
+    badge: "Evening",
+    badgeColor: "text-purple-400 bg-purple-400/15",
+    timeRange: "6:00 AM - 10:00 PM",
+    dateRange: "20 Nov 24 - 20 Nov 25",
+    recurring: "Tue, Wed, Thur",
+    avatars: ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg", "/placeholder.svg"],
+    extraCount: 4,
+  },
+];
+
+// Repeat for demo
+const allShiftCards = [...mockShiftCards, ...mockShiftCards, ...mockShiftCards];
 
 const ShiftContent = ({
   showHeader = true,
@@ -21,56 +60,34 @@ const ShiftContent = ({
   const navigate = useNavigate();
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedRoles, setSelectedRoles] = useState<string[]>([]);
-  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
-  const [sortAsc, setSortAsc] = useState(true);
-  
+  const [showJobTypeDropdown, setShowJobTypeDropdown] = useState(false);
+  const [showShiftDropdown, setShowShiftDropdown] = useState(false);
+  const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
+  const [selectedShifts, setSelectedShifts] = useState<string[]>([]);
 
-  const { data: employees = [] } = useEmployees(false);
-  const { data: shifts = [] } = useWeeklyShifts(currentWeek);
-
-  const weekDays = useMemo(() => getWeekDays(currentWeek), [currentWeek]);
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
+  const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });
 
-  const roles = ["Server", "Manager", "Host", "Admin"];
+  const jobTypes = ["Server", "Manager", "Host", "Admin"];
+  const shiftTypes = ["Opening", "Afternoon", "Evening"];
 
-  const toggleRole = (role: string) => {
-    setSelectedRoles((prev) =>
-      prev.includes(role) ? prev.filter((r) => r !== role) : [...prev, role]
+  const toggleJobType = (jt: string) => {
+    setSelectedJobTypes((prev) =>
+      prev.includes(jt) ? prev.filter((r) => r !== jt) : [...prev, jt]
     );
   };
 
-  const filteredEmployees = employees
-    .filter((e) => {
-      if (selectedRoles.length > 0 && !selectedRoles.includes(e.role)) return false;
-      if (searchQuery && !e.full_name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
-      return true;
-    })
-    .sort((a, b) => sortAsc ? a.full_name.localeCompare(b.full_name) : b.full_name.localeCompare(a.full_name));
-
-  const getShiftForDay = (employeeId: string, day: Date) => {
-    const dateStr = format(day, "yyyy-MM-dd");
-    return shifts.find((s) => s.employee_id === employeeId && s.shift_date === dateStr);
+  const toggleShift = (s: string) => {
+    setSelectedShifts((prev) =>
+      prev.includes(s) ? prev.filter((r) => r !== s) : [...prev, s]
+    );
   };
 
-  const formatShiftHours = (shift: any) => {
-    if (!shift) return null;
-    // If it has start_time/end_time (scheduled shift), show those
-    if (shift.start_time && shift.end_time) {
-      return `${shift.start_time.replace(/:00\s/, ' ')} - ${shift.end_time.replace(/:00\s/, ' ')}`;
-    }
-    // Fallback to clock_in/clock_out
-    if (!shift.clock_in) return null;
-    if (!shift.clock_out) return "In";
-    const mins = differenceInMinutes(parseISO(shift.clock_out), parseISO(shift.clock_in)) - (shift.break_minutes || 0);
-    const hrs = Math.floor(mins / 60);
-    const remainMins = mins % 60;
-    return remainMins > 0 ? `${hrs}h${remainMins}m` : `${hrs}h`;
-  };
-
-  const getInitials = (name: string) => {
-    return name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
-  };
+  const filteredCards = allShiftCards.filter((card) => {
+    if (searchQuery && !card.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    if (selectedShifts.length > 0 && !selectedShifts.includes(card.badge)) return false;
+    return true;
+  });
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
@@ -103,7 +120,6 @@ const ShiftContent = ({
 
         {/* Search + Add row */}
         <div className="flex items-center gap-2 mb-4">
-          {/* Search bar */}
           <div className="flex-1 min-w-[140px] rounded-full bg-neutral-800/60 px-4 py-3 flex items-center gap-3">
             <Search className="h-5 w-5 flex-shrink-0 text-neutral-500" />
             <input
@@ -115,42 +131,72 @@ const ShiftContent = ({
             />
             <Mic className="h-5 w-5 flex-shrink-0 text-neutral-500" />
           </div>
-
-          {/* Add button - right side */}
           <button onClick={() => navigate("/settings/workforce/shift/add")} className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity">
             <Plus className="h-5 w-5" />
             <span className="text-sm font-medium">Add</span>
           </button>
         </div>
 
-        {/* Job Types + Date (left) | AZ (right) row */}
-        <div className="flex items-center gap-2 mb-4">
-          {/* Job Types */}
+        {/* Filters row: Job Type, Shift, Date Nav, Sort */}
+        <div className="flex items-center gap-2 mb-5 flex-wrap">
+          {/* Job Type dropdown */}
           <div className="relative">
             <button
-              onClick={() => setShowRoleDropdown(!showRoleDropdown)}
+              onClick={() => { setShowJobTypeDropdown(!showJobTypeDropdown); setShowShiftDropdown(false); }}
               className={`h-10 rounded-full px-4 flex items-center gap-2 border text-sm font-medium transition-colors ${
-                selectedRoles.length > 0
+                selectedJobTypes.length > 0
                   ? "bg-foreground text-background border-foreground"
                   : "bg-neutral-800/60 text-foreground border-neutral-700/50"
               }`}
             >
-              Job Types {selectedRoles.length > 0 && `(${selectedRoles.length})`}
+              Job Type {selectedJobTypes.length > 0 && `(${selectedJobTypes.length})`}
               <ChevronRight className="w-3.5 h-3.5 rotate-90" />
             </button>
-            {showRoleDropdown && (
+            {showJobTypeDropdown && (
               <div className="absolute top-12 left-0 z-50 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-lg py-1 min-w-[140px]">
-                {roles.map((role) => (
+                {jobTypes.map((jt) => (
                   <button
-                    key={role}
-                    onClick={() => toggleRole(role)}
+                    key={jt}
+                    onClick={() => toggleJobType(jt)}
                     className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                      selectedRoles.includes(role)
+                      selectedJobTypes.includes(jt)
                         ? "text-foreground bg-neutral-800"
                         : "text-neutral-400 hover:text-foreground hover:bg-neutral-800/50"
                     }`}
                   >
-                    {role}
+                    {jt}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Shift dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => { setShowShiftDropdown(!showShiftDropdown); setShowJobTypeDropdown(false); }}
+              className={`h-10 rounded-full px-4 flex items-center gap-2 border text-sm font-medium transition-colors ${
+                selectedShifts.length > 0
+                  ? "bg-foreground text-background border-foreground"
+                  : "bg-neutral-800/60 text-foreground border-neutral-700/50"
+              }`}
+            >
+              Shift {selectedShifts.length > 0 && `(${selectedShifts.length})`}
+              <ChevronRight className="w-3.5 h-3.5 rotate-90" />
+            </button>
+            {showShiftDropdown && (
+              <div className="absolute top-12 left-0 z-50 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-lg py-1 min-w-[140px]">
+                {shiftTypes.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => toggleShift(s)}
+                    className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
+                      selectedShifts.includes(s)
+                        ? "text-foreground bg-neutral-800"
+                        : "text-neutral-400 hover:text-foreground hover:bg-neutral-800/50"
+                    }`}
+                  >
+                    {s}
                   </button>
                 ))}
               </div>
@@ -166,7 +212,7 @@ const ShiftContent = ({
               <ChevronLeft className="w-4 h-4 text-foreground" />
             </button>
             <span className="text-sm font-medium text-foreground px-2 whitespace-nowrap">
-              {format(weekDays[0], "dd MMM")} – {format(weekDays[6], "dd MMM yyyy")}
+              {format(weekStart, "dd MMM")} - {format(weekEnd, "dd MMM yyyy")}
             </span>
             <button
               onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
@@ -176,123 +222,95 @@ const ShiftContent = ({
             </button>
           </div>
 
-          {/* Spacer */}
           <div className="flex-1" />
 
-          {/* Sort AZ - right corner */}
+          {/* Sort */}
           <button
-            onClick={() => setSortAsc(!sortAsc)}
             className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50"
           >
-            <ArrowDownAZ className={`w-5 h-5 text-foreground transition-transform ${!sortAsc ? "scale-y-[-1]" : ""}`} />
+            <ArrowDownUp className="w-5 h-5 text-foreground" />
           </button>
         </div>
 
-        {/* Weekly Calendar Grid */}
-        <div className="rounded-2xl border border-neutral-700/30 overflow-hidden bg-neutral-900/40">
-          {/* Header row */}
-          <div className="grid grid-cols-[minmax(120px,1.5fr)_repeat(7,1fr)] border-b border-neutral-700/30">
-            <div className="px-3 py-3 text-xs font-semibold text-muted-foreground tracking-wide">
-              Employees
-            </div>
-            {weekDays.map((day) => (
-              <div
-                key={day.toISOString()}
-                className={`px-1 py-3 text-center border-l border-neutral-700/30 ${
-                  format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd")
-                    ? "bg-primary/10"
-                    : ""
-                }`}
-              >
-                <div className="text-xs font-semibold text-foreground">{format(day, "EEE")}</div>
-                <div className="text-[10px] text-muted-foreground">{format(day, "MM/dd")}</div>
-              </div>
+        {/* Shift Cards Grid */}
+        {filteredCards.length === 0 ? (
+          <div className="px-4 py-12 text-center text-muted-foreground text-sm">
+            No shifts found
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredCards.map((card, idx) => (
+              <ShiftCard key={`${card.id}-${idx}`} card={card} onClick={() => navigate(`/settings/workforce/shift/edit?id=${card.id}`)} />
             ))}
           </div>
-
-          {/* Employee rows */}
-          {filteredEmployees.length === 0 ? (
-            <div className="px-4 py-8 text-center text-muted-foreground text-sm">
-              No employees found
-            </div>
-          ) : (
-            filteredEmployees.map((employee, idx) => (
-              <div
-                key={employee.id}
-                className={`grid grid-cols-[minmax(120px,1.5fr)_repeat(7,1fr)] ${
-                  idx < filteredEmployees.length - 1 ? "border-b border-neutral-700/20" : ""
-                } hover:bg-neutral-800/30 transition-colors`}
-              >
-                {/* Employee info */}
-                <div className="px-3 py-3 flex items-center gap-2.5 min-w-0">
-                  <Avatar className="w-8 h-8 flex-shrink-0">
-                    {employee.avatar_url && <AvatarImage src={employee.avatar_url} />}
-                    <AvatarFallback className="text-[10px] font-semibold bg-neutral-700 text-foreground">
-                      {getInitials(employee.full_name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">{employee.full_name}</p>
-                    <p className="text-[10px] text-muted-foreground">{employee.role}</p>
-                  </div>
-                </div>
-
-                {/* Day cells */}
-                {weekDays.map((day) => {
-                  const shift = getShiftForDay(employee.id, day);
-                  const hours = formatShiftHours(shift);
-                  const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
-
-                  return (
-                    <button
-                      key={day.toISOString()}
-                      onClick={() => {
-                        const dateStr = format(day, "yyyy-MM-dd");
-                        if (shift) {
-                          navigate(`/settings/workforce/shift/edit?id=${shift.id}`);
-                        } else {
-                          navigate(`/settings/workforce/shift/add?employeeId=${employee.id}&date=${dateStr}`);
-                        }
-                      }}
-                      className={`flex items-center justify-center border-l border-neutral-700/30 px-1 py-3 cursor-pointer hover:bg-neutral-800/50 active:opacity-70 transition-colors ${
-                        isToday ? "bg-primary/5" : ""
-                      }`}
-                    >
-                      {hours ? (
-                        <div className="flex flex-col items-center gap-0.5">
-                          <span
-                            className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full leading-tight ${
-                              hours === "In"
-                                ? "bg-green-500/20 text-green-400"
-                                : "bg-primary/15 text-primary"
-                            }`}
-                          >
-                            {hours}
-                          </span>
-                          {shift?.shift_type && (
-                            <span className="text-[8px] text-muted-foreground truncate max-w-full">{shift.shift_type}</span>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-neutral-600">–</span>
-                      )}
-                    </button>
-                  );
-                })}
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Add shift button */}
+        )}
       </div>
 
-      {/* Close role dropdown on outside click */}
-      {showRoleDropdown && (
-        <div className="fixed inset-0 z-40" onClick={() => setShowRoleDropdown(false)} />
+      {/* Close dropdowns on outside click */}
+      {(showJobTypeDropdown || showShiftDropdown) && (
+        <div className="fixed inset-0 z-40" onClick={() => { setShowJobTypeDropdown(false); setShowShiftDropdown(false); }} />
       )}
     </div>
   );
 };
+
+interface ShiftCardData {
+  id: string;
+  name: string;
+  badge: string;
+  badgeColor: string;
+  timeRange: string;
+  dateRange: string;
+  recurring: string;
+  avatars: string[];
+  extraCount: number;
+}
+
+const ShiftCard = ({ card, onClick }: { card: ShiftCardData; onClick: () => void }) => (
+  <button
+    onClick={onClick}
+    className="w-full text-left rounded-2xl bg-neutral-800/60 border border-neutral-700/30 p-4 hover:bg-neutral-700/50 active:opacity-80 transition-all"
+  >
+    {/* Top row: name + badge */}
+    <div className="flex items-start justify-between mb-3">
+      <h3 className="text-sm font-semibold text-foreground">{card.name}</h3>
+      <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-md ${card.badgeColor}`}>
+        {card.badge}
+      </span>
+    </div>
+
+    {/* Time */}
+    <div className="flex items-center gap-2 mb-1.5">
+      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+      <span className="text-xs text-muted-foreground">{card.timeRange}</span>
+    </div>
+
+    {/* Date range */}
+    <div className="flex items-center gap-2 mb-1.5">
+      <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+      <span className="text-xs text-muted-foreground">{card.dateRange}</span>
+    </div>
+
+    {/* Recurring */}
+    <p className="text-xs text-muted-foreground mb-3 pl-[22px]">{card.recurring}</p>
+
+    {/* Avatars */}
+    <div className="flex items-center -space-x-2">
+      {card.avatars.map((src, i) => (
+        <Avatar key={i} className="w-8 h-8 border-2 border-neutral-800">
+          <AvatarImage src={src} />
+          <AvatarFallback className="text-[10px] font-semibold bg-neutral-700 text-foreground">
+            {String.fromCharCode(65 + i)}
+          </AvatarFallback>
+        </Avatar>
+      ))}
+      {card.extraCount > 0 && (
+        <div className="w-8 h-8 rounded-full bg-neutral-700 border-2 border-neutral-800 flex items-center justify-center">
+          <span className="text-[10px] font-semibold text-foreground">+{card.extraCount}</span>
+        </div>
+      )}
+    </div>
+  </button>
+);
 
 export default ShiftContent;

@@ -1,219 +1,149 @@
-import { useState } from "react";
-import { format } from "date-fns";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
-import { RoleGroup, ScheduleEmployee, ScheduleShift, getShiftCardColor } from "@/hooks/use-weekly-schedule";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { format, startOfWeek, addDays } from "date-fns";
+import { ShiftCardData } from "@/hooks/use-shift-cards";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Clock } from "lucide-react";
 
 interface ShiftCalendarViewProps {
-  roleGroups: RoleGroup[];
-  weekDays: Date[];
-  totalShiftCount: number;
+  cards: ShiftCardData[];
+  currentWeek: Date;
+  onShiftClick: (card: ShiftCardData) => void;
 }
 
-const formatTime12 = (time: string) => {
-  if (!time) return "";
-  // If already in AM/PM format, return as-is but lowercase
-  const ampmCheck = time.trim().match(/^(\d{1,2}:\d{2})\s*(AM|PM|am|pm)$/i);
-  if (ampmCheck) {
-    return `${ampmCheck[1]} ${ampmCheck[2].toLowerCase()}`;
-  }
-  try {
-    const [h, m] = time.split(":").map(Number);
-    const ampm = h >= 12 ? "pm" : "am";
-    const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
-    return `${h12}:${m.toString().padStart(2, "0")} ${ampm}`;
-  } catch {
-    return time;
-  }
-};
+const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarViewProps) => {
+  const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
+  const days = Array.from({ length: 7 }, (_, i) => addDays(weekStart, i));
+  const dayAbbrs = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
-const ShiftCalendarView = ({ roleGroups, weekDays, totalShiftCount }: ShiftCalendarViewProps) => {
-  const todayStr = format(new Date(), "yyyy-MM-dd");
+  // Map cards to days based on their `days` array
+  const getCardsForDay = (dayAbbr: string) =>
+    cards.filter((card) => (card.days || []).includes(dayAbbr));
+
+  const getInitials = (name: string) =>
+    name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <div className="w-full">
-      {/* Shift count */}
-      <p className="text-xs text-muted-foreground mb-3">
-        Showing {totalShiftCount} shifts
-      </p>
-
-      <div className="w-full overflow-x-auto scrollbar-hide">
-        <div className="min-w-[900px]">
-          {/* Header row */}
-          <div className="grid grid-cols-[180px_repeat(7,1fr)] border-b border-border/50">
-            <div className="px-4 py-3 text-sm font-semibold text-foreground sticky left-0 bg-background z-10">
-              Team Member
-            </div>
-            {weekDays.map((day) => {
-              const dayStr = format(day, "yyyy-MM-dd");
-              const isToday = dayStr === todayStr;
-              return (
-                <div
-                  key={dayStr}
-                  className={`px-2 py-3 text-center ${isToday ? "bg-neutral-900 dark:bg-neutral-900" : ""}`}
-                >
-                  <span className={`text-sm font-semibold ${isToday ? "text-foreground" : "text-foreground"}`}>
-                    {format(day, "EEE")} {format(day, "d")}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Events row */}
-          <div className="grid grid-cols-[180px_repeat(7,1fr)] border-b border-border/30">
-            <div className="px-4 py-4 text-sm font-medium text-foreground sticky left-0 bg-background z-10">
-              Events
-            </div>
-            {weekDays.map((day) => {
-              const dayStr = format(day, "yyyy-MM-dd");
-              const isToday = dayStr === todayStr;
-              return (
-                <div key={dayStr} className={`px-2 py-4 border-l border-border/20 ${isToday ? "bg-blue-50/50 dark:bg-blue-950/10" : ""}`} />
-              );
-            })}
-          </div>
-
-          {/* Open Shifts row */}
-          <div className="grid grid-cols-[180px_repeat(7,1fr)] border-b border-border/30">
-            <div className="px-4 py-4 text-sm font-medium text-foreground sticky left-0 bg-background z-10">
-              Open Shifts
-            </div>
-            {weekDays.map((day) => {
-              const dayStr = format(day, "yyyy-MM-dd");
-              const isToday = dayStr === todayStr;
-              return (
-                <div key={dayStr} className={`px-2 py-4 border-l border-border/20 ${isToday ? "bg-blue-50/50 dark:bg-blue-950/10" : ""}`} />
-              );
-            })}
-          </div>
-
-          {/* Role groups */}
-          {roleGroups.map((group) => (
-            <RoleGroupRow key={group.role} group={group} weekDays={weekDays} todayStr={todayStr} />
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-};
-
-const RoleGroupRow = ({
-  group,
-  weekDays,
-  todayStr,
-}: {
-  group: RoleGroup;
-  weekDays: Date[];
-  todayStr: string;
-}) => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      {/* Role summary row */}
-      <CollapsibleTrigger asChild>
-        <button className={`w-full grid grid-cols-[180px_repeat(7,1fr)] border-b border-border/30 ${group.color} hover:opacity-90 transition-opacity cursor-pointer`}>
-          <div className="px-4 py-3 flex items-center gap-2 sticky left-0 z-10">
-            {isOpen ? (
-              <ChevronDown className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            ) : (
-              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            )}
-            <span className="text-sm font-bold text-foreground">{group.role}</span>
-            <span className="text-xs text-muted-foreground">{group.employeeCount} employees</span>
-            <span className="text-xs text-muted-foreground">{group.totalHours}h scheduled</span>
-          </div>
-          {/* Empty day cells to keep grid alignment */}
-          {weekDays.map((day) => (
-            <div key={format(day, "yyyy-MM-dd")} className="border-l border-border/10" />
-          ))}
-        </button>
-      </CollapsibleTrigger>
-
-      <CollapsibleContent>
-        <AnimatePresence>
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              transition={{ duration: 0.2 }}
+    <div className="w-full overflow-x-auto scrollbar-hide">
+      {/* Desktop / Tablet: full 7-column grid */}
+      <div className="hidden md:grid grid-cols-7 gap-0 border border-neutral-700/30 rounded-2xl overflow-hidden bg-neutral-800/30">
+        {/* Day headers */}
+        {days.map((day, i) => {
+          const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
+          return (
+            <div
+              key={i}
+              className={`px-3 py-3 text-center border-b border-neutral-700/30 ${i < 6 ? "border-r border-neutral-700/30" : ""}`}
             >
-              {group.employees.map((emp) => (
-                <EmployeeRow key={emp.id} employee={emp} weekDays={weekDays} todayStr={todayStr} />
+              <span className="text-xs text-muted-foreground uppercase tracking-wide">{dayAbbrs[i]}</span>
+              <div className={`mt-1 text-sm font-semibold ${isToday ? "text-orange-400" : "text-foreground"}`}>
+                {format(day, "dd")}
+              </div>
+            </div>
+          );
+        })}
+
+        {/* Day cells */}
+        {days.map((day, i) => {
+          const dayCards = getCardsForDay(dayAbbrs[i]);
+          return (
+            <div
+              key={`cell-${i}`}
+              className={`min-h-[140px] p-2 ${i < 6 ? "border-r border-neutral-700/30" : ""} flex flex-col gap-1.5`}
+            >
+              {dayCards.length === 0 && (
+                <span className="text-[11px] text-neutral-600 mt-4 text-center">—</span>
+              )}
+              {dayCards.map((card, ci) => (
+                <CalendarShiftBlock key={`${card.id}-${ci}`} card={card} onClick={() => onShiftClick(card)} getInitials={getInitials} />
               ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </CollapsibleContent>
-    </Collapsible>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Mobile: stacked day list */}
+      <div className="md:hidden flex flex-col gap-3">
+        {days.map((day, i) => {
+          const dayCards = getCardsForDay(dayAbbrs[i]);
+          const isToday = format(day, "yyyy-MM-dd") === format(new Date(), "yyyy-MM-dd");
+          return (
+            <div key={i}>
+              <div className="flex items-center gap-2 mb-2 px-1">
+                <span className={`text-sm font-semibold ${isToday ? "text-orange-400" : "text-foreground"}`}>
+                  {dayAbbrs[i]}
+                </span>
+                <span className="text-sm text-muted-foreground">{format(day, "dd MMM")}</span>
+              </div>
+              {dayCards.length === 0 ? (
+                <div className="rounded-xl bg-neutral-800/30 border border-neutral-700/20 px-4 py-4 text-center">
+                  <span className="text-xs text-neutral-600">No shifts</span>
+                </div>
+              ) : (
+                <div className="flex flex-col gap-2">
+                  {dayCards.map((card, ci) => (
+                    <CalendarShiftBlock key={`${card.id}-${ci}`} card={card} onClick={() => onShiftClick(card)} getInitials={getInitials} mobile />
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
-const EmployeeRow = ({
-  employee,
-  weekDays,
-  todayStr,
+const CalendarShiftBlock = ({
+  card,
+  onClick,
+  getInitials,
+  mobile,
 }: {
-  employee: ScheduleEmployee;
-  weekDays: Date[];
-  todayStr: string;
+  card: ShiftCardData;
+  onClick: () => void;
+  getInitials: (name: string) => string;
+  mobile?: boolean;
 }) => {
-  return (
-    <div className="grid grid-cols-[180px_repeat(7,1fr)] border-b border-border/20 min-h-[72px]">
-      {/* Employee info */}
-      <div className="px-4 py-3 sticky left-0 bg-background z-10 flex flex-col justify-center">
-        <div className="flex items-center gap-1">
-          <span className="text-sm font-semibold text-foreground">{employee.name}</span>
-          <span className="text-xs text-muted-foreground">{employee.role}</span>
-        </div>
-        <div className="flex items-center gap-3 mt-0.5">
-          <span className="text-xs text-muted-foreground">
-            Hours <span className="font-semibold text-foreground">{employee.totalHours}h</span>
-          </span>
-          <span className="text-xs text-muted-foreground">
-            Pay <span className="font-semibold text-foreground">${employee.totalPay.toFixed(2)}</span>
-          </span>
-        </div>
-      </div>
-
-      {/* Day cells with shift cards */}
-      {weekDays.map((day) => {
-        const dayStr = format(day, "yyyy-MM-dd");
-        const isToday = dayStr === todayStr;
-        const shifts = employee.shiftsByDay[dayStr] || [];
-
-        return (
-          <div
-            key={dayStr}
-            className={`px-1 py-2 border-l border-border/20 flex flex-col gap-1 ${isToday ? "bg-blue-50/50 dark:bg-blue-950/10" : ""}`}
-          >
-            {shifts.map((shift) => (
-              <ShiftCard key={shift.id} shift={shift} />
-            ))}
-          </div>
-        );
-      })}
-    </div>
-  );
-};
-
-const ShiftCard = ({ shift }: { shift: ScheduleShift }) => {
-  const colors = getShiftCardColor(shift.jobType);
+  const maxAvatars = mobile ? 3 : 2;
+  const visible = card.employees.slice(0, maxAvatars);
+  const extra = Math.max(0, card.employees.length - maxAvatars);
 
   return (
-    <div
-      className={`rounded-lg border px-2 py-1.5 ${colors.bg} ${colors.border} cursor-pointer hover:opacity-80 transition-opacity`}
+    <button
+      onClick={onClick}
+      className={`w-full text-left rounded-xl border transition-all active:opacity-80 hover:bg-neutral-700/40 ${
+        mobile
+          ? "bg-neutral-800/60 border-neutral-700/30 p-3"
+          : "bg-neutral-800/80 border-neutral-700/20 p-2"
+      }`}
     >
-      <div className={`text-xs font-medium ${colors.text}`}>
-        {shift.jobType}
+      <div className="flex items-center justify-between mb-1">
+        <span className={`font-semibold text-foreground ${mobile ? "text-sm" : "text-[11px]"}`}>
+          {card.name}
+        </span>
+        <span className={`font-medium px-1.5 py-0.5 rounded ${card.badgeColor} ${mobile ? "text-[11px]" : "text-[9px]"}`}>
+          {card.badge}
+        </span>
       </div>
-      <div className={`text-[11px] ${colors.text} opacity-80`}>
-        {formatTime12(shift.startTime)}-{formatTime12(shift.endTime)}
+      <div className="flex items-center gap-1 mb-1.5">
+        <Clock className={`text-muted-foreground ${mobile ? "w-3.5 h-3.5" : "w-3 h-3"}`} />
+        <span className={`text-muted-foreground ${mobile ? "text-xs" : "text-[10px]"}`}>{card.timeRange}</span>
       </div>
-    </div>
+      <div className="flex items-center -space-x-1.5">
+        {visible.map((emp) => (
+          <Avatar key={emp.id} className={`border-2 border-neutral-800 ${mobile ? "w-7 h-7" : "w-5 h-5"}`}>
+            {emp.avatar_url && <AvatarImage src={emp.avatar_url} />}
+            <AvatarFallback className={`font-semibold bg-neutral-700 text-foreground ${mobile ? "text-[9px]" : "text-[7px]"}`}>
+              {getInitials(emp.name)}
+            </AvatarFallback>
+          </Avatar>
+        ))}
+        {extra > 0 && (
+          <div className={`rounded-full bg-neutral-700 border-2 border-neutral-800 flex items-center justify-center ${mobile ? "w-7 h-7" : "w-5 h-5"}`}>
+            <span className={`font-semibold text-foreground ${mobile ? "text-[9px]" : "text-[7px]"}`}>+{extra}</span>
+          </div>
+        )}
+      </div>
+    </button>
   );
 };
 

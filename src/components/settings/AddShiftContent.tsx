@@ -7,7 +7,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar } from "@/components/ui/calendar";
 import { CompactTimePicker } from "@/components/ui/compact-time-picker";
-import { InlineTimePicker } from "@/components/ui/inline-time-picker";
+
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
@@ -163,7 +163,6 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const [activeBreakDurationPicker, setActiveBreakDurationPicker] = useState<number | null>(null);
 
   const dateRef = useRef<HTMLButtonElement>(null);
-  const breakTimeRef = useRef<HTMLButtonElement>(null);
   const breakDurRef = useRef<HTMLButtonElement>(null);
 
   const selectedEmployees = employees.filter((e) => selectedEmployeeIds.includes(e.id));
@@ -662,7 +661,6 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
 
             {/* Start Break Time */}
             <button
-              ref={idx === 0 ? breakTimeRef : undefined}
               onClick={() => setActiveBreakTimePicker(activeBreakTimePicker === idx ? null : idx)}
               className="flex items-center justify-between w-full px-4 py-3.5"
             >
@@ -672,6 +670,12 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                 <Clock className="w-4 h-4 text-neutral-500 shrink-0" />
               </div>
             </button>
+            {activeBreakTimePicker === idx && (
+              <CompactTimePicker
+                selectedTime={brk.startTime}
+                onTimeChange={(val) => updateBreak(idx, "startTime", val)}
+              />
+            )}
           </div>
         ))}
 
@@ -724,19 +728,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
 
       {/* (date picker removed – inline calendar used above) */}
 
-      {/* Break Time Pickers */}
-      {activeBreakTimePicker !== null && (
-        <InlineTimePicker
-          isOpen={true}
-          onClose={() => setActiveBreakTimePicker(null)}
-          selectedTime={breaks[activeBreakTimePicker]?.startTime || "12:00 PM"}
-          onTimeChange={(val) => {
-            updateBreak(activeBreakTimePicker, "startTime", val);
-            setActiveBreakTimePicker(null);
-          }}
-          position={getPickerPosition(breakTimeRef)}
-        />
-      )}
+      {/* Break Time Pickers now inline via CompactTimePicker */}
 
       {/* Employee Multi-Select Picker */}
       {showEmployeePicker && (

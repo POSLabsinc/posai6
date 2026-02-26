@@ -1,9 +1,9 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays } from "lucide-react";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import { useWeeklyShifts } from "@/hooks/use-weekly-shifts";
+import { useShiftCards, ShiftCardData } from "@/hooks/use-shift-cards";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface ShiftContentProps {
@@ -11,46 +11,6 @@ interface ShiftContentProps {
   onBack?: () => void;
   onAIClick?: () => void;
 }
-
-// Mock shift card data for the card-based view
-const mockShiftCards = [
-  {
-    id: "1",
-    name: "First Shift",
-    badge: "Opening",
-    badgeColor: "text-orange-400 bg-orange-400/15",
-    timeRange: "9:00 AM - 2:00 PM",
-    dateRange: "20 Nov 24 - 20 Nov 25",
-    recurring: "Monday - Friday",
-    avatars: ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg", "/placeholder.svg"],
-    extraCount: 2,
-  },
-  {
-    id: "2",
-    name: "Weekday Shift",
-    badge: "Afternoon",
-    badgeColor: "text-blue-400 bg-blue-400/15",
-    timeRange: "2:00 AM - 5:00 PM",
-    dateRange: "20 Nov 24 - 20 Nov 25",
-    recurring: "Weekend",
-    avatars: ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg"],
-    extraCount: 0,
-  },
-  {
-    id: "3",
-    name: "First Shift",
-    badge: "Evening",
-    badgeColor: "text-purple-400 bg-purple-400/15",
-    timeRange: "6:00 AM - 10:00 PM",
-    dateRange: "20 Nov 24 - 20 Nov 25",
-    recurring: "Tue, Wed, Thur",
-    avatars: ["/placeholder.svg", "/placeholder.svg", "/placeholder.svg", "/placeholder.svg"],
-    extraCount: 4,
-  },
-];
-
-// Repeat for demo
-const allShiftCards = [...mockShiftCards, ...mockShiftCards, ...mockShiftCards];
 
 const ShiftContent = ({
   showHeader = true,
@@ -68,8 +28,10 @@ const ShiftContent = ({
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });
 
+  const { data: shiftCards = [], isLoading } = useShiftCards(currentWeek, searchQuery, selectedShifts, selectedJobTypes);
+
   const jobTypes = ["Server", "Manager", "Host", "Admin"];
-  const shiftTypes = ["Opening", "Afternoon", "Evening"];
+  const shiftTypes = ["Opening", "Afternoon", "Evening", "Regular"];
 
   const toggleJobType = (jt: string) => {
     setSelectedJobTypes((prev) =>
@@ -83,7 +45,8 @@ const ShiftContent = ({
     );
   };
 
-  const filteredCards = allShiftCards.filter((card) => {
+  // Client-side filtering
+  const filteredCards = shiftCards.filter((card) => {
     if (searchQuery && !card.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     if (selectedShifts.length > 0 && !selectedShifts.includes(card.badge)) return false;
     return true;
@@ -137,7 +100,7 @@ const ShiftContent = ({
           </button>
         </div>
 
-        {/* Filters row: Job Type, Shift, Date Nav, Sort */}
+        {/* Filters row */}
         <div className="flex items-center gap-2 mb-5 flex-wrap">
           {/* Job Type dropdown */}
           <div className="relative">
@@ -225,17 +188,19 @@ const ShiftContent = ({
           <div className="flex-1" />
 
           {/* Sort */}
-          <button
-            className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50"
-          >
+          <button className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50">
             <ArrowDownUp className="w-5 h-5 text-foreground" />
           </button>
         </div>
 
         {/* Shift Cards Grid */}
-        {filteredCards.length === 0 ? (
+        {isLoading ? (
           <div className="px-4 py-12 text-center text-muted-foreground text-sm">
-            No shifts found
+            Loading shifts...
+          </div>
+        ) : filteredCards.length === 0 ? (
+          <div className="px-4 py-12 text-center text-muted-foreground text-sm">
+            No shifts found for this week
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -254,63 +219,63 @@ const ShiftContent = ({
   );
 };
 
-interface ShiftCardData {
-  id: string;
-  name: string;
-  badge: string;
-  badgeColor: string;
-  timeRange: string;
-  dateRange: string;
-  recurring: string;
-  avatars: string[];
-  extraCount: number;
-}
+const ShiftCard = ({ card, onClick }: { card: ShiftCardData; onClick: () => void }) => {
+  const maxAvatars = 4;
+  const visibleEmployees = card.employees.slice(0, maxAvatars);
+  const extraCount = Math.max(0, card.employees.length - maxAvatars);
 
-const ShiftCard = ({ card, onClick }: { card: ShiftCardData; onClick: () => void }) => (
-  <button
-    onClick={onClick}
-    className="w-full text-left rounded-2xl bg-neutral-800/60 border border-neutral-700/30 p-4 hover:bg-neutral-700/50 active:opacity-80 transition-all"
-  >
-    {/* Top row: name + badge */}
-    <div className="flex items-start justify-between mb-3">
-      <h3 className="text-sm font-semibold text-foreground">{card.name}</h3>
-      <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-md ${card.badgeColor}`}>
-        {card.badge}
-      </span>
-    </div>
+  const getInitials = (name: string) =>
+    name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2);
 
-    {/* Time */}
-    <div className="flex items-center gap-2 mb-1.5">
-      <Clock className="w-3.5 h-3.5 text-muted-foreground" />
-      <span className="text-xs text-muted-foreground">{card.timeRange}</span>
-    </div>
+  return (
+    <button
+      onClick={onClick}
+      className="w-full text-left rounded-2xl bg-neutral-800/60 border border-neutral-700/30 p-4 hover:bg-neutral-700/50 active:opacity-80 transition-all"
+    >
+      {/* Top row: name + badge */}
+      <div className="flex items-start justify-between mb-3">
+        <h3 className="text-sm font-semibold text-foreground">{card.name}</h3>
+        <span className={`text-[11px] font-medium px-2.5 py-0.5 rounded-md ${card.badgeColor}`}>
+          {card.badge}
+        </span>
+      </div>
 
-    {/* Date range */}
-    <div className="flex items-center gap-2 mb-1.5">
-      <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
-      <span className="text-xs text-muted-foreground">{card.dateRange}</span>
-    </div>
+      {/* Time */}
+      <div className="flex items-center gap-2 mb-1.5">
+        <Clock className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-xs text-muted-foreground">{card.timeRange}</span>
+      </div>
 
-    {/* Recurring */}
-    <p className="text-xs text-muted-foreground mb-3 pl-[22px]">{card.recurring}</p>
+      {/* Date range */}
+      <div className="flex items-center gap-2 mb-1.5">
+        <CalendarDays className="w-3.5 h-3.5 text-muted-foreground" />
+        <span className="text-xs text-muted-foreground">{card.dateRange}</span>
+      </div>
 
-    {/* Avatars */}
-    <div className="flex items-center -space-x-2">
-      {card.avatars.map((src, i) => (
-        <Avatar key={i} className="w-8 h-8 border-2 border-neutral-800">
-          <AvatarImage src={src} />
-          <AvatarFallback className="text-[10px] font-semibold bg-neutral-700 text-foreground">
-            {String.fromCharCode(65 + i)}
-          </AvatarFallback>
-        </Avatar>
-      ))}
-      {card.extraCount > 0 && (
-        <div className="w-8 h-8 rounded-full bg-neutral-700 border-2 border-neutral-800 flex items-center justify-center">
-          <span className="text-[10px] font-semibold text-foreground">+{card.extraCount}</span>
-        </div>
-      )}
-    </div>
-  </button>
-);
+      {/* Recurring */}
+      <p className="text-xs text-muted-foreground mb-3 pl-[22px]">{card.recurring}</p>
+
+      {/* Avatars */}
+      <div className="flex items-center -space-x-2">
+        {visibleEmployees.map((emp) => (
+          <Avatar key={emp.id} className="w-8 h-8 border-2 border-neutral-800">
+            {emp.avatar_url && <AvatarImage src={emp.avatar_url} />}
+            <AvatarFallback className="text-[10px] font-semibold bg-neutral-700 text-foreground">
+              {getInitials(emp.name)}
+            </AvatarFallback>
+          </Avatar>
+        ))}
+        {extraCount > 0 && (
+          <div className="w-8 h-8 rounded-full bg-neutral-700 border-2 border-neutral-800 flex items-center justify-center">
+            <span className="text-[10px] font-semibold text-foreground">+{extraCount}</span>
+          </div>
+        )}
+        {card.employees.length === 0 && (
+          <span className="text-xs text-neutral-600">No employees assigned</span>
+        )}
+      </div>
+    </button>
+  );
+};
 
 export default ShiftContent;

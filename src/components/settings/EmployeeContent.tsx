@@ -225,13 +225,13 @@ const EmployeeContent = ({
                   <div className="px-1 pt-4 pb-2">
                     <span className="text-xs font-semibold text-neutral-500">{letter}</span>
                   </div>
-                  <div className="space-y-1">
+                  <div className="space-y-2.5">
                     {grouped[letter].map((employee) => {
                       const isExpanded = expandedEmployee === employee.id;
                       const statusLabel = employee.is_archived ? "Archived" : "Working";
-                      const statusColor = employee.is_archived
-                        ? "bg-neutral-600 text-neutral-300"
-                        : "bg-emerald-500/15 text-emerald-400";
+                      const statusBg = employee.is_archived
+                        ? "bg-neutral-600/80 text-neutral-200"
+                        : "bg-neutral-700 text-foreground";
 
                       return (
                         <SwipeableSettingsItem
@@ -240,34 +240,27 @@ const EmployeeContent = ({
                           onArchive={() => handleArchive(employee)}
                           isArchived={employee.is_archived}
                         >
-                          <div className="rounded-2xl overflow-hidden transition-all duration-300">
-                            <div
-                              className={`flex items-center justify-between w-full py-3 px-3 rounded-2xl ${
-                                isExpanded ? "bg-neutral-800/70" : "bg-neutral-800/40"
-                              }`}
-                            >
-                              <div className="flex items-center gap-3">
+                          <div className="rounded-2xl overflow-hidden transition-all duration-300 border border-neutral-700/40">
+                            <div className="flex items-start justify-between w-full py-3.5 px-3.5">
+                              <div className="flex items-center gap-3.5">
                                 <img
-                                  src={employee.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.full_name)}&background=2a2a2a&color=fff&size=44&font-size=0.4&bold=true`}
+                                  src={employee.avatar_url || `https://ui-avatars.com/api/?name=${encodeURIComponent(employee.full_name)}&background=2a2a2a&color=fff&size=52&font-size=0.38&bold=true`}
                                   alt={employee.full_name}
-                                  className="w-11 h-11 rounded-full object-cover flex-shrink-0"
+                                  className="w-[52px] h-[52px] rounded-full object-cover flex-shrink-0"
                                 />
                                 <div className="text-left">
-                                  <p className="text-foreground text-sm font-semibold">
+                                  <p className="text-foreground text-[15px] font-bold leading-tight">
                                     {employee.full_name}
-                                    <span className="text-neutral-500 font-normal"> • {employee.role}</span>
+                                    <span className="text-muted-foreground font-normal text-[14px]"> • {employee.role}</span>
                                   </p>
-                                  <p className="text-neutral-500 text-xs mt-0.5">
+                                  <p className="text-muted-foreground text-[13px] mt-1">
                                     {employee.phone || employee.email || "No contact info"}
                                   </p>
                                 </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className={`text-[11px] font-semibold px-2.5 py-1 rounded-md ${statusColor}`}>
-                                  {statusLabel}
-                                </span>
-                                <ChevronRight className={`w-4 h-4 text-neutral-500 transition-transform duration-200 ${isExpanded ? "rotate-90" : ""}`} />
-                              </div>
+                              <span className={`text-[12px] font-semibold px-3 py-1.5 rounded-md whitespace-nowrap mt-0.5 ${statusBg}`}>
+                                {statusLabel}
+                              </span>
                             </div>
 
                             {isExpanded && (

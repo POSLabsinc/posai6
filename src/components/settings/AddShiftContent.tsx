@@ -1,7 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight, X, User, Search, Briefcase, Check } from "lucide-react";
-import { format, parse, eachDayOfInterval } from "date-fns";
+import { ChevronLeft, ChevronRight, X, User, Search, Check, Clock, Plus, Calendar } from "lucide-react";
+import { format } from "date-fns";
 import { useEmployees } from "@/hooks/use-employees";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,7 @@ interface AddShiftContentProps {
   onBack?: () => void;
 }
 
+/* ── Selection Popup ── */
 const SelectionPopup = ({
   title,
   options,
@@ -30,10 +31,7 @@ const SelectionPopup = ({
   <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
     <div className="absolute inset-0 bg-black/60" />
     <div className="relative" onClick={(e) => e.stopPropagation()}>
-      <button
-        onClick={onClose}
-        className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center"
-      >
+      <button onClick={onClose} className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center">
         <X className="w-4 h-4 text-foreground" />
       </button>
       <div className="bg-neutral-800 rounded-2xl w-[340px] max-h-[500px] overflow-hidden">
@@ -45,9 +43,7 @@ const SelectionPopup = ({
             <button
               key={option}
               onClick={() => onSelect(option)}
-              className={`flex items-center justify-between w-full px-4 py-3.5 active:opacity-70 transition-opacity ${
-                selected === option ? "bg-neutral-700/40" : ""
-              }`}
+              className={`flex items-center justify-between w-full px-4 py-3.5 active:opacity-70 transition-opacity ${selected === option ? "bg-neutral-700/40" : ""}`}
             >
               <span className="text-sm font-medium text-foreground">{option}</span>
               {selected === option && (
@@ -63,46 +59,98 @@ const SelectionPopup = ({
   </div>
 );
 
+/* ── Days of Week Popup ── */
+const DaysOfWeekPopup = ({
+  selected,
+  onToggle,
+  onClose,
+}: {
+  selected: string[];
+  onToggle: (day: string) => void;
+  onClose: () => void;
+}) => {
+  const allDays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={onClose}>
+      <div className="absolute inset-0 bg-black/60" />
+      <div className="relative" onClick={(e) => e.stopPropagation()}>
+        <button onClick={onClose} className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center">
+          <X className="w-4 h-4 text-foreground" />
+        </button>
+        <div className="bg-neutral-800 rounded-2xl w-[340px] max-h-[500px] overflow-hidden flex flex-col">
+          <div className="px-4 py-3 border-b border-neutral-700/50">
+            <h3 className="text-sm font-semibold text-foreground text-center">Days of the Week</h3>
+          </div>
+          <div className="overflow-y-auto max-h-[400px] scrollbar-hide">
+            {allDays.map((day) => {
+              const isSelected = selected.includes(day);
+              return (
+                <button
+                  key={day}
+                  onClick={() => onToggle(day)}
+                  className={`flex items-center gap-3 w-full px-4 py-3.5 active:opacity-70 transition-opacity ${isSelected ? "bg-neutral-700/40" : ""}`}
+                >
+                  <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? "bg-foreground border-foreground" : "border-neutral-600 bg-transparent"}`}>
+                    {isSelected && <Check className="w-3 h-3 text-background" />}
+                  </div>
+                  <span className="text-sm font-medium text-foreground">{day}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="px-4 py-3 border-t border-neutral-700/50">
+            <button onClick={onClose} className="w-full py-2.5 rounded-xl bg-foreground text-background text-sm font-semibold active:opacity-80 transition-opacity">
+              Done
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── Break Interface ── */
+interface ShiftBreak {
+  name: string;
+  durationH: string;
+  durationM: string;
+  startTime: string;
+}
+
 const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { data: employees = [] } = useEmployees(false);
 
-  // Pre-fill from URL params (when clicking empty calendar cell)
   const prefillEmployeeId = searchParams.get("employeeId");
   const prefillDate = searchParams.get("date");
 
-  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(prefillEmployeeId ? [prefillEmployeeId] : []);
-  const [startDate, setStartDate] = useState<Date>(prefillDate ? new Date(prefillDate + "T00:00:00") : new Date());
-  const [endDate, setEndDate] = useState<Date>(prefillDate ? new Date(prefillDate + "T00:00:00") : new Date());
-  const [shift, setShift] = useState("");
-  const [shiftHours, setShiftHours] = useState("");
-  const [assignSection, setAssignSection] = useState("");
-  const [startTime, setStartTime] = useState(format(new Date(), "h:mm aa"));
-  const [endTime, setEndTime] = useState(format(new Date(), "h:mm aa"));
-  const [allowOvertime, setAllowOvertime] = useState(false);
-  const [recurring, setRecurring] = useState("No");
+  // Fields matching reference
+  const [shiftName, setShiftName] = useState("");
+  const [shiftType, setShiftType] = useState("");
   const [jobType, setJobType] = useState("");
-  const [payRate, setPayRate] = useState("");
-  const [shiftNotes, setShiftNotes] = useState("");
+  const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(prefillEmployeeId ? [prefillEmployeeId] : []);
+  const [date, setDate] = useState<Date>(prefillDate ? new Date(prefillDate + "T00:00:00") : new Date());
+  const [selectedDays, setSelectedDays] = useState<string[]>([]);
+  const [allowOvertime, setAllowOvertime] = useState(false);
+  const [payRateAsEmployee, setPayRateAsEmployee] = useState(false);
+  const [breaks, setBreaks] = useState<ShiftBreak[]>([{ name: "Tea Break", durationH: "00", durationM: "15", startTime: "12:00 PM" }]);
+  const [shiftNote, setShiftNote] = useState("");
 
-  // Picker states
-  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
-  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-  const [showStartTimePicker, setShowStartTimePicker] = useState(false);
-  const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+  // Picker visibility
   const [showEmployeePicker, setShowEmployeePicker] = useState(false);
   const [employeeSearch, setEmployeeSearch] = useState("");
-  const [showShiftPicker, setShowShiftPicker] = useState(false);
-  const [showSectionPicker, setShowSectionPicker] = useState(false);
+  const [showShiftTypePicker, setShowShiftTypePicker] = useState(false);
   const [showJobTypePicker, setShowJobTypePicker] = useState(false);
-  const [showRecurringPicker, setShowRecurringPicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showDaysPicker, setShowDaysPicker] = useState(false);
+  const [activeBreakTimePicker, setActiveBreakTimePicker] = useState<number | null>(null);
+  const [activeBreakDurationPicker, setActiveBreakDurationPicker] = useState<number | null>(null);
 
-  const startDateRef = useRef<HTMLButtonElement>(null);
-  const endDateRef = useRef<HTMLButtonElement>(null);
-  const startTimeRef = useRef<HTMLButtonElement>(null);
-  const endTimeRef = useRef<HTMLButtonElement>(null);
+  const dateRef = useRef<HTMLButtonElement>(null);
+  const breakTimeRef = useRef<HTMLButtonElement>(null);
+  const breakDurRef = useRef<HTMLButtonElement>(null);
 
   const selectedEmployees = employees.filter((e) => selectedEmployeeIds.includes(e.id));
   const filteredEmployees = employees.filter((emp) =>
@@ -110,44 +158,46 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   );
   const goBack = onBack || (() => navigate("/settings/workforce/shift"));
 
-  const handleBack = async () => {
+  const MAX_NOTE_WORDS = 1000;
+  const wordCount = shiftNote.trim() ? shiftNote.trim().split(/\s+/).length : 0;
+
+  const handleCreate = async () => {
+    if (!shiftName.trim()) {
+      toast.error("Please enter a shift name");
+      return;
+    }
     if (selectedEmployeeIds.length === 0) {
-      goBack();
+      toast.error("Please select at least one employee");
       return;
     }
 
     try {
-      // Create a shift record for each employee × each day in the date range
-      const days = eachDayOfInterval({ start: startDate, end: endDate });
-      const shiftRows = selectedEmployeeIds.flatMap((empId) =>
-        days.map((day) => ({
-          employee_id: empId,
-          shift_date: format(day, "yyyy-MM-dd"),
-          shift_type: shift || "Regular",
-          assign_section: assignSection || null,
-          start_time: startTime,
-          end_time: endTime,
-          allow_overtime: allowOvertime,
-          recurring: recurring,
-          job_type: jobType || null,
-          pay_rate: payRate ? parseFloat(payRate) : 0,
-          shift_notes: shiftNotes || null,
-          start_date: format(startDate, "yyyy-MM-dd"),
-          end_date: format(endDate, "yyyy-MM-dd"),
-        }))
-      );
+      const shiftRows = selectedEmployeeIds.map((empId) => ({
+        employee_id: empId,
+        shift_date: format(date, "yyyy-MM-dd"),
+        shift_type: shiftType || "Regular",
+        assign_section: null,
+        start_time: breaks[0]?.startTime || "12:00 PM",
+        end_time: "5:00 PM",
+        allow_overtime: allowOvertime,
+        recurring: selectedDays.length > 0 ? "Yes" : "No",
+        job_type: jobType || null,
+        pay_rate: 0,
+        shift_notes: shiftNote || null,
+        start_date: format(date, "yyyy-MM-dd"),
+        end_date: format(date, "yyyy-MM-dd"),
+      }));
 
       const { error } = await (supabase as any).from("employee_shifts").insert(shiftRows);
       if (error) throw error;
 
       queryClient.invalidateQueries({ queryKey: ["weekly_shifts"] });
       queryClient.invalidateQueries({ queryKey: ["employee_shifts"] });
-      toast.success("Shift saved successfully");
+      toast.success("Shift created successfully");
     } catch (err: any) {
-      toast.error("Failed to save shift");
+      toast.error("Failed to create shift");
       console.error(err);
     }
-
     goBack();
   };
 
@@ -159,82 +209,120 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
     return { top: 200, right: 20 };
   };
 
+  const toggleDay = (day: string) => {
+    setSelectedDays((prev) =>
+      prev.includes(day) ? prev.filter((d) => d !== day) : [...prev, day]
+    );
+  };
+
+  const addBreak = () => {
+    setBreaks((prev) => [...prev, { name: "", durationH: "00", durationM: "15", startTime: "12:00 PM" }]);
+  };
+
+  const updateBreak = (index: number, field: keyof ShiftBreak, value: string) => {
+    setBreaks((prev) => prev.map((b, i) => (i === index ? { ...b, [field]: value } : b)));
+  };
+
+  const daysLabel = selectedDays.length > 0
+    ? selectedDays.map((d) => d.slice(0, 3)).join(", ")
+    : "Select";
+
+  /* ── Field Row ── */
   const FieldRow = ({
     label,
     value,
-    required,
     onClick,
     buttonRef,
+    rightIcon,
   }: {
     label: string;
     value: string;
-    required?: boolean;
     onClick?: () => void;
     buttonRef?: React.RefObject<HTMLButtonElement>;
+    rightIcon?: React.ReactNode;
   }) => (
-    <button
-      ref={buttonRef}
-      onClick={onClick}
-      className="flex items-center justify-between w-full px-4 py-3.5"
-    >
-      <span className="text-sm text-foreground font-medium">
-        {label}{required && " *"}
-      </span>
+    <button ref={buttonRef} onClick={onClick} className="flex items-center justify-between w-full px-4 py-3.5">
+      <span className="text-sm text-foreground font-medium">{label}</span>
       <div className="flex items-center gap-1">
         <span className="text-sm text-neutral-400">{value}</span>
-        <ChevronRight className="w-4 h-4 text-neutral-600 shrink-0" />
+        {rightIcon || <ChevronRight className="w-4 h-4 text-neutral-600 shrink-0" />}
       </div>
     </button>
   );
+
+  /* ── Toggle Row ── */
+  const ToggleRow = ({
+    label,
+    value,
+    onChange,
+  }: {
+    label: string;
+    value: boolean;
+    onChange: () => void;
+  }) => (
+    <div className="flex items-center justify-between px-4 py-3.5">
+      <span className="text-sm text-foreground font-medium">{label}</span>
+      <button
+        onClick={onChange}
+        className={`w-12 h-7 rounded-full transition-colors ${value ? "bg-white" : "bg-neutral-700"} relative`}
+      >
+        <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${value ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
+      </button>
+    </div>
+  );
+
+  const Divider = () => <div className="border-b border-neutral-700/30 mx-0" />;
 
   return (
     <div className="h-full overflow-hidden flex flex-col">
       {/* Header */}
       {showHeader && (
         <div className="flex items-center px-4 py-3 shrink-0 relative">
-          <button
-            onClick={handleBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
+          <button onClick={goBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Add Shift</h1>
+          <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Create New Shift</h1>
         </div>
       )}
 
       {/* Scrollable content */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide pb-28">
-        {/* Shift Details */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide pb-6">
+        {/* Main fields card */}
         <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
-          {/* Employee multi-select field */}
-          <button
+          {/* Shift Name */}
+          <div className="flex items-center justify-between px-4 py-3.5">
+            <span className="text-sm text-foreground font-medium">Shift Name</span>
+            <input
+              type="text"
+              placeholder="Enter"
+              value={shiftName}
+              onChange={(e) => setShiftName(e.target.value)}
+              className="text-right text-sm text-neutral-400 placeholder:text-neutral-500 bg-transparent outline-none w-32"
+            />
+          </div>
+          <Divider />
+
+          {/* Shift Type */}
+          <FieldRow label="Shift Type" value={shiftType || "Select"} onClick={() => setShowShiftTypePicker(true)} />
+          <Divider />
+
+          {/* Job Type */}
+          <FieldRow label="Job Type" value={jobType || "Select"} onClick={() => setShowJobTypePicker(true)} />
+          <Divider />
+
+          {/* Employee */}
+          <FieldRow
+            label="Employee"
+            value={selectedEmployees.length === 0 ? "Select" : `${selectedEmployees.length} selected`}
             onClick={() => setShowEmployeePicker(true)}
-            className="flex items-center justify-between w-full px-4 py-3.5"
-          >
-            <span className="text-sm text-foreground font-medium">Employees *</span>
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-neutral-400">
-                {selectedEmployees.length === 0
-                  ? "Select"
-                  : `${selectedEmployees.length} selected`}
-              </span>
-              <ChevronRight className="w-4 h-4 text-neutral-600 shrink-0" />
-            </div>
-          </button>
-          {/* Selected employee chips */}
+          />
           {selectedEmployees.length > 0 && (
             <div className="px-4 pb-3 flex flex-wrap gap-2">
               {selectedEmployees.map((emp) => (
-                <span
-                  key={emp.id}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-700/60 text-xs font-medium text-foreground"
-                >
+                <span key={emp.id} className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-neutral-700/60 text-xs font-medium text-foreground">
                   {emp.full_name}
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedEmployeeIds((prev) => prev.filter((id) => id !== emp.id));
-                    }}
+                    onClick={(e) => { e.stopPropagation(); setSelectedEmployeeIds((prev) => prev.filter((id) => id !== emp.id)); }}
                     className="w-3.5 h-3.5 rounded-full bg-neutral-500/50 flex items-center justify-center hover:bg-neutral-500/80 transition-colors"
                   >
                     <X className="w-2.5 h-2.5 text-foreground" />
@@ -243,184 +331,186 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
               ))}
             </div>
           )}
-          <div className="border-b border-neutral-700/30 mx-0" />
+          <Divider />
+
+          {/* Date */}
           <FieldRow
-            label="Start Date"
-            value={format(startDate, "MM/dd/yyyy")}
-            required
-            onClick={() => setShowStartDatePicker(true)}
-            buttonRef={startDateRef}
-          />
-          <div className="border-b border-neutral-700/30 mx-0" />
-          <FieldRow
-            label="End Date"
-            value={format(endDate, "MM/dd/yyyy")}
-            required
-            onClick={() => setShowEndDatePicker(true)}
-            buttonRef={endDateRef}
-          />
-          <div className="border-b border-neutral-700/30 mx-0" />
-          <FieldRow label="Shift" value={shift || "Select A Shift"} onClick={() => setShowShiftPicker(true)} />
-          <div className="border-b border-neutral-700/30 mx-0" />
-          <FieldRow label="Shift Hours" value={shiftHours || "Choose"} />
-          <div className="border-b border-neutral-700/30 mx-0" />
-          <FieldRow label="Assign Section" value={assignSection || "Choose"} required onClick={() => setShowSectionPicker(true)} />
-          <div className="border-b border-neutral-700/30 mx-0" />
-          <FieldRow
-            label="Start Time"
-            value={startTime}
-            required
-            onClick={() => setShowStartTimePicker(true)}
-            buttonRef={startTimeRef}
-          />
-          <div className="border-b border-neutral-700/30 mx-0" />
-          <FieldRow
-            label="End Time"
-            value={endTime}
-            required
-            onClick={() => setShowEndTimePicker(true)}
-            buttonRef={endTimeRef}
+            label="Date"
+            value={format(date, "MM/dd/yyyy")}
+            onClick={() => setShowDatePicker(true)}
+            buttonRef={dateRef}
+            rightIcon={<Calendar className="w-4 h-4 text-neutral-500 shrink-0" />}
           />
         </div>
 
-        {/* Start Date Picker */}
-        <InlineDatePicker
-          isOpen={showStartDatePicker}
-          onClose={() => setShowStartDatePicker(false)}
-          selectedDate={startDate}
-          onDateChange={setStartDate}
-          position={getPickerPosition(startDateRef)}
-        />
-
-        {/* End Date Picker */}
-        <InlineDatePicker
-          isOpen={showEndDatePicker}
-          onClose={() => setShowEndDatePicker(false)}
-          selectedDate={endDate}
-          onDateChange={setEndDate}
-          position={getPickerPosition(endDateRef)}
-        />
-
-        {/* Start Time Picker */}
-        <InlineTimePicker
-          isOpen={showStartTimePicker}
-          onClose={() => setShowStartTimePicker(false)}
-          selectedTime={startTime}
-          onTimeChange={setStartTime}
-          position={getPickerPosition(startTimeRef)}
-        />
-
-        {/* End Time Picker */}
-        <InlineTimePicker
-          isOpen={showEndTimePicker}
-          onClose={() => setShowEndTimePicker(false)}
-          selectedTime={endTime}
-          onTimeChange={setEndTime}
-          position={getPickerPosition(endTimeRef)}
-        />
+        {/* Days of the Week */}
+        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
+          <FieldRow label="Days of the Week" value={daysLabel} onClick={() => setShowDaysPicker(true)} />
+        </div>
 
         {/* Allow Overtime */}
         <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
-          <div className="flex items-center justify-between px-4 py-3.5">
-            <span className="text-sm text-foreground font-medium">Allow Overtime</span>
-            <button
-              onClick={() => setAllowOvertime(!allowOvertime)}
-              className={`w-12 h-7 rounded-full transition-colors ${allowOvertime ? "bg-white" : "bg-neutral-700"} relative`}
-            >
-              <div className={`w-[22px] h-[22px] rounded-full absolute top-[3px] transition-transform ${allowOvertime ? "translate-x-[22px] bg-neutral-800" : "translate-x-[3px] bg-white"}`} />
-            </button>
-          </div>
+          <ToggleRow label="Allow Overtime" value={allowOvertime} onChange={() => setAllowOvertime(!allowOvertime)} />
+          <Divider />
+          <ToggleRow label="Pay Rate as per the Employees" value={payRateAsEmployee} onChange={() => setPayRateAsEmployee(!payRateAsEmployee)} />
         </div>
 
-        {/* Payroll Details */}
+        {/* BREAK Section */}
         <div className="mx-4 mb-1">
-          <span className="text-xs text-neutral-500 font-medium tracking-wider px-1">Payroll Details</span>
+          <span className="text-xs text-neutral-500 font-medium tracking-wider px-1">BREAK</span>
         </div>
-        <div className="mx-4 rounded-2xl overflow-hidden mb-4">
-          <div className="relative">
-            <FieldRow label="Recurring" value={recurring} onClick={() => setShowRecurringPicker(!showRecurringPicker)} />
-            {showRecurringPicker && (
-              <div className="absolute right-4 top-full z-50 bg-neutral-800 border border-neutral-700 rounded-xl shadow-lg w-36 overflow-hidden">
-                {["Yes", "No"].map((opt) => (
-                  <button
-                    key={opt}
-                    onClick={() => { setRecurring(opt); setShowRecurringPicker(false); }}
-                    className={`flex items-center justify-between w-full px-4 py-3 text-sm font-medium transition-colors ${
-                      recurring === opt ? "text-foreground bg-neutral-700/50" : "text-neutral-400 hover:bg-neutral-700/30"
-                    }`}
-                  >
-                    {opt}
-                    {recurring === opt && (
-                      <div className="w-4 h-4 rounded-full bg-white flex items-center justify-center">
-                        <div className="w-2 h-2 rounded-full bg-neutral-800" />
-                      </div>
-                    )}
-                  </button>
-                ))}
+        {breaks.map((brk, idx) => (
+          <div key={idx} className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
+            {/* Name */}
+            <div className="flex items-center justify-between px-4 py-3.5">
+              <span className="text-sm text-foreground font-medium">Name</span>
+              <input
+                type="text"
+                placeholder="Enter"
+                value={brk.name}
+                onChange={(e) => updateBreak(idx, "name", e.target.value)}
+                className="text-right text-sm text-neutral-400 placeholder:text-neutral-500 bg-transparent outline-none w-32"
+              />
+            </div>
+            <Divider />
+
+            {/* Duration */}
+            <button
+              ref={idx === 0 ? breakDurRef : undefined}
+              onClick={() => setActiveBreakDurationPicker(activeBreakDurationPicker === idx ? null : idx)}
+              className="flex items-center justify-between w-full px-4 py-3.5"
+            >
+              <span className="text-sm text-foreground font-medium">Duration</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm text-neutral-400">{brk.durationH}H {brk.durationM}M</span>
+                <Clock className="w-4 h-4 text-neutral-500 shrink-0" />
+              </div>
+            </button>
+            {activeBreakDurationPicker === idx && (
+              <div className="px-4 pb-3 flex items-center gap-3 justify-end">
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min={0}
+                    max={23}
+                    value={brk.durationH}
+                    onChange={(e) => updateBreak(idx, "durationH", e.target.value.padStart(2, "0"))}
+                    className="w-10 text-center text-sm bg-neutral-700/50 rounded-lg py-1.5 text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <span className="text-xs text-neutral-500">H</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <input
+                    type="number"
+                    min={0}
+                    max={59}
+                    value={brk.durationM}
+                    onChange={(e) => updateBreak(idx, "durationM", e.target.value.padStart(2, "0"))}
+                    className="w-10 text-center text-sm bg-neutral-700/50 rounded-lg py-1.5 text-foreground outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                  />
+                  <span className="text-xs text-neutral-500">M</span>
+                </div>
               </div>
             )}
+            <Divider />
+
+            {/* Start Break Time */}
+            <button
+              ref={idx === 0 ? breakTimeRef : undefined}
+              onClick={() => setActiveBreakTimePicker(activeBreakTimePicker === idx ? null : idx)}
+              className="flex items-center justify-between w-full px-4 py-3.5"
+            >
+              <span className="text-sm text-foreground font-medium">Start Break Time</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-sm text-neutral-400">{brk.startTime}</span>
+                <Clock className="w-4 h-4 text-neutral-500 shrink-0" />
+              </div>
+            </button>
           </div>
-          <div className="border-b border-neutral-700/30 mx-0" />
-          <FieldRow label="Job Type" value={jobType || "Select Job Type"} required onClick={() => setShowJobTypePicker(true)} />
-          <div className="border-b border-neutral-700/30 mx-0" />
-          <div className="flex items-center justify-between px-4 py-3.5">
-            <span className="text-sm text-foreground font-medium">Pay Rate</span>
-            <div className="flex items-center gap-1">
-              <span className="text-sm text-neutral-500">$</span>
-              <input
-                type="number"
-                placeholder="0.00"
-                value={payRate}
-                onChange={(e) => setPayRate(e.target.value)}
-                min={0}
-                step={0.01}
-                className="text-right text-sm text-neutral-400 placeholder:text-neutral-600 bg-transparent outline-none w-16 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-              />
-              <ChevronRight className="w-4 h-4 text-neutral-600 shrink-0" />
-            </div>
-          </div>
+        ))}
+
+        {/* Add Another */}
+        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
+          <button onClick={addBreak} className="flex items-center justify-between w-full px-4 py-3.5">
+            <span className="text-sm text-foreground font-medium">Add Another</span>
+            <Plus className="w-4 h-4 text-neutral-500" />
+          </button>
         </div>
 
-        {/* Shift Notes */}
-        <div className="mx-4 mb-1">
-          <span className="text-xs text-neutral-500 font-medium tracking-wider px-1">Shift Notes</span>
-        </div>
-        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
+        {/* Shift Note */}
+        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-2">
           <div className="px-4 py-3.5">
+            <span className="text-sm text-foreground font-medium mb-2 block">Shift Note</span>
             <textarea
-              placeholder="Enter Shift Notes"
-              value={shiftNotes}
-              onChange={(e) => setShiftNotes(e.target.value)}
+              placeholder="Enter shift note..."
+              value={shiftNote}
+              onChange={(e) => {
+                const words = e.target.value.trim().split(/\s+/);
+                if (words.length <= MAX_NOTE_WORDS || e.target.value.length < shiftNote.length) {
+                  setShiftNote(e.target.value);
+                }
+              }}
               rows={3}
               className="w-full bg-transparent text-sm text-foreground placeholder:text-neutral-600 outline-none resize-none"
             />
           </div>
         </div>
+        <div className="mx-4 px-1 mb-4 flex justify-end">
+          <span className="text-xs text-neutral-500">{wordCount} / {MAX_NOTE_WORDS} words</span>
+        </div>
 
-        <div className="mx-4 px-1 mb-6">
-          <p className="text-xs text-neutral-600 leading-relaxed">
-            Schedule shifts by assigning employees, setting times, and configuring overtime and payroll details.
-          </p>
+        {/* Buttons */}
+        <div className="mx-4 mb-6 space-y-3">
+          <button
+            onClick={handleCreate}
+            className="w-full py-3.5 rounded-2xl bg-neutral-600/50 text-neutral-300 text-sm font-bold tracking-wider active:opacity-80 transition-opacity"
+          >
+            CREATE
+          </button>
+          <button
+            onClick={goBack}
+            className="w-full py-3.5 rounded-2xl border border-neutral-600 text-foreground text-sm font-bold tracking-wider active:opacity-80 transition-opacity"
+          >
+            CANCEL
+          </button>
         </div>
       </div>
 
-      {/* Employee Multi-Select Picker Popup */}
+      {/* Date Picker */}
+      <InlineDatePicker
+        isOpen={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        selectedDate={date}
+        onDateChange={setDate}
+        position={getPickerPosition(dateRef)}
+      />
+
+      {/* Break Time Pickers */}
+      {activeBreakTimePicker !== null && (
+        <InlineTimePicker
+          isOpen={true}
+          onClose={() => setActiveBreakTimePicker(null)}
+          selectedTime={breaks[activeBreakTimePicker]?.startTime || "12:00 PM"}
+          onTimeChange={(val) => {
+            updateBreak(activeBreakTimePicker, "startTime", val);
+            setActiveBreakTimePicker(null);
+          }}
+          position={getPickerPosition(breakTimeRef)}
+        />
+      )}
+
+      {/* Employee Multi-Select Picker */}
       {showEmployeePicker && (
         <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => { setShowEmployeePicker(false); setEmployeeSearch(""); }}>
           <div className="absolute inset-0 bg-black/60" />
           <div className="relative" onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => { setShowEmployeePicker(false); setEmployeeSearch(""); }}
-              className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center"
-            >
+            <button onClick={() => { setShowEmployeePicker(false); setEmployeeSearch(""); }} className="absolute -top-3 -right-3 z-10 w-8 h-8 rounded-full bg-neutral-700 flex items-center justify-center">
               <X className="w-4 h-4 text-foreground" />
             </button>
             <div className="bg-neutral-800 rounded-2xl w-[340px] max-h-[500px] overflow-hidden flex flex-col">
               <div className="px-4 py-3 border-b border-neutral-700/50 flex items-center justify-between">
                 <h3 className="text-sm font-semibold text-foreground text-center flex-1">Select Employees</h3>
-                {selectedEmployeeIds.length > 0 && (
-                  <span className="text-xs text-neutral-400">{selectedEmployeeIds.length} selected</span>
-                )}
+                {selectedEmployeeIds.length > 0 && <span className="text-xs text-neutral-400">{selectedEmployeeIds.length} selected</span>}
               </div>
               <div className="px-3 py-2 border-b border-neutral-700/50">
                 <div className="flex items-center gap-2 bg-neutral-700/50 rounded-lg px-3 py-2">
@@ -447,29 +537,14 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                     return (
                       <button
                         key={emp.id}
-                        onClick={() => {
-                          setSelectedEmployeeIds((prev) =>
-                            isSelected ? prev.filter((id) => id !== emp.id) : [...prev, emp.id]
-                          );
-                        }}
-                        className={`flex items-center gap-3 w-full px-4 py-3 active:opacity-70 transition-opacity ${
-                          isSelected ? "bg-neutral-700/40" : ""
-                        }`}
+                        onClick={() => setSelectedEmployeeIds((prev) => isSelected ? prev.filter((id) => id !== emp.id) : [...prev, emp.id])}
+                        className={`flex items-center gap-3 w-full px-4 py-3 active:opacity-70 transition-opacity ${isSelected ? "bg-neutral-700/40" : ""}`}
                       >
-                        {/* Checkbox */}
-                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${
-                          isSelected
-                            ? "bg-foreground border-foreground"
-                            : "border-neutral-600 bg-transparent"
-                        }`}>
+                        <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${isSelected ? "bg-foreground border-foreground" : "border-neutral-600 bg-transparent"}`}>
                           {isSelected && <Check className="w-3 h-3 text-background" />}
                         </div>
                         <div className="w-9 h-9 rounded-full bg-neutral-700 flex items-center justify-center shrink-0">
-                          {emp.avatar_url ? (
-                            <img src={emp.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover" />
-                          ) : (
-                            <User className="w-4 h-4 text-neutral-400" />
-                          )}
+                          {emp.avatar_url ? <img src={emp.avatar_url} alt="" className="w-9 h-9 rounded-full object-cover" /> : <User className="w-4 h-4 text-neutral-400" />}
                         </div>
                         <div className="flex-1 text-left">
                           <p className="text-sm font-medium text-foreground">{emp.full_name}</p>
@@ -480,12 +555,8 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                   })
                 )}
               </div>
-              {/* Done button */}
               <div className="px-4 py-3 border-t border-neutral-700/50">
-                <button
-                  onClick={() => { setShowEmployeePicker(false); setEmployeeSearch(""); }}
-                  className="w-full py-2.5 rounded-xl bg-foreground text-background text-sm font-semibold active:opacity-80 transition-opacity"
-                >
+                <button onClick={() => { setShowEmployeePicker(false); setEmployeeSearch(""); }} className="w-full py-2.5 rounded-xl bg-foreground text-background text-sm font-semibold active:opacity-80 transition-opacity">
                   Done
                 </button>
               </div>
@@ -494,28 +565,16 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
         </div>
       )}
 
-      {/* Shift Picker Popup */}
-      {showShiftPicker && (
+      {/* Shift Type Popup */}
+      {showShiftTypePicker && (
         <SelectionPopup
-          title="Select Shift"
+          title="Select Shift Type"
           options={["Morning", "Afternoon", "Evening", "Night", "Split", "On Call"]}
-          selected={shift}
-          onSelect={(val) => { setShift(val); setShowShiftPicker(false); }}
-          onClose={() => setShowShiftPicker(false)}
+          selected={shiftType}
+          onSelect={(val) => { setShiftType(val); setShowShiftTypePicker(false); }}
+          onClose={() => setShowShiftTypePicker(false)}
         />
       )}
-
-      {/* Assign Section Popup */}
-      {showSectionPicker && (
-        <SelectionPopup
-          title="Assign Section"
-          options={["Section A", "Section B", "Section C", "Section D", "Bar", "Patio", "Kitchen"]}
-          selected={assignSection}
-          onSelect={(val) => { setAssignSection(val); setShowSectionPicker(false); }}
-          onClose={() => setShowSectionPicker(false)}
-        />
-      )}
-
 
       {/* Job Type Popup */}
       {showJobTypePicker && (
@@ -526,6 +585,11 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
           onSelect={(val) => { setJobType(val); setShowJobTypePicker(false); }}
           onClose={() => setShowJobTypePicker(false)}
         />
+      )}
+
+      {/* Days of Week Popup */}
+      {showDaysPicker && (
+        <DaysOfWeekPopup selected={selectedDays} onToggle={toggleDay} onClose={() => setShowDaysPicker(false)} />
       )}
     </div>
   );

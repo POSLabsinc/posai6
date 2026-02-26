@@ -34,8 +34,10 @@ interface RoleGroup {
   employees: {
     id: string;
     name: string;
+    role: string;
     shifts: Map<string, WeekShift[]>; // dateStr -> shifts
     totalHours: number;
+    totalPay: number;
   }[];
   totalEmployees: number;
   totalHours: number;
@@ -59,10 +61,20 @@ const getRoleColor = (role: string, index: number) => {
   return fallbacks[index % fallbacks.length];
 };
 
+const PAY_RATE = 16.50; // default hourly rate
+
 const parseTimeToHours = (t: string | null): number | null => {
   if (!t) return null;
   const [h, m] = t.split(":").map(Number);
   return h + (m || 0) / 60;
+};
+
+const formatTime12 = (t: string | null): string => {
+  if (!t) return "";
+  const [h, m] = t.split(":").map(Number);
+  const ampm = h >= 12 ? "pm" : "am";
+  const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return `${h12}:${(m || 0).toString().padStart(2, "0")} ${ampm}`;
 };
 
 const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarViewProps) => {
@@ -135,7 +147,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
           if (start !== null && end !== null && end > start) totalHours += end - start;
         });
         groupTotalHours += totalHours;
-        return { id: emp.id, name: emp.full_name, shifts: byDate, totalHours };
+        return { id: emp.id, name: emp.full_name, role: emp.role || role, shifts: byDate, totalHours, totalPay: totalHours * PAY_RATE };
       });
 
       groups.push({
@@ -263,14 +275,20 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                   </div>
                 </button>
 
-                {/* Expanded employee rows */}
                 {isExpanded && group.employees.map((emp) => (
-                  <div key={emp.id} className={`flex border-b border-calendar-border ${bgColor}`} style={{ minHeight: 52 }}>
+                  <div key={emp.id} className="flex border-b border-calendar-border bg-card/30" style={{ minHeight: 72 }}>
                     <div
-                      className="flex-shrink-0 px-4 py-2 flex items-center border-r border-calendar-border pl-10"
+                      className="flex-shrink-0 px-4 py-2.5 flex flex-col justify-center border-r border-calendar-border"
                       style={{ width: NAME_COL_W }}
                     >
-                      <span className="text-xs font-medium text-foreground truncate">{emp.name}</span>
+                      <div className="flex items-baseline gap-1.5">
+                        <span className="text-xs font-bold text-foreground truncate">{emp.name}</span>
+                        <span className="text-[10px] text-muted-foreground">{emp.role}</span>
+                      </div>
+                      <div className="flex items-center gap-2 mt-0.5">
+                        <span className="text-[10px] text-muted-foreground">Hours <span className="font-bold text-foreground">{emp.totalHours.toFixed(1)}h</span></span>
+                        <span className="text-[10px] text-muted-foreground">Pay <span className="font-bold text-foreground">${emp.totalPay.toFixed(2)}</span></span>
+                      </div>
                     </div>
                     {days.map((day, di) => {
                       const dateStr = dayStrs[di];
@@ -283,24 +301,39 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                           onClick={() => {
                             if (dayShifts.length === 0) handleCellClick(day, emp.id, emp.name);
                           }}
-                          className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col gap-0.5 ${
+                          className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 ${
                             isToday ? "bg-primary/5" : ""
                           } ${dayShifts.length === 0 ? "cursor-pointer hover:bg-muted/20 transition-colors" : ""}`}
                         >
-                          {dayShifts.map((s) => (
-                            <button
-                              key={s.id}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleShiftClick(s.id);
-                              }}
-                              className="w-full text-left rounded-md bg-green-500/15 border border-green-500/20 px-1.5 py-1 hover:bg-green-500/25 transition-colors"
-                            >
-                              <span className="text-[10px] font-medium text-green-700 dark:text-green-400 block truncate">
-                                {s.start_time?.slice(0, 5)} - {s.end_time?.slice(0, 5)}
-                              </span>
-                            </button>
-                          ))}
+                          {dayShifts.map((s) => {
+                            const jobType = s.job_type || s.shift_type || "";
+                            const isMatchingRole = jobType.toLowerCase() === group.role.toLowerCase();
+                            return (
+                              <button
+                                key={s.id}
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleShiftClick(s.id);
+                                }}
+                                className={`w-full text-left rounded-md px-2 py-1.5 transition-colors border ${
+                                  isMatchingRole
+                                    ? "bg-green-500/10 border-green-500/30 hover:bg-green-500/20"
+                                    : "bg-muted/30 border-border/40 hover:bg-muted/50"
+                                }`}
+                              >
+                                <span className={`text-[10px] font-medium block truncate ${
+                                  isMatchingRole ? "text-green-700 dark:text-green-400" : "text-muted-foreground"
+                                }`}>
+                                  {jobType || group.role}
+                                </span>
+                                <span className={`text-[10px] block truncate ${
+                                  isMatchingRole ? "text-green-700/80 dark:text-green-400/80" : "text-muted-foreground/70"
+                                }`}>
+                                  {formatTime12(s.start_time)}-{formatTime12(s.end_time)}
+                                </span>
+                              </button>
+                            );
+                          })}
                         </div>
                       );
                     })}

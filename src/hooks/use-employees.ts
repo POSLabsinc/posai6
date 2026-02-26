@@ -11,6 +11,7 @@ export interface Employee {
   avatar_url: string | null;
   hourly_rate: number;
   is_archived: boolean;
+  is_on_leave: boolean;
   pin: string | null;
   created_at: string;
 }

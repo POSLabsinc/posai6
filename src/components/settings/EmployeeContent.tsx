@@ -247,6 +247,10 @@ const EmployeeContent = ({
                       if (employee.is_archived) {
                         statusLabel = "Archived";
                         statusBg = "bg-neutral-500/30 text-neutral-400";
+                      } else if (employee.is_on_leave) {
+                        statusLabel = "On Leave";
+                        statusBg = "bg-purple-500 text-white";
+                        subLine = "Currently on leave";
                       } else if (shift) {
                         if (shift.clock_in && !shift.clock_out) {
                           if (shift.break_minutes > 0) {

@@ -61,6 +61,20 @@ const getRoleColor = (role: string, index: number) => {
   return fallbacks[index % fallbacks.length];
 };
 
+const SHIFT_BLOCK_COLORS: Record<string, { bg: string; border: string; text: string; textSub: string }> = {
+  Manager: { bg: "bg-green-500/10 hover:bg-green-500/20", border: "border-green-500/30", text: "text-green-700 dark:text-green-400", textSub: "text-green-700/80 dark:text-green-400/80" },
+  Server: { bg: "bg-blue-500/10 hover:bg-blue-500/20", border: "border-blue-500/30", text: "text-blue-700 dark:text-blue-400", textSub: "text-blue-700/80 dark:text-blue-400/80" },
+  Bartender: { bg: "bg-orange-500/10 hover:bg-orange-500/20", border: "border-orange-500/30", text: "text-orange-700 dark:text-orange-400", textSub: "text-orange-700/80 dark:text-orange-400/80" },
+  Kitchen: { bg: "bg-amber-500/10 hover:bg-amber-500/20", border: "border-amber-500/30", text: "text-amber-700 dark:text-amber-400", textSub: "text-amber-700/80 dark:text-amber-400/80" },
+  Host: { bg: "bg-rose-500/10 hover:bg-rose-500/20", border: "border-rose-500/30", text: "text-rose-700 dark:text-rose-400", textSub: "text-rose-700/80 dark:text-rose-400/80" },
+};
+
+const DEFAULT_SHIFT_COLOR = { bg: "bg-purple-500/10 hover:bg-purple-500/20", border: "border-purple-500/30", text: "text-purple-700 dark:text-purple-400", textSub: "text-purple-700/80 dark:text-purple-400/80" };
+
+const getShiftBlockColor = (role: string) => {
+  return SHIFT_BLOCK_COLORS[role] || DEFAULT_SHIFT_COLOR;
+};
+
 const PAY_RATE = 16.50; // default hourly rate
 
 const parseTimeToHours = (t: string | null): number | null => {
@@ -306,8 +320,8 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                           } ${dayShifts.length === 0 ? "cursor-pointer hover:bg-muted/20 transition-colors" : ""}`}
                         >
                           {dayShifts.map((s) => {
-                            const jobType = s.job_type || s.shift_type || "";
-                            const isMatchingRole = jobType.toLowerCase() === group.role.toLowerCase();
+                            const shiftRole = s.job_type || s.shift_type || group.role;
+                            const colors = getShiftBlockColor(shiftRole);
                             return (
                               <button
                                 key={s.id}
@@ -315,20 +329,12 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                                   e.stopPropagation();
                                   handleShiftClick(s.id);
                                 }}
-                                className={`w-full text-left rounded-md px-2 py-1.5 transition-colors border ${
-                                  isMatchingRole
-                                    ? "bg-green-500/10 border-green-500/30 hover:bg-green-500/20"
-                                    : "bg-muted/30 border-border/40 hover:bg-muted/50"
-                                }`}
+                                className={`w-full text-left rounded-md px-2 py-1.5 transition-colors border ${colors.bg} ${colors.border}`}
                               >
-                                <span className={`text-[10px] font-medium block truncate ${
-                                  isMatchingRole ? "text-green-700 dark:text-green-400" : "text-muted-foreground"
-                                }`}>
-                                  {jobType || group.role}
+                                <span className={`text-[10px] font-medium block truncate ${colors.text}`}>
+                                  {shiftRole}
                                 </span>
-                                <span className={`text-[10px] block truncate ${
-                                  isMatchingRole ? "text-green-700/80 dark:text-green-400/80" : "text-muted-foreground/70"
-                                }`}>
+                                <span className={`text-[10px] block truncate ${colors.textSub}`}>
                                   {formatTime12(s.start_time)}-{formatTime12(s.end_time)}
                                 </span>
                               </button>

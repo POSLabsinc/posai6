@@ -114,7 +114,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
   const GridLines = () => (
     <div className="absolute inset-0 flex">
       {HOURS.map((h) => (
-        <div key={h} className="flex-shrink-0 border-l border-border/30 h-full" style={{ width: colWidth }} />
+        <div key={h} className="flex-shrink-0 border-l border-calendar-border/50 h-full" style={{ width: colWidth }} />
       ))}
     </div>
   );
@@ -122,12 +122,12 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
   return (
     <div className="w-full">
       {/* Desktop */}
-      <div className="hidden md:block overflow-x-auto scrollbar-hide rounded-2xl border border-border/60 bg-card/50">
+      <div className="hidden md:block overflow-x-auto scrollbar-hide rounded-2xl border border-calendar-border bg-card/50">
         <div style={{ minWidth: nameColWidth + HOURS.length * colWidth }}>
           {/* Header row */}
-          <div className="flex border-b border-border/60">
+          <div className="flex border-b border-calendar-border">
             <div
-              className="flex-shrink-0 px-4 py-3 text-xs font-semibold text-foreground border-r border-border/40"
+              className="flex-shrink-0 px-4 py-3 text-xs font-semibold text-foreground border-r border-calendar-border"
               style={{ width: nameColWidth }}
             >
               Team Member
@@ -135,7 +135,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
             {HOURS.map((h) => (
               <div
                 key={h}
-                className="flex-shrink-0 px-1 py-3 text-center text-[11px] text-muted-foreground font-medium border-l border-border/30"
+                className="flex-shrink-0 px-1 py-3 text-center text-[11px] text-muted-foreground font-medium border-l border-calendar-border/50"
                 style={{ width: colWidth }}
               >
                 {formatHourLabel(h)}
@@ -144,8 +144,8 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
           </div>
 
           {/* Events row */}
-          <div className="flex border-b border-border/50 relative" style={{ minHeight: 56 }}>
-            <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-border/40" style={{ width: nameColWidth }}>
+          <div className="flex border-b border-calendar-border relative" style={{ minHeight: 56 }}>
+            <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-calendar-border" style={{ width: nameColWidth }}>
               <span className="text-sm font-semibold text-foreground">Events</span>
             </div>
             <div className="flex-1 relative">
@@ -154,8 +154,8 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
           </div>
 
           {/* Open Shifts row */}
-          <div className="flex border-b border-border/50 relative" style={{ minHeight: 56 }}>
-            <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-border/40" style={{ width: nameColWidth }}>
+          <div className="flex border-b border-calendar-border relative" style={{ minHeight: 56 }}>
+            <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-calendar-border" style={{ width: nameColWidth }}>
               <span className="text-sm font-semibold text-foreground">Open Shifts</span>
             </div>
             <div className="flex-1 relative">
@@ -165,9 +165,9 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
 
           {/* Employee rows */}
           {rows.map((row) => (
-            <div key={row.id} className="flex border-b border-border/40 relative" style={{ minHeight: 72 }}>
+            <div key={row.id} className="flex border-b border-calendar-border relative" style={{ minHeight: 72 }}>
               {/* Employee info */}
-              <div className="flex-shrink-0 px-4 py-3 flex flex-col justify-center border-r border-border/40" style={{ width: nameColWidth }}>
+              <div className="flex-shrink-0 px-4 py-3 flex flex-col justify-center border-r border-calendar-border" style={{ width: nameColWidth }}>
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-sm font-semibold text-foreground truncate max-w-[100px]">{row.name}</span>
                   <span className="text-[11px] text-muted-foreground">{row.role}</span>
@@ -215,8 +215,8 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
           ))}
 
           {/* Totals row */}
-          <div className="flex border-t border-border/60">
-            <div className="flex-shrink-0 px-4 py-3 border-r border-border/40" style={{ width: nameColWidth }}>
+          <div className="flex border-t border-calendar-border">
+            <div className="flex-shrink-0 px-4 py-3 border-r border-calendar-border" style={{ width: nameColWidth }}>
               <span className="text-sm font-bold text-foreground">Totals</span>
               <div className="flex items-center gap-3 mt-0.5">
                 <span className="text-[11px] text-muted-foreground">

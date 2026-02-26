@@ -129,7 +129,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   // Fields matching reference
   const [shiftName, setShiftName] = useState("");
   const [shiftType, setShiftType] = useState("");
-  const [jobType, setJobType] = useState("");
+  const [jobRole, setJobRole] = useState("");
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(prefillEmployeeId ? [prefillEmployeeId] : []);
   const [date, setDate] = useState<Date>(prefillDate ? new Date(prefillDate + "T00:00:00") : new Date());
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
@@ -142,7 +142,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const [showEmployeePicker, setShowEmployeePicker] = useState(false);
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [showShiftTypePicker, setShowShiftTypePicker] = useState(false);
-  const [showJobTypePicker, setShowJobTypePicker] = useState(false);
+  const [showJobRolePicker, setShowJobRolePicker] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDaysPicker, setShowDaysPicker] = useState(false);
   const [activeBreakTimePicker, setActiveBreakTimePicker] = useState<number | null>(null);
@@ -181,7 +181,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
         end_time: "5:00 PM",
         allow_overtime: allowOvertime,
         recurring: selectedDays.length > 0 ? "Yes" : "No",
-        job_type: jobType || null,
+        job_type: jobRole || null,
         pay_rate: 0,
         shift_notes: shiftNote || null,
         start_date: format(date, "yyyy-MM-dd"),
@@ -306,8 +306,8 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
           <FieldRow label="Shift Type" value={shiftType || "Select"} onClick={() => setShowShiftTypePicker(true)} />
           <Divider />
 
-          {/* Job Type */}
-          <FieldRow label="Job Type" value={jobType || "Select"} onClick={() => setShowJobTypePicker(true)} />
+          {/* Job Role */}
+          <FieldRow label="Job Role" value={jobRole || "Select"} onClick={() => setShowJobRolePicker(true)} />
           <Divider />
 
           {/* Employee */}
@@ -576,14 +576,14 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
         />
       )}
 
-      {/* Job Type Popup */}
-      {showJobTypePicker && (
+      {/* Job Role Popup */}
+      {showJobRolePicker && (
         <SelectionPopup
-          title="Select Job Type"
-          options={["Full-Time", "Part-Time", "Contract", "Temporary", "Seasonal"]}
-          selected={jobType}
-          onSelect={(val) => { setJobType(val); setShowJobTypePicker(false); }}
-          onClose={() => setShowJobTypePicker(false)}
+          title="Select Job Role"
+          options={["Server", "Manager", "Host", "Admin", "Cashier", "Chef", "Bartender", "Barista", "Runner"]}
+          selected={jobRole}
+          onSelect={(val) => { setJobRole(val); setShowJobRolePicker(false); }}
+          onClose={() => setShowJobRolePicker(false)}
         />
       )}
 

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays, LayoutGrid, Calendar } from "lucide-react";
-import { format, addWeeks, subWeeks, startOfWeek, endOfWeek } from "date-fns";
+import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays } from "lucide-react";
+import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useShiftCards, ShiftCardData } from "@/hooks/use-shift-cards";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import ShiftCalendarView from "@/components/settings/ShiftCalendarView";
+import ShiftDayView from "@/components/settings/ShiftDayView";
 
 interface ShiftContentProps {
   showHeader?: boolean;
@@ -21,7 +22,8 @@ const ShiftContent = ({
   const navigate = useNavigate();
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
   const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"card" | "calendar">("card");
+  const [viewMode, setViewMode] = useState<"card" | "day" | "week" | "month">("card");
+  const [currentDate, setCurrentDate] = useState<Date>(new Date());
   const [showJobTypeDropdown, setShowJobTypeDropdown] = useState(false);
   const [showShiftDropdown, setShowShiftDropdown] = useState(false);
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
@@ -168,19 +170,27 @@ const ShiftContent = ({
             )}
           </div>
 
-          {/* Week Navigation */}
+          {/* Date Navigation */}
           <div className="flex items-center gap-1">
             <button
-              onClick={() => setCurrentWeek(subWeeks(currentWeek, 1))}
+              onClick={() => {
+                if (viewMode === "day") setCurrentDate(subDays(currentDate, 1));
+                else setCurrentWeek(subWeeks(currentWeek, 1));
+              }}
               className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70"
             >
               <ChevronLeft className="w-4 h-4 text-foreground" />
             </button>
             <span className="text-sm font-medium text-foreground px-2 whitespace-nowrap">
-              {format(weekStart, "dd MMM")} - {format(weekEnd, "dd MMM yyyy")}
+              {viewMode === "day"
+                ? format(currentDate, "EEEE, dd MMM yyyy")
+                : `${format(weekStart, "dd MMM")} - ${format(weekEnd, "dd MMM yyyy")}`}
             </span>
             <button
-              onClick={() => setCurrentWeek(addWeeks(currentWeek, 1))}
+              onClick={() => {
+                if (viewMode === "day") setCurrentDate(addDays(currentDate, 1));
+                else setCurrentWeek(addWeeks(currentWeek, 1));
+              }}
               className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70"
             >
               <ChevronRight className="w-4 h-4 text-foreground" />
@@ -191,24 +201,17 @@ const ShiftContent = ({
 
           {/* View Toggle */}
           <div className="flex items-center rounded-xl overflow-hidden border border-neutral-700/50">
-            <button
-              onClick={() => setViewMode("card")}
-              className={`w-10 h-10 flex items-center justify-center transition-colors ${
-                viewMode === "card" ? "bg-foreground text-background" : "bg-neutral-800/60 text-foreground"
-              }`}
-              aria-label="Card view"
-            >
-              <LayoutGrid className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setViewMode("calendar")}
-              className={`w-10 h-10 flex items-center justify-center transition-colors ${
-                viewMode === "calendar" ? "bg-foreground text-background" : "bg-neutral-800/60 text-foreground"
-              }`}
-              aria-label="Calendar view"
-            >
-              <Calendar className="w-4 h-4" />
-            </button>
+            {(["card", "day", "week", "month"] as const).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                className={`h-10 px-3.5 flex items-center justify-center text-xs font-medium transition-colors capitalize ${
+                  viewMode === mode ? "bg-foreground text-background" : "bg-neutral-800/60 text-foreground hover:bg-neutral-700/60"
+                }`}
+              >
+                {mode === "card" ? "Cards" : mode === "day" ? "Day" : mode === "week" ? "Week" : "Month"}
+              </button>
+            ))}
           </div>
 
           {/* Sort */}
@@ -222,16 +225,22 @@ const ShiftContent = ({
           <div className="px-4 py-12 text-center text-muted-foreground text-sm">
             Loading shifts...
           </div>
-        ) : filteredCards.length === 0 ? (
-          <div className="px-4 py-12 text-center text-muted-foreground text-sm">
-            No shifts found for this week
-          </div>
-        ) : viewMode === "calendar" ? (
+        ) : viewMode === "day" ? (
+          <ShiftDayView currentDate={currentDate} />
+        ) : viewMode === "week" ? (
           <ShiftCalendarView
             cards={filteredCards}
             currentWeek={currentWeek}
             onShiftClick={(card) => navigate(`/settings/workforce/shift/edit?id=${card.id}`)}
           />
+        ) : viewMode === "month" ? (
+          <div className="px-4 py-12 text-center text-muted-foreground text-sm">
+            Month view coming soon
+          </div>
+        ) : filteredCards.length === 0 ? (
+          <div className="px-4 py-12 text-center text-muted-foreground text-sm">
+            No shifts found for this week
+          </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredCards.map((card, idx) => (

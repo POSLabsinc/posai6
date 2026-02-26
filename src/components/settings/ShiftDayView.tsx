@@ -1,6 +1,8 @@
 import { format } from "date-fns";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useState, useRef, useCallback } from "react";
+import { toast } from "sonner";
 
 interface ShiftDayViewProps {
   currentDate: Date;
@@ -28,6 +30,8 @@ interface EmployeeRow {
 }
 
 const HOURS = Array.from({ length: 18 }, (_, i) => i + 5); // 5 AM to 10 PM
+const COL_WIDTH = 80;
+const NAME_COL_WIDTH = 180;
 
 const formatHourLabel = (h: number) => {
   if (h === 0) return "12 AM";
@@ -48,8 +52,101 @@ const parseTimeToHours = (time: string | null): number | null => {
   return hours + mins / 60;
 };
 
+const hoursToTimeString = (h: number): string => {
+  const totalMins = Math.round(h * 60);
+  const hrs = Math.floor(totalMins / 60);
+  const mins = totalMins % 60;
+  const period = hrs >= 12 ? "PM" : "AM";
+  const displayHrs = hrs === 0 ? 12 : hrs > 12 ? hrs - 12 : hrs;
+  return `${displayHrs}:${mins.toString().padStart(2, "0")} ${period}`;
+};
+
+// Snap to nearest 15 min
+const snapTo15 = (h: number): number => Math.round(h * 4) / 4;
+
+const GridLines = () => (
+  <div className="absolute inset-0 flex">
+    {HOURS.map((h) => (
+      <div key={h} className="flex-shrink-0 border-l border-calendar-border/50 h-full" style={{ width: COL_WIDTH }} />
+    ))}
+  </div>
+);
+
+interface DraggableShiftBlockProps {
+  shift: DayShift;
+  onDragEnd: (shiftId: string, newStartHours: number, duration: number) => void;
+}
+
+const DraggableShiftBlock = ({ shift, onDragEnd }: DraggableShiftBlockProps) => {
+  const [dragOffset, setDragOffset] = useState(0);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragStartX = useRef(0);
+  const blockRef = useRef<HTMLDivElement>(null);
+
+  const start = parseTimeToHours(shift.start_time);
+  const end = parseTimeToHours(shift.end_time);
+
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+    dragStartX.current = e.clientX;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const handlePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!isDragging) return;
+    const dx = e.clientX - dragStartX.current;
+    setDragOffset(dx);
+  }, [isDragging]);
+
+  const handlePointerUp = useCallback((e: React.PointerEvent) => {
+    if (!isDragging || start === null || end === null) return;
+    setIsDragging(false);
+    const duration = end - start;
+    const dx = e.clientX - dragStartX.current;
+    const hoursDelta = dx / COL_WIDTH;
+    const newStart = snapTo15(start + hoursDelta);
+    const clampedStart = Math.max(HOURS[0], Math.min(HOURS[HOURS.length - 1] + 1 - duration, newStart));
+    setDragOffset(0);
+    if (Math.abs(clampedStart - start) > 0.01) {
+      onDragEnd(shift.id, clampedStart, duration);
+    }
+  }, [isDragging, start, end, shift.id, onDragEnd]);
+
+  if (start === null || end === null || end <= start) return null;
+
+  const duration = end - start;
+  const left = (start - HOURS[0]) * COL_WIDTH + dragOffset;
+  const width = duration * COL_WIDTH;
+
+  const displayStart = isDragging ? hoursToTimeString(snapTo15(start + dragOffset / COL_WIDTH)) : shift.start_time;
+  const displayEnd = isDragging ? hoursToTimeString(snapTo15(start + dragOffset / COL_WIDTH) + duration) : shift.end_time;
+
+  return (
+    <div
+      ref={blockRef}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      className={`absolute top-2 bottom-2 rounded-lg border border-green-500/30 bg-green-500/10 flex flex-col justify-center px-3 overflow-hidden select-none transition-shadow ${
+        isDragging ? "z-30 shadow-lg ring-2 ring-green-500/40 cursor-grabbing opacity-90" : "cursor-grab hover:bg-green-500/15"
+      }`}
+      style={{ left, width, touchAction: "none" }}
+    >
+      <span className="text-xs font-semibold text-green-700 dark:text-green-400 truncate">
+        {shift.job_type || shift.shift_type || "Shift"}
+      </span>
+      <span className="text-[10px] text-green-600/70 dark:text-green-400/70 truncate">
+        {displayStart} - {displayEnd}
+      </span>
+    </div>
+  );
+};
+
 const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
   const dateStr = format(currentDate, "yyyy-MM-dd");
+  const queryClient = useQueryClient();
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["shift_day_view", dateStr],
@@ -98,6 +195,47 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
     },
   });
 
+  const handleShiftDrag = useCallback(async (shiftId: string, newStartHours: number, duration: number) => {
+    const newEndHours = newStartHours + duration;
+    const newStartTime = hoursToTimeString(newStartHours);
+    const newEndTime = hoursToTimeString(newEndHours);
+
+    // Optimistic update
+    queryClient.setQueryData(["shift_day_view", dateStr], (old: EmployeeRow[] | undefined) => {
+      if (!old) return old;
+      return old.map((row) => ({
+        ...row,
+        shifts: row.shifts.map((s) =>
+          s.id === shiftId ? { ...s, start_time: newStartTime, end_time: newEndTime } : s
+        ),
+        totalHours: row.shifts.reduce((acc, s) => {
+          const st = s.id === shiftId ? newStartHours : parseTimeToHours(s.start_time);
+          const en = s.id === shiftId ? newEndHours : parseTimeToHours(s.end_time);
+          if (st !== null && en !== null && en > st) return acc + (en - st);
+          return acc;
+        }, 0),
+        totalPay: row.shifts.reduce((acc, s) => {
+          const st = s.id === shiftId ? newStartHours : parseTimeToHours(s.start_time);
+          const en = s.id === shiftId ? newEndHours : parseTimeToHours(s.end_time);
+          if (st !== null && en !== null && en > st) return acc + (en - st) * row.hourly_rate;
+          return acc;
+        }, 0),
+      }));
+    });
+
+    const { error } = await (supabase as any)
+      .from("employee_shifts")
+      .update({ start_time: newStartTime, end_time: newEndTime })
+      .eq("id", shiftId);
+
+    if (error) {
+      toast.error("Failed to update shift time");
+      queryClient.invalidateQueries({ queryKey: ["shift_day_view", dateStr] });
+    } else {
+      toast.success(`Shift moved to ${newStartTime} - ${newEndTime}`);
+    }
+  }, [dateStr, queryClient]);
+
   const totalHours = rows.reduce((s, r) => s + r.totalHours, 0);
   const totalPay = rows.reduce((s, r) => s + r.totalPay, 0);
 
@@ -107,28 +245,16 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
     );
   }
 
-  const colWidth = 80;
-  const nameColWidth = 180;
-
-  // Shared grid lines component
-  const GridLines = () => (
-    <div className="absolute inset-0 flex">
-      {HOURS.map((h) => (
-        <div key={h} className="flex-shrink-0 border-l border-calendar-border/50 h-full" style={{ width: colWidth }} />
-      ))}
-    </div>
-  );
-
   return (
     <div className="w-full">
       {/* Desktop */}
       <div className="hidden md:block overflow-x-auto scrollbar-hide rounded-2xl border border-calendar-border bg-card/50">
-        <div style={{ minWidth: nameColWidth + HOURS.length * colWidth }}>
+        <div style={{ minWidth: NAME_COL_WIDTH + HOURS.length * COL_WIDTH }}>
           {/* Header row */}
           <div className="flex border-b border-calendar-border">
             <div
               className="flex-shrink-0 px-4 py-3 text-xs font-semibold text-foreground border-r border-calendar-border"
-              style={{ width: nameColWidth }}
+              style={{ width: NAME_COL_WIDTH }}
             >
               Team Member
             </div>
@@ -136,7 +262,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
               <div
                 key={h}
                 className="flex-shrink-0 px-1 py-3 text-center text-[11px] text-muted-foreground font-medium border-l border-calendar-border/50"
-                style={{ width: colWidth }}
+                style={{ width: COL_WIDTH }}
               >
                 {formatHourLabel(h)}
               </div>
@@ -145,7 +271,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
 
           {/* Events row */}
           <div className="flex border-b border-calendar-border relative" style={{ minHeight: 56 }}>
-            <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-calendar-border" style={{ width: nameColWidth }}>
+            <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-calendar-border" style={{ width: NAME_COL_WIDTH }}>
               <span className="text-sm font-semibold text-foreground">Events</span>
             </div>
             <div className="flex-1 relative">
@@ -155,7 +281,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
 
           {/* Open Shifts row */}
           <div className="flex border-b border-calendar-border relative" style={{ minHeight: 56 }}>
-            <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-calendar-border" style={{ width: nameColWidth }}>
+            <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-calendar-border" style={{ width: NAME_COL_WIDTH }}>
               <span className="text-sm font-semibold text-foreground">Open Shifts</span>
             </div>
             <div className="flex-1 relative">
@@ -167,7 +293,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
           {rows.map((row) => (
             <div key={row.id} className="flex border-b border-calendar-border relative" style={{ minHeight: 72 }}>
               {/* Employee info */}
-              <div className="flex-shrink-0 px-4 py-3 flex flex-col justify-center border-r border-calendar-border" style={{ width: nameColWidth }}>
+              <div className="flex-shrink-0 px-4 py-3 flex flex-col justify-center border-r border-calendar-border" style={{ width: NAME_COL_WIDTH }}>
                 <div className="flex items-baseline gap-1.5">
                   <span className="text-sm font-semibold text-foreground truncate max-w-[100px]">{row.name}</span>
                   <span className="text-[11px] text-muted-foreground">{row.role}</span>
@@ -183,40 +309,22 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
               </div>
 
               {/* Timeline cells */}
-              <div className="flex-1 relative" style={{ width: HOURS.length * colWidth }}>
+              <div className="flex-1 relative" style={{ width: HOURS.length * COL_WIDTH }}>
                 <GridLines />
-
-                {/* Shift blocks */}
-                {row.shifts.map((shift) => {
-                  const start = parseTimeToHours(shift.start_time);
-                  const end = parseTimeToHours(shift.end_time);
-                  if (start === null || end === null || end <= start) return null;
-
-                  const left = (start - HOURS[0]) * colWidth;
-                  const width = (end - start) * colWidth;
-
-                  return (
-                    <div
-                      key={shift.id}
-                      className="absolute top-2 bottom-2 rounded-lg border border-green-500/30 bg-green-500/10 flex flex-col justify-center px-3 overflow-hidden cursor-pointer hover:bg-green-500/15 transition-colors"
-                      style={{ left, width }}
-                    >
-                      <span className="text-xs font-semibold text-green-700 dark:text-green-400 truncate">
-                        {shift.job_type || shift.shift_type || "Shift"}
-                      </span>
-                      <span className="text-[10px] text-green-600/70 dark:text-green-400/70 truncate">
-                        {shift.start_time} - {shift.end_time}
-                      </span>
-                    </div>
-                  );
-                })}
+                {row.shifts.map((shift) => (
+                  <DraggableShiftBlock
+                    key={shift.id}
+                    shift={shift}
+                    onDragEnd={handleShiftDrag}
+                  />
+                ))}
               </div>
             </div>
           ))}
 
           {/* Totals row */}
           <div className="flex border-t border-calendar-border">
-            <div className="flex-shrink-0 px-4 py-3 border-r border-calendar-border" style={{ width: nameColWidth }}>
+            <div className="flex-shrink-0 px-4 py-3 border-r border-calendar-border" style={{ width: NAME_COL_WIDTH }}>
               <span className="text-sm font-bold text-foreground">Totals</span>
               <div className="flex items-center gap-3 mt-0.5">
                 <span className="text-[11px] text-muted-foreground">
@@ -233,7 +341,6 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
 
       {/* Mobile */}
       <div className="md:hidden flex flex-col gap-3">
-        {/* Events & Open Shifts placeholders */}
         <div className="rounded-xl bg-card/50 border border-border/40 px-4 py-3">
           <span className="text-sm font-semibold text-foreground">Events</span>
           <p className="text-[11px] text-muted-foreground mt-0.5">No events</p>
@@ -288,7 +395,6 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
             )}
           </div>
         ))}
-        {/* Totals */}
         <div className="rounded-xl bg-card/60 border border-border/50 p-3">
           <span className="text-sm font-bold text-foreground">Totals</span>
           <div className="flex items-center gap-4 mt-1">

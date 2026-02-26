@@ -220,34 +220,36 @@ const ShiftContent = ({
           </button>
         </div>
 
-        {/* Shift Views */}
-        {isLoading ? (
-          <div className="px-4 py-12 text-center text-muted-foreground text-sm">
-            Loading shifts...
-          </div>
-        ) : viewMode === "day" ? (
-          <ShiftDayView currentDate={currentDate} />
-        ) : viewMode === "week" ? (
-          <ShiftCalendarView
-            cards={filteredCards}
-            currentWeek={currentWeek}
-            onShiftClick={(card) => navigate(`/settings/workforce/shift/edit?id=${card.id}`)}
-          />
-        ) : viewMode === "month" ? (
-          <div className="px-4 py-12 text-center text-muted-foreground text-sm">
-            Month view coming soon
-          </div>
-        ) : filteredCards.length === 0 ? (
-          <div className="px-4 py-12 text-center text-muted-foreground text-sm">
-            No shifts found for this week
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredCards.map((card, idx) => (
-              <ShiftCard key={`${card.id}-${idx}`} card={card} onClick={() => navigate(`/settings/workforce/shift/edit?id=${card.id}`)} />
-            ))}
-          </div>
-        )}
+        {/* Shift Views — wrapped in a visually distinct container */}
+        <div className="rounded-2xl border border-border/60 bg-muted/30 backdrop-blur-sm p-4 md:p-5">
+          {isLoading ? (
+            <div className="px-4 py-12 text-center text-muted-foreground text-sm">
+              Loading shifts...
+            </div>
+          ) : viewMode === "day" ? (
+            <ShiftDayView currentDate={currentDate} />
+          ) : viewMode === "week" ? (
+            <ShiftCalendarView
+              cards={filteredCards}
+              currentWeek={currentWeek}
+              onShiftClick={(card) => navigate(`/settings/workforce/shift/edit?id=${card.id}`)}
+            />
+          ) : viewMode === "month" ? (
+            <div className="px-4 py-12 text-center text-muted-foreground text-sm">
+              Month view coming soon
+            </div>
+          ) : filteredCards.length === 0 ? (
+            <div className="px-4 py-12 text-center text-muted-foreground text-sm">
+              No shifts found for this week
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredCards.map((card, idx) => (
+                <ShiftCard key={`${card.id}-${idx}`} card={card} onClick={() => navigate(`/settings/workforce/shift/edit?id=${card.id}`)} />
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Close dropdowns on outside click */}

@@ -6,9 +6,8 @@ import { useEmployees } from "@/hooks/use-employees";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Calendar } from "@/components/ui/calendar";
+import { CompactTimePicker } from "@/components/ui/compact-time-picker";
 import { InlineTimePicker } from "@/components/ui/inline-time-picker";
-import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { DateRange } from "react-day-picker";
@@ -126,7 +125,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const [searchParams] = useSearchParams();
   const queryClient = useQueryClient();
   const { data: employees = [] } = useEmployees(false);
-  const isMobile = useIsMobile();
+  
 
   const prefillEmployeeId = searchParams.get("employeeId");
   const prefillDate = searchParams.get("date");
@@ -160,8 +159,6 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const [showShiftTypePicker, setShowShiftTypePicker] = useState(false);
   const [showJobRolePicker, setShowJobRolePicker] = useState(false);
   const [showDaysPicker, setShowDaysPicker] = useState(false);
-  const dayStartTimeRef = useRef<HTMLButtonElement>(null);
-  const dayEndTimeRef = useRef<HTMLButtonElement>(null);
   const [activeBreakTimePicker, setActiveBreakTimePicker] = useState<number | null>(null);
   const [activeBreakDurationPicker, setActiveBreakDurationPicker] = useState<number | null>(null);
 
@@ -478,8 +475,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                           <>
                             <Divider />
                             <button
-                              ref={dayStartTimeRef}
-                              onClick={() => setShowDayStartTimePicker(!showDayStartTimePicker)}
+                              onClick={() => { setShowDayStartTimePicker(!showDayStartTimePicker); setShowDayEndTimePicker(false); }}
                               className="flex items-center justify-between w-full px-8 py-3.5"
                             >
                               <span className="text-sm text-foreground font-medium">Start Time</span>
@@ -488,10 +484,12 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                                 <Clock className="w-4 h-4 text-primary shrink-0" />
                               </div>
                             </button>
+                            {showDayStartTimePicker && (
+                              <CompactTimePicker selectedTime={dayStartTime} onTimeChange={setDayStartTime} />
+                            )}
                             <Divider />
                             <button
-                              ref={dayEndTimeRef}
-                              onClick={() => setShowDayEndTimePicker(!showDayEndTimePicker)}
+                              onClick={() => { setShowDayEndTimePicker(!showDayEndTimePicker); setShowDayStartTimePicker(false); }}
                               className="flex items-center justify-between w-full px-8 py-3.5"
                             >
                               <span className="text-sm text-foreground font-medium">End Time</span>
@@ -500,6 +498,9 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                                 <Clock className="w-4 h-4 text-primary shrink-0" />
                               </div>
                             </button>
+                            {showDayEndTimePicker && (
+                              <CompactTimePicker selectedTime={dayEndTime} onTimeChange={setDayEndTime} />
+                            )}
                             <Divider />
                             <div className="flex items-center justify-between px-8 py-3.5">
                               <span className="text-sm text-foreground font-medium">Next day</span>
@@ -535,8 +536,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
               {daySelectionMode !== "select" && (
                 <>
                   <button
-                    ref={dayStartTimeRef}
-                    onClick={() => setShowDayStartTimePicker(!showDayStartTimePicker)}
+                    onClick={() => { setShowDayStartTimePicker(!showDayStartTimePicker); setShowDayEndTimePicker(false); }}
                     className="flex items-center justify-between w-full px-4 py-3.5"
                   >
                     <span className="text-sm text-foreground font-medium">Start Time</span>
@@ -545,10 +545,12 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                       <Clock className="w-4 h-4 text-primary shrink-0" />
                     </div>
                   </button>
+                  {showDayStartTimePicker && (
+                    <CompactTimePicker selectedTime={dayStartTime} onTimeChange={setDayStartTime} />
+                  )}
                   <Divider />
                   <button
-                    ref={dayEndTimeRef}
-                    onClick={() => setShowDayEndTimePicker(!showDayEndTimePicker)}
+                    onClick={() => { setShowDayEndTimePicker(!showDayEndTimePicker); setShowDayStartTimePicker(false); }}
                     className="flex items-center justify-between w-full px-4 py-3.5"
                   >
                     <span className="text-sm text-foreground font-medium">End Time</span>
@@ -557,6 +559,9 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
                       <Clock className="w-4 h-4 text-primary shrink-0" />
                     </div>
                   </button>
+                  {showDayEndTimePicker && (
+                    <CompactTimePicker selectedTime={dayEndTime} onTimeChange={setDayEndTime} />
+                  )}
                   <Divider />
                   <div className="flex items-center justify-between px-4 py-3.5">
                     <span className="text-sm text-foreground font-medium">Next day</span>
@@ -821,54 +826,6 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
         />
       )}
 
-      {/* Day Start Time Picker */}
-      {showDayStartTimePicker && (
-        <AppleWheelTimePicker
-          isOpen={true}
-          onClose={() => setShowDayStartTimePicker(false)}
-          onConfirm={(val) => {
-            setDayStartTime(val);
-            setShowDayStartTimePicker(false);
-          }}
-          selectedTime={dayStartTime}
-        />
-      )}
-
-      {/* Day End Time Picker */}
-      {showDayEndTimePicker && (
-        <AppleWheelTimePicker
-          isOpen={true}
-          onClose={() => setShowDayEndTimePicker(false)}
-          onConfirm={(val) => {
-            setDayEndTime(val);
-            setShowDayEndTimePicker(false);
-          }}
-          selectedTime={dayEndTime}
-        />
-      )}
-
-      {/* Day End Time Picker */}
-      {showDayEndTimePicker && (
-        isMobile ? (
-          <AppleWheelTimePicker
-            isOpen={true}
-            onClose={() => setShowDayEndTimePicker(false)}
-            onConfirm={(val) => {
-              setDayEndTime(val);
-              setShowDayEndTimePicker(false);
-            }}
-            selectedTime={dayEndTime}
-          />
-        ) : (
-          <InlineTimePicker
-            isOpen={true}
-            onClose={() => setShowDayEndTimePicker(false)}
-            selectedTime={dayEndTime}
-            onTimeChange={(val) => setDayEndTime(val)}
-            position={getPickerPosition(dayEndTimeRef)}
-          />
-        )
-      )}
     </div>
   );
 };

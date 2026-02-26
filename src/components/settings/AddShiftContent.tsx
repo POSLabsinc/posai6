@@ -360,7 +360,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
             </div>
           </button>
           {showCalendar && (
-            <div className="px-2 pb-3">
+            <div className="px-2 pb-3 flex justify-center">
               <Calendar
                 mode="range"
                 selected={dateRange}

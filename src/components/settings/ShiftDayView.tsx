@@ -80,24 +80,29 @@ interface DraggableShiftBlockProps {
 const DraggableShiftBlock = ({ shift, onDragEnd }: DraggableShiftBlockProps) => {
   const [dragOffset, setDragOffset] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+  const [resizing, setResizing] = useState<"left" | "right" | null>(null);
+  const [resizeOffset, setResizeOffset] = useState(0);
   const dragStartX = useRef(0);
   const blockRef = useRef<HTMLDivElement>(null);
 
   const start = parseTimeToHours(shift.start_time);
   const end = parseTimeToHours(shift.end_time);
 
+  const MIN_DURATION = 0.25; // 15 min minimum
+
+  // --- Move handlers ---
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (resizing) return;
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
     dragStartX.current = e.clientX;
     (e.target as HTMLElement).setPointerCapture(e.pointerId);
-  }, []);
+  }, [resizing]);
 
   const handlePointerMove = useCallback((e: React.PointerEvent) => {
     if (!isDragging) return;
-    const dx = e.clientX - dragStartX.current;
-    setDragOffset(dx);
+    setDragOffset(e.clientX - dragStartX.current);
   }, [isDragging]);
 
   const handlePointerUp = useCallback((e: React.PointerEvent) => {
@@ -105,41 +110,128 @@ const DraggableShiftBlock = ({ shift, onDragEnd }: DraggableShiftBlockProps) => 
     setIsDragging(false);
     const duration = end - start;
     const dx = e.clientX - dragStartX.current;
-    const hoursDelta = dx / COL_WIDTH;
-    const newStart = snapTo15(start + hoursDelta);
-    const clampedStart = Math.max(HOURS[0], Math.min(HOURS[HOURS.length - 1] + 1 - duration, newStart));
+    const newStart = snapTo15(start + dx / COL_WIDTH);
+    const clamped = Math.max(HOURS[0], Math.min(HOURS[HOURS.length - 1] + 1 - duration, newStart));
     setDragOffset(0);
-    if (Math.abs(clampedStart - start) > 0.01) {
-      onDragEnd(shift.id, clampedStart, duration);
+    if (Math.abs(clamped - start) > 0.01) {
+      onDragEnd(shift.id, clamped, duration);
     }
   }, [isDragging, start, end, shift.id, onDragEnd]);
+
+  // --- Resize handlers ---
+  const handleResizePointerDown = useCallback((edge: "left" | "right", e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setResizing(edge);
+    setResizeOffset(0);
+    dragStartX.current = e.clientX;
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }, []);
+
+  const handleResizePointerMove = useCallback((e: React.PointerEvent) => {
+    if (!resizing) return;
+    setResizeOffset(e.clientX - dragStartX.current);
+  }, [resizing]);
+
+  const handleResizePointerUp = useCallback((e: React.PointerEvent) => {
+    if (!resizing || start === null || end === null) return;
+    const dx = e.clientX - dragStartX.current;
+    const hoursDelta = dx / COL_WIDTH;
+    let newStart = start;
+    let newEnd = end;
+
+    if (resizing === "left") {
+      newStart = snapTo15(start + hoursDelta);
+      newStart = Math.max(HOURS[0], Math.min(end - MIN_DURATION, newStart));
+    } else {
+      newEnd = snapTo15(end + hoursDelta);
+      newEnd = Math.max(start + MIN_DURATION, Math.min(HOURS[HOURS.length - 1] + 1, newEnd));
+    }
+
+    setResizing(null);
+    setResizeOffset(0);
+
+    if (Math.abs(newStart - start) > 0.01 || Math.abs(newEnd - end) > 0.01) {
+      onDragEnd(shift.id, newStart, newEnd - newStart);
+    }
+  }, [resizing, start, end, shift.id, onDragEnd]);
 
   if (start === null || end === null || end <= start) return null;
 
   const duration = end - start;
-  const left = (start - HOURS[0]) * COL_WIDTH + dragOffset;
-  const width = duration * COL_WIDTH;
 
-  const displayStart = isDragging ? hoursToTimeString(snapTo15(start + dragOffset / COL_WIDTH)) : shift.start_time;
-  const displayEnd = isDragging ? hoursToTimeString(snapTo15(start + dragOffset / COL_WIDTH) + duration) : shift.end_time;
+  // Compute visual position based on active interaction
+  let visualLeft: number;
+  let visualWidth: number;
+  let displayStart: string | null = shift.start_time;
+  let displayEnd: string | null = shift.end_time;
+
+  if (isDragging) {
+    visualLeft = (start - HOURS[0]) * COL_WIDTH + dragOffset;
+    visualWidth = duration * COL_WIDTH;
+    displayStart = hoursToTimeString(snapTo15(start + dragOffset / COL_WIDTH));
+    displayEnd = hoursToTimeString(snapTo15(start + dragOffset / COL_WIDTH) + duration);
+  } else if (resizing === "left") {
+    const newStart = Math.max(HOURS[0], Math.min(end - MIN_DURATION, start + resizeOffset / COL_WIDTH));
+    visualLeft = (newStart - HOURS[0]) * COL_WIDTH;
+    visualWidth = (end - newStart) * COL_WIDTH;
+    displayStart = hoursToTimeString(snapTo15(newStart));
+    displayEnd = shift.end_time;
+  } else if (resizing === "right") {
+    const newEnd = Math.max(start + MIN_DURATION, Math.min(HOURS[HOURS.length - 1] + 1, end + resizeOffset / COL_WIDTH));
+    visualLeft = (start - HOURS[0]) * COL_WIDTH;
+    visualWidth = (newEnd - start) * COL_WIDTH;
+    displayStart = shift.start_time;
+    displayEnd = hoursToTimeString(snapTo15(newEnd));
+  } else {
+    visualLeft = (start - HOURS[0]) * COL_WIDTH;
+    visualWidth = duration * COL_WIDTH;
+  }
+
+  const isActive = isDragging || !!resizing;
 
   return (
     <div
       ref={blockRef}
       onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      className={`absolute top-2 bottom-2 rounded-lg border border-green-500/30 bg-green-500/10 flex flex-col justify-center px-3 overflow-hidden select-none transition-shadow ${
-        isDragging ? "z-30 shadow-lg ring-2 ring-green-500/40 cursor-grabbing opacity-90" : "cursor-grab hover:bg-green-500/15"
-      }`}
-      style={{ left, width, touchAction: "none" }}
+      onPointerMove={isDragging ? handlePointerMove : undefined}
+      onPointerUp={isDragging ? handlePointerUp : undefined}
+      className={`absolute top-2 bottom-2 rounded-lg border border-green-500/30 bg-green-500/10 flex items-center select-none transition-shadow group ${
+        isActive ? "z-30 shadow-lg ring-2 ring-green-500/40 opacity-90" : "hover:bg-green-500/15"
+      } ${isDragging ? "cursor-grabbing" : "cursor-grab"}`}
+      style={{ left: visualLeft, width: visualWidth, touchAction: "none" }}
     >
-      <span className="text-xs font-semibold text-green-700 dark:text-green-400 truncate">
-        {shift.job_type || shift.shift_type || "Shift"}
-      </span>
-      <span className="text-[10px] text-green-600/70 dark:text-green-400/70 truncate">
-        {displayStart} - {displayEnd}
-      </span>
+      {/* Left resize handle */}
+      <div
+        onPointerDown={(e) => handleResizePointerDown("left", e)}
+        onPointerMove={resizing === "left" ? handleResizePointerMove : undefined}
+        onPointerUp={resizing === "left" ? handleResizePointerUp : undefined}
+        className="absolute left-0 top-0 bottom-0 w-2 cursor-ew-resize z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{ touchAction: "none" }}
+      >
+        <div className="w-0.5 h-4 rounded-full bg-green-500/60" />
+      </div>
+
+      {/* Content */}
+      <div className="flex-1 flex flex-col justify-center px-3 overflow-hidden min-w-0">
+        <span className="text-xs font-semibold text-green-700 dark:text-green-400 truncate">
+          {shift.job_type || shift.shift_type || "Shift"}
+        </span>
+        <span className="text-[10px] text-green-600/70 dark:text-green-400/70 truncate">
+          {displayStart} - {displayEnd}
+        </span>
+      </div>
+
+      {/* Right resize handle */}
+      <div
+        onPointerDown={(e) => handleResizePointerDown("right", e)}
+        onPointerMove={resizing === "right" ? handleResizePointerMove : undefined}
+        onPointerUp={resizing === "right" ? handleResizePointerUp : undefined}
+        className="absolute right-0 top-0 bottom-0 w-2 cursor-ew-resize z-10 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{ touchAction: "none" }}
+      >
+        <div className="w-0.5 h-4 rounded-full bg-green-500/60" />
+      </div>
     </div>
   );
 };

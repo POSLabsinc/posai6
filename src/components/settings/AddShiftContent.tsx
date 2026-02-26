@@ -1,13 +1,15 @@
 import { useState, useRef } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
-import { ChevronLeft, ChevronRight, X, User, Search, Check, Clock, Plus, Calendar } from "lucide-react";
-import { format } from "date-fns";
+import { ChevronLeft, ChevronRight, X, User, Search, Check, Clock, Plus, Calendar as CalendarIcon } from "lucide-react";
+import { format, eachDayOfInterval } from "date-fns";
 import { useEmployees } from "@/hooks/use-employees";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { InlineDatePicker } from "@/components/ui/inline-date-picker";
+import { Calendar } from "@/components/ui/calendar";
 import { InlineTimePicker } from "@/components/ui/inline-time-picker";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { DateRange } from "react-day-picker";
 
 interface AddShiftContentProps {
   showHeader?: boolean;
@@ -131,7 +133,10 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const [shiftType, setShiftType] = useState("");
   const [jobRole, setJobRole] = useState("");
   const [selectedEmployeeIds, setSelectedEmployeeIds] = useState<string[]>(prefillEmployeeId ? [prefillEmployeeId] : []);
-  const [date, setDate] = useState<Date>(prefillDate ? new Date(prefillDate + "T00:00:00") : new Date());
+  const [dateRange, setDateRange] = useState<DateRange | undefined>(
+    prefillDate ? { from: new Date(prefillDate + "T00:00:00"), to: new Date(prefillDate + "T00:00:00") } : undefined
+  );
+  const [showCalendar, setShowCalendar] = useState(false);
   const [selectedDays, setSelectedDays] = useState<string[]>([]);
   const [allowOvertime, setAllowOvertime] = useState(false);
   const [payRateAsEmployee, setPayRateAsEmployee] = useState(false);
@@ -143,7 +148,6 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const [employeeSearch, setEmployeeSearch] = useState("");
   const [showShiftTypePicker, setShowShiftTypePicker] = useState(false);
   const [showJobRolePicker, setShowJobRolePicker] = useState(false);
-  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showDaysPicker, setShowDaysPicker] = useState(false);
   const [activeBreakTimePicker, setActiveBreakTimePicker] = useState<number | null>(null);
   const [activeBreakDurationPicker, setActiveBreakDurationPicker] = useState<number | null>(null);
@@ -172,21 +176,26 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
     }
 
     try {
-      const shiftRows = selectedEmployeeIds.map((empId) => ({
-        employee_id: empId,
-        shift_date: format(date, "yyyy-MM-dd"),
-        shift_type: shiftType || "Regular",
-        assign_section: null,
-        start_time: breaks[0]?.startTime || "12:00 PM",
-        end_time: "5:00 PM",
-        allow_overtime: allowOvertime,
-        recurring: selectedDays.length > 0 ? "Yes" : "No",
-        job_type: jobRole || null,
-        pay_rate: 0,
-        shift_notes: shiftNote || null,
-        start_date: format(date, "yyyy-MM-dd"),
-        end_date: format(date, "yyyy-MM-dd"),
-      }));
+      const startDate = dateRange?.from || new Date();
+      const endDate = dateRange?.to || startDate;
+      const days = eachDayOfInterval({ start: startDate, end: endDate });
+      const shiftRows = selectedEmployeeIds.flatMap((empId) =>
+        days.map((day) => ({
+          employee_id: empId,
+          shift_date: format(day, "yyyy-MM-dd"),
+          shift_type: shiftType || "Regular",
+          assign_section: null,
+          start_time: breaks[0]?.startTime || "12:00 PM",
+          end_time: "5:00 PM",
+          allow_overtime: allowOvertime,
+          recurring: selectedDays.length > 0 ? "Yes" : "No",
+          job_type: jobRole || null,
+          pay_rate: 0,
+          shift_notes: shiftNote || null,
+          start_date: format(startDate, "yyyy-MM-dd"),
+          end_date: format(endDate, "yyyy-MM-dd"),
+        }))
+      );
 
       const { error } = await (supabase as any).from("employee_shifts").insert(shiftRows);
       if (error) throw error;
@@ -333,14 +342,34 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
           )}
           <Divider />
 
-          {/* Date */}
-          <FieldRow
-            label="Date"
-            value={format(date, "MM/dd/yyyy")}
-            onClick={() => setShowDatePicker(true)}
-            buttonRef={dateRef}
-            rightIcon={<Calendar className="w-4 h-4 text-neutral-500 shrink-0" />}
-          />
+          {/* Date Range */}
+          <button
+            onClick={() => setShowCalendar(!showCalendar)}
+            className="flex items-center justify-between w-full px-4 py-3.5"
+          >
+            <span className="text-sm text-foreground font-medium">Date</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-neutral-400">
+                {dateRange?.from
+                  ? dateRange.to && dateRange.to.getTime() !== dateRange.from.getTime()
+                    ? `${format(dateRange.from, "MM/dd")} - ${format(dateRange.to, "MM/dd/yyyy")}`
+                    : format(dateRange.from, "MM/dd/yyyy")
+                  : "Select"}
+              </span>
+              <CalendarIcon className="w-4 h-4 text-neutral-500 shrink-0" />
+            </div>
+          </button>
+          {showCalendar && (
+            <div className="px-2 pb-3">
+              <Calendar
+                mode="range"
+                selected={dateRange}
+                onSelect={setDateRange}
+                className={cn("p-3 pointer-events-auto rounded-xl bg-neutral-800/80")}
+                numberOfMonths={1}
+              />
+            </div>
+          )}
         </div>
 
         {/* Days of the Week */}
@@ -476,14 +505,7 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
         </div>
       </div>
 
-      {/* Date Picker */}
-      <InlineDatePicker
-        isOpen={showDatePicker}
-        onClose={() => setShowDatePicker(false)}
-        selectedDate={date}
-        onDateChange={setDate}
-        position={getPickerPosition(dateRef)}
-      />
+      {/* (date picker removed – inline calendar used above) */}
 
       {/* Break Time Pickers */}
       {activeBreakTimePicker !== null && (

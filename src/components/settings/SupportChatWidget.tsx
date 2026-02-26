@@ -39,7 +39,7 @@ const SupportChatWidget = ({ open, onClose }: SupportChatWidgetProps) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { data: convos } = await supabase
+      const { data: convos } = await (supabase as any)
         .from("chat_conversations")
         .select("id")
         .eq("user_id", user.id)
@@ -52,7 +52,7 @@ const SupportChatWidget = ({ open, onClose }: SupportChatWidgetProps) => {
         setConversationId(cid);
         setStarted(true);
 
-        const { data: msgs } = await supabase
+        const { data: msgs } = await (supabase as any)
           .from("chat_messages")
           .select("*")
           .eq("conversation_id", cid)
@@ -106,7 +106,7 @@ const SupportChatWidget = ({ open, onClose }: SupportChatWidgetProps) => {
   const startConversation = useCallback(async () => {
     const { data: { user } } = await supabase.auth.getUser();
 
-    const { data, error } = await supabase
+    const { data, error } = await (supabase as any)
       .from("chat_conversations")
       .insert({ user_id: user?.id || null })
       .select("id")
@@ -134,7 +134,7 @@ const SupportChatWidget = ({ open, onClose }: SupportChatWidgetProps) => {
         if (!cid) return;
       }
 
-      const { error } = await supabase.from("chat_messages").insert({
+      const { error } = await (supabase as any).from("chat_messages").insert({
         conversation_id: cid,
         role: "user",
         content: text,

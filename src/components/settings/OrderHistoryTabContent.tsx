@@ -47,7 +47,7 @@ const OrderHistoryTabContent = ({ guest }: OrderHistoryTabContentProps) => {
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("orders")
         .select("id, order_number, order_type, payment_type, employee_name, subtotal, discount_amount, tax_amount, tip_amount, total, status, created_at, order_items(item_name, quantity, unit_price, total_price)")
         .eq("customer_name", guest.name)

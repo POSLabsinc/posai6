@@ -23,6 +23,8 @@ interface SwipeableCartItemProps {
   onSwipeStart?: () => void;
   onRefire?: (quantity: number) => void;
   itemQuantity?: number;
+  showFire?: boolean;
+  showOrderType?: boolean;
 }
 
 const ORDER_TYPES = [

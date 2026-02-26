@@ -144,7 +144,7 @@ const FloatingInstabug = () => {
       // Get current user if logged in
       const { data: { user } } = await supabase.auth.getUser();
 
-      const { error } = await supabase.from("feedback_reports").insert({
+      const { error } = await (supabase as any).from("feedback_reports").insert({
         report_type: activeReport!,
         email: email || null,
         description,

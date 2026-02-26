@@ -62,7 +62,7 @@ const PaymentTabContent = ({ guest }: PaymentTabContentProps) => {
   useEffect(() => {
     const fetchOrders = async () => {
       setLoading(true);
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("orders")
         .select("id, order_number, created_at, subtotal, tip_amount, total, payment_type, platform, discount_amount")
         .eq("customer_name", guest.name)

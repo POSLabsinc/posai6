@@ -239,7 +239,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
   useEffect(() => {
     const fetchReservations = async () => {
       setLoading(true);
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('reservations')
         .select('*')
         .eq('guest_name', guest.name)
@@ -377,7 +377,7 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
             const borderColor = colorMap[res.color_category] || 'border-blue-500';
 
             const handleColorChange = async (color: string) => {
-              await supabase
+              await (supabase as any)
                 .from('reservations')
                 .update({ color_category: color })
                 .eq('id', res.id);
@@ -1147,13 +1147,13 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
   // Fetch guests from DB and compute stats
   const fetchGuests = useCallback(async () => {
     setLoading(true);
-    const { data: guestRows } = await supabase.from("guests").select("*").eq("is_archived", false).order("name");
+    const { data: guestRows } = await (supabase as any).from("guests").select("*").eq("is_archived", false).order("name");
     if (!guestRows) { setLoading(false); return; }
 
     // Fetch all orders and reservations for stats
     const guestNames = guestRows.map(g => g.name);
-    const { data: allOrders } = await supabase.from("orders").select("customer_name, total, tip_amount, created_at, order_items(item_name, quantity)").in("customer_name", guestNames);
-    const { data: allReservations } = await supabase.from("reservations").select("guest_name, reservation_date, status, no_show");
+    const { data: allOrders } = await (supabase as any).from("orders").select("customer_name, total, tip_amount, created_at, order_items(item_name, quantity)").in("customer_name", guestNames);
+    const { data: allReservations } = await (supabase as any).from("reservations").select("guest_name, reservation_date, status, no_show");
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
@@ -1223,7 +1223,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     // Update local state immediately
     setGuests(prev => prev.map(g => g.id === updated.id ? updated : g));
     // Persist to DB
-    await supabase.from("guests").update({
+    await (supabase as any).from("guests").update({
       name: updated.name,
       email: updated.email,
       phone: updated.phone,
@@ -1250,7 +1250,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
     const initials = newGuestName.trim().split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
     const colors = ["#6B7280", "#8B5CF6", "#F59E0B", "#10B981", "#6366F1", "#EC4899", "#F97316", "#EF4444"];
     const avatarBg = colors[Math.floor(Math.random() * colors.length)];
-    const { data } = await supabase.from("guests").insert({
+    const { data } = await (supabase as any).from("guests").insert({
       name: newGuestName.trim(),
       email: newGuestEmail.trim(),
       phone: newGuestPhone.trim(),

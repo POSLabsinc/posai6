@@ -94,6 +94,10 @@ export interface ControlCenterSettings {
   openRegisterWithoutPIN: boolean;
   hidePerformanceSummary: boolean;
   builtInDisplay: boolean;
+  hideBreakButton: boolean;
+  hideEmployeeFeedback: boolean;
+  hideSeatSelector: boolean;
+  resetTablesDaily: boolean;
 }
 
 export interface CheckoutOptionsSettings {
@@ -174,6 +178,10 @@ const defaultControlCenterSettings: ControlCenterSettings = {
   openRegisterWithoutPIN: false,
   hidePerformanceSummary: false,
   builtInDisplay: false,
+  hideBreakButton: false,
+  hideEmployeeFeedback: false,
+  hideSeatSelector: false,
+  resetTablesDaily: false,
 };
 
 const defaultCheckoutOptionsSettings: CheckoutOptionsSettings = {
@@ -1918,6 +1926,10 @@ export function executeIntent(intent: SettingsIntent): { success: boolean; messa
         openRegisterWithoutPIN: "Open Register Without PIN",
         hidePerformanceSummary: "Hide Performance Summary",
         builtInDisplay: "Built-In Display",
+        hideBreakButton: "Hide Break Button",
+        hideEmployeeFeedback: "Hide Employee Feedback",
+        hideSeatSelector: "Hide Seat Selector",
+        resetTablesDaily: "Reset Tables Daily",
       };
       const label = settingLabels[intent.setting] || intent.setting;
       return {

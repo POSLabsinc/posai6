@@ -5,6 +5,7 @@ interface AppleWheelTimePickerProps {
   onClose: () => void;
   onConfirm: (time: string) => void;
   selectedTime: string;
+  compact?: boolean;
 }
 
 const AppleWheelTimePicker = ({

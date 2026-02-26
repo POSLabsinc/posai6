@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
+import { useAppearance } from "@/contexts/AppearanceContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -52,6 +53,7 @@ const defaultAddOns: AddOn[] = [
 const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { getIconBgColor } = useAppearance();
   const [addOns, setAddOns] = useState<AddOn[]>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -116,10 +118,10 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
 
         <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
           {/* Header card */}
-          <section className="mt-4 rounded-[28px] bg-[hsl(var(--surface-2))] px-10 py-8 text-center">
+          <section className="mt-4 rounded-[28px] bg-[#26262699] px-10 py-8 text-center">
             <div 
               className="mx-auto mb-4 h-14 w-14 rounded-2xl flex items-center justify-center"
-              style={{ backgroundColor: "#FF6381" }}
+              style={{ backgroundColor: getIconBgColor("#FF6381") }}
             >
               <img src={addonsIcon} alt="Add-Ons" className="h-8 w-8 object-contain" />
             </div>
@@ -130,24 +132,24 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
           </section>
 
           {/* Search + actions row */}
-          <section className="mt-6 flex items-center gap-4">
-            <div className="flex-1 rounded-full bg-[hsl(var(--surface-1))] px-5 py-3 flex items-center gap-3">
-              <Search className="h-5 w-5 text-[hsl(var(--text-subtle))]" />
+          <section className="mt-6 flex items-center gap-2 lg:gap-4">
+            <div className="flex-1 min-w-0 rounded-full bg-[hsl(var(--surface-1))] px-5 py-3 flex items-center gap-3">
+              <Search className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
               <input
                 type="text"
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent text-foreground placeholder:text-[hsl(var(--text-subtle))] outline-none text-[15px]"
+                className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-[hsl(var(--text-subtle))] outline-none text-[15px]"
               />
-              <Mic className="h-5 w-5 text-[hsl(var(--text-subtle))]" />
+              <Mic className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
             </div>
 
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
 
             <button
               onClick={() => setShowArchived((v) => !v)}
-              className="h-12 rounded-full px-7 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity"
+              className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity"
             >
               <Archive className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Archive</span>
@@ -155,7 +157,7 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
 
             <button
               onClick={() => navigate('/settings/menu/add-ons/add')}
-              className="h-12 rounded-full px-10 flex items-center justify-center gap-2 bg-[hsl(var(--surface-3))] text-foreground active:opacity-70 transition-opacity"
+              className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-[hsl(var(--surface-3))] text-foreground active:opacity-70 transition-opacity"
             >
               <Plus className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Add</span>
@@ -163,7 +165,7 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
           </section>
 
           {/* Table */}
-          <section className="mt-6 rounded-2xl bg-[hsl(var(--surface-2))] overflow-hidden">
+          <section className="mt-6 rounded-2xl bg-[#26262699] overflow-hidden">
             <div className="grid grid-cols-[1.2fr_120px_160px_100px_24px] items-center px-8 py-5 border-b border-[hsl(var(--surface-border))]">
               <span className="text-[15px] font-semibold text-foreground">Name</span>
               <span className="text-[15px] font-semibold text-foreground text-center">Type</span>
@@ -195,7 +197,7 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
 
         {/* Archive Confirmation Dialog */}
         <AlertDialog open={!!itemToArchive} onOpenChange={() => setItemToArchive(null)}>
-          <AlertDialogContent className="bg-[hsl(var(--surface-2))] border-[hsl(var(--surface-border))]">
+          <AlertDialogContent className="bg-[#26262699] border-[hsl(var(--surface-border))]">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-foreground">
                 {itemToArchive?.archived ? "Restore Add-On" : "Archive Add-On"}
@@ -325,7 +327,7 @@ const AddOnsContent = ({ showHeader = true, onBack, onAIClick }: AddOnsContentPr
             className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base"
           />
           <Mic className="w-5 h-5 text-neutral-500 mr-2" />
-          <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
         </div>
       </div>
 

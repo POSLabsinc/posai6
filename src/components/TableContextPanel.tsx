@@ -176,8 +176,8 @@ const TableContextPanel = ({ table, linkedReservation, onBack, onAction }: Table
             <>
               <SectionHeader title="Order Actions" />
               <div className="px-2">
-                <ActionButton icon={Plus} label="Add Products" iconColor="text-emerald-400" onClick={() => handleAction('add-items')} />
-                <ActionButton icon={ArrowRightLeft} label="Transfer Products" iconColor="text-blue-400" onClick={() => handleAction('transfer-items')} />
+                <ActionButton icon={Plus} label="Add Items" iconColor="text-emerald-400" onClick={() => handleAction('add-items')} />
+                <ActionButton icon={ArrowRightLeft} label="Transfer Items" iconColor="text-blue-400" onClick={() => handleAction('transfer-items')} />
                 <ActionButton icon={Move} label="Transfer Entire Order" iconColor="text-blue-400" onClick={() => handleAction('transfer-order')} />
                 <ActionButton icon={Split} label="Split Bill" iconColor="text-amber-400" onClick={() => handleAction('split-bill')} />
                 <ActionButton icon={Percent} label="Apply Discount" iconColor="text-purple-400" onClick={() => handleAction('apply-discount')} />

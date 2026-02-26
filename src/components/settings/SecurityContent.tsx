@@ -1,6 +1,5 @@
-import { ChevronLeft, ChevronRight, Eye, EyeOff, Delete } from "lucide-react";
+import { ChevronLeft, ChevronRight, Delete } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
@@ -9,53 +8,9 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
-
-interface PasswordInputRowProps {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-  showPassword: boolean;
-  onToggleVisibility: () => void;
-  error?: string;
-}
-
-const PasswordInputRow = ({
-  label,
-  value,
-  onChange,
-  showPassword,
-  onToggleVisibility,
-  error,
-}: PasswordInputRowProps) => (
-  <div className="flex flex-col">
-    <div className="flex items-center justify-between w-full py-3 px-5">
-      <label className="text-foreground text-base font-medium min-w-[80px]">{label}</label>
-      <div className="flex items-center gap-2 flex-1 justify-end">
-        <input
-          type={showPassword ? "text" : "password"}
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="••••••••"
-          className="bg-transparent text-neutral-300 text-base text-right outline-none placeholder:text-neutral-500 w-full max-w-[200px]"
-        />
-        <button
-          type="button"
-          onClick={onToggleVisibility}
-          className="p-1 text-neutral-400 hover:text-neutral-200 transition-colors"
-        >
-          {showPassword ? (
-            <EyeOff className="w-5 h-5" />
-          ) : (
-            <Eye className="w-5 h-5" />
-          )}
-        </button>
-      </div>
-    </div>
-    {error && (
-      <p className="text-red-400 text-xs px-5 pb-2">{error}</p>
-    )}
-  </div>
-);
+import { validateCurrentPin, updateManagerPin } from "@/lib/pinManager";
+import { recordFailedAttempt, resetFailedAttempts } from "@/lib/pinAttemptTracker";
+import { notifyPinUpdated } from "@/lib/notificationService";
 
 type PinStep = "current" | "new" | "confirm";
 
@@ -83,37 +38,25 @@ const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
 
   const getCurrentValue = () => {
     switch (step) {
-      case "current":
-        return currentPin;
-      case "new":
-        return newPin;
-      case "confirm":
-        return confirmPin;
+      case "current": return currentPin;
+      case "new": return newPin;
+      case "confirm": return confirmPin;
     }
   };
 
   const setCurrentValue = (value: string) => {
     switch (step) {
-      case "current":
-        setCurrentPin(value);
-        break;
-      case "new":
-        setNewPin(value);
-        break;
-      case "confirm":
-        setConfirmPin(value);
-        break;
+      case "current": setCurrentPin(value); break;
+      case "new": setNewPin(value); break;
+      case "confirm": setConfirmPin(value); break;
     }
   };
 
   const getStepTitle = () => {
     switch (step) {
-      case "current":
-        return "Enter Current PIN";
-      case "new":
-        return "Enter New PIN";
-      case "confirm":
-        return "Confirm New PIN";
+      case "current": return "Enter Current PIN";
+      case "new": return "Enter New PIN";
+      case "confirm": return "Confirm New PIN";
     }
   };
 
@@ -145,6 +88,13 @@ const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
 
   const handlePinComplete = async (pin: string) => {
     if (step === "current") {
+      if (!validateCurrentPin(pin)) {
+        recordFailedAttempt();
+        setError("Incorrect current PIN");
+        setCurrentPin("");
+        return;
+      }
+      resetFailedAttempts();
       setStep("new");
     } else if (step === "new") {
       setStep("confirm");
@@ -155,11 +105,14 @@ const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
         return;
       }
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      updateManagerPin(newPin);
+
+      // Persist notification to database
+      notifyPinUpdated();
 
       toast({
         title: "PIN Updated",
-        description: "Your PIN has been changed successfully.",
+        description: "Your new PIN is now active for all Point of Sale access.",
       });
 
       resetState();
@@ -189,55 +142,42 @@ const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
       if (!isOpen) resetState();
       onOpenChange(isOpen);
     }}>
-      <DialogContent className="bg-neutral-900 border-neutral-800 p-0 max-w-sm rounded-2xl overflow-hidden">
+      <DialogContent className="bg-card border-border p-0 max-w-sm rounded-2xl overflow-hidden">
         {/* Header */}
-        <div className="flex items-center justify-center relative p-4 border-b border-neutral-800">
+        <div className="flex items-center justify-center relative p-4 border-b border-border">
           <button
             onClick={handleBack}
-            className="absolute left-4 w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            className="absolute left-4 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
           >
-            <ChevronLeft className="w-4 h-4 text-foreground" />
+            <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
           <h2 className="text-base font-semibold text-foreground">Change PIN</h2>
         </div>
 
         {/* Content */}
         <div className="flex flex-col items-center pt-6 pb-4 px-4">
-          {/* Step Indicators */}
           <div className="flex gap-2 mb-4">
             {steps.map((s, index) => (
               <div
                 key={s}
                 className={`w-2 h-2 rounded-full transition-colors ${
-                  index <= currentStepIndex
-                    ? "bg-blue-500"
-                    : "bg-neutral-600"
+                  index <= currentStepIndex ? "bg-blue-500" : "bg-neutral-600"
                 }`}
               />
             ))}
           </div>
-
-          {/* Step Title */}
           <p className="text-sm text-neutral-400 mb-6">{getStepTitle()}</p>
-
-          {/* PIN Dots */}
           <div className="flex gap-4 mb-3">
             {[0, 1, 2, 3].map((index) => (
               <div
                 key={index}
                 className={`w-3.5 h-3.5 rounded-full transition-all ${
-                  currentValue.length > index
-                    ? "bg-foreground scale-100"
-                    : "bg-neutral-700 scale-90"
+                  currentValue.length > index ? "bg-foreground scale-100" : "bg-neutral-700 scale-90"
                 }`}
               />
             ))}
           </div>
-
-          {/* Error Message */}
-          {error && (
-            <p className="text-red-400 text-xs mb-2">{error}</p>
-          )}
+          {error && <p className="text-red-400 text-xs mb-2">{error}</p>}
         </div>
 
         {/* Numeric Keypad */}
@@ -285,167 +225,53 @@ interface SecurityContentProps {
 
 const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityContentProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [twoFactorEnabled, setTwoFactorEnabled] = useState(false);
   const [pinDialogOpen, setPinDialogOpen] = useState(false);
-  
-  // Password state
-  const [currentPassword, setCurrentPassword] = useState("");
-  const [newPassword, setNewPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  
-  // Visibility toggles
-  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
-  const [showNewPassword, setShowNewPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
-  // Validation errors
-  const [errors, setErrors] = useState<{
-    currentPassword?: string;
-    newPassword?: string;
-    confirmPassword?: string;
-  }>({});
-  
-  // Loading state
-  const [isSaving, setIsSaving] = useState(false);
-
-  const validatePassword = (password: string): string | undefined => {
-    if (password.length < 8) {
-      return "Password must be at least 8 characters long";
-    }
-    if (!/[A-Z]/.test(password)) {
-      return "Password must contain at least one uppercase letter";
-    }
-    if (!/[a-z]/.test(password)) {
-      return "Password must contain at least one lowercase letter";
-    }
-    return undefined;
-  };
-
-  const handleSavePassword = async () => {
-    const newErrors: typeof errors = {};
-    
-    if (!currentPassword) {
-      newErrors.currentPassword = "Current password is required";
-    }
-    
-    if (!newPassword) {
-      newErrors.newPassword = "New password is required";
-    } else {
-      const passwordError = validatePassword(newPassword);
-      if (passwordError) {
-        newErrors.newPassword = passwordError;
-      }
-    }
-    
-    if (!confirmPassword) {
-      newErrors.confirmPassword = "Please confirm your new password";
-    } else if (confirmPassword !== newPassword) {
-      newErrors.confirmPassword = "Passwords do not match";
-    }
-    
-    setErrors(newErrors);
-    
-    if (Object.keys(newErrors).length > 0) {
-      return;
-    }
-    
-    setIsSaving(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setIsSaving(false);
-    
-    setCurrentPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
-    setErrors({});
-    
-    toast({
-      title: "Password Updated",
-      description: "Your password has been changed successfully.",
-    });
-  };
-
-  const hasPasswordChanges = currentPassword || newPassword || confirmPassword;
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Header - only shown in tablet/desktop right panel */}
       {showHeader && (
-        <div className="flex items-center justify-center py-4 relative">
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
           {onBack && (
             <button
               onClick={onBack}
-              className="absolute left-4 w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
             >
-              <ChevronLeft className="w-4 h-4 text-foreground" />
+              <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           )}
-          <h1 className="text-base font-medium text-foreground">Security</h1>
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Security</h1>
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 
       {/* Content */}
-      <div className="flex flex-col items-center pt-6 px-6 pb-8">
-        {/* AI Assistant Icon - hidden on mobile (shown in page wrapper) */}
-        <div className="hidden md:flex justify-end w-full mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
-
+      <div className={`flex flex-col items-center ${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-8`}>
         <div className="w-full">
-          {/* Password Section */}
+          {/* Password Section - Read Only Notice */}
           <div className="mb-6">
-            <h2 className="text-xs font-medium text-neutral-500 tracking-wider uppercase mb-3">
+            <h2 className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
               Password
             </h2>
-            <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
-              <PasswordInputRow
-                label="Current"
-                value={currentPassword}
-                onChange={setCurrentPassword}
-                showPassword={showCurrentPassword}
-                onToggleVisibility={() => setShowCurrentPassword(!showCurrentPassword)}
-                error={errors.currentPassword}
-              />
-              <div className="h-px bg-neutral-700/50 mx-5" />
-              <PasswordInputRow
-                label="New"
-                value={newPassword}
-                onChange={setNewPassword}
-                showPassword={showNewPassword}
-                onToggleVisibility={() => setShowNewPassword(!showNewPassword)}
-                error={errors.newPassword}
-              />
-              <div className="h-px bg-neutral-700/50 mx-5" />
-              <PasswordInputRow
-                label="Confirm"
-                value={confirmPassword}
-                onChange={setConfirmPassword}
-                showPassword={showConfirmPassword}
-                onToggleVisibility={() => setShowConfirmPassword(!showConfirmPassword)}
-                error={errors.confirmPassword}
-              />
+            <div className="bg-neutral-800/40 rounded-full overflow-hidden">
+              <div className="py-4 px-5">
+                <p className="text-foreground text-base font-medium">Password Management</p>
+                <p className="text-neutral-400 text-sm mt-1">
+                  Password changes are restricted to the Manager Dashboard for security purposes.
+                </p>
+              </div>
             </div>
-            <p className="text-xs text-neutral-500 mt-3 px-2">
-              Your password must be at least 8 characters long, an uppercase letter and a lowercase letter.
-            </p>
-            
-            {hasPasswordChanges && (
-              <Button
-                onClick={handleSavePassword}
-                disabled={isSaving}
-                className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl"
-              >
-                {isSaving ? "Saving..." : "Update Password"}
-              </Button>
-            )}
           </div>
 
           {/* Two Factor Authentication Section */}
           <div className="mb-6">
-            <h2 className="text-xs font-medium text-neutral-500 tracking-wider uppercase mb-3">
+            <h2 className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
               Two Factor Authentication
             </h2>
-            <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
+            <div className="bg-neutral-800/40 rounded-full overflow-hidden">
               <div className="flex items-center justify-between w-full py-4 px-5">
                 <span className="text-foreground text-base font-medium">Two Factor Authentication</span>
                 <Switch
@@ -461,10 +287,10 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
 
           {/* PIN Settings Section */}
           <div className="mb-6">
-            <h2 className="text-xs font-medium text-neutral-500 tracking-wider uppercase mb-3">
+            <h2 className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
               PIN Settings
             </h2>
-            <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
+            <div className="bg-neutral-800/40 rounded-full overflow-hidden">
               <button 
                 onClick={() => setPinDialogOpen(true)}
                 className="flex items-center justify-between w-full py-4 px-5 active:opacity-70 transition-opacity"
@@ -476,6 +302,9 @@ const SecurityContent = ({ showHeader = true, onBack, onAIClick }: SecurityConte
                 </div>
               </button>
             </div>
+            <p className="text-xs text-neutral-500 mt-3 px-2">
+              Your PIN is used for Point of Sale access, clock-in, clock-out, and authorization prompts. Changes take effect immediately.
+            </p>
           </div>
         </div>
       </div>

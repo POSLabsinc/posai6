@@ -9,7 +9,11 @@ const TaxesRoute = () => {
   
   if (isMobile) {
     return (
-      <TaxesContent showHeader={true} onBack={() => navigate('/settings/payments')} />
+      <div className="h-full flex flex-col overflow-hidden bg-background">
+        <div className="flex-1 overflow-hidden">
+          <TaxesContent showHeader={true} onBack={() => navigate('/settings/payments')} />
+        </div>
+      </div>
     );
   }
   

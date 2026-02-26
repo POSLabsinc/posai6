@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, useMemo } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, ChevronLeft, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket, Pencil } from "lucide-react";
+import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
 import { getOrderById, Order as DataOrder, OrderItem as DataOrderItem, formatPrice as formatOrderPrice } from "@/data/orders";
 import { useSessionOrders } from "@/contexts/SessionOrderContext";
@@ -18,7 +18,6 @@ import saveIcon from "@/assets/icons/save.png";
 import fireIcon from "@/assets/icons/fire.png";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import burgerCloseIcon from "@/assets/icons/burger-close.png";
@@ -67,13 +66,12 @@ import scheduledIcon from "@/assets/icons/scheduled.svg";
 import phoneInIcon from "@/assets/icons/phone-in.svg";
 import customOrderIcon from "@/assets/icons/custom-order.svg";
 import menuIcon from "@/assets/icons/menu-icon.svg";
-import tableOrderIcon from "@/assets/icons/table-order-2.svg";
+import tableOrderIcon from "@/assets/icons/table-order.png";
 import mergeIcon from "@/assets/icons/link-merge.png";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
 import settingsIcon from "@/assets/icons/settings.png";
 import { usePanelPosition } from "@/contexts/PanelPositionContext";
-import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 import { PanelDropZones } from "@/components/PanelDropZone";
 import { DraggablePanelHandle } from "@/components/DraggablePanelHandle";
 import AddGuestForm from "@/components/AddGuestForm";
@@ -91,10 +89,8 @@ import PriceOverrideDialog from "@/components/PriceOverrideDialog";
 import VoucherDialog from "@/components/VoucherDialog";
 import SellVoucherScreen from "@/components/SellVoucherScreen";
 import CreateVoucherForm from "@/components/CreateVoucherForm";
-import { Drawer, DrawerContent } from "@/components/ui/drawer";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import OpenPriceDialog from "@/components/OpenPriceDialog";
-import CustomItemBottomSheet from "@/components/pos/CustomItemBottomSheet";
+import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -226,6 +222,11 @@ const menuItemsData: MenuItemsStructure = {
   "BAKERY MENU": {
     "Breads": {
       "Sourdough": [{
+        id: 0,
+        name: "Daily Special (Open Price)",
+        price: 0,
+        isOpenPrice: true
+      }, {
         id: 1,
         name: "Classic Artisan Sourdough Loaf with Sea Salt",
         price: 6.99
@@ -335,6 +336,16 @@ const menuItemsData: MenuItemsStructure = {
         id: 27,
         name: "Round French Boule Bread",
         price: 6.99
+      }, {
+        id: 9990,
+        name: "Chef's Special Chicken",
+        price: 0,
+        isOpenPrice: true
+      }, {
+        id: 9991,
+        name: "Market Price Fish",
+        price: 0,
+        isOpenPrice: true
       }],
       "Rye": [{
         id: 28,
@@ -1319,15 +1330,6 @@ const menuItemsData: MenuItemsStructure = {
       "Appetizers": [{
         id: 300,
         name: "Crispy Calamari",
-        price: 12.99
-      }, {
-        id: 9990,
-        name: "Chef's Special Chicken",
-        price: 0,
-        isOpenPrice: true
-      }, {
-        id: 9991,
-        name: "Market Price Fish",
         price: 0,
         isOpenPrice: true
       }, {
@@ -5640,31 +5642,6 @@ const orderTypes = [
 { label: "CUSTOM", icon: customOrderIcon }];
 
 
-// Discount types data
-interface DiscountType {
-  id: string;
-  name: string;
-  description: string;
-  percentage?: number;
-  fixedAmount?: number;
-  icon: 'briefcase' | 'heart' | 'graduation' | 'shield' | 'star' | 'clock' | 'cake' | 'mappin' | 'dollar' | 'tag';
-}
-
-const discountTypes: DiscountType[] = [
-{ id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
-{ id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
-{ id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
-{ id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
-{ id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
-{ id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
-{ id: 'birthday', name: 'Birthday Special', description: '100% off', percentage: 100, icon: 'cake' },
-{ id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
-{ id: 'comp5', name: 'Manager Comp', description: '100% off', percentage: 100, icon: 'dollar' },
-{ id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
-{ id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
-{ id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' }];
-
-
 // Payment methods constants
 const initialPaymentMethods = [
 { id: 'loyalty', name: 'Loyalty', icon: Tag },
@@ -6046,7 +6023,7 @@ const getCategoryHoverTextColor = (category: string) => {
 };
 const Orders = () => {
   // Read URL params for add-item mode
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { panelLayout } = usePanelPosition();
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
@@ -6066,7 +6043,8 @@ const Orders = () => {
   const sessionOrder = isSessionOrderMode ? getOrderBySessionId(sessionIdFromParams) : null;
   const sessionPartySize = partySizeFromParams ? parseInt(partySizeFromParams) : sessionOrder?.partySize || 0;
 
-  const isTableOrder = !!tableIdFromParams && !!seatsFromParams && !!guestsFromParams;
+  // Table order: require tableId and either (seats + guests) or partySize (from TableOrder seat selection)
+  const isTableOrder = !!tableIdFromParams && ((!!seatsFromParams && !!guestsFromParams) || !!partySizeFromParams);
   const totalSeats = seatsFromParams ? parseInt(seatsFromParams) : sessionPartySize || 0;
   const guestCount = guestsFromParams ? parseInt(guestsFromParams) : sessionPartySize || 0;
 
@@ -6100,8 +6078,7 @@ const Orders = () => {
   const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);
-  const tableLabel = tableIdFromParams ? `TABLE ${tableIdFromParams.replace(/^T/i, '')}` : null;
-  const [orderType, setOrderType] = useState(tableLabel || "DINE IN");
+  const [orderType, setOrderType] = useState("DINE IN");
   const [showDineInForm, setShowDineInForm] = useState(false);
   const [dineInGuestData, setDineInGuestData] = useState<DineInGuestData | null>(null);
   const [showTakeOutForm, setShowTakeOutForm] = useState(false);
@@ -6146,10 +6123,8 @@ const Orders = () => {
   const [showNoTaxDialog, setShowNoTaxDialog] = useState(false);
   const [isTaxExempt, setIsTaxExempt] = useState(false);
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
-  const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
+  const [selectedDiscounts, setSelectedDiscounts] = useState<Discount[]>([]);
   const [isManager, setIsManager] = useState(false); // TODO: Connect to actual user role system
-  const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
-  // discountPin/discountPinError removed — AccessRestrictedModal manages its own PIN state
   const [selectedItemForCustomization, setSelectedItemForCustomization] = useState<{
     id: number;
     name: string;
@@ -6184,28 +6159,12 @@ const Orders = () => {
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
   const [voucherMode, setVoucherMode] = useState(false);
   const [editingVoucherData, setEditingVoucherData] = useState<import('@/components/VoucherDialog').VoucherInitialData | null>(null);
-
-  // Sync voucherMode with URL search params for sidebar active state
-  useEffect(() => {
-    setSearchParams(prev => {
-      const next = new URLSearchParams(prev);
-      if (voucherMode) {
-        next.set('mode', 'voucher');
-      } else if (next.get('mode') === 'voucher') {
-        next.delete('mode');
-      }
-      return next;
-    }, { replace: true });
-  }, [voucherMode, setSearchParams]);
-
-  // Reverse sync: if URL mode param is cleared externally (e.g. sidebar nav), exit voucher mode
-  useEffect(() => {
-    if (voucherMode && searchParams.get('mode') !== 'voucher') {
-      setVoucherMode(false);
-      setEditingVoucherData(null);
-    }
-  }, [searchParams]);
   const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
+  const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);
+  const [openPriceItem, setOpenPriceItem] = useState<MenuItem | null>(null);
+  const [openPriceImageIndex, setOpenPriceImageIndex] = useState(0);
+  const [openPriceFlow, setOpenPriceFlow] = useState<'quickAdd' | 'viewItem' | 'editCartItem'>('quickAdd');
+  const [openPriceEditCartItemId, setOpenPriceEditCartItemId] = useState<number | null>(null);
   const [showVoucherOptionsPopup, setShowVoucherOptionsPopup] = useState(false);
   const [showCreateVoucherForm, setShowCreateVoucherForm] = useState(false);
   const [appliedVoucherAmount, setAppliedVoucherAmount] = useState(0);
@@ -6215,13 +6174,6 @@ const Orders = () => {
   const [orderCreatedTime] = useState<string>(() => {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
   });
-
-  // Open Price state
-  const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);
-  const [openPriceItem, setOpenPriceItem] = useState<MenuItem | null>(null);
-  const [openPriceImageIndex, setOpenPriceImageIndex] = useState(0);
-  const [openPriceFlow, setOpenPriceFlow] = useState<'quickAdd' | 'viewItem' | 'editCartItem'>('quickAdd');
-  const [openPriceEditCartItemId, setOpenPriceEditCartItemId] = useState<number | null>(null);
 
   // Payment Dialog State (component manages its own internal states)
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
@@ -6521,10 +6473,11 @@ const Orders = () => {
       return;
     }
 
-    // Block open price items - show price entry modal first
+    // Open Price: open price dialog first (quick add flow)
     if (item.isOpenPrice) {
-      setOpenPriceItem(item as MenuItem);
+      setOpenPriceItem({ ...item, isOpenPrice: true });
       setOpenPriceFlow('quickAdd');
+      setOpenPriceImageIndex(0);
       setShowOpenPriceDialog(true);
       return;
     }
@@ -6572,7 +6525,7 @@ const Orders = () => {
         assignedSeats: seatsToAssign,
         discountName: discountInfo?.name,
         discountAmount: discountInfo?.amount,
-        isOpenPrice: item.isOpenPrice || false,
+        isOpenPrice: item.isOpenPrice ?? false
       }];
     });
   };
@@ -6580,7 +6533,6 @@ const Orders = () => {
     id: number;
     name: string;
     price: number;
-    isOpenPrice?: boolean;
   }, imageIndex: number) => {
     // Block opening customization if order is split
     if (isOrderSplit) {
@@ -6588,11 +6540,38 @@ const Orders = () => {
       return;
     }
 
-    // Block open price items - show price entry modal first, then open customization
-    if (item.isOpenPrice && item.price === 0) {
-      setOpenPriceItem(item as MenuItem);
+    // If cart item is a voucher, open Sell Voucher screen in edit mode
+    const fullItem = orderItems.find((i) => i.id === item.id) as OrderItem | undefined;
+    if (fullItem?.itemOrderType === 'VOUCHER' && (fullItem as any)?.voucherMeta) {
+      setEditingVoucherData({
+        type: ((fullItem as any).voucherMeta.type as 'fixed' | 'percentage') || 'fixed',
+        value: (fullItem as any).voucherMeta.value ?? 0,
+        sellingPrice: fullItem.price,
+        expiryDate: (fullItem as any).voucherMeta.expiryDate,
+        quantity: fullItem.qty ?? 1,
+        editingItemId: fullItem.id,
+        voucherName: (fullItem as any).voucherMeta.voucherName,
+      });
+      setVoucherMode(true);
+      return;
+    }
+
+    // If cart item is open price, open Open Price dialog in edit flow
+    if (fullItem?.isOpenPrice) {
+      setOpenPriceItem({ id: fullItem.id, name: fullItem.name, price: fullItem.price, isOpenPrice: true });
+      setOpenPriceFlow('editCartItem');
+      setOpenPriceEditCartItemId(fullItem.id);
       setOpenPriceImageIndex(imageIndex);
+      setShowOpenPriceDialog(true);
+      return;
+    }
+
+    // If menu item is open price with no price yet, open Open Price dialog (viewItem flow)
+    const menuItem = item as MenuItem;
+    if (menuItem.isOpenPrice && item.price === 0) {
+      setOpenPriceItem(menuItem);
       setOpenPriceFlow('viewItem');
+      setOpenPriceImageIndex(imageIndex);
       setShowOpenPriceDialog(true);
       return;
     }
@@ -6724,11 +6703,15 @@ const Orders = () => {
 
   const toggleCustomItemPanel = () => {
     if (showCustomItemPanel) {
+      // Going back to menu
       setShowCustomItemPanel(false);
       setCustomItemName("");
       setCustomItemPrice("");
     } else {
+      // Opening custom item panel
       setShowCustomItemPanel(true);
+      setMenuPosition('full');
+      setActiveCustomItemField('name');
     }
   };
   const handleMenuSelect = (value: string) => {
@@ -6751,10 +6734,10 @@ const Orders = () => {
     setActiveSubcategory(firstSubcategory);
   };
   const subtotal = orderItems.reduce((sum, item) => sum + item.price * item.qty, 0);
-  const selectedDiscount = discountTypes.find((d) => d.id === selectedDiscountId);
-  const discount = selectedDiscount ?
-  selectedDiscount.fixedAmount || subtotal * ((selectedDiscount.percentage || 0) / 100) :
-  0;
+  const discount = selectedDiscounts.reduce((sum, d) => {
+    if (d.type === "percentage") return sum + (subtotal * d.value) / 100;
+    return sum + d.value;
+  }, 0);
   const serviceCharge = appliedServiceCharge;
   const taxRate = 0.02;
   // Calculate tax only on items NOT marked as noTax
@@ -6791,7 +6774,7 @@ const Orders = () => {
     }
 
     if (orderItems.length === 0) {
-      toast.error("Please add products to the order before firing");
+      toast.error("Please add items to the order before firing");
       return;
     }
 
@@ -6831,7 +6814,9 @@ const Orders = () => {
   // Determine what to charge based on payment status, gift card, and voucher
   const baseChargeAmount = addItemMode && isExistingOrderPaid ? newItemsTotal : total;
   const chargeAmount = Math.max(0, baseChargeAmount - appliedGiftCardAmount - appliedVoucherAmount);
-  const chargeLabel = '';
+  const chargeLabel = addItemMode ?
+  isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER' :
+  '';
   return <div className="relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden pt-2">
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />
@@ -6884,21 +6869,14 @@ const Orders = () => {
               className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5"
               onClick={toggleCustomItemPanel}>
 
-                <img src={customItemIcon} alt="" className="w-4 h-4" />
-                Custom Product
+                <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-4 h-4" />
+                {showCustomItemPanel ? "Menu" : "Custom Item"}
               </Button>
               <Button
               variant="secondary"
               size="sm"
               className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap"
-              onClick={() => {
-                if (isManager) {
-                  setDiscountDialogView('discounts');
-                } else {
-                  setDiscountDialogView('mpin');
-                }
-                setShowDiscountDialog(true);
-              }}>
+              onClick={() => setShowDiscountDialog(true)}>
 
                 Discount
               </Button>
@@ -6935,7 +6913,7 @@ const Orders = () => {
                     TABLE {tableIdFromParams}
                   </span>
                   <Users className="w-4 h-4 text-neutral-400" />
-                  <span className="text-neutral-400 text-xs">{totalSeats}</span>
+                  <span className="text-neutral-400 text-xs">Available Seats {totalSeats}</span>
                   <span className="font-bold text-white text-sm">{guestCount}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs">
@@ -6954,9 +6932,10 @@ const Orders = () => {
                   </button>
                 </div>
               </div>
-              {/* Table Order Header - Row 2: Seat buttons */}
-              <div className="flex items-center gap-1 px-2 py-1.5 border-b border-sidebar-border">
-                <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+              {/* Table Order Header - Row 2: Select seats */}
+              <div className="flex items-center gap-1 px-2 py-1.5 border-b border-sidebar-border" role="group" aria-label="Select seats">
+                <span className="text-neutral-500 text-[10px] mr-0.5 self-center shrink-0">Select seats</span>
+                <button type="button" className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors" aria-label="Chair">
                   <img src={chairWhiteIcon} alt="Chair" className="w-3 h-3" />
                 </button>
                 <button
@@ -6992,7 +6971,7 @@ const Orders = () => {
                     <button className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded transition-colors text-black" style={{
                   background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)'
                 }}>
-                      <img src={orderTypes.find((t) => t.label === orderType)?.icon || (orderType.startsWith('TABLE') ? tableOrderIcon : dineInIcon)} alt="" className="w-4 h-4 brightness-0" />
+                      <img src={orderTypes.find((t) => t.label === orderType)?.icon} alt="" className="w-4 h-4 invert" />
                       {orderType} <ChevronDown className="w-3 h-3" />
                     </button>
                   </DropdownMenuTrigger>
@@ -7125,17 +7104,10 @@ const Orders = () => {
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
                       <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />
-                      Custom Product
+                      Custom Item
                     </DropdownMenuItem>
                     <DropdownMenuItem
-                  onClick={() => {
-                    if (isManager) {
-                      setDiscountDialogView('discounts');
-                    } else {
-                      setDiscountDialogView('mpin');
-                    }
-                    setShowDiscountDialog(true);
-                  }}
+                  onClick={() => setShowDiscountDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
                       <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
@@ -7143,17 +7115,15 @@ const Orders = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                   onClick={() => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true)}
-                  className={`cursor-pointer text-xs py-2 px-3 flex items-center gap-2 ${isTaxExempt ? 'bg-orange-500/20 text-orange-400' : 'text-white hover:bg-neutral-700'}`}>
+                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
 
-                      <img src={noTaxBtnIcon} alt="" className={`w-3.5 h-3.5 ${isTaxExempt ? 'opacity-100' : ''}`} />
+                      <img src={noTaxBtnIcon} alt="" className="w-3.5 h-3.5" />
                       No Tax
-                      {isTaxExempt && <span className="ml-auto text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-medium">ON</span>}
                     </DropdownMenuItem>
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                       <img src={registerBtnIcon} alt="" className="w-3.5 h-3.5" />
                       Register
                     </DropdownMenuItem>
-                    {orderItems.length > 0 && (
                     <DropdownMenuItem
                   onClick={() => setShowTransferCheckDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
@@ -7161,7 +7131,6 @@ const Orders = () => {
                       <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
                       Transfer Check
                     </DropdownMenuItem>
-                    )}
                     <DropdownMenuItem
                   onClick={() => setShowGiftCardDialog(true)}
                   className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
@@ -7212,7 +7181,6 @@ const Orders = () => {
         }
 
           {/* Order Notes */}
-          {orderItems.length > 0 && (
           <div className="px-2 py-1.5 border-b border-sidebar-border">
             <OrderNotesAutocomplete
             value={orderNotes}
@@ -7220,7 +7188,6 @@ const Orders = () => {
             placeholder="Order notes and Allergies" />
 
           </div>
-          )}
           {transferNewMode &&
         <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2">
               <img src={transferIconPng} alt="Transferred" className="w-4 h-4 opacity-70" />
@@ -7230,112 +7197,140 @@ const Orders = () => {
             </div>
         }
 
-           {/* Mobile Guest Forms - Bottom Sheet Drawers */}
-          <Drawer open={showDineInForm && orderType === "DINE IN"} onOpenChange={(open) => { if (!open) setShowDineInForm(false); }}>
-            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
-              <div className="flex flex-col h-[85vh]">
-                <DineInGuestForm
-                  onSave={(data) => { setDineInGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowDineInForm(false); }}
-                  onCancel={() => setShowDineInForm(false)}
-                  onClose={() => setShowDineInForm(false)}
-                  initialData={dineInGuestData || undefined} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+          {/* Mobile Guest Forms */}
+          {orderType === "DINE IN" && showDineInForm &&
+        <div className="px-2 py-2 border-b border-sidebar-border">
+              <DineInGuestForm
+            onSave={(data) => {
+              setDineInGuestData(data);
+              setGuestName(data.guestName);
+              setGuestPhone(data.phoneNumber || '');
+              setShowDineInForm(false);
+            }}
+            onCancel={() => setShowDineInForm(false)}
+            onClose={() => setShowDineInForm(false)}
+            initialData={dineInGuestData || undefined} />
 
-          <Drawer open={showTakeOutForm && orderType === "TAKE OUT"} onOpenChange={(open) => { if (!open) setShowTakeOutForm(false); }}>
-            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
-              <div className="flex flex-col h-[85vh]">
-                <TakeOutGuestForm
-                  onSave={(data) => { setTakeOutGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowTakeOutForm(false); }}
-                  onCancel={() => setShowTakeOutForm(false)}
-                  onClose={() => setShowTakeOutForm(false)}
-                  initialData={takeOutGuestData || undefined} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+            </div>
+        }
+          {orderType === "TAKE OUT" && showTakeOutForm &&
+        <div className="px-2 py-2 border-b border-sidebar-border">
+              <TakeOutGuestForm
+            onSave={(data) => {
+              setTakeOutGuestData(data);
+              setGuestName(data.guestName);
+              setGuestPhone(data.phoneNumber || '');
+              setShowTakeOutForm(false);
+            }}
+            onCancel={() => setShowTakeOutForm(false)}
+            onClose={() => setShowTakeOutForm(false)}
+            initialData={takeOutGuestData || undefined} />
 
-          <Drawer open={showDeliveryForm && orderType === "DELIVERY"} onOpenChange={(open) => { if (!open) setShowDeliveryForm(false); }}>
-            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
-              <div className="flex flex-col h-[85vh]">
-                <DeliveryGuestForm
-                  onSave={(data) => { setDeliveryGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowDeliveryForm(false); }}
-                  onCancel={() => setShowDeliveryForm(false)}
-                  onClose={() => setShowDeliveryForm(false)}
-                  initialData={deliveryGuestData || undefined} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+            </div>
+        }
+          {orderType === "DELIVERY" && showDeliveryForm &&
+        <div className="px-2 py-2 border-b border-sidebar-border">
+              <DeliveryGuestForm
+            onSave={(data) => {
+              setDeliveryGuestData(data);
+              setGuestName(data.guestName);
+              setGuestPhone(data.phoneNumber || '');
+              setShowDeliveryForm(false);
+            }}
+            onCancel={() => setShowDeliveryForm(false)}
+            onClose={() => setShowDeliveryForm(false)}
+            initialData={deliveryGuestData || undefined} />
 
-          <Drawer open={showBanquetForm && orderType === "BANQUET"} onOpenChange={(open) => { if (!open) setShowBanquetForm(false); }}>
-            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
-              <div className="flex flex-col h-[85vh]">
-                <BanquetGuestForm
-                  onSave={(data) => { setBanquetGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowBanquetForm(false); }}
-                  onCancel={() => setShowBanquetForm(false)}
-                  onClose={() => setShowBanquetForm(false)}
-                  initialData={banquetGuestData || undefined} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+            </div>
+        }
+          {orderType === "BANQUET" && showBanquetForm &&
+        <div className="px-2 py-2 border-b border-sidebar-border">
+              <BanquetGuestForm
+            onSave={(data) => {
+              setBanquetGuestData(data);
+              setGuestName(data.guestName);
+              setGuestPhone(data.phoneNumber || '');
+              setShowBanquetForm(false);
+            }}
+            onCancel={() => setShowBanquetForm(false)}
+            onClose={() => setShowBanquetForm(false)}
+            initialData={banquetGuestData || undefined} />
 
-          <Drawer open={showDriveThruForm && orderType === "DRIVE THRU"} onOpenChange={(open) => { if (!open) setShowDriveThruForm(false); }}>
-            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
-              <div className="flex flex-col h-[85vh]">
-                <DriveThruGuestForm
-                  onSave={(data) => { setDriveThruGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowDriveThruForm(false); }}
-                  onCancel={() => setShowDriveThruForm(false)}
-                  onClose={() => setShowDriveThruForm(false)}
-                  initialData={driveThruGuestData || undefined} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+            </div>
+        }
+          {orderType === "DRIVE THRU" && showDriveThruForm &&
+        <div className="px-2 py-2 border-b border-sidebar-border">
+              <DriveThruGuestForm
+            onSave={(data) => {
+              setDriveThruGuestData(data);
+              setGuestName(data.guestName);
+              setGuestPhone(data.phoneNumber || '');
+              setShowDriveThruForm(false);
+            }}
+            onCancel={() => setShowDriveThruForm(false)}
+            onClose={() => setShowDriveThruForm(false)}
+            initialData={driveThruGuestData || undefined} />
 
-          <Drawer open={showCurbSideForm && orderType === "CURB SIDE"} onOpenChange={(open) => { if (!open) setShowCurbSideForm(false); }}>
-            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
-              <div className="flex flex-col h-[85vh]">
-                <CurbSideGuestForm
-                  onSave={(data) => { setCurbSideGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowCurbSideForm(false); }}
-                  onCancel={() => setShowCurbSideForm(false)}
-                  onClose={() => setShowCurbSideForm(false)}
-                  initialData={curbSideGuestData || undefined} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+            </div>
+        }
+          {orderType === "CURB SIDE" && showCurbSideForm &&
+        <div className="px-2 py-2 border-b border-sidebar-border">
+              <CurbSideGuestForm
+            onSave={(data) => {
+              setCurbSideGuestData(data);
+              setGuestName(data.guestName);
+              setGuestPhone(data.phoneNumber || '');
+              setShowCurbSideForm(false);
+            }}
+            onCancel={() => setShowCurbSideForm(false)}
+            onClose={() => setShowCurbSideForm(false)}
+            initialData={curbSideGuestData || undefined} />
 
-          <Drawer open={showScheduledForm && orderType === "SCHEDULED"} onOpenChange={(open) => { if (!open) setShowScheduledForm(false); }}>
-            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
-              <div className="flex flex-col h-[85vh]">
-                <ScheduledGuestForm
-                  onSave={(data) => { setScheduledGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowScheduledForm(false); }}
-                  onCancel={() => setShowScheduledForm(false)}
-                  onClose={() => setShowScheduledForm(false)}
-                  initialData={scheduledGuestData || undefined} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+            </div>
+        }
+          {orderType === "SCHEDULED" && showScheduledForm &&
+        <div className="px-2 py-2 border-b border-sidebar-border">
+              <ScheduledGuestForm
+            onSave={(data) => {
+              setScheduledGuestData(data);
+              setGuestName(data.guestName);
+              setGuestPhone(data.phoneNumber || '');
+              setShowScheduledForm(false);
+            }}
+            onCancel={() => setShowScheduledForm(false)}
+            onClose={() => setShowScheduledForm(false)}
+            initialData={scheduledGuestData || undefined} />
 
-          <Drawer open={showPhoneInForm && orderType === "PHONE-IN"} onOpenChange={(open) => { if (!open) setShowPhoneInForm(false); }}>
-            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
-              <div className="flex flex-col h-[85vh]">
-                <PhoneInGuestForm
-                  onSave={(data) => { setPhoneInGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowPhoneInForm(false); }}
-                  onClose={() => setShowPhoneInForm(false)}
-                  initialData={phoneInGuestData || undefined} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+            </div>
+        }
+          {orderType === "PHONE-IN" && showPhoneInForm &&
+        <div className="px-2 py-2 border-b border-sidebar-border">
+              <PhoneInGuestForm
+            onSave={(data) => {
+              setPhoneInGuestData(data);
+              setGuestName(data.guestName);
+              setGuestPhone(data.phoneNumber || '');
+              setShowPhoneInForm(false);
+            }}
+            onClose={() => setShowPhoneInForm(false)}
+            initialData={phoneInGuestData || undefined} />
 
-          <Drawer open={showCustomOrderForm && orderType === "CUSTOM"} onOpenChange={(open) => { if (!open) setShowCustomOrderForm(false); }}>
-            <DrawerContent className="max-h-[92vh] bg-neutral-900 border-t border-neutral-700" hideHandle={false}>
-              <div className="flex flex-col h-[85vh]">
-                <CustomOrderGuestForm
-                  onSave={(data) => { setCustomOrderGuestData(data); setGuestName(data.guestName); setGuestPhone(data.phoneNumber || ''); setShowCustomOrderForm(false); }}
-                  onClose={() => setShowCustomOrderForm(false)}
-                  initialData={customOrderGuestData || undefined} />
-              </div>
-            </DrawerContent>
-          </Drawer>
+            </div>
+        }
+          {orderType === "CUSTOM" && showCustomOrderForm &&
+        <div className="px-2 py-2 border-b border-sidebar-border">
+              <CustomOrderGuestForm
+            onSave={(data) => {
+              setCustomOrderGuestData(data);
+              setGuestName(data.guestName);
+              setGuestPhone(data.phoneNumber || '');
+              setShowCustomOrderForm(false);
+            }}
+            onClose={() => setShowCustomOrderForm(false)}
+            initialData={customOrderGuestData || undefined} />
+
+            </div>
+        }
 
           {/* Mobile Add Guest Form Overlay */}
           {showAddGuestForm &&
@@ -7369,53 +7364,25 @@ const Orders = () => {
 
           {/* Mobile Cart Items */}
           <div className={`min-h-0 overflow-hidden flex flex-col ${isOrderPanelExpanded ? 'flex-1' : ''}`}>
-            {orderItems.length === 0 ? (
-              <div className="flex items-center justify-center gap-1.5 py-2 px-2">
-                <img src={emptyOrderIcon} alt="Empty order" className="w-4 h-4 opacity-40" />
-                <span className="text-muted-foreground text-xs">Let's create an order</span>
-              </div>
-            ) : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
+            {orderItems.length === 0 ? null : <ScrollArea className={`h-full ${isOrderPanelExpanded ? 'flex-1' : 'max-h-[78px]'}`}>
                 <div className="px-1.5 py-0.5 space-y-0.5">
                   {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
                       <div
                   className={`rounded px-1.5 py-1 cursor-pointer ${item.isTransferred ? 'border border-[#3B6A9E]' : 'bg-neutral-800'}`}
                   style={item.isTransferred ? { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } : undefined}
-                  onClick={() => {
-                    if (item.itemOrderType === 'VOUCHER') {
-                      setEditingVoucherData({
-                        type: (item as any).voucherMeta?.type || 'fixed',
-                        value: (item as any).voucherMeta?.value || 0,
-                        sellingPrice: item.price,
-                        expiryDate: (item as any).voucherMeta?.expiryDate,
-                        quantity: item.qty,
-                        editingItemId: item.id,
-                        voucherName: (item as any).voucherMeta?.voucherName,
-                      });
-                      setVoucherMode(true);
-                      return;
-                    }
-                    if (item.isOpenPrice) {
-                      setOpenPriceItem({ id: item.id, name: item.name, price: item.price, isOpenPrice: true } as MenuItem);
-                      setOpenPriceImageIndex(index);
-                      setOpenPriceFlow('editCartItem');
-                      setOpenPriceEditCartItemId(item.id);
-                      setShowOpenPriceDialog(true);
-                      return;
-                    }
-                    openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index);
-                  }}>
+                  onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}>
 
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-1.5">
                             <span className={`w-4 h-4 rounded text-white text-[10px] font-medium flex items-center justify-center flex-shrink-0 ${item.isTransferred ? 'bg-[#3B6A9E]' : 'border border-white/50'}`}>
                               {item.qty}
                             </span>
-                            <span className="text-[11px] font-medium text-foreground">{item.name}</span>
-                            {item.isOpenPrice && (
-                              <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[8px] font-semibold text-white whitespace-nowrap">
-                                Open Price
-                              </span>
-                            )}
+                            <span className="text-[11px] font-medium text-foreground flex items-center gap-1">
+                              {item.name}
+                              {item.isOpenPrice && (
+                                <span className="px-1 py-0.5 rounded text-[9px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">Open Price</span>
+                              )}
+                            </span>
                           </div>
                           {item.itemOrderType === 'VOUCHER' ?
                     <span
@@ -7450,9 +7417,6 @@ const Orders = () => {
                             </span>
                     }
                         </div>
-                        {item.itemOrderType === 'VOUCHER' && (item as any).voucherMeta?.expiryDate && (
-                          <p className="text-[9px] text-neutral-400 ml-[22px]">Expires: {new Date((item as any).voucherMeta.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                        )}
                         
                         {/* Modifiers with tree hierarchy - Mobile */}
                         {item.modifiers && item.modifiers.length > 0 && (() => {
@@ -7518,7 +7482,7 @@ const Orders = () => {
 
                   })()}
                         
-                        {/* Product Notes Display - Mobile */}
+                        {/* Item Notes Display - Mobile */}
                         {item.notes &&
                   <div className="ml-2.5 mt-0.5 relative">
                             <div className="relative flex items-center text-[10px] py-[2px]">
@@ -7579,127 +7543,20 @@ const Orders = () => {
           </div>
 
           {/* Order Summary - Only show when items exist */}
-          {orderItems.length > 0 && (
-            <div className="px-2 py-1.5 border-t border-sidebar-border">
-              <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
-                background: '#7575754D',
-                boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
-              }}>
-                {(discount > 0 || serviceCharge > 0) ? (
-                  <>
-                    {/* Row 1: Sub Total + (Discount if present, else Service Charge) */}
-                    <div className="flex justify-between gap-2">
-                      <span className="text-foreground">
-                        <span className="font-medium">Sub Total</span> <span className="font-bold">${subtotal.toFixed(2)}</span>
-                      </span>
-                      {discount > 0 ? (
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                               <span className="text-red-400 cursor-default flex items-center gap-1">
-                                 <span className="font-medium">Discount</span> <span className="font-bold">-${discount.toFixed(2)}</span>
-                                {selectedDiscount &&
-                                  <button
-                                    onClick={() => setSelectedDiscountId(null)}
-                                    className="text-red-400 hover:text-red-300 text-xs font-bold ml-0.5">
-                                    ×
-                                  </button>
-                                }
-                              </span>
-                            </TooltipTrigger>
-                            {selectedDiscount && <TooltipContent side="top" className="text-xs">{selectedDiscount.name}</TooltipContent>}
-                          </Tooltip>
-                        </TooltipProvider>
-                      ) : (
-                        /* No discount — Service Charge flows up to top-right */
-                        <TooltipProvider>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                               <span className="text-foreground cursor-default flex items-center gap-1">
-                                 <span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+${serviceCharge.toFixed(2)}</span>
-                                {appliedServiceCharge > 0 &&
-                                  <button
-                                    onClick={() => {
-                                      setAppliedServiceCharge(0);
-                                      setAppliedServiceChargeName('');
-                                    }}
-                                    className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
-                                    ×
-                                  </button>
-                                }
-                              </span>
-                            </TooltipTrigger>
-                            {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
-                          </Tooltip>
-                        </TooltipProvider>
-                      )}
-                    </div>
-                    {/* Row 2: Service Charge (only if discount also shown) + Tax */}
-                    <div className="flex justify-between gap-2">
-                      {discount > 0 && serviceCharge > 0 ? (
-                        <>
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                 <span className="text-foreground cursor-default flex items-center gap-1">
-                                   <span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+${serviceCharge.toFixed(2)}</span>
-                                  {appliedServiceCharge > 0 &&
-                                    <button
-                                      onClick={() => {
-                                        setAppliedServiceCharge(0);
-                                        setAppliedServiceChargeName('');
-                                      }}
-                                      className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
-                                      ×
-                                    </button>
-                                  }
-                                </span>
-                              </TooltipTrigger>
-                              {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
-                            </Tooltip>
-                          </TooltipProvider>
-                          {isTaxExempt ? (
-                            <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                          ) : (
-                            <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
-                          )}
-                        </>
-                      ) : (
-                        /* Only one of discount/SC — Tax flows to right-aligned second row */
-                        isTaxExempt ? (
-                          <span className="ml-auto text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                        ) : (
-                          <span className="text-foreground ml-auto"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
-                        )
-                      )}
-                    </div>
-                  </>
-                ) : (
-                  <div className="flex justify-between gap-2">
-                    <span className="text-foreground">
-                      <span className="font-medium">Sub Total</span> <span className="font-bold">${subtotal.toFixed(2)}</span>
-                    </span>
-                    {isTaxExempt ? (
-                      <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                    ) : (
-                      <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
-                    )}
-                  </div>
-                )}
+          {orderItems.length > 0 && <div className="px-2 py-1 border-t border-sidebar-border text-xs flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1">
+                <span className="text-muted-foreground">Sub:</span>
+                <span className="text-foreground">${subtotal.toFixed(2)}</span>
               </div>
-            </div>
-          )}
-
-          {/* Split Order Warning - Mobile */}
-          {isOrderSplit && orderItems.length > 0 &&
-            <div className="px-2 py-2">
-              <div className="bg-amber-500/20 border border-amber-500/30 rounded-lg px-3 py-2">
-                <p className="text-amber-400 text-xs leading-relaxed">
-                  This check has been split. Re-merge this ticket if you want to fire it or add products to it.
-                </p>
+              <div className="flex items-center gap-1">
+                <span className="text-red-500">{selectedDiscounts.length > 0 ? selectedDiscounts.map(d => d.name).join(', ') : 'Disc'}:</span>
+                <span className="text-red-500">${discount.toFixed(2)}</span>
               </div>
-            </div>
-          }
+              <div className="flex items-center gap-1">
+                <span className="text-muted-foreground">{appliedServiceChargeName ? appliedServiceChargeName.split(' ')[0] : 'Svc'}:</span>
+                <span className="text-foreground">${serviceCharge.toFixed(2)}</span>
+              </div>
+            </div>}
 
           {/* Action Buttons - Only show when cart has items */}
           {orderItems.length > 0 &&
@@ -7714,8 +7571,8 @@ const Orders = () => {
               </button>
               <button
             onClick={handleFireOrder}
-            disabled={isOrderSplit || orderItems.length === 0}
-            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${isOrderSplit || orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
+            disabled={orderItems.length === 0}
+            className={`flex-1 h-8 rounded-full flex items-center justify-center gap-1.5 ${orderItems.length === 0 ? 'opacity-50 cursor-not-allowed' : ''}`}
             style={{
               background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
             }}>
@@ -7769,7 +7626,6 @@ const Orders = () => {
         </div>
         {/* Menu Content - Hidden when minimized */}
       <div className={`flex flex-col gap-2 transition-all duration-300 bg-neutral-900 rounded-[12px] md:rounded-[16px] ${voucherMode ? 'p-0' : showInlineCustomization && selectedItemForCustomization ? 'p-0' : 'p-2 md:p-2 lg:p-3'} ${menuPosition === 'minimized' ? 'h-0 opacity-0 overflow-hidden' : 'flex-1 opacity-100 overflow-hidden scrollbar-hide'}`}>
-        {/* Custom Product is now handled via bottom sheet overlay */}
         {voucherMode ? (
           <SellVoucherScreen
             onBack={() => { setVoucherMode(false); setEditingVoucherData(null); }}
@@ -7777,7 +7633,7 @@ const Orders = () => {
             guestData={(guestName || guestPhone) ? { name: guestName, phone: guestPhone } : null}
             onGuestIdentified={(guest) => {
               setGuestName(guest.name);
-              if (guest.phone) setGuestPhone(guest.phone.replace(/\D/g, ''));
+              setGuestPhone(guest.phone.replace(/\D/g, ''));
             }}
             onAddVoucher={(amount, voucherData) => {
               const price = voucherData.sellingPrice || amount;
@@ -7807,7 +7663,196 @@ const Orders = () => {
               setEditingVoucherData(null);
             }}
           />
-        ) :
+        ) : showCustomItemPanel ? (
+        /* Custom Item Panel */
+        <div className="flex-1 flex flex-col p-3 md:p-4 overflow-y-auto scrollbar-hide min-h-0">
+            {/* Header */}
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
+              <h2 className="text-white text-lg font-semibold">Custom Item</h2>
+              <button
+              onClick={toggleCustomItemPanel}
+              className="w-8 h-8 rounded-full bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center transition-colors">
+
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </div>
+
+            {/* Name Input */}
+            <div className="mb-3 flex-shrink-0">
+              <div
+              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'name' ? 'border-orange-500' : 'border-neutral-700'}`}
+              onClick={() => setActiveCustomItemField('name')}>
+
+                <span className="text-neutral-500 text-sm uppercase">NAME</span>
+                <input
+                type="text"
+                value={customItemName}
+                onChange={(e) => {
+                  // Auto-capitalize first letter of each word
+                  const value = e.target.value;
+                  const capitalizedValue = value.replace(/\b\w/g, (char) => char.toUpperCase());
+                  setCustomItemName(capitalizedValue);
+                }}
+                onFocus={() => setActiveCustomItemField('name')}
+                placeholder="Enter item name"
+                className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500" />
+
+              </div>
+            </div>
+
+            {/* Price Input */}
+            <div className="mb-3 flex-shrink-0">
+              <div
+              className={`flex items-center gap-3 bg-neutral-800 rounded-lg px-4 py-3 border ${activeCustomItemField === 'price' ? 'border-orange-500' : 'border-neutral-700'}`}
+              onClick={() => setActiveCustomItemField('price')}>
+
+                <span className="text-neutral-500 text-sm uppercase">PRICE</span>
+                <div className="flex-1 flex items-center">
+                  <span className="text-white text-sm mr-1">$</span>
+                  <input
+                  type="text"
+                  value={customItemPrice}
+                  readOnly
+                  onFocus={() => setActiveCustomItemField('price')}
+                  placeholder="0.00"
+                  className="flex-1 bg-transparent outline-none text-white text-sm placeholder:text-neutral-500" />
+
+                </div>
+              </div>
+            </div>
+
+            {/* Add to Order Button */}
+            <button
+            onClick={addCustomItemToOrder}
+            disabled={!customItemName.trim() || !customItemPrice}
+            className="w-full py-3 rounded-lg font-semibold text-white mb-4 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
+            style={{
+              background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
+            }}>
+
+              <Plus className="w-4 h-4" />
+              Add to Order
+              {customItemPrice && <span className="ml-2">${parseFloat(customItemPrice).toFixed(2)}</span>}
+            </button>
+
+            {/* Keyboard / Numpad */}
+            {activeCustomItemField === 'name' ? (
+          /* QWERTY Keyboard for Name */
+          <div className="flex flex-col gap-1.5 min-h-0">
+                {/* Row 1: q-p */}
+                <div className="grid grid-cols-10 gap-1">
+                  {['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'].map((key) =>
+              <button
+                key={key}
+                onClick={() => handleCustomItemKeyboardClick(key)}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
+
+                      {isShiftActive ? key.toUpperCase() : key}
+                    </button>
+              )}
+                </div>
+                {/* Row 2: a-l */}
+                <div className="grid grid-cols-10 gap-1">
+                  {['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'].map((key) =>
+              <button
+                key={key}
+                onClick={() => handleCustomItemKeyboardClick(key)}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
+
+                      {isShiftActive ? key.toUpperCase() : key}
+                    </button>
+              )}
+                  <div /> {/* Empty space to align */}
+                </div>
+                {/* Row 3: shift, z-m, backspace */}
+                <div className="grid grid-cols-10 gap-1">
+                  <button
+                onClick={() => handleCustomItemKeyboardClick('shift')}
+                className={`bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors ${isShiftActive ? 'bg-blue-600 hover:bg-blue-500' : ''}`}>
+
+                    ⇧
+                  </button>
+                  {['z', 'x', 'c', 'v', 'b', 'n', 'm'].map((key) =>
+              <button
+                key={key}
+                onClick={() => handleCustomItemKeyboardClick(key)}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-base md:text-lg font-medium py-3 transition-colors">
+
+                      {isShiftActive ? key.toUpperCase() : key}
+                    </button>
+              )}
+                  <button
+                onClick={() => handleCustomItemKeyboardClick('backspace')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-2 flex items-center justify-center">
+
+                    <Delete className="w-5 h-5" />
+                  </button>
+                </div>
+                {/* Row 4: 123, Space, Clear */}
+                <div className="grid grid-cols-6 gap-1">
+                  <button
+                onClick={() => handleCustomItemKeyboardClick('123')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors">
+
+                    123
+                  </button>
+                  <button
+                onClick={() => handleCustomItemKeyboardClick('space')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-sm font-medium py-3 transition-colors col-span-4">
+
+                    Space
+                  </button>
+                  <button
+                onClick={() => handleCustomItemKeyboardClick('clear')}
+                className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-sm font-medium py-3 transition-colors">
+
+                    Clear
+                  </button>
+                </div>
+              </div>) : (
+
+          /* Numpad for Price */
+          <div className="flex flex-col gap-2 min-h-0">
+                <div className="grid grid-cols-3 gap-2">
+                  {['7', '8', '9', '4', '5', '6', '1', '2', '3'].map((num) =>
+              <button
+                key={num}
+                onClick={() => handleCustomItemNumpadClick(num)}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
+
+                      {num}
+                    </button>
+              )}
+                  <button
+                onClick={() => handleCustomItemNumpadClick('clear')}
+                className="bg-red-600/80 hover:bg-red-600 rounded-lg text-white text-lg font-medium py-4 transition-colors">
+
+                    Clear
+                  </button>
+                  <button
+                onClick={() => handleCustomItemNumpadClick('0')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
+
+                    0
+                  </button>
+                  <button
+                onClick={() => handleCustomItemNumpadClick('.')}
+                className="bg-neutral-800 hover:bg-neutral-700 rounded-lg text-white text-xl font-medium py-4 transition-colors">
+
+                    .
+                  </button>
+                </div>
+                
+                {/* Backspace Button */}
+                <button
+              onClick={() => handleCustomItemNumpadClick('backspace')}
+              className="w-full bg-neutral-800 hover:bg-neutral-700 rounded-lg py-4 flex items-center justify-center transition-colors">
+
+                  <Delete className="w-5 h-5 text-white" />
+                </button>
+              </div>)
+          }
+          </div> ) :
         showInlineCustomization && selectedItemForCustomization ?
         isProductInfoFullScreen ?
         // Full-screen product info overlay on mobile
@@ -7919,20 +7964,15 @@ const Orders = () => {
                       </button>
                     </div>
                     <div className="p-0.5 md:p-1 bg-neutral-900 flex items-center justify-between gap-1" onClick={() => openCustomizationDialog(item, index)}>
-                      <div className="flex items-center gap-1 flex-1 min-w-0">
-                        <span className="text-[11px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-1">
-                          {item.name}
-                        </span>
-                      </div>
-                      {item.isOpenPrice ? (
-                        <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[8px] md:text-[9px] font-semibold text-white shrink-0 whitespace-nowrap">
-                          Open Price
-                        </span>
-                      ) : (
-                        <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold shrink-0">
-                          ${item.price.toFixed(2)}
-                        </span>
-                      )}
+                      <span className="text-[11px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-1 flex-1 flex items-center gap-1">
+                        {item.name}
+                        {(item as MenuItem).isOpenPrice && (
+                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 shrink-0">Open Price</span>
+                        )}
+                      </span>
+                      <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold shrink-0">
+                        {(item as MenuItem).isOpenPrice && item.price === 0 ? "Open" : `$${item.price.toFixed(2)}`}
+                      </span>
                     </div>
                   </div>)}
               </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5 pb-4 md:pb-0">
@@ -7940,19 +7980,14 @@ const Orders = () => {
                     <div className="flex-1 p-1.5 md:p-2" style={{
                     background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
                   }}>
-                      {item.isOpenPrice ? (
-                        <span className="float-right ml-1">
-                          <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[7px] md:text-[8px] font-semibold text-white whitespace-nowrap">
-                            Open Price
-                          </span>
-                        </span>
-                      ) : (
-                        <span className="float-right text-[9px] md:text-[10px] ml-1 text-white">
-                          ${item.price.toFixed(2)}
-                        </span>
-                      )}
-                      <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2">
+                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-white">
+                        {(item as MenuItem).isOpenPrice && item.price === 0 ? "Open" : `$${item.price.toFixed(2)}`}
+                      </span>
+                      <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 flex items-center gap-1">
                         {item.name}
+                        {(item as MenuItem).isOpenPrice && (
+                          <span className="px-1.5 py-0.5 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 shrink-0">Open Price</span>
+                        )}
                       </span>
                     </div>
                     <button onClick={(e) => {
@@ -7970,7 +8005,7 @@ const Orders = () => {
         </>}
         
         {/* Desktop/Tablet Search Bar - At Bottom */}
-        {!voucherMode && isDesktopSearchOpen && <div className="hidden md:flex items-center gap-2 px-3 py-2.5 bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
+        {isDesktopSearchOpen && <div className="hidden md:flex items-center gap-2 px-3 py-2.5 bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
           <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
             <img src={searchIcon} alt="Search" className="w-4 h-4 flex-shrink-0" />
             <input type="text" placeholder="Search items..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none" autoFocus />
@@ -8057,21 +8092,14 @@ const Orders = () => {
                 className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
                 onClick={toggleCustomItemPanel}>
 
-                  <img src={customItemIcon} alt="" className="w-3 h-3" />
-                  Custom Product
+                  <img src={showCustomItemPanel ? menuIcon : customItemIcon} alt="" className="w-3 h-3" />
+                  {showCustomItemPanel ? "Menu" : "Custom Item"}
                 </Button>
                 <Button
                 variant="secondary"
                 size="sm"
                 className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-3 whitespace-nowrap flex-1 gap-1.5"
-                onClick={() => {
-                  if (isManager) {
-                    setDiscountDialogView('discounts');
-                  } else {
-                    setDiscountDialogView('mpin');
-                  }
-                  setShowDiscountDialog(true);
-                }}>
+                onClick={() => setShowDiscountDialog(true)}>
 
                   <img src={discountBtnIcon} alt="" className="w-3 h-3" />
                   Discount
@@ -8142,7 +8170,8 @@ const Orders = () => {
                         TABLE {tableIdFromParams}
                       </span>
                       <Users className="w-4 h-4 text-neutral-400" />
-                      <span className="text-neutral-400 text-xs">{guestCount}</span>
+                      <span className="text-neutral-400 text-xs">Available Seats {totalSeats}</span>
+                      <span className="font-bold text-white text-sm">{guestCount}</span>
                       <span className="font-bold text-white text-sm">{orderNumber}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
@@ -8150,9 +8179,10 @@ const Orders = () => {
                       <span className="text-neutral-400">{guestName || "MIA JONE"}</span>
                     </div>
                   </div>
-                  {/* Table Order Header - Row 2: Seat buttons */}
-                  <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-sidebar-border">
-                    <button className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors">
+                  {/* Table Order Header - Row 2: Select seats */}
+                  <div className="flex items-center gap-1.5 px-2 py-1.5 border-b border-sidebar-border" role="group" aria-label="Select seats">
+                    <span className="text-neutral-500 text-xs mr-0.5 self-center shrink-0">Select seats</span>
+                    <button type="button" className="p-1 bg-neutral-700 rounded hover:bg-neutral-600 transition-colors" aria-label="Chair">
                       <img src={chairWhiteIcon} alt="Chair" className="w-3.5 h-3.5" />
                     </button>
                     <button
@@ -8500,7 +8530,6 @@ const Orders = () => {
                     </button>
               }
                   {/* Order Notes */}
-                  {orderItems.length > 0 && (
                   <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
                     <OrderNotesAutocomplete
                   value={orderNotes}
@@ -8508,7 +8537,6 @@ const Orders = () => {
                   placeholder="Order notes" />
 
                   </div>
-                  )}
                   {transferNewMode &&
               <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2 flex-shrink-0">
                       <img src={transferIconPng} alt="Transferred" className="w-4 h-4 opacity-70" />
@@ -8530,30 +8558,7 @@ const Orders = () => {
                       style={item.isTransferred ?
                       { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } :
                       { background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
-                      onClick={() => {
-                        if (item.itemOrderType === 'VOUCHER') {
-                          setEditingVoucherData({
-                            type: (item as any).voucherMeta?.type || 'fixed',
-                            value: (item as any).voucherMeta?.value || 0,
-                            sellingPrice: item.price,
-                            expiryDate: (item as any).voucherMeta?.expiryDate,
-                            quantity: item.qty,
-                            editingItemId: item.id,
-                            voucherName: (item as any).voucherMeta?.voucherName,
-                          });
-                          setVoucherMode(true);
-                          return;
-                        }
-                        if (item.isOpenPrice) {
-                          setOpenPriceItem({ id: item.id, name: item.name, price: item.price, isOpenPrice: true } as MenuItem);
-                          setOpenPriceImageIndex(index);
-                          setOpenPriceFlow('editCartItem');
-                          setOpenPriceEditCartItemId(item.id);
-                          setShowOpenPriceDialog(true);
-                          return;
-                        }
-                        openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index);
-                      }}>
+                      onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}>
 
                               <div className="flex flex-col">
                                 {/* Item header row */}
@@ -8563,10 +8568,12 @@ const Orders = () => {
                                   </span>
                                   <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between">
-                                      <div className="flex items-center gap-1.5">
-                                        <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground">{item.name}</span>
-                                        {item.isOpenPrice && <span className="px-1.5 py-0.5 rounded-full bg-gradient-to-r from-orange-500 to-orange-600 text-[8px] font-semibold text-white whitespace-nowrap">Open Price</span>}
-                                      </div>
+                                      <span className="text-sm md:text-xs lg:text-sm font-medium text-foreground flex items-center gap-1.5 flex-wrap">
+                                        {item.name}
+                                        {item.isOpenPrice && (
+                                          <span className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30">Open Price</span>
+                                        )}
+                                      </span>
                                       {item.itemOrderType === 'VOUCHER' ?
                               <span
                                 className="text-sm md:text-xs lg:text-sm font-medium text-foreground cursor-pointer transition-colors ml-2"
@@ -8600,9 +8607,6 @@ const Orders = () => {
                                         </span>
                               }
                                     </div>
-                                    {item.itemOrderType === 'VOUCHER' && (item as any).voucherMeta?.expiryDate && (
-                                      <p className="text-[10px] text-neutral-400 mt-0.5">Expires: {new Date((item as any).voucherMeta.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                                    )}
                                   </div>
                                 </div>
                                 
@@ -8670,7 +8674,7 @@ const Orders = () => {
 
                         })()}
                                 
-                                {/* Product Notes Display - Desktop/Tablet */}
+                                {/* Item Notes Display - Desktop/Tablet */}
                                 {item.notes &&
                         <div className="ml-3 mt-1 relative">
                                     <div className="relative flex items-center text-xs md:text-[10px] lg:text-xs py-[3px]">
@@ -8760,108 +8764,41 @@ const Orders = () => {
                   {/* Order Summary - Only show when cart has items */}
                   {orderItems.length > 0 &&
               <div className="p-2 border-t border-sidebar-border flex-shrink-0">
-                <ScrollArea className="max-h-[120px]">
                 <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{
                   background: '#7575754D',
                   boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
                 }}>
-                  {(discount > 0 || serviceCharge > 0) ? (
-                    <>
-                      {/* Row 1: Sub Total + (Discount if present, else Service Charge) */}
-                      <div className="flex justify-between gap-3">
-                        <span className="text-foreground"><span className="font-medium">Sub Total</span> <span className="font-bold">${subtotal.toFixed(2)}</span></span>
-                        {discount > 0 ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                 <span className="text-red-400 flex items-center gap-1 cursor-default">
-                                   <span className="font-medium">Discount</span> <span className="font-bold">-${discount.toFixed(2)}</span>
-                                  {selectedDiscount &&
-                                    <button
-                                      onClick={() => setSelectedDiscountId(null)}
-                                      className="text-red-400 hover:text-red-300 text-xs font-bold ml-0.5">
-                                      ×
-                                    </button>
-                                  }
-                                </span>
-                              </TooltipTrigger>
-                              {selectedDiscount && <TooltipContent side="top" className="text-xs">{selectedDiscount.name}</TooltipContent>}
-                            </Tooltip>
-                          </TooltipProvider>
-                        ) : (
-                          /* No discount — Service Charge flows up to top-right */
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                 <span className="text-foreground flex items-center gap-1 cursor-default">
-                                   <span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+${serviceCharge.toFixed(2)}</span>
-                                  {appliedServiceCharge > 0 &&
-                                    <button
-                                      onClick={() => {
-                                        setAppliedServiceCharge(0);
-                                        setAppliedServiceChargeName('');
-                                      }}
-                                      className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
-                                      ×
-                                    </button>
-                                  }
-                                </span>
-                              </TooltipTrigger>
-                              {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
-                            </Tooltip>
-                          </TooltipProvider>
-                        )}
-                      </div>
-                      {/* Row 2: Service Charge (only if discount also shown) + Tax */}
-                      <div className="flex justify-between gap-3">
-                        {discount > 0 && serviceCharge > 0 ? (
-                          <>
-                            <TooltipProvider>
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                   <span className="text-foreground flex items-center gap-1 cursor-default">
-                                     <span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+${serviceCharge.toFixed(2)}</span>
-                                    {appliedServiceCharge > 0 &&
-                                      <button
-                                        onClick={() => {
-                                          setAppliedServiceCharge(0);
-                                          setAppliedServiceChargeName('');
-                                        }}
-                                        className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
-                                        ×
-                                      </button>
-                                    }
-                                  </span>
-                                </TooltipTrigger>
-                                {appliedServiceChargeName && <TooltipContent side="top" className="text-xs">{appliedServiceChargeName}</TooltipContent>}
-                              </Tooltip>
-                            </TooltipProvider>
-                            {isTaxExempt ? (
-                              <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                            ) : (
-                              <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
-                            )}
-                          </>
-                        ) : (
-                          /* Only one of discount/SC — Tax flows to right-aligned second row */
-                          isTaxExempt ? (
-                            <span className="ml-auto text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                          ) : (
-                            <span className="text-foreground ml-auto"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
-                          )
-                        )}
-                      </div>
-                    </>
-                  ) : (
-                    <div className="flex justify-between gap-3">
-                      <span className="text-foreground"><span className="font-medium">Sub Total</span> <span className="font-bold">${subtotal.toFixed(2)}</span></span>
-                      {isTaxExempt ? (
-                        <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                      ) : (
-                        <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
-                      )}
-                    </div>
-                  )}
+                  <div className="flex justify-between gap-3">
+                    <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+                    <span className="text-white">
+                      {selectedDiscounts.length > 0 ? selectedDiscounts.map(d => d.name).join(', ') : 'Discount'}: <span className="font-medium">${discount.toFixed(2)}</span>
+                      {selectedDiscounts.length > 0 &&
+                  <button
+                        onClick={() => setSelectedDiscounts([])}
+                        className="text-white hover:text-white/80 text-xs font-bold ml-0.5">
+
+                          ×
+                        </button>
+                      }
+                    </span>
+                  </div>
+                  <div className="flex justify-between gap-3">
+                    <span className="text-foreground flex items-center gap-1">
+                      {appliedServiceChargeName || 'Service Charge'}: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span>
+                      {appliedServiceCharge > 0 &&
+                      <button
+                        onClick={() => {
+                          setAppliedServiceCharge(0);
+                          setAppliedServiceChargeName('');
+                        }}
+                        className="text-red-500 hover:text-red-400 text-xs font-bold ml-0.5">
+
+                          ×
+                        </button>
+                      }
+                    </span>
+                    <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
+                  </div>
                   {appliedGiftCardAmount > 0 &&
                   <div className="flex justify-between gap-3 pt-1 border-t border-white/10">
                       <span className="text-green-500">Gift Card: <span className="font-medium">-${appliedGiftCardAmount.toFixed(2)}</span></span>
@@ -8884,7 +8821,6 @@ const Orders = () => {
                     </div>
                   }
                 </div>
-                </ScrollArea>
 
                 {/* Action Buttons - Inside background container */}
                 <div className="px-2 py-2 flex items-center gap-3 flex-shrink-0">
@@ -8950,7 +8886,7 @@ const Orders = () => {
                 className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
                     <img src={giftCardBtnIcon} alt="" className="w-5 h-5" />
-                    <span className="text-[9px] text-white text-center leading-tight">Sell Gift<br />Card</span>
+                    <span className="text-[9px] text-white text-center leading-tight">Gift<br />Card</span>
                   </button>
                   <button
                 onClick={() => setShowServiceChargeDialog(true)}
@@ -8971,10 +8907,10 @@ const Orders = () => {
                   </button>
                   <button
                 onClick={() => { setVoucherMode(true); setEditingVoucherData(null); }}
-                className={`flex-1 flex flex-col items-center justify-center gap-1 rounded-xl transition-colors ${voucherMode ? 'bg-sidebar-accent border-2 border-white' : 'hover:bg-sidebar-accent'}`}>
+                className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
 
                     <Ticket className="w-5 h-5 text-white" />
-                    <span className="text-[9px] text-white text-center leading-tight">Sell<br />Voucher</span>
+                    <span className="text-[9px] text-white text-center leading-tight">Voucher</span>
                   </button>
                   {/* Merge - Only show when order is split */}
                   {isOrderSplit &&
@@ -9007,14 +8943,13 @@ const Orders = () => {
           setShowOpenPriceDialog(open);
           if (!open) setOpenPriceItem(null);
         }}
-        productName={openPriceItem?.name || ""}
+        productName={openPriceItem?.name ?? ""}
         ctaLabel={openPriceFlow === 'viewItem' ? "Continue" : openPriceFlow === 'editCartItem' ? "Save" : "Add to Order"}
         initialPrice={openPriceFlow === 'editCartItem' ? openPriceItem?.price : undefined}
         onConfirm={(price) => {
           if (openPriceItem) {
             const itemWithPrice = { ...openPriceItem, price };
             if (openPriceFlow === 'quickAdd') {
-              // Quick add: add directly to cart with entered price
               const allSeats = isTableOrder ? Array.from({ length: guestCount }, (_, i) => i + 1) : undefined;
               setOrderItems((prev) => [...prev, {
                 id: Date.now(),
@@ -9025,12 +8960,11 @@ const Orders = () => {
                 isOpenPrice: true
               }]);
             } else if (openPriceFlow === 'editCartItem' && openPriceEditCartItemId !== null) {
-              // Edit existing cart item: update its price then open customization
               setOrderItems((prev) => prev.map((o) =>
                 o.id === openPriceEditCartItemId ? { ...o, price: itemWithPrice.price } : o
               ));
               toast.success(`Price updated to $${itemWithPrice.price.toFixed(2)}`, { duration: 2000 });
-              setSelectedItemForCustomization({ ...itemWithPrice, id: openPriceEditCartItemId });
+              setSelectedItemForCustomization({ ...itemWithPrice, id: openPriceEditCartItemId, isOpenPrice: true });
               setSelectedItemImage(foodImages[openPriceImageIndex % foodImages.length]);
               const isMobile = window.innerWidth < 768;
               if (isMobile) {
@@ -9040,8 +8974,7 @@ const Orders = () => {
               }
               setOpenPriceEditCartItemId(null);
             } else {
-              // View item: open customization dialog with entered price
-              setSelectedItemForCustomization(itemWithPrice);
+              setSelectedItemForCustomization({ ...itemWithPrice, isOpenPrice: true });
               setSelectedItemImage(foodImages[openPriceImageIndex % foodImages.length]);
               const isMobile = window.innerWidth < 768;
               if (isMobile) {
@@ -9068,7 +9001,7 @@ const Orders = () => {
       onOpenPriceEdit={() => {
         if (selectedItemForCustomization?.isOpenPrice) {
           setCustomizationDialogOpen(false);
-          setOpenPriceItem({ id: selectedItemForCustomization.id, name: selectedItemForCustomization.name, price: selectedItemForCustomization.price, isOpenPrice: true } as MenuItem);
+          setOpenPriceItem({ id: selectedItemForCustomization.id, name: selectedItemForCustomization.name, price: selectedItemForCustomization.price, isOpenPrice: true });
           setOpenPriceFlow('editCartItem');
           setOpenPriceEditCartItemId(selectedItemForCustomization.id);
           setShowOpenPriceDialog(true);
@@ -9076,96 +9009,14 @@ const Orders = () => {
       }} />
 
 
-      {/* Discount Dialog with integrated MPIN */}
-      <Dialog open={showDiscountDialog} onOpenChange={(open) => {
-        setShowDiscountDialog(open);
-        if (!open) setDiscountDialogView('mpin');
-      }}>
-        <DialogContent hideCloseButton className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[90vw] overflow-hidden rounded-xl">
-            {discountDialogView === 'mpin' ? (
-          /* MPIN View — shared AccessRestrictedModal component */
-          <AccessRestrictedModal
-            subtitle="Manager approval required to apply discount."
-            onBack={() => { setShowDiscountDialog(false); setDiscountDialogView('mpin'); }}
-            onSuccess={() => { setDiscountDialogView('discounts'); }}
-          />) : (
-
-        /* Discount Selection View */
-        <>
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-            <h2 className="text-white text-lg font-semibold">Select Discounts</h2>
-            <button 
-              type="button"
-              onClick={() => setShowDiscountDialog(false)}
-              className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
-            >
-              <X className="w-5 h-5 text-neutral-400" />
-            </button>
-          </div>
-
-          {/* Discount Options */}
-          <div className="p-2 max-h-[400px] overflow-y-auto scrollbar-hide space-y-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-            {discountTypes.map((discountType) => {
-              const discountAmount = discountType.fixedAmount || subtotal * ((discountType.percentage || 0) / 100);
-              const isSelected = selectedDiscountId === discountType.id;
-
-              const IconComponent = {
-                briefcase: Briefcase,
-                heart: Heart,
-                graduation: GraduationCap,
-                shield: Shield,
-                star: Star,
-                clock: Clock,
-                cake: Cake,
-                mappin: MapPin,
-                dollar: BadgeDollarSign,
-                tag: Tag
-              }[discountType.icon];
-
-              return (
-                <button
-                  type="button"
-                  key={discountType.id}
-                  onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
-                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                    isSelected 
-                      ? 'bg-orange-500/20 border border-orange-500' 
-                      : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
-                  }`}
-                >
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                    isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'
-                  }`}>
-                    <IconComponent className="w-4 h-4 text-neutral-400" />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="text-white text-sm font-medium">{discountType.name}</div>
-                  </div>
-                  <div className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                    isSelected ? 'bg-orange-500/30 text-orange-300' : 'bg-neutral-700 text-neutral-300'
-                  }`}>
-                    {discountType.percentage ? `${discountType.percentage}% off` : `$${discountType.fixedAmount?.toFixed(2)} off`}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Apply Button */}
-          <div className="p-3 border-t border-neutral-700">
-            <button
-              type="button"
-              onClick={() => setShowDiscountDialog(false)}
-              className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm"
-            >
-              Apply
-            </button>
-          </div>
-        </>)
-        }
-        </DialogContent>
-      </Dialog>
+      {/* Discount Dialog (from posai-jaspreet) */}
+      <DiscountDialog
+        open={showDiscountDialog}
+        onOpenChange={setShowDiscountDialog}
+        currentDiscounts={selectedDiscounts}
+        onApplyDiscounts={setSelectedDiscounts}
+        subtotal={subtotal}
+      />
 
       {/* No Tax Confirmation Dialog */}
       {showNoTaxDialog &&
@@ -9251,8 +9102,7 @@ const Orders = () => {
           id: item.id,
           qty: item.qty,
           name: item.name,
-          price: item.price,
-          voucherMeta: (item as any).voucherMeta,
+          price: item.price
         }))
       }}
       subtotal={subtotal}
@@ -9312,9 +9162,9 @@ const Orders = () => {
               <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center mx-auto mb-4">
                 <AlertCircle className="w-6 h-6 text-amber-400" />
               </div>
-              <h3 className="text-white font-semibold text-lg mb-2">Cannot Add Products</h3>
+              <h3 className="text-white font-semibold text-lg mb-2">Cannot Add Items</h3>
               <p className="text-neutral-400 text-sm mb-6">
-                You cannot add more products to a split order. If you want to add products, please merge the order first.
+                You cannot add more items to a split order. If you want to add items, please merge the order first.
               </p>
               <button
             onClick={() => {
@@ -9343,34 +9193,81 @@ const Orders = () => {
       }} />
 
 
-      {/* VoucherDialog removed — Sell Voucher is now inline in the menu panel */}
+      {/* Voucher Dialog */}
+      <VoucherDialog
+      isOpen={showVoucherDialog}
+      onClose={() => { setShowVoucherDialog(false); setVoucherDialogInitialView('sell'); }}
+      initialView={voucherDialogInitialView}
+      initialData={editingVoucherData}
+      guestData={(guestName || guestPhone) ? { name: guestName, phone: guestPhone } : undefined}
+      onAddVoucher={(amount, voucherData) => {
+        const price = voucherData.sellingPrice ?? amount;
+        const voucherLabel = voucherData.voucherName?.trim() || 'Voucher';
+        const label = `${voucherLabel} - $${(voucherData.value ?? amount).toFixed(2)}`;
+        setOrderItems((prev) => [...prev, {
+          id: Date.now(),
+          qty: 1,
+          name: label,
+          price: price,
+          itemOrderType: 'VOUCHER',
+          noTax: true
+        }]);
+        if (voucherData.customerName && !guestName) setGuestName(voucherData.customerName);
+        if (voucherData.customerPhone && !guestPhone) setGuestPhone(voucherData.customerPhone.replace(/\D/g, ''));
+        setShowVoucherDialog(false);
+      }}
+      onRedeemVoucher={(code, balance) => {
+        setAppliedVoucherAmount(balance);
+        setVoucherCode(code);
+        setShowVoucherDialog(false);
+      }} />
 
 
-      {/* LEGACY: Voucher Options Popup — commented out, restore if needed
+      {/* Voucher Options Popup - matching Transfer Order popup UI */}
       {showVoucherOptionsPopup &&
-        <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/80" onClick={() => setShowVoucherOptionsPopup(false)} />
           <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[380px] max-w-[90vw] overflow-hidden">
+            {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-white/10">
               <h2 className="text-white text-lg font-semibold">Voucher</h2>
-              <button onClick={() => setShowVoucherOptionsPopup(false)}
-                className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+              <button
+            onClick={() => setShowVoucherOptionsPopup(false)}
+            className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
+
                 <X className="w-4 h-4 text-white" />
               </button>
             </div>
+
+            {/* Content */}
             <div className="p-4">
               <p className="text-white/60 text-sm mb-3">What would you like to do?</p>
+              
               <div className="space-y-2">
-                <button onClick={() => { setShowVoucherOptionsPopup(false); setShowCreateVoucherForm(true); }}
-                  className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
+                {/* Create Voucher */}
+                <button
+              onClick={() => {
+                setShowVoucherOptionsPopup(false);
+                setShowCreateVoucherForm(true);
+              }}
+              className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
+
                   <div className="flex items-center gap-3 mb-0.5">
                     <Ticket className="w-5 h-5 text-white/80" />
                     <span className="text-white font-medium">Create Voucher</span>
                   </div>
                   <p className="text-white/50 text-xs ml-8">Create and send a new voucher to a customer.</p>
                 </button>
-                <button onClick={() => { setShowVoucherOptionsPopup(false); setVoucherDialogInitialView('redeem'); setShowVoucherDialog(true); }}
-                  className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
+
+                {/* Redeem Voucher */}
+                <button
+              onClick={() => {
+                setShowVoucherOptionsPopup(false);
+                setVoucherDialogInitialView('redeem');
+                setShowVoucherDialog(true);
+              }}
+              className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left">
+
                   <div className="flex items-center gap-3 mb-0.5">
                     <Gift className="w-5 h-5 text-white/80" />
                     <span className="text-white font-medium">Redeem Voucher</span>
@@ -9381,29 +9278,7 @@ const Orders = () => {
             </div>
           </div>
         </div>
-      }
-      */}
-
-      {/* Custom Item Bottom Sheet Overlay */}
-      <CustomItemBottomSheet
-        open={showCustomItemPanel}
-        onClose={() => {
-          setShowCustomItemPanel(false);
-          setCustomItemName("");
-          setCustomItemPrice("");
-        }}
-        onAdd={(itemName, itemPrice) => {
-          setOrderItems((prev) => [{
-            id: Date.now(),
-            qty: 1,
-            name: itemName,
-            price: itemPrice,
-          }, ...prev]);
-          setShowCustomItemPanel(false);
-          setCustomItemName("");
-          setCustomItemPrice("");
-        }}
-      />
+    }
     </div>;
 };
 export default Orders;

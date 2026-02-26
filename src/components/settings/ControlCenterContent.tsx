@@ -1,10 +1,14 @@
-import { ChevronRight, ChevronLeft, ChevronUp, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronLeft } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useState, useRef, useEffect, useCallback } from "react";
+import { createPortal } from "react-dom";
 import { SettingsManager, ControlCenterSettings } from "@/lib/settingsManager";
+import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContext";
+import SettingsIcon from "@/components/settings/SettingsIcon";
+import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
 
 // Import custom icons
 import controlCenterIcon from "@/assets/icons/control-center.png";
@@ -29,14 +33,28 @@ const autoLockOptions = [
 const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick }: ControlCenterContentProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { getIconBgColor } = useAppearance();
   // Load initial state from SettingsManager
   const loadSettings = useCallback(() => SettingsManager.getControlCenterSettings(), []);
   
   const [restartApp, setRestartApp] = useState(() => loadSettings().restartApp);
-  const [selectedHour, setSelectedHour] = useState(12);
-  const [selectedMinute, setSelectedMinute] = useState(0);
-  const [selectedPeriod, setSelectedPeriod] = useState<"AM" | "PM">("AM");
+  const [restartTime, setRestartTime] = useState(() => {
+    const saved = loadSettings().restartTime;
+    // Convert stored 12h format to 24h for internal use
+    const match = saved?.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (match) {
+      let h = parseInt(match[1]);
+      const m = parseInt(match[2]);
+      const p = match[3].toUpperCase();
+      if (p === "AM" && h === 12) h = 0;
+      else if (p === "PM" && h !== 12) h += 12;
+      return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
+    }
+    return "00:00";
+  });
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const timeRef = useRef<HTMLSpanElement>(null);
+  const [timePickerPos, setTimePickerPos] = useState<{ top: number; left: number } | null>(null);
   const [autoLockTimer, setAutoLockTimer] = useState(() => loadSettings().autoLockTimer);
   const [showAutoLockDropdown, setShowAutoLockDropdown] = useState(false);
   const [switchToKDS, setSwitchToKDS] = useState(() => loadSettings().switchToKDS);
@@ -46,6 +64,10 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const [openRegisterWithoutPIN, setOpenRegisterWithoutPIN] = useState(() => loadSettings().openRegisterWithoutPIN);
   const [builtInDisplay, setBuiltInDisplay] = useState(() => loadSettings().builtInDisplay);
   const [hidePerformanceSummary, setHidePerformanceSummary] = useState(() => loadSettings().hidePerformanceSummary);
+  const [hideBreakButton, setHideBreakButton] = useState(() => loadSettings().hideBreakButton);
+  const [hideEmployeeFeedback, setHideEmployeeFeedback] = useState(() => loadSettings().hideEmployeeFeedback);
+  const [hideSeatSelector, setHideSeatSelector] = useState(() => loadSettings().hideSeatSelector);
+  const [resetTablesDaily, setResetTablesDaily] = useState(() => loadSettings().resetTablesDaily);
 
   // Sync all settings when a settings-updated event is received
   useEffect(() => {
@@ -62,6 +84,10 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         setOpenRegisterWithoutPIN(settings.openRegisterWithoutPIN);
         setBuiltInDisplay(settings.builtInDisplay);
         setHidePerformanceSummary(settings.hidePerformanceSummary);
+        setHideBreakButton(settings.hideBreakButton);
+        setHideEmployeeFeedback(settings.hideEmployeeFeedback);
+        setHideSeatSelector(settings.hideSeatSelector);
+        setResetTablesDaily(settings.resetTablesDaily);
       }
     };
 
@@ -120,8 +146,27 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
   const handleHidePerformanceSummaryChange = (value: boolean) => {
     setHidePerformanceSummary(value);
     updateSetting('hidePerformanceSummary', value);
-    // Also dispatch the legacy event for Account screen
     window.dispatchEvent(new CustomEvent('performanceSummaryVisibilityChanged', { detail: { hidden: value } }));
+  };
+
+  const handleHideBreakButtonChange = (value: boolean) => {
+    setHideBreakButton(value);
+    updateSetting('hideBreakButton', value);
+  };
+
+  const handleHideEmployeeFeedbackChange = (value: boolean) => {
+    setHideEmployeeFeedback(value);
+    updateSetting('hideEmployeeFeedback', value);
+  };
+
+  const handleHideSeatSelectorChange = (value: boolean) => {
+    setHideSeatSelector(value);
+    updateSetting('hideSeatSelector', value);
+  };
+
+  const handleResetTablesDailyChange = (value: boolean) => {
+    setResetTablesDaily(value);
+    updateSetting('resetTablesDaily', value);
   };
 
   const autoLockDropdownRef = useRef<HTMLDivElement>(null);
@@ -147,44 +192,72 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
     return option?.label || "30 Minutes";
   };
 
-  const formatTime = () => {
-    const hour = selectedHour.toString().padStart(2, '0');
-    const minute = selectedMinute.toString().padStart(2, '0');
-    return `${hour}:${minute} ${selectedPeriod}`;
+  const formatTime12 = (time24: string): string => {
+    const [h, m] = time24.split(":").map(Number);
+    const period = h >= 12 ? "PM" : "AM";
+    const h12 = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return `${h12}:${m.toString().padStart(2, "0")} ${period}`;
   };
 
-  const incrementHour = () => {
-    setSelectedHour(prev => prev === 12 ? 1 : prev + 1);
+  const parse12to24 = (time12: string): string => {
+    const match = time12.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+    if (!match) return "00:00";
+    let h = parseInt(match[1]);
+    const m = parseInt(match[2]);
+    const period = match[3].toUpperCase();
+    if (period === "AM" && h === 12) h = 0;
+    else if (period === "PM" && h !== 12) h += 12;
+    return `${h.toString().padStart(2, "0")}:${m.toString().padStart(2, "0")}`;
   };
 
-  const decrementHour = () => {
-    setSelectedHour(prev => prev === 1 ? 12 : prev - 1);
+  // Position time picker dropdown below the time text
+  useEffect(() => {
+    if (!isMobile && showTimePicker && timeRef.current) {
+      const rect = timeRef.current.getBoundingClientRect();
+      setTimePickerPos({
+        top: rect.bottom + 4,
+        left: rect.right - 240,
+      });
+    } else if (isMobile || !showTimePicker) {
+      setTimePickerPos(null);
+    }
+  }, [showTimePicker, isMobile]);
+
+  const handleTimeConfirm = (time12: string) => {
+    const time24 = parse12to24(time12);
+    setRestartTime(time24);
+    updateSetting('restartTime', time12);
+    setShowTimePicker(false);
   };
 
-  const incrementMinute = () => {
-    setSelectedMinute(prev => prev === 59 ? 0 : prev + 1);
-  };
+  // Schedule app restart at the set time
+  useEffect(() => {
+    if (!restartApp) return;
 
-  const decrementMinute = () => {
-    setSelectedMinute(prev => prev === 0 ? 59 : prev - 1);
-  };
+    const checkRestart = () => {
+      const now = new Date();
+      const [h, m] = restartTime.split(":").map(Number);
+      if (now.getHours() === h && now.getMinutes() === m) {
+        window.location.reload();
+      }
+    };
 
-  const togglePeriod = () => {
-    setSelectedPeriod(prev => prev === "AM" ? "PM" : "AM");
-  };
+    const interval = setInterval(checkRestart, 30000); // check every 30s
+    return () => clearInterval(interval);
+  }, [restartApp, restartTime]);
 
   return (
     <>
       <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
         {/* Header */}
         {showHeader && (
-          <div className="flex items-center justify-between py-4 relative overflow-visible px-4">
+          <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
             {onBack && (
               <button
                 onClick={onBack}
-                className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+                className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
               >
-                <ChevronLeft className="w-4 h-4 text-foreground" />
+                <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
             )}
             <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Control center</h1>
@@ -195,7 +268,7 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         )}
 
         {/* Content */}
-        <div className="pt-6 px-6 pb-8">
+        <div className={`${showHeader ? 'pt-2' : 'pt-0'} px-6 pb-8`}>
 
           {/* App Restart Section */}
           <p className="text-neutral-500 text-base mb-3 px-1">App Restart</p>
@@ -203,15 +276,12 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
           <div className={`bg-neutral-800/60 overflow-hidden mb-2 transition-all duration-300 ${restartApp ? 'rounded-2xl' : 'rounded-full'}`}>
             <div className="flex items-center justify-between py-3 px-4">
               <div className="flex items-center gap-4">
-                <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ backgroundColor: "#F97316" }}
-                >
+                <SettingsIcon bgColor="#F97316">
                   <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                     <path d="M3 3v5h5" />
                   </svg>
-                </div>
+                </SettingsIcon>
                 <span className="text-foreground text-lg font-medium">Restart App</span>
               </div>
               <Switch checked={restartApp} onCheckedChange={handleRestartAppChange} />
@@ -226,19 +296,16 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
                   className="flex items-center justify-between w-full py-3 px-4 active:opacity-70 transition-opacity"
                 >
                   <div className="flex items-center gap-4">
-                    <div 
-                      className="w-10 h-10 rounded-xl flex items-center justify-center"
-                      style={{ backgroundColor: "#6B7280" }}
-                    >
+                    <SettingsIcon bgColor="#6B7280">
                       <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                         <circle cx="12" cy="12" r="10" />
                         <polyline points="12 6 12 12 16 14" />
                       </svg>
-                    </div>
+                    </SettingsIcon>
                     <span className="text-foreground text-lg font-medium">Choose Time</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-neutral-400 text-base">{formatTime()}</span>
+                    <span ref={timeRef} className="text-base font-medium text-primary">{formatTime12(restartTime)}</span>
                     <ChevronRight className="w-5 h-5 text-neutral-500" />
                   </div>
                 </button>
@@ -259,15 +326,12 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
                 className="flex items-center justify-between w-full py-3 px-4 active:opacity-70 transition-opacity"
               >
                 <div className="flex items-center gap-4">
-                  <div 
-                    className="w-10 h-10 rounded-xl flex items-center justify-center"
-                    style={{ backgroundColor: "#7C3AED" }}
-                  >
+                  <SettingsIcon bgColor="#7C3AED">
                     <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                       <circle cx="12" cy="12" r="10" />
                       <polyline points="12 6 12 12 16 14" />
                     </svg>
-                  </div>
+                  </SettingsIcon>
                   <span className="text-foreground text-lg font-medium">Auto Lock Timer</span>
                 </div>
                 <div className="flex items-center gap-2">
@@ -300,60 +364,115 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
             )}
           </div>
            <p className="text-neutral-500 text-sm mb-6 px-1">
-             The app will automatically lock after this period of inactivity. Staff will need to enter their PIN to unlock and continue using the POS.
+             The app will automatically lock after this period of inactivity. Staff will need to enter their PIN to unlock and continue using the Point of Sale.
            </p>
 
           {/* Toggle Options Card */}
            <p className="text-neutral-500 text-base mb-3 px-1">Features</p>
-           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-2">
-            {/* Switch To KDS - hidden on mobile */}
+           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+            {/* Switch To Kitchen Display System - hidden on mobile */}
             {!isMobile && (
               <>
-                <div className="flex items-center justify-between py-3.5 px-4">
-                  <span className="text-foreground text-lg font-medium">Switch To KDS</span>
-                  <Switch checked={switchToKDS} onCheckedChange={handleSwitchToKDSChange} />
+                <div className="py-3.5 px-4">
+                  <div className="flex items-center justify-between">
+                    <span className="text-foreground text-lg font-medium">Switch To Kitchen Display System</span>
+                    <Switch checked={switchToKDS} onCheckedChange={handleSwitchToKDSChange} />
+                  </div>
+                  <p className="text-neutral-500 text-sm mt-1">Transform this device into a Kitchen Display System.</p>
                 </div>
                 <div className="h-px bg-neutral-700/50 mx-4" />
               </>
             )}
 
             {/* Debug Mode */}
-            <div className="flex items-center justify-between py-3.5 px-4">
-              <span className="text-foreground text-lg font-medium">Debug Mode</span>
-              <Switch checked={debugMode} onCheckedChange={handleDebugModeChange} />
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Debug Mode</span>
+                <Switch checked={debugMode} onCheckedChange={handleDebugModeChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Enable detailed logging for troubleshooting.</p>
             </div>
             <div className="h-px bg-neutral-700/50 mx-4" />
 
             {/* Lock After Failed Attempts */}
-            <div className="flex items-center justify-between py-3.5 px-4">
-              <span className="text-foreground text-lg font-medium">Lock after 5 attempts</span>
-              <Switch checked={lockAfterFailed} onCheckedChange={handleLockAfterFailedChange} />
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Lock after 10 attempts</span>
+                <Switch checked={lockAfterFailed} onCheckedChange={handleLockAfterFailedChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Lock the app after multiple incorrect PIN entries.</p>
             </div>
             <div className="h-px bg-neutral-700/50 mx-4" />
 
             {/* Force Clock-In */}
-            <div className="flex items-center justify-between py-3.5 px-4">
-              <span className="text-foreground text-lg font-medium">Force Clock-In</span>
-              <Switch checked={forceClockIn} onCheckedChange={handleForceClockInChange} />
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Force Clock-In</span>
+                <Switch checked={forceClockIn} onCheckedChange={handleForceClockInChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Require staff to clock in before processing orders.</p>
             </div>
             <div className="h-px bg-neutral-700/50 mx-4" />
 
             {/* Open Register Without PIN */}
-            <div className="flex items-center justify-between py-3.5 px-4">
-              <span className="text-foreground text-lg font-medium">Open Register Without PIN</span>
-              <Switch checked={openRegisterWithoutPIN} onCheckedChange={handleOpenRegisterWithoutPINChange} />
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Open Register Without PIN</span>
+                <Switch checked={openRegisterWithoutPIN} onCheckedChange={handleOpenRegisterWithoutPINChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Allow cash drawer access without manager authorization.</p>
             </div>
             <div className="h-px bg-neutral-700/50 mx-4" />
 
             {/* Hide Performance Summary */}
-            <div className="flex items-center justify-between py-3.5 px-4">
-              <span className="text-foreground text-lg font-medium">Hide Performance Summary</span>
-              <Switch checked={hidePerformanceSummary} onCheckedChange={handleHidePerformanceSummaryChange} />
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Hide Performance Summary</span>
+                <Switch checked={hidePerformanceSummary} onCheckedChange={handleHidePerformanceSummaryChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Hide the employee performance stats from the Account screen.</p>
+            </div>
+            <div className="h-px bg-neutral-700/50 mx-4" />
+
+            {/* Hide Break Button */}
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Hide Break Button</span>
+                <Switch checked={hideBreakButton} onCheckedChange={handleHideBreakButtonChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Hide the break button from the PIN screen.</p>
+            </div>
+            <div className="h-px bg-neutral-700/50 mx-4" />
+
+            {/* Hide Employee Feedback */}
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Hide Employee Feedback</span>
+                <Switch checked={hideEmployeeFeedback} onCheckedChange={handleHideEmployeeFeedbackChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Hide employee feedback options.</p>
             </div>
           </div>
-           <p className="text-neutral-500 text-sm mb-6 px-1 leading-relaxed">
-             <strong>Switch To KDS:</strong> Transform this device into a Kitchen Display System. <strong>Debug Mode:</strong> Enable detailed logging for troubleshooting. <strong>Lock After Failed Attempts:</strong> Lock the app after multiple incorrect PIN entries. <strong>Force Clock-In:</strong> Require staff to clock in before processing orders. <strong>Open Register Without PIN:</strong> Allow cash drawer access without manager authorization. <strong>Hide Performance Summary:</strong> Hide the employee performance stats from the Account screen.
-           </p>
+
+          {/* Table Section */}
+           <p className="text-neutral-500 text-base mb-3 px-1">Table</p>
+           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Hide Seat Selector</span>
+                <Switch checked={hideSeatSelector} onCheckedChange={handleHideSeatSelectorChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Hide the seat selection option when assigning tables.</p>
+            </div>
+            <div className="h-px bg-neutral-700/50 mx-4" />
+            <div className="py-3.5 px-4">
+              <div className="flex items-center justify-between">
+                <span className="text-foreground text-lg font-medium">Reset Tables Daily</span>
+                <Switch checked={resetTablesDaily} onCheckedChange={handleResetTablesDailyChange} />
+              </div>
+              <p className="text-neutral-500 text-sm mt-1">Automatically clear all table assignments at the start of each day.</p>
+            </div>
+          </div>
 
           {/* Customer Facing Display Section */}
            <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-2">
@@ -371,105 +490,35 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         </div>
       </div>
 
-      {/* iOS-style Time Picker Dialog */}
-      {showTimePicker && (
-        <div 
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 animate-in fade-in duration-200"
-          onClick={() => setShowTimePicker(false)}
-        >
-          <div 
-            className="bg-neutral-900 rounded-3xl p-6 w-[300px] shadow-2xl animate-in zoom-in-95 duration-200"
+      {/* Mobile full-screen picker */}
+      {isMobile && (
+        <AppleWheelTimePicker
+          isOpen={showTimePicker}
+          onClose={() => setShowTimePicker(false)}
+          onConfirm={handleTimeConfirm}
+          selectedTime={formatTime12(restartTime)}
+        />
+      )}
+
+      {/* Desktop dropdown via portal */}
+      {!isMobile && showTimePicker && timePickerPos && createPortal(
+        <>
+          <div className="fixed inset-0 z-[9998]" onClick={() => setShowTimePicker(false)} />
+          <div
+            className="fixed z-[9999]"
+            style={{ top: timePickerPos.top, left: timePickerPos.left }}
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Header */}
-            <h2 className="text-xl font-semibold text-foreground text-center mb-6">Set Restart Time</h2>
-            
-            {/* Time Picker Wheels */}
-            <div className="flex items-center justify-center gap-2 mb-8">
-              {/* Hour Picker */}
-              <div className="flex flex-col items-center">
-                <button 
-                  onClick={incrementHour}
-                  className="w-16 h-10 flex items-center justify-center text-neutral-500 hover:text-foreground active:opacity-70 transition-all"
-                >
-                  <ChevronUp className="w-6 h-6" />
-                </button>
-                <div className="w-16 h-16 bg-neutral-800 rounded-2xl flex items-center justify-center">
-                  <span className="text-3xl font-medium text-foreground">
-                    {selectedHour.toString().padStart(2, '0')}
-                  </span>
-                </div>
-                <button 
-                  onClick={decrementHour}
-                  className="w-16 h-10 flex items-center justify-center text-neutral-500 hover:text-foreground active:opacity-70 transition-all"
-                >
-                  <ChevronDown className="w-6 h-6" />
-                </button>
-              </div>
-
-              {/* Separator */}
-              <span className="text-3xl font-medium text-foreground mb-1">:</span>
-
-              {/* Minute Picker */}
-              <div className="flex flex-col items-center">
-                <button 
-                  onClick={incrementMinute}
-                  className="w-16 h-10 flex items-center justify-center text-neutral-500 hover:text-foreground active:opacity-70 transition-all"
-                >
-                  <ChevronUp className="w-6 h-6" />
-                </button>
-                <div className="w-16 h-16 bg-neutral-800 rounded-2xl flex items-center justify-center">
-                  <span className="text-3xl font-medium text-foreground">
-                    {selectedMinute.toString().padStart(2, '0')}
-                  </span>
-                </div>
-                <button 
-                  onClick={decrementMinute}
-                  className="w-16 h-10 flex items-center justify-center text-neutral-500 hover:text-foreground active:opacity-70 transition-all"
-                >
-                  <ChevronDown className="w-6 h-6" />
-                </button>
-              </div>
-
-              {/* AM/PM Picker */}
-              <div className="flex flex-col items-center ml-2">
-                <button 
-                  onClick={togglePeriod}
-                  className="w-16 h-10 flex items-center justify-center text-neutral-500 hover:text-foreground active:opacity-70 transition-all"
-                >
-                  <ChevronUp className="w-6 h-6" />
-                </button>
-                <div className="w-16 h-16 bg-neutral-800 rounded-2xl flex items-center justify-center">
-                  <span className="text-2xl font-medium text-foreground">
-                    {selectedPeriod}
-                  </span>
-                </div>
-                <button 
-                  onClick={togglePeriod}
-                  className="w-16 h-10 flex items-center justify-center text-neutral-500 hover:text-foreground active:opacity-70 transition-all"
-                >
-                  <ChevronDown className="w-6 h-6" />
-                </button>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowTimePicker(false)}
-                className="flex-1 py-3.5 bg-neutral-800 rounded-xl text-foreground font-medium active:opacity-70 transition-opacity"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => setShowTimePicker(false)}
-                className="flex-1 py-3.5 bg-primary rounded-xl text-primary-foreground font-medium active:opacity-70 transition-opacity"
-              >
-                Confirm
-              </button>
-            </div>
+            <AppleWheelTimePicker
+              isOpen
+              onClose={() => setShowTimePicker(false)}
+              onConfirm={handleTimeConfirm}
+              selectedTime={formatTime12(restartTime)}
+              compact
+            />
           </div>
-        </div>
+        </>,
+        document.body
       )}
     </>
   );

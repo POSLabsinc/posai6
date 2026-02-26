@@ -44,16 +44,13 @@ interface SellVoucherScreenProps {
 const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData, onGuestIdentified }: SellVoucherScreenProps) => {
   const isEditMode = !!(initialData?.editingItemId);
 
-  // Customer
   const [customer, setCustomer] = useState<VoucherCustomer | null>(null);
   const [customerConfirmed, setCustomerConfirmed] = useState(isEditMode);
 
-  // Purchase type
   const [purchaseMode, setPurchaseMode] = useState<PurchaseMode>(null);
   const [buyerType, setBuyerType] = useState<BuyerType>(null);
   const [selectedCompany, setSelectedCompany] = useState<CompanyProfile | null>(null);
 
-  // Single voucher fields
   const [voucherName, setVoucherName] = useState('');
   const [isCustomVoucherName, setIsCustomVoucherName] = useState(false);
   const [valueDigits, setValueDigits] = useState('');
@@ -67,15 +64,12 @@ const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData, onGue
   const [minimumOrderDigits, setMinimumOrderDigits] = useState('');
   const [notes, setNotes] = useState('');
 
-  // Multi voucher entries
   const [multiEntries, setMultiEntries] = useState<VoucherEntry[]>([
     { id: generateVoucherCode(), voucherName: '', isCustom: false, valueDigits: '', serviceFeeDigits: '', serviceFeeReadOnly: true, serviceFeeType: 'none', serviceFeeConfigValue: 0 },
   ]);
 
-  // Gift toggle
   const [isGift, setIsGift] = useState(false);
 
-  // Edit mode: prefill
   useEffect(() => {
     if (initialData) {
       setCustomerConfirmed(true);
@@ -136,7 +130,6 @@ const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData, onGue
     }
   };
 
-  // Compute totals for single
   const numericValue = posCurrencyToNumber(valueDigits);
   const computedSingleServiceFee = (() => {
     if (serviceFeeType === 'none') return 0;
@@ -146,7 +139,6 @@ const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData, onGue
   })();
   const singleTotalPayable = numericValue + computedSingleServiceFee;
 
-  // Compute totals for multi
   const multiTotalRedeemable = multiEntries.reduce((s, e) => s + posCurrencyToNumber(e.valueDigits), 0);
   const multiTotalServiceFee = multiEntries.reduce((s, e) => {
     const v = posCurrencyToNumber(e.valueDigits);
@@ -157,14 +149,12 @@ const SellVoucherScreen = ({ onBack, onAddVoucher, initialData, guestData, onGue
   }, 0);
   const multiTotalPayable = multiTotalRedeemable + multiTotalServiceFee;
 
-  // Validation
   const isSingleValid = purchaseMode === 'single' && voucherName.trim().length > 0 && numericValue > 0;
   const isMultiValid = purchaseMode === 'multiple' && multiEntries.every(e => e.voucherName.trim().length > 0 && posCurrencyToNumber(e.valueDigits) > 0);
   const isConfigValid = customerConfirmed && (isSingleValid || isMultiValid);
 
   const totalPayable = purchaseMode === 'single' ? singleTotalPayable : multiTotalPayable;
 
-  // Derived: is customer selected?
   const hasCustomer = customerConfirmed && !!customer;
   const sectionsEnabled = hasCustomer || isEditMode;
 

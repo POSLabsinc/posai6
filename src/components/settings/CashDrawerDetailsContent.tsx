@@ -35,7 +35,7 @@ interface DrawerSession {
   sessionStartTime: number;
 }
 
-const DRAWER_OPTIONS = ["POS 1", "POS 2", "POS 3", "Main Drawer"];
+const DRAWER_OPTIONS = ["Point of Sale 1", "Point of Sale 2", "Point of Sale 3", "Main Drawer"];
 
 const CashDrawerDetailsContent = ({ 
   showHeader = true, 
@@ -50,7 +50,7 @@ const CashDrawerDetailsContent = ({
     if (saved) {
       return JSON.parse(saved);
     }
-    return { startingCash: 0, selectedDrawer: "POS 1", sessionStartTime: Date.now() };
+    return { startingCash: 0, selectedDrawer: "Point of Sale 1", sessionStartTime: Date.now() };
   });
   
   const startingCash = drawerSession.startingCash;
@@ -185,16 +185,20 @@ const CashDrawerDetailsContent = ({
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Back Button - Circular style matching reference */}
-      <div className="px-6 pt-5">
-        <button
-          onClick={handleBack}
-          className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-        >
-          <ChevronLeft className="w-5 h-5 text-foreground" />
-        </button>
-      </div>
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          <button
+            onClick={handleBack}
+            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+          >
+            <ChevronLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Cash Drawer</h1>
+          <div className="w-8 h-8" />
+        </div>
+      )}
 
-      <div className="pt-6 px-6 pb-28">
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Starting Cash Section */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Starting Cash</h2>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">

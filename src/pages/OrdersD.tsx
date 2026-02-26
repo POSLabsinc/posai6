@@ -404,7 +404,7 @@ const OrdersD = () => {
           <div className="overflow-x-auto scrollbar-hide mb-2">
             <div className="flex items-center gap-1.5 w-max">
               <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-2 whitespace-nowrap">
-                Custom Product
+                Custom Item
               </Button>
               <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-2 whitespace-nowrap">
                 Discount
@@ -534,12 +534,12 @@ const OrdersD = () => {
                 boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
               }}>
                 <div className="flex justify-between gap-3">
-                  <span className="text-foreground"><span className="font-medium">Sub Total</span> <span className="font-bold">${subtotal.toFixed(2)}</span></span>
-                  <span className="text-white"><span className="font-medium">Discount</span> <span className="font-bold">$0.00</span></span>
+                  <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+                  <span className="text-white">Discount: <span className="font-medium">$0.00</span></span>
                 </div>
                 <div className="flex justify-between gap-3">
-                  <span className="text-foreground"><span className="font-medium">Service Charge</span> <span className="font-bold">$0.00</span></span>
-                  <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
+                  <span className="text-foreground">Service Charge: <span className="font-medium">$0.00</span></span>
+                  <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
                 </div>
               </div>
 

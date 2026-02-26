@@ -5,6 +5,7 @@ import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import cashManagementIcon from "@/assets/icons/cash-management.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface CashManagementContentProps {
   showHeader?: boolean;
@@ -29,7 +30,7 @@ interface ClosedSessionData {
   closedAt: number;
 }
 
-const DRAWER_OPTIONS = ["POS 1", "POS 2", "POS 3", "Main Drawer"];
+const DRAWER_OPTIONS = ["Point of Sale 1", "Point of Sale 2", "Point of Sale 3", "Main Drawer"];
 
 const CashManagementContent = ({
   showHeader = true,
@@ -38,7 +39,8 @@ const CashManagementContent = ({
 }: CashManagementContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [selectedDrawer, setSelectedDrawer] = useState("POS 1");
+  const { getIconBgColor } = useAppearance();
+  const [selectedDrawer, setSelectedDrawer] = useState("Point of Sale 1");
   const [openingCash, setOpeningCash] = useState("");
   const [showDrawerDropdown, setShowDrawerDropdown] = useState(false);
   const [drawerPosition, setDrawerPosition] = useState<DropdownPosition>({
@@ -119,23 +121,34 @@ const CashManagementContent = ({
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      <div className="pt-6 px-6 pb-28">
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          {onBack && (
+            <button
+              onClick={handleBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Cash Management</h1>
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
+        </div>
+      )}
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-5 mb-6 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'}`}>
+        <div className="bg-neutral-800/60 rounded-2xl p-5 mb-6 flex flex-col items-start">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{
-            backgroundColor: "#F80063"
+            backgroundColor: getIconBgColor("#F80063")
           }}>
             <img src={cashManagementIcon} alt="Cash Management" className="w-7 h-7 object-contain" />
           </div>
           <h1 className="text-xl font-semibold text-foreground mb-2">Cash management</h1>
-          <p className="text-base text-neutral-400 leading-relaxed">
+          <p className="text-base text-neutral-400 leading-relaxed w-full">
             Cash management focuses on efficiently handling cash flow, liquidity, and investments to ensure financial stability.
           </p>
-        </div>
-
-        {/* AI Assistant Icon */}
-        <div className="flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
         </div>
 
         {/* Starting Cash */}
@@ -152,7 +165,7 @@ const CashManagementContent = ({
 
         {/* Opening Cash Input */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Opening Cash Amount</h2>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">
           <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-lg font-medium">Amount</span>
             <div className="flex items-center gap-1">
@@ -185,7 +198,7 @@ const CashManagementContent = ({
         {lastClosedSession && (
           <Collapsible open={isHistoryOpen} onOpenChange={setIsHistoryOpen} className="mt-6">
             <CollapsibleTrigger asChild>
-              <button className="w-full bg-neutral-800/60 rounded-2xl flex items-center justify-between py-3.5 px-4 active:opacity-70 transition-opacity">
+              <button className="w-full bg-neutral-800/60 rounded-full flex items-center justify-between py-3.5 px-4 active:opacity-70 transition-opacity">
                 <span className="text-foreground text-lg font-medium">History</span>
                 <ChevronDown className={`w-5 h-5 text-neutral-500 transition-transform duration-200 ${isHistoryOpen ? 'rotate-180' : ''}`} />
               </button>

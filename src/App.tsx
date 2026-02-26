@@ -1,9 +1,13 @@
+import { ThemeProvider } from "next-themes";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Layout } from "@/components/Layout";
+import { AppProvider } from "@/contexts/AppContext";
+import { AppearanceProvider } from "@/contexts/AppearanceContext";
+import { FontProvider } from "@/contexts/FontContext";
 import { PanelPositionProvider } from "@/contexts/PanelPositionContext";
 import { SessionOrderProvider } from "@/contexts/SessionOrderContext";
 import { UnifiedOrderProvider } from "@/contexts/UnifiedOrderContext";
@@ -38,26 +42,36 @@ import MergeOrders from "./pages/MergeOrders";
 import TransferOrders from "./pages/TransferOrders";
 import Tickets from "./pages/Tickets";
 import Settings from "./pages/Settings";
+import DiscountsRoute from "./components/routes/DiscountsRoute";
+import Account from "./pages/Account";
 import Reports from "./pages/Reports";
 import NotFound from "./pages/NotFound";
 import FullReservationsView from "./pages/FullReservationsView";
 import Voucher from "./pages/Voucher";
+import OrderOS from "./pages/OrderOS";
+import ClosedTickets from "./pages/ClosedTickets";
+import Login from "./pages/Login";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <PanelPositionProvider>
-        <SessionOrderProvider>
-        <UnifiedOrderProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
-                <Route path="/orders" element={<Orders />} />
+    <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false} storageKey="pos-app-theme">
+      <TooltipProvider>
+        <AppProvider onRestart={() => window.location.reload()}>
+          <AppearanceProvider>
+          <FontProvider>
+          <PanelPositionProvider>
+            <SessionOrderProvider>
+            <UnifiedOrderProvider>
+              <Toaster />
+              <Sonner />
+              <BrowserRouter>
+                <Layout>
+                  <Routes>
+                  <Route path="/" element={<Dashboard />} />
+                  <Route path="/home" element={<Dashboard />} />
+                  <Route path="/orders" element={<Orders />} />
                 <Route path="/orders-a" element={<OrdersA />} />
                 <Route path="/orders-d" element={<OrdersD />} />
                 <Route path="/orders-f" element={<OrdersF />} />
@@ -87,18 +101,27 @@ const App = () => (
                 <Route path="/tableorder/:tableId/transfer" element={<TransferOrders />} />
                 <Route path="/reservations" element={<FullReservationsView />} />
                 <Route path="/tickets" element={<Tickets />} />
+                <Route path="/closed-tickets" element={<ClosedTickets />} />
                 <Route path="/voucher" element={<Voucher />} />
                 <Route path="/settings" element={<Settings />} />
+                <Route path="/settings/payments/discounts" element={<DiscountsRoute />} />
+                <Route path="/settings/*" element={<Settings />} />
+                <Route path="/account" element={<Account />} />
                 <Route path="/reports" element={<Reports />} />
-                <Route path="/orderos" element={<Reports />} />
+                <Route path="/orderos" element={<OrderOS />} />
+                <Route path="/login" element={<Login />} />
                 <Route path="*" element={<NotFound />} />
-              </Routes>
-            </Layout>
-          </BrowserRouter>
-        </UnifiedOrderProvider>
-        </SessionOrderProvider>
-      </PanelPositionProvider>
-    </TooltipProvider>
+                  </Routes>
+                </Layout>
+              </BrowserRouter>
+            </UnifiedOrderProvider>
+          </SessionOrderProvider>
+          </PanelPositionProvider>
+          </FontProvider>
+          </AppearanceProvider>
+        </AppProvider>
+      </TooltipProvider>
+    </ThemeProvider>
   </QueryClientProvider>
 );
 

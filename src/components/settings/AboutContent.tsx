@@ -2,6 +2,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import aboutIcon from "@/assets/icons/about.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface InfoRowProps {
   label: string;
@@ -17,8 +18,8 @@ const InfoRow = ({ label, value, showChevron = false, onClick, showDivider = tru
     <div>
       <Component
         onClick={onClick}
-        className={`flex items-center justify-between w-full py-3.5 px-4 ${onClick ? 'active:opacity-70 transition-opacity' : ''}`}
-      >
+        className={`flex items-center justify-between w-full py-3.5 px-4 ${onClick ? 'active:opacity-70 transition-opacity' : ''}`}>
+
         <span className="text-foreground text-base font-medium">{label}</span>
         <div className="flex items-center gap-1">
           {value && <span className="text-neutral-400 text-base">{value}</span>}
@@ -26,8 +27,8 @@ const InfoRow = ({ label, value, showChevron = false, onClick, showDivider = tru
         </div>
       </Component>
       {showDivider && <div className="h-px bg-neutral-700/50 mx-4" />}
-    </div>
-  );
+    </div>);
+
 };
 
 interface AboutContentProps {
@@ -38,34 +39,36 @@ interface AboutContentProps {
 
 const AboutContent = ({ showHeader = true, onBack, onAIClick }: AboutContentProps) => {
   const navigate = useNavigate();
+  const { getIconBgColor } = useAppearance();
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && onBack && (
-        <div className="px-6 pt-5">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
-        </div>
-      )}
+      {showHeader &&
+      <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          {onBack &&
+        <button
+          onClick={onBack}
+          className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
 
-      <div className="pt-6 px-6 pb-28">
-        {/* Header Card */}
-        <div className="bg-neutral-800/60 rounded-2xl p-6 mb-6 flex flex-col items-start md:items-center">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#4200FF' }}>
-            <img src={aboutIcon} alt="About" className="w-7 h-7" />
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+        }
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">About</h1>
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
           </div>
-          <h3 className="text-xl font-semibold text-foreground mb-2">About</h3>
-          <p className="text-sm text-neutral-400 md:text-center">
-            View app and device information, including version details, build date, system specifications, and connection status for troubleshooting and support.
-          </p>
+        </div>
+      }
+
+      <div className="px-6 pb-28">
+        <div className="mb-4">
+          
+
+
         </div>
 
 
         {/* SOFTWARE Section */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider uppercase mb-3">Software</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Software</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <InfoRow label="App Version" value="4.10.2" />
           <InfoRow label="Flutter Version" value="FL.3.7.12" />
@@ -73,26 +76,26 @@ const AboutContent = ({ showHeader = true, onBack, onAIClick }: AboutContentProp
         </div>
 
         {/* DEVICE Section */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider uppercase mb-3">Device</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Device</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <InfoRow label="Device Name" value="Emulator POS 7 Stag" />
           <InfoRow label="OS Name" value="Android" />
           <InfoRow label="OS Version" value="9" />
           <InfoRow label="Model Name" value="Asus_010QD" />
           <InfoRow label="Serial Number" value="0097939B" />
-          <InfoRow label="Inbuilt CFD" value="Not Connected" showDivider={false} />
+          <InfoRow label="Inbuilt Customer Facing Display" value="Not Connected" showDivider={false} />
         </div>
 
         {/* TERMS & POLICY Section */}
-        <p className="text-xs font-medium text-neutral-500 tracking-wider uppercase mb-3">Terms & Policy</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Terms & Policy</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
-          <InfoRow label="Privacy Policy" showChevron onClick={() => {}} />
-          <InfoRow label="Legal Terms" showChevron onClick={() => {}} />
-          <InfoRow label="Report Fraud" showChevron onClick={() => {}} showDivider={false} />
+          <InfoRow label="Privacy Policy" showChevron onClick={() => navigate('/settings/support/about/privacy-policy')} />
+          <InfoRow label="Legal Terms" showChevron onClick={() => navigate('/settings/support/about/legal-terms')} />
+          <InfoRow label="Report Fraud" showChevron onClick={() => navigate('/settings/support/about/report-fraud')} showDivider={false} />
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 };
 
 export default AboutContent;

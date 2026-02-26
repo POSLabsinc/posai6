@@ -3467,7 +3467,7 @@ const OrderOS = () => {
                 <Switch checked={pauseOrders} onCheckedChange={setPauseOrders} />
               </div>
               
-              {/* 86 Products Button */}
+              {/* 86 Items Button */}
               <button 
                 onClick={() => setEightySixSheetOpen(true)}
                 className="flex items-center gap-2 px-3 py-1 rounded-xl hover:opacity-80 transition-opacity shrink-0 h-[36px]" 

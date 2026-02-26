@@ -200,19 +200,19 @@ export const ClockOutValidationModal = ({
       setShowBulkReassignConfirm(null);
       setShowBulkReassignPicker(false);
       setShowGroupHelper(false);
-      // Default tab selection based on which has items
-      if (MOCK_UNPAID_CHECKS.length > 0) {
-        setActiveTab('unpaid');
-      } else {
-        setActiveTab('open');
-      }
+      // Default tab selection based on which currently has items
+      setActiveTab(prev => {
+        if (prev === 'unpaid' && unpaidChecks.length === 0 && openChecks.length > 0) return 'open';
+        if (prev === 'open' && openChecks.length === 0 && unpaidChecks.length > 0) return 'unpaid';
+        return prev;
+      });
     }
   }, [isOpen]);
 
   const currentChecks = activeTab === 'unpaid' ? unpaidChecks : openChecks;
   const unpaidCount = unpaidChecks.length;
   const openCount = openChecks.length;
-  const allChecksResolved = unpaidCount === 0 && openCount === 0;
+  const allChecksResolved = unpaidChecks.filter(c => !c.transferredTo).length === 0 && openCount === 0;
 
   // Group transferred checks by employee
   const transferredChecks = currentChecks.filter(c => c.transferredTo);
@@ -341,12 +341,6 @@ export const ClockOutValidationModal = ({
     return 'Transfer';
   };
 
-  // Auto-close modal when all checks are resolved
-  useEffect(() => {
-    if (allChecksResolved && isOpen) {
-      onClose();
-    }
-  }, [allChecksResolved, isOpen, onClose]);
 
   const handleCheckToggle = (checkId: string) => {
     // Check if this check has been transferred

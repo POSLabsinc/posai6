@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { SettingsManager, CheckoutOptionsSettings } from "@/lib/settingsManager";
 import checkoutOptionsIcon from "@/assets/icons/checkout-options.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface CheckoutOptionsContentProps {
   showHeader?: boolean;
@@ -16,6 +17,7 @@ interface CheckoutOptionsContentProps {
 const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: CheckoutOptionsContentProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { getIconBgColor } = useAppearance();
   
   // Load initial state from SettingsManager
   const [settings, setSettings] = useState<CheckoutOptionsSettings>(() => 
@@ -45,35 +47,36 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && onBack && !isMobile && (
-        <div className="px-6 pt-5">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Checkout Options</h1>
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 
-      <div className="pt-6 px-6 pb-28">
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'}`}>
+        <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
           <div 
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ backgroundColor: "#000000" }}
+            style={{ backgroundColor: getIconBgColor("#000000") }}
           >
             <img src={checkoutOptionsIcon} alt="Checkout Options" className="w-7 h-7 object-contain" />
           </div>
           <h1 className="text-xl font-semibold text-foreground mb-2">Checkout Options</h1>
-          <p className="text-base text-neutral-400 leading-relaxed">
+          <p className="text-base text-neutral-400 leading-relaxed w-full">
             Configure the checkout flow and customer-facing options.
           </p>
-        </div>
-
-        {/* AI Assistant Icon */}
-        <div className="flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
         </div>
 
         {/* Order Settings */}
@@ -191,12 +194,12 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
           </button>
         </div>
         <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">
-          These settings allow you to control what appears on the POS screen during checkout. You can choose which receipt options, tip screens, and signature requirements are shown to staff and customers.
+          These settings allow you to control what appears on the Point of Sale screen during checkout. You can choose which receipt options, tip screens, and signature requirements are shown to staff and customers.
         </p>
 
         {/* Payment Sounds */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Payment Sounds</h2>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">
           <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-lg font-medium">Enable Payment Sounds</span>
             <Switch 
@@ -208,7 +211,7 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
 
         {/* Customer Display */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Customer Display</h2>
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
              <span className="text-foreground text-lg font-medium">Show Order Summary</span>
             <Switch 
@@ -221,7 +224,7 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
           Display a full summary of the order on the customer screen, including items and totals. Turn this off if you prefer to show limited information.
         </p>
 
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
              <span className="text-foreground text-lg font-medium">Show Itemized Tax</span>
             <Switch 

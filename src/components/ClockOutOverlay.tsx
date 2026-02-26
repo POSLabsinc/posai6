@@ -181,8 +181,13 @@ export const ClockOutOverlay = ({
     clockInTime: Date;
   } | null>(null);
   
+  // Track whether checks have been resolved in this session
+  const [checksResolved, setChecksResolved] = useState(false);
+  
   // Mock function to check if employee has open/unpaid checks
   const hasOpenOrUnpaidChecks = (): boolean => {
+    // If checks were already resolved in this session, skip validation
+    if (checksResolved) return false;
     // In production, this would check the actual database
     // For demo, return true to show the validation modal
     return true;
@@ -208,6 +213,7 @@ export const ClockOutOverlay = ({
       setShowJobSelection(false);
       setShowClockOutValidation(false);
       setValidatedClockOutEmployee(null);
+      setChecksResolved(false);
       const sessionData = localStorage.getItem("pos_session");
       setIsClockedIn(!!sessionData);
     }
@@ -411,7 +417,6 @@ export const ClockOutOverlay = ({
         breakMinutes: 30
       });
     }
-    localStorage.removeItem("pos_session");
     setIsClockedIn(false);
     setShowClockOutValidation(false);
     setValidatedClockOutEmployee(null);
@@ -475,7 +480,8 @@ export const ClockOutOverlay = ({
       setShowMoodCheckIn(true);
       return;
     }
-    // Reset to keypad for next person to clock in
+    const wasClockOut = !!clockOutSummary;
+    // Reset and close overlay so ClockInOverlay appears
     setClockOutSummary(null);
     setClockInSummary(null);
     setShowMoodCheckIn(false);
@@ -483,6 +489,17 @@ export const ClockOutOverlay = ({
     setSelectedTags([]);
     setIsAnonymous(false);
     setPin("");
+    if (wasClockOut) {
+      // Ensure session is cleared before closing
+      localStorage.removeItem("pos_session");
+    }
+    onClose();
+    if (wasClockOut) {
+      // Dispatch after close with delay to ensure Layout re-checks
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event("pos_session_changed"));
+      });
+    }
   };
 
   const handleEnterPOSFromSummary = () => {
@@ -533,9 +550,13 @@ export const ClockOutOverlay = ({
     setSelectedTags([]);
     setIsAnonymous(false);
     if (isClockOut) {
-      // After Clock Out, reset to initial state (keypad visible)
       setClockOutSummary(null);
       setPin("");
+      localStorage.removeItem("pos_session");
+      onClose();
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event("pos_session_changed"));
+      });
     } else {
       // After Clock In, close overlay
       setClockInSummary(null);
@@ -563,9 +584,13 @@ export const ClockOutOverlay = ({
     setSelectedTags([]);
     setIsAnonymous(false);
     if (isClockOut) {
-      // After Clock Out, reset to initial state (keypad visible)
       setClockOutSummary(null);
       setPin("");
+      localStorage.removeItem("pos_session");
+      onClose();
+      requestAnimationFrame(() => {
+        window.dispatchEvent(new Event("pos_session_changed"));
+      });
     } else {
       // After Clock In, close overlay
       setClockInSummary(null);
@@ -1601,6 +1626,8 @@ export const ClockOutOverlay = ({
             onClose={() => {
               setShowClockOutValidation(false);
               setValidatedClockOutEmployee(null);
+              setChecksResolved(true);
+              setPin("");
             }}
             onProceedClockOut={proceedWithClockOut}
             employeeName={validatedClockOutEmployee.name}
@@ -1614,6 +1641,8 @@ export const ClockOutOverlay = ({
             onClose={() => {
               setShowClockOutValidation(false);
               setValidatedClockOutEmployee(null);
+              setChecksResolved(true);
+              setPin("");
             }}
             onProceedClockOut={proceedWithClockOut}
             employeeName={validatedClockOutEmployee.name}

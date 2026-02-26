@@ -65,7 +65,7 @@ const AddDefaultModifierContent = ({ showHeader = true, onBack }: AddDefaultModi
 
         <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
           {/* Options card */}
-          <section className="rounded-2xl bg-[hsl(var(--surface-2))] overflow-hidden mt-6 mb-1">
+          <section className="rounded-2xl bg-[#26262699] overflow-hidden mt-6 mb-1">
             {/* Name Input */}
             <div className="flex items-center justify-between w-full px-8 py-5">
               <span className="text-[15px] text-foreground">Add Default Modifiers</span>

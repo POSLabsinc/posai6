@@ -20,7 +20,7 @@ const EndOfDayRoute = () => {
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
+          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai', { state: { context: 'end-of-day' } })} />
         </div>
         <div className="flex-1 overflow-auto relative">
           <EndOfDayContent

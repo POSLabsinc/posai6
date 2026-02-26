@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
-import clearCIcon from "@/assets/icons/clear-c.png";
+import { X } from "lucide-react";
 
 interface SwipeableTicketItemProps {
   children: React.ReactNode;
@@ -132,7 +132,7 @@ const SwipeableTicketItem = ({
           onClick={(e) => { e.stopPropagation(); onCancel?.(); setTranslateX(0); }}
           className="w-9 h-7 flex items-center justify-center bg-red-500 rounded-full transition-colors"
         >
-          <img src={clearCIcon} alt="Cancel" className="w-3.5 h-3.5" />
+          <X className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
         </button>
       </div>
 

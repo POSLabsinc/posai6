@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
-import { Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
+import { Settings, Sparkles, GripVertical, Lock, Unlock, Move, X, Gift, CalendarCheck } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
-import { useSearchParams, useNavigate } from "react-router-dom";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
 import { toast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -19,16 +18,16 @@ const menuItems = [
   { title: "Orders", url: "/orders", icon: orderIcon },
   { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
   { title: "Tickets", url: "/tickets", icon: ticketIcon },
+  { title: "Voucher", url: "/voucher", icon: null, lucideIcon: Gift },
+  { title: "Reservations", url: "/reservations", icon: null, lucideIcon: CalendarCheck },
   { title: "orderOS", url: "/orderos", icon: homeIcon },
-  { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Settings, isGlass: true },
+  { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, isSettings: true },
+  { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Sparkles, isGlass: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
 
 export function DraggableSidebar() {
   const { position, setIsDragging, isLocked, setIsLocked, isAnimating, hasSeenOnboarding, dismissOnboarding } = useSidebarPosition();
-  const [searchParams] = useSearchParams();
-  const sidebarNavigate = useNavigate();
-  const isVoucherMode = searchParams.get('mode') === 'voucher';
   const isHorizontal = position === 'top' || position === 'bottom';
   const [showOnboarding, setShowOnboarding] = useState(false);
 
@@ -249,6 +248,14 @@ export function DraggableSidebar() {
                     >
                       <img src={item.icon} alt={item.title} className="w-10 h-10" />
                     </NavLink>
+                  ) : item.isSettings ? (
+                    <NavLink
+                      to={item.url}
+                      className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
+                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
+                    >
+                      <item.lucideIcon className="h-5 w-5" />
+                    </NavLink>
                   ) : item.isGlass ? (
                     <NavLink
                       to={item.url}
@@ -260,12 +267,8 @@ export function DraggableSidebar() {
                   ) : (
                     <NavLink
                       to={item.url}
-                      onClick={isVoucherMode && item.url === '/orders' ? (e: React.MouseEvent) => {
-                        e.preventDefault();
-                        sidebarNavigate('/orders', { replace: true });
-                      } : undefined}
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
-                      activeClassName={isVoucherMode && item.url === '/orders' ? '' : 'bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white'}
+                      activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                     >
                       {item.lucideIcon ? (
                         <item.lucideIcon className="h-5 w-5" />

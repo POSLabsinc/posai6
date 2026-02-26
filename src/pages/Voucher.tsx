@@ -9,7 +9,11 @@ const Voucher = () => {
       <VoucherDialog
         isOpen={true}
         onClose={() => navigate(-1)}
-        onAddVoucher={(amount, voucherData) => {
+        onAddVoucher={(amount) => {
+          // TODO: integrate with order context
+          navigate(-1);
+        }}
+        onRedeemVoucher={(code, balance) => {
           // TODO: integrate with order context
           navigate(-1);
         }}

@@ -13,7 +13,7 @@ import {
   type PurchaseMode, type BuyerType, type VoucherCustomer, type VoucherEntry, type CompanyProfile, type VoucherTypeConfig,
 } from "./voucher/voucherConstants";
 import {
-  posCurrencyToNumber, posCurrencyFormat, generateVoucherCode, numberToPosDigits,
+  posCurrencyToNumber, generateVoucherCode, numberToPosDigits,
 } from "./voucher/voucherHelpers";
 
 export interface VoucherInitialData {
@@ -31,26 +31,28 @@ export interface VoucherInitialData {
   notes?: string;
 }
 
+export interface VoucherDataPayload {
+  type: string;
+  value: number;
+  expiryDate?: string;
+  sellingPrice?: number;
+  quantity?: number;
+  voucherName?: string;
+  validFrom?: string;
+  redemptionLimit?: number;
+  minimumOrder?: number;
+  issuedBy?: string;
+  notes?: string;
+  voucherCode?: string;
+  customerName?: string;
+  customerPhone?: string;
+  customerEmail?: string;
+}
+
 interface VoucherDialogProps {
   isOpen: boolean;
   onClose: () => void;
-  onAddVoucher: (amount: number, voucherData: {
-    type: string;
-    value: number;
-    expiryDate?: string;
-    sellingPrice?: number;
-    quantity?: number;
-    voucherName?: string;
-    validFrom?: string;
-    redemptionLimit?: number;
-    minimumOrder?: number;
-    issuedBy?: string;
-    notes?: string;
-    voucherCode?: string;
-    customerName?: string;
-    customerPhone?: string;
-    customerEmail?: string;
-  }) => void;
+  onAddVoucher: (amount: number, voucherData: VoucherDataPayload) => void;
   onRedeemVoucher?: (voucherCode: string, balance: number) => void;
   initialView?: 'sell' | 'redeem';
   initialData?: VoucherInitialData | null;
@@ -65,8 +67,20 @@ const STEP_LABELS: Record<WizardStep, string> = {
   voucherConfig: 'Configure',
 };
 
-const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }: VoucherDialogProps) => {
+const VoucherDialog = ({
+  isOpen,
+  onClose,
+  onAddVoucher,
+  onRedeemVoucher,
+  initialView = 'sell',
+  initialData,
+  guestData,
+}: VoucherDialogProps) => {
   const isEditMode = !!(initialData?.editingItemId);
+  const [view, setView] = useState<'sell' | 'redeem'>(initialView);
+
+  // Redeem view state
+  const [voucherCode, setVoucherCode] = useState<string>('');
 
   // Wizard step
   const [step, setStep] = useState<WizardStep>(isEditMode ? 'voucherConfig' : 'customer');
@@ -101,9 +115,13 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
   // Gift toggle
   const [isGift, setIsGift] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) setView(initialView);
+  }, [isOpen, initialView]);
+
   // Edit mode: prefill and skip to config
   useEffect(() => {
-    if (isOpen && initialData) {
+    if (isOpen && initialData && view === 'sell') {
       setStep('voucherConfig');
       setPurchaseMode('single');
       setVoucherName(initialData.voucherName || '');
@@ -113,7 +131,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
       setRedemptionLimit(initialData.redemptionLimit?.toString() || '1');
       setMinimumOrderDigits(numberToPosDigits(initialData.minimumOrder || 0));
       setNotes(initialData.notes || '');
-      // Attempt to match config for service fee
       const config = PREDEFINED_VOUCHER_TYPES.find(t => t.name === initialData.voucherName);
       if (config) {
         setServiceFeeReadOnly(true);
@@ -124,15 +141,15 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
         setServiceFeeType('fixed');
         setIsCustomVoucherName(true);
       }
-      // Compute selling price -> service fee digits
       const redeemable = initialData.value;
       const selling = initialData.sellingPrice;
       const fee = selling - redeemable;
       if (fee > 0) setServiceFeeDigits(numberToPosDigits(fee));
     }
-  }, [isOpen, initialData]);
+  }, [isOpen, initialData, view]);
 
   const resetState = () => {
+    setView(initialView);
     setStep('customer');
     setCustomer(null);
     setPurchaseMode(null);
@@ -154,6 +171,7 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
       { id: generateVoucherCode(), voucherName: '', isCustom: false, valueDigits: '', serviceFeeDigits: '', serviceFeeReadOnly: true, serviceFeeType: 'none', serviceFeeConfigValue: 0 },
     ]);
     setIsGift(false);
+    setVoucherCode('');
   };
 
   const handleClose = () => {
@@ -165,28 +183,22 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
     setVoucherName(name);
     setIsCustomVoucherName(isCustom);
     if (config) {
-      // Pre-created voucher: prefill all fields from template and lock
       setServiceFeeReadOnly(true);
       setServiceFeeType(config.serviceFeeType);
       setServiceFeeConfigValue(config.serviceFeeValue);
       setServiceFeeDigits('');
-      // Prefill redeemable value
       if (config.redeemableValue != null && config.redeemableValue > 0) {
         setValueDigits(numberToPosDigits(config.redeemableValue));
       }
-      // Prefill validity dates
       setValidFrom(config.validFromDefault || new Date().toISOString().split('T')[0]);
       if (config.expiryDefault) setExpiryDate(config.expiryDefault);
-      // Prefill redemption limit
       if (config.redemptionLimitDefault) setRedemptionLimit(config.redemptionLimitDefault);
-      // Prefill minimum order
       if (config.minOrderDefault != null && config.minOrderDefault > 0) {
         setMinimumOrderDigits(numberToPosDigits(config.minOrderDefault));
       } else {
         setMinimumOrderDigits('');
       }
     } else if (isCustom) {
-      // Custom voucher: clear all template values and unlock
       setServiceFeeReadOnly(false);
       setServiceFeeType('fixed');
       setServiceFeeConfigValue(0);
@@ -199,7 +211,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
     }
   };
 
-  // Compute totals for single
   const numericValue = posCurrencyToNumber(valueDigits);
   const computedSingleServiceFee = (() => {
     if (serviceFeeType === 'none') return 0;
@@ -209,7 +220,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
   })();
   const singleTotalPayable = numericValue + computedSingleServiceFee;
 
-  // Compute totals for multi
   const multiTotalRedeemable = multiEntries.reduce((s, e) => s + posCurrencyToNumber(e.valueDigits), 0);
   const multiTotalServiceFee = multiEntries.reduce((s, e) => {
     const v = posCurrencyToNumber(e.valueDigits);
@@ -220,7 +230,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
   }, 0);
   const multiTotalPayable = multiTotalRedeemable + multiTotalServiceFee;
 
-  // Validation
   const isSingleValid = purchaseMode === 'single' && voucherName.trim().length > 0 && numericValue > 0;
   const isMultiValid = purchaseMode === 'multiple' && multiEntries.every(e => e.voucherName.trim().length > 0 && posCurrencyToNumber(e.valueDigits) > 0);
   const isConfigValid = step === 'voucherConfig' && (isSingleValid || isMultiValid);
@@ -249,7 +258,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
         customerEmail: customer?.email,
       });
     } else {
-      // Multiple: add each as separate line item
       for (const entry of multiEntries) {
         const entryValue = posCurrencyToNumber(entry.valueDigits);
         let entryFee = 0;
@@ -294,15 +302,84 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
 
   const totalPayable = purchaseMode === 'single' ? singleTotalPayable : multiTotalPayable;
 
+  const handleRedeemClick = () => {
+    setView('redeem');
+    setVoucherCode('');
+  };
+
+  const handleBackToSell = () => {
+    setView('sell');
+    setVoucherCode('');
+  };
+
+  const handleApplyVoucher = () => {
+    if (voucherCode && onRedeemVoucher) {
+      const mockBalance = 25.0;
+      onRedeemVoucher(voucherCode, mockBalance);
+      resetState();
+    }
+  };
+
+  // ---- Redeem view (simple form) ----
+  if (view === 'redeem' && onRedeemVoucher) {
+    return (
+      <Dialog open={isOpen} onOpenChange={handleClose}>
+        <DialogContent className="bg-neutral-900 border-neutral-700 rounded-xl p-0 max-w-[420px] w-full [&>button]:hidden">
+          <button
+            onClick={handleClose}
+            className="absolute right-4 top-4 p-1 hover:bg-white/10 rounded-full transition-colors z-[10]"
+          >
+            <X className="w-5 h-5 text-white/70" />
+          </button>
+          <div className="p-5 relative">
+            <div className="flex items-center justify-between mb-6">
+              <div className="w-8" />
+              <h2 className="text-white text-lg font-semibold text-center">Redeem Voucher</h2>
+              <button
+                onClick={handleClose}
+                className="w-8 h-8 rounded-full hover:bg-white/10 flex items-center justify-center transition-colors"
+              >
+                <X className="w-5 h-5 text-white/70" />
+              </button>
+            </div>
+            <div className="mb-5">
+              <input
+                type="text"
+                value={voucherCode}
+                onChange={(e) => setVoucherCode(e.target.value.toUpperCase())}
+                placeholder="ENTER VOUCHER CODE"
+                className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-4 text-white text-center text-lg font-mono tracking-wider placeholder:text-neutral-500 uppercase focus:outline-none focus:border-neutral-500"
+              />
+            </div>
+            <button
+              onClick={handleApplyVoucher}
+              disabled={!voucherCode}
+              className={`w-full py-3 rounded-lg text-sm font-semibold mb-3 transition-colors ${
+                voucherCode ? 'bg-neutral-700 text-white hover:bg-neutral-600' : 'bg-neutral-800/50 text-neutral-500 cursor-not-allowed'
+              }`}
+            >
+              REDEEM VOUCHER
+            </button>
+            <button
+              onClick={handleBackToSell}
+              className="w-full py-3 rounded-lg text-sm font-semibold bg-neutral-800 border border-neutral-600 text-white hover:bg-neutral-700 transition-colors"
+            >
+              Sell Voucher instead
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // ---- Sell view (wizard with cards) ----
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="bg-neutral-900 border-neutral-700 p-0 w-[95vw] max-w-md md:max-w-3xl rounded-2xl flex flex-col max-h-[90vh] [&>button]:hidden">
-        {/* Grabber */}
         <div className="flex justify-center pt-2 pb-1 md:hidden">
           <div className="w-12 h-1 bg-neutral-600 rounded-full" />
         </div>
 
-        {/* Header */}
         <div className="px-4 md:px-6 pb-2 pt-2 md:pt-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 border-2 border-white bg-neutral-800 flex items-center justify-center">
@@ -328,7 +405,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
             </button>
           </div>
 
-          {/* Step indicator */}
           {!isEditMode && (
             <div className="flex items-center gap-1 mt-3">
               {stepOrder.map((s, i) => (
@@ -340,7 +416,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
           )}
         </div>
 
-        {/* Body */}
         <div className={`flex-1 px-4 md:px-6 pb-2 scrollbar-hide ${step === 'customer' || step === 'purchaseType' ? 'overflow-visible' : 'overflow-y-auto'}`}>
           {step === 'customer' && (
             <CustomerStep
@@ -348,7 +423,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
               initialGuestData={guestData}
               onCustomerIdentified={(c) => {
                 setCustomer(c);
-                // Auto-detect company association
                 const detectedCompany = detectCompanyForCustomer(c.email);
                 if (detectedCompany) {
                   setBuyerType('company');
@@ -398,7 +472,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
                 companyProfile={selectedCompany}
               />
 
-              {/* Gift toggle */}
               <div className="mt-3 border border-neutral-700 rounded-lg p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
@@ -428,7 +501,6 @@ const VoucherDialog = ({ isOpen, onClose, onAddVoucher, initialData, guestData }
           )}
         </div>
 
-        {/* Footer */}
         {step === 'voucherConfig' && (
           <div className="px-4 md:px-6 py-3 border-t border-neutral-700 mt-auto flex items-center gap-2">
             {!isEditMode && (

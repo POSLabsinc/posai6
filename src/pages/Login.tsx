@@ -25,6 +25,7 @@ import ContactAdminDialog from "@/components/ContactAdminDialog";
 import { NumericKeypad } from "@/components/NumericKeypad";
 import { DeviceSetupLayout } from "@/components/DeviceSetupLayout";
 import { PersonalDeviceAuthPanel } from "@/components/PersonalDeviceAuthPanel";
+import { SplashScreen } from "@/components/SplashScreen";
 
 // Revenue centers assigned to employees - in production this would come from API
 const revenueCenters: Record<string, string> = {
@@ -171,6 +172,8 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [deviceType, setDeviceType] = useState<DeviceType>(null);
+  const [showSplash, setShowSplash] = useState(false);
+  const [pendingDeviceType, setPendingDeviceType] = useState<DeviceType>(null);
   const [selectedEmployee, setSelectedEmployee] = useState<typeof locationEmployees[0] | null>(null);
   const [pin, setPin] = useState("");
   const [pinError, setPinError] = useState("");
@@ -774,6 +777,25 @@ const handlePinComplete = useCallback((enteredPin: string) => {
     setPersonalPinError("");
   }, []);
 
+  // Splash Screen - shown when tapping Company or Personal Device
+  if (showSplash) {
+    return (
+      <SplashScreen
+        duration={2500}
+        onComplete={() => {
+          setShowSplash(false);
+          if (pendingDeviceType === "company") {
+            setDeviceType("company");
+            setShowDeviceSetup(true);
+          } else if (pendingDeviceType === "personal") {
+            setDeviceType("personal");
+          }
+          setPendingDeviceType(null);
+        }}
+      />
+    );
+  }
+
   // Device Selection Screen (FIRST CHECK)
   if (!deviceType) {
     return (
@@ -849,8 +871,8 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             {/* Company Device */}
             <button
               onClick={() => {
-                setDeviceType("company");
-                setShowDeviceSetup(true); // Show first-time setup screen
+                setPendingDeviceType("company");
+                setShowSplash(true);
               }}
               className="w-full flex items-center gap-5 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
             >
@@ -869,7 +891,10 @@ const handlePinComplete = useCallback((enteredPin: string) => {
 
             {/* Personal Device */}
             <button
-              onClick={() => setDeviceType("personal")}
+              onClick={() => {
+                setPendingDeviceType("personal");
+                setShowSplash(true);
+              }}
               className="w-full flex items-center gap-5 p-5 rounded-2xl bg-foreground/[0.03] hover:bg-foreground/[0.08] border border-foreground/[0.06] hover:border-foreground/[0.12] transition-all duration-200 group"
             >
               <div className="w-14 h-14 rounded-2xl bg-secondary/50 flex items-center justify-center flex-shrink-0 group-hover:bg-secondary/70 transition-colors">
@@ -2601,7 +2626,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
               setActivationCode("");
               setActivationError("");
             }}
-            className="self-start mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
+            className="self-start mb-3 md:mb-6 flex items-center gap-2 text-sm text-foreground/50 hover:text-foreground transition-colors"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back</span>
@@ -2611,7 +2636,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
           <motion.img
             src={eatosLogo}
             alt="eatOS"
-            className="w-20 h-auto mb-6 md:hidden"
+            className="w-16 h-auto mb-3 md:hidden"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4 }}
@@ -2622,9 +2647,9 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.1 }}
-            className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 md:mb-6 border border-primary/20"
+            className="w-12 h-12 md:w-20 md:h-20 rounded-2xl bg-primary/10 flex items-center justify-center mb-3 md:mb-6 border border-primary/20"
           >
-            <Monitor className="w-8 h-8 md:w-10 md:h-10 text-primary" />
+            <Monitor className="w-6 h-6 md:w-10 md:h-10 text-primary" />
           </motion.div>
 
           {/* Title */}
@@ -2641,7 +2666,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.2 }}
-            className="text-sm text-foreground/50 mb-6 md:mb-8 text-center max-w-xs leading-relaxed"
+            className="text-sm text-foreground/50 mb-4 md:mb-8 text-center max-w-xs leading-relaxed"
           >
             This device is not yet linked to a business. Choose how to activate it.
           </motion.p>
@@ -2651,7 +2676,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.25 }}
-            className="w-full space-y-3"
+            className="w-full space-y-2 md:space-y-3"
           >
             {/* Activate with Code */}
             <button
@@ -2695,7 +2720,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.3 }}
-            className="w-full mt-5 md:mt-6"
+            className="w-full mt-3 md:mt-6"
           >
             <button
               onClick={handleTryDemo}
@@ -2713,7 +2738,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.35 }}
-            className="mt-6 md:mt-8 pt-5 md:pt-6 border-t border-foreground/[0.06] w-full"
+            className="mt-4 md:mt-8 pt-3 md:pt-6 border-t border-foreground/[0.06] w-full"
           >
             <div className="text-center">
               <button
@@ -2730,7 +2755,7 @@ const handlePinComplete = useCallback((enteredPin: string) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
-            className="mt-4"
+            className="mt-2 md:mt-4"
           >
             <button
               onClick={() => setShowContactAdmin(true)}

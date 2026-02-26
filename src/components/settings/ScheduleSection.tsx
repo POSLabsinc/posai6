@@ -285,7 +285,7 @@
        <h3 className="text-neutral-500 text-base font-medium mt-6 mb-2 px-1">Availability</h3>
  
        {/* Schedule Discount Toggle */}
-       <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+       <div className="bg-neutral-800/60 rounded-full overflow-hidden">
          <div className="flex items-center justify-between py-4 px-4">
            <span className="text-foreground text-base font-medium">Schedule Discount</span>
            <Switch

@@ -81,14 +81,15 @@ const PersonalInformation = () => {
   return (
     <div className="min-h-screen bg-background p-4 pb-28">
       {/* Header with back button and AI icon */}
-      <div className="flex items-center justify-between mb-8 overflow-visible">
+      <div className="relative flex items-center justify-center mb-8 overflow-visible h-12">
         <button
           onClick={() => navigate(-1)}
-          className="w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity"
+          className="absolute left-0 w-12 h-12 rounded-full bg-muted flex items-center justify-center active:opacity-70 transition-opacity"
         >
           <ChevronLeft className="w-6 h-6 text-foreground" />
         </button>
-        <div className="md:hidden">
+        <h1 className="text-lg font-semibold text-foreground">Personal Information</h1>
+        <div className="absolute right-0 md:hidden">
           <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
         </div>
       </div>

@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
+import { useAppearance } from "@/contexts/AppearanceContext";
 import { useSettingsSync } from "@/hooks/useSettingsSync";
 import {
   AlertDialog,
@@ -53,6 +54,7 @@ const defaultServiceCharges: ServiceCharge[] = [
 const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceChargeContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { getIconBgColor } = useAppearance();
   
   // Use settings sync hook to listen for AI-driven updates
   const [serviceCharges, setServiceCharges] = useSettingsSync<ServiceCharge[]>(
@@ -293,23 +295,27 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Back Button */}
       {onBack && (
-        <div className="px-6 pt-5">
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
           <button
             onClick={onBack}
             className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Service Charge</h1>
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 
       <div className="px-6 pt-4 pb-8">
         {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-6 mb-6 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'}`}>
+        <div className="bg-neutral-800/60 rounded-2xl p-6 mb-6 flex flex-col items-start">
           {/* Service Charge Icon */}
           <div 
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ backgroundColor: "#FF3F7D" }}
+            style={{ backgroundColor: getIconBgColor("#FF3F7D") }}
           >
             <img src={serviceChargeIcon} alt="Service Charge" className="w-8 h-8 object-contain" />
           </div>
@@ -318,7 +324,7 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
           <h1 className="text-xl font-semibold text-foreground mb-2">Service Charge</h1>
 
           {/* Description */}
-          <p className="text-base text-neutral-400 leading-relaxed max-w-2xl">
+          <p className="text-base text-neutral-400 leading-relaxed max-w-2xl md:text-balance">
             Configure automatic service charges for orders and specific scenarios like large parties, delivery fees, or private events.
           </p>
         </div>

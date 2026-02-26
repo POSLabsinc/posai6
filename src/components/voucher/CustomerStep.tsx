@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Search, ChevronDown, UserCheck, UserPlus } from "lucide-react";
-import { customers, searchCustomers, type Customer } from "@/data/customers";
+import { customers, type Customer } from "@/data/customers";
 import { COUNTRY_CODES, inputClass, labelClass, type CountryCodeEntry, type VoucherCustomer } from "./voucherConstants";
 import { formatPhone } from "./voucherHelpers";
 
@@ -144,15 +144,13 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
     onContinue();
   };
 
-  const customerName = `${firstName} ${lastName}`.trim();
-
   // Update name fields without auto-confirming on every keystroke
   const handleNameChange = (first: string, last: string) => {
     setFirstName(first.slice(0, 40));
     setLastName(last.slice(0, 40));
   };
 
-  // Confirm new guest explicitly or on blur
+  // Confirm new guest explicitly via button (no onBlur to avoid accidental navigate)
   const confirmNewGuest = () => {
     const fullName = `${firstName} ${lastName}`.trim();
     if (fullName.length > 0) {
@@ -277,7 +275,7 @@ const CustomerStep = ({ customer, onCustomerIdentified, onContinue, initialGuest
         </div>
       )}
 
-      {/* New customer - name required */}
+      {/* New customer - name required; Confirm Guest button (no onBlur to avoid accidental continue) */}
       {isNewCustomer && !matchedCustomer && (
         <div className="bg-amber-900/20 border border-amber-700/40 rounded-lg p-3 animate-fade-in">
           <div className="flex items-center gap-2 mb-2">

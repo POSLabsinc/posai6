@@ -126,6 +126,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
     if (path.startsWith('/settings/network')) return 'network';
     if (path.startsWith('/settings/support')) return 'support';
     if (path.startsWith('/settings/reports')) return 'reports-analytics';
+    if (path.startsWith('/settings/workforce')) return 'workforce';
     return null;
   }, [location.pathname]);
 
@@ -152,6 +153,8 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
       navigate('/settings/reports');
     } else if (itemId === "notifications") {
       navigate('/settings/notifications');
+    } else if (itemId === "workforce") {
+      navigate('/settings/workforce');
     }
   };
 

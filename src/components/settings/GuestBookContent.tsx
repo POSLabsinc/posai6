@@ -1,10 +1,16 @@
 import { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import { ChevronLeft, Search, Plus, Phone, Mail, Star, Calendar, UtensilsCrossed, Car, AlertTriangle, ClipboardList, MessageSquare, Tag, Archive, ArrowDownAZ, X, Pencil, Clock, Users, ChevronRight, Info } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import guestBookIcon from "@/assets/icons/settings-guest-book.png";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import PaymentTabContent from "@/components/settings/PaymentTabContent";
+import FeedbackTabContent from "@/components/settings/FeedbackTabContent";
+import OrderHistoryTabContent from "@/components/settings/OrderHistoryTabContent";
 
 interface Guest {
   id: string;
@@ -46,75 +52,46 @@ interface Guest {
   };
 }
 
-const mockGuests: Guest[] = [
-  {
-    id: "1", name: "Lia Thomas", email: "lia.thomas516@reddit.com", phone: "+1 212-450-7890",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop&crop=face",
-    initials: "LT", avatarBg: "#6B7280", loyalty: "RF", since: "", birthday: "", anniversary: "",
-    lastVisit: "-- -- --", avgSpend: "$0.00", lifetimeSpend: "$0.00", totalOrders: 0, avgTip: "$0.00",
-    loyaltyEarned: 0, loyaltyRedeemed: 0, loyaltyAvailable: 0, loyaltyAmount: "$00.00",
-    totalVisits: 0, upcomingVisits: 0, canceledVisits: 0, noShows: 0, allergies: [], tags: [],
-    vehicle: "", mostOrdered: "", mostOrderedCount: 0, lastOrdered: "",
-    notes: { general: "", specialRelation: "", seatingPreferences: "", specialNote: "", allergies: "" }
+// Map DB row to Guest interface
+const mapDbGuest = (row: any, stats?: any): Guest => ({
+  id: row.id,
+  name: row.name,
+  email: row.email || "",
+  phone: row.phone || "",
+  avatar: row.avatar_url || undefined,
+  initials: row.initials || row.name.split(" ").map((w: string) => w[0]).join("").toUpperCase().slice(0, 2),
+  avatarBg: row.avatar_bg || "#6B7280",
+  loyalty: row.loyalty || "",
+  since: row.since || "",
+  birthday: row.birthday || "",
+  anniversary: row.anniversary || "",
+  vehicle: row.vehicle || "",
+  allergies: row.allergies || [],
+  tags: row.tags || [],
+  lastVisit: stats?.lastVisit || "-- -- --",
+  avgSpend: stats?.avgSpend || "$0.00",
+  lifetimeSpend: stats?.lifetimeSpend || "$0.00",
+  totalOrders: stats?.totalOrders || 0,
+  avgTip: stats?.avgTip || "$0.00",
+  loyaltyEarned: 0,
+  loyaltyRedeemed: 0,
+  loyaltyAvailable: 0,
+  loyaltyAmount: "$00.00",
+  totalVisits: stats?.totalVisits || 0,
+  upcomingVisits: stats?.upcomingVisits || 0,
+  canceledVisits: stats?.canceledVisits || 0,
+  noShows: stats?.noShows || 0,
+  mostOrdered: stats?.mostOrdered || "",
+  mostOrderedCount: stats?.mostOrderedCount || 0,
+  lastOrdered: stats?.lastOrdered || "",
+  notes: {
+    general: row.notes_general || "",
+    specialRelation: row.notes_special_relation || "",
+    seatingPreferences: row.notes_seating_preferences || "",
+    specialNote: row.notes_special_note || "",
+    allergies: row.notes_allergies || "",
   },
-  {
-    id: "2", name: "Bergnaum", email: "cleorahills@gmail.com", phone: "+1 212-450-7890",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
-    initials: "BG", avatarBg: "#8B5CF6", loyalty: "Gold", since: "Mar 2023", birthday: "Jun 15", anniversary: "Sep 20",
-    lastVisit: "Jan 15, 2024", avgSpend: "$45.00", lifetimeSpend: "$320.00", totalOrders: 7, avgTip: "$8.50",
-    loyaltyEarned: 320, loyaltyRedeemed: 50, loyaltyAvailable: 270, loyaltyAmount: "$27.00",
-    totalVisits: 7, upcomingVisits: 1, canceledVisits: 0, noShows: 0, allergies: ["Peanuts"], tags: ["VIP"],
-    vehicle: "Tesla Model 3", mostOrdered: "Margherita Pizza", mostOrderedCount: 3, lastOrdered: "Grilled Salmon",
-    notes: { general: "Prefers quiet seating", specialRelation: "", seatingPreferences: "Window booth", specialNote: "", allergies: "Peanut allergy" }
-  },
-  {
-    id: "3", name: "Wunderlich", email: "wunder@gmail.com", phone: "+1 212-236-7890",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-    initials: "WD", avatarBg: "#F59E0B", loyalty: "Silver", since: "Aug 2023", birthday: "Nov 2", anniversary: "",
-    lastVisit: "Feb 3, 2024", avgSpend: "$62.00", lifetimeSpend: "$185.00", totalOrders: 3, avgTip: "$12.00",
-    loyaltyEarned: 185, loyaltyRedeemed: 0, loyaltyAvailable: 185, loyaltyAmount: "$18.50",
-    totalVisits: 3, upcomingVisits: 0, canceledVisits: 1, noShows: 0, allergies: [], tags: ["Regular"],
-    vehicle: "", mostOrdered: "Steak Frites", mostOrderedCount: 2, lastOrdered: "Caesar Salad",
-    notes: { general: "", specialRelation: "Birthday celebration regular", seatingPreferences: "", specialNote: "", allergies: "" }
-  },
-  {
-    id: "4", name: "Arjun Gerhold", email: "alaskanm@dog.com", phone: "+1 122-456-7890",
-    initials: "AG", avatarBg: "#10B981", loyalty: "", since: "", birthday: "", anniversary: "",
-    lastVisit: "-- -- --", avgSpend: "$0.00", lifetimeSpend: "$0.00", totalOrders: 0, avgTip: "$0.00",
-    loyaltyEarned: 0, loyaltyRedeemed: 0, loyaltyAvailable: 0, loyaltyAmount: "$00.00",
-    totalVisits: 0, upcomingVisits: 0, canceledVisits: 0, noShows: 0, allergies: [], tags: [],
-    vehicle: "", mostOrdered: "", mostOrderedCount: 0, lastOrdered: "",
-    notes: { general: "", specialRelation: "", seatingPreferences: "", specialNote: "", allergies: "" }
-  },
-  {
-    id: "5", name: "Simeon Wilderman", email: "simeon@user.com", phone: "+1 287-456-7890",
-    initials: "SW", avatarBg: "#6366F1", loyalty: "Bronze", since: "Oct 2022", birthday: "Apr 8", anniversary: "Dec 25",
-    lastVisit: "Dec 20, 2023", avgSpend: "$38.00", lifetimeSpend: "$152.00", totalOrders: 4, avgTip: "$6.00",
-    loyaltyEarned: 152, loyaltyRedeemed: 100, loyaltyAvailable: 52, loyaltyAmount: "$5.20",
-    totalVisits: 4, upcomingVisits: 0, canceledVisits: 0, noShows: 1, allergies: ["Gluten", "Dairy"], tags: ["Regular"],
-    vehicle: "BMW X5", mostOrdered: "Pasta Carbonara", mostOrderedCount: 4, lastOrdered: "Tiramisu",
-    notes: { general: "Comes every Friday", specialRelation: "", seatingPreferences: "Bar area", specialNote: "", allergies: "Gluten and dairy free" }
-  },
-  {
-    id: "6", name: "Eden Kautzer", email: "edenka@user.com", phone: "+1 212-456-7090",
-    initials: "EK", avatarBg: "#EC4899", loyalty: "", since: "", birthday: "", anniversary: "",
-    lastVisit: "-- -- --", avgSpend: "$0.00", lifetimeSpend: "$0.00", totalOrders: 0, avgTip: "$0.00",
-    loyaltyEarned: 0, loyaltyRedeemed: 0, loyaltyAvailable: 0, loyaltyAmount: "$00.00",
-    totalVisits: 0, upcomingVisits: 0, canceledVisits: 0, noShows: 0, allergies: [], tags: [],
-    vehicle: "", mostOrdered: "", mostOrderedCount: 0, lastOrdered: "",
-    notes: { general: "", specialRelation: "", seatingPreferences: "", specialNote: "", allergies: "" }
-  },
-  {
-    id: "7", name: "Gino Yost", email: "gyostt@test.com", phone: "+1 222-456-7890",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-    initials: "GY", avatarBg: "#F97316", loyalty: "Platinum", since: "Jan 2022", birthday: "Jul 30", anniversary: "Feb 14",
-    lastVisit: "Mar 1, 2024", avgSpend: "$55.00", lifetimeSpend: "$440.00", totalOrders: 8, avgTip: "$10.00",
-    loyaltyEarned: 440, loyaltyRedeemed: 200, loyaltyAvailable: 240, loyaltyAmount: "$24.00",
-    totalVisits: 8, upcomingVisits: 2, canceledVisits: 0, noShows: 0, allergies: ["Shellfish"], tags: ["VIP", "Regular"],
-    vehicle: "Mercedes GLE", mostOrdered: "Lobster Risotto", mostOrderedCount: 5, lastOrdered: "Wagyu Steak",
-    notes: { general: "High-value customer", specialRelation: "Business partner", seatingPreferences: "Private dining", specialNote: "Always comp dessert", allergies: "Shellfish" }
-  },
-];
+});
 
 // Tab options
 type TabId = "profile" | "reservation" | "payment" | "feedback" | "history";
@@ -129,26 +106,26 @@ const tabs: { id: TabId; label: string }[] = [
 const AVAILABLE_TAGS = ["VIP", "Regular", "New", "Frequent", "Catering", "Corporate", "Birthday Club", "Wine Lover"];
 
 const AVAILABLE_ALLERGIES = [
-  { name: "Peanuts", bg: "bg-red-900/40", text: "text-red-300" },
-  { name: "Tree Nuts", bg: "bg-orange-900/40", text: "text-orange-300" },
-  { name: "Dairy", bg: "bg-blue-900/40", text: "text-blue-300" },
-  { name: "Gluten", bg: "bg-amber-900/40", text: "text-amber-300" },
-  { name: "Shellfish", bg: "bg-pink-900/40", text: "text-pink-300" },
-  { name: "Eggs", bg: "bg-yellow-900/40", text: "text-yellow-300" },
-  { name: "Soy", bg: "bg-green-900/40", text: "text-green-300" },
-  { name: "Fish", bg: "bg-cyan-900/40", text: "text-cyan-300" },
-  { name: "Wheat", bg: "bg-lime-900/40", text: "text-lime-300" },
-  { name: "Sesame", bg: "bg-violet-900/40", text: "text-violet-300" },
-  { name: "Mustard", bg: "bg-emerald-900/40", text: "text-emerald-300" },
-  { name: "Celery", bg: "bg-teal-900/40", text: "text-teal-300" },
-  { name: "Lupin", bg: "bg-indigo-900/40", text: "text-indigo-300" },
-  { name: "Sulfites", bg: "bg-fuchsia-900/40", text: "text-fuchsia-300" },
-  { name: "Corn", bg: "bg-rose-900/40", text: "text-rose-300" },
+  { name: "Peanuts", bg: "bg-red-500/10 dark:bg-red-900/40", text: "text-red-600 dark:text-red-300" },
+  { name: "Tree Nuts", bg: "bg-orange-500/10 dark:bg-orange-900/40", text: "text-orange-600 dark:text-orange-300" },
+  { name: "Dairy", bg: "bg-blue-500/10 dark:bg-blue-900/40", text: "text-blue-600 dark:text-blue-300" },
+  { name: "Gluten", bg: "bg-amber-500/10 dark:bg-amber-900/40", text: "text-amber-600 dark:text-amber-300" },
+  { name: "Shellfish", bg: "bg-pink-500/10 dark:bg-pink-900/40", text: "text-pink-600 dark:text-pink-300" },
+  { name: "Eggs", bg: "bg-yellow-500/10 dark:bg-yellow-900/40", text: "text-yellow-600 dark:text-yellow-300" },
+  { name: "Soy", bg: "bg-green-500/10 dark:bg-green-900/40", text: "text-green-600 dark:text-green-300" },
+  { name: "Fish", bg: "bg-cyan-500/10 dark:bg-cyan-900/40", text: "text-cyan-600 dark:text-cyan-300" },
+  { name: "Wheat", bg: "bg-lime-500/10 dark:bg-lime-900/40", text: "text-lime-600 dark:text-lime-300" },
+  { name: "Sesame", bg: "bg-violet-500/10 dark:bg-violet-900/40", text: "text-violet-600 dark:text-violet-300" },
+  { name: "Mustard", bg: "bg-emerald-500/10 dark:bg-emerald-900/40", text: "text-emerald-600 dark:text-emerald-300" },
+  { name: "Celery", bg: "bg-teal-500/10 dark:bg-teal-900/40", text: "text-teal-600 dark:text-teal-300" },
+  { name: "Lupin", bg: "bg-indigo-500/10 dark:bg-indigo-900/40", text: "text-indigo-600 dark:text-indigo-300" },
+  { name: "Sulfites", bg: "bg-fuchsia-500/10 dark:bg-fuchsia-900/40", text: "text-fuchsia-600 dark:text-fuchsia-300" },
+  { name: "Corn", bg: "bg-rose-500/10 dark:bg-rose-900/40", text: "text-rose-600 dark:text-rose-300" },
 ];
 
 const getAllergyStyle = (name: string) => {
   const found = AVAILABLE_ALLERGIES.find(a => a.name.toLowerCase() === name.toLowerCase());
-  return found || { name, bg: "bg-red-900/30", text: "text-red-300" };
+  return found || { name, bg: "bg-red-500/10 dark:bg-red-900/30", text: "text-red-600 dark:text-red-300" };
 };
 
 // --- Sub-components ---
@@ -254,31 +231,63 @@ const EditableNoteRow = ({ icon, label, value, onSave }: { icon: React.ReactNode
 };
 
 // --- Reservation Tab ---
-interface ReservationEntry {
-  id: string;
-  date: string;
-  month: string;
-  title: string;
-  timeRange: string;
-  partySize: number;
-  location: string;
-  noShow?: boolean;
-}
-
-const mockReservations: ReservationEntry[] = [
-  { id: "r1", date: "03", month: "May", title: "Fun Friday With Team", timeRange: "08:00 PM - 10:00 PM", partySize: 8, location: "Roof Top Table 3&4" },
-  { id: "r2", date: "28", month: "APR", title: "Birthday Party", timeRange: "08:00 PM - 10:00 PM", partySize: 20, location: "Roof Top Hall" },
-  { id: "r3", date: "26", month: "APR", title: "20th Wedding Anniversary", timeRange: "08:00 PM - 10:00 PM", partySize: 20, location: "Roof Top Hall", noShow: true },
-];
-
 const ReservationTabContent = ({ guest }: { guest: Guest }) => {
   const [subTab, setSubTab] = useState<"upcoming" | "recent">("recent");
+  const [reservations, setReservations] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchReservations = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('reservations')
+        .select('*')
+        .eq('guest_name', guest.name)
+        .order('reservation_date', { ascending: false });
+
+      if (!error && data) {
+        setReservations(data);
+      }
+      setLoading(false);
+    };
+    fetchReservations();
+
+    // Realtime subscription
+    const channel = supabase
+      .channel(`reservations-${guest.name}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reservations' }, () => {
+        fetchReservations();
+      })
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [guest.name]);
+
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcomingReservations = reservations.filter(r => new Date(r.reservation_date) >= today && !r.no_show && r.status !== 'completed');
+  const recentReservations = reservations.filter(r => new Date(r.reservation_date) < today || r.no_show || r.status === 'completed');
+  const displayedReservations = subTab === "upcoming" ? upcomingReservations : recentReservations;
+
+  const totalReservations = reservations.length;
+  const upcomingCount = upcomingReservations.length;
+  const cancellations = reservations.filter(r => r.status === 'cancelled' || r.no_show).length;
+  const totalSpent = reservations.reduce((sum, r) => sum + Number(r.total_spent || 0), 0);
+
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr + 'T00:00:00');
+    return {
+      day: String(d.getDate()).padStart(2, '0'),
+      month: d.toLocaleString('en-US', { month: 'short' }).toUpperCase(),
+    };
+  };
 
   const summaryCards = [
-    { value: "05", label: "Reservations", icon: <Calendar className="w-5 h-5 text-neutral-400" />, trend: "down" as const },
-    { value: "02", label: "Upcoming Visits", icon: <Calendar className="w-5 h-5 text-neutral-400" />, trend: "down" as const },
-    { value: "01", label: "Cancellations", icon: <Calendar className="w-5 h-5 text-neutral-400" />, trend: null },
-    { value: "$560.00", label: "Spent", icon: <UtensilsCrossed className="w-5 h-5 text-neutral-400" />, trend: "up" as const },
+    { value: String(totalReservations).padStart(2, '0'), label: "Reservations", icon: <Calendar className="w-5 h-5 text-neutral-400" />, trend: null },
+    { value: String(upcomingCount).padStart(2, '0'), label: "Upcoming Visits", icon: <Calendar className="w-5 h-5 text-neutral-400" />, trend: null },
+    { value: String(cancellations).padStart(2, '0'), label: "Cancellations", icon: <Calendar className="w-5 h-5 text-neutral-400" />, trend: null },
+    { value: `$${totalSpent.toFixed(2)}`, label: "Spent", icon: <UtensilsCrossed className="w-5 h-5 text-neutral-400" />, trend: totalSpent > 0 ? "up" as const : null },
   ];
 
   return (
@@ -303,14 +312,32 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
             Recent Visits
           </button>
         </div>
-        <button className="w-6 h-6 rounded-full bg-neutral-700/40 flex items-center justify-center">
-          <Info className="w-3.5 h-3.5 text-neutral-400" />
-        </button>
+        <Popover>
+          <PopoverTrigger asChild>
+            <button className="w-6 h-6 rounded-full bg-neutral-700/40 flex items-center justify-center">
+              <Info className="w-3.5 h-3.5 text-neutral-400" />
+            </button>
+          </PopoverTrigger>
+          <PopoverContent side="bottom" align="end" className="w-auto max-w-[220px] bg-neutral-800/95 backdrop-blur-xl border-neutral-700/50 rounded-xl p-3 space-y-2">
+            <div className="flex items-start gap-2">
+              <span className="mt-1.5 w-2 h-2 rounded-full bg-blue-500 flex-shrink-0" />
+              <p className="text-[11px] text-neutral-300 leading-snug">Blue represents official events or gatherings.</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="mt-1.5 w-2 h-2 rounded-full bg-pink-500 flex-shrink-0" />
+              <p className="text-[11px] text-neutral-300 leading-snug">Pink signifies engagement, anniversary, and dates.</p>
+            </div>
+            <div className="flex items-start gap-2">
+              <span className="mt-1.5 w-2 h-2 rounded-full bg-yellow-500 flex-shrink-0" />
+              <p className="text-[11px] text-neutral-300 leading-snug">Yellow signifies fun/celebration, birthday, Christmas, New Year.</p>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       {/* Summary Section */}
       <div>
-        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">Summary</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Summary</p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           {summaryCards.map((card, idx) => (
             <div key={idx} className="bg-neutral-800/40 rounded-2xl p-4 flex items-center gap-3">
@@ -320,7 +347,6 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
               <div>
                 <div className="flex items-center gap-1">
                   <span className="text-lg font-bold text-foreground">{card.value}</span>
-                  {card.trend === "down" && <span className="text-red-400 text-xs">▼</span>}
                   {card.trend === "up" && <span className="text-green-400 text-xs">▲</span>}
                 </div>
                 <p className="text-[10px] text-neutral-500">{card.label}</p>
@@ -332,46 +358,95 @@ const ReservationTabContent = ({ guest }: { guest: Guest }) => {
 
       {/* Reservation List */}
       <div className="space-y-2">
-        {mockReservations.map((res) => (
-          <div
-            key={res.id}
-            className="bg-neutral-800/40 rounded-2xl px-4 py-3.5 flex items-center gap-4 hover:bg-neutral-700/30 transition-colors cursor-pointer"
-          >
-            {/* Date Block */}
-            <div className="flex-shrink-0 flex flex-col items-center w-12 border-r border-neutral-600/50 pr-4">
-              <span className="text-lg font-bold text-foreground leading-tight">{res.date}</span>
-              <span className="text-[10px] text-neutral-400 uppercase">{res.month}</span>
-            </div>
-
-            {/* Details */}
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-foreground mb-0.5 truncate">{res.title}</p>
-              <div className="flex items-center gap-2 text-[11px] text-neutral-400 flex-wrap">
-                <span className="flex items-center gap-1">
-                  <Clock className="w-3 h-3" /> {res.timeRange}
-                </span>
-                <span className="text-neutral-600">|</span>
-                <span className="flex items-center gap-1">
-                  <Users className="w-3 h-3" /> {res.partySize} People
-                </span>
-                <span className="text-neutral-600">|</span>
-                <span className="flex items-center gap-1">
-                  🪑 {res.location}
-                </span>
-              </div>
-            </div>
-
-            {/* Right side */}
-            <div className="flex items-center gap-2 flex-shrink-0">
-              {res.noShow && (
-                <span className="bg-red-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase">
-                  No Show
-                </span>
-              )}
-              <ChevronRight className="w-4 h-4 text-neutral-500" />
-            </div>
+        {loading ? (
+          <div className="text-center py-8 text-neutral-500 text-sm">Loading reservations...</div>
+        ) : displayedReservations.length === 0 ? (
+          <div className="text-center py-8 text-neutral-500 text-sm">
+            No {subTab === "upcoming" ? "upcoming" : "recent"} reservations found.
           </div>
-        ))}
+        ) : (
+          displayedReservations.map((res) => {
+            const { day, month } = formatDate(res.reservation_date);
+            const timeRange = res.end_time ? `${res.start_time} - ${res.end_time}` : res.start_time;
+            
+            const colorMap: Record<string, string> = {
+              blue: 'border-blue-500',
+              pink: 'border-pink-500',
+              yellow: 'border-yellow-500',
+            };
+            const borderColor = colorMap[res.color_category] || 'border-blue-500';
+
+            const handleColorChange = async (color: string) => {
+              await supabase
+                .from('reservations')
+                .update({ color_category: color })
+                .eq('id', res.id);
+            };
+
+            return (
+              <div
+                key={res.id}
+                className={`bg-neutral-800/40 rounded-2xl px-4 py-3.5 flex items-center gap-4 hover:bg-neutral-700/30 transition-colors cursor-pointer border-l-[3px] ${borderColor}`}
+              >
+                {/* Color Picker Dots */}
+                <div className="flex flex-col gap-1.5 flex-shrink-0">
+                  {(['blue', 'pink', 'yellow'] as const).map(color => (
+                    <button
+                      key={color}
+                      onClick={(e) => { e.stopPropagation(); handleColorChange(color); }}
+                      className={`w-2.5 h-2.5 rounded-full transition-all ${
+                        color === 'blue' ? 'bg-blue-500' : color === 'pink' ? 'bg-pink-500' : 'bg-yellow-500'
+                      } ${res.color_category === color ? 'ring-2 ring-white/40 scale-110' : 'opacity-40 hover:opacity-80'}`}
+                    />
+                  ))}
+                </div>
+
+                {/* Date Block */}
+                <div className="flex-shrink-0 flex flex-col items-center w-12 border-r border-neutral-600/50 pr-4">
+                  <span className="text-lg font-bold text-foreground leading-tight">{day}</span>
+                  <span className="text-[10px] text-neutral-400 uppercase">{month}</span>
+                </div>
+
+                {/* Details */}
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-foreground mb-0.5 truncate">{res.title || 'Reservation'}</p>
+                  <div className="flex items-center gap-2 text-[11px] text-neutral-400 flex-wrap">
+                    <span className="flex items-center gap-1">
+                      <Clock className="w-3 h-3" /> {timeRange}
+                    </span>
+                    <span className="text-neutral-600">|</span>
+                    <span className="flex items-center gap-1">
+                      <Users className="w-3 h-3" /> {res.party_size} People
+                    </span>
+                    {res.location && (
+                      <>
+                        <span className="text-neutral-600">|</span>
+                        <span className="flex items-center gap-1">
+                          🪑 {res.location}
+                        </span>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Right side */}
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {res.no_show && (
+                    <span className="bg-red-600 text-white text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase">
+                      No Show
+                    </span>
+                  )}
+                  {res.status === 'completed' && !res.no_show && (
+                    <span className="bg-green-600/20 text-green-400 text-[10px] font-bold px-3 py-1.5 rounded-lg uppercase">
+                      Completed
+                    </span>
+                  )}
+                  <ChevronRight className="w-4 h-4 text-neutral-500" />
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );
@@ -402,9 +477,10 @@ const GuestListItem = ({ guest, isSelected, onClick }: { guest: Guest; isSelecte
 );
 
 // --- Guest Detail Panel ---
-const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGuest: (updated: Guest) => void }) => {
+const GuestDetailPanel = ({ guest, onUpdateGuest, onCollapse }: { guest: Guest; onUpdateGuest: (updated: Guest) => void; onCollapse?: () => void }) => {
   const [activeTab, setActiveTab] = useState<TabId>("profile");
   const [showTagPicker, setShowTagPicker] = useState(false);
+  const { getIconBgColor } = useAppearance();
   const [newTagInput, setNewTagInput] = useState("");
   const [showAllergyPicker, setShowAllergyPicker] = useState(false);
   const [newAllergyInput, setNewAllergyInput] = useState("");
@@ -478,14 +554,23 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
     <div className="h-full overflow-y-auto scrollbar-hide px-6 pt-6 pb-28">
       {/* Header: Guest Book default or Guest Details for non-profile tabs */}
       {activeTab === "profile" ? (
-        <div className="bg-neutral-800/60 rounded-2xl p-6 mb-6 flex flex-col items-center">
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#F9900E' }}>
-            <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7" />
+        <div className="mb-6">
+          {onCollapse && (
+            <div className="mb-4">
+              <button onClick={onCollapse} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+            </div>
+          )}
+          <div className="bg-neutral-800/60 rounded-2xl p-5 flex flex-col items-start">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
+            <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
           </div>
           <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
-          <p className="text-sm text-neutral-400 text-center max-w-md">
-            Track your guests' dietary needs, allergies, and favorite dishes for a personalized dining experience.
+          <p className="text-base text-neutral-400 leading-relaxed w-full">
+            Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
           </p>
+          </div>
         </div>
       ) : (
         <div className="mb-6">
@@ -494,62 +579,147 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
             <button onClick={() => setActiveTab("profile")} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center flex-shrink-0">
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
-            <h2 className="absolute left-1/2 -translate-x-1/2 text-lg font-semibold text-foreground">
+            <h2 className="absolute left-1/2 -translate-x-1/2 text-lg font-semibold text-foreground flex items-center gap-2">
               {tabs.find(t => t.id === activeTab)?.label}
+              {activeTab === "history" && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="w-6 h-6 rounded-full bg-neutral-700/60 border border-neutral-600/50 flex items-center justify-center hover:bg-neutral-600/60 transition-colors">
+                      <Info className="w-3.5 h-3.5 text-neutral-300" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent side="bottom" align="center" className="w-auto max-w-[240px] bg-neutral-800/95 backdrop-blur-xl border-neutral-700/50 rounded-xl p-3 space-y-2">
+                    {[
+                      { color: "bg-blue-500", label: "Blue signifies Restaurant order" },
+                      { color: "bg-green-500", label: "Green for Takeout" },
+                      { color: "bg-orange-500", label: "Orange for Delivery" },
+                      { color: "bg-red-500", label: "Red for Drive Thru" },
+                      { color: "bg-purple-500", label: "Purple for Banquet" },
+                      { color: "bg-yellow-400", label: "Yellow for Online Ordering" },
+                    ].map((item, idx) => (
+                      <div key={idx} className="flex items-center gap-2">
+                        <span className={`w-2.5 h-2.5 rounded-full ${item.color} flex-shrink-0`} />
+                        <span className="text-xs text-neutral-300">{item.label}</span>
+                      </div>
+                    ))}
+                  </PopoverContent>
+                </Popover>
+              )}
             </h2>
           </div>
-          {/* Guest Identity Row */}
-          <div className="flex items-center gap-4 px-2">
-            <Avatar className="w-12 h-12 flex-shrink-0">
+          {/* Guest Profile Bar - Single Row */}
+          <div className="bg-neutral-800/40 rounded-2xl px-5 py-4 flex items-center gap-4">
+            {/* Avatar */}
+            <Avatar className="w-11 h-11 flex-shrink-0">
               {guest.avatar ? <AvatarImage src={guest.avatar} alt={guest.name} /> : null}
-              <AvatarFallback style={{ backgroundColor: guest.avatarBg }} className="text-white text-base font-semibold">
+              <AvatarFallback style={{ backgroundColor: guest.avatarBg }} className="text-white text-sm font-semibold">
                 {guest.initials}
               </AvatarFallback>
             </Avatar>
-            <h3 className="text-lg font-semibold text-foreground flex-shrink-0">{guest.name}</h3>
-            {guest.tags.length > 0 && (
-              <div className="w-px h-6 bg-neutral-600 flex-shrink-0" />
-            )}
-            {guest.tags.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap">
-                {guest.tags.map(tag => (
-                  <span key={tag} className="px-3 py-1 rounded-full bg-neutral-700/80 text-xs text-neutral-200 font-medium">
-                    {tag}
-                  </span>
-                ))}
-              </div>
-            )}
-            <div className="ml-auto flex items-center gap-2 text-sm text-neutral-400 flex-shrink-0">
-              {guest.since && <span>Since - {guest.since}</span>}
-              {guest.lastVisit && guest.lastVisit !== "-- -- --" && (
-                <>
-                  <span className="text-neutral-600">|</span>
+
+            {/* Name + Contact */}
+            <div className="flex flex-col min-w-0 flex-shrink-0">
+              <h3 className="text-sm font-semibold text-foreground leading-tight">{guest.name}</h3>
+              <div className="flex items-center gap-3 text-[11px] text-neutral-400 mt-0.5">
+                {guest.email && (
                   <span className="flex items-center gap-1">
-                    <Clock className="w-3.5 h-3.5" />
-                    {guest.lastVisit}
+                    <Mail className="w-3 h-3 text-neutral-500" /> {guest.email}
                   </span>
-                </>
+                )}
+                {guest.phone && (
+                  <span className="flex items-center gap-1">
+                    <Phone className="w-3 h-3 text-neutral-500" /> {guest.phone}
+                  </span>
+                )}
+                {guest.vehicle && (
+                  <span className="flex items-center gap-1">
+                    <Car className="w-3 h-3 text-neutral-500" /> {guest.vehicle}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Divider */}
+            <div className="h-8 w-px bg-neutral-700/50 flex-shrink-0" />
+
+            {/* Tags & Badges */}
+            <div className="flex items-center gap-1.5 flex-wrap flex-1 min-w-0">
+              {guest.loyalty && (
+                <span className="px-2.5 py-0.5 rounded-full bg-neutral-700/80 text-[11px] text-foreground font-medium">
+                  {guest.loyalty}
+                </span>
               )}
+              {guest.tags.map(tag => (
+                <span key={tag} className="px-2.5 py-0.5 rounded-full bg-neutral-700/80 text-[11px] text-foreground font-medium">
+                  {tag}
+                </span>
+              ))}
+              {guest.allergies.map(a => {
+                const style = getAllergyStyle(a);
+                return (
+                  <span key={a} className={`px-2.5 py-0.5 rounded-full text-[11px] font-medium ${style.bg} ${style.text}`}>
+                    {a}
+                  </span>
+                );
+              })}
+              {guest.since && (
+                <span className="px-2.5 py-0.5 rounded-full bg-neutral-700/50 text-[11px] text-neutral-400">
+                  Since {guest.since}
+                </span>
+              )}
+              {guest.lastVisit && guest.lastVisit !== "-- -- --" && (
+                <span className="px-2.5 py-0.5 rounded-full bg-neutral-700/50 text-[11px] text-neutral-400 flex items-center gap-1">
+                  <Clock className="w-2.5 h-2.5" /> {guest.lastVisit}
+                </span>
+              )}
+            </div>
+
+            {/* Divider */}
+            <div className="h-8 w-px bg-neutral-700/50 flex-shrink-0" />
+
+            {/* Stats */}
+            <div className="flex items-center flex-shrink-0">
+              <div className="text-center px-4">
+                <p className="text-sm font-bold text-foreground leading-tight">{guest.totalVisits}</p>
+                <p className="text-[9px] text-neutral-500 uppercase tracking-wide">Visits</p>
+              </div>
+              <div className="h-7 w-px bg-neutral-700/40" />
+              <div className="text-center px-4">
+                <p className="text-sm font-bold text-foreground leading-tight">{guest.avgSpend}</p>
+                <p className="text-[9px] text-neutral-500 uppercase tracking-wide">Avg</p>
+              </div>
+              <div className="h-7 w-px bg-neutral-700/40" />
+              <div className="text-center px-4">
+                <p className="text-sm font-bold text-foreground leading-tight">{guest.noShows}</p>
+                <p className="text-[9px] text-neutral-500 uppercase tracking-wide">No Show</p>
+              </div>
+              <div className="h-7 w-px bg-neutral-700/40" />
+              <div className="text-center px-4">
+                <p className="text-sm font-bold text-foreground leading-tight">{guest.lifetimeSpend}</p>
+                <p className="text-[9px] text-neutral-500 uppercase tracking-wide">Lifetime</p>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 bg-neutral-800/40 rounded-full p-1 mb-6 overflow-x-auto scrollbar-hide justify-center">
-        {tabs.map(tab => (
-          <button
-            key={tab.id}
-            onClick={() => setActiveTab(tab.id)}
-            className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
-              activeTab === tab.id
-                ? "bg-foreground text-background"
-                : "text-neutral-400 hover:text-foreground"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
+      <div className="flex justify-center mb-6">
+        <div className="inline-flex gap-1 bg-neutral-800/40 rounded-full p-1 overflow-x-auto scrollbar-hide">
+          {tabs.map(tab => (
+            <button
+              key={tab.id}
+              onClick={() => setActiveTab(tab.id)}
+              className={`flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                activeTab === tab.id
+                  ? "bg-foreground text-background"
+                  : "text-neutral-400 hover:text-foreground"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       {activeTab === "profile" && (
@@ -656,7 +826,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
                 {/* Loyalty & Visits Cards */}
                 <div className="grid grid-cols-2 gap-3">
                   <div className="bg-neutral-900/50 rounded-xl p-4">
-                    <p className="text-[10px] text-neutral-500 uppercase tracking-widest mb-3 font-medium">Loyalty</p>
+                    <p className="text-[10px] text-neutral-500 tracking-widest mb-3 font-medium">Loyalty</p>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                       <MetricCell value={guest.loyaltyEarned} label="Earned" />
                       <MetricCell value={guest.loyaltyRedeemed} label="Redeemed" />
@@ -665,7 +835,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
                     </div>
                   </div>
                   <div className="bg-neutral-900/50 rounded-xl p-4">
-                    <p className="text-[10px] text-neutral-500 uppercase tracking-widest mb-3 font-medium">Visits</p>
+                    <p className="text-[10px] text-neutral-500 tracking-widest mb-3 font-medium">Visits</p>
                     <div className="grid grid-cols-2 gap-x-6 gap-y-3">
                       <MetricCell value={guest.totalVisits} label="Total" />
                       <MetricCell value={guest.upcomingVisits} label="Upcoming" />
@@ -693,7 +863,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
           {/* Most Ordered & Quick Info */}
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-neutral-800/40 rounded-2xl p-4">
-              <p className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 font-medium">Most Ordered</p>
+              <p className="text-[10px] text-neutral-500 tracking-widest mb-2 font-medium">Most Ordered</p>
               <div className="flex items-center gap-2">
                 <Star className="w-4 h-4 text-amber-500" />
                 <span className="text-sm text-foreground font-medium">
@@ -705,7 +875,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
               )}
             </div>
             <div className="bg-neutral-800/40 rounded-2xl p-4">
-              <p className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 font-medium">Last Ordered</p>
+              <p className="text-[10px] text-neutral-500 tracking-widest mb-2 font-medium">Last Ordered</p>
               <div className="flex items-center gap-2">
                 <UtensilsCrossed className="w-4 h-4 text-neutral-500" />
                 <span className="text-sm text-neutral-400">
@@ -714,7 +884,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
               </div>
             </div>
             <div className="bg-neutral-800/40 rounded-2xl p-4">
-              <p className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 font-medium">Vehicle</p>
+              <p className="text-[10px] text-neutral-500 tracking-widest mb-2 font-medium">Vehicle</p>
               <div className="flex items-center gap-2 cursor-pointer group" onClick={(e) => { e.stopPropagation(); startFieldEdit("vehicle", guest.vehicle); }}>
                 <Car className="w-4 h-4 text-neutral-500" />
                 {editingField === "vehicle" ? (
@@ -739,7 +909,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
 
           {/* Allergies */}
           <div>
-            <h4 className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 px-1 font-medium">Allergies</h4>
+            <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Allergies</h4>
             <div className="bg-neutral-800/40 rounded-2xl p-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3 flex-1 flex-wrap">
@@ -814,7 +984,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
 
           {/* Upcoming Visits */}
           <div>
-            <h4 className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 px-1 font-medium">Upcoming Visits</h4>
+            <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Upcoming Visits</h4>
             <div className="bg-neutral-800/40 rounded-2xl p-4 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Calendar className="w-5 h-5 text-neutral-500" />
@@ -828,7 +998,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
 
           {/* Notes - Editable */}
           <div>
-            <h4 className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 px-1 font-medium">Notes</h4>
+            <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Notes</h4>
             <div className="bg-neutral-800/40 rounded-2xl px-4 group">
               <EditableNoteRow icon={<ClipboardList className="w-4 h-4 text-neutral-500" />} label="General" value={guest.notes.general} onSave={v => updateNote("general", v)} />
               <EditableNoteRow icon={<Star className="w-4 h-4 text-neutral-500" />} label="Special Relation" value={guest.notes.specialRelation} onSave={v => updateNote("specialRelation", v)} />
@@ -840,7 +1010,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
 
           {/* Recent Orders */}
           <div>
-            <h4 className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 px-1 font-medium">Recent Orders</h4>
+            <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Recent Orders</h4>
             <div className="bg-neutral-800/40 rounded-2xl p-4 flex items-center gap-3">
               <UtensilsCrossed className="w-5 h-5 text-neutral-500" />
               <span className="text-sm text-neutral-400">No Recent Orders to Show</span>
@@ -849,7 +1019,7 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
 
           {/* Online Reviews */}
           <div>
-            <h4 className="text-[10px] text-neutral-500 uppercase tracking-widest mb-2 px-1 font-medium">Online Reviews</h4>
+            <h4 className="text-[10px] text-neutral-500 tracking-widest mb-2 px-1 font-medium">Online Reviews</h4>
             <div className="flex gap-3 overflow-x-auto pb-1">
               {[
                 {
@@ -921,19 +1091,27 @@ const GuestDetailPanel = ({ guest, onUpdateGuest }: { guest: Guest; onUpdateGues
         <ReservationTabContent guest={guest} />
       )}
 
-      {activeTab !== "profile" && activeTab !== "reservation" && (
-        <div className="bg-neutral-800/40 rounded-2xl p-8 flex flex-col items-center justify-center text-center">
-          <p className="text-neutral-400 text-sm">No {activeTab} data available yet.</p>
-        </div>
+      {activeTab === "payment" && (
+        <PaymentTabContent guest={guest} />
+      )}
+
+      {activeTab === "feedback" && (
+        <FeedbackTabContent guest={guest} />
+      )}
+
+      {activeTab === "history" && (
+        <OrderHistoryTabContent guest={guest} />
       )}
     </div>
   );
 };
 
 // --- Empty State ---
-const EmptyDetailState = () => (
+const EmptyDetailState = () => {
+  const { getIconBgColor } = useAppearance();
+  return (
   <div className="h-full flex flex-col items-center justify-center px-6 text-center">
-    <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: '#F9900E' }}>
+    <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
       <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7" />
     </div>
     <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
@@ -941,7 +1119,8 @@ const EmptyDetailState = () => (
       Select a guest from the list to view their profile, dining preferences, and visit history.
     </p>
   </div>
-);
+  );
+};
 
 // --- Main Component ---
 interface GuestBookContentProps {
@@ -955,9 +1134,80 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
   const [selectedGuestId, setSelectedGuestId] = useState<string | null>(null);
   const [sortAZ, setSortAZ] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [guests, setGuests] = useState<Guest[]>(mockGuests);
+  const [guests, setGuests] = useState<Guest[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showAddGuest, setShowAddGuest] = useState(false);
+  const [newGuestName, setNewGuestName] = useState("");
+  const [newGuestEmail, setNewGuestEmail] = useState("");
+  const [newGuestPhone, setNewGuestPhone] = useState("");
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { getIconBgColor } = useAppearance();
+
+  // Fetch guests from DB and compute stats
+  const fetchGuests = useCallback(async () => {
+    setLoading(true);
+    const { data: guestRows } = await supabase.from("guests").select("*").eq("is_archived", false).order("name");
+    if (!guestRows) { setLoading(false); return; }
+
+    // Fetch all orders and reservations for stats
+    const guestNames = guestRows.map(g => g.name);
+    const { data: allOrders } = await supabase.from("orders").select("customer_name, total, tip_amount, created_at, order_items(item_name, quantity)").in("customer_name", guestNames);
+    const { data: allReservations } = await supabase.from("reservations").select("guest_name, reservation_date, status, no_show");
+
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const mapped = guestRows.map(row => {
+      const orders = (allOrders || []).filter(o => o.customer_name === row.name);
+      const reservations = (allReservations || []).filter(r => r.guest_name === row.name);
+
+      const totalOrders = orders.length;
+      const lifetimeSpend = orders.reduce((s, o) => s + Number(o.total), 0);
+      const totalTips = orders.reduce((s, o) => s + Number(o.tip_amount), 0);
+      const avgSpend = totalOrders > 0 ? lifetimeSpend / totalOrders : 0;
+      const avgTip = totalOrders > 0 ? totalTips / totalOrders : 0;
+      const lastOrder = orders.length > 0 ? orders.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())[0] : null;
+      const lastVisitDate = lastOrder ? new Date(lastOrder.created_at) : null;
+
+      // Most ordered item
+      const itemCounts: Record<string, number> = {};
+      orders.forEach(o => (o.order_items || []).forEach((i: any) => {
+        itemCounts[i.item_name] = (itemCounts[i.item_name] || 0) + Number(i.quantity);
+      }));
+      const mostOrderedEntry = Object.entries(itemCounts).sort((a, b) => b[1] - a[1])[0];
+
+      // Last ordered item
+      const lastOrderItems = lastOrder?.order_items || [];
+      const lastOrderedItem = lastOrderItems.length > 0 ? lastOrderItems[0].item_name : "";
+
+      // Reservation stats
+      const totalVisits = reservations.filter(r => r.status === 'completed' || new Date(r.reservation_date) < today).length + totalOrders;
+      const upcomingVisits = reservations.filter(r => new Date(r.reservation_date) >= today && r.status !== 'cancelled' && !r.no_show).length;
+      const canceledVisits = reservations.filter(r => r.status === 'cancelled').length;
+      const noShows = reservations.filter(r => r.no_show).length;
+
+      return mapDbGuest(row, {
+        lastVisit: lastVisitDate ? lastVisitDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : "-- -- --",
+        avgSpend: `$${avgSpend.toFixed(2)}`,
+        lifetimeSpend: `$${lifetimeSpend.toFixed(2)}`,
+        totalOrders,
+        avgTip: `$${avgTip.toFixed(2)}`,
+        totalVisits,
+        upcomingVisits,
+        canceledVisits,
+        noShows,
+        mostOrdered: mostOrderedEntry ? mostOrderedEntry[0] : "",
+        mostOrderedCount: mostOrderedEntry ? mostOrderedEntry[1] : 0,
+        lastOrdered: lastOrderedItem,
+      });
+    });
+
+    setGuests(mapped);
+    setLoading(false);
+  }, []);
+
+  useEffect(() => { fetchGuests(); }, [fetchGuests]);
 
   const filteredGuests = guests
     .filter(g => {
@@ -969,9 +1219,53 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
 
   const selectedGuest = guests.find(g => g.id === selectedGuestId) || null;
 
-  const handleUpdateGuest = useCallback((updated: Guest) => {
+  const handleUpdateGuest = useCallback(async (updated: Guest) => {
+    // Update local state immediately
     setGuests(prev => prev.map(g => g.id === updated.id ? updated : g));
+    // Persist to DB
+    await supabase.from("guests").update({
+      name: updated.name,
+      email: updated.email,
+      phone: updated.phone,
+      avatar_url: updated.avatar || null,
+      initials: updated.initials,
+      avatar_bg: updated.avatarBg,
+      loyalty: updated.loyalty,
+      since: updated.since,
+      birthday: updated.birthday,
+      anniversary: updated.anniversary,
+      vehicle: updated.vehicle,
+      allergies: updated.allergies,
+      tags: updated.tags,
+      notes_general: updated.notes.general,
+      notes_special_relation: updated.notes.specialRelation,
+      notes_seating_preferences: updated.notes.seatingPreferences,
+      notes_special_note: updated.notes.specialNote,
+      notes_allergies: updated.notes.allergies,
+    }).eq("id", updated.id);
   }, []);
+
+  const handleAddGuest = async () => {
+    if (!newGuestName.trim()) return;
+    const initials = newGuestName.trim().split(" ").map(w => w[0]).join("").toUpperCase().slice(0, 2);
+    const colors = ["#6B7280", "#8B5CF6", "#F59E0B", "#10B981", "#6366F1", "#EC4899", "#F97316", "#EF4444"];
+    const avatarBg = colors[Math.floor(Math.random() * colors.length)];
+    const { data } = await supabase.from("guests").insert({
+      name: newGuestName.trim(),
+      email: newGuestEmail.trim(),
+      phone: newGuestPhone.trim(),
+      initials,
+      avatar_bg: avatarBg,
+    }).select().single();
+    if (data) {
+      await fetchGuests();
+      setSelectedGuestId(data.id);
+    }
+    setNewGuestName("");
+    setNewGuestEmail("");
+    setNewGuestPhone("");
+    setShowAddGuest(false);
+  };
 
   // Mobile: show list or detail
   if (isMobile) {
@@ -999,12 +1293,14 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
         )}
         {/* Header Card */}
         <div className="px-6 pt-4">
-          <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-center">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: '#F9900E' }}>
-              <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7" />
+          <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{ backgroundColor: getIconBgColor('#F9900E') }}>
+              <img src={guestBookIcon} alt="Guest Book" className="w-7 h-7 object-contain" />
             </div>
-            <h3 className="text-xl font-semibold text-foreground mb-1">Guest Book</h3>
-            <p className="text-sm text-neutral-400 text-center">Track guest preferences and dining history.</p>
+            <h3 className="text-xl font-semibold text-foreground mb-2">Guest Book</h3>
+            <p className="text-base text-neutral-400 leading-relaxed w-full">
+              Your complete guest management hub. Track dietary needs, allergies, favorite dishes, visit history, and spending patterns to deliver a truly personalized dining experience every time.
+            </p>
           </div>
         </div>
         {/* Search */}
@@ -1013,7 +1309,7 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
             <Search className="w-4 h-4 text-neutral-500" />
             <input type="text" placeholder="Search guests..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
               className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-sm" />
-            <button className="w-7 h-7 rounded-full bg-neutral-700/60 flex items-center justify-center">
+            <button onClick={() => setShowAddGuest(true)} className="w-7 h-7 rounded-full bg-neutral-700/60 flex items-center justify-center">
               <Plus className="w-4 h-4 text-foreground" />
             </button>
           </div>
@@ -1034,29 +1330,33 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
       {/* Left Panel - Guest List */}
       {!isExpanded && (
         <div className="w-[300px] flex-shrink-0 bg-neutral-900/90 rounded-2xl flex flex-col h-full">
-          {showHeader && onBack && (
-            <div className="px-4 pt-5 pb-2 flex items-center justify-between overflow-visible" style={{ minHeight: 48 }}>
-              <button onClick={onBack} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
-                <ChevronLeft className="w-4 h-4 text-foreground" />
+          <div className="px-4 pt-5 pb-2 flex items-center justify-between overflow-visible" style={{ minHeight: 48 }}>
+            {onBack ? (
+              <button onClick={onBack} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                <ChevronLeft className="w-5 h-5 text-foreground" />
               </button>
-              <div className="flex items-center gap-2">
-                <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
-                  <Plus className="w-4 h-4 text-foreground" />
-                </button>
-                <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
-                  <Archive className="w-4 h-4 text-foreground" />
-                </button>
-                <button
-                  onClick={() => setSortAZ(prev => !prev)}
-                  className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-neutral-800/60'}`}
-                >
-                  <ArrowDownAZ className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
-                </button>
-              </div>
+            ) : (
+              <button onClick={() => navigate(-1)} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+            )}
+            <div className="flex items-center gap-2">
+              <button onClick={() => setShowAddGuest(true)} className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                <Plus className="w-4 h-4 text-foreground" />
+              </button>
+              <button className="w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+                <Archive className="w-4 h-4 text-foreground" />
+              </button>
+              <button
+                onClick={() => setSortAZ(prev => !prev)}
+                className={`w-8 h-8 rounded-full flex items-center justify-center active:opacity-70 transition-all ${sortAZ ? 'bg-foreground' : 'bg-neutral-800/60'}`}
+              >
+                <ArrowDownAZ className={`w-4 h-4 ${sortAZ ? 'text-background' : 'text-foreground'}`} />
+              </button>
             </div>
-          )}
+          </div>
           {/* Search + AI icon row */}
-          <div className="px-4 py-3 flex items-center gap-2 overflow-visible">
+          <div className="px-4 flex items-center gap-2 overflow-visible py-3">
             <div className="flex-1 bg-neutral-800/40 rounded-full px-3 py-2 flex items-center gap-2">
               <Search className="w-4 h-4 text-neutral-500" />
               <input type="text" placeholder="Search" value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
@@ -1084,25 +1384,36 @@ const GuestBookContent = ({ showHeader = false, onBack, onAIClick }: GuestBookCo
           }
         }}
       >
-        {isExpanded && (
-          <div className="px-6 pt-5">
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setIsExpanded(false);
-              }}
-              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-            >
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
-          </div>
-        )}
         {selectedGuest ? (
-          <GuestDetailPanel guest={selectedGuest} onUpdateGuest={handleUpdateGuest} />
+          <GuestDetailPanel guest={selectedGuest} onUpdateGuest={handleUpdateGuest} onCollapse={isExpanded ? () => setIsExpanded(false) : undefined} />
         ) : (
           <EmptyDetailState />
         )}
       </div>
+      {/* Add Guest Modal */}
+      {showAddGuest && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowAddGuest(false)}>
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative z-10 bg-neutral-800 border border-neutral-700 rounded-2xl shadow-2xl w-full max-w-sm p-6" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-4">
+              <p className="text-sm font-semibold text-foreground">Add New Guest</p>
+              <button onClick={() => setShowAddGuest(false)} className="text-neutral-400 hover:text-foreground"><X className="w-4 h-4" /></button>
+            </div>
+            <div className="space-y-3">
+              <input value={newGuestName} onChange={e => setNewGuestName(e.target.value)} placeholder="Full Name *"
+                className="w-full bg-neutral-700/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-neutral-500 outline-none" />
+              <input value={newGuestEmail} onChange={e => setNewGuestEmail(e.target.value)} placeholder="Email"
+                className="w-full bg-neutral-700/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-neutral-500 outline-none" />
+              <input value={newGuestPhone} onChange={e => setNewGuestPhone(e.target.value)} placeholder="Phone"
+                className="w-full bg-neutral-700/40 rounded-xl px-4 py-2.5 text-sm text-foreground placeholder:text-neutral-500 outline-none" />
+            </div>
+            <button onClick={handleAddGuest} disabled={!newGuestName.trim()}
+              className="w-full mt-4 py-2.5 rounded-xl bg-foreground text-background text-sm font-medium disabled:opacity-40">
+              Add Guest
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

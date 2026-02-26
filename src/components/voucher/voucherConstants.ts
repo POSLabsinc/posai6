@@ -56,8 +56,14 @@ export const PREDEFINED_VOUCHER_TYPES: VoucherTypeConfig[] = [
 
 // ---- Redemption limit options ----
 export const REDEMPTION_LIMIT_OPTIONS = [
-  { value: '1', label: '1 time' },
   { value: '0', label: 'Unlimited' },
+  { value: '1', label: '1 time' },
+  { value: '2', label: '2 times' },
+  { value: '3', label: '3 times' },
+  { value: '5', label: '5 times' },
+  { value: '10', label: '10 times' },
+  { value: '25', label: '25 times' },
+  { value: '50', label: '50 times' },
 ];
 
 // ---- Mock company profiles ----

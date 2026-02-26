@@ -5,7 +5,7 @@ import { useThemePresets, themePresets } from "@/contexts/ThemePresetsContext";
 
 // Theme descriptions for the preview section
 const themeDescriptions: Record<string, string> = {
-  'theme-1': 'Elegant floating panels with glassmorphism effects for a modern POS experience.',
+  'theme-1': 'Elegant floating panels with glassmorphism effects for a modern Point of Sale experience.',
   'theme-2': 'Accordion-style navigation with frosted glass aesthetics.',
   'theme-3': 'Classic sidebar layout for efficient category navigation.',
   'theme-4': 'Dual-tier tabs with glass styling for organized menus.',

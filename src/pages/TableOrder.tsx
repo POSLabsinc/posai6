@@ -1663,13 +1663,15 @@ const TableOrder = () => {
     console.log(`Selected ${guestCount} guests for table ${tableId}`);
     setGuestDropdownTable(null);
     setSelectedTable(tableId);
-    
+    const table = tablePositions.find((t) => t.id === tableId);
+    const seats = table?.seats ?? guestCount;
+
     // Create a new session order for this table
     const newOrder = createOrder(tableId, guestCount, 'Staff', 'Guest');
     console.log('Created session order:', newOrder);
-    
-    // Navigate to orders page with the session ID
-    navigate(`/orders?tableId=${tableId}&sessionId=${newOrder.sessionId}&partySize=${guestCount}`);
+
+    // Navigate to orders page with table context (seats + guests for Order section)
+    navigate(`/orders?tableId=${tableId}&sessionId=${newOrder.sessionId}&partySize=${guestCount}&seats=${seats}&guests=${guestCount}`);
   };
   
   const mergedPairs = getMergedPairs();
@@ -2216,7 +2218,7 @@ const TableOrder = () => {
                 setGuestDropdownTable(null);
                 setSelectedTable(table.id);
                 const newOrder = createOrder(table.id, guestCount, 'Staff', 'Guest');
-                navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}`);
+                navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}&seats=${table.seats}&guests=${guestCount}`);
               };
 
               return (
@@ -2289,7 +2291,7 @@ const TableOrder = () => {
                   setGuestDropdownTable(null);
                   setSelectedTable(table.id);
                   const newOrder = createOrder(table.id, guestCount, 'Staff', 'Guest');
-                  navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}`);
+                  navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}&seats=${table.seats}&guests=${guestCount}`);
                 };
 
                 return table.shape === "circle" ? (
@@ -2706,7 +2708,7 @@ const TableOrder = () => {
                 setGuestDropdownTable(null);
                 setSelectedTable(table.id);
                 const newOrder = createOrder(table.id, guestCount, 'Staff', 'Guest');
-                navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}`);
+                navigate(`/orders?tableId=${table.id}&sessionId=${newOrder.sessionId}&partySize=${guestCount}&seats=${table.seats}&guests=${guestCount}`);
               };
 
               const isReady = table.status === "Ready";

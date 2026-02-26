@@ -108,10 +108,10 @@ const AddAddOnContent = ({ onBack, onSave }: AddAddOnContentProps) => {
       <div className="flex-1 overflow-y-auto scrollbar-hide pt-6 px-6 pb-28">
         {/* APPLIES TO */}
         <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3 block">
+          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">
             Applies To
           </span>
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          <div className="bg-neutral-800/60 rounded-full overflow-hidden">
             <button
               className="w-full flex items-center justify-between py-3.5 px-4 active:opacity-70 transition-opacity"
               onClick={() => setShowOrderTypeSheet(true)}
@@ -141,7 +141,7 @@ const AddAddOnContent = ({ onBack, onSave }: AddAddOnContentProps) => {
 
         {/* ADD-ON DETAILS */}
         <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3 block">
+          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">
             Add-On Details
           </span>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

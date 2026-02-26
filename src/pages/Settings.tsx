@@ -1,339 +1,417 @@
-import { useState, useMemo, useCallback } from "react";
-import { ChevronRight, Users, Sliders, UtensilsCrossed, CreditCard, UsersRound, FileText, Wifi, Monitor, Search, Mic, Bell, Headphones, UserCheck, Layout, Lock, ArrowLeft, ArrowRight, ArrowUp, ArrowDown, RotateCcw, Smartphone, ArrowLeftRight } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Switch } from "@/components/ui/switch";
-import { useSidebarPosition, SidebarPosition } from "@/contexts/SidebarPositionContext";
-import { usePanelPosition } from "@/contexts/PanelPositionContext";
-import { toast } from "@/hooks/use-toast";
-import { useShake } from "@/hooks/use-shake";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+import { useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
+import SettingsNavigation from "@/components/SettingsNavigation";
 
-interface SettingsItemData {
-  id: string;
-  icon: React.ReactNode;
-  label: string;
-  iconBgColor: string;
-  group: string;
-}
+import AccountPanel from "@/components/AccountPanel";
+import PersonalInformationContent from "@/components/settings/PersonalInformationContent";
+import RestaurantInformationContent from "@/components/settings/RestaurantInformationContent";
+import SecurityContent from "@/components/settings/SecurityContent";
+import SystemSettingsContent from "@/components/settings/SystemSettingsContent";
+import AppearanceSettingsContent from "@/components/settings/AppearanceSettingsContent";
+import ControlCenterContent from "@/components/settings/ControlCenterContent";
+import ThemePresetsContent from "@/components/settings/ThemePresetsContent";
+import FontsContent from "@/components/settings/FontsContent";
+import SystemFontsContent from "@/components/settings/SystemFontsContent";
+import MyFontsContent from "@/components/settings/MyFontsContent";
+import MoreFontsContent from "@/components/settings/MoreFontsContent";
+import PaymentsSettingsContent from "@/components/settings/PaymentsSettingsContent";
+import PaymentMethodsContent from "@/components/settings/PaymentMethodsContent";
+import GratuityContent from "@/components/settings/GratuityContent";
+import TaxesContent from "@/components/settings/TaxesContent";
+import DiscountsContent from "@/components/settings/DiscountsContent";
+import ServiceChargeContent from "@/components/settings/ServiceChargeContent";
+import CashManagementContent from "@/components/settings/CashManagementContent";
+import CashDrawerDetailsContent from "@/components/settings/CashDrawerDetailsContent";
+import PayInOutContent from "@/components/settings/PayInOutContent";
+import CheckoutOptionsContent from "@/components/settings/CheckoutOptionsContent";
 
-interface SettingsItemProps {
-  icon: React.ReactNode;
-  label: string;
-  iconBgColor: string;
-  onClick?: () => void;
-  rightElement?: React.ReactNode;
-}
+import MenuSettingsContent from "@/components/settings/MenuSettingsContent";
 
-const SettingsItem = ({ icon, label, iconBgColor, onClick, rightElement, className }: SettingsItemProps & { className?: string }) => (
-  <button
-    onClick={onClick}
-    className={`group flex items-center justify-between w-full py-3 px-1 border-b border-white/10 last:border-b-0 active:opacity-70 transition-opacity ${className || ''}`}
-  >
-    <div className="flex items-center gap-4">
-      <div 
-        className="w-10 h-10 rounded-lg flex items-center justify-center"
-        style={{ backgroundColor: iconBgColor }}
-      >
-        {icon}
-      </div>
-      <span className="text-foreground text-base font-medium">{label}</span>
-    </div>
-    {rightElement || <ChevronRight className="w-5 h-5 text-muted-foreground" />}
-  </button>
-);
+import AddMenuContent from "@/components/settings/AddMenuContent";
+import EditMenuContent from "@/components/settings/EditMenuContent";
+import MenuItemsContent from "@/components/settings/MenuItemsContent";
+import CategoriesContent from "@/components/settings/CategoriesContent";
+import ModifiersContent from "@/components/settings/ModifiersContent";
+import AddOnsContent from "@/components/settings/AddOnsContent";
+import AddAddOnContent from "@/components/settings/AddAddOnContent";
+import ProductsContent from "@/components/settings/ProductsContent";
+import AddProductContent from "@/components/settings/AddProductContent";
+import DefaultModifiersContent from "@/components/settings/DefaultModifiersContent";
+import AddDefaultModifierContent from "@/components/settings/AddDefaultModifierContent";
+import EditDefaultModifierContent from "@/components/settings/EditDefaultModifierContent";
+import GroupsContent from "@/components/settings/GroupsContent";
+import AddGroupContent from "@/components/settings/AddGroupContent";
+import EditGroupContent from "@/components/settings/EditGroupContent";
+import AISettingsContent from "@/components/settings/AISettingsContent";
+import SupportContent from "@/components/settings/SupportContent";
+import FeedbackContent from "@/components/settings/FeedbackContent";
+import SupportContactContent from "@/components/settings/SupportContactContent";
+import AboutContent from "@/components/settings/AboutContent";
+import PrivacyPolicyContent from "@/components/settings/PrivacyPolicyContent";
+import LegalTermsContent from "@/components/settings/LegalTermsContent";
+import ReportFraudContent from "@/components/settings/ReportFraudContent";
+import NetworkContent from "@/components/settings/NetworkContent";
+import ServerConnectionContent from "@/components/settings/ServerConnectionContent";
+import HardwareContent from "@/components/settings/HardwareContent";
+import HardwareDetailsContent from "@/components/settings/HardwareDetailsContent";
+import PrinterContent from "@/components/settings/PrinterContent";
+import PrinterAdvancedContent from "@/components/settings/PrinterAdvancedContent";
+import PairPrinterContent from "@/components/settings/PairPrinterContent";
+import CardReaderContent from "@/components/settings/CardReaderContent";
+import CashRegisterContent from "@/components/settings/CashRegisterContent";
+import NotificationsContent from "@/components/settings/NotificationsContent";
+import NotificationsListContent from "@/components/settings/NotificationsListContent";
+import NotificationDetailContent from "@/components/settings/NotificationDetailContent";
+import ReportsContent from "@/components/settings/ReportsContent";
+import EndOfDayContent from "@/components/settings/EndOfDayContent";
+import GuestBookContent from "@/components/settings/GuestBookContent";
+import WorkforceContent from "@/components/settings/WorkforceContent";
+import EmployeeContent from "@/components/settings/EmployeeContent";
+import AddEmployeeContent from "@/components/settings/AddEmployeeContent";
+import ShiftContent from "@/components/settings/ShiftContent";
+import AddShiftContent from "@/components/settings/AddShiftContent";
+import EditShiftContent from "@/components/settings/EditShiftContent";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-const allSettingsItems: SettingsItemData[] = [
-  { id: "general", icon: <Users className="w-5 h-5 text-white" />, label: "General", iconBgColor: "hsl(165, 60%, 40%)", group: "main" },
-  { id: "control-center", icon: <Sliders className="w-5 h-5 text-white" />, label: "Control Center", iconBgColor: "hsl(270, 70%, 55%)", group: "main" },
-  { id: "menu", icon: <UtensilsCrossed className="w-5 h-5 text-white" />, label: "Menu", iconBgColor: "hsl(25, 95%, 53%)", group: "main" },
-  { id: "payments", icon: <CreditCard className="w-5 h-5 text-white" />, label: "Payments", iconBgColor: "hsl(250, 70%, 55%)", group: "main" },
-  { id: "workforce", icon: <UsersRound className="w-5 h-5 text-white" />, label: "Workforce", iconBgColor: "hsl(0, 0%, 45%)", group: "main" },
-  { id: "sales-report", icon: <FileText className="w-5 h-5 text-white" />, label: "Sales Summary Report", iconBgColor: "hsl(0, 0%, 35%)", group: "main" },
-  { id: "network", icon: <Wifi className="w-5 h-5 text-white" />, label: "Network", iconBgColor: "hsl(190, 80%, 50%)", group: "system" },
-  { id: "hardware", icon: <Monitor className="w-5 h-5 text-white" />, label: "Hardware", iconBgColor: "hsl(300, 60%, 45%)", group: "system" },
-  { id: "notifications", icon: <Bell className="w-5 h-5 text-white" />, label: "Notifications", iconBgColor: "hsl(0, 0%, 40%)", group: "support" },
-  { id: "customer-support", icon: <Headphones className="w-5 h-5 text-white" />, label: "Customer Support", iconBgColor: "hsl(0, 75%, 50%)", group: "support" },
-  { id: "switch-user", icon: <UserCheck className="w-5 h-5 text-white" />, label: "Switch User", iconBgColor: "hsl(0, 0%, 30%)", group: "user" },
-];
-
-const positionIcons: Record<SidebarPosition, React.ReactNode> = {
-  left: <ArrowLeft className="w-4 h-4" />,
-  right: <ArrowRight className="w-4 h-4" />,
-  top: <ArrowUp className="w-4 h-4" />,
-  bottom: <ArrowDown className="w-4 h-4" />,
+// Map routes to content components for the right panel
+const getContentForRoute = (
+  pathname: string, 
+  navigate: (path: string) => void, 
+  locationState: any,
+  showAIChat: boolean,
+  setShowAIChat: (show: boolean) => void
+) => {
+  // If AI chat is active, show it in the right panel
+  if (showAIChat) {
+    const aiContext = pathname.startsWith('/settings/menu') ? 'menu'
+      : pathname.startsWith('/settings/system') ? 'system'
+      : pathname.startsWith('/settings/payments') ? 'payments'
+      : pathname === '/settings/end-of-day' ? 'end-of-day'
+      : pathname === '/settings/guest-book' ? 'guest-book'
+      : pathname.startsWith('/settings/workforce') ? 'workforce'
+      : pathname.startsWith('/settings/support') ? 'support'
+      : pathname.startsWith('/settings/network') ? 'network'
+      : pathname.startsWith('/settings/hardware') ? 'hardware'
+      : pathname.startsWith('/settings/notifications') ? 'notifications'
+      : pathname.startsWith('/settings/reports') ? 'reports'
+      : undefined;
+    return <AISettingsContent showHeader={true} onBack={() => setShowAIChat(false)} context={aiContext} />;
+  }
+  
+  if (pathname === '/settings/account' || pathname === '/settings') {
+    return <AccountPanel showHeader={true} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/account/personal-information') {
+    return <PersonalInformationContent showHeader={true} onBack={() => navigate('/settings/account')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/account/restaurant-information') {
+    return <RestaurantInformationContent showHeader={true} onBack={() => navigate('/settings/account')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/account/security') {
+    return <SecurityContent showHeader={true} onBack={() => navigate('/settings/account')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/system') {
+    return <SystemSettingsContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/system/appearance') {
+    return <AppearanceSettingsContent showHeader={true} onBack={() => navigate('/settings/system')} onAIClick={() => setShowAIChat(true)} onNavigate={navigate} />;
+  }
+  if (pathname === '/settings/system/theme-presets') {
+    return <ThemePresetsContent showHeader={true} onBack={() => navigate('/settings/system/appearance')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/system/fonts') {
+    return <FontsContent showHeader={true} onBack={() => navigate('/settings/system/appearance')} onAIClick={() => setShowAIChat(true)} onNavigate={navigate} />;
+  }
+  if (pathname === '/settings/system/fonts/system') {
+    return <SystemFontsContent showHeader={true} onBack={() => navigate('/settings/system/fonts')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/system/fonts/my-fonts') {
+    return <MyFontsContent showHeader={true} onBack={() => navigate('/settings/system/fonts')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/system/fonts/more') {
+    return <MoreFontsContent showHeader={true} onBack={() => navigate('/settings/system/fonts')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/system/control-center') {
+    return <ControlCenterContent showHeader={true} onBack={() => navigate('/settings/system')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/payments') {
+    return <PaymentsSettingsContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/payments/payment-methods') {
+    return <PaymentMethodsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/payments/gratuity') {
+    return <GratuityContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/payments/taxes') {
+    return <TaxesContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/payments/discounts') {
+    return <DiscountsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/payments/service-charge') {
+    return <ServiceChargeContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/payments/cash-management') {
+    return <CashManagementContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/payments/cash-management/details') {
+    return <CashDrawerDetailsContent showHeader={true} onBack={() => navigate('/settings/payments')} />;
+  }
+  if (pathname === '/settings/payments/cash-management/pay-in-out') {
+    return <PayInOutContent showHeader={true} onBack={() => navigate('/settings/payments/cash-management/details')} />;
+  }
+  if (pathname === '/settings/payments/checkout-options') {
+    return <CheckoutOptionsContent showHeader={true} onBack={() => navigate('/settings/payments')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/menu') {
+    return <MenuSettingsContent showHeader={false} onBack={() => navigate('/settings')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/menu/menus/add') {
+    return <AddMenuContent showHeader={true} onBack={() => navigate('/settings/menu/menu')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname.startsWith('/settings/menu/menus/') && pathname.endsWith('/edit')) {
+    const menuId = pathname.split('/')[4];
+    return <EditMenuContent menuId={menuId} showHeader={true} onBack={() => navigate('/settings/menu/menu')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/menu/menu') {
+    return <MenuItemsContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/menu/categories') {
+    return <CategoriesContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/menu/modifiers') {
+    return <ModifiersContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/menu/add-ons') {
+    return <AddOnsContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/menu/add-ons/add') {
+    return <AddAddOnContent onBack={() => navigate('/settings/menu/add-ons')} onSave={() => {}} />;
+  }
+  if (pathname === '/settings/menu/products') {
+    return <ProductsContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} onAdd={() => navigate('/settings/menu/products/add')} />;
+  }
+  if (pathname === '/settings/menu/products/add') {
+    return <AddProductContent onBack={() => navigate('/settings/menu/products')} />;
+  }
+  if (pathname === '/settings/menu/default-modifiers') {
+    return <DefaultModifiersContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/menu/default-modifiers/add') {
+    return <AddDefaultModifierContent showHeader={true} onBack={() => navigate('/settings/menu/default-modifiers')} />;
+  }
+  if (pathname.startsWith('/settings/menu/default-modifiers/edit/')) {
+    const modifierId = pathname.split('/').pop() || undefined;
+    return (
+      <EditDefaultModifierContent
+        showHeader={true}
+        onBack={() => navigate('/settings/menu/default-modifiers')}
+        modifierId={modifierId}
+      />
+    );
+  }
+  if (pathname === '/settings/menu/groups') {
+    return <GroupsContent showHeader={true} onBack={() => navigate('/settings/menu')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/menu/groups/add') {
+    return <AddGroupContent showHeader={true} onBack={() => navigate('/settings/menu/groups')} />;
+  }
+  if (pathname.startsWith('/settings/menu/groups/edit/')) {
+    const groupId = pathname.split('/').pop() || undefined;
+    return (
+      <EditGroupContent
+        showHeader={true}
+        onBack={() => navigate('/settings/menu/groups')}
+        groupId={groupId}
+      />
+    );
+  }
+  if (pathname === '/settings/support') {
+    return <SupportContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/support/feedback') {
+    return <FeedbackContent showHeader={true} onBack={() => navigate('/settings/support')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/support/contact') {
+    return <SupportContactContent showHeader={true} onBack={() => navigate('/settings/support')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/support/about') {
+    return <AboutContent showHeader={true} onBack={() => navigate('/settings/support')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/support/about/privacy-policy') {
+    return <PrivacyPolicyContent showHeader={true} onBack={() => navigate('/settings/support/about')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/support/about/legal-terms') {
+    return <LegalTermsContent showHeader={true} onBack={() => navigate('/settings/support/about')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/support/about/report-fraud') {
+    return <ReportFraudContent showHeader={true} onBack={() => navigate('/settings/support/about')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/network') {
+    return <NetworkContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/network/servers') {
+    return <ServerConnectionContent showHeader={true} onBack={() => navigate('/settings/network')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/hardware') {
+    return <HardwareContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/hardware/details') {
+    return <HardwareDetailsContent showHeader={true} onBack={() => navigate('/settings/hardware')} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/hardware/details/printer') {
+    return <PrinterContent showHeader={true} onBack={() => navigate('/settings/hardware/details')} onNavigate={navigate} />;
+  }
+  if (pathname === '/settings/hardware/details/printer/advanced') {
+    return <PrinterAdvancedContent showHeader={true} onBack={() => navigate('/settings/hardware/details/printer')} />;
+  }
+  if (pathname === '/settings/hardware/details/printer/pair') {
+    return <PairPrinterContent showHeader={true} onBack={() => navigate('/settings/hardware/details/printer')} />;
+  }
+  if (pathname === '/settings/hardware/details/card-reader') {
+    return <CardReaderContent showHeader={true} onBack={() => navigate('/settings/hardware/details')} />;
+  }
+  if (pathname === '/settings/hardware/details/cash-register') {
+    return <CashRegisterContent showHeader={true} onBack={() => navigate('/settings/hardware/details')} />;
+  }
+  if (pathname === '/settings/notifications') {
+    return <NotificationsContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/notifications/all') {
+    return <NotificationsListContent showHeader={false} onBack={() => navigate('/settings/notifications')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname.startsWith('/settings/notifications/detail/')) {
+    const id = pathname.split('/').pop();
+    return <NotificationDetailContent showHeader={false} onBack={() => navigate('/settings/notifications/all')} onAIClick={() => setShowAIChat(true)} notificationId={id} />;
+  }
+  if (pathname === '/settings/reports') {
+    return <ReportsContent showHeader={false} onBack={() => navigate('/settings')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/end-of-day') {
+    return <EndOfDayContent showHeader={false} onBack={() => navigate('/settings')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/guest-book') {
+    return <GuestBookContent showHeader={false} onBack={() => navigate('/settings/account')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/workforce') {
+    return <WorkforceContent showHeader={false} onNavigate={navigate} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/workforce/employee') {
+    return <EmployeeContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/workforce/employee/add') {
+    return <AddEmployeeContent showHeader={true} onBack={() => navigate('/settings/workforce/employee')} />;
+  }
+  if (pathname === '/settings/workforce/shift') {
+    return <ShiftContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} />;
+  }
+  if (pathname === '/settings/workforce/shift/add') {
+    return <AddShiftContent showHeader={true} onBack={() => navigate('/settings/workforce/shift')} />;
+  }
+  if (pathname === '/settings/workforce/shift/edit') {
+    return <EditShiftContent showHeader={true} onBack={() => navigate('/settings/workforce/shift')} />;
+  }
+  // Default to Account panel
+  return <AccountPanel showHeader={true} />;
 };
 
 const Settings = () => {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showResetDialog, setShowResetDialog] = useState(false);
-  const { position, setPosition, isLocked, setIsLocked, resetToDefaults } = useSidebarPosition();
-  const { panelLayout, togglePanelLayout, resetPanelLayout } = usePanelPosition();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isMobile = useIsMobile();
+  const [showAIChat, setShowAIChat] = useState(false);
 
-  // Shake to reset gesture
-  const handleShake = useCallback(() => {
-    setShowResetDialog(true);
-    toast({
-      title: "Shake Detected",
-      description: "Opening reset dialog...",
-      duration: 1500,
-    });
-  }, []);
-
-  useShake({ onShake: handleShake, threshold: 15, timeout: 1500 });
-
-  const filteredItems = useMemo(() => {
-    if (!searchQuery.trim()) return allSettingsItems;
-    const query = searchQuery.toLowerCase();
-    return allSettingsItems.filter(item => 
-      item.label.toLowerCase().includes(query)
-    );
-  }, [searchQuery]);
-
-  const getGroupItems = (group: string) => 
-    filteredItems.filter(item => item.group === group);
-
-  const mainItems = getGroupItems("main");
-  const systemItems = getGroupItems("system");
-  const supportItems = getGroupItems("support");
-  const userItems = getGroupItems("user");
-
-  const hasResults = filteredItems.length > 0;
-
-  const handleLockToggle = (checked: boolean) => {
-    setIsLocked(checked);
-    toast({
-      title: checked ? "Sidebar Locked" : "Sidebar Unlocked",
-      description: checked ? "Sidebar position is now locked." : "You can now drag the sidebar to reposition it.",
-      duration: 2000,
-    });
-  };
-
-  const handlePositionChange = (newPosition: SidebarPosition) => {
-    if (isLocked) {
-      toast({
-        title: "Sidebar Locked",
-        description: "Unlock the sidebar first to change its position.",
-        duration: 2000,
-      });
-      return;
+  const handleUserProfileClick = () => {
+    setShowAIChat(false); // Close AI chat when navigating
+    if (isMobile) {
+      navigate('/account');
+    } else {
+      navigate('/settings/account');
     }
-    setPosition(newPosition);
-    toast({
-      title: "Sidebar Moved",
-      description: `Sidebar moved to ${newPosition}.`,
-      duration: 2000,
-    });
   };
 
-  const handleResetToDefaults = () => {
-    setShowResetDialog(true);
+  const handleSettingsItemClick = (itemId: string) => {
+    setShowAIChat(false); // Close AI chat when navigating
+    if (itemId === "system") {
+      navigate('/settings/system');
+    }
+    if (itemId === "payments") {
+      navigate('/settings/payments');
+    }
+    if (itemId === "menu") {
+      navigate('/settings/menu');
+    }
+    if (itemId === "support") {
+      navigate('/settings/support');
+    }
+    if (itemId === "network") {
+      navigate('/settings/network');
+    }
+    if (itemId === "hardware") {
+      navigate('/settings/hardware');
+    }
+    if (itemId === "end-of-day") {
+      navigate('/settings/end-of-day');
+    }
+    if (itemId === "guest-book") {
+      navigate('/settings/guest-book');
+    }
+    if (itemId === "reports-analytics") {
+      navigate('/settings/reports');
+    }
+    if (itemId === "notifications") {
+      navigate('/settings/notifications');
+    }
+    if (itemId === "workforce") {
+      navigate('/settings/workforce');
+    }
   };
 
-  const confirmReset = () => {
-    resetToDefaults();
-    setShowResetDialog(false);
-    toast({
-      title: "Reset Complete",
-      description: "Sidebar settings have been reset to defaults.",
-      duration: 2000,
-    });
+  const handleAIClick = () => {
+    if (isMobile) {
+      navigate('/settings/ai-assistant');
+    } else {
+      setShowAIChat(true);
+    }
   };
 
-  return (
-    <div className="min-h-screen p-4 pb-28 overflow-y-auto">
-      {/* Header */}
-      <h1 className="text-3xl font-bold text-foreground mb-6">Settings</h1>
+  const isGuestBook = location.pathname === '/settings/guest-book';
+  const isNotifications = location.pathname.startsWith('/settings/notifications/all') || location.pathname.startsWith('/settings/notifications/detail/');
 
-      {/* User Profile Card */}
-      <div className="bg-neutral-900 border border-white/10 rounded-2xl p-4 mb-4">
-        <div className="flex items-center gap-4 pb-4 border-b border-white/10">
-          <Avatar className="w-14 h-14">
-            <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Jim Hopper" />
-            <AvatarFallback className="bg-muted text-foreground">JH</AvatarFallback>
-          </Avatar>
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">Jim Hopper</h2>
-            <p className="text-sm text-muted-foreground">Executive Assistant Manager</p>
+  // Full-screen mode: hide sidebar for Guest Book and Notifications
+  if (!isMobile && (isGuestBook || isNotifications)) {
+    return (
+      <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden">
+        <div className="flex flex-1 h-full overflow-hidden">
+          <div className="w-full h-full overflow-y-auto scrollbar-hide">
+            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat)}
           </div>
         </div>
-        <div className="pt-4 flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Clocked In At 10:00 AM</span>
-          <span className="w-2.5 h-2.5 rounded-full bg-orange-500"></span>
-        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden">
+
+      {/* Left Panel - Settings Navigation with independent scroll */}
+      <div className="w-full md:w-[260px] lg:w-[300px] md:flex-shrink-0 md:bg-[#ededed99] md:dark:bg-[#26262699] md:rounded-2xl h-full overflow-hidden">
+        <SettingsNavigation 
+          onUserProfileClick={handleUserProfileClick}
+          onSettingsItemClick={handleSettingsItemClick}
+          onAIClick={handleAIClick}
+        />
       </div>
 
-      {/* Display Settings Group - NEW */}
-      <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
-        <SettingsItem
-          icon={<Layout className="w-5 h-5 text-white" />}
-          label="Lock Sidebar Position"
-          iconBgColor="hsl(45, 90%, 50%)"
-          rightElement={
-            <Switch 
-              checked={isLocked} 
-              onCheckedChange={handleLockToggle}
-              onClick={(e) => e.stopPropagation()}
-            />
-          }
-        />
-        <SettingsItem
-          icon={<Lock className="w-5 h-5 text-white" />}
-          label="Sidebar Position"
-          iconBgColor="hsl(200, 70%, 50%)"
-          rightElement={
-            <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-              {(['left', 'top', 'right', 'bottom'] as SidebarPosition[]).map((pos) => (
-                <button
-                  key={pos}
-                  onClick={() => handlePositionChange(pos)}
-                  className={`w-8 h-8 rounded-lg flex items-center justify-center transition-all ${
-                    position === pos 
-                      ? 'bg-orange-500 text-white' 
-                      : 'bg-white/10 text-white/60 hover:bg-white/20'
-                  } ${isLocked ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  title={`Move to ${pos}`}
-                >
-                  {positionIcons[pos]}
-                </button>
-              ))}
-            </div>
-          }
-        />
-        <SettingsItem
-          icon={<ArrowLeftRight className="w-5 h-5 text-white" />}
-          label="Swap Panel Layout"
-          iconBgColor="hsl(220, 60%, 50%)"
-          onClick={togglePanelLayout}
-          rightElement={
-            <span className="text-xs text-muted-foreground bg-white/10 px-2 py-1 rounded">
-              {panelLayout === 'menu-left' ? 'Menu ← | → Order' : 'Order ← | → Menu'}
-            </span>
-          }
-        />
-        <SettingsItem
-          icon={<RotateCcw className="w-5 h-5 text-white group-hover:animate-shake" />}
-          label="Reset to Defaults"
-          iconBgColor="hsl(0, 0%, 40%)"
-          onClick={handleResetToDefaults}
-        />
-        <div className="flex items-center gap-3 py-3 px-1 text-muted-foreground text-sm">
-          <Smartphone className="w-4 h-4" />
-          <span>Tip: Shake your device to reset</span>
-        </div>
-      </div>
-
-      {!hasResults && searchQuery && (
-        <div className="bg-neutral-900 border border-white/10 rounded-2xl p-6 mb-4 text-center">
-          <p className="text-muted-foreground">No settings found for "{searchQuery}"</p>
+      {/* Right Panel - Content area with independent scroll (Tablet/Desktop only) */}
+      {!isMobile && (
+        <div className="flex flex-1 h-full overflow-hidden">
+          <div className="w-full h-full overflow-y-auto scrollbar-hide">
+            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat)}
+          </div>
         </div>
       )}
-
-      {/* Main Settings Group */}
-      {mainItems.length > 0 && (
-        <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
-          {mainItems.map(item => (
-            <SettingsItem
-              key={item.id}
-              icon={item.icon}
-              label={item.label}
-              iconBgColor={item.iconBgColor}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* System Settings Group */}
-      {systemItems.length > 0 && (
-        <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
-          {systemItems.map(item => (
-            <SettingsItem
-              key={item.id}
-              icon={item.icon}
-              label={item.label}
-              iconBgColor={item.iconBgColor}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Notifications & Support Group */}
-      {supportItems.length > 0 && (
-        <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
-          {supportItems.map(item => (
-            <SettingsItem
-              key={item.id}
-              icon={item.icon}
-              label={item.label}
-              iconBgColor={item.iconBgColor}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Switch User Group */}
-      {userItems.length > 0 && (
-        <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 mb-4">
-          {userItems.map(item => (
-            <SettingsItem
-              key={item.id}
-              icon={item.icon}
-              label={item.label}
-              iconBgColor={item.iconBgColor}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Floating Search Bar - Fixed on mobile above bottom nav */}
-      <div className="fixed bottom-16 left-4 right-4 md:relative md:bottom-auto md:left-auto md:right-auto md:mt-0 z-50">
-        <div className="bg-neutral-900 border border-white/10 rounded-2xl px-4 py-3 flex items-center gap-3 shadow-lg md:shadow-none">
-          <Search className="w-5 h-5 text-muted-foreground" />
-          <input
-            type="text"
-            placeholder="Search"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent text-foreground placeholder:text-muted-foreground outline-none text-base"
-          />
-          {searchQuery && (
-            <button 
-              onClick={() => setSearchQuery("")}
-              className="p-1 active:opacity-70 transition-opacity text-muted-foreground text-sm"
-            >
-              Clear
-            </button>
-          )}
-          <button className="p-1 active:opacity-70 transition-opacity">
-            <Mic className="w-5 h-5 text-muted-foreground" />
-          </button>
-        </div>
-      </div>
-      {/* Reset Confirmation Dialog */}
-      <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-        <AlertDialogContent className="bg-neutral-900 border-white/10">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Reset to Defaults?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This will reset the sidebar position to left and unlock it. This action cannot be undone.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-white/10 border-white/10 hover:bg-white/20">Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={confirmReset} className="bg-orange-500 hover:bg-orange-600">
-              Reset
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   );
 };

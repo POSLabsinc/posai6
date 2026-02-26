@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { ChevronLeft, Printer, MessageSquare, Mail, Check, ArrowLeft, Delete, DollarSign } from "lucide-react";
+import { ChevronLeft, Printer, MessageSquare, Mail, Check, ArrowLeft, Delete } from "lucide-react";
 import { formatPrice } from "@/data/orders";
 import { toast } from "sonner";
 
@@ -8,13 +8,12 @@ interface TipDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   orderTotal: number;
-  existingTip?: number;
   onTipSelected: (tip: number) => void;
 }
 
 type TipStep = 'tip-selection' | 'custom-tip' | 'receipt-selection' | 'phone-input' | 'email-input';
 
-const TipDialog = ({ open, onOpenChange, orderTotal, existingTip = 0, onTipSelected }: TipDialogProps) => {
+const TipDialog = ({ open, onOpenChange, orderTotal, onTipSelected }: TipDialogProps) => {
   const [step, setStep] = useState<TipStep>('tip-selection');
   const [customAmount, setCustomAmount] = useState("0.00");
   const [isPercentMode, setIsPercentMode] = useState(false);
@@ -23,8 +22,6 @@ const TipDialog = ({ open, onOpenChange, orderTotal, existingTip = 0, onTipSelec
   const [emailAddress, setEmailAddress] = useState('');
   const [noMarketing, setNoMarketing] = useState(false);
   const [isCFDOn, setIsCFDOn] = useState(false);
-
-  const hasExistingTip = existingTip > 0;
 
   const tipPercentages = [
     { percent: 25, amount: orderTotal * 0.25 },
@@ -46,20 +43,12 @@ const TipDialog = ({ open, onOpenChange, orderTotal, existingTip = 0, onTipSelec
   };
 
   const handleTipSelect = (amount: number) => {
-    // For existing tips, the new tip is additive
-    const finalTip = hasExistingTip ? existingTip + amount : amount;
-    setSelectedTip(finalTip);
-    onTipSelected(finalTip);
+    setSelectedTip(amount);
+    onTipSelected(amount);
     setStep('receipt-selection');
   };
 
   const handleNoTip = () => {
-    // If existing tip, keep it (don't remove)
-    if (hasExistingTip) {
-      // No change - user must use refund to reduce
-      resetAndClose();
-      return;
-    }
     setSelectedTip(0);
     onTipSelected(0);
     setStep('receipt-selection');
@@ -87,9 +76,8 @@ const TipDialog = ({ open, onOpenChange, orderTotal, existingTip = 0, onTipSelec
   const handleCustomTipConfirm = () => {
     const value = parseFloat(customAmount) || 0;
     const tipAmount = isPercentMode ? (orderTotal * value / 100) : value;
-    const finalTip = hasExistingTip ? existingTip + tipAmount : tipAmount;
-    setSelectedTip(finalTip);
-    onTipSelected(finalTip);
+    setSelectedTip(tipAmount);
+    onTipSelected(tipAmount);
     setStep('receipt-selection');
   };
 
@@ -494,7 +482,7 @@ const TipDialog = ({ open, onOpenChange, orderTotal, existingTip = 0, onTipSelec
   // Default: Tip Selection Screen
   return (
     <Dialog open={open} onOpenChange={resetAndClose}>
-      <DialogContent className="max-w-md p-0 bg-neutral-900 border-neutral-800 overflow-hidden [&>button]:hidden max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-md p-0 bg-neutral-900 border-neutral-800 overflow-hidden [&>button]:hidden">
         <div className="flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4">
@@ -534,31 +522,10 @@ const TipDialog = ({ open, onOpenChange, orderTotal, existingTip = 0, onTipSelec
           </div>
 
           {/* Total Display */}
-          <div className="text-center py-4">
+          <div className="text-center py-6">
             <h2 className="text-white text-3xl font-bold">Total {formatPrice(orderTotal)}</h2>
-          </div>
-
-          {/* Existing Tip Banner - only shown when tip already exists */}
-          {hasExistingTip && (
-            <div className="mx-4 mb-3 rounded-xl border border-emerald-500/30 p-4 flex items-center gap-3" style={{ background: 'rgba(16, 185, 129, 0.08)' }}>
-              <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
-                <DollarSign className="w-5 h-5 text-emerald-400" />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-emerald-400 font-semibold text-sm">Adding to Existing Tip</p>
-                <p className="text-white/50 text-xs">Your selection will be added to the current tip</p>
-              </div>
-              <div className="text-right flex-shrink-0">
-                <p className="text-white/50 text-xs">Current Tip</p>
-                <p className="text-emerald-400 font-bold text-lg">{formatPrice(existingTip)}</p>
-              </div>
-            </div>
-          )}
-
-          {/* Subtitle */}
-          <div className="text-center pb-3">
-            <p className="text-white/50 text-sm">
-              {hasExistingTip ? "Select additional tip amount" : `Suggestions based on original amount of ${formatPrice(orderTotal)}`}
+            <p className="text-white/50 text-sm mt-2">
+              Suggestions based on original amount of {formatPrice(orderTotal)}
             </p>
           </div>
 
@@ -574,12 +541,7 @@ const TipDialog = ({ open, onOpenChange, orderTotal, existingTip = 0, onTipSelec
                 }}
               >
                 <span className="text-white text-2xl font-bold">{percent}%</span>
-                <span className="text-white/50 text-sm">{formatPrice(amount)}</span>
-                {hasExistingTip && (
-                  <span className="text-emerald-400 text-xs font-medium">
-                    New total: {formatPrice(existingTip + amount)}
-                  </span>
-                )}
+                <span className="text-white/50 text-sm">+{formatPrice(amount)}</span>
               </button>
             ))}
           </div>
@@ -605,11 +567,6 @@ const TipDialog = ({ open, onOpenChange, orderTotal, existingTip = 0, onTipSelec
             >
               No Tip
             </button>
-            {hasExistingTip && (
-              <p className="text-white/40 text-xs mt-1.5">
-                Current tip: {formatPrice(existingTip)} • Use REFUND to reduce or remove tip
-              </p>
-            )}
           </div>
 
           {/* Disclaimer */}

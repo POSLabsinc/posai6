@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import roleIcon from "@/assets/icons/role-icon.png";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import SettingsIcon from "@/components/settings/SettingsIcon";
 
 interface InfoRowProps {
   label: string;
@@ -94,25 +95,24 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Header - only shown in tablet/desktop right panel */}
       {showHeader && (
-        <div className="flex items-center justify-center py-4 relative">
+        <div className="flex items-center justify-center py-4 relative overflow-visible">
           {onBack && (
             <button
               onClick={onBack}
-              className="absolute left-4 w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+              className="absolute left-4 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
             >
-              <ChevronLeft className="w-4 h-4 text-foreground" />
+              <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           )}
           <h1 className="text-base font-medium text-foreground">Personal Information</h1>
+          <div className="absolute right-4 hidden md:flex overflow-visible">
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 
       {/* Content */}
       <div className="flex flex-col items-center pt-8 px-6 pb-8">
-        {/* AI Assistant Icon - hidden on mobile (shown in page wrapper) */}
-        <div className="hidden md:flex justify-end w-full mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
 
         {/* Profile Avatar with Edit Button */}
         <div className="relative mb-8">
@@ -148,7 +148,7 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
 
           {/* Address Section */}
           <div className="space-y-3">
-            <h2 className="text-xs font-medium text-neutral-500 tracking-wider uppercase">Address</h2>
+            <h2 className="text-xs font-medium text-neutral-500 tracking-wider">Address</h2>
             
             {/* Search Address Input */}
             <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
@@ -172,12 +172,10 @@ const PersonalInformationContent = ({ showHeader = true, onBack, onAIClick }: Pe
           </div>
 
           {/* Role Section */}
-          <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
+          <div className="bg-neutral-800/40 rounded-full overflow-hidden">
             <button className="flex items-center justify-between w-full py-4 px-5 active:opacity-70 transition-opacity">
               <div className="flex items-center gap-4">
-                <div className="w-10 h-10 rounded-xl bg-purple-600 flex items-center justify-center">
-                  <img src={roleIcon} alt="Role" className="w-5 h-5" />
-                </div>
+                <SettingsIcon bgColor="#9333EA" iconSrc={roleIcon} iconAlt="Role" />
                 <span className="text-foreground text-base font-medium">Role</span>
               </div>
               <div className="flex items-center gap-2">

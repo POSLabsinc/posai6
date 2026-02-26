@@ -8,6 +8,8 @@ import revenueCentersIcon from "@/assets/icons/revenue-centers.png";
 import businessHoursIcon from "@/assets/icons/business-hours.png";
 import languageIcon from "@/assets/icons/language.png";
 import currencyIcon from "@/assets/icons/currency.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import SettingsIcon from "@/components/settings/SettingsIcon";
 
 interface InfoRowProps {
   label: string;
@@ -47,31 +49,40 @@ interface RestaurantInformationContentProps {
 
 const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: RestaurantInformationContentProps) => {
   const navigate = useNavigate();
+  const { getIconBgColor } = useAppearance();
+
+  const getActiveRevenueCenter = () => {
+    try {
+      const session = localStorage.getItem("pos_session");
+      if (session) {
+        const parsed = JSON.parse(session);
+        return parsed.revenueCenter || "Not Set";
+      }
+    } catch {}
+    return "Not Set";
+  };
+
+  const activeRevenueCenter = getActiveRevenueCenter();
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {/* Header - only shown in tablet/desktop right panel */}
       {showHeader && (
-        <div className="flex items-center justify-center py-4 relative">
+        <div className="flex items-center justify-center py-4 relative overflow-visible">
           {onBack && (
             <button
               onClick={onBack}
-              className="absolute left-4 w-8 h-8 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+              className="absolute left-4 w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
             >
-              <ChevronLeft className="w-4 h-4 text-foreground" />
+              <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
           )}
           <h1 className="text-base font-medium text-foreground">Restaurant Information</h1>
+          <div className="absolute right-4 hidden md:flex overflow-visible">
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 
-      {/* Content */}
-      <div className="flex flex-col items-center pt-8 px-6 pb-8">
-        {/* AI Assistant Icon - hidden on mobile (shown in page wrapper) */}
-        <div className="hidden md:flex justify-end w-full mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
-
-        {/* Logo Section */}
+      <div className={`flex flex-col items-center ${showHeader ? 'pt-8' : 'pt-0'} px-6 pb-8`}>
         <div className="mb-8">
           <Avatar className="w-24 h-24 border-4 border-neutral-600">
             <AvatarImage
@@ -86,32 +97,27 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
           </Avatar>
         </div>
 
-        {/* Form Container */}
         <div className="w-full space-y-4">
-          {/* Name and Type Group */}
           <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
-            <InfoRow label="Name" value="Enter" />
+            <InfoRow label="Name" value="Bollywood Bites" />
             <div className="h-px bg-neutral-700/50 mx-5" />
-            <InfoRow label="Type" value="Select" />
+            <InfoRow label="Type" value="Fine Dining" />
           </div>
 
-          {/* Email and Phone Group */}
           <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
-            <InfoRow label="Email" value="Enter Email Address" />
+            <InfoRow label="Email" value="info@bollywoodbites.co.uk" />
             <div className="h-px bg-neutral-700/50 mx-5" />
-            <InfoRow label="Phone" value="(000) 000 - 0000" />
+            <InfoRow label="Phone" value="+44 20 7946 0958" />
           </div>
 
-          {/* Description Section */}
           <div>
             <h3 className="text-neutral-400 text-base mb-2 px-1">Description</h3>
             <div className="relative">
               <Textarea
-                placeholder="Brief Restaurant Description"
-                className="bg-neutral-800/40 border-none rounded-2xl min-h-[60px] resize-none pr-16 text-neutral-500 placeholder:text-neutral-500"
+                defaultValue="Authentic Indian fine dining experience in the heart of London. Serving traditional and modern Indian cuisine crafted with fresh, locally sourced ingredients."
+                className="bg-neutral-800/40 border-none rounded-2xl min-h-[60px] resize-none pr-16 text-foreground placeholder:text-neutral-500"
                 maxLength={250}
               />
-              {/* Colorful AI Icon */}
               <div className="absolute right-3 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full flex items-center justify-center">
                 <img src={aiColorfulIcon} alt="AI" className="w-10 h-10 object-contain" />
               </div>
@@ -119,7 +125,6 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
             <p className="text-neutral-500 text-sm mt-2 px-1">Maximum 250 characters</p>
           </div>
 
-          {/* Address Section */}
           <div>
             <h3 className="text-neutral-400 text-base mb-2 px-1">Address</h3>
             <div className="relative">
@@ -128,7 +133,7 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
               </div>
               <input
                 type="text"
-                placeholder="Search Address"
+                defaultValue="42 Kings Road, Chelsea, London SW3 4ND, UK"
                 className="w-full bg-neutral-800/40 border-none rounded-2xl py-4 pl-12 pr-12 text-foreground placeholder:text-neutral-500 focus:outline-none focus:ring-0"
               />
               <button className="absolute right-4 top-1/2 -translate-y-1/2">
@@ -137,42 +142,27 @@ const RestaurantInformationContent = ({ showHeader = true, onBack, onAIClick }: 
             </div>
           </div>
 
-          {/* Settings Options */}
           <div className="bg-neutral-800/40 rounded-2xl overflow-hidden">
             <SettingRow
-              icon={
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#5FC8D5' }}>
-                  <img src={revenueCentersIcon} alt="Revenue Centers" className="w-5 h-5 object-contain" />
-                </div>
-              }
+              icon={<SettingsIcon bgColor="#5FC8D5" iconSrc={revenueCentersIcon} iconAlt="Revenue Centers" />}
               label="Revenue Centers"
+              value={activeRevenueCenter}
             />
             <div className="h-px bg-neutral-700/50 mx-5" />
             <SettingRow
-              icon={
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#F78E34' }}>
-                  <img src={businessHoursIcon} alt="Business Hours" className="w-5 h-5 object-contain" />
-                </div>
-              }
+              icon={<SettingsIcon bgColor="#F78E34" iconSrc={businessHoursIcon} iconAlt="Business Hours" />}
               label="Business Hours"
+              value="9 AM – 11 PM"
             />
             <div className="h-px bg-neutral-700/50 mx-5" />
             <SettingRow
-              icon={
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#FF5DB6' }}>
-                  <img src={languageIcon} alt="Language" className="w-5 h-5 object-contain" />
-                </div>
-              }
+              icon={<SettingsIcon bgColor="#FF5DB6" iconSrc={languageIcon} iconAlt="Language" />}
               label="Language"
               value="English"
             />
             <div className="h-px bg-neutral-700/50 mx-5" />
             <SettingRow
-              icon={
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: '#34A885' }}>
-                  <img src={currencyIcon} alt="Currency" className="w-5 h-5 object-contain" />
-                </div>
-              }
+              icon={<SettingsIcon bgColor="#34A885" iconSrc={currencyIcon} iconAlt="Currency" />}
               label="Currency"
               value="GBP £"
             />

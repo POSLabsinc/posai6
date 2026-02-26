@@ -121,7 +121,7 @@ const SwipeableTaxItem = ({
 
       {/* Swipeable content */}
       <div
-        className="relative bg-neutral-800/60 cursor-grab active:cursor-grabbing"
+        className="relative bg-transparent cursor-grab active:cursor-grabbing"
         style={{
           transform: `translateX(${translateX}px)`,
           transition: isDragging ? "none" : "transform 0.2s ease-out",

@@ -49,20 +49,20 @@ const OrdersSettingsContent = ({
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {showHeader && onBack && !isMobile}
 
-      <div className="pt-2 px-6 pb-8">
+      <div className={`${showHeader ? 'pt-2' : 'pt-0'} px-6 pb-8`}>
         {/* AI Icon row */}
         <div className="flex justify-end mb-2 overflow-visible">
           <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
         </div>
         {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'}`}>
+        <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{
             backgroundColor: "#FF9500"
           }}>
             <img src={ordersIcon} alt="Orders" className="w-7 h-7 object-contain" />
           </div>
           <h1 className="text-xl font-semibold text-foreground mb-2">Orders</h1>
-          <p className="text-base text-neutral-400 leading-relaxed">
+          <p className="text-base text-neutral-400 leading-relaxed w-full">
             Configure order creation, flow, and notification settings.
           </p>
         </div>

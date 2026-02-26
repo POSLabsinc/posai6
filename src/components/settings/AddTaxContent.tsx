@@ -1,5 +1,8 @@
 import { useState, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { OrderTypeSheet } from "@/components/ui/order-type-sheet";
+import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
+import { getAllProductNames } from "@/lib/productStore";
 
 interface AddTaxContentProps {
   onBack: () => void;
@@ -25,20 +28,18 @@ const AddTaxContent = ({ onBack, onSave }: AddTaxContentProps) => {
   const [applicableProducts, setApplicableProducts] = useState<string[]>([]);
 
   const [showTypeDropdown, setShowTypeDropdown] = useState(false);
-  const [showApplicableToDropdown, setShowApplicableToDropdown] = useState(false);
-  const [showProductsDropdown, setShowProductsDropdown] = useState(false);
+  const [showApplicableToSheet, setShowApplicableToSheet] = useState(false);
+  const [selectedOrderTypes, setSelectedOrderTypes] = useState<string[]>([]);
+  const [showProductsSheet, setShowProductsSheet] = useState(false);
 
   const [typePosition, setTypePosition] = useState<DropdownPosition>({ top: 0, right: 0 });
-  const [applicableToPosition, setApplicableToPosition] = useState<DropdownPosition>({ top: 0, right: 0 });
-  const [productsPosition, setProductsPosition] = useState<DropdownPosition>({ top: 0, right: 0 });
 
   const typeRef = useRef<HTMLButtonElement>(null);
-  const applicableToRef = useRef<HTMLButtonElement>(null);
-  const productsRef = useRef<HTMLButtonElement>(null);
 
   const typeOptions = ["Exclusive", "Inclusive"];
-  const applicableToOptions = ["All Items", "Food Only", "Beverages Only", "Alcohol Only"];
-  const productOptions = ["Appetizers", "Main Course", "Desserts", "Drinks", "Alcohol"];
+  
+  // Product list sourced from the unified product store (menu + custom products)
+  const allProducts = getAllProductNames();
 
   const handleBack = () => {
     // Auto-save if we have the required fields
@@ -47,7 +48,7 @@ const AddTaxContent = ({ onBack, onSave }: AddTaxContentProps) => {
         name,
         amount: parseFloat(amount),
         type: type as "Exclusive" | "Inclusive",
-        applicableTo,
+        applicableTo: selectedOrderTypes.join(", "),
         applicableProducts,
       });
     }
@@ -94,13 +95,23 @@ const AddTaxContent = ({ onBack, onSave }: AddTaxContentProps) => {
           <div className="flex items-center justify-between">
             <span className="text-foreground text-base font-medium">Amount</span>
             <div className="flex items-center gap-1">
-              <input
-                type="text"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                placeholder="Required"
-                className="bg-transparent text-right text-foreground placeholder:text-neutral-500 outline-none text-base w-24"
-              />
+              <div className="flex items-center">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={amount}
+                  onChange={(e) => {
+                    const val = e.target.value.replace(/[^0-9.]/g, '');
+                    // Allow only one decimal point
+                    const parts = val.split('.');
+                    const sanitized = parts.length > 2 ? parts[0] + '.' + parts.slice(1).join('') : val;
+                    setAmount(sanitized);
+                  }}
+                  placeholder="Required"
+                  className="bg-transparent text-right text-foreground placeholder:text-neutral-500 outline-none text-base w-20"
+                />
+                {amount && <span className="text-foreground text-base">%</span>}
+              </div>
               <ChevronRight className="w-4 h-4 text-neutral-500" />
             </div>
           </div>
@@ -131,19 +142,14 @@ const AddTaxContent = ({ onBack, onSave }: AddTaxContentProps) => {
 
           {/* Applicable To Field */}
           <button 
-            ref={applicableToRef}
             className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
-            onClick={() => {
-              if (applicableToRef.current) {
-                const rect = applicableToRef.current.getBoundingClientRect();
-                setApplicableToPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right + 16 });
-              }
-              setShowApplicableToDropdown(true);
-            }}
+            onClick={() => setShowApplicableToSheet(true)}
           >
             <span className="text-foreground text-base font-medium">Applicable to</span>
             <div className="flex items-center gap-1">
-              <span className="text-neutral-500 text-base">{applicableTo || "Choose"}</span>
+              <span className="text-neutral-500 text-base">
+                {selectedOrderTypes.length > 0 ? selectedOrderTypes.join(", ") : "Choose"}
+              </span>
               <ChevronRight className="w-4 h-4 text-neutral-500" />
             </div>
           </button>
@@ -153,17 +159,10 @@ const AddTaxContent = ({ onBack, onSave }: AddTaxContentProps) => {
         </p>
 
         {/* Applicable Products Card */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <button 
-            ref={productsRef}
             className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
-            onClick={() => {
-              if (productsRef.current) {
-                const rect = productsRef.current.getBoundingClientRect();
-                setProductsPosition({ top: rect.bottom + 4, right: window.innerWidth - rect.right + 16 });
-              }
-              setShowProductsDropdown(true);
-            }}
+            onClick={() => setShowProductsSheet(true)}
           >
             <span className="text-foreground text-base font-medium">Applicable Products</span>
             <div className="flex items-center gap-1">
@@ -210,73 +209,27 @@ const AddTaxContent = ({ onBack, onSave }: AddTaxContentProps) => {
         </div>
       )}
 
-      {/* Applicable To Dropdown Overlay */}
-      {showApplicableToDropdown && (
-        <div 
-          className="fixed inset-0 z-50 animate-in fade-in duration-200"
-          onClick={() => setShowApplicableToDropdown(false)}
-        >
-          <div 
-            className="fixed bg-neutral-800 rounded-xl overflow-hidden shadow-2xl min-w-[160px] animate-in zoom-in-95 duration-200"
-            style={{ top: applicableToPosition.top, right: applicableToPosition.right }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {applicableToOptions.map((option) => (
-              <button
-                key={option}
-                className={`w-full text-left px-4 py-3 text-base transition-colors ${
-                  applicableTo === option 
-                    ? "text-foreground bg-neutral-700/50" 
-                    : "text-neutral-400 hover:bg-neutral-700/30"
-                }`}
-                onClick={() => {
-                  setApplicableTo(option);
-                  setShowApplicableToDropdown(false);
-                }}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Applicable To - Order Type Sheet */}
+      <OrderTypeSheet
+        isOpen={showApplicableToSheet}
+        onClose={(selected) => {
+          setSelectedOrderTypes(selected);
+          setShowApplicableToSheet(false);
+        }}
+        initialSelected={selectedOrderTypes}
+      />
 
-      {/* Applicable Products Dropdown Overlay */}
-      {showProductsDropdown && (
-        <div 
-          className="fixed inset-0 z-50 animate-in fade-in duration-200"
-          onClick={() => setShowProductsDropdown(false)}
-        >
-          <div 
-            className="fixed bg-neutral-800 rounded-xl overflow-hidden shadow-2xl min-w-[140px] animate-in zoom-in-95 duration-200"
-            style={{ top: productsPosition.top, right: productsPosition.right }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {productOptions.map((option) => (
-              <button
-                key={option}
-                className={`w-full text-left px-4 py-3 text-base transition-colors flex items-center justify-between ${
-                  applicableProducts.includes(option) 
-                    ? "text-foreground bg-neutral-700/50" 
-                    : "text-neutral-400 hover:bg-neutral-700/30"
-                }`}
-                onClick={() => {
-                  setApplicableProducts(prev => 
-                    prev.includes(option) 
-                      ? prev.filter(p => p !== option)
-                      : [...prev, option]
-                  );
-                }}
-              >
-                {option}
-                {applicableProducts.includes(option) && (
-                  <span className="text-primary">✓</span>
-                )}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+      {/* Applicable Products - Multi Select Sheet */}
+      <MultiSelectSheet
+        isOpen={showProductsSheet}
+        onClose={(selected) => {
+          setApplicableProducts(selected);
+          setShowProductsSheet(false);
+        }}
+        initialSelected={applicableProducts}
+        options={allProducts}
+        title="Select Products"
+      />
 
     </div>
   );

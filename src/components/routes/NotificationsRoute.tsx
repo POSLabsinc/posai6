@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronLeft } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import NotificationsContent from "@/components/settings/NotificationsContent";
-import AnimatedAIIcon from "@/components/AnimatedAIIcon";
+
 import Settings from "@/pages/Settings";
 
 const NotificationsRoute = () => {
@@ -20,7 +20,7 @@ const NotificationsRoute = () => {
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
+          <div style={{ width: 40, height: 40 }} />
         </div>
         <NotificationsContent
           showHeader={false}

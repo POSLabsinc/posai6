@@ -20,7 +20,6 @@ export interface PaymentDialogOrderItem {
   price: number;
   assignedSeats?: number[];  // Which seats this item belongs to
   isShared?: boolean;        // If true, split cost among all seats
-  voucherMeta?: { type: string; value: number; expiryDate?: string };
 }
 
 export interface PaymentDialogOrderDetails {
@@ -291,11 +290,6 @@ export function PaymentDialog({
       setThirdPartyDeliveryStep('select-partner');
       setSelectedDeliveryPartner(null);
       setDeliveryReference('');
-    } else if (methodId === 'voucher') {
-      setVoucherStep('enter-code');
-      setVoucherCode('');
-      setVoucherError('');
-      setVoucherValidated(null);
     }
   };
 
@@ -322,6 +316,12 @@ export function PaymentDialog({
       setThirdPartyDeliveryStep('amount');
       setSelectedDeliveryPartner(null);
       setDeliveryReference('');
+      // Reset voucher states
+      setVoucherStep('enter-code');
+      setVoucherCode('');
+      setVoucherError('');
+      setVoucherValidated(null);
+      setVoucherAppliedAmount(0);
       setTextReceiptStep('receipt');
       setEmailReceiptStep('receipt');
       // Reset split check states
@@ -342,12 +342,6 @@ export function PaymentDialog({
       setDragOverCheckNum(null);
       // Reset mobile payment selection
       setMobilePaymentSelectionActive(true);
-      // Reset voucher states
-      setVoucherStep('enter-code');
-      setVoucherCode('');
-      setVoucherError('');
-      setVoucherValidated(null);
-      setVoucherAppliedAmount(0);
     }
   }, [open, total]);
 
@@ -474,10 +468,6 @@ export function PaymentDialog({
     setSelectedDeliveryPartner(null);
     setDeliveryReference('');
     setLoyaltyStep('guest-list');
-    setVoucherStep('enter-code');
-    setVoucherCode('');
-    setVoucherError('');
-    setVoucherValidated(null);
   };
 
   // Handle completing payment for a split check ticket
@@ -560,11 +550,6 @@ export function PaymentDialog({
     setTextReceiptPhone('');
     setEmailReceiptStep('receipt');
     setEmailReceiptEmail('');
-    setVoucherStep('enter-code');
-    setVoucherCode('');
-    setVoucherError('');
-    setVoucherValidated(null);
-    setVoucherAppliedAmount(0);
   };
 
   // Universal payment completion helper - routes to split check or final receipt appropriately
@@ -747,12 +732,6 @@ export function PaymentDialog({
       return;
     }
     
-    // Voucher: transition to code entry
-    if (selectedPaymentMethod === 'voucher' && voucherStep === 'enter-code') {
-      // Already on the enter-code screen, do nothing (handled by voucher flow)
-      return;
-    }
-    
     
     // If paying a split check ticket, use the split check completion handler
     if (activePayingCheck !== null) {
@@ -812,8 +791,8 @@ export function PaymentDialog({
                 <ArrowLeft className="w-5 h-5 text-neutral-300" />
               </button>
               <div className="flex items-center gap-2">
-                <span className="text-white text-base font-medium">{paymentHistory.length > 0 ? 'Remaining' : 'Total Due'}</span>
-                <span className="text-red-500 text-base font-bold">${paymentHistory.length > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
+                <span className="text-white text-base font-medium">Total Due</span>
+                <span className="text-red-500 text-base font-bold">${total.toFixed(2)}</span>
               </div>
               <button 
                 onClick={() => onOpenChange(false)}
@@ -823,22 +802,9 @@ export function PaymentDialog({
               </button>
             </div>
             
-            {/* Payment History - show previous payments */}
-            {paymentHistory.length > 0 && (
-              <div className="px-4 py-2 border-b border-neutral-700 bg-neutral-800/50">
-                <span className="text-neutral-400 text-xs block mb-1">Previous Payments</span>
-                {paymentHistory.map((payment, index) => (
-                  <div key={index} className="flex items-center justify-between py-0.5">
-                    <span className="text-green-400 text-xs">{payment.methodLabel}</span>
-                    <span className="text-green-400 text-xs">${payment.amount.toFixed(2)}</span>
-                  </div>
-                ))}
-              </div>
-            )}
-
             {/* Label */}
             <div className="text-center text-neutral-400 text-sm py-4">
-              {paymentHistory.length > 0 ? 'Choose Next Payment Method' : 'Choose Payment Method'}
+              Choose Payment Method
             </div>
             
             {/* Payment Methods Grid - 3 columns */}
@@ -1086,10 +1052,6 @@ export function PaymentDialog({
                         setSelectedDeliveryPartner(null);
                         setDeliveryReference('');
                         setLoyaltyStep('guest-list');
-                        // On mobile, go back to payment method selection grid
-                        if (isMobile) {
-                          setMobilePaymentSelectionActive(true);
-                        }
                       }}
                       className="w-full py-3.5 bg-gradient-to-b from-orange-400 to-orange-600 text-white font-bold rounded-xl hover:from-orange-500 hover:to-orange-700 transition-all shadow-lg"
                     >
@@ -3442,14 +3404,11 @@ export function PaymentDialog({
           ) : selectedPaymentMethod === 'voucher' ? (
             /* ============= VOUCHER REDEEM FLOW - REPLACES ENTIRE PANEL ============= */
             <>
-              {/* Header with Back Button */}
               <div className="flex items-center justify-between p-4 border-b border-neutral-700">
                 <div className="flex items-center gap-3">
-                  <button 
+                  <button
                     onClick={() => {
-                      if (isMobile) {
-                        setMobilePaymentSelectionActive(true);
-                      }
+                      if (isMobile) setMobilePaymentSelectionActive(true);
                       setSelectedPaymentMethod('cash');
                       setVoucherStep('enter-code');
                       setVoucherCode('');
@@ -3464,40 +3423,33 @@ export function PaymentDialog({
                 </div>
                 <span className="text-red-500 text-lg font-bold">${remainingDue > 0 ? remainingDue.toFixed(2) : total.toFixed(2)}</span>
               </div>
-
-              {/* Enter Code Screen */}
               {(voucherStep === 'enter-code' || voucherStep === 'validating' || voucherStep === 'error') && (
                 <div className="flex-1 flex flex-col p-6">
                   <div className="mb-4">
                     <label className="text-neutral-400 text-xs mb-1.5 block">Voucher Code</label>
-                    <Input 
-                      type="text" 
-                      placeholder="Enter voucher code" 
-                      value={voucherCode} 
+                    <Input
+                      type="text"
+                      placeholder="Enter voucher code"
+                      value={voucherCode}
                       onChange={e => {
                         setVoucherCode(e.target.value.toUpperCase());
                         if (voucherError) setVoucherError('');
-                      }} 
+                      }}
                       autoFocus
-                      className="w-full py-3 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg text-center text-lg tracking-widest font-mono" 
+                      className="w-full py-3 bg-neutral-800 border-neutral-600 text-white placeholder:text-neutral-500 rounded-lg text-center text-lg tracking-widest font-mono"
                     />
                     <p className="text-neutral-500 text-[10px] mt-1.5">Scan barcode/QR or enter code manually.</p>
                   </div>
-
-                  {/* Error Message */}
                   {voucherError && (
                     <div className="mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded-lg flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4 text-red-500 flex-shrink-0" />
                       <span className="text-red-400 text-sm">{voucherError}</span>
                     </div>
                   )}
-
                   <div className="flex gap-3 mt-auto">
-                    <button 
+                    <button
                       onClick={() => {
-                        if (isMobile) {
-                          setMobilePaymentSelectionActive(true);
-                        }
+                        if (isMobile) setMobilePaymentSelectionActive(true);
                         setSelectedPaymentMethod('cash');
                         setVoucherStep('enter-code');
                         setVoucherCode('');
@@ -3507,16 +3459,13 @@ export function PaymentDialog({
                     >
                       Cancel
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
                         if (voucherCode.trim().length < 4) return;
                         setVoucherStep('validating');
                         setVoucherError('');
-                        
-                        // Simulate backend validation
                         setTimeout(() => {
                           const code = voucherCode.trim();
-                          // Mock validation logic
                           if (code === 'EXPIRED') {
                             setVoucherError('This voucher has expired');
                             setVoucherStep('error');
@@ -3527,23 +3476,18 @@ export function PaymentDialog({
                             setVoucherError('Voucher code not recognised');
                             setVoucherStep('error');
                           } else {
-                            // Simulate valid voucher
                             const isPercentage = code.includes('PCT') || code.includes('%');
                             const mockValue = isPercentage ? 25 : 25;
                             const currentRemaining = remainingDue > 0 ? remainingDue : total;
-                            
                             let appliedAmount: number;
                             if (isPercentage) {
-                              // Apply percentage against subtotal, cap at remaining
                               const discountAmount = subtotal * (mockValue / 100);
                               appliedAmount = Math.min(discountAmount, currentRemaining);
                             } else {
-                              // Fixed: apply up to remaining due
                               appliedAmount = Math.min(mockValue, currentRemaining);
                             }
-                            
                             setVoucherValidated({
-                              code: code,
+                              code,
                               type: isPercentage ? 'percentage' : 'fixed',
                               value: mockValue,
                               expiryDate: '2026-06-30',
@@ -3556,7 +3500,7 @@ export function PaymentDialog({
                       disabled={voucherCode.trim().length < 4 || voucherStep === 'validating'}
                       className={`flex-1 py-3 rounded-lg text-sm font-semibold transition-colors flex items-center justify-center gap-2 ${
                         voucherCode.trim().length >= 4 && voucherStep !== 'validating'
-                          ? 'bg-white hover:bg-neutral-200 text-neutral-900' 
+                          ? 'bg-white hover:bg-neutral-200 text-neutral-900'
                           : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
                       }`}
                     >
@@ -3572,35 +3516,27 @@ export function PaymentDialog({
                   </div>
                 </div>
               )}
-
-              {/* Voucher Summary Screen */}
               {voucherStep === 'summary' && voucherValidated && (
                 <div className="flex-1 flex flex-col p-6">
-                  {/* Success Icon */}
                   <div className="flex justify-center mb-4">
                     <img src={tickSuccessIcon} alt="Valid" className="w-14 h-14" />
                   </div>
-                  
                   <h3 className="text-white text-lg font-semibold text-center mb-4">Voucher Valid</h3>
-
-                  {/* Summary Card */}
                   <div className="bg-neutral-800 rounded-lg p-4 mb-6 space-y-3">
                     <div className="flex justify-between items-center py-1.5 border-b border-neutral-700">
                       <span className="text-neutral-400 text-sm">Voucher Code</span>
                       <span className="text-white text-sm font-mono font-medium">
-                        {voucherValidated.code.length > 8 
-                          ? voucherValidated.code.slice(0, 4) + '••••' + voucherValidated.code.slice(-4) 
-                          : voucherValidated.code
-                        }
+                        {voucherValidated.code.length > 8
+                          ? voucherValidated.code.slice(0, 4) + '••••' + voucherValidated.code.slice(-4)
+                          : voucherValidated.code}
                       </span>
                     </div>
                     <div className="flex justify-between items-center py-1.5 border-b border-neutral-700">
                       <span className="text-neutral-400 text-sm">Voucher Value</span>
                       <span className="text-white text-sm font-medium">
-                        {voucherValidated.type === 'percentage' 
-                          ? `${voucherValidated.value}%` 
-                          : `$${voucherValidated.value.toFixed(2)}`
-                        }
+                        {voucherValidated.type === 'percentage'
+                          ? `${voucherValidated.value}%`
+                          : `$${voucherValidated.value.toFixed(2)}`}
                       </span>
                     </div>
                     {voucherValidated.expiryDate && (
@@ -3616,10 +3552,8 @@ export function PaymentDialog({
                       <span className="text-green-500 text-lg font-bold">${voucherAppliedAmount.toFixed(2)}</span>
                     </div>
                   </div>
-
-                  {/* Action Buttons */}
                   <div className="flex gap-3 mt-auto">
-                    <button 
+                    <button
                       onClick={() => {
                         setVoucherStep('enter-code');
                         setVoucherCode('');
@@ -3630,14 +3564,12 @@ export function PaymentDialog({
                     >
                       Cancel
                     </button>
-                    <button 
+                    <button
                       onClick={() => {
-                        // Apply voucher as payment
-                        const label = voucherValidated.type === 'percentage' 
-                          ? `Voucher (${voucherValidated.value}%)` 
+                        const label = voucherValidated.type === 'percentage'
+                          ? `Voucher (${voucherValidated.value}%)`
                           : 'Voucher';
                         finalizePayment('voucher', voucherAppliedAmount, label);
-                        // Reset voucher states
                         setVoucherStep('enter-code');
                         setVoucherCode('');
                         setVoucherValidated(null);
@@ -4074,9 +4006,6 @@ export function PaymentDialog({
                                         ${itemPrice.toFixed(2)}
                                       </span>
                                     </div>
-                                    {item.voucherMeta?.expiryDate && (
-                                      <p className="text-[9px] text-neutral-400">Expires: {new Date(item.voucherMeta.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                                    )}
                                     {/* Seat indicator */}
                                     <div className="flex items-center gap-0.5 mt-0.5">
                                       <Users className="w-2.5 h-2.5 text-neutral-500" />
@@ -4116,9 +4045,6 @@ export function PaymentDialog({
                                       ${(item.price * item.qty).toFixed(2)}
                                     </span>
                                   </div>
-                                  {item.voucherMeta?.expiryDate && (
-                                    <p className="text-[9px] text-neutral-400">Expires: {new Date(item.voucherMeta.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                                  )}
                                   {/* Seat indicator */}
                                   <div className="flex items-center gap-0.5 mt-0.5">
                                     <Users className="w-2.5 h-2.5 text-neutral-500" />
@@ -4276,11 +4202,6 @@ export function PaymentDialog({
                               setThirdPartyDeliveryStep('select-partner');
                               setSelectedDeliveryPartner(null);
                               setDeliveryReference('');
-                            } else if (method.id === 'voucher') {
-                              setVoucherStep('enter-code');
-                              setVoucherCode('');
-                              setVoucherError('');
-                              setVoucherValidated(null);
                             }
                             // Cash stays on amount keypad (no action needed)
                           }}
@@ -4757,9 +4678,6 @@ export function PaymentDialog({
                         <span className="text-white text-xs font-medium truncate">{item.name}</span>
                         <span className="text-white text-xs font-medium ml-2">${(item.price * item.qty).toFixed(2)}</span>
                       </div>
-                      {item.voucherMeta?.expiryDate && (
-                        <p className="text-[10px] text-neutral-400 mt-0.5">Expires: {new Date(item.voucherMeta.expiryDate + 'T00:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</p>
-                      )}
                       {/* Seat indicators - only for table orders */}
                       {orderDetails.partySize && (
                         <div className="flex items-center gap-0.5 mt-1">

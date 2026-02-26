@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import eatosLogo from "@/assets/icons/eatos-logo.svg";
 
 interface SplashScreenProps {
@@ -9,6 +9,8 @@ interface SplashScreenProps {
 export function SplashScreen({ onComplete, duration = 2000 }: SplashScreenProps) {
   const [isVisible, setIsVisible] = useState(true);
   const [isFading, setIsFading] = useState(false);
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   useEffect(() => {
     const fadeTimer = setTimeout(() => {
@@ -17,14 +19,15 @@ export function SplashScreen({ onComplete, duration = 2000 }: SplashScreenProps)
 
     const completeTimer = setTimeout(() => {
       setIsVisible(false);
-      onComplete();
+      onCompleteRef.current();
     }, duration);
 
     return () => {
       clearTimeout(fadeTimer);
       clearTimeout(completeTimer);
     };
-  }, [duration, onComplete]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [duration]);
 
   if (!isVisible) return null;
 
@@ -35,7 +38,7 @@ export function SplashScreen({ onComplete, duration = 2000 }: SplashScreenProps)
       }`}
       style={{ backgroundColor: "#131316" }}
     >
-      <div className="flex flex-col items-center justify-center animate-fade-in">
+      <div className="flex flex-col items-center justify-center" style={{ animation: "fadeIn 0.5s ease-in" }}>
         <img
           src={eatosLogo}
           alt="eatOS Logo"

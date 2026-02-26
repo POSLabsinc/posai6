@@ -12,16 +12,6 @@ const HardwareRoute = () => {
   if (isMobile) {
     return (
       <div className="min-h-screen bg-background">
-        {/* Mobile Header with back button and AI icon */}
-        <div className="flex items-center justify-between px-4 py-3 overflow-visible">
-          <button
-            onClick={() => navigate('/settings')}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
-          <AnimatedAIIcon size={24} onClick={() => navigate('/settings/ai')} />
-        </div>
         <HardwareContent
           showHeader={false}
           onBack={() => navigate('/settings')}

@@ -6298,7 +6298,9 @@ const OrdersF = () => {
   
   // Determine what to charge based on payment status
   const chargeAmount = addItemMode && isExistingOrderPaid ? newItemsTotal : total;
-  const chargeLabel = '';
+  const chargeLabel = addItemMode 
+    ? (isExistingOrderPaid ? 'NEW ITEMS' : 'FULL ORDER') 
+    : '';
   return <div className="relative flex flex-col md:flex-row gap-[10px] md:gap-1 lg:gap-2 h-full overflow-hidden">
       {/* Panel Drop Zones for drag and drop repositioning */}
       <PanelDropZones />
@@ -6386,7 +6388,7 @@ const OrdersF = () => {
           <div className="hidden md:block overflow-x-auto scrollbar-hide mb-2">
             <div className="flex items-center gap-2 w-max">
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
-                Custom Product
+                Custom Item
               </Button>
               <Button variant="secondary" size="sm" className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap">
                 Discount
@@ -6456,7 +6458,7 @@ const OrdersF = () => {
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <Plus className="w-3.5 h-3.5" />
-                    Custom Product
+                    Custom Item
                   </DropdownMenuItem>
                   <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                     <img src={cashRegisterIcon} alt="" className="w-3.5 h-3.5" />
@@ -6802,7 +6804,7 @@ const OrdersF = () => {
           <div className="overflow-x-auto scrollbar-hide mb-2">
             <div className="flex items-center gap-1.5 w-max">
               <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap">
-                Custom Product
+                Custom Item
               </Button>
               <Button variant="secondary" size="sm" className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-6 px-2 whitespace-nowrap">
                 Discount

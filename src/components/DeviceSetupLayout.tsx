@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { Monitor, MapPin, Clock, Info, ShieldCheck, CheckCircle2 } from "lucide-react";
+import { Monitor, Clock, ShieldCheck, CheckCircle2 } from "lucide-react";
 import eatosLogo from "@/assets/icons/eatos-logo.svg";
 import restaurantLogo from "@/assets/icons/restaurant-logo.png";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -98,7 +98,7 @@ export function DeviceSetupLayout({ children, title, subtitle, variant = "setup"
   // Mobile: Single column layout
   if (isMobile) {
     return (
-      <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden">
+      <div className="fixed inset-0 login-bg flex flex-col items-center justify-center overflow-hidden px-5 pb-16">
         <div className="absolute inset-0 gradient-mesh opacity-30" />
         {children}
       </div>

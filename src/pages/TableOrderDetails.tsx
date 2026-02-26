@@ -10,9 +10,6 @@ import RefundDialog from "@/components/RefundDialog";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { ChevronLeft, ChevronDown, ChevronRight, Search, SlidersHorizontal, Phone, Users, Share2, Info, X, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, ArrowRightLeft } from "lucide-react";
-import AccessRestrictedModal from "@/components/AccessRestrictedModal";
-import TicketsFilterBar from "@/components/TicketsFilterBar";
-import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import MergedOrderPanel from "@/components/MergedOrderPanel";
 import OrderLayoutTemplate from "@/components/OrderLayoutTemplate";
@@ -84,9 +81,9 @@ const discountTypes: DiscountType[] = [
   { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
   { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
   { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
-  { id: 'birthday', name: 'Birthday Special', description: '100% off', percentage: 100, icon: 'cake' },
+  { id: 'birthday', name: 'Birthday Special', description: '30% off', percentage: 30, icon: 'cake' },
   { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
-  { id: 'comp5', name: 'Manager Comp', description: '100% off', percentage: 100, icon: 'dollar' },
+  { id: 'comp5', name: 'Manager Comp $5', description: '$5.00 off', fixedAmount: 5, icon: 'dollar' },
   { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
   { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
   { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
@@ -621,19 +618,7 @@ const TableOrderDetails = () => {
   // Discount state
   const [showDiscountDialog, setShowDiscountDialog] = useState(false);
   const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
-  // Advanced filter state (table context)
-  const [showFilterIcons, setShowFilterIcons] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [advFilterDate, setAdvFilterDate] = useState<Date | undefined>(undefined);
-  const [advFilterEmployee, setAdvFilterEmployee] = useState<string | null>(null);
-  const [advFilterOrderStatus, setAdvFilterOrderStatus] = useState<string | null>(null);
-  const [advFilterPaymentType, setAdvFilterPaymentType] = useState<string | null>(null);
-  const [showMobileFilterSheet, setShowMobileFilterSheet] = useState(false);
-  const [advFilterRevenueCenter, setAdvFilterRevenueCenter] = useState<string | null>(null);
-  const hasAnyAdvancedFilter = !!(advFilterRevenueCenter || advFilterDate || advFilterEmployee || advFilterOrderStatus || advFilterPaymentType);
-  const resetAllAdvancedFilters = () => { setAdvFilterRevenueCenter(null); setAdvFilterDate(undefined); setAdvFilterEmployee(null); setAdvFilterOrderStatus(null); setAdvFilterPaymentType(null); };
-  // discountPin removed — AccessRestrictedModal manages its own PIN state
+  const [discountPin, setDiscountPin] = useState("");
   const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
   
   // Set initial selected guest when guestOrders changes
@@ -782,43 +767,22 @@ const TableOrderDetails = () => {
     if (filter === "Ordering") return guestOrders.filter(g => g.status === "ORDERING").length;
     return 0;
   };
-  const filteredGuestOrders = useMemo(() => {
-    let result = activeFilter === "All" ? guestOrders : guestOrders.filter(guest => {
-      switch (activeFilter) {
-        case "Open": return guest.status === "ORDERING";
-        case "Completed": return guest.status === "COMPLETED";
-        case "Paid": return guest.status === "PAID" || guest.paymentType !== "--";
-        case "Unpaid": return guest.status === "UNPAID" || guest.paymentType === "--";
-        case "Ordering": return guest.status === "ORDERING";
-        default: return true;
-      }
-    });
-    // Advanced filters
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(g => g.name?.toLowerCase().includes(q) || g.id?.toLowerCase().includes(q) || g.server?.toLowerCase().includes(q));
+  const filteredGuestOrders = activeFilter === "All" ? guestOrders : guestOrders.filter(guest => {
+    switch (activeFilter) {
+      case "Open":
+        return guest.status === "ORDERING";
+      case "Completed":
+        return guest.status === "COMPLETED";
+      case "Paid":
+        return guest.status === "PAID" || guest.paymentType !== "--";
+      case "Unpaid":
+        return guest.status === "UNPAID" || guest.paymentType === "--";
+      case "Ordering":
+        return guest.status === "ORDERING";
+      default:
+        return true;
     }
-    if (advFilterDate) {
-      // Filter by date (compare date portion only)
-      result = result.filter(g => g.time?.includes(advFilterDate.toLocaleDateString()));
-    }
-    if (advFilterEmployee) {
-      result = result.filter(g => g.server === advFilterEmployee);
-    }
-    if (advFilterOrderStatus) {
-      result = result.filter(g => g.status === advFilterOrderStatus);
-    }
-    if (advFilterPaymentType) {
-      if (advFilterPaymentType === "Unpaid") {
-        result = result.filter(g => g.paymentType === "--" || g.status === "UNPAID");
-      } else if (advFilterPaymentType === "Cash") {
-        result = result.filter(g => g.paymentType === "Cash");
-      } else {
-        result = result.filter(g => g.paymentType === advFilterPaymentType);
-      }
-    }
-    return result;
-  }, [guestOrders, activeFilter, searchQuery, advFilterDate, advFilterEmployee, advFilterOrderStatus, advFilterPaymentType]);
+  });
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
   };
@@ -1306,32 +1270,32 @@ const TableOrderDetails = () => {
 
   // Mobile Layout - render function (not component) to prevent scroll reset
   const renderMobileLayout = () => <div className="flex flex-col h-full bg-black">
-      {/* Header - reusing TicketsFilterBar with tableContext */}
-      <TicketsFilterBar
-        tableContext
-        title={formatTableName(tableId || "")}
-        leftElement={<button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}><ChevronLeft className="w-5 h-5 text-white" /></button>}
-        showSearch={showSearch}
-        searchQuery={searchQuery}
-        showFilterIcons={showFilterIcons}
-        advFilterRevenueCenter={advFilterRevenueCenter}
-        advFilterDate={advFilterDate}
-        advFilterEmployee={advFilterEmployee}
-        advFilterOrderType={null}
-        advFilterOrderStatus={advFilterOrderStatus}
-        advFilterPaymentType={advFilterPaymentType}
-        onSearchQueryChange={setSearchQuery}
-        onShowSearchChange={setShowSearch}
-        onShowFilterIconsChange={setShowFilterIcons}
-        onAdvFilterRevenueCenterChange={setAdvFilterRevenueCenter}
-        onAdvFilterDateChange={setAdvFilterDate}
-        onAdvFilterEmployeeChange={setAdvFilterEmployee}
-        onAdvFilterOrderTypeChange={() => {}}
-        onAdvFilterOrderStatusChange={setAdvFilterOrderStatus}
-        onAdvFilterPaymentTypeChange={setAdvFilterPaymentType}
-        onResetAllAdvancedFilters={resetAllAdvancedFilters}
-        hasAnyAdvancedFilter={hasAnyAdvancedFilter}
-      />
+      {/* Header */}
+      <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+        <button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity z-10" style={{
+        background: "#7575754D",
+        boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+      }}>
+          <ChevronLeft className="w-5 h-5 text-white" />
+        </button>
+        
+        <span className="absolute left-1/2 -translate-x-1/2 text-white font-semibold text-lg">{formatTableName(tableId || "")}</span>
+        
+        <div className="flex items-center gap-2 z-10">
+          <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+          background: "#7575754D",
+          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+        }}>
+            <SlidersHorizontal className="w-4 h-4 text-white" />
+          </button>
+          <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+          background: "#7575754D",
+          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+        }}>
+            <Search className="w-4 h-4 text-white" />
+          </button>
+        </div>
+      </div>
 
       {/* Filter Tabs */}
       <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
@@ -1351,8 +1315,8 @@ const TableOrderDetails = () => {
       </div>
 
       {/* Guest Orders List */}
-      <ScrollArea className="flex-1 px-4">
-        <div className="space-y-3 pb-4">
+      <ScrollArea className="flex-1 px-3">
+        <div className="space-y-2 pb-3">
           {filteredGuestOrders.map((guest, guestIndex) => <div key={guest.id} className="space-y-2">
               {/* Merged Order Indicator - Destination */}
               {destOrderId === guest.id && mergedFromTable && mergedOrderId && <div className="px-2 py-0.5 rounded-t-xl bg-[#392514]">
@@ -1643,10 +1607,10 @@ const TableOrderDetails = () => {
       </ScrollArea>
 
       {/* Add Order Button */}
-      <div className="px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom,0px))]">
+      <div className="px-3 py-2">
         <button 
           onClick={() => navigate(`/orders?tableId=${tableId}&seats=4&guests=1`)}
-          className="w-full py-3 text-black text-sm font-semibold rounded-full hover:opacity-90 transition-opacity" 
+          className="w-full py-2 text-black text-sm font-medium rounded-full hover:opacity-90 transition-opacity" 
           style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
         >
           ADD ORDER TO TABLE
@@ -1661,32 +1625,32 @@ const TableOrderDetails = () => {
   const renderDesktopLayout = () => <div className="flex h-full bg-black">
       {/* Left Panel - Order List */}
       <div className="flex flex-col flex-1 mx-2 mb-2 rounded-[20px] overflow-hidden">
-        {/* Header - reusing TicketsFilterBar with tableContext */}
-        <TicketsFilterBar
-          tableContext
-          title={formatTableName(tableId || "")}
-          leftElement={<button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}><ChevronLeft className="w-5 h-5 text-white" /></button>}
-          showSearch={showSearch}
-          searchQuery={searchQuery}
-          showFilterIcons={showFilterIcons}
-          advFilterRevenueCenter={advFilterRevenueCenter}
-          advFilterDate={advFilterDate}
-          advFilterEmployee={advFilterEmployee}
-          advFilterOrderType={null}
-          advFilterOrderStatus={advFilterOrderStatus}
-          advFilterPaymentType={advFilterPaymentType}
-          onSearchQueryChange={setSearchQuery}
-          onShowSearchChange={setShowSearch}
-          onShowFilterIconsChange={setShowFilterIcons}
-          onAdvFilterRevenueCenterChange={setAdvFilterRevenueCenter}
-          onAdvFilterDateChange={setAdvFilterDate}
-          onAdvFilterEmployeeChange={setAdvFilterEmployee}
-          onAdvFilterOrderTypeChange={() => {}}
-          onAdvFilterOrderStatusChange={setAdvFilterOrderStatus}
-          onAdvFilterPaymentTypeChange={setAdvFilterPaymentType}
-          onResetAllAdvancedFilters={resetAllAdvancedFilters}
-          hasAnyAdvancedFilter={hasAnyAdvancedFilter}
-        />
+        {/* Header */}
+        <div className="flex items-center justify-between p-2 border-b border-neutral-700/50">
+          <div className="flex items-center gap-3">
+            <button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+            background: "#7575754D",
+            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+          }}>
+              <ChevronLeft className="w-5 h-5 text-white" />
+            </button>
+            <span className="text-white font-semibold text-lg">{formatTableName(tableId || "")}</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+            background: "#7575754D",
+            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+          }}>
+              <SlidersHorizontal className="w-4 h-4 text-white" />
+            </button>
+            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+            background: "#7575754D",
+            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+          }}>
+              <Search className="w-4 h-4 text-white" />
+            </button>
+          </div>
+        </div>
 
         {/* Filter Tabs */}
         <div className="flex items-center gap-2 p-3 overflow-x-auto">
@@ -2069,7 +2033,7 @@ const TableOrderDetails = () => {
                     Merge
                   </button>
                 ) : (
-                  // Show Add Product button for regular orders
+                  // Show Add Item button for regular orders
                   <button 
                     className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors"
                     onClick={() => navigate(`/orders?orderId=${currentSelectedGuest?.id}&tableId=${tableId}&mode=addItem`)}
@@ -2082,6 +2046,7 @@ const TableOrderDetails = () => {
                   className={`text-[10px] rounded-[10px] ${selectedDiscountId ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors`}
                   onClick={() => {
                     setDiscountDialogView('mpin');
+                    setDiscountPin("");
                     setShowDiscountDialog(true);
                   }}
                 >
@@ -2406,12 +2371,12 @@ const TableOrderDetails = () => {
             boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
           }}>
             <div className="flex justify-between gap-3">
-              <span className="text-foreground"><span className="font-medium">Sub Total</span> <span className="font-bold">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span></span>
-              <span className="text-white"><span className="font-medium">Discount</span> <span className="font-bold">{formatPrice((currentSelectedGuest?.discount || 0) + appliedDiscount)}</span></span>
+              <span className="text-foreground">Sub Total: <span className="font-medium">{formatPrice(currentSelectedGuest?.subtotal || 0)}</span></span>
+              <span className="text-white">Discount: <span className="font-medium">{formatPrice((currentSelectedGuest?.discount || 0) + appliedDiscount)}</span></span>
             </div>
             <div className="flex justify-between gap-3">
-              <span className="text-foreground"><span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+{formatPrice(currentSelectedGuest?.serviceCharge || 0)}</span></span>
-              <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">{formatPrice(currentSelectedGuest?.tax || 0)}</span></span>
+              <span className="text-foreground">Service Charge: <span className="font-medium text-primary">+{formatPrice(currentSelectedGuest?.serviceCharge || 0)}</span></span>
+              <span className="text-foreground">Tax: <span className="font-medium">{formatPrice(currentSelectedGuest?.tax || 0)}</span></span>
             </div>
           </div>
 
@@ -2493,32 +2458,32 @@ const TableOrderDetails = () => {
   const renderTabletLayout = () => <div className="flex h-full bg-black">
       {/* Left Panel - Order List (Mobile-style cards) */}
       <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-        {/* Header - reusing TicketsFilterBar with tableContext */}
-        <TicketsFilterBar
-          tableContext
-          title={formatTableName(tableId || "")}
-          leftElement={<button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}><ChevronLeft className="w-5 h-5 text-white" /></button>}
-          showSearch={showSearch}
-          searchQuery={searchQuery}
-          showFilterIcons={showFilterIcons}
-          advFilterRevenueCenter={advFilterRevenueCenter}
-          advFilterDate={advFilterDate}
-          advFilterEmployee={advFilterEmployee}
-          advFilterOrderType={null}
-          advFilterOrderStatus={advFilterOrderStatus}
-          advFilterPaymentType={advFilterPaymentType}
-          onSearchQueryChange={setSearchQuery}
-          onShowSearchChange={setShowSearch}
-          onShowFilterIconsChange={setShowFilterIcons}
-          onAdvFilterRevenueCenterChange={setAdvFilterRevenueCenter}
-          onAdvFilterDateChange={setAdvFilterDate}
-          onAdvFilterEmployeeChange={setAdvFilterEmployee}
-          onAdvFilterOrderTypeChange={() => {}}
-          onAdvFilterOrderStatusChange={setAdvFilterOrderStatus}
-          onAdvFilterPaymentTypeChange={setAdvFilterPaymentType}
-          onResetAllAdvancedFilters={resetAllAdvancedFilters}
-          hasAnyAdvancedFilter={hasAnyAdvancedFilter}
-        />
+        {/* Header */}
+        <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+          <button onClick={() => navigate("/tableorder")} className="p-2 rounded-full hover:opacity-80 transition-opacity z-10" style={{
+          background: "#7575754D",
+          boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+        }}>
+            <ChevronLeft className="w-5 h-5 text-white" />
+          </button>
+          
+          <span className="absolute left-1/2 -translate-x-1/2 text-white font-semibold text-lg">{formatTableName(tableId || "")}</span>
+          
+          <div className="flex items-center gap-2 z-10">
+            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+            background: "#7575754D",
+            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+          }}>
+              <SlidersHorizontal className="w-4 h-4 text-white" />
+            </button>
+            <button className="p-2 rounded-full hover:opacity-80 transition-opacity" style={{
+            background: "#7575754D",
+            boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)"
+          }}>
+              <Search className="w-4 h-4 text-white" />
+            </button>
+          </div>
+        </div>
 
         {/* Filter Tabs */}
         <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
@@ -3260,7 +3225,6 @@ const TableOrderDetails = () => {
         open={showTipDialog}
         onOpenChange={setShowTipDialog}
         orderTotal={currentSelectedGuest?.total || 0}
-        existingTip={currentSelectedGuest?.tip || 0}
         onTipSelected={(tip) => {
           console.log("Tip selected:", tip);
           // Handle tip logic here
@@ -3296,11 +3260,66 @@ const TableOrderDetails = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
             {discountDialogView === 'mpin' ? (
-              <AccessRestrictedModal
-                subtitle="Manager approval required to apply discount."
-                onBack={() => { setShowDiscountDialog(false); setDiscountDialogView('mpin'); }}
-                onSuccess={() => setDiscountDialogView('discounts')}
-              />
+              /* MPIN View - Manager PIN entry */
+              <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
+                {/* Manager Profile */}
+                <div className="flex flex-col items-center mb-4">
+                  <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face" alt="Manager" className="w-full h-full object-cover" />
+                  </div>
+                  <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
+                  <p className="text-xs text-muted-foreground">Manager</p>
+                </div>
+
+                {/* PIN Dots */}
+                <div className="flex items-center justify-center gap-2.5 mb-4">
+                  {[0, 1, 2, 3].map((index) => (
+                    <div key={index} className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${index < discountPin.length ? "bg-primary" : "bg-neutral-600"}`} />
+                  ))}
+                </div>
+
+                <p className="text-center text-muted-foreground text-xs mb-4">Enter Manager PIN</p>
+
+                {/* Numpad */}
+                <div className="grid grid-cols-3 gap-2 w-full">
+                  {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                    <button key={num} type="button" onClick={() => {
+                      if (discountPin.length < 4) {
+                        const newPin = discountPin + num.toString();
+                        setDiscountPin(newPin);
+                        if (newPin.length === 4) {
+                          setTimeout(() => {
+                            setDiscountDialogView('discounts');
+                            setDiscountPin("");
+                          }, 200);
+                        }
+                      }
+                    }} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
+                      {num}
+                    </button>
+                  ))}
+                  <button type="button" onClick={() => setDiscountPin(discountPin.slice(0, -1))} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center">
+                    <Delete className="w-5 h-5" />
+                  </button>
+                  <button type="button" onClick={() => {
+                    if (discountPin.length < 4) {
+                      const newPin = discountPin + "0";
+                      setDiscountPin(newPin);
+                      if (newPin.length === 4) {
+                        setTimeout(() => {
+                          setDiscountDialogView('discounts');
+                          setDiscountPin("");
+                        }, 200);
+                      }
+                    }
+                  }} className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors">
+                    0
+                  </button>
+                  <button type="button" onClick={() => setShowDiscountDialog(false)} className="h-12 rounded-xl bg-neutral-700 border border-neutral-600 text-foreground text-sm font-medium hover:bg-neutral-600 active:bg-neutral-500 transition-colors">
+                    Cancel
+                  </button>
+                </div>
+              </div>
             ) : (
               /* Discount Selection View */
               <>
@@ -3328,10 +3347,9 @@ const TableOrderDetails = () => {
                         </div>
                         <div className="flex-1 text-left">
                           <div className="text-white text-sm font-medium">{discountType.name}</div>
+                          <div className="text-neutral-400 text-xs">{discountType.description}</div>
                         </div>
-                        <div className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isSelected ? 'bg-orange-500/30 text-orange-300' : 'bg-neutral-700 text-neutral-300'}`}>
-                          {discountType.percentage ? `${discountType.percentage}% off` : `$${discountType.fixedAmount?.toFixed(2)} off`}
-                        </div>
+                        <div className="text-white text-sm font-medium">-${discountAmount.toFixed(2)}</div>
                       </button>
                     );
                   })}
@@ -3369,7 +3387,7 @@ const TableOrderDetails = () => {
               <p className="text-white/60 text-sm mb-3">What would you like to transfer?</p>
               
               <div className="space-y-2">
-                {/* Transfer Products Option */}
+                {/* Transfer Items Option */}
                 <button 
                   onClick={() => {
                     setShowTransferIntentDialog(false);
@@ -3378,10 +3396,10 @@ const TableOrderDetails = () => {
                   className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
                 >
                   <div className="flex items-center gap-3 mb-0.5">
-                    <img src={transferItemIcon} alt="Transfer Products" className="w-5 h-5 object-contain opacity-80" />
-                    <span className="text-white font-medium">Transfer Products</span>
+                    <img src={transferItemIcon} alt="Transfer Items" className="w-5 h-5 object-contain opacity-80" />
+                    <span className="text-white font-medium">Transfer Items</span>
                   </div>
-                  <p className="text-white/50 text-xs ml-8">Move selected products to another table or order.</p>
+                  <p className="text-white/50 text-xs ml-8">Move selected items to another table or order.</p>
                 </button>
 
                 {/* Transfer Entire Order Section Title */}

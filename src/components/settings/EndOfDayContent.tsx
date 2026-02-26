@@ -10,6 +10,8 @@ import BottomNavigation from "@/components/BottomNavigation";
 import endOfDayIcon from "@/assets/icons/end-of-day.png";
 import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import { usePreference } from "@/hooks/usePreference";
 
 const DEVICES = ["POS 1.1", "POS 1.2", "POS 2.1", "POS 2.2", "POS 3.1"];
 const EMPLOYEES = ["John Smith", "Jane Doe", "Mike Johnson", "Sarah Williams", "David Brown", "Emily Davis", "Chris Wilson", "Amanda Taylor"];
@@ -36,6 +38,7 @@ const THINGS_TO_DO = [
 const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { getIconBgColor } = useAppearance();
   const { toast } = useToast();
   const unpaidChecksCount = THINGS_TO_DO.find(item => item.label === "Unpaid Checks")?.count ?? 0;
   const hasUnpaidChecks = unpaidChecksCount > 0;
@@ -53,45 +56,45 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
   };
   const [authenticated, setAuthenticated] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
-  const [endOfDayReminder, setEndOfDayReminder] = useState(false);
-  const [runEndOfDay, setRunEndOfDay] = useState(false);
-  const [clockOutEmployees, setClockOutEmployees] = useState(false);
-  const [closeCashDrawer, setCloseCashDrawer] = useState(false);
-  const [closePaidOrders, setClosePaidOrders] = useState(false);
-  const [cancelUnpaidTickets, setCancelUnpaidTickets] = useState(false);
-  const [printReport, setPrintReport] = useState(false);
-  const [includeEmployeeData, setIncludeEmployeeData] = useState(false);
-  const [selectedDevice, setSelectedDevice] = useState("POS 1.2");
   const [showDevicePicker, setShowDevicePicker] = useState(false);
-  const [autoEndOfDayTime, setAutoEndOfDayTime] = useState("11:00 PM");
   const [showTimePicker, setShowTimePicker] = useState(false);
-  const [autoRunTime, setAutoRunTime] = useState("11:00 PM");
   const [showAutoRunTimePicker, setShowAutoRunTimePicker] = useState(false);
   const [showEmployeePicker, setShowEmployeePicker] = useState(false);
-  const [selectedEmployees, setSelectedEmployees] = useState<string[]>([]);
+
+  // Persisted preferences
+  const { value: endOfDayReminder, update: updateEndOfDayReminder } = usePreference("eod_reminder", "false");
+  const { value: runEndOfDay, update: updateRunEndOfDay } = usePreference("eod_auto_run", "false");
+  const { value: clockOutEmployees, update: updateClockOutEmployees } = usePreference("eod_clock_out", "false");
+  const { value: closeCashDrawer, update: updateCloseCashDrawer } = usePreference("eod_close_cash", "false");
+  const { value: closePaidOrders, update: updateClosePaidOrders } = usePreference("eod_close_paid", "false");
+  const { value: cancelUnpaidTickets, update: updateCancelUnpaidTickets } = usePreference("eod_cancel_unpaid", "false");
+  const { value: printReport, update: updatePrintReport } = usePreference("eod_print_report", "false");
+  const { value: includeEmployeeData, update: updateIncludeEmployeeData } = usePreference("eod_include_employee", "false");
+  const { value: selectedDevice, update: updateSelectedDevice } = usePreference("eod_device", "POS 1.2");
+  const { value: autoEndOfDayTime, update: updateAutoEndOfDayTime } = usePreference("eod_reminder_time", "11:00 PM");
+  const { value: autoRunTime, update: updateAutoRunTime } = usePreference("eod_auto_run_time", "11:00 PM");
+  const { value: selectedEmployeesStr, update: updateSelectedEmployees } = usePreference("eod_report_recipients", "[]");
+
+  const selectedEmployees: string[] = (() => { try { return JSON.parse(selectedEmployeesStr); } catch { return []; } })();
+  const setSelectedEmployees = (employees: string[]) => updateSelectedEmployees(JSON.stringify(employees));
 
   if (showSummary) {
     return (
       <div className="relative flex flex-col h-full bg-background">
-        <div className="flex-1 overflow-y-auto pt-6 px-6 pb-28">
-          {/* Back button */}
-          <button
-            onClick={() => setShowSummary(false)}
-            className="w-10 h-10 rounded-full bg-muted flex items-center justify-center mb-6"
-          >
-            <ChevronLeft size={20} className="text-foreground" />
-          </button>
-
-          {/* Header */}
-          <div className="bg-card rounded-2xl p-6 mb-6 flex flex-col items-center">
-            <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: "#7300FF" }}>
-              <img src={endOfDayIcon} alt="End of Day" className="w-8 h-8" />
-            </div>
-            <h2 className="text-foreground text-lg font-semibold">End of Day Summary</h2>
-            <p className="text-muted-foreground text-sm text-center mt-1">
-              Review the summary below before closing the restaurant.
-            </p>
+      <div className="flex-1 overflow-y-auto pt-6 px-6 pb-28">
+          {/* Header with back button and centered title */}
+          <div className="flex items-center mb-3 relative">
+            <button
+              onClick={() => setShowSummary(false)}
+              className="w-10 h-10 rounded-full bg-muted flex items-center justify-center shrink-0 z-10"
+            >
+              <ChevronLeft size={20} className="text-foreground" />
+            </button>
+            <h2 className="text-foreground text-lg font-semibold absolute inset-0 flex items-center justify-center pointer-events-none">End of Day Summary</h2>
           </div>
+          <p className="text-muted-foreground text-base mb-6">
+            Review today's sales, labor hours, and pending tasks below. Settle all open checks and finalize reports before closing the restaurant for the day.
+          </p>
 
           {/* Stats cards */}
           <div className="grid grid-cols-3 gap-3 mb-6">
@@ -150,14 +153,14 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
 
   return (
     <div className="relative flex flex-col h-full bg-background">
-      <div className="flex-1 overflow-y-auto pt-6 px-6 pb-28">
+      <div className={`flex-1 overflow-y-auto ${showHeader ? 'pt-6' : 'pt-0'} px-6 pb-28`}>
         {/* Header card */}
-        <div className={`bg-card rounded-2xl p-6 mb-4 flex flex-col ${isMobile ? 'items-start' : 'items-center'}`}>
-          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: "#7300FF" }}>
+        <div className="bg-card rounded-2xl p-6 mb-4 flex flex-col items-start">
+          <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: getIconBgColor("#7300FF") }}>
             <img src={endOfDayIcon} alt="End of Day" className="w-8 h-8" />
           </div>
           <h2 className="text-foreground text-lg font-semibold">End of Day</h2>
-          <p className={`text-muted-foreground text-sm ${isMobile ? '' : 'text-center'} mt-1`}>
+          <p className="text-muted-foreground text-sm mt-1 w-full">
             Easily manage your end-of-day tasks with automated tools. Close orders, clock out employees, settle the cash drawer, and generate detailed reports in one seamless process.
           </p>
         </div>
@@ -189,12 +192,12 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
 
         {/* Schedule & Reminders */}
         <p className="text-muted-foreground text-sm mb-3 px-2">Schedule & Reminders</p>
-        <div className={`bg-card ${endOfDayReminder ? 'rounded-2xl' : 'rounded-full'} overflow-hidden mb-1`}>
+        <div className={`bg-card ${endOfDayReminder === "true" ? 'rounded-2xl' : 'rounded-full'} overflow-hidden mb-1`}>
           <div className="py-3.5 px-4 flex items-center justify-between">
             <span className="text-foreground text-base">End Of Day Reminder</span>
-            <Switch checked={endOfDayReminder} onCheckedChange={setEndOfDayReminder} />
+            <Switch checked={endOfDayReminder === "true"} onCheckedChange={(v) => updateEndOfDayReminder(v ? "true" : "false")} />
           </div>
-          {endOfDayReminder && (
+          {endOfDayReminder === "true" && (
             <>
               <div className="h-px bg-border mx-4" />
               <button
@@ -215,12 +218,12 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
         {/* Automatic Actions */}
         {/* Run End Of Day - separate section */}
         <p className="text-muted-foreground text-sm mb-3 px-2">Automatic Actions</p>
-        <div className={`bg-card ${runEndOfDay ? 'rounded-2xl' : 'rounded-full'} overflow-hidden mb-1`}>
+        <div className={`bg-card ${runEndOfDay === "true" ? 'rounded-2xl' : 'rounded-full'} overflow-hidden mb-1`}>
           <div className="py-3.5 px-4 flex items-center justify-between">
             <span className="text-foreground text-base">Run End Of Day</span>
-            <Switch checked={runEndOfDay} onCheckedChange={setRunEndOfDay} />
+            <Switch checked={runEndOfDay === "true"} onCheckedChange={(v) => updateRunEndOfDay(v ? "true" : "false")} />
           </div>
-          {runEndOfDay && (
+          {runEndOfDay === "true" && (
             <>
               <div className="h-px bg-border mx-4" />
               <button
@@ -243,10 +246,10 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
         {/* Other Automatic Actions */}
         <div className="bg-card rounded-2xl overflow-hidden mb-6">
           {[
-            { label: "Clock Out Employees", value: clockOutEmployees, setter: setClockOutEmployees },
-            { label: "Close Cash Drawer", value: closeCashDrawer, setter: setCloseCashDrawer },
-            { label: "Close Paid Orders", value: closePaidOrders, setter: setClosePaidOrders },
-            { label: "Cancel Unpaid Tickets", value: cancelUnpaidTickets, setter: setCancelUnpaidTickets },
+            { label: "Clock Out Employees", value: clockOutEmployees === "true", setter: (v: boolean) => updateClockOutEmployees(v ? "true" : "false") },
+            { label: "Close Cash Drawer", value: closeCashDrawer === "true", setter: (v: boolean) => updateCloseCashDrawer(v ? "true" : "false") },
+            { label: "Close Paid Orders", value: closePaidOrders === "true", setter: (v: boolean) => updateClosePaidOrders(v ? "true" : "false") },
+            { label: "Cancel Unpaid Tickets", value: cancelUnpaidTickets === "true", setter: (v: boolean) => updateCancelUnpaidTickets(v ? "true" : "false") },
           ].map((item, index, arr) => (
             <div key={item.label}>
               <div className="flex items-center justify-between py-3.5 px-4">
@@ -263,12 +266,12 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
         <div className="bg-card rounded-2xl overflow-hidden mb-6">
           <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-base">Print End Of Day Report</span>
-            <Switch checked={printReport} onCheckedChange={setPrintReport} />
+            <Switch checked={printReport === "true"} onCheckedChange={(v) => updatePrintReport(v ? "true" : "false")} />
           </div>
            <div className="h-px bg-border mx-4" />
           <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-base">Include Employee Data</span>
-            <Switch checked={includeEmployeeData} onCheckedChange={setIncludeEmployeeData} />
+            <Switch checked={includeEmployeeData === "true"} onCheckedChange={(v) => updateIncludeEmployeeData(v ? "true" : "false")} />
           </div>
           <div className="h-px bg-border mx-4" />
           <button onClick={() => setShowEmployeePicker(true)} className="w-full flex items-center justify-between py-3.5 px-4">
@@ -284,7 +287,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
 
       {/* PIN overlay */}
       {!authenticated && (
-        <div className="fixed md:absolute inset-0 bg-background/70 dark:bg-black/70 md:bg-background/70 md:dark:bg-black/70 md:backdrop-blur-sm z-50 flex flex-col md:items-center md:justify-center md:rounded-2xl">
+        <div className="fixed md:absolute inset-0 bg-background/90 dark:bg-black/90 md:bg-background/90 md:dark:bg-black/90 md:backdrop-blur-sm z-50 flex flex-col md:items-center md:justify-center md:rounded-2xl">
           {/* Mobile back arrow */}
           <div className="md:hidden flex items-center px-4 py-3 shrink-0">
             <button
@@ -308,7 +311,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
       <MultiSelectSheet
         isOpen={showDevicePicker}
         onClose={(items) => {
-          if (items.length > 0) setSelectedDevice(items[0]);
+          if (items.length > 0) updateSelectedDevice(items[0]);
           setShowDevicePicker(false);
         }}
         initialSelected={[selectedDevice]}
@@ -322,7 +325,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
         isOpen={showTimePicker}
         onClose={() => setShowTimePicker(false)}
         onConfirm={(time) => {
-          setAutoEndOfDayTime(time);
+          updateAutoEndOfDayTime(time);
           setShowTimePicker(false);
         }}
         selectedTime={autoEndOfDayTime}
@@ -332,7 +335,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
         isOpen={showAutoRunTimePicker}
         onClose={() => setShowAutoRunTimePicker(false)}
         onConfirm={(time) => {
-          setAutoRunTime(time);
+          updateAutoRunTime(time);
           setShowAutoRunTimePicker(false);
         }}
         selectedTime={autoRunTime}

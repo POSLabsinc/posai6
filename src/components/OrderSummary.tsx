@@ -36,27 +36,27 @@ const OrderSummary = ({
     return (
       <div className={`text-xs space-y-1 ${className}`}>
         <div className="flex justify-between">
-          <span className="text-white/60 font-medium">Sub Total</span>
-          <span className="text-white font-bold">{formatPrice(subtotal)}</span>
+          <span className="text-white/60">Sub Total</span>
+          <span className="text-white">{formatPrice(subtotal)}</span>
         </div>
         {discount > 0 && (
           <div className="flex justify-between">
-            <span className="text-white font-medium">{discountLabel}</span>
-            <span className="text-white font-bold">-{formatPrice(discount)}</span>
+            <span className="text-white">{discountLabel}</span>
+            <span className="text-white">-{formatPrice(discount)}</span>
           </div>
         )}
         <div className="flex justify-between">
-          <span className="text-white/60 font-medium">{serviceChargeLabel}</span>
-          <span className="text-white font-bold">{formatPrice(serviceCharge)}</span>
+          <span className="text-white/60">{serviceChargeLabel}</span>
+          <span className="text-white">{formatPrice(serviceCharge)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-white/60 font-medium">Tax</span>
-          <span className="text-white font-bold">{formatPrice(tax)}</span>
+          <span className="text-white/60">Tax</span>
+          <span className="text-white">{formatPrice(tax)}</span>
         </div>
         {showTip && tip > 0 && (
           <div className="flex justify-between">
-            <span className="text-white/60 font-medium">Tip</span>
-            <span className="text-white font-bold">{formatPrice(tip)}</span>
+            <span className="text-white/60">Tip</span>
+            <span className="text-white">{formatPrice(tip)}</span>
           </div>
         )}
         <div className="flex justify-between pt-1 border-t border-white/10">
@@ -78,30 +78,30 @@ const OrderSummary = ({
     >
       <div className="flex justify-between gap-3">
         <span className="text-foreground">
-          <span className="font-medium">Sub Total</span>{' '}<span className="font-bold">{formatPrice(subtotal)}</span>
+          Sub Total: <span className="font-medium">{formatPrice(subtotal)}</span>
         </span>
         {discount > 0 ? (
           <span className="text-white">
-            <span className="font-medium">{discountLabel}</span>{' '}<span className="font-bold">-{formatPrice(discount)}</span>
+            {discountLabel}: <span className="font-medium">-{formatPrice(discount)}</span>
           </span>
         ) : (
           <span className="text-foreground/50">
-            <span className="font-medium">{discountLabel}</span>{' '}<span className="font-bold">$0.00</span>
+            {discountLabel}: <span className="font-medium">$0.00</span>
           </span>
         )}
       </div>
       <div className="flex justify-between gap-3">
         <span className="text-foreground">
-          <span className="font-medium">{serviceChargeLabel}</span>{' '}<span className="font-bold text-primary">{formatPriceWithSign(serviceCharge, true)}</span>
+          {serviceChargeLabel}: <span className="font-medium text-primary">{formatPriceWithSign(serviceCharge, true)}</span>
         </span>
         <span className="text-foreground">
-          <span className="font-medium">Tax</span>{' '}<span className="font-bold">{formatPrice(tax)}</span>
+          Tax: <span className="font-medium">{formatPrice(tax)}</span>
         </span>
       </div>
       {showTip && tip > 0 && (
         <div className="flex justify-between gap-3">
           <span className="text-foreground">
-            <span className="font-medium">Tip</span>{' '}<span className="font-bold">{formatPrice(tip)}</span>
+            Tip: <span className="font-medium">{formatPrice(tip)}</span>
           </span>
           <span></span>
         </div>

@@ -3,6 +3,7 @@ import { ChevronLeft, Search, Check } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import hardwareCardReaderIcon from "@/assets/icons/hardware-card-reader.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface CardReaderContentProps {
   showHeader?: boolean;
@@ -26,33 +27,38 @@ const MOCK_DEVICES: DeviceEntry[] = [
 const CardReaderContent = ({ showHeader = true, onBack }: CardReaderContentProps) => {
   const isMobile = useIsMobile();
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("4");
+  const { getIconBgColor } = useAppearance();
 
   const selectedDevice = MOCK_DEVICES.find(d => d.id === selectedDeviceId);
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && onBack && (
-        <div className="px-6 pt-5">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-4 h-4 text-foreground" />
-          </button>
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Card Reader</h1>
+          <div className="w-8 h-8" />
         </div>
       )}
 
-      <div className="pt-6 px-6 pb-28">
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-6 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'} mb-6`}>
+        <div className="bg-neutral-800/60 rounded-2xl p-6 flex flex-col items-start mb-6">
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
-            style={{ backgroundColor: "#F59F00" }}
+            style={{ backgroundColor: getIconBgColor("#F59F00") }}
           >
             <img src={hardwareCardReaderIcon} alt="Card Reader" className="w-7 h-7 object-contain" />
           </div>
           <h2 className="text-foreground text-lg font-semibold mb-1">Card Reader</h2>
-          <p className="text-neutral-500 text-sm leading-relaxed">
+          <p className="text-neutral-500 text-sm leading-relaxed w-full">
             Scans credit card data for transactions or access and can detect/pair with new card readers.
           </p>
         </div>
@@ -66,7 +72,7 @@ const CardReaderContent = ({ showHeader = true, onBack }: CardReaderContentProps
         {/* Selected Device */}
         {selectedDevice && (
           <div className="mb-6">
-            <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">
+            <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
               Selected Card Reader
             </p>
             <div className="bg-neutral-800/60 rounded-2xl py-3.5 px-4 flex items-center justify-between">
@@ -77,7 +83,7 @@ const CardReaderContent = ({ showHeader = true, onBack }: CardReaderContentProps
         )}
 
         {/* Devices List */}
-        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
           Available Devices
         </p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

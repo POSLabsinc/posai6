@@ -116,7 +116,7 @@ const MergedOrderPanel = ({
         </div>
         <div className="flex gap-2">
           <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
-            Add Product
+            Add Item
           </button>
           <button className="px-3 py-1.5 bg-neutral-700 text-white text-xs rounded-full hover:bg-neutral-600 transition-colors">
             Discount

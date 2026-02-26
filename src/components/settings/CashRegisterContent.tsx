@@ -3,6 +3,7 @@ import { ChevronLeft, Search, Check, Plus, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import hardwareCashRegisterIcon from "@/assets/icons/hardware-cash-register.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface CashRegisterContentProps {
   showHeader?: boolean;
@@ -35,6 +36,7 @@ const DRAWER_MODELS = [
 
 const CashRegisterContent = ({ showHeader = true, onBack }: CashRegisterContentProps) => {
   const isMobile = useIsMobile();
+  const { getIconBgColor } = useAppearance();
   const [selectedDeviceId, setSelectedDeviceId] = useState<string>("1");
   const [showAddForm, setShowAddForm] = useState(false);
   const [newName, setNewName] = useState("");
@@ -46,23 +48,27 @@ const CashRegisterContent = ({ showHeader = true, onBack }: CashRegisterContentP
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && onBack && (
-        <div className="px-6 pt-5">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-4 h-4 text-foreground" />
-          </button>
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Cash Register</h1>
+          <div className="w-8 h-8" />
         </div>
       )}
 
-      <div className="pt-6 px-6 pb-28">
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-6 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'} mb-6`}>
+        <div className="bg-neutral-800/60 rounded-2xl p-6 flex flex-col items-start mb-6">
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
-            style={{ backgroundColor: "#5E4DD8" }}
+            style={{ backgroundColor: getIconBgColor("#5E4DD8") }}
           >
             <img src={hardwareCashRegisterIcon} alt="Cash Register" className="w-7 h-7 object-contain" />
           </div>
@@ -91,7 +97,7 @@ const CashRegisterContent = ({ showHeader = true, onBack }: CashRegisterContentP
         {showAddForm && (
           <div className="mb-6">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider">
+              <p className="text-xs font-medium text-neutral-500 tracking-wider">
                 Add New Cash Drawer
               </p>
               <button
@@ -189,7 +195,7 @@ const CashRegisterContent = ({ showHeader = true, onBack }: CashRegisterContentP
         {/* Selected Device */}
         {selectedDevice && (
           <div className="mb-6">
-            <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">
+            <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
               Active Cash Drawer
             </p>
             <div className="bg-neutral-800/60 rounded-2xl py-3.5 px-4 flex items-center justify-between">
@@ -200,7 +206,7 @@ const CashRegisterContent = ({ showHeader = true, onBack }: CashRegisterContentP
         )}
 
         {/* Devices List */}
-        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
           Available Devices
         </p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

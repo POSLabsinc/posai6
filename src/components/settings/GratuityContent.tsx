@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useSettingsSync } from "@/hooks/useSettingsSync";
 import gratuityIcon from "@/assets/icons/gratuity.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import AppleAlertDialog from "@/components/AppleAlertDialog";
 
 interface GratuityContentProps {
   showHeader?: boolean;
@@ -40,6 +42,7 @@ const paymentMethods = [
 const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityContentProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { getIconBgColor } = useAppearance();
   
   // Use the settings sync hook to listen for AI-driven updates
   const [settings, setSettings] = useSettingsSync(
@@ -59,11 +62,16 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
     }
   }, [settings.tipPresets, setSettings]);
 
+  const [showRestrictedAlert, setShowRestrictedAlert] = useState(false);
   const [showPaymentMethodsDialog, setShowPaymentMethodsDialog] = useState(false);
   const [showPresetsDialog, setShowPresetsDialog] = useState(false);
   const [showKeypad, setShowKeypad] = useState(false);
   const [editingPresetIndex, setEditingPresetIndex] = useState<number | null>(null);
   const [keypadValue, setKeypadValue] = useState("");
+
+  const handleRestricted = () => {
+    setShowRestrictedAlert(true);
+  };
 
   const updateSetting = <K extends keyof typeof settings>(key: K, value: typeof settings[K]) => {
     setSettings(prev => ({ ...prev, [key]: value }));
@@ -138,43 +146,37 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && onBack && !isMobile && (
-        <div className="px-6 pt-5">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Gratuity</h1>
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
-      <div className="pt-6 px-6 pb-28">
-        {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'}`}>
-          <div 
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ backgroundColor: "#F80063" }}
-          >
-            <img src={gratuityIcon} alt="Gratuity" className="w-8 h-8 object-contain" />
-          </div>
-          <h1 className="text-lg font-semibold text-foreground mb-1">Gratuity</h1>
-          <p className="text-base text-neutral-400 leading-relaxed">
+      <div className="px-6 pb-28 pt-4">
+        {/* Description */}
+        <div className="mb-4 px-1">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Set up tip options and automatic gratuity rules for your transactions.
           </p>
-        </div>
-
-        {/* AI Assistant Icon */}
-        <div className="flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
         </div>
 
         {/* Enable Tip - Single Row */}
          <div className="bg-neutral-800/60 rounded-full mb-1">
           <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-base font-medium">Enable Tip</span>
-            <Switch 
+             <Switch 
               checked={settings.enableTip}
-              onCheckedChange={(checked) => updateSetting("enableTip", checked)}
+              onCheckedChange={handleRestricted}
             />
           </div>
         </div>
@@ -187,33 +189,33 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
           <div className="flex items-center justify-between py-3.5 px-4">
              <span className="text-foreground text-base font-medium">Show Gratuity On Receipt</span>
-            <Switch 
+             <Switch 
               checked={settings.showOnReceipt}
-              onCheckedChange={(checked) => updateSetting("showOnReceipt", checked)}
+              onCheckedChange={handleRestricted}
             />
           </div>
           <div className="h-px bg-neutral-700/50 mx-4" />
           <div className="flex items-center justify-between py-3.5 px-4">
              <span className="text-foreground text-base font-medium">Allow Custom Gratuity</span>
-            <Switch 
+             <Switch 
               checked={settings.allowCustom}
-              onCheckedChange={(checked) => updateSetting("allowCustom", checked)}
+              onCheckedChange={handleRestricted}
             />
           </div>
           <div className="h-px bg-neutral-700/50 mx-4" />
           <div className="flex items-center justify-between py-3.5 px-4">
-             <span className="text-foreground text-base font-medium">Disable Tip On CFD</span>
-            <Switch 
+             <span className="text-foreground text-base font-medium">Disable Tip On Customer Facing Display</span>
+             <Switch 
               checked={settings.disableTipOnCFD}
-              onCheckedChange={(checked) => updateSetting("disableTipOnCFD", checked)}
+              onCheckedChange={handleRestricted}
             />
           </div>
         </div>
 
         {/* Auto-Close Orders By Payment Method */}
         <div 
-           className="bg-neutral-800/60 rounded-2xl mb-1 cursor-pointer active:opacity-70"
-          onClick={() => setShowPaymentMethodsDialog(true)}
+            className="bg-neutral-800/60 rounded-full mb-1 cursor-pointer active:opacity-70"
+          onClick={handleRestricted}
         >
            <div className="flex items-center justify-between py-3.5 px-4">
              <span className="text-foreground text-base font-medium">Auto-Close Orders By Payment Method</span>
@@ -229,8 +231,8 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
 
         {/* Gratuity Presets */}
         <div 
-           className="bg-neutral-800/60 rounded-2xl mb-6 cursor-pointer active:opacity-70"
-          onClick={() => setShowPresetsDialog(true)}
+            className="bg-neutral-800/60 rounded-full mb-6 cursor-pointer active:opacity-70"
+          onClick={handleRestricted}
         >
            <div className="flex items-center justify-between py-3.5 px-4">
              <span className="text-foreground text-base font-medium">Gratuity Presets</span>
@@ -251,7 +253,7 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
           {settings.tipPresets.map((preset, index) => (
             <button
               key={index}
-              onClick={() => openKeypad(index)}
+              onClick={handleRestricted}
               className={`flex-1 py-5 rounded-2xl text-xl font-semibold transition-colors ${
                 settings.selectedTipPresets.includes(preset)
                   ? "bg-neutral-600 text-foreground"
@@ -358,7 +360,7 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
       {/* Number Keypad Dialog */}
       {showKeypad && (
         <div 
-          className="fixed inset-0 bg-black/50 z-50 flex items-end justify-center"
+          className="fixed inset-0 bg-black/50 z-50 flex items-end sm:items-center justify-center"
           onClick={() => {
             setShowKeypad(false);
             setEditingPresetIndex(null);
@@ -366,7 +368,7 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
           }}
         >
           <div 
-            className="bg-neutral-900 rounded-t-3xl w-full max-w-md overflow-hidden"
+            className="bg-neutral-900 rounded-t-3xl sm:rounded-2xl w-full max-w-md overflow-hidden sm:shadow-2xl"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Display */}
@@ -441,6 +443,17 @@ const GratuityContent = ({ showHeader = true, onBack, onAIClick }: GratuityConte
           </div>
         </div>
       )}
+
+      {/* Manager Restriction Alert */}
+      <AppleAlertDialog
+        open={showRestrictedAlert}
+        onOpenChange={setShowRestrictedAlert}
+        onConfirm={() => setShowRestrictedAlert(false)}
+        title="Access Restricted"
+        description="Gratuity settings can only be modified by the Manager from the Dashboard."
+        confirmText="OK"
+        cancelText=""
+      />
     </div>
   );
 };

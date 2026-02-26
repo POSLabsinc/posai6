@@ -71,7 +71,7 @@ const AddCategoryContent = ({ onBack, onSave }: AddCategoryContentProps) => {
 
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
         {/* Category Name */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-4">
           <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
             <span className="text-foreground text-base font-medium">Category Name</span>
             <div className="flex items-center gap-1">
@@ -89,7 +89,7 @@ const AddCategoryContent = ({ onBack, onSave }: AddCategoryContentProps) => {
         </div>
 
         {/* Position */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
             <span className="text-foreground text-base font-medium">Position</span>
             <div className="flex items-center gap-1">
@@ -106,11 +106,11 @@ const AddCategoryContent = ({ onBack, onSave }: AddCategoryContentProps) => {
           </button>
         </div>
         <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">
-          Set the order in which the category appears on the POS screen. Lower numbers usually appear first.
+          Set the order in which the category appears on the Point of Sale screen. Lower numbers usually appear first.
         </p>
 
         {/* Course Name */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
             <span className="text-foreground text-base font-medium">Course Name</span>
             <div className="flex items-center gap-1">
@@ -131,7 +131,7 @@ const AddCategoryContent = ({ onBack, onSave }: AddCategoryContentProps) => {
         </p>
 
         {/* Course Position */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
             <span className="text-foreground text-base font-medium">Course Position</span>
             <div className="flex items-center gap-1">
@@ -152,7 +152,7 @@ const AddCategoryContent = ({ onBack, onSave }: AddCategoryContentProps) => {
         </p>
 
         {/* Menu Display Name */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <button className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity">
             <span className="text-foreground text-base font-medium">Menu Display Name</span>
             <div className="flex items-center gap-1">
@@ -173,7 +173,7 @@ const AddCategoryContent = ({ onBack, onSave }: AddCategoryContentProps) => {
         </p>
 
         {/* Assigned Printer */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <button
             className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
             onClick={() => setShowPrintersSheet(true)}
@@ -190,7 +190,7 @@ const AddCategoryContent = ({ onBack, onSave }: AddCategoryContentProps) => {
         </p>
 
         {/* Parent Category */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <button
             className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
             onClick={() => setShowParentCategorySheet(true)}
@@ -207,7 +207,7 @@ const AddCategoryContent = ({ onBack, onSave }: AddCategoryContentProps) => {
         </p>
 
         {/* Products */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1">
           <button
             className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
             onClick={() => setShowProductsSheet(true)}

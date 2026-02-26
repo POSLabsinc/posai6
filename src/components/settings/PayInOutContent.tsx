@@ -46,7 +46,7 @@ const PayInOutContent = ({
     if (saved) {
       return JSON.parse(saved);
     }
-    return { startingCash: 0, selectedDrawer: "POS 1" };
+    return { startingCash: 0, selectedDrawer: "Point of Sale 1" };
   });
   
   const startingCash = drawerSession.startingCash;
@@ -146,16 +146,20 @@ const PayInOutContent = ({
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Back Button - Circular Icon Style */}
-      <div className="px-6 pt-5">
-        <button
-          onClick={handleBack}
-          className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-        >
-          <ChevronLeft className="w-5 h-5 text-foreground" />
-        </button>
-      </div>
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          <button
+            onClick={handleBack}
+            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+          >
+            <ChevronLeft className="w-5 h-5 text-foreground" />
+          </button>
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Pay In / Pay Out</h1>
+          <div className="w-8 h-8" />
+        </div>
+      )}
 
-      <div className="pt-6 px-6 pb-28">
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Amount Section */}
         <h2 className="text-sm text-neutral-500 font-medium px-1 mb-3">Amount</h2>
         <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-6">

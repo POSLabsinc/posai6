@@ -1,9 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect, useCallback } from "react";
 import { ChevronLeft, ChevronRight, Plus, Search, Mic, Archive } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
+import { useAppearance } from "@/contexts/AppearanceContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,76 +18,50 @@ import {
 import infoIcon from "@/assets/icons/info.png";
 import productsIcon from "@/assets/icons/menu-products.png";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
-
-interface Product {
-  id: string;
-  name: string;
-  price: number;
-  sku: string;
-  variant: number;
-  archived: boolean;
-}
+import { getAllUnifiedProducts, setArchivedId, UnifiedProduct } from "@/lib/productStore";
 
 interface ProductsContentProps {
   showHeader?: boolean;
   onBack?: () => void;
   onAIClick?: () => void;
+  onAdd?: () => void;
 }
 
-const STORAGE_KEY = "products-settings";
-
-const defaultProducts: Product[] = [
-  { id: "1", name: "1 gallon Lemonade cateringss", price: 27.00, sku: "e5", variant: 1, archived: false },
-  { id: "2", name: "A Minty Tea", price: 4.00, sku: "1", variant: 2, archived: false },
-  { id: "3", name: "abcd", price: 2.00, sku: "-", variant: 1, archived: false },
-  { id: "4", name: "abcdef", price: 1.00, sku: "sdfwer23", variant: 1, archived: false },
-  { id: "5", name: "abcdefg", price: 3.00, sku: "abcde", variant: 1, archived: false },
-  { id: "6", name: "Abuelita Dip's 2oz", price: 1.85, sku: "1", variant: 1, archived: false },
-  { id: "7", name: "Acqua panna", price: 1.00, sku: "1", variant: 1, archived: false },
-  { id: "8", name: "Agave Oat Latte", price: 5.75, sku: "2", variant: 2, archived: false },
-  { id: "9", name: "Agave Syrup Shot (1)", price: 0.01, sku: "1", variant: 1, archived: false },
-];
-
-const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsContentProps) => {
+const ProductsContent = ({ showHeader = true, onBack, onAIClick, onAdd }: ProductsContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const [products, setProducts] = useState<Product[]>(() => {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      try {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed)) {
-          return parsed;
-        }
-      } catch (e) {
-        console.error("Failed to parse products from localStorage", e);
-      }
-    }
-    return defaultProducts;
-  });
+  const { getIconBgColor } = useAppearance();
+
+  // Derive products from the unified store (menu + custom)
+  const [products, setProducts] = useState<UnifiedProduct[]>(() => getAllUnifiedProducts());
+
+  // Re-derive when products-updated fires
+  useEffect(() => {
+    const refresh = () => setProducts(getAllUnifiedProducts());
+    window.addEventListener("products-updated", refresh);
+    return () => window.removeEventListener("products-updated", refresh);
+  }, []);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
-  const [itemToArchive, setItemToArchive] = useState<Product | null>(null);
+  const [itemToArchive, setItemToArchive] = useState<UnifiedProduct | null>(null);
 
-  const saveProducts = (newItems: Product[]) => {
-    setProducts(newItems);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newItems));
-  };
-
-  const handleArchiveItem = (item: Product) => {
-    setItemToArchive(item);
-  };
+  const handleArchiveItem = (item: UnifiedProduct) => setItemToArchive(item);
 
   const confirmArchiveItem = () => {
     if (itemToArchive) {
-      const updatedItems = products.map(prod => 
-        prod.id === itemToArchive.id ? { ...prod, archived: !prod.archived } : prod
-      );
-      saveProducts(updatedItems);
+      setArchivedId(itemToArchive.id, !itemToArchive.archived);
       setItemToArchive(null);
     }
   };
+
+  const handleAdd = useCallback(() => {
+    if (onAdd) {
+      onAdd();
+    } else {
+      navigate('/settings/menu/products/add');
+    }
+  }, [onAdd, navigate]);
 
   const filteredItems = useMemo(() => {
     return products.filter((item) => {
@@ -114,10 +89,10 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
 
         <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
           {/* Header card */}
-          <section className="mt-4 rounded-[28px] bg-[hsl(var(--surface-2))] px-10 py-8 text-center">
-            <div 
+          <section className="mt-4 rounded-[28px] bg-[#26262699] px-10 py-8 text-center">
+            <div
               className="mx-auto mb-4 h-14 w-14 rounded-2xl flex items-center justify-center"
-              style={{ backgroundColor: "#CF0064" }}
+              style={{ backgroundColor: getIconBgColor("#CF0064") }}
             >
               <img src={productsIcon} alt="Products" className="h-8 w-8 object-contain" />
             </div>
@@ -128,31 +103,32 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
           </section>
 
           {/* Search + actions row */}
-          <section className="mt-6 flex items-center gap-4">
-            <div className="flex-1 rounded-full bg-[hsl(var(--surface-1))] px-5 py-3 flex items-center gap-3">
-              <Search className="h-5 w-5 text-[hsl(var(--text-subtle))]" />
+          <section className="mt-6 flex items-center gap-2 lg:gap-4">
+            <div className="flex-1 min-w-0 rounded-full bg-[hsl(var(--surface-1))] px-5 py-3 flex items-center gap-3">
+              <Search className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
               <input
                 type="text"
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent text-foreground placeholder:text-[hsl(var(--text-subtle))] outline-none text-[15px]"
+                className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-[hsl(var(--text-subtle))] outline-none text-[15px]"
               />
-              <Mic className="h-5 w-5 text-[hsl(var(--text-subtle))]" />
+              <Mic className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
             </div>
 
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
 
             <button
               onClick={() => setShowArchived((v) => !v)}
-              className="h-12 rounded-full px-7 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity"
+              className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity"
             >
               <Archive className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Archive</span>
             </button>
 
             <button
-              className="h-12 rounded-full px-10 flex items-center justify-center gap-2 bg-[hsl(var(--surface-3))] text-foreground active:opacity-70 transition-opacity"
+              onClick={handleAdd}
+              className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-[hsl(var(--surface-3))] text-foreground active:opacity-70 transition-opacity"
             >
               <Plus className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Add</span>
@@ -160,11 +136,11 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
           </section>
 
           {/* Table */}
-          <section className="mt-6 rounded-2xl bg-[hsl(var(--surface-2))] overflow-hidden">
+          <section className="mt-6 rounded-2xl bg-[#26262699] overflow-hidden">
             <div className="grid grid-cols-[1.2fr_1fr_1fr_100px_24px] items-center px-8 py-5 border-b border-[hsl(var(--surface-border))]">
               <span className="text-[15px] font-semibold text-foreground">Product Name</span>
+              <span className="text-[15px] font-semibold text-foreground text-center">Category</span>
               <span className="text-[15px] font-semibold text-foreground text-center">SKU</span>
-              <span className="text-[15px] font-semibold text-foreground text-center">Variant</span>
               <span className="text-[15px] font-semibold text-foreground text-right">Price</span>
               <span />
             </div>
@@ -174,10 +150,15 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
                 <div key={item.id}>
                   {index > 0 && <div className="h-px bg-[hsl(var(--surface-border))]" />}
                   <button className="grid grid-cols-[1.2fr_1fr_1fr_100px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors text-left">
-                    <span className="text-[15px] font-semibold text-foreground">{item.name}</span>
+                    <div className="flex items-center gap-2">
+                      <span className="text-[15px] font-semibold text-foreground">{item.name}</span>
+                      {item.isCustom && (
+                        <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-primary/20 text-primary">NEW</span>
+                      )}
+                    </div>
+                    <span className="text-[15px] text-foreground text-center">{item.category}</span>
                     <span className="text-[15px] text-foreground text-center">{item.sku}</span>
-                    <span className="text-[15px] text-foreground text-center">{item.variant}</span>
-                    <span className="text-[15px] text-foreground text-right">£{item.price.toFixed(2)}</span>
+                    <span className="text-[15px] text-foreground text-right">${item.price.toFixed(2)}</span>
                     <ChevronRight className="h-5 w-5 text-[hsl(var(--text-subtle))] justify-self-end" />
                   </button>
                 </div>
@@ -192,7 +173,7 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
 
         {/* Archive Confirmation Dialog */}
         <AlertDialog open={!!itemToArchive} onOpenChange={() => setItemToArchive(null)}>
-          <AlertDialogContent className="bg-[hsl(var(--surface-2))] border-[hsl(var(--surface-border))]">
+          <AlertDialogContent className="bg-[#26262699] border-[hsl(var(--surface-border))]">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-foreground">
                 {itemToArchive?.archived ? "Restore Product" : "Archive Product"}
@@ -250,18 +231,19 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
         {/* Action Buttons */}
         <div className="flex gap-3 mb-4">
-          <button 
+          <button
             onClick={() => setShowArchived(!showArchived)}
             className={`flex-1 py-4 rounded-full flex items-center justify-center gap-2 transition-colors ${
-              showArchived 
-                ? "bg-neutral-700 border border-neutral-600" 
+              showArchived
+                ? "bg-neutral-700 border border-neutral-600"
                 : "bg-transparent border border-neutral-700"
             }`}
           >
             <Archive className="w-5 h-5 text-foreground" />
             <span className="text-foreground font-medium text-base">Archive</span>
           </button>
-          <button 
+          <button
+            onClick={handleAdd}
             className="flex-1 py-4 bg-neutral-800 rounded-full flex items-center justify-center gap-2 active:opacity-70 transition-opacity"
           >
             <Plus className="w-5 h-5 text-foreground" />
@@ -272,11 +254,10 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
         {/* Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[1fr_60px_60px_70px] items-center py-4 px-4 border-b border-neutral-700/50">
+          <div className="grid grid-cols-[1fr_80px_70px] items-center py-4 px-4 border-b border-neutral-700/50">
             <span className="text-neutral-400 text-base font-medium text-left">Product Name</span>
-            <span className="text-neutral-400 text-base font-medium text-center">SKU</span>
-            <span className="text-neutral-400 text-base font-medium text-center">Variant</span>
-            <span className="text-neutral-400 text-base font-medium text-right pr-6">Price</span>
+            <span className="text-neutral-400 text-base font-medium text-center">Category</span>
+            <span className="text-neutral-400 text-base font-medium text-right pr-4">Price</span>
           </div>
 
           {/* Rows */}
@@ -289,12 +270,16 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
                   onArchive={() => handleArchiveItem(item)}
                   isArchived={item.archived}
                 >
-                  <div className="grid grid-cols-[1fr_60px_60px_70px] items-center w-full py-4 px-4">
-                    <span className="text-foreground text-base font-medium text-left">{item.name}</span>
-                    <span className="text-foreground text-base text-center">{item.sku}</span>
-                    <span className="text-foreground text-base text-center">{item.variant}</span>
-                    <div className="flex items-center justify-end gap-1">
-                      <span className="text-foreground text-base">£{item.price.toFixed(2)}</span>
+                  <div className="grid grid-cols-[1fr_80px_70px] items-center w-full py-4 px-4">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-foreground text-base font-medium text-left">{item.name}</span>
+                      {item.isCustom && (
+                        <span className="text-[9px] font-medium px-1 py-0.5 rounded-full bg-primary/20 text-primary leading-none">NEW</span>
+                      )}
+                    </div>
+                    <span className="text-neutral-400 text-sm text-center">{item.category}</span>
+                    <div className="flex items-center justify-end gap-1 pr-1">
+                      <span className="text-foreground text-base">${item.price.toFixed(2)}</span>
                       <ChevronRight className="w-4 h-4 text-neutral-500" />
                     </div>
                   </div>
@@ -321,7 +306,7 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
             className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base"
           />
           <Mic className="w-5 h-5 text-neutral-500 mr-2" />
-          <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
         </div>
       </div>
 
@@ -333,7 +318,7 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
               {itemToArchive?.archived ? "Restore Product" : "Archive Product"}
             </AlertDialogTitle>
             <AlertDialogDescription className="text-neutral-400">
-              {itemToArchive?.archived 
+              {itemToArchive?.archived
                 ? `Are you sure you want to restore "${itemToArchive?.name}"?`
                 : `Are you sure you want to archive "${itemToArchive?.name}"?`
               }
@@ -343,7 +328,7 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick }: ProductsConte
             <AlertDialogCancel className="bg-neutral-700 text-foreground border-neutral-600 hover:bg-neutral-600">
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmArchiveItem}
               className="bg-primary text-primary-foreground hover:bg-primary/90"
             >

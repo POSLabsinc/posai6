@@ -164,8 +164,8 @@
            </button>
          </div>
  
-         {/* Manager Approval Toggle */}
-         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-6">
+        {/* Manager Approval Toggle */}
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-6">
            <div className="flex items-center justify-between py-4 px-4">
              <span className="text-foreground text-base font-medium">Require Manager Approval</span>
              <Switch

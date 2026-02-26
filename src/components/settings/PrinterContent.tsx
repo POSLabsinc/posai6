@@ -2,6 +2,8 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import hardwarePrinterIcon from "@/assets/icons/hardware-printer.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
+import SettingsIcon from "@/components/settings/SettingsIcon";
 
 interface PrinterContentProps {
   showHeader?: boolean;
@@ -11,25 +13,29 @@ interface PrinterContentProps {
 
 const PrinterContent = ({ showHeader = true, onBack, onNavigate }: PrinterContentProps) => {
   const isMobile = useIsMobile();
+  const { getIconBgColor } = useAppearance();
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && onBack && (
-        <div className="px-6 pt-5">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-4 h-4 text-foreground" />
-          </button>
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Printer</h1>
+          <div className="w-8 h-8" />
         </div>
       )}
 
-      <div className="pt-6 px-6 pb-28">
-        {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-6 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'} mb-6`}>
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
+        <div className="bg-neutral-800/60 rounded-2xl p-6 flex flex-col items-start mb-6">
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
-            style={{ backgroundColor: "#D6336C" }}
+            style={{ backgroundColor: getIconBgColor("#D6336C") }}
           >
             <img src={hardwarePrinterIcon} alt="Printer" className="w-7 h-7 object-contain" />
           </div>
@@ -44,12 +50,7 @@ const PrinterContent = ({ showHeader = true, onBack, onNavigate }: PrinterConten
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
           >
             <div className="flex items-center gap-4">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: "#D6336C" }}
-              >
-                <img src={hardwarePrinterIcon} alt="Pair Printer" className="w-5 h-5 object-contain" />
-              </div>
+              <SettingsIcon bgColor="#D6336C" iconSrc={hardwarePrinterIcon} iconAlt="Pair Printer" />
               <span className="text-foreground text-base font-medium">Pair Printer</span>
             </div>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
@@ -63,12 +64,7 @@ const PrinterContent = ({ showHeader = true, onBack, onNavigate }: PrinterConten
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
           >
             <div className="flex items-center gap-4">
-              <div
-                className="w-10 h-10 rounded-xl flex items-center justify-center"
-                style={{ backgroundColor: "#5E4DD8" }}
-              >
-                <img src={hardwarePrinterIcon} alt="Advanced Settings" className="w-5 h-5 object-contain" />
-              </div>
+              <SettingsIcon bgColor="#5E4DD8" iconSrc={hardwarePrinterIcon} iconAlt="Advanced Settings" />
               <span className="text-foreground text-base font-medium">Advanced Settings</span>
             </div>
             <ChevronRight className="w-5 h-5 text-neutral-500" />

@@ -177,7 +177,7 @@
  
          {/* Availability Section */}
          <div className="mb-2 px-1">
-           <span className="text-neutral-500 text-sm font-medium uppercase tracking-wide">Availability</span>
+           <span className="text-neutral-500 text-sm font-medium tracking-wide">Availability</span>
          </div>
          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
            {/* Point of Sale */}
@@ -249,7 +249,7 @@
  
          {/* Operation Section */}
          <div className="mb-2 px-1">
-           <span className="text-neutral-500 text-sm font-medium uppercase tracking-wide">Operation</span>
+           <span className="text-neutral-500 text-sm font-medium tracking-wide">Operation</span>
          </div>
          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
            {/* Categories */}

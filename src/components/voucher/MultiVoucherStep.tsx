@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Search, Plus, Check, Minus, X, ChevronLeft, ChevronRight, Edit2, Trash2 } from "lucide-react";
+import { Search, Plus, Check, Minus, X, ChevronLeft, ChevronRight, Edit2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
   CURRENCY_SYMBOL, PREDEFINED_VOUCHER_TYPES, REDEMPTION_LIMIT_OPTIONS,
@@ -81,7 +81,6 @@ const MultiVoucherStep = ({
   const [builderIndex, setBuilderIndex] = useState(0);
   const [sharedRulesOn, setSharedRulesOn] = useState(true);
   const [sharedRules, setSharedRules] = useState<SharedRules>({ ...DEFAULT_SHARED_RULES });
-  const [multiVoucherValueType, setMultiVoucherValueType] = useState<'fixed' | 'percentage'>('fixed');
 
   const today = new Date().toISOString().split('T')[0];
 
@@ -371,42 +370,29 @@ const MultiVoucherStep = ({
             <div className="space-y-2">
               <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Voucher Names</span>
               {customEntries.map((ce, idx) => (
-                <div key={ce.id} className="grid grid-cols-3 gap-x-3">
-                  <div className="col-span-2 flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
-                    <input
-                      type="text"
-                      value={ce.voucherName}
-                      onChange={(e) => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, voucherName: e.target.value.slice(0, 50) } : c))}
-                      placeholder={`Voucher Name #${idx + 1}`}
-                      className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
-                    />
-                    <div className="flex items-center gap-1.5 flex-shrink-0">
-                      <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c))}
-                        className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                        <Minus className="w-3.5 h-3.5" />
-                      </button>
-                      <span className="text-white font-bold text-sm w-6 text-center">{ce.quantity}</span>
-                      <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.min(50, c.quantity + 1) } : c))}
-                        className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                        <Plus className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                    {customEntries.length > 1 && (
-                      <button onClick={() => removeBuilderEntry(idx)} className="text-neutral-500 hover:text-red-400 transition-colors flex-shrink-0">
-                        <X className="w-4 h-4" />
-                      </button>
-                    )}
+                <div key={ce.id} className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
+                  <input
+                    type="text"
+                    value={ce.voucherName}
+                    onChange={(e) => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, voucherName: e.target.value.slice(0, 50) } : c))}
+                    placeholder={`Voucher Name #${idx + 1}`}
+                    className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
+                  />
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c))}
+                      className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-white font-bold text-sm w-6 text-center">{ce.quantity}</span>
+                    <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.min(50, c.quantity + 1) } : c))}
+                      className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
                   </div>
-                  {idx === 0 && (
-                    <div>
-                      <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
-                        <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-                        <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-                          <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
-                          <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
+                  {customEntries.length > 1 && (
+                    <button onClick={() => removeBuilderEntry(idx)} className="text-neutral-500 hover:text-red-400 transition-colors flex-shrink-0">
+                      <X className="w-4 h-4" />
+                    </button>
                   )}
                 </div>
               ))}
@@ -423,11 +409,10 @@ const MultiVoucherStep = ({
               <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Shared Settings</span>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <VoucherCurrencyInput
-                  label={multiVoucherValueType === 'percentage' ? "Redeemable (%)" : "Redeemable Value"}
+                  label="Redeemable Value"
                   required
                   rawDigits={sharedRules.valueDigits}
                   onRawDigitsChange={(d) => setSharedRules(p => ({ ...p, valueDigits: d }))}
-                  symbolOverride={multiVoucherValueType === 'percentage' ? '%' : undefined}
                 />
                 <VoucherCurrencyInput
                   label="Service Fee"
@@ -499,43 +484,31 @@ const MultiVoucherStep = ({
 
             {/* Full per-entry form */}
             <div className="space-y-3">
-              <div className="grid grid-cols-3 gap-x-3">
-                <div className="col-span-2 flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
-                  <input
-                    type="text"
-                    value={entry.voucherName}
-                    onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })}
-                    placeholder="Enter voucher name"
-                    autoFocus
-                    className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
-                  />
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                      <Minus className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="text-white font-bold text-sm w-6 text-center">{entry.quantity}</span>
-                    <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </div>
-                <div>
-                  <Select value={multiVoucherValueType} onValueChange={(v) => setMultiVoucherValueType(v as 'fixed' | 'percentage')}>
-                    <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-                    <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-                      <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
-                      <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
-                    </SelectContent>
-                  </Select>
+              <div className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
+                <input
+                  type="text"
+                  value={entry.voucherName}
+                  onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })}
+                  placeholder="Enter custom voucher name"
+                  autoFocus
+                  className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
+                />
+                <div className="flex items-center gap-1.5 flex-shrink-0">
+                  <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                    <Minus className="w-3.5 h-3.5" />
+                  </button>
+                  <span className="text-white font-bold text-sm w-6 text-center">{entry.quantity}</span>
+                  <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                    <Plus className="w-3.5 h-3.5" />
+                  </button>
                 </div>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <VoucherCurrencyInput
-                  label={multiVoucherValueType === 'percentage' ? "Redeemable (%)" : "Redeemable Value"}
+                  label="Redeemable Value"
                   required
                   rawDigits={entry.valueDigits}
                   onRawDigitsChange={(d) => updateCurrentEntry({ valueDigits: d })}
-                  symbolOverride={multiVoucherValueType === 'percentage' ? '%' : undefined}
                 />
                 <VoucherCurrencyInput
                   label="Service Fee"
@@ -623,27 +596,16 @@ const MultiVoucherStep = ({
   // =============================
   return (
     <div className="space-y-3">
-      {/* Search + Custom Voucher CTA */}
-      <div className="flex gap-2">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
-          <input
-            type="text"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search voucher templates..."
-            className="w-full bg-neutral-800 border border-neutral-700 rounded-lg pl-10 pr-3 py-2.5 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors"
-          />
-        </div>
-        {showCustomCard && (
-          <button
-            onClick={() => openBuilder()}
-            className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-dashed border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-sm font-medium transition-all whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            Create Voucher{customEntries.length > 0 ? ` (${customEntries.length})` : ''}
-          </button>
-        )}
+      {/* Search */}
+      <div className="relative">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search voucher templates..."
+          className="w-full bg-neutral-800 border border-neutral-700 rounded-lg pl-10 pr-3 py-2.5 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors"
+        />
       </div>
 
       {/* Category Filters */}
@@ -669,6 +631,37 @@ const MultiVoucherStep = ({
 
       {/* Cards grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 p-1">
+        {/* Custom Voucher Card (add new) */}
+        {showCustomCard && (
+          <button
+            onClick={() => openBuilder()}
+            className={`text-left border-2 border-dashed rounded-2xl p-4 transition-all duration-300 group relative overflow-hidden ${
+              customEntries.length > 0
+                ? 'border-emerald-500/50 bg-emerald-500/5'
+                : 'border-neutral-600 hover:border-emerald-500/50 hover:bg-emerald-500/5'
+            }`}
+          >
+            <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(52,211,153,0.3) 10px, rgba(52,211,153,0.3) 11px)' }} />
+            <div className="relative flex flex-col items-center justify-center py-3 gap-2">
+              <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                <Plus className="w-5 h-5 text-emerald-400" />
+              </div>
+              <div className="text-center">
+                <span className="text-emerald-400 font-semibold text-sm block">Custom Voucher</span>
+                <span className="text-neutral-500 text-[11px]">
+                  {customEntries.length > 0 ? `${customEntries.length} custom added — tap to manage` : 'Create your own voucher'}
+                </span>
+              </div>
+              {customEntries.length > 0 && (
+                <span className="absolute top-0 right-0 bg-emerald-500 text-neutral-900 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center">
+                  {customEntries.length}
+                </span>
+              )}
+            </div>
+          </button>
+        )}
+
+        {/* Created custom voucher preview cards */}
         {showCustomCard && customEntries.map((ce) => {
           const ceValue = posCurrencyToNumber(sharedRulesOn ? sharedRules.valueDigits : ce.valueDigits);
           const ceFee = posCurrencyToNumber(sharedRulesOn ? sharedRules.serviceFeeDigits : ce.serviceFeeDigits);
@@ -689,7 +682,7 @@ const MultiVoucherStep = ({
                 <div className="flex items-start justify-between gap-2 mb-2">
                   <div className="flex items-center gap-1.5">
                     <h3 className="font-bold text-[15px] leading-tight text-white">{ce.voucherName || 'Untitled Custom'}</h3>
-                    
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">Custom</span>
                   </div>
                   <div className="flex items-center gap-1.5 flex-shrink-0">
                     {ceFee > 0 && (
@@ -705,23 +698,15 @@ const MultiVoucherStep = ({
                     <div className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-emerald-400 animate-scale-in">
                       <Edit2 className="w-3 h-3 text-neutral-900" strokeWidth={3} />
                     </div>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); setCustomEntries(prev => prev.filter(c => c.id !== ce.id)); }}
-                      className="w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 bg-red-500/80 hover:bg-red-500 transition-colors"
-                    >
-                      <Trash2 className="w-3 h-3 text-white" strokeWidth={3} />
-                    </button>
                   </div>
                 </div>
                 <div className="my-1">
                   <div className={`text-2xl font-extrabold tracking-tight ${theme.valueBg}`}>
                     {CURRENCY_SYMBOL}{ceValue.toFixed(2)}
                   </div>
-                  {ce.quantity > 1 && (
-                    <div className={`text-[11px] font-semibold uppercase tracking-widest mt-0.5 ${theme.accentText}`}>
-                      ×{ce.quantity}
-                    </div>
-                  )}
+                  <div className={`text-[11px] font-semibold uppercase tracking-widest mt-0.5 ${theme.accentText}`}>
+                    Custom Voucher{ce.quantity > 1 ? ` ×${ce.quantity}` : ''}
+                  </div>
                 </div>
                 <div className="flex items-center gap-2 my-1.5">
                   <div className={`flex-1 h-px opacity-30 ${theme.accent.replace('text-', 'bg-')}`} />

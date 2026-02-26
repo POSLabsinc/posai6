@@ -156,7 +156,7 @@ const AddServiceChargeContent = ({ onBack, onSave }: AddServiceChargeContentProp
         </div>
 
         {/* Tax Applicable Card */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-4">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mt-4">
           <button 
             ref={taxRef}
             className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
@@ -171,7 +171,7 @@ const AddServiceChargeContent = ({ onBack, onSave }: AddServiceChargeContentProp
         </div>
 
         {/* Order Type Card */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-4">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mt-4">
           <button 
             className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"
             onClick={() => setShowOrderTypeSheet(true)}
@@ -185,7 +185,7 @@ const AddServiceChargeContent = ({ onBack, onSave }: AddServiceChargeContentProp
         </div>
 
         {/* Applied As Card */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mt-4">
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mt-4">
           <button 
             ref={appliedAsRef}
             className="w-full flex items-center justify-between py-4 px-4 active:opacity-70 transition-opacity"

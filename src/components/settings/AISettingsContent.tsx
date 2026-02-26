@@ -43,6 +43,7 @@ interface AppliedChange {
 interface AISettingsContentProps {
   showHeader?: boolean;
   onBack?: () => void;
+  context?: string;
 }
 
 interface SuggestionChip {
@@ -64,14 +65,102 @@ interface AIAction {
   autoApply?: boolean;
 }
 
-const suggestionChips: SuggestionChip[] = [
+const defaultSuggestionChips: SuggestionChip[] = [
   { label: "Show my discounts", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me all active discounts" },
   { label: "View taxes", icon: <Percent className="w-3.5 h-3.5" />, prompt: "What taxes do I have configured?" },
   { label: "View menus", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me my menus" },
   { label: "Service charges", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show my service charges" },
 ];
 
-const AISettingsContent = ({ showHeader = true, onBack }: AISettingsContentProps) => {
+const menuSuggestionChips: SuggestionChip[] = [
+  { label: "View menus", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all my menus" },
+  { label: "View categories", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me all menu categories" },
+  { label: "View modifiers", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show me all modifiers" },
+  { label: "Add menu item", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Add a new menu item" },
+  { label: "View products", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all products" },
+  { label: "Default modifiers", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me default modifiers" },
+];
+
+const systemSuggestionChips: SuggestionChip[] = [
+  { label: "Appearance", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me appearance settings" },
+  { label: "Control center", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show me control center settings" },
+  { label: "Change theme", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Change the app theme" },
+  { label: "Font settings", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show me font settings" },
+];
+
+const paymentsSuggestionChips: SuggestionChip[] = [
+  { label: "Payment methods", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show me payment methods" },
+  { label: "View taxes", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show me all configured taxes" },
+  { label: "View discounts", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show me all active discounts" },
+  { label: "Service charges", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show my service charges" },
+  { label: "Gratuity settings", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show me gratuity settings" },
+  { label: "Checkout options", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show checkout options" },
+];
+
+const endOfDaySuggestionChips: SuggestionChip[] = [
+  { label: "End of day setup", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show me end of day settings" },
+  { label: "Auto close", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Configure automatic day closing" },
+  { label: "Reports config", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show end of day report settings" },
+  { label: "Cash reconciliation", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show cash reconciliation settings" },
+];
+
+const guestBookSuggestionChips: SuggestionChip[] = [
+  { label: "View guests", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me all guests" },
+  { label: "Add guest", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Add a new guest" },
+  { label: "Guest preferences", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show guest preferences settings" },
+  { label: "Guest history", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Show guest visit history" },
+];
+
+const supportSuggestionChips: SuggestionChip[] = [
+  { label: "Contact support", icon: <ExternalLink className="w-3.5 h-3.5" />, prompt: "How do I contact support?" },
+  { label: "Send feedback", icon: <Tag className="w-3.5 h-3.5" />, prompt: "I want to send feedback" },
+  { label: "About app", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show app version and info" },
+  { label: "Help articles", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show me help articles" },
+];
+
+const networkSuggestionChips: SuggestionChip[] = [
+  { label: "Server status", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show server connection status" },
+  { label: "Network config", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show network configuration" },
+  { label: "Connection test", icon: <ExternalLink className="w-3.5 h-3.5" />, prompt: "Test my network connection" },
+  { label: "Server settings", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show server connection settings" },
+];
+
+const hardwareSuggestionChips: SuggestionChip[] = [
+  { label: "View devices", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me connected hardware devices" },
+  { label: "Printer setup", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show printer settings" },
+  { label: "Card reader", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Show card reader settings" },
+  { label: "Cash register", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show cash register settings" },
+];
+
+const notificationsSuggestionChips: SuggestionChip[] = [
+  { label: "Alert settings", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show me notification settings" },
+  { label: "Push notifications", icon: <ExternalLink className="w-3.5 h-3.5" />, prompt: "Configure push notifications" },
+  { label: "Sound settings", icon: <Tag className="w-3.5 h-3.5" />, prompt: "Show notification sound settings" },
+  { label: "Order alerts", icon: <CreditCard className="w-3.5 h-3.5" />, prompt: "Configure order notification alerts" },
+];
+
+const reportsSuggestionChips: SuggestionChip[] = [
+  { label: "Sales reports", icon: <Eye className="w-3.5 h-3.5" />, prompt: "Show sales report settings" },
+  { label: "Report schedule", icon: <Clock className="w-3.5 h-3.5" />, prompt: "Configure report scheduling" },
+  { label: "Export data", icon: <ExternalLink className="w-3.5 h-3.5" />, prompt: "How do I export report data?" },
+  { label: "Analytics", icon: <Percent className="w-3.5 h-3.5" />, prompt: "Show analytics settings" },
+];
+
+const contextChipsMap: Record<string, SuggestionChip[]> = {
+  menu: menuSuggestionChips,
+  system: systemSuggestionChips,
+  payments: paymentsSuggestionChips,
+  'end-of-day': endOfDaySuggestionChips,
+  'guest-book': guestBookSuggestionChips,
+  support: supportSuggestionChips,
+  network: networkSuggestionChips,
+  hardware: hardwareSuggestionChips,
+  notifications: notificationsSuggestionChips,
+  reports: reportsSuggestionChips,
+};
+
+const AISettingsContent = ({ showHeader = true, onBack, context }: AISettingsContentProps) => {
+  const suggestionChips = (context && contextChipsMap[context]) || defaultSuggestionChips;
   const navigate = useNavigate();
   const { setTheme } = useTheme();
   const { profile, getInitials } = useAuth();

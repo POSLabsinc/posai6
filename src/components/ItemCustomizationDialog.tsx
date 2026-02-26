@@ -8,7 +8,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { OrderNotesAutocomplete } from "@/components/OrderNotesAutocomplete";
 import chairWhiteIcon from "@/assets/icons/chair-white.png";
 import offerIcon from "@/assets/icons/offer.png";
-import AccessRestrictedModal from "@/components/AccessRestrictedModal";
 
 // Sort options for add-ons
 type SortOption = 'name-asc' | 'name-desc' | 'price-asc' | 'price-desc';
@@ -72,11 +71,9 @@ interface ItemCustomizationDialogProps {
 
 const overrideReasons = [
   "Manager Discount",
-  "Price Match",
-  "Damaged Item",
-  "Promotional Offer",
-  "Loyalty Discount",
   "Customer Complaint",
+  "Price Match",
+  "Promotional Offer",
   "Employee Discount",
   "Loyalty Reward",
   "Other"
@@ -302,15 +299,16 @@ export const ItemCustomizationDialog = ({
   // View state: 'customization' | 'mpin' | 'priceOverride' | 'productInfo'
   const [currentView, setCurrentView] = useState<'customization' | 'mpin' | 'priceOverride' | 'productInfo'>('customization');
   
-  // MPIN state is managed inside AccessRestrictedModal — no local state needed
+  // MPIN state
+  const [pin, setPin] = useState("");
+  const [pinError, setPinError] = useState(false);
+  const correctPin = "1234";
   
   // Price Override state
-  // Stored as integer cents for true POS currency logic (e.g. 1234 = $12.34)
-  const [newPriceCents, setNewPriceCents] = useState(0);
+  const [newPriceInput, setNewPriceInput] = useState("");
   const [selectedReason, setSelectedReason] = useState("");
   const [overrideNotes, setOverrideNotes] = useState("");
   const [showReasonDropdown, setShowReasonDropdown] = useState(false);
-  const [reasonSearch, setReasonSearch] = useState("");
 
   // Seat selection state for table orders
   const [selectedSeats, setSelectedSeats] = useState<number[]>([]);
@@ -383,7 +381,9 @@ export const ItemCustomizationDialog = ({
       setItemNotes("");
       setActiveTab('item');
       setCurrentView('customization');
-      setNewPriceCents(0);
+      setPin("");
+      setPinError(false);
+      setNewPriceInput("");
       setSelectedReason("");
       setOverrideNotes("");
       setSelectedSeats([]);
@@ -423,42 +423,55 @@ export const ItemCustomizationDialog = ({
 
   const handleBackToCustomization = () => {
     setCurrentView('customization');
-    setNewPriceCents(0);
+    setPin("");
+    setPinError(false);
+    setNewPriceInput("");
     setSelectedReason("");
     setOverrideNotes("");
   };
 
-  // True POS currency logic — digits shift right-to-left in cents
+  const handlePinNumberClick = (num: string) => {
+    if (pin.length < 4) {
+      const newPin = pin + num;
+      setPin(newPin);
+      // When 4 digits entered, navigate to price override (for MPIN view only)
+      if (newPin.length === 4) {
+        setTimeout(() => {
+          setCurrentView('priceOverride');
+          setPin("");
+        }, 200);
+      }
+    }
+  };
+
+  const handlePinBackspace = () => {
+    setPin(prev => prev.slice(0, -1));
+  };
+
+  const handlePinClear = () => {
+    setPin("");
+  };
+
   const handlePriceNumberClick = (num: string) => {
-    const digits = num === '00' ? 2 : 1;
-    setNewPriceCents(prev => {
-      const appended = num === '00' ? prev * 100 : prev * 10 + parseInt(num);
-      // Cap at $9999.99 (999999 cents)
-      return Math.min(appended, 999999);
-    });
+    if (newPriceInput.length < 8) {
+      setNewPriceInput(prev => prev + num);
+    }
   };
 
   const handlePriceBackspace = () => {
-    setNewPriceCents(prev => Math.floor(prev / 10));
+    setNewPriceInput(prev => prev.slice(0, -1));
   };
 
   const handlePriceClear = () => {
-    setNewPriceCents(0);
-  };
-
-  // Format cents integer as "$X.XX" display string
-  const formatCentsDisplay = (cents: number) => {
-    const dollars = Math.floor(cents / 100);
-    const centsRemainder = cents % 100;
-    return `${dollars}.${String(centsRemainder).padStart(2, '0')}`;
+    setNewPriceInput("");
   };
 
   const handleApplyPriceOverride = () => {
-    if (newPriceCents > 0 && selectedReason) {
-      const newPrice = newPriceCents / 100;
+    const newPrice = parseFloat(newPriceInput);
+    if (!isNaN(newPrice) && newPrice >= 0) {
       setOverriddenPrice(newPrice);
       setCurrentView('customization');
-      setNewPriceCents(0);
+      setNewPriceInput("");
       setSelectedReason("");
       setOverrideNotes("");
     }
@@ -480,7 +493,22 @@ export const ItemCustomizationDialog = ({
     return `${input}.00`;
   };
 
-  // renderPinDots removed — AccessRestrictedModal handles its own pin display
+  const renderPinDots = () => (
+    <div className="flex gap-3 justify-center">
+      {[0, 1, 2, 3].map((index) => (
+        <div
+          key={index}
+          className={`w-4 h-4 rounded-full transition-all duration-200 ${
+            pinError 
+              ? 'bg-red-500 animate-shake' 
+              : index < pin.length 
+                ? 'bg-white' 
+                : 'bg-neutral-600'
+          }`}
+        />
+      ))}
+    </div>
+  );
 
   if (!item) return null;
 
@@ -627,13 +655,77 @@ export const ItemCustomizationDialog = ({
 
   const activeCategory = itemModifiers.find(cat => cat.name === activeModifierCategory);
 
-  // MPIN Screen — rendered via shared AccessRestrictedModal component
+  // MPIN Screen
   const renderMPINView = () => (
-    <AccessRestrictedModal
-      subtitle="Enter Manager PIN to Adjust Price."
-      onBack={() => setCurrentView('customization')}
-      onSuccess={() => setCurrentView('priceOverride')}
-    />
+    <div className="flex flex-col bg-neutral-900 p-6 pb-8">
+      {/* Header - Center aligned */}
+      <div className="text-center mb-6">
+        <h3 className="text-foreground font-bold text-xl mb-1">Access Restricted</h3>
+        <p className="text-muted-foreground text-sm">Enter Manager PIN to Adjust Price.</p>
+      </div>
+
+      {/* PIN Display with asterisks */}
+      <div className={`flex justify-center gap-3 mb-6 ${pinError ? 'animate-shake' : ''}`}>
+        {[0, 1, 2, 3].map((index) => (
+          <div
+            key={index}
+            className={`w-16 h-16 rounded-xl border-2 flex items-center justify-center text-3xl font-bold transition-all ${
+              index < pin.length
+                ? pinError
+                  ? "border-red-500 bg-red-500/10"
+                  : "border-neutral-600 bg-neutral-800"
+                : "border-neutral-600 bg-neutral-800"
+            }`}
+          >
+            {index < pin.length ? <span className="text-foreground">✱</span> : ""}
+          </div>
+        ))}
+      </div>
+
+      {/* Numpad */}
+      <div className="grid grid-cols-3 gap-3 max-w-[280px] mx-auto w-full">
+        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+          <button
+            key={num}
+            onClick={() => handlePinNumberClick(num.toString())}
+            className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+          >
+            {num}
+          </button>
+        ))}
+        {/* Backspace button (left) */}
+        <button
+          onClick={handlePinBackspace}
+          className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+        >
+          <Delete className="w-5 h-5" />
+        </button>
+        {/* Zero button (center) */}
+        <button
+          onClick={() => handlePinNumberClick("0")}
+          className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-2xl font-semibold hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+        >
+          0
+        </button>
+        {/* Clear button (right) - red C */}
+        <button
+          onClick={handlePinClear}
+          className="h-14 rounded-xl bg-neutral-800 border border-neutral-700 text-2xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+        >
+          C
+        </button>
+      </div>
+
+      {/* Biometric Options - Below keypad */}
+      <div className="flex justify-center gap-3 mt-4 max-w-[280px] mx-auto w-full">
+        <button className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+          <Fingerprint className="w-6 h-6" />
+        </button>
+        <button className="flex-1 flex items-center justify-center py-3.5 rounded-xl bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+          <ScanFace className="w-6 h-6" />
+        </button>
+      </div>
+    </div>
   );
 
   // Price Override Screen
@@ -656,7 +748,7 @@ export const ItemCustomizationDialog = ({
         {/* Reason Dropdown */}
         <div className="relative mb-2">
           <button
-            onClick={() => { setShowReasonDropdown(!showReasonDropdown); setReasonSearch(""); }}
+            onClick={() => setShowReasonDropdown(!showReasonDropdown)}
             className="w-full flex items-center justify-between px-4 py-2 bg-neutral-800 border border-neutral-700 rounded-xl text-left"
           >
             <span className={selectedReason ? "text-foreground" : "text-muted-foreground"}>
@@ -666,44 +758,23 @@ export const ItemCustomizationDialog = ({
           </button>
           {showReasonDropdown && (
             <div
-              className="absolute top-full left-0 right-0 mt-1 bg-neutral-900 rounded-xl overflow-hidden z-50 border border-neutral-700 shadow-xl"
+              className="absolute top-full left-0 right-0 mt-1 bg-neutral-800 rounded-xl overflow-hidden z-10 border border-neutral-700 max-h-36 overflow-y-auto scrollbar-hide"
               style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
             >
-              {/* Search input */}
-              <div className="flex items-center gap-2 px-3 py-2 border-b border-neutral-700 bg-neutral-900">
-                <Search className="w-4 h-4 text-muted-foreground shrink-0" />
-                <input
-                  autoFocus
-                  type="text"
-                  placeholder="Search reason..."
-                  value={reasonSearch}
-                  onChange={e => setReasonSearch(e.target.value)}
-                  className="flex-1 bg-transparent text-foreground text-sm placeholder:text-muted-foreground outline-none"
-                />
-              </div>
-              {/* Filtered list */}
-              <div className="max-h-52 overflow-y-auto" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                {overrideReasons
-                  .filter(r => r.toLowerCase().includes(reasonSearch.toLowerCase()))
-                  .map(reason => (
-                    <button
-                      key={reason}
-                      onClick={() => {
-                        setSelectedReason(reason);
-                        setShowReasonDropdown(false);
-                        setReasonSearch("");
-                      }}
-                      className={`w-full px-4 py-2.5 text-left hover:bg-neutral-700 transition-colors ${
-                        selectedReason === reason ? 'text-orange-500' : 'text-foreground'
-                      }`}
-                    >
-                      {reason}
-                    </button>
-                  ))}
-                {overrideReasons.filter(r => r.toLowerCase().includes(reasonSearch.toLowerCase())).length === 0 && (
-                  <p className="px-4 py-3 text-sm text-muted-foreground">No reasons found</p>
-                )}
-              </div>
+              {overrideReasons.map(reason => (
+                <button
+                  key={reason}
+                  onClick={() => {
+                    setSelectedReason(reason);
+                    setShowReasonDropdown(false);
+                  }}
+                  className={`w-full px-4 py-2.5 text-left hover:bg-neutral-700 transition-colors ${
+                    selectedReason === reason ? 'text-orange-500' : 'text-foreground'
+                  }`}
+                >
+                  {reason}
+                </button>
+              ))}
             </div>
           )}
         </div>
@@ -731,11 +802,11 @@ export const ItemCustomizationDialog = ({
           </div>
           <div className="flex justify-between items-center">
             <span className="text-sm text-muted-foreground">New Price</span>
-            <span className="text-lg font-semibold text-green-500">${formatCentsDisplay(newPriceCents)}</span>
+            <span className="text-lg font-semibold text-green-500">${formatPriceDisplay(newPriceInput)}</span>
           </div>
         </div>
 
-        {/* Numpad */}
+        {/* Numpad - Row based like desktop */}
         <div className="flex flex-col gap-2 mb-3">
           {[['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9']].map((row, rowIndex) => (
             <div key={rowIndex} className="grid grid-cols-3 gap-2">
@@ -750,13 +821,17 @@ export const ItemCustomizationDialog = ({
               ))}
             </div>
           ))}
-          {/* Last row: 00, 0, backspace */}
+          {/* Last row: decimal, 0 and backspace */}
           <div className="grid grid-cols-3 gap-2">
             <button
-              onClick={() => handlePriceNumberClick('00')}
+              onClick={() => {
+                if (!newPriceInput.includes('.')) {
+                  setNewPriceInput(prev => prev + '.');
+                }
+              }}
               className="h-10 rounded-xl bg-neutral-800 border border-neutral-700 text-lg font-bold text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
             >
-              00
+              .
             </button>
             <button
               onClick={() => handlePriceNumberClick('0')}
@@ -784,9 +859,9 @@ export const ItemCustomizationDialog = ({
           </Button>
           <Button
             onClick={handleApplyPriceOverride}
-            disabled={newPriceCents === 0 || !selectedReason || newPriceCents === Math.round((item?.price ?? 0) * 100)}
+            disabled={!newPriceInput || !selectedReason}
             className="flex-1 h-10 rounded-xl text-white font-bold disabled:opacity-40 disabled:bg-neutral-600"
-            style={{ background: newPriceCents === 0 || !selectedReason || newPriceCents === Math.round((item?.price ?? 0) * 100) ? undefined : 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
+            style={{ background: !newPriceInput || !selectedReason ? undefined : 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
           >
             APPLY
           </Button>
@@ -1073,12 +1148,12 @@ export const ItemCustomizationDialog = ({
         </div>
       )}
 
-      {/* Product Notes */}
+      {/* Item Notes */}
       <div className="px-4 pb-2">
         <OrderNotesAutocomplete
           value={itemNotes}
           onChange={setItemNotes}
-          placeholder="Product notes"
+          placeholder="Item notes"
           storageKey="item-notes-history"
         />
       </div>
@@ -1138,7 +1213,7 @@ export const ItemCustomizationDialog = ({
 
           {/* Modifier Options */}
           {/* NOTE: our ScrollArea viewport is h-full, so the root must have an explicit height */}
-          <ScrollArea className="max-h-[140px]">
+          <ScrollArea className="h-[140px]">
             <div className="px-4 pb-3">
               <div className="flex flex-wrap gap-2">
                 {activeCategory?.options.map(option => (
@@ -1366,15 +1441,121 @@ export const ItemCustomizationDialog = ({
         </DialogContent>
       </Dialog>
 
-      {/* Discount Dialog — reuses shared AccessRestrictedModal */}
+      {/* Discount Dialog with integrated MPIN - Using AlertDialog for proper portal layering */}
       <AlertDialog open={showDiscountDialog} onOpenChange={setShowDiscountDialog}>
         <AlertDialogContent className="bg-neutral-900 border-neutral-700 p-0 max-w-md w-[90vw] overflow-hidden rounded-xl">
           {discountDialogView === 'mpin' ? (
-            <AccessRestrictedModal
-              subtitle="Manager approval required to apply discount."
-              onBack={() => { setShowDiscountDialog(false); setDiscountDialogView('mpin'); }}
-              onSuccess={() => setDiscountDialogView('discounts')}
-            />
+            /* MPIN View */
+            <div className="w-full max-w-[280px] flex flex-col items-center mx-auto py-6 px-4">
+              {/* Manager Profile */}
+              <div className="flex flex-col items-center mb-4">
+                <div className="w-14 h-14 rounded-full overflow-hidden mb-2 border-2 border-primary/30">
+                  <img
+                    src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=80&h=80&fit=crop&crop=face"
+                    alt="Manager"
+                    className="w-full h-full object-cover"
+                  />
+                </div>
+                <h3 className="text-base font-semibold text-foreground">Mia Jones</h3>
+                <p className="text-xs text-muted-foreground">Manager</p>
+              </div>
+
+              {/* PIN Dots */}
+              <div className="flex items-center justify-center gap-2.5 mb-4">
+                {[0, 1, 2, 3].map((index) => (
+                  <div
+                    key={index}
+                    className={`w-2.5 h-2.5 rounded-full transition-all duration-200 ${
+                      index < pin.length ? "bg-primary" : "bg-neutral-600"
+                    }`}
+                  />
+                ))}
+              </div>
+
+              {/* Title */}
+              <p className="text-center text-muted-foreground text-xs mb-4">Enter Manager PIN</p>
+
+              {/* Numpad */}
+              <div className="grid grid-cols-3 gap-2 w-full">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                  <button
+                    key={num}
+                    type="button"
+                    onClick={() => {
+                      if (pin.length < 4) {
+                        const newPin = pin + num.toString();
+                        setPin(newPin);
+                        if (newPin.length === 4) {
+                          setTimeout(() => {
+                            setDiscountDialogView('discounts');
+                            setPin("");
+                          }, 200);
+                        }
+                      }
+                    }}
+                    className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                  >
+                    {num}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={handlePinBackspace}
+                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground hover:bg-neutral-700 active:bg-neutral-600 transition-colors flex items-center justify-center"
+                >
+                  <Delete className="w-5 h-5" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (pin.length < 4) {
+                      const newPin = pin + "0";
+                      setPin(newPin);
+                      if (newPin.length === 4) {
+                        setTimeout(() => {
+                          setDiscountDialogView('discounts');
+                          setPin("");
+                        }, 200);
+                      }
+                    }
+                  }}
+                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-foreground text-xl font-medium hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                >
+                  0
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePinClear}
+                  className="h-12 rounded-xl bg-neutral-800 border border-neutral-700 text-xl font-bold text-destructive hover:bg-neutral-700 active:bg-neutral-600 transition-colors"
+                >
+                  C
+                </button>
+              </div>
+
+              {/* Biometric Options */}
+              <div className="flex justify-center gap-3 mt-4">
+                <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+                  <Fingerprint className="w-4 h-4" />
+                  <span className="text-xs">Touch ID</span>
+                </button>
+                <button type="button" className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-neutral-800 border border-neutral-700 text-muted-foreground hover:bg-neutral-700 transition-colors">
+                  <ScanFace className="w-4 h-4" />
+                  <span className="text-xs">Face ID</span>
+                </button>
+              </div>
+
+              {/* Cancel button */}
+              <button
+                type="button"
+                onClick={() => {
+                  setShowDiscountDialog(false);
+                  setPin("");
+                }}
+                className="mt-4 text-xs text-neutral-400 hover:text-white transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
           ) : (
             /* Discount Selection View */
             <>

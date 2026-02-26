@@ -3,6 +3,7 @@ import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 import hardwarePrinterIcon from "@/assets/icons/hardware-printer.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface PairPrinterContentProps {
   showHeader?: boolean;
@@ -12,32 +13,37 @@ interface PairPrinterContentProps {
 const PRINTER_TYPES = [
   { id: "kot", label: "Default KOT Printer Model" },
   { id: "bill", label: "Default Bill/Receipt Printer" },
-  { id: "custom", label: "Default Custom Product Printer" },
+  { id: "custom", label: "Default Custom Item Printer" },
 ];
 
 const PairPrinterContent = ({ showHeader = true, onBack }: PairPrinterContentProps) => {
   const isMobile = useIsMobile();
   const [selectedPrinters, setSelectedPrinters] = useState<Record<string, string>>({});
+  const { getIconBgColor } = useAppearance();
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && onBack && (
-        <div className="px-6 pt-5">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-4 h-4 text-foreground" />
-          </button>
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Pair Printer</h1>
+          <div className="w-8 h-8" />
         </div>
       )}
 
-      <div className="pt-6 px-6 pb-28">
+      <div className={`${showHeader ? 'pt-2' : 'pt-0'} px-6 pb-28`}>
         {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-6 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'} mb-6`}>
+        <div className="bg-neutral-800/60 rounded-2xl p-6 flex flex-col items-start mb-6">
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
-            style={{ backgroundColor: "#D6336C" }}
+            style={{ backgroundColor: getIconBgColor("#D6336C") }}
           >
             <img src={hardwarePrinterIcon} alt="Pair Printer" className="w-7 h-7 object-contain" />
           </div>
@@ -62,7 +68,7 @@ const PairPrinterContent = ({ showHeader = true, onBack }: PairPrinterContentPro
         <div className="space-y-4">
           {PRINTER_TYPES.map((type) => (
             <div key={type.id}>
-              <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">
+              <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">
                 {type.label}
               </p>
               <button className="w-full bg-neutral-800/60 rounded-full py-3.5 px-4 flex items-center justify-between active:opacity-70 transition-opacity">

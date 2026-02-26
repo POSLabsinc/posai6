@@ -5,6 +5,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import paymentMethodsIcon from "@/assets/icons/payment-methods.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 // Import payment method icons
 import cashIcon from "@/assets/icons/payment-cash.png";
@@ -20,6 +21,7 @@ import doordashIcon from "@/assets/icons/payment-doordash.png";
 import blizzfulIcon from "@/assets/icons/payment-blizzful.png";
 import loyaltyIcon from "@/assets/icons/payment-loyalty.png";
 import payByLinkIcon from "@/assets/icons/payment-pay-by-link.png";
+import voucherIcon from "@/assets/icons/voucher.svg";
 
 interface PaymentMethodsContentProps {
   showHeader?: boolean;
@@ -35,19 +37,20 @@ interface PaymentMethodConfig {
 }
 
 const paymentMethodConfigs: PaymentMethodConfig[] = [
-  { id: "cash", name: "Cash", icon: cashIcon, bgColor: "#CF0064" },
-  { id: "card", name: "Card", icon: cardIcon, bgColor: "#9463FF" },
-  { id: "external-cc", name: "External CC", icon: externalCcIcon, bgColor: "#5AB0EE" },
-  { id: "manual-cc", name: "Manual CC", icon: manualCcIcon, bgColor: "#FFBD00" },
-  { id: "manual-card", name: "Manual Card", icon: manualCardIcon, bgColor: "#FF6381" },
-  { id: "grubhub", name: "Grubhub", icon: grubhubIcon, bgColor: "#FFFFFF" },
-  { id: "gift-card", name: "Gift Card", icon: giftCardIcon, bgColor: "#CF0064" },
-  { id: "uber-eats", name: "UberEats", icon: uberEatsIcon, bgColor: "#FFFFFF" },
   { id: "account", name: "Account", icon: accountIcon, bgColor: "#5AB0EE" },
-  { id: "doordash", name: "Doordash", icon: doordashIcon, bgColor: "#FFFFFF" },
   { id: "blizzful", name: "Blizzful", icon: blizzfulIcon, bgColor: "#FFFFFF" },
+  { id: "card", name: "Card", icon: cardIcon, bgColor: "#9463FF" },
+  { id: "cash", name: "Cash", icon: cashIcon, bgColor: "#CF0064" },
+  { id: "doordash", name: "Doordash", icon: doordashIcon, bgColor: "#FFFFFF" },
+  { id: "external-cc", name: "External CC", icon: externalCcIcon, bgColor: "#5AB0EE" },
+  { id: "gift-card", name: "Gift Card", icon: giftCardIcon, bgColor: "#CF0064" },
+  { id: "grubhub", name: "Grubhub", icon: grubhubIcon, bgColor: "#FFFFFF" },
   { id: "loyalty", name: "Loyalty", icon: loyaltyIcon, bgColor: "#000000" },
+  { id: "manual-card", name: "Manual Card", icon: manualCardIcon, bgColor: "#FF6381" },
+  { id: "manual-cc", name: "Manual CC", icon: manualCcIcon, bgColor: "#FFBD00" },
   { id: "pay-by-link", name: "Pay By Link", icon: payByLinkIcon, bgColor: "#5AB0EE" },
+  { id: "uber-eats", name: "UberEats", icon: uberEatsIcon, bgColor: "#FFFFFF" },
+  { id: "voucher", name: "Voucher", icon: voucherIcon, bgColor: "#FF9500" },
 ];
 
 const STORAGE_KEY = "payment-methods-state";
@@ -63,6 +66,7 @@ const getDefaultState = (): Record<string, boolean> => {
 const PaymentMethodsContent = ({ showHeader = true, onBack, onAIClick }: PaymentMethodsContentProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { getIconBgColor } = useAppearance();
   const [methodStates, setMethodStates] = useState<Record<string, boolean>>(() => {
     // Initialize from localStorage or defaults
     try {
@@ -94,37 +98,32 @@ const PaymentMethodsContent = ({ showHeader = true, onBack, onAIClick }: Payment
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && onBack && !isMobile && (
-        <div className="px-6 pt-5">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-5 h-5 text-foreground" />
-          </button>
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+            <h1 className="text-base font-medium text-foreground">Payment Methods</h1>
+          </div>
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 
-      <div className="pt-6 px-6 pb-28">
-        {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'}`}>
-          <div 
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ backgroundColor: "#5F5F5F" }}
-          >
-            <img src={paymentMethodsIcon} alt="Payment Methods" className="w-7 h-7 object-contain" />
-          </div>
-          <h1 className="text-xl font-semibold text-foreground mb-2">Payment Methods</h1>
-          <p className="text-base text-neutral-400 leading-relaxed">
-            Configure which payment methods are accepted at your point of sale.
+      <div className="px-6 pb-28 pt-4">
+        {/* Description */}
+        <div className="mb-4 px-1">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Control which payment methods are available at checkout. Toggle a method <span className="text-foreground font-medium">ON</span> to allow customers to use it, or <span className="text-foreground font-medium">OFF</span> to hide it from the payment screen.
           </p>
         </div>
-
-        {/* AI Assistant Icon */}
-        <div className="flex justify-end mb-3 overflow-visible">
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-        </div>
-
         {/* Payment Methods List */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
           {paymentMethodConfigs.map((method, index) => (

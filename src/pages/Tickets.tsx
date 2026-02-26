@@ -1,402 +1,1899 @@
-import { useState, useRef, useCallback, useMemo, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
-import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
-import { Search, SlidersHorizontal, Phone, X, Check, Info, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
-import AccessRestrictedModal from "@/components/AccessRestrictedModal";
-import ReceiptDialog from "@/components/ReceiptDialog";
-import TipDialog from "@/components/TipDialog";
-import RefundDialog from "@/components/RefundDialog";
-import ItemRefundDialog from "@/components/ItemRefundDialog";
-import SwipeableRefundItem from "@/components/SwipeableRefundItem";
-import TicketsFilterBar from "@/components/TicketsFilterBar";
-import MobileFilterBottomSheet from "@/components/MobileFilterBottomSheet";
-import TicketsTransferView from "@/components/TicketsTransferView";
-import SwipeableTicketItem from "@/components/SwipeableTicketItem";
-import { TransferCheckDialog } from "@/components/TransferCheckDialog";
-import transferCheckIcon from "@/assets/icons/transfer-check.svg";
-import customItemIcon from "@/assets/icons/custom-item.svg";
-import discountBtnIcon from "@/assets/icons/discount-icon.svg";
-import noTaxBtnIcon from "@/assets/icons/no-tax.svg";
-import registerBtnIcon from "@/assets/icons/register.svg";
+import { useState, useRef, useMemo, useEffect } from "react";
 
+interface TicketsProps {
+  isClosedTicketsMode?: boolean;
+}
+
+import { motion, AnimatePresence } from "framer-motion";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import { Search, SlidersHorizontal, Phone, ShoppingBag, Truck, Wine, X, ChevronLeft, DollarSign, RotateCcw, Percent, FileText, Check, Calendar, Users, Wallet, ClipboardList, CircleDollarSign, Delete, ListFilter, MoreVertical, Share2, Clock, MessageSquare, Mail, Printer } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import { Switch } from "@/components/ui/switch";
+import { format } from "date-fns";
+import { useIsMobile } from "@/hooks/use-mobile";
 // Import icons
 import runnerIcon from "@/assets/icons/runner.png";
 import clearIcon from "@/assets/icons/clear-c.png";
 import fireIcon from "@/assets/icons/fire.png";
+import phoneIcon from "@/assets/icons/phone-icon.png";
+import timeIcon from "@/assets/icons/time-icon.png";
+import tableTargetIcon from "@/assets/icons/table-target.png";
+import arrowRightIcon from "@/assets/icons/arrow-right.png";
 import shareOrderIcon from "@/assets/icons/share-order.png";
 import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
 import mergeIcon from "@/assets/icons/merge-icon.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
-import cashRegisterIcon from "@/assets/icons/cash-register.png";
-import printIcon from "@/assets/icons/print-icon.svg";
-import cashRegisterSvgIcon from "@/assets/icons/cash-register-icon.svg";
-import transferItemIcon from "@/assets/icons/transfer-item.svg";
-import transferEntireOrderIcon from "@/assets/icons/transfer-entire-order.svg";
-import transferToTableIcon from "@/assets/icons/transfer-to-table.svg";
-import transferToOrderIcon from "@/assets/icons/transfer-to-order.svg";
-import transferIcon from "@/assets/icons/transfer-icon.png";
+import registerIcon from "@/assets/icons/register.svg";
+import customItemIcon from "@/assets/icons/custom-item.svg";
+import discountIcon from "@/assets/icons/discount-new.svg";
+import receiptIcon from "@/assets/icons/receipt.svg";
+import noTaxIcon from "@/assets/icons/no-tax-new.svg";
+import successTick from "@/assets/icons/success-tick.svg";
+import MobileTicketCard from "@/components/MobileTicketCard";
+import TipBottomSheet from "@/components/TipBottomSheet";
+import ReceiptOptionsDialog from "@/components/ReceiptOptionsDialog";
+import SwipeableRefundItem, { SwipeableModifier } from "@/components/SwipeableRefundItem";
+import SwipeableCartItem from "@/components/SwipeableCartItem";
+import MobileFiltersSheet, { MobileFiltersState } from "@/components/MobileFiltersSheet";
+import OrderTypeIcon from "@/components/OrderTypeIcon";
+import { SimpleModifierTree } from "@/components/ModifierWithConnector";
+import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
+import NoteSuggestions from "@/components/NoteSuggestions";
+import AppleAlertDialog from "@/components/AppleAlertDialog";
+import RefundModalLayout from "@/components/RefundModalLayout";
+import RefundBottomSheet from "@/components/RefundBottomSheet";
 
-// New order type icons
-import dineInSvg from "@/assets/icons/dine-in-2.svg";
-import takeOutSvg from "@/assets/icons/take-out-2.svg";
-import deliverySvg from "@/assets/icons/delivery-2.svg";
-import driveThruSvg from "@/assets/icons/drive-thru-2.svg";
-import phoneInSvg from "@/assets/icons/phone-in-2.svg";
-import scheduledSvg from "@/assets/icons/scheduled-2.svg";
-import banquetSvg from "@/assets/icons/banquet-2.svg";
-import curbSideSvg from "@/assets/icons/curb-side-2.svg";
-import customSvg from "@/assets/icons/custom-2.svg";
-import tableOrderSvg from "@/assets/icons/table-order-2.svg";
+// Refund flow types
+type RefundStep = 'closed' | 'type-selection' | 'full-refund' | 'partial-refund' | 'tip-refund' | 'custom-refund' | 'item-refund' | 'confirmation' | 'success';
+type RefundReason = 'customer-dissatisfaction' | 'order-error' | 'quality-issue' | 'wrong-order' | 'other';
 
-// Order type icon component
-const OrderTypeIcon = ({ type, size = "default" }: { type: string; size?: "small" | "default" }) => {
-  const iconSize = size === "small" ? "w-3.5 h-3.5" : "w-4 h-4";
+// Payment method interface for split payments
+interface PaymentMethod {
+  id: string;
+  type: 'credit_card' | 'cash' | 'gift_card' | 'debit_card';
+  label: string; // e.g., "Visa •••• 1234"
+  amount: number;
+  tipAmount?: number; // Tip allocated to this payment method
+}
+
+// Refund allocation per payment method
+interface RefundAllocation {
+  paymentMethodId: string;
+  refundAmount: number;
+  tipRefundAmount: number;
+}
+
+// Selected refund item interface
+interface RefundItem {
+  index: number;
+  qty: number;
+  maxQty: number;
+  name: string;
+  unitPrice: number;
+}
+
+// Persisted refund record for tracking refunded quantities
+interface RefundedItemRecord {
+  orderId: string;
+  itemIndex: number;
+  refundedQty: number;
+  maxQty: number;
+  itemName: string;
+}
+
+// Persisted modifier refund record
+interface RefundedModifierRecord {
+  orderId: string;
+  itemIndex: number;
+  modifierIndex: number;
+  modifierName: string;
+}
+
+// Persisted tip refund record
+interface RefundedTipRecord {
+  orderId: string;
+  refundedAmount: number;
+  originalTip: number;
+}
+
+// Individual refund transaction record
+interface RefundTransactionRecord {
+  id: string;
+  orderId: string;
+  amount: number;
+  paymentMethod: string; // e.g., "Visa •••• 1234", "Cash", etc.
+  paymentType: 'credit_card' | 'cash' | 'gift_card' | 'debit_card';
+  timestamp: Date;
+}
+
+// Selected refund modifier interface
+interface RefundModifier {
+  itemIndex: number;
+  modifierIndex: number;
+  name: string;
+  price: number;
+}
+
+// Swipe refund item interface (for individual item/modifier refunds)
+interface SwipeRefundTarget {
+  id: string; // Unique identifier for tracking refunded state
+  type: 'item' | 'modifier';
+  name: string;
+  price: number;
+}
+
+// Using imported OrderTypeIcon component from @/components/OrderTypeIcon
+
+// Modifier interface for rich modifier data
+interface ModifierItem {
+  text: string;
+  type: 'add' | 'remove' | 'default' | 'side';
+  price?: number;
+}
+
+// Order item interface
+interface OrderItem {
+  qty: number;
+  name: string;
+  price: number;
+  seats: number[];
+  modifiers: string[];
+  richModifiers?: ModifierItem[];
+  notes?: string[];
+}
+
+// Guest order interface with linked items
+interface GuestOrder {
+  id: string;
+  name: string;
+  phone: string;
+  partySize: number;
+  time: string;
+  createdAt: Date; // Timestamp for dynamic timer
+  server: string;
+  check: string;
+  paymentType: string;
+  revenueCenter: string;
+  status: string;
+  notes: string;
+  items: OrderItem[];
+  subtotal: number;
+  discount: number;
+  serviceCharge: number;
+  tax: number;
+  tip: number;
+  total: number;
+  table: string;
+  orderType: string;
+  paid?: boolean;
+  paidAt?: string;
+  paymentMethods?: PaymentMethod[]; // Split payment support
+}
+
+// Helper function to format elapsed time dynamically
+// Under 1 hour: MM:SS Min (e.g., 02:35 Min)
+// Over 1 hour: HH:MM:SS Hrs (e.g., 01:16:23 Hrs)
+const formatElapsedTime = (createdAt: Date, now: Date): string => {
+  const diffMs = now.getTime() - createdAt.getTime();
+  const totalSeconds = Math.floor(diffMs / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
   
-  const iconMap: Record<string, string> = {
-    "Dine-In": dineInSvg,
-    "Takeout": takeOutSvg,
-    "Take Out": takeOutSvg,
-    "Delivery": deliverySvg,
-    "Drive Thru": driveThruSvg,
-    "Phone-In": phoneInSvg,
-    "Scheduled": scheduledSvg,
-    "Banquet": banquetSvg,
-    "Curb Side": curbSideSvg,
-    "Custom": customSvg,
-    "Table Order": tableOrderSvg,
-    "Bar": dineInSvg,
-  };
-
-  const src = iconMap[type] || tableOrderSvg;
-  return <img src={src} alt={type} className={`${iconSize} object-contain`} />;
+  if (hours >= 1) {
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} Hrs`;
+  }
+  return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')} Min`;
 };
 
-// Re-export ticket data types
-import { TicketOrder as GuestOrder, TicketOrderItem as OrderItem, TicketPaymentEntry as PaymentEntry } from "@/data/ticketOrders";
-import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
-export type { GuestOrder, OrderItem, PaymentEntry };
+// Helper to create a Date object from a time string like "8:00 PM"
+const parseTimeToDate = (timeStr: string, minutesAgo: number = 0): Date => {
+  const now = new Date();
+  // For demo purposes, set createdAt to be minutesAgo before now
+  return new Date(now.getTime() - minutesAgo * 60000);
+};
+
+// Mock all orders data
+const allOrders: GuestOrder[] = [
+  {
+    id: "3",
+    name: "Martin Alex",
+    phone: "(415) 555-0123",
+    partySize: 4,
+    time: "8:00 PM",
+    createdAt: parseTimeToDate("8:00 PM", 1), // 1 minute ago
+    server: "Mia Jone",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "FF Balcony",
+    status: "ORDERING",
+    notes: "Allergic to almonds, Don't add onion",
+    table: "T2",
+    orderType: "Table",
+    items: [
+      { 
+        qty: 4, 
+        name: "Classic Cheese Burger - Medium", 
+        price: 9.00, 
+        seats: [1, 2], 
+        modifiers: [],
+        richModifiers: [
+          { text: "American Cheese", type: "default" },
+          { text: "Bacon", type: "default" },
+          { text: "No Onions", type: "remove" },
+          { text: "No Pickles", type: "remove" },
+          { text: "Add Avocado", type: "add", price: 1.00 },
+          { text: "Side: Fries", type: "side" },
+          { text: "Side: Chipotle Mayo", type: "side" }
+        ],
+        notes: ["Well done", "Extra napkins"]
+      },
+      { qty: 4, name: "Meatballs", price: 4.00, seats: [], modifiers: ["Extra Sauce"], notes: ["Gluten-free sauce"] },
+      { qty: 2, name: "Rigatoni Pasta", price: 8.00, seats: [3, 4], modifiers: [] },
+      { qty: 1, name: "Almond Crusted Salmon", price: 20.00, seats: [], modifiers: ["- Salad", "- Balsamic Vinaigrette"], notes: ["Cook temperature: Medium rare"] }
+    ],
+    subtotal: 68.00,
+    discount: 5.00,
+    serviceCharge: 3.40,
+    tax: 4.56,
+    tip: 0,
+    total: 70.96
+  },
+  {
+    id: "2",
+    name: "Mike Wheelers",
+    phone: "(415) 555-0456",
+    partySize: 3,
+    time: "7:30 PM",
+    createdAt: parseTimeToDate("7:30 PM", 76), // 76 minutes ago (1:16 Hrs)
+    server: "Dustin H",
+    check: "123423",
+    paymentType: "Cash",
+    revenueCenter: "FF Balcony",
+    status: "PAID",
+    notes: "Birthday celebration - bring candle",
+    table: "T2",
+    orderType: "Takeaway",
+    paid: true,
+    paidAt: "8:46 PM",
+    items: [
+      { 
+        qty: 1, 
+        name: "New York Strip Steak", 
+        price: 28.00, 
+        seats: [1], 
+        modifiers: [],
+        richModifiers: [
+          { text: "Medium Rare", type: "default" },
+          { text: "Garlic Butter", type: "add", price: 2.00 },
+          { text: "No Onions", type: "remove" },
+          { text: "Side: Mashed Potatoes", type: "side" },
+          { text: "Side: Asparagus", type: "side" }
+        ]
+      },
+      { 
+        qty: 1, 
+        name: "Grilled Salmon", 
+        price: 24.00, 
+        seats: [2], 
+        modifiers: [],
+        richModifiers: [
+          { text: "Blackened", type: "default" },
+          { text: "No Lemon", type: "remove" },
+          { text: "Add Capers", type: "add", price: 1.50 },
+          { text: "Side: Wild Rice", type: "side" },
+          { text: "Side: Seasonal Vegetables", type: "side" }
+        ]
+      },
+      { 
+        qty: 1, 
+        name: "Caesar Salad", 
+        price: 12.00, 
+        seats: [3], 
+        modifiers: [],
+        richModifiers: [
+          { text: "Extra Croutons", type: "default" },
+          { text: "Add Grilled Chicken", type: "add", price: 4.00 },
+          { text: "No Anchovies", type: "remove" },
+          { text: "Dressing on Side", type: "default" }
+        ]
+      }
+    ],
+    subtotal: 101.00,
+    discount: 0,
+    serviceCharge: 5.05,
+    tax: 7.42,
+    tip: 15.00,
+    total: 128.47
+  },
+  {
+    id: "1",
+    name: "Sarah Johnson",
+    phone: "(415) 555-0789",
+    partySize: 2,
+    time: "7:15 PM",
+    createdAt: parseTimeToDate("7:15 PM", 105), // 105 minutes ago (1:45 Hrs)
+    server: "Dustin H",
+    check: "123443",
+    paymentType: "--",
+    revenueCenter: "FF Balcony",
+    status: "UNPAID",
+    notes: "Gluten-free options requested",
+    table: "T1",
+    orderType: "Drive-thru",
+    items: [
+      { qty: 2, name: "Margherita Pizza", price: 16.00, seats: [1, 2], modifiers: ["Gluten-Free Crust"] },
+      { qty: 1, name: "Caprese Salad", price: 14.00, seats: [], modifiers: ["No Basil"] }
+    ],
+    subtotal: 72.00,
+    discount: 10.00,
+    serviceCharge: 3.10,
+    tax: 4.34,
+    tip: 0,
+    total: 69.44
+  },
+  {
+    id: "4",
+    name: "David Chen",
+    phone: "(415) 555-1234",
+    partySize: 6,
+    time: "6:45 PM",
+    createdAt: parseTimeToDate("6:45 PM", 150), // 150 minutes ago (2:30 Hrs)
+    server: "Mia Jone",
+    check: "123456",
+    paymentType: "Split Payment",
+    revenueCenter: "Main Dining",
+    status: "PAID",
+    notes: "Corporate dinner - split bill 3 ways",
+    table: "T5",
+    orderType: "Table",
+    paid: true,
+    paidAt: "9:15 PM",
+    items: [
+      { qty: 2, name: "Lobster Tail", price: 45.00, seats: [1, 2], modifiers: ["Extra Butter"] },
+      { qty: 2, name: "Filet Mignon", price: 42.00, seats: [3, 4], modifiers: ["Medium"] }
+    ],
+    subtotal: 428.00,
+    discount: 20.00,
+    serviceCharge: 20.40,
+    tax: 28.59,
+    tip: 64.20,
+    total: 521.19,
+    paymentMethods: [
+      { id: 'pm-1', type: 'credit_card', label: 'Visa •••• 1234', amount: 300.00, tipAmount: 30.00 },
+      { id: 'pm-2', type: 'credit_card', label: 'Amex •••• 9876', amount: 150.00, tipAmount: 20.00 },
+      { id: 'pm-3', type: 'cash', label: 'Cash', amount: 71.19, tipAmount: 14.20 }
+    ]
+  },
+  {
+    id: "5",
+    name: "Guest",
+    phone: "",
+    partySize: 1,
+    time: "8:30 PM",
+    createdAt: parseTimeToDate("8:30 PM", 15), // 15 minutes ago
+    server: "Mia Jone",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "Bar",
+    status: "ORDERING",
+    notes: "",
+    table: "Bar",
+    orderType: "Drive-thru",
+    items: [
+      { qty: 1, name: "Classic Burger", price: 15.00, seats: [1], modifiers: ["No Pickles", "+ Bacon"] },
+      { qty: 1, name: "Craft IPA", price: 8.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 23.00,
+    discount: 0,
+    serviceCharge: 1.15,
+    tax: 1.69,
+    tip: 0,
+    total: 25.84
+  },
+  {
+    id: "6",
+    name: "Emily Davis",
+    phone: "(415) 555-7890",
+    partySize: 2,
+    time: "9:00 PM",
+    createdAt: parseTimeToDate("9:00 PM", 5), // 5 minutes ago
+    server: "Mia Jone",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "Patio",
+    status: "ORDERING",
+    notes: "Anniversary dinner",
+    table: "T7",
+    orderType: "Table",
+    items: [
+      { qty: 2, name: "Champagne", price: 25.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 50.00,
+    discount: 0,
+    serviceCharge: 2.50,
+    tax: 3.68,
+    tip: 0,
+    total: 56.18
+  },
+  {
+    id: "7",
+    name: "James Wilson",
+    phone: "(415) 555-3456",
+    partySize: 1,
+    time: "8:45 PM",
+    createdAt: parseTimeToDate("8:45 PM", 10), // 10 minutes ago
+    server: "Dustin H",
+    check: "--",
+    paymentType: "--",
+    revenueCenter: "Online",
+    status: "ORDERING",
+    notes: "Leave at door",
+    table: "--",
+    orderType: "Takeaway",
+    items: [
+      { qty: 2, name: "Pepperoni Pizza", price: 18.00, seats: [], modifiers: [] },
+      { qty: 1, name: "Garlic Bread", price: 6.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 42.00,
+    discount: 0,
+    serviceCharge: 2.10,
+    tax: 3.09,
+    tip: 0,
+    total: 47.19
+  },
+  {
+    id: "8",
+    name: "Lisa Park",
+    phone: "(415) 555-9012",
+    partySize: 2,
+    time: "7:50 PM",
+    createdAt: parseTimeToDate("7:50 PM", 30), // 30 minutes ago
+    server: "Mia Jone",
+    check: "123478",
+    paymentType: "--",
+    revenueCenter: "Counter",
+    status: "ORDERING",
+    notes: "Picking up in 15 mins",
+    table: "--",
+    orderType: "Takeaway",
+    items: [
+      { qty: 2, name: "Fish Tacos", price: 14.00, seats: [], modifiers: ["Extra Lime"] },
+      { qty: 2, name: "Churros", price: 7.00, seats: [], modifiers: [] }
+    ],
+    subtotal: 42.00,
+    discount: 0,
+    serviceCharge: 2.10,
+    tax: 3.09,
+    tip: 0,
+    total: 47.19
+  }
+];
 
 // Helper function to format price
 const formatPrice = (price: number) => `$${price.toFixed(2)}`;
 
+// Helper component to render modifier tree (non-swipeable version for desktop/tablet)
+const ModifierTree = ({ modifiers, defaultExpanded = true }: { modifiers: ModifierItem[]; defaultExpanded?: boolean }) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  
+  if (!modifiers || modifiers.length === 0) return null;
+  
+  const visibleModifiers = isExpanded ? modifiers : modifiers.slice(0, 2);
+  const hasMore = modifiers.length > 2;
+  
+  return (
+    <div className="mt-1.5 ml-1">
+      {visibleModifiers.map((mod, i) => {
+        const isLast = isExpanded ? i === modifiers.length - 1 : (i === visibleModifiers.length - 1 && !hasMore);
+        // Get prefix based on type
+        let prefix = '•';
+        if (mod.type === 'remove') prefix = '-';
+        else if (mod.type === 'add') prefix = '+';
+        
+        return (
+          <div key={i} className="flex items-center text-xs h-5">
+            {/* Tree connector */}
+            <div className="relative w-4 h-full flex-shrink-0">
+              {/* Vertical line - extends from top to bottom (or middle for last item) */}
+              <div 
+                className="absolute left-0 w-px bg-white/30"
+                style={{ 
+                  top: i === 0 ? '0' : '-2px',
+                  height: isLast ? '50%' : 'calc(100% + 2px)'
+                }}
+              />
+              {/* Horizontal connector - from vertical line to text */}
+              <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
+            </div>
+            {/* Prefix and modifier text */}
+            <div className="flex items-center flex-1 min-w-0">
+              <span className="mr-1.5 text-white/40 w-2 text-center flex-shrink-0">{prefix}</span>
+              <span className={`truncate ${mod.type === 'remove' ? 'text-white/40' : 'text-white/50'}`}>
+                {mod.text}
+              </span>
+              {mod.price && mod.price > 0 && (
+                <span className="ml-auto pl-2 text-white/60 flex-shrink-0">{formatPrice(mod.price)}</span>
+              )}
+            </div>
+          </div>
+        );
+      })}
+      {/* Expand/Collapse toggle */}
+      {hasMore && (
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center text-xs h-5 text-white/50 hover:text-white/70 transition-colors"
+        >
+          <div className="relative w-4 h-full flex-shrink-0">
+            <div className="absolute left-0 w-px bg-white/30" style={{ top: '-2px', height: '50%' }} />
+            <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
+          </div>
+          <span className="ml-1.5">
+            {isExpanded ? 'Show less' : `Show more (+${modifiers.length - 2})`}
+          </span>
+        </button>
+      )}
+    </div>
+  );
+};
+
+// Swipeable modifier tree for paid tickets (desktop/tablet with expand/collapse)
+interface SwipeableModifierTreeDesktopProps {
+  modifiers: ModifierItem[];
+  onModifierRefund: (modifier: ModifierItem, index: number) => void;
+  refundedItems?: Set<string>;
+  itemIndex?: number;
+  defaultExpanded?: boolean;
+}
+
+const SwipeableModifierTreeDesktop = ({ modifiers, onModifierRefund, refundedItems, itemIndex, defaultExpanded = true }: SwipeableModifierTreeDesktopProps) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  
+  if (!modifiers || modifiers.length === 0) return null;
+  
+  const visibleModifiers = isExpanded ? modifiers : modifiers.slice(0, 2);
+  const hasMore = modifiers.length > 2;
+  
+  return (
+    <div className="mt-1.5">
+      {visibleModifiers.map((mod, i) => {
+        const actualIndex = modifiers.indexOf(mod);
+        const isRefunded = refundedItems?.has(`mod-${itemIndex}-${actualIndex}-${mod.text}`) ?? false;
+        const isLast = isExpanded ? i === modifiers.length - 1 : (i === visibleModifiers.length - 1 && !hasMore);
+        return (
+          <SwipeableModifier
+            key={i}
+            modifier={mod}
+            index={actualIndex}
+            isLast={isLast}
+            onRefund={onModifierRefund}
+            formatPrice={formatPrice}
+            isRefunded={isRefunded}
+          />
+        );
+      })}
+      {/* Expand/Collapse toggle */}
+      {hasMore && (
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center text-xs h-5 text-white/50 hover:text-white/70 transition-colors"
+        >
+          <div className="relative w-4 h-full flex-shrink-0">
+            <div className="absolute left-0 w-px bg-white/30" style={{ top: '-2px', height: '50%' }} />
+            <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
+          </div>
+          <span className="ml-1.5">
+            {isExpanded ? 'Show less' : `Show more (+${modifiers.length - 2})`}
+          </span>
+        </button>
+      )}
+    </div>
+  );
+};
+
+// Swipeable modifier tree for paid tickets (mobile only - with expand/collapse)
+interface SwipeableModifierTreeProps {
+  modifiers: ModifierItem[];
+  onModifierRefund: (modifier: ModifierItem, index: number) => void;
+  refundedItems?: Set<string>;
+  itemIndex?: number;
+  defaultExpanded?: boolean;
+}
+
+const SwipeableModifierTree = ({ modifiers, onModifierRefund, refundedItems, itemIndex, defaultExpanded = true }: SwipeableModifierTreeProps) => {
+  const [isExpanded, setIsExpanded] = useState(defaultExpanded);
+  
+  if (!modifiers || modifiers.length === 0) return null;
+  
+  const visibleModifiers = isExpanded ? modifiers : modifiers.slice(0, 2);
+  const hasMore = modifiers.length > 2;
+  
+  return (
+    <div className="mt-1.5">
+      {visibleModifiers.map((mod, i) => {
+        const actualIndex = modifiers.indexOf(mod);
+        const isRefunded = refundedItems?.has(`mod-${itemIndex}-${actualIndex}-${mod.text}`) ?? false;
+        const isLast = isExpanded ? i === modifiers.length - 1 : (i === visibleModifiers.length - 1 && !hasMore);
+        return (
+          <SwipeableModifier
+            key={i}
+            modifier={mod}
+            index={actualIndex}
+            isLast={isLast}
+            onRefund={onModifierRefund}
+            formatPrice={formatPrice}
+            isRefunded={isRefunded}
+          />
+        );
+      })}
+      {/* Expand/Collapse toggle */}
+      {hasMore && (
+        <button 
+          onClick={() => setIsExpanded(!isExpanded)}
+          className="flex items-center text-xs h-5 text-white/50 hover:text-white/70 transition-colors"
+        >
+          <div className="relative w-4 h-full flex-shrink-0">
+            <div className="absolute left-0 w-px bg-white/30" style={{ top: '-2px', height: '50%' }} />
+            <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
+          </div>
+          <span className="ml-1.5">
+            {isExpanded ? 'Show less' : `Show more (+${modifiers.length - 2})`}
+          </span>
+        </button>
+      )}
+    </div>
+  );
+};
 
 // Helper function to get order items for display
 const getOrderItems = (order: GuestOrder) => order.items.map(item => ({
   ...item,
-  price: formatPrice(item.price * item.qty)
+  displayPrice: formatPrice(item.price * item.qty)
 }));
-
-// Format duration from timer string
-const formatDuration = (timer: string): string => {
-  if (timer.includes("Hrs")) return timer.replace("Hrs", "Hrs").trim();
-  // Parse MM:SS format
-  const parts = timer.split(":");
-  if (parts.length === 2) {
-    const mins = parseInt(parts[0]);
-    const secs = parseInt(parts[1]);
-    const totalMins = mins * 60 + secs; // This is actually mins:secs
-    if (totalMins === 0) return "01:26 Min";
-    return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')} Min`;
-  }
-  return timer;
-};
-
-// Format payment display
-const formatPaymentDisplay = (guest: GuestOrder): string => {
-  if (guest.payments && guest.payments.length > 0) {
-    const first = guest.payments[0];
-    const label = first.last4 ? `${first.method} •••• ${first.last4}` : first.method;
-    return label;
-  }
-  if (guest.paymentType === "--" || guest.paymentType === "") return "Un Paid";
-  if (guest.paymentType === "Cash") return "Cash";
-  if (guest.paymentType === "Credit Card") return "Visa •••• 1234";
-  return guest.paymentType;
-};
-
-// Get payment badge color
-const getPaymentBadgeColor = (method: string): string => {
-  switch (method.toLowerCase()) {
-    case "visa": return "#1A1F71";
-    case "amex": return "#006FCF";
-    case "mastercard": return "#EB001B";
-    case "cash": return "#22C55E";
-    default: return "#555";
-  }
-};
-
-// Payment method badge icon text
-const getPaymentBadgeText = (method: string): string => {
-  switch (method.toLowerCase()) {
-    case "visa": return "VISA";
-    case "amex": return "AMEX";
-    case "mastercard": return "MC";
-    case "cash": return "$";
-    default: return method.charAt(0).toUpperCase();
-  }
-};
-
-// Get paid amount (secondary line)
-const getPaidAmount = (guest: GuestOrder): number => {
-  if (guest.status === "PAID" && guest.tip > 0) return guest.tip;
-  if (guest.status === "PAID") return guest.total * 0.1; // partial display
-  return 0;
-};
-
-// Status badge colors
-const getStatusBadgeStyle = (status: string): { color: string; bg: string } => {
-  switch (status) {
-    case "ORDERING": return { color: '#F97316', bg: 'rgba(249, 115, 22, 0.15)' };
-    case "PAID": return { color: '#22C55E', bg: 'rgba(34, 197, 94, 0.15)' };
-    case "UNPAID": return { color: '#EF4444', bg: 'rgba(239, 68, 68, 0.15)' };
-    case "COMPLETED": return { color: '#22C55E', bg: 'rgba(34, 197, 94, 0.15)' };
-    default: return { color: '#fff', bg: 'rgba(255,255,255,0.1)' };
-  }
-};
-
-// Discount types - same as TableOrderDetails
-interface DiscountType {
-  id: string;
-  name: string;
-  description: string;
-  percentage?: number;
-  fixedAmount?: number;
-  icon: string;
-}
-
-const discountTypes: DiscountType[] = [
-  { id: 'employee', name: 'Employee Discount', description: '20% off', percentage: 20, icon: 'briefcase' },
-  { id: 'senior', name: 'Senior Citizen', description: '15% off', percentage: 15, icon: 'heart' },
-  { id: 'student', name: 'Student Discount', description: '10% off', percentage: 10, icon: 'graduation' },
-  { id: 'military', name: 'Military Discount', description: '15% off', percentage: 15, icon: 'shield' },
-  { id: 'loyalty', name: 'Loyalty Member', description: '5% off', percentage: 5, icon: 'star' },
-  { id: 'happy', name: 'Happy Hour', description: '25% off', percentage: 25, icon: 'clock' },
-  { id: 'birthday', name: 'Birthday Special', description: '100% off', percentage: 100, icon: 'cake' },
-  { id: 'first', name: 'First Visit', description: '10% off', percentage: 10, icon: 'mappin' },
-  { id: 'comp5', name: 'Manager Comp', description: '100% off', percentage: 100, icon: 'dollar' },
-  { id: 'comp10', name: 'Manager Comp $10', description: '$10.00 off', fixedAmount: 10, icon: 'dollar' },
-  { id: 'comp15', name: 'Manager Comp $15', description: '$15.00 off', fixedAmount: 15, icon: 'dollar' },
-  { id: 'promo', name: 'Promo Code Discount', description: '20% off', percentage: 20, icon: 'tag' },
-];
-
-const getDiscountIcon = (iconName: string) => {
-  const icons: Record<string, React.ComponentType<{ className?: string }>> = {
-    briefcase: Briefcase, heart: Heart, graduation: GraduationCap, shield: Shield,
-    star: Star, clock: Clock, cake: Cake, mappin: MapPin, dollar: BadgeDollarSign, tag: Tag
-  };
-  return icons[iconName] || Tag;
-};
 
 const filters = ["All", "Open", "Completed", "Paid", "Unpaid"];
 
-const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => {
-  const navigate = useNavigate();
-  const { orders: unifiedOrders, updateOrders, removeOrder: removeUnifiedOrder } = useUnifiedOrders();
+const Tickets = ({ isClosedTicketsMode = false }: TicketsProps) => {
+  const isMobile = useIsMobile();
   const [activeFilter, setActiveFilter] = useState("All");
-  const orders = unifiedOrders;
-  const [selectedGuest, setSelectedGuest] = useState(unifiedOrders[0]);
+  const [selectedGuest, setSelectedGuest] = useState(allOrders[0]);
   const [selectedSeats, setSelectedSeats] = useState<number[]>([1, 2, 3, 4]);
   const [showMobileOrderPanel, setShowMobileOrderPanel] = useState(false);
-  const [showFilterIcons, setShowFilterIcons] = useState(false);
-  const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showMobileFilterSheet, setShowMobileFilterSheet] = useState(false);
-
-  // Advanced filter state
-  const [advFilterRevenueCenter, setAdvFilterRevenueCenter] = useState<string | null>(null);
-  const [advFilterDate, setAdvFilterDate] = useState<Date | undefined>(undefined);
-  const [advFilterEmployee, setAdvFilterEmployee] = useState<string | null>(null);
-  const [advFilterOrderType, setAdvFilterOrderType] = useState<string | null>(null);
-  const [advFilterOrderStatus, setAdvFilterOrderStatus] = useState<string | null>(null);
-  const [advFilterPaymentType, setAdvFilterPaymentType] = useState<string | null>(null);
-
-  // Per-product swipe state for ticket detail view
-  const [activeSwipedProductIndex, setActiveSwipedProductIndex] = useState<number | null>(null);
-
-  // Expanded modifiers state for product cards
-  const [expandedModifiers, setExpandedModifiers] = useState<Set<string>>(new Set());
-  const toggleModifierExpand = (key: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setExpandedModifiers(prev => {
+  const [isTipSheetOpen, setIsTipSheetOpen] = useState(false);
+  
+  // Dynamic timer state - updates every second
+  const [currentTime, setCurrentTime] = useState(new Date());
+  
+  // Update current time every second for dynamic timers
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+  
+  // Refund flow state
+  const [refundStep, setRefundStep] = useState<RefundStep | null>(null);
+  const [refundReason, setRefundReason] = useState<RefundReason>('customer-dissatisfaction');
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState(false);
+  const [selectedRefundItems, setSelectedRefundItems] = useState<RefundItem[]>([]);
+  const [selectedRefundModifiers, setSelectedRefundModifiers] = useState<RefundModifier[]>([]);
+  const [expandedRefundItems, setExpandedRefundItems] = useState<Set<number>>(new Set());
+  const [customRefundAmount, setCustomRefundAmount] = useState("");
+  const [tipRefundAmount, setTipRefundAmount] = useState("");
+  const [includeRefundTip, setIncludeRefundTip] = useState(true); // Toggle for including tip in refund
+  const [swipeRefundTarget, setSwipeRefundTarget] = useState<SwipeRefundTarget | null>(null);
+  const [refundedItems, setRefundedItems] = useState<Set<string>>(new Set()); // Track refunded items/modifiers (for swipe refunds)
+  
+  // Split payment refund state
+  const [refundAllocations, setRefundAllocations] = useState<RefundAllocation[]>([]);
+  const [useCustomAllocation, setUseCustomAllocation] = useState(false); // Toggle for custom vs proportional allocation
+  const [originalRefundType, setOriginalRefundType] = useState<RefundStep | null>(null); // Track original refund type before confirmation
+  
+  // Persisted refund records for visual indicators
+  const [refundedItemRecords, setRefundedItemRecords] = useState<RefundedItemRecord[]>([]);
+  const [refundedModifierRecords, setRefundedModifierRecords] = useState<RefundedModifierRecord[]>([]);
+  const [refundedTipRecords, setRefundedTipRecords] = useState<RefundedTipRecord[]>([]);
+  const [refundTransactionRecords, setRefundTransactionRecords] = useState<RefundTransactionRecord[]>([]);
+  
+  // State for expanded refund transactions list
+  const [expandedRefundTransactions, setExpandedRefundTransactions] = useState<Set<string>>(new Set());
+  
+  // Helper to get refund transactions for an order
+  const getRefundTransactionsForOrder = (orderId: string): RefundTransactionRecord[] => {
+    return refundTransactionRecords.filter(r => r.orderId === orderId);
+  };
+  
+  // Helper to toggle refund transactions expansion
+  const toggleRefundTransactionsExpanded = (orderId: string) => {
+    setExpandedRefundTransactions(prev => {
       const next = new Set(prev);
-      next.has(key) ? next.delete(key) : next.add(key);
+      if (next.has(orderId)) {
+        next.delete(orderId);
+      } else {
+        next.add(orderId);
+      }
       return next;
     });
   };
-
-  // Transfer Check dialog state
-  const [showTransferCheckDialog, setShowTransferCheckDialog] = useState(false);
-
-  // Discount state - same as TableOrderDetails
-  const [showDiscountDialog, setShowDiscountDialog] = useState(false);
-  const [discountDialogView, setDiscountDialogView] = useState<'mpin' | 'discounts'>('mpin');
-  const [selectedDiscountId, setSelectedDiscountId] = useState<string | null>(null);
-
-  // No Tax state - matches New Order exactly
-  const [showNoTaxDialog, setShowNoTaxDialog] = useState(false);
-  const [isTaxExempt, setIsTaxExempt] = useState(false);
-
-  // Receipt dialog state
-  const [showReceiptDialog, setShowReceiptDialog] = useState(false);
-
-  // Tip dialog state - reuses TipDialog component from Table Order
-  const [showTipDialog, setShowTipDialog] = useState(false);
-
-  // Refund state - matches Table Order flow
-  const [showRefundMode, setShowRefundMode] = useState(false);
-  const [showRefundDialog, setShowRefundDialog] = useState(false);
-
-  // Product-level refund state
-  const [refundedProducts, setRefundedProducts] = useState<Set<string>>(new Set());
-  const [showItemRefundDialog, setShowItemRefundDialog] = useState(false);
-  const [itemRefundTarget, setItemRefundTarget] = useState<{ index: number; item: OrderItem; modifierIndex?: number; modifierName?: string; modifierPrice?: number } | null>(null);
-
-  // Modifier-level refund state
-  const [refundedModifiers, setRefundedModifiers] = useState<Set<string>>(new Set());
-
-  const isPaidOrCompleted = (status: string) => status === "PAID" || status === "COMPLETED" || status === "PARTIALLY REFUNDED";
-
-  // Parse price from modifier string like "+ Extra Cheese $1.50"
-  const parseModifierPrice = (mod: string): number => {
-    const match = mod.match(/\$(\d+\.?\d*)/);
-    return match ? parseFloat(match[1]) : 0;
+  
+  // Helper to get refunded quantity for an item in an order
+  const getRefundedQtyForItem = (orderId: string, itemIndex: number): number => {
+    const record = refundedItemRecords.find(r => r.orderId === orderId && r.itemIndex === itemIndex);
+    const result = record?.refundedQty || 0;
+    return result;
   };
-
-  // Check if modifier is a priced add-on (starts with +)
-  const isRefundableModifier = (mod: string): boolean => {
-    return mod.trim().startsWith('+') && parseModifierPrice(mod) > 0;
+  
+  // Helper to check if a modifier is refunded
+  const isModifierRefunded = (orderId: string, itemIndex: number, modifierIndex: number): boolean => {
+    return refundedModifierRecords.some(r => 
+      r.orderId === orderId && r.itemIndex === itemIndex && r.modifierIndex === modifierIndex
+    );
   };
-
-  const handleProductRefundSwipe = (index: number, item: OrderItem) => {
-    setItemRefundTarget({ index, item });
-    setShowItemRefundDialog(true);
+  
+  // Helper to get refunded tip amount for an order
+  const getRefundedTipAmount = (orderId: string): number => {
+    const record = refundedTipRecords.find(r => r.orderId === orderId);
+    return record?.refundedAmount || 0;
   };
-
-  const handleModifierRefundSwipe = (itemIndex: number, item: OrderItem, modIndex: number, mod: string) => {
-    const price = parseModifierPrice(mod);
-    setItemRefundTarget({ index: itemIndex, item, modifierIndex: modIndex, modifierName: mod, modifierPrice: price });
-    setShowItemRefundDialog(true);
+  
+  
+  // Helper to calculate remaining refundable amount for an order
+  const getRemainingRefundableAmount = (guest: GuestOrder): number => {
+    const orderId = guest.id;
+    
+    // Check if all items are fully refunded
+    let allItemsFullyRefunded = true;
+    guest.items.forEach((item, index) => {
+      const refundedQty = getRefundedQtyForItem(orderId, index);
+      if (refundedQty < item.qty) {
+        allItemsFullyRefunded = false;
+      }
+    });
+    
+    // Check if all priced modifiers are refunded
+    let allModifiersRefunded = true;
+    guest.items.forEach((item, itemIndex) => {
+      if (item.richModifiers) {
+        item.richModifiers.forEach((mod, modIndex) => {
+          if (mod.price && mod.price > 0 && !isModifierRefunded(orderId, itemIndex, modIndex)) {
+            allModifiersRefunded = false;
+          }
+        });
+      }
+    });
+    
+    // Get refunded tip
+    const refundedTip = getRefundedTipAmount(orderId);
+    const tipFullyRefunded = guest.tip <= 0 || refundedTip >= guest.tip;
+    
+    // If all items, modifiers, and tip are refunded, remaining is 0
+    if (allItemsFullyRefunded && allModifiersRefunded && tipFullyRefunded) {
+      return 0;
+    }
+    
+    // If all items and modifiers are refunded but tip is not, only tip remains
+    if (allItemsFullyRefunded && allModifiersRefunded && !tipFullyRefunded) {
+      return guest.tip - refundedTip;
+    }
+    
+    // Total original amount (including tip)
+    const totalOriginal = guest.total + guest.tip;
+    
+    // Calculate refunded items amount
+    let refundedItemsAmount = 0;
+    guest.items.forEach((item, index) => {
+      const refundedQty = getRefundedQtyForItem(orderId, index);
+      refundedItemsAmount += item.price * refundedQty;
+    });
+    
+    // Calculate refunded modifiers amount
+    let refundedModifiersAmount = 0;
+    guest.items.forEach((item, itemIndex) => {
+      if (item.richModifiers) {
+        item.richModifiers.forEach((mod, modIndex) => {
+          if (mod.price && isModifierRefunded(orderId, itemIndex, modIndex)) {
+            refundedModifiersAmount += mod.price;
+          }
+        });
+      }
+    });
+    
+    // Calculate proportional tax and service charge for refunded items
+    const refundedSubtotal = refundedItemsAmount + refundedModifiersAmount;
+    const originalSubtotal = guest.subtotal;
+    const refundProportion = originalSubtotal > 0 ? refundedSubtotal / originalSubtotal : 0;
+    const proportionalTax = guest.tax * refundProportion;
+    const proportionalServiceCharge = guest.serviceCharge * refundProportion;
+    
+    // Total refunded (with proportional tax and service charge)
+    const totalRefunded = refundedItemsAmount + refundedModifiersAmount + proportionalTax + proportionalServiceCharge + refundedTip;
+    
+    return Math.max(0, totalOriginal - totalRefunded);
   };
-
-  const handleItemRefundComplete = (reason: string) => {
-    if (!itemRefundTarget || !selectedGuest) return;
-
-    // Modifier-level refund
-    if (itemRefundTarget.modifierIndex !== undefined) {
-      const modKey = `${selectedGuest.id}-${itemRefundTarget.index}-mod-${itemRefundTarget.modifierIndex}`;
-      setRefundedModifiers(prev => new Set(prev).add(modKey));
-      const refundAmount = itemRefundTarget.modifierPrice || 0;
-      const updated = {
-        ...selectedGuest,
-        total: Math.max(0, selectedGuest.total - refundAmount),
-        subtotal: Math.max(0, selectedGuest.subtotal - refundAmount),
-        status: 'PARTIALLY REFUNDED' as any,
+  
+  // Helper to calculate total refunded amount for an order (including proportional tax and service charge)
+  const getTotalRefundedAmount = (guest: GuestOrder): number => {
+    const orderId = guest.id;
+    
+    // First, check if there are transaction records - use their sum as the source of truth
+    const transactions = getRefundTransactionsForOrder(orderId);
+    if (transactions.length > 0) {
+      return transactions.reduce((sum, txn) => sum + txn.amount, 0);
+    }
+    
+    // Fallback to item-based calculation if no transaction records exist
+    // Calculate total refunded items amount (base prices)
+    let refundedItemsAmount = 0;
+    guest.items.forEach((item, index) => {
+      const refundedQty = getRefundedQtyForItem(orderId, index);
+      refundedItemsAmount += item.price * refundedQty;
+    });
+    
+    // Calculate total refunded modifiers amount
+    let refundedModifiersAmount = 0;
+    guest.items.forEach((item, itemIndex) => {
+      if (item.richModifiers) {
+        item.richModifiers.forEach((mod, modIndex) => {
+          if (mod.price && isModifierRefunded(orderId, itemIndex, modIndex)) {
+            refundedModifiersAmount += mod.price;
+          }
+        });
+      }
+    });
+    
+    // Calculate proportional tax and service charge for refunded items
+    const refundedSubtotal = refundedItemsAmount + refundedModifiersAmount;
+    const originalSubtotal = guest.subtotal; // This is before discount
+    
+    // Calculate the proportion of subtotal that was refunded
+    const refundProportion = originalSubtotal > 0 ? refundedSubtotal / originalSubtotal : 0;
+    
+    // Apply same proportion to tax and service charge
+    const proportionalTax = guest.tax * refundProportion;
+    const proportionalServiceCharge = guest.serviceCharge * refundProportion;
+    
+    // Get refunded tip
+    const refundedTip = getRefundedTipAmount(orderId);
+    
+    // Total refunded includes items, modifiers, proportional tax, proportional service charge, and tip
+    return refundedItemsAmount + refundedModifiersAmount + proportionalTax + proportionalServiceCharge + refundedTip;
+  };
+  
+  // Check if order is fully refunded (full amount + tip)
+  const isFullyRefundedOrder = (guest: GuestOrder): boolean => {
+    return getRemainingRefundableAmount(guest) <= 0 && getTotalRefundedAmount(guest) > 0;
+  };
+  
+  // Check if order is partially refunded (any refund but not full)
+  const isPartiallyRefundedOrder = (guest: GuestOrder): boolean => {
+    const totalRefunded = getTotalRefundedAmount(guest);
+    const remaining = getRemainingRefundableAmount(guest);
+    return totalRefunded > 0 && remaining > 0;
+  };
+  
+  // Get the refund status label for display
+  const getRefundStatusLabel = (guest: GuestOrder): 'FULLY REFUNDED' | 'PARTIALLY REFUNDED' | null => {
+    if (isFullyRefundedOrder(guest)) return 'FULLY REFUNDED';
+    if (isPartiallyRefundedOrder(guest)) return 'PARTIALLY REFUNDED';
+    return null;
+  };
+  
+  // Check if full refund is still available (order total not yet refunded)
+  const isFullRefundAvailable = (guest: GuestOrder): boolean => {
+    const orderId = guest.id;
+    // Calculate how much of the order (excluding tip) has been refunded
+    let refundedItemsAmount = 0;
+    guest.items.forEach((item, index) => {
+      const refundedQty = getRefundedQtyForItem(orderId, index);
+      refundedItemsAmount += item.price * refundedQty;
+    });
+    
+    let refundedModifiersAmount = 0;
+    guest.items.forEach((item, itemIndex) => {
+      if (item.richModifiers) {
+        item.richModifiers.forEach((mod, modIndex) => {
+          if (mod.price && isModifierRefunded(orderId, itemIndex, modIndex)) {
+            refundedModifiersAmount += mod.price;
+          }
+        });
+      }
+    });
+    
+    const orderOnlyRefunded = refundedItemsAmount + refundedModifiersAmount;
+    // Full refund available if less than total has been refunded
+    return orderOnlyRefunded < guest.total;
+  };
+  
+  // Check if tip refund is still available
+  const isTipRefundAvailable = (guest: GuestOrder): boolean => {
+    if (guest.tip <= 0) return false;
+    const refundedTip = getRefundedTipAmount(guest.id);
+    return refundedTip < guest.tip;
+  };
+  
+  // Get remaining tip amount that can be refunded
+  const getRemainingTipAmount = (guest: GuestOrder): number => {
+    const refundedTip = getRefundedTipAmount(guest.id);
+    return Math.max(0, guest.tip - refundedTip);
+  };
+  
+  // Check if partial/custom refund is available (any remaining amount)
+  const isPartialRefundAvailable = (guest: GuestOrder): boolean => {
+    return getRemainingRefundableAmount(guest) > 0;
+  };
+  
+  // Check if order has split payments
+  const hasSplitPayments = (guest: GuestOrder): boolean => {
+    return !!guest.paymentMethods && guest.paymentMethods.length > 1;
+  };
+  
+  // Get payment method icon based on type
+  const getPaymentMethodIcon = (type: PaymentMethod['type']): string => {
+    switch (type) {
+      case 'credit_card': return '💳';
+      case 'debit_card': return '💳';
+      case 'cash': return '💵';
+      case 'gift_card': return '🎁';
+      default: return '💳';
+    }
+  };
+  
+  // Format payment methods display for split payments
+  const formatPaymentMethodsDisplay = (guest: GuestOrder, compact: boolean = false): { primary: string; secondary?: string; full: string[] } => {
+    // If no payment methods array or single/no payment, use paymentType
+    if (!guest.paymentMethods || guest.paymentMethods.length === 0) {
+      return { primary: guest.paymentType, full: [guest.paymentType] };
+    }
+    
+    // Single payment method
+    if (guest.paymentMethods.length === 1) {
+      return { primary: guest.paymentMethods[0].label, full: [guest.paymentMethods[0].label] };
+    }
+    
+    // Multiple payment methods
+    const labels = guest.paymentMethods.map(pm => pm.label);
+    
+    if (compact) {
+      // For compact display: "Visa •••• 1234 + 2 more"
+      const remaining = labels.length - 1;
+      return {
+        primary: labels[0],
+        secondary: `+${remaining} more`,
+        full: labels
       };
-      updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updated : o));
-      setSelectedGuest(updated);
-      toast.success(`Modifier refunded: ${itemRefundTarget.modifierName}`);
-      return;
     }
-
-    // Product-level refund
-    const key = `${selectedGuest.id}-${itemRefundTarget.index}`;
-    setRefundedProducts(prev => new Set(prev).add(key));
-    const refundAmount = itemRefundTarget.item.price * itemRefundTarget.item.qty;
-    const updated = {
-      ...selectedGuest,
-      total: Math.max(0, selectedGuest.total - refundAmount),
-      subtotal: Math.max(0, selectedGuest.subtotal - refundAmount),
-      status: 'PARTIALLY REFUNDED' as any,
+    
+    // For full display: "Visa •••• 1234 + Amex •••• 9876"
+    if (labels.length === 2) {
+      return {
+        primary: `${labels[0]} + ${labels[1]}`,
+        full: labels
+      };
+    }
+    
+    // For 3+ methods: "Visa •••• 1234 + Amex •••• 9876 + 1 more"
+    return {
+      primary: `${labels[0]} + ${labels[1]}`,
+      secondary: `+${labels.length - 2} more`,
+      full: labels
     };
-    updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updated : o));
-    setSelectedGuest(updated);
-    toast.success(`${itemRefundTarget.item.name} refunded`);
   };
-  // Calculate applied discount
-  const appliedDiscount = useMemo(() => {
-    if (!selectedDiscountId || !selectedGuest) return 0;
-    const discountType = discountTypes.find(d => d.id === selectedDiscountId);
-    if (!discountType) return 0;
-    const subtotal = selectedGuest.items.filter(it => !it.isCancelled).reduce((sum, it) => sum + it.price * it.qty, 0);
-    return discountType.fixedAmount || (subtotal * ((discountType.percentage || 0) / 100));
-  }, [selectedDiscountId, selectedGuest]);
-
-  // Check if current ticket allows swipe actions (only unpaid/ordering)
-  const isTicketEditable = (status: string) =>
-    status === "ORDERING" || status === "UNPAID";
-
-  // Recalculate ticket totals from its current items (excluding cancelled ones)
-  const recalcTotals = (items: GuestOrder['items'], existingOrder: GuestOrder) => {
-    const TAX_RATE = 0.0735;
-    const SERVICE_CHARGE_RATE = 0.05;
-    const DISCOUNT_THRESHOLD = 50;
-    const DISCOUNT_AMOUNT = 5.00;
-
-    const activeItems = items.filter(it => !it.isCancelled);
-    const subtotal = activeItems.reduce((sum, it) => sum + it.price * it.qty, 0);
-    const discount = subtotal > DISCOUNT_THRESHOLD ? DISCOUNT_AMOUNT : 0;
-    const serviceCharge = subtotal * SERVICE_CHARGE_RATE;
-    // Respect per-item noTax flags AND order-level isTaxExempt
-    const taxableSubtotal = activeItems.filter(it => !it.noTax).reduce((sum, it) => sum + it.price * it.qty, 0);
-    const tax = isTaxExempt ? 0 : Math.max(0, taxableSubtotal - discount) * TAX_RATE;
-    const total = subtotal - discount + serviceCharge + tax + (existingOrder.tip ?? 0);
-
-    return { subtotal, discount, serviceCharge, tax, total };
-  };
-
-  // Toggle No Tax for a product in the selected ticket
-  const handleProductNoTax = (itemIndex: number) => {
-    const newItems = selectedGuest.items.map((it, idx) =>
-      idx === itemIndex ? { ...it, noTax: !it.noTax } : it
-    );
-    const totals = recalcTotals(newItems, selectedGuest);
-    const updated = { ...selectedGuest, items: newItems, ...totals };
-
-    updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updated : o));
-    setSelectedGuest(updated);
-    setActiveSwipedProductIndex(null);
-    toast.success("No Tax toggled for product");
-  };
-
-  // Cancel (mark as cancelled) a product in the selected ticket and recalculate totals
-  const handleProductCancel = (itemIndex: number) => {
-    const newItems = selectedGuest.items.map((it, idx) =>
-      idx === itemIndex ? { ...it, isCancelled: !it.isCancelled } : it
-    );
-    const totals = recalcTotals(newItems, selectedGuest);
-    const updated = { ...selectedGuest, items: newItems, ...totals };
-
-    updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updated : o));
-    setSelectedGuest(updated);
-    setActiveSwipedProductIndex(null);
-    const wasCancelled = selectedGuest.items[itemIndex]?.isCancelled;
-    toast.success(wasCancelled ? "Product restored" : "Product cancelled");
-  };
-
-  // Merge state
-  const [showMergeDialog, setShowMergeDialog] = useState(false);
-  const [mergeSource, setMergeSource] = useState<GuestOrder | null>(null);
-  const [mergeTarget, setMergeTarget] = useState<GuestOrder | null>(null);
-
-  // Inline Transfer flow state
-  const [transferSource, setTransferSource] = useState<GuestOrder | null>(null);
-  const [transferStep, setTransferStep] = useState<'intent' | 'active' | null>(null);
-  const [transferType, setTransferType] = useState<'items' | 'entire' | 'entireToOrder' | null>(null);
-
-  // Reset refund mode when selected guest changes; auto-enable for partially refunded
-  useEffect(() => {
-    if (selectedGuest?.status === 'PARTIALLY REFUNDED') {
-      setShowRefundMode(true);
-    } else {
-      setShowRefundMode(false);
+  
+  // Get display payment type (either formatted split or single paymentType)
+  const getDisplayPaymentType = (guest: GuestOrder): string => {
+    if (hasSplitPayments(guest)) {
+      const formatted = formatPaymentMethodsDisplay(guest, false);
+      return formatted.secondary ? `${formatted.primary} ${formatted.secondary}` : formatted.primary;
     }
-  }, [selectedGuest?.id, selectedGuest?.status]);
+    return guest.paymentType;
+  };
+  
+  // Calculate proportional refund allocation across payment methods
+  const calculateProportionalRefundAllocation = (
+    guest: GuestOrder, 
+    refundAmount: number, 
+    tipRefundAmount: number = 0
+  ): RefundAllocation[] => {
+    if (!guest.paymentMethods || guest.paymentMethods.length === 0) {
+      return [];
+    }
+    
+    // Calculate total paid (excluding tips from payment amounts since tips are tracked separately)
+    const totalPaid = guest.paymentMethods.reduce((sum, pm) => sum + pm.amount, 0);
+    const totalTip = guest.paymentMethods.reduce((sum, pm) => sum + (pm.tipAmount || 0), 0);
+    
+    return guest.paymentMethods.map(pm => {
+      // Calculate proportion for this payment method
+      const paymentProportion = pm.amount / totalPaid;
+      const tipProportion = totalTip > 0 ? (pm.tipAmount || 0) / totalTip : 0;
+      
+      return {
+        paymentMethodId: pm.id,
+        refundAmount: Math.round(refundAmount * paymentProportion * 100) / 100,
+        tipRefundAmount: Math.round(tipRefundAmount * tipProportion * 100) / 100
+      };
+    });
+  };
+  
+  // Initialize refund allocations when refund flow starts
+  const initializeRefundAllocations = (guest: GuestOrder, refundAmount: number, tipRefundAmount: number = 0) => {
+    const allocations = calculateProportionalRefundAllocation(guest, refundAmount, tipRefundAmount);
+    setRefundAllocations(allocations);
+    setUseCustomAllocation(false);
+  };
+  
+  // Update a specific payment method's refund allocation
+  const updateRefundAllocation = (paymentMethodId: string, field: 'refundAmount' | 'tipRefundAmount', value: number) => {
+    setRefundAllocations(prev => 
+      prev.map(a => 
+        a.paymentMethodId === paymentMethodId 
+          ? { ...a, [field]: value }
+          : a
+      )
+    );
+    setUseCustomAllocation(true);
+  };
+  
+  // Get total allocated refund amount
+  const getTotalAllocatedRefund = (): number => {
+    return refundAllocations.reduce((sum, a) => sum + a.refundAmount + a.tipRefundAmount, 0);
+  };
+  
+  // Validate refund allocations don't exceed payment amounts
+  const validateRefundAllocations = (guest: GuestOrder): { valid: boolean; errors: string[] } => {
+    const errors: string[] = [];
+    
+    if (!guest.paymentMethods) {
+      return { valid: true, errors: [] };
+    }
+    
+    refundAllocations.forEach(allocation => {
+      const pm = guest.paymentMethods!.find(p => p.id === allocation.paymentMethodId);
+      if (pm) {
+        if (allocation.refundAmount > pm.amount) {
+          errors.push(`Refund of ${formatPrice(allocation.refundAmount)} exceeds ${pm.label} payment of ${formatPrice(pm.amount)}`);
+        }
+        if (allocation.tipRefundAmount > (pm.tipAmount || 0)) {
+          errors.push(`Tip refund of ${formatPrice(allocation.tipRefundAmount)} exceeds ${pm.label} tip of ${formatPrice(pm.tipAmount || 0)}`);
+        }
+      }
+    });
+    
+    return { valid: errors.length === 0, errors };
+  };
+  
+  // Get refund summary for display
+  const getRefundSummary = () => {
+    const totalRefund = getTotalAllocatedRefund();
+    const itemsTotal = getPartialRefundTotal(false);
+    const tipTotal = includeRefundTip ? getRemainingTipAmount(selectedGuest) : 0;
+    
+    return {
+      itemsTotal,
+      tipTotal,
+      totalRefund: itemsTotal + tipTotal,
+      reason: refundReasons.find(r => r.value === refundReason)?.label || 'Unknown'
+    };
+  };
+  
+  const [shakeCustomAmount, setShakeCustomAmount] = useState(false); // Shake animation for custom refund
+  const [shakeTipAmount, setShakeTipAmount] = useState(false); // Shake animation for tip refund
+  const [showFilterPanel, setShowFilterPanel] = useState(false); // Filter panel visibility (desktop/tablet)
+  const [showSearchInput, setShowSearchInput] = useState(false); // Search input visibility
+  const [searchQuery, setSearchQuery] = useState(""); // Search query
+  const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false); // Mobile filters bottom sheet
+  const [isReceiptDialogOpen, setIsReceiptDialogOpen] = useState(false); // Receipt options dialog
+  const [isDiscountDialogOpen, setIsDiscountDialogOpen] = useState(false); // Discount dialog
+  const [showRefundConfirmation, setShowRefundConfirmation] = useState(false); // Refund confirmation dialog
+  const [appliedDiscounts, setAppliedDiscounts] = useState<Discount[]>([]); // Applied discounts
+  const [noTaxItems, setNoTaxItems] = useState<Set<string>>(new Set()); // Items with no tax applied
+  const [removedItems, setRemovedItems] = useState<Set<string>>(new Set()); // Items removed from order
+  const [isClearDialogOpen, setIsClearDialogOpen] = useState(false); // Clear order confirmation dialog
+  
+  // Calculate adjusted totals based on no-tax and removed items
+  const calculateAdjustedTotals = (guest: GuestOrder) => {
+    const TAX_RATE = guest.tax / (guest.subtotal - guest.discount); // Calculate effective tax rate
+    let noTaxSubtotal = 0;
+    let removedSubtotal = 0;
+    
+    guest.items.forEach((item, index) => {
+      const itemKey = `${guest.id}-${index}-${item.name}`;
+      const itemTotal = item.price * item.qty;
+      
+      if (removedItems.has(itemKey)) {
+        removedSubtotal += itemTotal;
+      } else if (noTaxItems.has(itemKey)) {
+        noTaxSubtotal += itemTotal;
+      }
+    });
+    
+    const adjustedSubtotal = guest.subtotal - removedSubtotal;
+    const taxableAmount = adjustedSubtotal - guest.discount - noTaxSubtotal;
+    const adjustedTax = Math.max(0, taxableAmount * TAX_RATE);
+    const taxSavings = guest.tax - adjustedTax;
+    const adjustedTotal = guest.total - taxSavings - removedSubtotal;
+    
+    return {
+      originalTax: guest.tax,
+      adjustedTax,
+      taxSavings,
+      originalTotal: guest.total,
+      adjustedTotal,
+      adjustedSubtotal,
+      removedSubtotal,
+      hasNoTaxItems: noTaxSubtotal > 0,
+      hasRemovedItems: removedSubtotal > 0
+    };
+  };
+  
+  // Handle clearing/voiding the current order
+  const handleClearOrder = () => {
+    // Mark all items as removed for the current order
+    const newRemovedItems = new Set(removedItems);
+    selectedGuest.items.forEach((item, index) => {
+      const itemKey = `${selectedGuest.id}-${index}-${item.name}`;
+      newRemovedItems.add(itemKey);
+    });
+    setRemovedItems(newRemovedItems);
+    // Clear any no-tax items for this order
+    const newNoTaxItems = new Set(noTaxItems);
+    selectedGuest.items.forEach((item, index) => {
+      const itemKey = `${selectedGuest.id}-${index}-${item.name}`;
+      newNoTaxItems.delete(itemKey);
+    });
+    setNoTaxItems(newNoTaxItems);
+    setIsClearDialogOpen(false);
+  };
+  
+  // Order notes state - stores updated notes by order ID
+  const [orderNotes, setOrderNotes] = useState<{ [orderId: string]: string }>({});
+  
+  // Guest info state - stores updated name/phone by order ID
+  const [guestInfo, setGuestInfo] = useState<{ [orderId: string]: { name: string; phone: string } }>({});
+  
+  // Format phone number for display
+  const formatPhoneNumber = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+    if (digits.length === 0) return '';
+    if (digits.length <= 3) return `(${digits}`;
+    if (digits.length <= 6) return `(${digits.slice(0, 3)}) ${digits.slice(3)}`;
+    return `(${digits.slice(0, 3)}) ${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+  };
+  
+  // Get current guest info (use updated info if available, otherwise original)
+  const getCurrentGuestName = (orderId: string, originalName: string) => {
+    return guestInfo[orderId]?.name !== undefined ? guestInfo[orderId].name : originalName;
+  };
+  
+  const getCurrentGuestPhone = (orderId: string, originalPhone: string) => {
+    return guestInfo[orderId]?.phone !== undefined ? guestInfo[orderId].phone : originalPhone.replace(/\D/g, '');
+  };
+  
+  // Handle guest name change
+  const handleGuestNameChange = (orderId: string, newName: string) => {
+    setGuestInfo(prev => ({
+      ...prev,
+      [orderId]: {
+        ...prev[orderId],
+        name: newName,
+        phone: prev[orderId]?.phone ?? ''
+      }
+    }));
+  };
+  
+  // Handle guest phone change
+  const handleGuestPhoneChange = (orderId: string, newPhone: string) => {
+    setGuestInfo(prev => ({
+      ...prev,
+      [orderId]: {
+        ...prev[orderId],
+        name: prev[orderId]?.name ?? '',
+        phone: newPhone.replace(/\D/g, '')
+      }
+    }));
+  };
+  
+  // Get current notes for selected guest (use updated notes if available, otherwise original)
+  const getCurrentNotes = (orderId: string, originalNotes: string) => {
+    return orderNotes[orderId] !== undefined ? orderNotes[orderId] : originalNotes;
+  };
+  
+  // Check if order can have notes edited (ORDERING or UNPAID status)
+  const canEditNotes = (status: string) => {
+    return status === "ORDERING" || status === "UNPAID";
+  };
+  
+  // Handle notes change - update immediately
+  const handleNotesChange = (orderId: string, newNotes: string) => {
+    setOrderNotes(prev => ({
+      ...prev,
+      [orderId]: newNotes
+    }));
+  };
+  
+  // Notes suggestion state
+  const [notesFocused, setNotesFocused] = useState(false);
+  const [notesSearchTerm, setNotesSearchTerm] = useState("");
+  
+  // Get recent notes from all orders (excluding current order)
+  const recentNotes = useMemo(() => {
+    return allOrders
+      .filter(order => order.notes && order.notes.trim().length > 0)
+      .map(order => order.notes);
+  }, []);
+  
+  // Handle note suggestion selection - replace the current search term with the suggestion
+  const handleNoteSuggestionSelect = (orderId: string, currentNotes: string, suggestion: string) => {
+    // Remove the currently typed search term and replace with the suggestion
+    if (notesSearchTerm && currentNotes.endsWith(notesSearchTerm)) {
+      // Remove the search term from the end and add the suggestion
+      const baseNotes = currentNotes.slice(0, currentNotes.length - notesSearchTerm.length).replace(/[,\s]+$/, '');
+      const newNotes = baseNotes ? `${baseNotes}, ${suggestion}` : suggestion;
+      handleNotesChange(orderId, newNotes);
+    } else if (currentNotes) {
+      // If no search term or notes don't end with it, append the suggestion
+      const newNotes = `${currentNotes}, ${suggestion}`;
+      handleNotesChange(orderId, newNotes);
+    } else {
+      handleNotesChange(orderId, suggestion);
+    }
+    setNotesSearchTerm("");
+  };
+  
+  // Handle notes input change with search term tracking
+  const handleNotesInputChange = (orderId: string, value: string, originalNotes: string) => {
+    handleNotesChange(orderId, value);
+    // Track the last word being typed for suggestions
+    const words = value.split(/[,\s]+/);
+    const lastWord = words[words.length - 1] || "";
+    setNotesSearchTerm(lastWord);
+  };
+  
 
+  const [mobileFilters, setMobileFilters] = useState<MobileFiltersState>({
+    revenueCenter: null,
+    datePreset: 'today',
+    customDateStart: undefined,
+    customDateEnd: undefined,
+    employee: null,
+    orderType: null,
+    orderStatus: null,
+    paymentType: null,
+  });
+  
+  // Advanced filter states (for desktop/tablet)
+  const [activeFilterPopover, setActiveFilterPopover] = useState<string | null>(null);
+  const [filterRevenueCenter, setFilterRevenueCenter] = useState<string | null>(null);
+  const [filterDate, setFilterDate] = useState<Date | undefined>(undefined);
+  const [filterEmployee, setFilterEmployee] = useState<string | null>(null);
+  const [filterOrderType, setFilterOrderType] = useState<string | null>(null);
+  const [filterOrderStatus, setFilterOrderStatus] = useState<string | null>(null);
+  const [filterPaymentType, setFilterPaymentType] = useState<string | null>(null);
+  
+  // Get unique values for filter options
+  const filterOptions = useMemo(() => ({
+    revenueCenters: [...new Set(allOrders.map(o => o.revenueCenter))],
+    employees: [...new Set(allOrders.map(o => o.server))],
+    orderTypes: [...new Set(allOrders.map(o => o.orderType))],
+    orderStatuses: [...new Set(allOrders.map(o => o.status))],
+    paymentTypes: [...new Set(allOrders.filter(o => o.paymentType !== "--").map(o => o.paymentType)), "Unpaid"],
+  }), []);
+  
+  // Check if any advanced filter is active (desktop/tablet)
+  const hasActiveFilters = filterRevenueCenter || filterDate || filterEmployee || filterOrderType || filterOrderStatus || filterPaymentType;
+  
+  // Check if any mobile filter is active
+  const hasMobileActiveFilters = 
+    mobileFilters.revenueCenter !== null ||
+    mobileFilters.datePreset !== 'today' ||
+    mobileFilters.employee !== null ||
+    mobileFilters.orderType !== null ||
+    mobileFilters.orderStatus !== null ||
+    mobileFilters.paymentType !== null;
+  
+  // Clear all advanced filters (desktop/tablet)
+  const clearAllFilters = () => {
+    setFilterRevenueCenter(null);
+    setFilterDate(undefined);
+    setFilterEmployee(null);
+    setFilterOrderType(null);
+    setFilterOrderStatus(null);
+    setFilterPaymentType(null);
+  };
+  
+  // Handle mobile filters apply
+  const handleMobileFiltersApply = (filters: MobileFiltersState) => {
+    setMobileFilters(filters);
+  };
+
+  const handleTipSelect = (tipAmount: number) => {
+    // tipAmount is the ADDITIONAL tip to add (additive model)
+    if (tipAmount > 0) {
+      const existingTip = selectedGuest.tip;
+      const newTotalTip = existingTip + tipAmount;
+      setSelectedGuest(prev => ({ ...prev, tip: newTotalTip }));
+    }
+    // If tipAmount is 0 (No Tip selected), keep existing tip unchanged
+  };
+
+  // Refund flow handlers
+  const handleCloseTicket = () => {
+    setRefundStep('closed');
+  };
+
+  const handleOpenRefundModal = () => {
+    setIsRefundModalOpen(true);
+    setRefundStep('type-selection');
+  };
+
+  const handleSelectRefundType = (type: 'full' | 'partial' | 'tip' | 'custom') => {
+    if (type === 'full') {
+      // Initialize allocations for split payments
+      const refundAmount = selectedGuest.total;
+      const tipAmount = includeRefundTip ? selectedGuest.tip : 0;
+      if (hasSplitPayments(selectedGuest)) {
+        initializeRefundAllocations(selectedGuest, refundAmount, tipAmount);
+      }
+      setRefundStep('full-refund');
+    } else if (type === 'partial') {
+      setSelectedRefundItems([]);
+      setSelectedRefundModifiers([]);
+      setExpandedRefundItems(new Set());
+      setRefundAllocations([]);
+      setRefundStep('partial-refund');
+    } else if (type === 'tip') {
+      // Initialize with full tip amount
+      setTipRefundAmount(getRemainingTipAmount(selectedGuest).toFixed(2));
+      if (hasSplitPayments(selectedGuest)) {
+        initializeRefundAllocations(selectedGuest, 0, getRemainingTipAmount(selectedGuest));
+      }
+      setRefundStep('tip-refund');
+    } else if (type === 'custom') {
+      setCustomRefundAmount("");
+      setRefundAllocations([]);
+      setRefundStep('custom-refund');
+    }
+  };
+
+  const handleKeypadInput = (key: string) => {
+    if (key === 'backspace') {
+      setCustomRefundAmount(prev => prev.slice(0, -1));
+    } else if (key === 'clear') {
+      setCustomRefundAmount("");
+    } else if (key === '.') {
+      // Only allow one decimal point
+      if (!customRefundAmount.includes('.')) {
+        setCustomRefundAmount(prev => prev + '.');
+      }
+    } else {
+      // Limit to 2 decimal places
+      const parts = customRefundAmount.split('.');
+      if (parts[1] && parts[1].length >= 2) return;
+      // Limit total length
+      if (customRefundAmount.length >= 8) return;
+      // Don't allow exceeding max refund amount
+      const newValue = customRefundAmount + key;
+      if (parseFloat(newValue) > selectedGuest.total) {
+        setShakeCustomAmount(true);
+        setTimeout(() => setShakeCustomAmount(false), 400);
+        return;
+      }
+      setCustomRefundAmount(newValue);
+    }
+  };
+
+  const getCustomRefundValue = () => {
+    const value = parseFloat(customRefundAmount) || 0;
+    return Math.min(value, selectedGuest.total);
+  };
+
+  const isCustomAmountValid = () => {
+    const value = getCustomRefundValue();
+    return value > 0 && value <= selectedGuest.total;
+  };
+
+  // Tip refund helpers
+  const handleTipKeypadInput = (key: string) => {
+    if (key === 'backspace') {
+      setTipRefundAmount(prev => prev.slice(0, -1));
+    } else if (key === 'clear') {
+      setTipRefundAmount("");
+    } else if (key === '.') {
+      if (!tipRefundAmount.includes('.')) {
+        setTipRefundAmount(prev => prev + '.');
+      }
+    } else {
+      const parts = tipRefundAmount.split('.');
+      if (parts[1] && parts[1].length >= 2) return;
+      if (tipRefundAmount.length >= 8) return;
+      // Don't allow exceeding max tip amount
+      const newValue = tipRefundAmount + key;
+      if (parseFloat(newValue) > selectedGuest.tip) {
+        setShakeTipAmount(true);
+        setTimeout(() => setShakeTipAmount(false), 400);
+        return;
+      }
+      setTipRefundAmount(newValue);
+    }
+  };
+
+  const getTipRefundValue = () => {
+    const value = parseFloat(tipRefundAmount) || 0;
+    return Math.min(value, selectedGuest.tip);
+  };
+
+  const isTipAmountValid = () => {
+    const value = getTipRefundValue();
+    return value > 0 && value <= selectedGuest.tip;
+  };
+
+  const toggleRefundItem = (index: number, item: OrderItem) => {
+    // Calculate remaining refundable quantity
+    const refundedQty = getRefundedQtyForItem(selectedGuest.id, index);
+    const remainingQty = item.qty - refundedQty;
+    
+    // Don't allow selecting fully refunded items
+    if (remainingQty <= 0) return;
+    
+    setSelectedRefundItems(prev => {
+      const existing = prev.find(r => r.index === index);
+      if (existing) {
+        // Remove item
+        return prev.filter(r => r.index !== index);
+      } else {
+        // Add item with remaining refundable quantity
+        return [...prev, {
+          index,
+          qty: remainingQty,
+          maxQty: remainingQty,
+          name: item.name,
+          unitPrice: item.price
+        }];
+      }
+    });
+  };
+
+  const updateRefundItemQty = (index: number, newQty: number) => {
+    setSelectedRefundItems(prev => 
+      prev.map(item => 
+        item.index === index 
+          ? { ...item, qty: Math.max(1, Math.min(newQty, item.maxQty)) }
+          : item
+      )
+    );
+  };
+
+  const getPartialRefundTotal = (includeTip: boolean = false) => {
+    const itemsTotal = selectedRefundItems.reduce((sum, item) => sum + (item.unitPrice * item.qty), 0);
+    const modifiersTotal = selectedRefundModifiers.reduce((sum, mod) => sum + mod.price, 0);
+    // Use remaining tip amount instead of full tip
+    const tipAmount = includeTip && selectedGuest ? getRemainingTipAmount(selectedGuest) : 0;
+    return itemsTotal + modifiersTotal + tipAmount;
+  };
+
+  // Toggle expansion of item to show modifiers
+  const toggleItemExpansion = (index: number) => {
+    setExpandedRefundItems(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
+    });
+  };
+
+  // Toggle modifier selection for refund
+  const toggleRefundModifier = (itemIndex: number, modifierIndex: number, modifier: ModifierItem) => {
+    if (!modifier.price || modifier.price <= 0) return; // Can't refund free modifiers
+    
+    // Don't allow selecting already-refunded modifiers
+    if (isModifierRefunded(selectedGuest.id, itemIndex, modifierIndex)) return;
+    
+    setSelectedRefundModifiers(prev => {
+      const existing = prev.find(m => m.itemIndex === itemIndex && m.modifierIndex === modifierIndex);
+      if (existing) {
+        return prev.filter(m => !(m.itemIndex === itemIndex && m.modifierIndex === modifierIndex));
+      } else {
+        return [...prev, {
+          itemIndex,
+          modifierIndex,
+          name: modifier.text,
+          price: modifier.price
+        }];
+      }
+    });
+  };
+
+  // Check if modifier is selected for refund
+  const isModifierSelectedForRefund = (itemIndex: number, modifierIndex: number) => {
+    return selectedRefundModifiers.some(m => m.itemIndex === itemIndex && m.modifierIndex === modifierIndex);
+  };
+
+  // Get count of selected modifiers for an item
+  const getSelectedModifiersCount = (itemIndex: number) => {
+    return selectedRefundModifiers.filter(m => m.itemIndex === itemIndex).length;
+  };
+
+  // Get total selections count (items + modifiers)
+  const getTotalRefundSelectionsCount = () => {
+    return selectedRefundItems.length + selectedRefundModifiers.length;
+  };
+
+  const handleProceedRefund = () => {
+    // Save the original refund type before changing to confirmation
+    setOriginalRefundType(refundStep);
+    
+    // For split payments, initialize allocations and go to confirmation
+    if (hasSplitPayments(selectedGuest)) {
+      let refundAmount = 0;
+      let tipAmount = 0;
+      
+      if (refundStep === 'full-refund') {
+        refundAmount = selectedGuest.total;
+        tipAmount = includeRefundTip ? selectedGuest.tip : 0;
+      } else if (refundStep === 'partial-refund') {
+        refundAmount = getPartialRefundTotal(false);
+        tipAmount = includeRefundTip ? getRemainingTipAmount(selectedGuest) : 0;
+      } else if (refundStep === 'tip-refund') {
+        refundAmount = 0;
+        tipAmount = getTipRefundValue();
+      } else if (refundStep === 'custom-refund') {
+        refundAmount = getCustomRefundValue();
+        tipAmount = 0;
+      } else if (refundStep === 'item-refund' && swipeRefundTarget) {
+        refundAmount = swipeRefundTarget.price;
+        tipAmount = 0;
+      }
+      
+      // Only reinitialize if allocations are empty (first time)
+      if (refundAllocations.length === 0) {
+        initializeRefundAllocations(selectedGuest, refundAmount, tipAmount);
+      }
+      
+      setRefundStep('confirmation');
+    } else {
+      // For single payment orders, also go to confirmation step (not AppleAlertDialog)
+      setRefundStep('confirmation');
+    }
+  };
+
+  const handleConfirmRefund = () => {
+    setShowRefundConfirmation(false);
+    const orderId = selectedGuest.id;
+    
+    // Handle item-refund (swipe refund) case
+    if (swipeRefundTarget) {
+      setRefundedItems(prev => new Set([...prev, swipeRefundTarget.id]));
+      
+      // Also persist as a record if it's an item (for proper visual indicator)
+      if (swipeRefundTarget.type === 'item') {
+        // Parse the item index from the id format: item-{index}-{name}
+        const match = swipeRefundTarget.id.match(/^item-(\d+)-/);
+        if (match) {
+          const itemIndex = parseInt(match[1], 10);
+          const item = selectedGuest.items[itemIndex];
+          if (item) {
+            setRefundedItemRecords(prev => {
+              const existing = prev.find(r => r.orderId === orderId && r.itemIndex === itemIndex);
+              if (existing) {
+                // Full refund - set to max qty
+                return prev.map(r => 
+                  r.orderId === orderId && r.itemIndex === itemIndex
+                    ? { ...r, refundedQty: r.maxQty }
+                    : r
+                );
+              } else {
+                return [...prev, {
+                  orderId,
+                  itemIndex,
+                  refundedQty: item.qty,
+                  maxQty: item.qty,
+                  itemName: item.name
+                }];
+              }
+            });
+          }
+        }
+      } else if (swipeRefundTarget.type === 'modifier') {
+        // Parse modifier info from id format: mod-{itemIndex}-{modIndex}-{name}
+        const match = swipeRefundTarget.id.match(/^mod-(\d+)-(\d+)-/);
+        if (match) {
+          const itemIndex = parseInt(match[1], 10);
+          const modifierIndex = parseInt(match[2], 10);
+          setRefundedModifierRecords(prev => {
+            const exists = prev.some(r => 
+              r.orderId === orderId && r.itemIndex === itemIndex && r.modifierIndex === modifierIndex
+            );
+            if (!exists) {
+              return [...prev, {
+                orderId,
+                itemIndex,
+                modifierIndex,
+                modifierName: swipeRefundTarget.name
+              }];
+            }
+            return prev;
+          });
+        }
+      }
+    }
+    
+    // Handle partial refund - persist selected items with quantities
+    if (selectedRefundItems.length > 0) {
+      selectedRefundItems.forEach(refundItem => {
+        setRefundedItemRecords(prev => {
+          const existing = prev.find(r => r.orderId === orderId && r.itemIndex === refundItem.index);
+          if (existing) {
+            // Add to existing refunded qty
+            const newQty = Math.min(existing.refundedQty + refundItem.qty, refundItem.maxQty);
+            return prev.map(r => 
+              r.orderId === orderId && r.itemIndex === refundItem.index
+                ? { ...r, refundedQty: newQty }
+                : r
+            );
+          } else {
+            return [...prev, {
+              orderId,
+              itemIndex: refundItem.index,
+              refundedQty: refundItem.qty,
+              maxQty: refundItem.maxQty,
+              itemName: refundItem.name
+            }];
+          }
+        });
+      });
+    }
+    
+    // Handle partial refund - persist selected modifiers
+    if (selectedRefundModifiers.length > 0) {
+      selectedRefundModifiers.forEach(refundMod => {
+        setRefundedModifierRecords(prev => {
+          const exists = prev.some(r => 
+            r.orderId === orderId && r.itemIndex === refundMod.itemIndex && r.modifierIndex === refundMod.modifierIndex
+          );
+          if (!exists) {
+            return [...prev, {
+              orderId,
+              itemIndex: refundMod.itemIndex,
+              modifierIndex: refundMod.modifierIndex,
+              modifierName: refundMod.name
+            }];
+          }
+          return prev;
+        });
+      });
+    }
+    
+    // Handle tip refund
+    if (tipRefundAmount && parseFloat(tipRefundAmount) > 0) {
+      const tipAmount = getTipRefundValue();
+      setRefundedTipRecords(prev => {
+        const existing = prev.find(r => r.orderId === orderId);
+        if (existing) {
+          // Add to existing refunded tip
+          const newAmount = Math.min(existing.refundedAmount + tipAmount, existing.originalTip);
+          return prev.map(r => 
+            r.orderId === orderId
+              ? { ...r, refundedAmount: newAmount }
+              : r
+          );
+        } else {
+          return [...prev, {
+            orderId,
+            refundedAmount: tipAmount,
+            originalTip: selectedGuest.tip
+          }];
+        }
+      });
+    }
+    
+    // Use originalRefundType since refundStep will be 'confirmation' at this point
+    const effectiveRefundType = originalRefundType || refundStep;
+    
+    // Handle full refund - mark all items as fully refunded in a single state update
+    if (effectiveRefundType === 'full-refund') {
+      // Update all item records in a single state update to avoid React batching issues
+      setRefundedItemRecords(prev => {
+        const newRecords = [...prev];
+        selectedGuest.items.forEach((item, index) => {
+          const existingIdx = newRecords.findIndex(
+            r => r.orderId === orderId && r.itemIndex === index
+          );
+          if (existingIdx === -1) {
+            newRecords.push({
+              orderId,
+              itemIndex: index,
+              refundedQty: item.qty,
+              maxQty: item.qty,
+              itemName: item.name
+            });
+          } else {
+            newRecords[existingIdx] = {
+              ...newRecords[existingIdx],
+              refundedQty: newRecords[existingIdx].maxQty
+            };
+          }
+        });
+        return newRecords;
+      });
+
+      // Update all modifier records in a single state update
+      setRefundedModifierRecords(prev => {
+        const newRecords = [...prev];
+        selectedGuest.items.forEach((item, index) => {
+          if (item.richModifiers) {
+            item.richModifiers.forEach((mod, modIndex) => {
+              const exists = newRecords.some(
+                r => r.orderId === orderId && r.itemIndex === index && r.modifierIndex === modIndex
+              );
+              if (!exists) {
+                newRecords.push({
+                  orderId,
+                  itemIndex: index,
+                  modifierIndex: modIndex,
+                  modifierName: mod.text
+                });
+              }
+            });
+          }
+        });
+        return newRecords;
+      });
+      
+      // Refund tip if toggle is enabled - single state update
+      if (selectedGuest.tip > 0 && includeRefundTip) {
+        setRefundedTipRecords(prev => {
+          const existingIdx = prev.findIndex(r => r.orderId === orderId);
+          if (existingIdx === -1) {
+            return [...prev, {
+              orderId,
+              refundedAmount: selectedGuest.tip,
+              originalTip: selectedGuest.tip
+            }];
+          } else {
+            const newRecords = [...prev];
+            newRecords[existingIdx] = {
+              ...newRecords[existingIdx],
+              refundedAmount: newRecords[existingIdx].originalTip
+            };
+            return newRecords;
+          }
+        });
+      }
+    }
+    
+    // Handle partial refund tip if toggle is enabled and tip is available
+    if (effectiveRefundType === 'partial-refund' && includeRefundTip && isTipRefundAvailable(selectedGuest)) {
+      const remainingTip = getRemainingTipAmount(selectedGuest);
+      setRefundedTipRecords(prev => {
+        const existing = prev.find(r => r.orderId === orderId);
+        if (!existing) {
+          return [...prev, {
+            orderId,
+            refundedAmount: remainingTip,
+            originalTip: selectedGuest.tip
+          }];
+        } else {
+          // Add remaining tip to existing refunded amount
+          const newAmount = Math.min(existing.refundedAmount + remainingTip, existing.originalTip);
+          return prev.map(r => 
+            r.orderId === orderId
+              ? { ...r, refundedAmount: newAmount }
+              : r
+          );
+        }
+      });
+    }
+    
+    // Record the refund transaction(s)
+    if (hasSplitPayments(selectedGuest) && refundAllocations.length > 0) {
+      // For split payments, record a transaction for each payment method that has a refund
+      const newTransactions: RefundTransactionRecord[] = [];
+      refundAllocations.forEach(allocation => {
+        const totalRefund = allocation.refundAmount + allocation.tipRefundAmount;
+        if (totalRefund > 0) {
+          const pm = selectedGuest.paymentMethods?.find(p => p.id === allocation.paymentMethodId);
+          if (pm) {
+            newTransactions.push({
+              id: `refund-${orderId}-${pm.id}-${Date.now()}`,
+              orderId,
+              amount: totalRefund,
+              paymentMethod: pm.label,
+              paymentType: pm.type,
+              timestamp: new Date()
+            });
+          }
+        }
+      });
+      if (newTransactions.length > 0) {
+        setRefundTransactionRecords(prev => [...prev, ...newTransactions]);
+      }
+    } else {
+      // For single payment orders, record a single transaction
+      const refundAmount = getRefundDisplayAmount();
+      const pm = selectedGuest.paymentMethods?.[0];
+      const paymentMethod = pm?.label || selectedGuest.paymentType;
+      const paymentType = pm?.type || 'credit_card';
+      
+      setRefundTransactionRecords(prev => [...prev, {
+        id: `refund-${orderId}-${Date.now()}`,
+        orderId,
+        amount: refundAmount,
+        paymentMethod: paymentMethod === 'Split Payment' ? 'Credit Card' : paymentMethod,
+        paymentType: paymentType as 'credit_card' | 'cash' | 'gift_card' | 'debit_card',
+        timestamp: new Date()
+      }]);
+    }
+    
+    // Reset originalRefundType after processing
+    setOriginalRefundType(null);
+    
+    setRefundStep('success');
+    // User will manually close the success screen
+  };
+
+  const getRefundDisplayAmount = () => {
+    if (tipRefundAmount && parseFloat(tipRefundAmount) > 0) {
+      return getTipRefundValue();
+    }
+    if (customRefundAmount && parseFloat(customRefundAmount) > 0) {
+      return getCustomRefundValue();
+    }
+    if (selectedRefundItems.length > 0 || selectedRefundModifiers.length > 0) {
+      return getPartialRefundTotal(includeRefundTip);
+    }
+    return selectedGuest.total;
+  };
+
+  const handleCancelRefund = () => {
+    setIsRefundModalOpen(false);
+    // Reset to 'closed' if viewing a paid ticket so swipe refund remains available for other items
+    const isPaidTicket = selectedGuest && (selectedGuest.status === "PAID" || selectedGuest.paid);
+    setRefundStep(isPaidTicket ? 'closed' : null);
+    setRefundReason('customer-dissatisfaction');
+    setSelectedRefundItems([]);
+    setSelectedRefundModifiers([]);
+    setExpandedRefundItems(new Set());
+    setCustomRefundAmount("");
+    setTipRefundAmount("");
+    setIncludeRefundTip(true);
+    setSwipeRefundTarget(null);
+    setRefundAllocations([]);
+    setUseCustomAllocation(false);
+  };
+
+  // Handler for swipe-initiated item/modifier refund
+  const handleSwipeRefund = (target: SwipeRefundTarget) => {
+    setSwipeRefundTarget(target);
+    setRefundReason('customer-dissatisfaction');
+    setIsRefundModalOpen(true);
+    setRefundStep('item-refund');
+  };
+
+  const refundReasons = [
+    { value: 'customer-dissatisfaction', label: 'Customer Dissatisfaction' },
+    { value: 'order-error', label: 'Order Error' },
+    { value: 'quality-issue', label: 'Quality Issue' },
+    { value: 'wrong-order', label: 'Wrong Order Delivered' },
+    { value: 'other', label: 'Other' },
+  ] as const;
+
+  const tipRefundReasons = [
+    { value: 'wrong-tip-amount', label: 'Wrongly Given High Tip Amount' },
+    { value: 'accidental-tip', label: 'Accidental Tip Entry' },
+    { value: 'customer-requested', label: 'Customer Requested Tip Refund' },
+    { value: 'tip-adjustment', label: 'Tip Adjustment Required' },
+    { value: 'other', label: 'Other' },
+  ] as const;
 
   // Swipe state for mobile cards
   const [swipeStates, setSwipeStates] = useState<Record<string, number>>({});
@@ -467,9 +1964,8 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
     const guest = guestOverride ?? currentGuest.current;
     const cardId = currentCardId.current ?? guest?.id ?? null;
     const isInteractive = isInteractiveElement(e?.target ?? null);
-    const wasSwipedOpen = cardId ? (swipeStatesRef.current[cardId] ?? 0) < -20 : false;
-    const didSwipe = hasMoved.current;
-
+    const didMove = hasMoved.current;
+    
     if (cardId && !isInteractive) {
       const currentX = swipeStatesRef.current[cardId] ?? 0;
       const snapTo = currentX < swipeWidth / 2 ? swipeWidth : 0;
@@ -478,14 +1974,16 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
     isDraggingRef.current = false;
     currentCardId.current = null;
     currentGuest.current = null;
+    hasMoved.current = false;
 
-    if (triggerTap && !didSwipe && guest && !isInteractive && !wasSwipedOpen) {
+    // Only open panel if it was a tap (no movement) and not on interactive element
+    if (triggerTap && !didMove && guest && !isInteractive) {
       suppressNextClickRef.current = true;
       handleMobileOrderClick(guest);
-    } else {
+    } else if (didMove) {
+      // If user swiped, suppress the next click to prevent panel from opening
       suppressNextClickRef.current = true;
     }
-    hasMoved.current = false;
   };
 
   const handleCardClick = (guest: GuestOrder) => {
@@ -498,80 +1996,121 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "ORDERING": return "text-orange-400";
-      case "PAID": return "text-green-500";
+      case "ORDERING": return "text-[#F87171]";
+      case "PAID": return "text-amber-500";
       case "UNPAID": return "text-red-400";
-      case "COMPLETED": return "text-green-500";
+      case "COMPLETED": return "text-amber-500";
+      case "FULLY REFUNDED": return "text-red-400";
+      case "PARTIALLY REFUNDED": return "text-orange-400";
       default: return "text-white";
     }
   };
+  
+  // Get display status for a guest order (accounts for refund state)
+  const getDisplayStatus = (guest: GuestOrder): string => {
+    const refundStatus = getRefundStatusLabel(guest);
+    if (refundStatus) return refundStatus;
+    return guest.status;
+  };
 
   const getFilterCount = (filter: string) => {
-    if (filter === "All") return orders.length;
-    if (filter === "Open") return orders.filter(g => g.status === "ORDERING").length;
-    if (filter === "Completed") return orders.filter(g => g.status === "COMPLETED").length;
-    if (filter === "Paid") return orders.filter(g => g.status === "PAID" || g.paymentType !== "--").length;
-    if (filter === "Unpaid") return orders.filter(g => g.status === "UNPAID" || g.paymentType === "--").length;
+    if (filter === "All") return allOrders.length;
+    if (filter === "Open") return allOrders.filter(g => g.status === "ORDERING").length;
+    if (filter === "Completed") return allOrders.filter(g => g.status === "COMPLETED").length;
+    if (filter === "Paid") return allOrders.filter(g => g.status === "PAID" || g.paymentType !== "--").length;
+    if (filter === "Unpaid") return allOrders.filter(g => g.status === "UNPAID" || g.paymentType === "--").length;
     return 0;
   };
 
-  const filteredOrders = (() => {
-    let filtered = activeFilter === "All" ? orders : orders.filter(guest => {
-      switch (activeFilter) {
-        case "Open": return guest.status === "ORDERING";
-        case "Completed": return guest.status === "COMPLETED";
-        case "Paid": return guest.status === "PAID" || guest.paymentType !== "--";
-        case "Unpaid": return guest.status === "UNPAID" || guest.paymentType === "--";
-        default: return true;
-      }
+  // Filter orders by status, search query, and advanced filters (desktop/tablet)
+  const filteredOrders = allOrders.filter(guest => {
+    let matchesStatus = true;
+    switch (activeFilter) {
+      case "Open": matchesStatus = guest.status === "ORDERING"; break;
+      case "Completed": matchesStatus = guest.status === "COMPLETED"; break;
+      case "Paid": matchesStatus = guest.status === "PAID" || guest.paymentType !== "--"; break;
+      case "Unpaid": matchesStatus = guest.status === "UNPAID" || guest.paymentType === "--"; break;
+      default: matchesStatus = true;
+    }
+    if (!matchesStatus) return false;
+    if (filterRevenueCenter && guest.revenueCenter !== filterRevenueCenter) return false;
+    if (filterEmployee && guest.server !== filterEmployee) return false;
+    if (filterOrderType && guest.orderType !== filterOrderType) return false;
+    if (filterOrderStatus && guest.status !== filterOrderStatus) return false;
+    if (filterPaymentType) {
+      if (filterPaymentType === "Unpaid" && guest.paymentType !== "--") return false;
+      if (filterPaymentType !== "Unpaid" && guest.paymentType !== filterPaymentType) return false;
+    }
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase().trim();
+    return guest.name.toLowerCase().includes(query) || guest.id.toLowerCase().includes(query) || (guest.check !== "--" && guest.check.toLowerCase().includes(query));
+  });
+
+  // Mobile filtered orders (uses mobileFilters state)
+  const mobileFilteredOrders = allOrders.filter(guest => {
+    let matchesStatus = true;
+    switch (activeFilter) {
+      case "Open": matchesStatus = guest.status === "ORDERING"; break;
+      case "Completed": matchesStatus = guest.status === "COMPLETED"; break;
+      case "Paid": matchesStatus = guest.status === "PAID" || guest.paymentType !== "--"; break;
+      case "Unpaid": matchesStatus = guest.status === "UNPAID" || guest.paymentType === "--"; break;
+      default: matchesStatus = true;
+    }
+    if (!matchesStatus) return false;
+    if (mobileFilters.revenueCenter && guest.revenueCenter !== mobileFilters.revenueCenter) return false;
+    if (mobileFilters.employee && guest.server !== mobileFilters.employee) return false;
+    if (mobileFilters.orderType && guest.orderType !== mobileFilters.orderType) return false;
+    if (mobileFilters.orderStatus && guest.status !== mobileFilters.orderStatus) return false;
+    if (mobileFilters.paymentType) {
+      if (mobileFilters.paymentType === "Unpaid" && guest.paymentType !== "--") return false;
+      if (mobileFilters.paymentType !== "Unpaid" && guest.paymentType !== mobileFilters.paymentType) return false;
+    }
+    if (!searchQuery.trim()) return true;
+    const query = searchQuery.toLowerCase().trim();
+    return guest.name.toLowerCase().includes(query) || guest.id.toLowerCase().includes(query) || (guest.check !== "--" && guest.check.toLowerCase().includes(query));
+  });
+  
+  // Clear mobile filters
+  const clearMobileFilters = () => {
+    setMobileFilters({
+      revenueCenter: null,
+      datePreset: 'today',
+      customDateStart: undefined,
+      customDateEnd: undefined,
+      employee: null,
+      orderType: null,
+      orderStatus: null,
+      paymentType: null,
     });
-    if (searchQuery.trim()) {
-      const q = searchQuery.toLowerCase().trim();
-      filtered = filtered.filter(g =>
-        g.name.toLowerCase().includes(q) ||
-        g.id.includes(q) ||
-        g.check.includes(q) ||
-        g.table.toLowerCase().includes(q) ||
-        g.server.toLowerCase().includes(q)
-      );
-    }
-    // Advanced filters
-    if (advFilterRevenueCenter) {
-      filtered = filtered.filter(g => g.revenueCenter === advFilterRevenueCenter);
-    }
-    if (advFilterDate) {
-      const filterDateStr = advFilterDate.toISOString().split('T')[0]; // "YYYY-MM-DD"
-      filtered = filtered.filter(g => g.date === filterDateStr);
-    }
-    if (advFilterEmployee) {
-      filtered = filtered.filter(g => g.server === advFilterEmployee);
-    }
-    if (advFilterOrderType) {
-      filtered = filtered.filter(g => {
-        const type = advFilterOrderType.toLowerCase();
-        if (type === "table") return g.orderType === "Table Order" || g.orderType === "Dine-In";
-        if (type === "takeaway") return g.orderType === "Takeout" || g.orderType === "Take Out" || g.orderType === "Takeaway";
-        if (type === "drive-thru") return g.orderType === "Drive Thru" || g.orderType === "Drive-thru";
-        return g.orderType.toLowerCase().includes(type);
-      });
-    }
-    if (advFilterOrderStatus) {
-      filtered = filtered.filter(g => g.status === advFilterOrderStatus);
-    }
-    if (advFilterPaymentType) {
-      filtered = filtered.filter(g => {
-        const pt = advFilterPaymentType.toLowerCase();
-        if (pt === "cash") return g.paymentType === "Cash";
-        if (pt === "split payment") return (g.payments && g.payments.length > 1);
-        if (pt === "unpaid") return g.paymentType === "--" || g.paymentType === "";
-        return true;
-      });
-    }
-    return filtered;
-  })();
+  };
 
   const toggleSeat = (seat: number) => {
     setSelectedSeats(prev => prev.includes(seat) ? prev.filter(s => s !== seat) : [...prev, seat]);
+  };
+
+  // Filter order items based on selected seats for table orders
+  const getFilteredOrderItems = (order: GuestOrder) => {
+    const items = getOrderItems(order);
+    
+    // Only filter if it's a table order and not all seats are selected
+    if (order.orderType !== "Table" || selectedSeats.length === 4) {
+      return items;
+    }
+    
+    // If no seats are selected, show all items
+    if (selectedSeats.length === 0) {
+      return items;
+    }
+    
+    // Filter items that have at least one selected seat OR have no seat assignment
+    return items.filter(item => {
+      // Items with no seat assignment are always shown
+      if (item.seats.length === 0) {
+        return true;
+      }
+      // Show items that have at least one of the selected seats
+      return item.seats.some(seat => selectedSeats.includes(seat));
+    });
   };
 
   const handleMobileOrderClick = (guest: GuestOrder) => {
@@ -579,788 +2118,560 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
     setShowMobileOrderPanel(true);
   };
 
-  // Desktop click handler - always show details in right panel
-  const handleDesktopOrderClick = (guest: GuestOrder) => {
-    setSelectedGuest(guest);
-  };
-
-  // ===== MERGE HANDLERS =====
-  const handleMergeClick = (guest: GuestOrder, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setMergeSource(guest);
-    setMergeTarget(null);
-    setShowMergeDialog(true);
-  };
-
-  const getMergeableTickets = (source: GuestOrder) => {
-    return orders.filter(o => 
-      o.id !== source.id && 
-      o.status !== "PAID" && 
-      o.status !== "COMPLETED"
-    );
-  };
-
-  const confirmMerge = () => {
-    if (!mergeSource || !mergeTarget) return;
-    
-    const mergedItems = [...mergeSource.items, ...mergeTarget.items];
-    const updatedSource: GuestOrder = {
-      ...mergeSource,
-      items: mergedItems,
-      subtotal: mergeSource.subtotal + mergeTarget.subtotal,
-      discount: mergeSource.discount + mergeTarget.discount,
-      serviceCharge: mergeSource.serviceCharge + mergeTarget.serviceCharge,
-      tax: mergeSource.tax + mergeTarget.tax,
-      tip: mergeSource.tip + mergeTarget.tip,
-      total: mergeSource.total + mergeTarget.total,
-      partySize: mergeSource.partySize + mergeTarget.partySize,
-      notes: [mergeSource.notes, mergeTarget.notes].filter(Boolean).join("; "),
-    };
-
-    updateOrders(prev => prev.filter(o => o.id !== mergeTarget.id).map(o => o.id === mergeSource.id ? updatedSource : o));
-    setSelectedGuest(updatedSource);
-    setShowMergeDialog(false);
-    setMergeSource(null);
-    setMergeTarget(null);
-
-    toast.success(`Order #${mergeTarget.id} merged into Order #${mergeSource.id}`, {
-      description: `Items, balances, and order history have been combined.`,
-    });
-  };
-
-  // ===== MERGE DIALOG =====
-  const MergeDialog = () => {
-    if (!showMergeDialog || !mergeSource) return null;
-    const mergeable = getMergeableTickets(mergeSource);
-
-    return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70" onClick={() => setShowMergeDialog(false)}>
-        <div className="w-[460px] max-h-[80vh] rounded-2xl overflow-hidden flex flex-col" style={{ backgroundColor: '#1B1C20', border: '1px solid rgba(255,255,255,0.1)' }} onClick={e => e.stopPropagation()}>
-          <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
-            <div className="flex items-center gap-3">
-              <img src={mergeIcon} alt="Merge" className="w-5 h-5" />
-              <span className="text-white font-semibold text-lg">Merge Tickets</span>
-            </div>
-            <button onClick={() => setShowMergeDialog(false)} className="p-1.5 rounded-full hover:bg-white/10 transition-colors">
-              <X className="w-4 h-4 text-white/60" />
-            </button>
-          </div>
-
-          <div className="px-5 py-3 border-b border-white/10" style={{ backgroundColor: 'rgba(255, 158, 101, 0.1)' }}>
-            <span className="text-white/60 text-xs uppercase tracking-wider">Merging from</span>
-            <div className="flex items-center justify-between mt-1">
-              <span className="text-white font-medium">#{mergeSource.id} · {mergeSource.name}</span>
-              <span className="text-white font-bold">{formatPrice(mergeSource.total)}</span>
-            </div>
-            {mergeSource.table !== "--" && <span className="text-white/50 text-sm">{mergeSource.table} · {mergeSource.items.length} items</span>}
-          </div>
-
-          <div className="px-5 py-3">
-            <span className="text-white/60 text-xs uppercase tracking-wider">Select target ticket to merge into</span>
-          </div>
-
-          <ScrollArea className="flex-1 px-5 max-h-[300px]">
-            <div className="space-y-2 pb-4">
-              {mergeable.length === 0 ? (
-                <div className="text-center py-8 text-white/40 text-sm">No eligible tickets to merge with</div>
-              ) : (
-                mergeable.map(ticket => (
-                  <div 
-                    key={ticket.id}
-                    onClick={() => setMergeTarget(ticket)}
-                    className={`p-3 rounded-xl border cursor-pointer transition-all ${mergeTarget?.id === ticket.id ? 'border-orange-400/60 bg-orange-400/10' : 'border-white/10 hover:border-white/20 bg-white/5'}`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        {mergeTarget?.id === ticket.id && <Check className="w-4 h-4 text-orange-400" />}
-                        <span className="text-white font-medium">#{ticket.id} · {ticket.name}</span>
-                      </div>
-                      <span className="text-white font-bold text-sm">{formatPrice(ticket.total)}</span>
-                    </div>
-                    <div className="flex items-center gap-2 mt-1 text-white/50 text-xs">
-                      <OrderTypeIcon type={ticket.orderType} size="small" />
-                      <span>{ticket.orderType}</span>
-                      {ticket.table !== "--" && <><span>·</span><span>{ticket.table}</span></>}
-                      <span>·</span>
-                      <span>{ticket.items.length} items</span>
-                    </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </ScrollArea>
-
-          <div className="px-5 py-4 border-t border-white/10 flex items-center gap-3">
-            <button onClick={() => setShowMergeDialog(false)} className="flex-1 py-2.5 rounded-full text-white text-sm font-medium border border-white/20 hover:bg-white/10 transition-colors">Cancel</button>
-            <button 
-              onClick={confirmMerge} 
-              disabled={!mergeTarget}
-              className="flex-1 py-2.5 rounded-full text-white text-sm font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-              style={{ background: mergeTarget ? 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' : '#555' }}
-            >Confirm Merge</button>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ===== TRANSFER HANDLERS =====
-  const handleTransferClick = (guest: GuestOrder, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setTransferSource(guest);
-    setTransferStep('intent');
-    setTransferType(null);
-  };
-
-  const closeTransferFlow = () => {
-    setTransferStep(null);
-    setTransferType(null);
-    setTransferSource(null);
-  };
-
-  // ===== TRANSFER INTENT DIALOG =====
-  const TransferIntentDialog = () => {
-    if (transferStep !== 'intent' || !transferSource) return null;
-
-    return (
-      <div className="fixed inset-0 z-[60] flex items-center justify-center">
-        <div className="absolute inset-0 bg-black/80" onClick={closeTransferFlow} />
-        <div className="relative bg-neutral-900 border border-white/10 rounded-2xl w-[380px] max-w-[90vw] overflow-hidden">
-          <div className="flex items-center justify-between p-4 border-b border-white/10">
-            <h2 className="text-white text-lg font-semibold">Transfer Order</h2>
-            <button onClick={closeTransferFlow} className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-              <X className="w-4 h-4 text-white" />
-            </button>
-          </div>
-          <div className="p-4">
-            <p className="text-white/60 text-sm mb-3">What would you like to transfer?</p>
-            <div className="space-y-2">
-              <button 
-                onClick={() => {
-                  setTransferType('items');
-                  setTransferStep('active');
-                }}
-                className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
-              >
-                <div className="flex items-center gap-3 mb-0.5">
-                  <img src={transferItemIcon} alt="Transfer Products" className="w-5 h-5 object-contain opacity-80" />
-                  <span className="text-white font-medium">Transfer Products</span>
-                </div>
-                <p className="text-white/50 text-xs ml-8">Move selected products to another table or order.</p>
-              </button>
-
-              {/* Transfer Entire Order Section Title */}
-              <div className="pt-0.5 -mb-1">
-                <div className="flex items-center gap-2">
-                  <img src={transferEntireOrderIcon} alt="Transfer Entire Order" className="w-4 h-4 object-contain opacity-50" />
-                  <p className="text-white/50 text-xs font-semibold uppercase tracking-wider">Transfer Entire Order</p>
-                </div>
-              </div>
-
-              {/* Transfer to Table */}
-              <button 
-                onClick={() => {
-                  setTransferType('entire');
-                  setTransferStep('active');
-                }}
-                className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
-              >
-                <div className="flex items-center gap-3 mb-0.5">
-                  <img src={transferToTableIcon} alt="Transfer to Table" className="w-5 h-5 object-contain opacity-80" />
-                  <span className="text-white font-medium">Transfer to Table</span>
-                </div>
-                <p className="text-white/50 text-xs ml-8">Move this full order to another or new table.</p>
-              </button>
-
-              {/* Transfer to Order */}
-              <button 
-                onClick={() => {
-                  setTransferType('entireToOrder');
-                  setTransferStep('active');
-                }}
-                className="w-full p-3.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 transition-colors text-left"
-              >
-                <div className="flex items-center gap-3 mb-0.5">
-                  <img src={transferToOrderIcon} alt="Transfer to Order" className="w-5 h-5 object-contain opacity-80" />
-                  <span className="text-white font-medium">Transfer to Order</span>
-                </div>
-                <p className="text-white/50 text-xs ml-8">Move this full order to another order.</p>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ===== TICKET CARD COMPONENT =====
-  const TicketCard = ({ 
-    guest, 
-    isSelected, 
-    onSelect, 
-    compact = false, 
-    showActions = true,
-    showSwipe = false
-  }: { 
-    guest: GuestOrder; 
-    isSelected: boolean; 
-    onSelect: () => void; 
-    compact?: boolean;
-    showActions?: boolean;
-    showSwipe?: boolean;
-  }) => {
-    const statusStyle = getStatusBadgeStyle(guest.status);
-    const checkId = guest.check !== "--" ? guest.check.slice(-3) : "000";
-    // Table display handled inline per order type
-    const duration = formatDuration(guest.timer);
-    const paymentDisplay = formatPaymentDisplay(guest);
-    const paidAmount = getPaidAmount(guest);
-
-    // Mobile card content (matches Table Module ticket layout exactly)
-    const mobileCardContent = (
-      <div className="flex items-stretch w-full">
-        {/* Column 1: Order Number - Mobile compact style */}
-        <div className="flex-shrink-0 px-2 py-2 flex items-center">
-          <div className="relative w-10 h-12 bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
-            <span className="text-lg font-bold text-white">{guest.id}</span>
-            <span className="text-[9px] text-gray-500">{checkId}</span>
-          </div>
-        </div>
-
-        {/* Column 2: Guest Info - 3-row layout matching Table Module */}
-        <div className="flex-1 min-w-0 py-2 pr-2">
-          <div className="flex flex-col gap-1">
-            {/* Row 1: Name + Table, Server, Status */}
-            <div className="flex items-center justify-between">
-              <span className="text-white font-medium text-sm truncate">
-                {guest.name}
-                {guest.orderType === "Table Order" && guest.table !== "--" && ` · ${guest.table}`}
-              </span>
-              <div className="flex items-center gap-2 flex-shrink-0">
-                <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.server}</span>
-                <span className={`text-sm font-medium`} style={{ color: statusStyle.color }}>
-                  {guest.status === 'Completed' || guest.status === 'COMPLETED' ? 'PAID' : guest.status}
-                </span>
-              </div>
-            </div>
-
-            {/* Row 2: Party info / Order type, Timer, Total */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-1 text-xs" style={{ color: '#B5B6BB' }}>
-                <OrderTypeIcon type={guest.orderType} size="small" />
-                {guest.orderType === "Table Order" ? (
-                  <span>{guest.partySize > 1 ? `Party of ${guest.partySize}, ` : ''}{guest.time} | {duration}</span>
-                ) : (
-                  <span>{guest.orderType}, {guest.time} | {duration}</span>
-                )}
-              </div>
-              <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
-            </div>
-
-            {/* Row 3: Revenue Center, Payment status, Tip/Amount */}
-            <div className="flex items-center justify-between">
-              <span className="text-sm" style={{ color: '#B5B6BB' }}>{guest.revenueCenter}</span>
-              <div className="flex items-center gap-2">
-                <span className="text-sm" style={{ color: paidAmount > 0 ? '#4ade80' : '#B5B6BB' }}>
-                  {paidAmount > 0 ? 'Paid' : 'Un Paid'}
-                </span>
-                <span className="text-white text-sm">{formatPrice(paidAmount)}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-
-    // Desktop/Tablet card content (original horizontal layout)
-    const cardContent = (
-      <div className={`flex items-stretch w-full ${compact ? 'gap-1.5' : 'gap-0'}`}>
-        {/* LEFT BADGE: Ticket Number + ID */}
-        <div className={`flex-shrink-0 flex items-center ${compact ? 'px-2 py-2' : 'px-3 py-3'}`}>
-          <div className={`flex flex-col items-center justify-center rounded-lg border border-neutral-600 bg-neutral-800/80 ${compact ? 'w-12 h-14 gap-0' : 'w-14 h-16 gap-0.5'}`}>
-            <span className={`font-bold text-white ${compact ? 'text-lg' : 'text-xl'}`}>{guest.id}</span>
-            <span className="text-[11px] text-neutral-400 font-medium">{checkId}</span>
-          </div>
-        </div>
-
-        {/* MIDDLE CONTENT */}
-        <div className={`flex-1 min-w-0 ${compact ? 'py-2' : 'py-3'} flex flex-col justify-center`}>
-          {/* Row 1: Name (+ Table for Table Orders) */}
-          <div className="flex items-center gap-1.5 mb-0.5">
-            <span className={`text-white font-semibold truncate ${compact ? 'text-sm' : 'text-base'}`}>{guest.name}</span>
-            {guest.orderType === "Table Order" && guest.table !== "--" && (
-              <>
-                <span className="text-neutral-500 text-sm">·</span>
-                <span className={`text-white/70 truncate ${compact ? 'text-sm' : 'text-base'}`}>{guest.table}</span>
-              </>
-            )}
-          </div>
-
-          {/* Row 2: Differs by order type */}
-          <div className="flex items-center gap-1.5 text-neutral-400 mb-0.5">
-            <OrderTypeIcon type={guest.orderType} size="small" />
-            {guest.orderType === "Table Order" ? (
-              <span className={`${compact ? 'text-xs' : 'text-sm'}`}>
-                {guest.partySize > 1 ? `Party of ${guest.partySize}, ` : ''}{guest.time} | {duration}
-              </span>
-            ) : (
-              <span className={`${compact ? 'text-xs' : 'text-sm'}`}>
-                {guest.orderType}, {guest.time} | {duration}
-              </span>
-            )}
-          </div>
-
-          {/* Row 3: Revenue Center */}
-          <span className={`text-neutral-500 ${compact ? 'text-xs' : 'text-sm'}`}>{guest.revenueCenter}</span>
-
-        </div>
-
-        {/* SERVER & PAYMENT INFO */}
-        <div className={`flex-shrink-0 ${compact ? 'w-[110px] py-2' : 'w-[150px] py-3'} flex flex-col justify-center text-right pr-2`}>
-          <span className={`text-white font-medium truncate ${compact ? 'text-xs' : 'text-sm'}`}>{guest.server}</span>
-          {guest.payments && guest.payments.length > 1 ? (
-            <Popover>
-              <PopoverTrigger asChild>
-                <button 
-                  className={`flex items-center justify-end gap-1 ${compact ? 'text-[11px]' : 'text-xs'} text-neutral-400 hover:text-neutral-200 transition-colors`}
-                  onClick={e => e.stopPropagation()}
-                >
-                  <span 
-                    className="inline-flex items-center justify-center rounded px-1 py-px text-[8px] font-bold text-white leading-none"
-                    style={{ backgroundColor: getPaymentBadgeColor(guest.payments[0].method) }}
-                  >
-                    {getPaymentBadgeText(guest.payments[0].method)}
-                  </span>
-                  <span className="truncate">{paymentDisplay}</span>
-                  <span className="text-blue-400 font-medium whitespace-nowrap">+{guest.payments.length - 1} more</span>
-                </button>
-              </PopoverTrigger>
-              <PopoverContent 
-                align="end" 
-                className="w-[260px] p-0 border border-neutral-700 rounded-xl shadow-xl"
-                style={{ backgroundColor: '#2A2A2E' }}
-                onClick={e => e.stopPropagation()}
-              >
-                <div className="px-3 py-2 border-b border-neutral-700">
-                  <span className="text-white/80 text-xs font-semibold">Payment Methods</span>
-                </div>
-                <div className="flex flex-col py-1">
-                  {guest.payments.map((p, i) => (
-                    <div key={i} className="flex items-center gap-2.5 px-3 py-1.5">
-                      <span 
-                        className="inline-flex items-center justify-center rounded px-1.5 py-0.5 text-[9px] font-bold text-white leading-none min-w-[32px]"
-                        style={{ backgroundColor: getPaymentBadgeColor(p.method) }}
-                      >
-                        {getPaymentBadgeText(p.method)}
-                      </span>
-                      <span className="text-white text-sm flex-1">
-                        {p.last4 ? `${p.method}  ••••  ${p.last4}` : p.method}
-                      </span>
-                      <span className="text-white text-sm font-medium">{formatPrice(p.amount)}</span>
-                    </div>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
-          ) : (
-            <span className={`text-neutral-400 truncate ${compact ? 'text-[11px]' : 'text-xs'}`}>{paymentDisplay}</span>
-          )}
-        </div>
-
-        {/* RIGHT: Status + Amount */}
-        <div className={`flex-shrink-0 flex flex-col items-end justify-center ${compact ? 'pr-2 py-2 w-[90px]' : 'pr-3 py-3 w-[110px]'}`}>
-          <span 
-            className={`font-bold uppercase tracking-wide ${compact ? 'text-[11px] mb-0.5' : 'text-sm mb-1'}`}
-            style={{ color: statusStyle.color }}
-          >
-            {guest.status}
-          </span>
-          <span className={`text-white font-bold ${compact ? 'text-base' : 'text-lg'}`}>
-            {formatPrice(guest.total)}
-          </span>
-          <span className={`text-neutral-500 ${compact ? 'text-[10px]' : 'text-xs'}`}>
-            {formatPrice(paidAmount)}
-          </span>
-        </div>
-
-        {/* FAR RIGHT: Action Strip - Status dependent */}
-        {showActions && (
-          <div className="flex-shrink-0 flex flex-col rounded-r-xl overflow-hidden border-l border-neutral-700/50">
-            {guest.status === "PAID" || guest.status === "COMPLETED" || guest.status === "PARTIALLY REFUNDED" ? (
-              <>
-                {/* Print icon */}
-                <button 
-                  className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors"
-                  style={{ background: 'linear-gradient(180deg, #5A5A5A 0%, #3A3A3A 100%)' }}
-                  onClick={e => { e.stopPropagation(); setSelectedGuest(guest); setShowReceiptDialog(true); }}
-                >
-                  <img src={printIcon} alt="Print" className="w-4 h-4 object-contain" />
-                </button>
-                {/* Cash Register icon */}
-                <button 
-                  className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors border-t border-neutral-600/50"
-                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                  onClick={e => { e.stopPropagation(); }}
-                >
-                  <img src={cashRegisterSvgIcon} alt="Register" className="w-4 h-4 object-contain" />
-                </button>
-              </>
-            ) : (
-              <>
-                {/* Merge icon (orange) */}
-                <button 
-                  className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-600/50 transition-colors"
-                  style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}
-                  onClick={e => handleMergeClick(guest, e)}
-                >
-                  <img src={mergeIcon} alt="Merge" className="w-4 h-4 object-contain" />
-                </button>
-                {/* Transfer icon */}
-                <button 
-                  className="flex-1 px-2.5 flex items-center justify-center hover:bg-neutral-500/50 transition-colors border-t border-neutral-600/50"
-                  style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                  onClick={e => handleTransferClick(guest, e)}
-                >
-                  <img src={shareOrderIcon} alt="Transfer" className="w-4 h-4 object-contain brightness-0" />
-                </button>
-              </>
-            )}
-          </div>
-        )}
-      </div>
-    );
-
-    const hasTransferBanner = !!guest.transferInfo;
-    
-    const transferBanner = hasTransferBanner ? (
-      <div className="px-2 py-0.5 rounded-t-xl bg-[#1E3A5F]">
-        <span className={`${compact ? 'text-[10px]' : 'text-xs'} font-medium`}>
-          {guest.transferInfo!.type === 'sent' ? (
-            <>
-              <span style={{ color: '#8AC4FF' }}>
-                {guest.transferInfo!.transferType === 'full' ? 'Order fully transferred to' : `Transferred ${guest.transferInfo!.itemCount} item${(guest.transferInfo!.itemCount || 0) > 1 ? 's' : ''} to`}
-              </span>{" "}
-              <span className="text-white">Order #{guest.transferInfo!.targetOrderId}{guest.transferInfo!.targetOrderName ? ` · ${guest.transferInfo!.targetOrderName}` : ''}</span>
-            </>
-          ) : (
-            <>
-              <span style={{ color: '#8AC4FF' }}>
-                {guest.transferInfo!.transferType === 'full' ? 'Order fully transferred from' : `${guest.transferInfo!.itemCount} item${(guest.transferInfo!.itemCount || 0) > 1 ? 's' : ''} transferred from`}
-              </span>{" "}
-              <span className="text-white">{guest.transferInfo!.sourceTable && guest.transferInfo!.sourceTable !== '--' ? `${guest.transferInfo!.sourceTable} · ` : ''}Order #{guest.transferInfo!.sourceOrderId}</span>
-            </>
-          )}
-        </span>
-      </div>
-    ) : null;
-
-    if (showSwipe) {
-      return (
-        <div className="relative cursor-pointer transition-all overflow-hidden bg-black">
-          {transferBanner}
-          {/* Swipe Action Buttons */}
-          <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
-            <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ backgroundColor: '#666666' }} onClick={e => { e.stopPropagation(); handleMergeClick(guest, e); }}>
-              <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
-            </button>
-            <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }} onClick={e => { e.stopPropagation(); handleTransferClick(guest, e); }}>
-              <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
-            </button>
-          </div>
-
-          {/* Swipeable card content */}
-          <div 
-            className="relative transition-transform duration-200 ease-out md:transform-none bg-black select-none" 
-            style={{ transform: `translateX(${swipeStates[guest.id] || 0}px)`, transition: isDraggingRef.current && currentCardId.current === guest.id ? "none" : "transform 0.2s ease-out" }} 
-            onTouchStart={e => handleSwipeStart(e, guest)} 
-            onTouchMove={handleSwipeMove} 
-            onTouchEnd={e => handleSwipeEnd(true, e, guest)} 
-            onTouchCancel={e => handleSwipeEnd(false, e, guest)} 
-            onMouseDown={e => handleSwipeStart(e, guest)} 
-            onMouseMove={handleSwipeMove} 
-            onMouseUp={e => handleSwipeEnd(true, e, guest)} 
-            onMouseLeave={e => handleSwipeEnd(false, e, guest)} 
-            onClick={() => handleCardClick(guest)}
-          >
-            <div className={`border ${hasTransferBanner ? 'rounded-b-xl' : 'rounded-xl'} overflow-hidden transition-all ${isSelected ? 'border-white' : 'border-white/10'}`} style={{ backgroundColor: '#1B1C20' }}>
-              {mobileCardContent}
-            </div>
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div>
-        {transferBanner}
-        <div 
-          onClick={onSelect}
-          className={`${hasTransferBanner ? 'rounded-b-xl' : 'rounded-xl'} border cursor-pointer transition-all overflow-hidden hover:shadow-lg hover:shadow-black/20 ${isSelected ? "border-white/40 shadow-md shadow-black/30" : "border-neutral-700/60 hover:border-neutral-500/60"}`} 
-          style={{ backgroundColor: '#1B1C20' }}
-        >
-          {cardContent}
-        </div>
-      </div>
-    );
-  };
-
   // Mobile Order Panel Component
   const MobileOrderPanel = () => (
-    <div className="fixed inset-0 z-50 bg-black flex flex-col">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-neutral-700/50">
-        <div className="flex items-center gap-2">
-          <button 
-            onClick={() => setShowMobileOrderPanel(false)} 
-            className="p-1.5 rounded-full hover:opacity-80 transition-opacity" 
-            style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-          >
-            <span className="text-white text-lg">←</span>
-          </button>
-          <span className="text-white font-medium">{selectedGuest.name}</span>
+    <div className="fixed inset-0 z-50 bg-neutral-900 flex flex-col">
+      {/* Header - Back Button */}
+      <div className="flex items-center p-3">
+        <button 
+          onClick={() => setShowMobileOrderPanel(false)} 
+          className="p-1.5 rounded-full hover:opacity-80 transition-opacity" 
+          style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+        >
+          <span className="text-white text-lg">←</span>
+        </button>
+      </div>
+
+      {/* Customer Info */}
+      <div className="flex items-center justify-between text-xs px-3 pb-3 border-b border-neutral-700/50 gap-2">
+        <input 
+          type="text" 
+          value={getCurrentGuestName(selectedGuest.id, selectedGuest.name)} 
+          onChange={e => handleGuestNameChange(selectedGuest.id, e.target.value)} 
+          placeholder="GUEST NAME" 
+          className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-[#808080]" 
+        />
+        <div className="flex items-center gap-0.5">
+          <img src={phoneIcon} alt="Phone" className="w-4 h-4" />
+          <input 
+            type="tel" 
+            inputMode="tel" 
+            value={formatPhoneNumber(getCurrentGuestPhone(selectedGuest.id, selectedGuest.phone))} 
+            onChange={e => handleGuestPhoneChange(selectedGuest.id, e.target.value)} 
+            placeholder="(XXX) XXX-XXXX" 
+            className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-[#808080]" 
+          />
         </div>
-        <div className="flex items-center gap-3 text-white/50 text-sm">
-          <div className="flex items-center gap-1">
-            <Phone className="w-3 h-3" />
-            <span>{selectedGuest.phone || "N/A"}</span>
-          </div>
-          <div className="flex items-center gap-1">
-            <span>⚡</span>
-            <span>{selectedGuest.time}</span>
-          </div>
+        <div className="flex items-center gap-1 whitespace-nowrap flex-shrink-0">
+          <img src={timeIcon} alt="Time" className="w-4 h-4" />
+          <span className="text-white">{selectedGuest.time}</span>
         </div>
       </div>
 
-      {/* Table Order Info */}
+      {/* Order Info */}
       <div className="px-3 py-2 border-b border-neutral-700/50">
-        <div className="flex items-center justify-between mb-2">
+        <div className={`flex items-center justify-between ${selectedGuest.orderType === "Table" ? "mb-2" : ""}`}>
           <div className="flex items-center gap-2">
-            <span className="px-2 py-1 bg-white/10 text-white text-xs rounded">TABLE ORDER</span>
+            <span className="px-2 py-1 bg-white/10 text-white text-xs rounded uppercase">
+              {selectedGuest.orderType === "Table" ? `TABLE ${selectedGuest.table}` : selectedGuest.orderType}
+            </span>
+            {selectedGuest.orderType === "Table" && (
+              <span className="flex items-center gap-1 text-white/60 text-xs">
+                <Users className="w-3 h-3" />
+                {selectedGuest.partySize}
+              </span>
+            )}
             <span className="text-white font-bold">{selectedGuest.id}</span>
           </div>
-          <div className="flex items-center gap-2">
-            <img src={runnerIcon} alt="Runner" className="w-4 h-4 opacity-60" />
-            <span className="text-white/50 text-sm">{selectedGuest.server}</span>
+          <div className="flex items-center gap-2 text-xs">
+            <img src={runnerIcon} alt="Runner" className="w-4 h-4" />
+            <span className="text-white/80">{selectedGuest.server}</span>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="w-5 h-5 bg-white rounded-full flex items-center justify-center ml-2">
+                  <MoreVertical className="w-3 h-3 text-black" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-neutral-800 border-neutral-700 min-w-[160px] p-1 z-50">
+                {!(selectedGuest.status === "PAID" || selectedGuest.paid) && (
+                  <>
+                    <DropdownMenuItem 
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
+                      <img src={customItemIcon} alt="" className="w-3.5 h-3.5" />
+                      Add Item
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className={`text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2 ${appliedDiscounts.length > 0 ? 'bg-primary/20' : ''}`}
+                      onClick={() => setIsDiscountDialogOpen(true)}
+                    >
+                      <img src={discountIcon} alt="" className="w-3.5 h-3.5" />
+                      {appliedDiscounts.length > 0 ? `${appliedDiscounts.length} Discount${appliedDiscounts.length > 1 ? 's' : ''}` : 'Discount'}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
+                      <img src={noTaxIcon} alt="" className="w-3.5 h-3.5" />
+                      No Tax
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
+                      <img src={shareOrderIcon} alt="" className="w-3.5 h-3.5" />
+                      Transfer
+                    </DropdownMenuItem>
+                    <DropdownMenuItem 
+                      className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                    >
+                      <img src={mergeIcon} alt="" className="w-3.5 h-3.5" />
+                      Merge
+                    </DropdownMenuItem>
+                  </>
+                )}
+                <DropdownMenuItem 
+                  className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                  onClick={() => setIsReceiptDialogOpen(true)}
+                >
+                  <img src={receiptIcon} alt="" className="w-3.5 h-3.5" />
+                  Receipt
+                </DropdownMenuItem>
+                {(selectedGuest.status === "PAID" || selectedGuest.paid) && (
+                  <DropdownMenuItem 
+                    className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2"
+                  >
+                    <img src={registerIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
+                    Register
+                  </DropdownMenuItem>
+                )}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
         
-        {/* Seat Buttons */}
-        <div className="flex items-center gap-2">
-          <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-            <img src={seatIcon} alt="Seat" className="w-4 h-4" />
-          </button>
-          {[1, 2, 3, 4].map(seat => (
-            <button 
-              key={seat} 
-              onClick={() => toggleSeat(seat)} 
-              className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}
-            >
-              {seat}
+        {/* Seat Buttons - Only for Table Orders */}
+        {selectedGuest.orderType === "Table" && (
+          <div className="flex items-center gap-2">
+            <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+              <img src={seatIcon} alt="Seat" className="w-4 h-4" />
             </button>
-          ))}
-        </div>
+            {[1, 2, 3, 4].map(seat => (
+              <button 
+                key={seat} 
+                onClick={() => toggleSeat(seat)} 
+                className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}
+              >
+                {seat}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Notes */}
-      <div className="px-3 py-2 border-b border-neutral-700/50">
-        <div className="flex items-center gap-2 text-white/50 text-sm bg-white/10 p-2 rounded-lg">
+      <div className="px-3 py-2 border-b border-neutral-700/50 relative">
+        <div className="flex items-center gap-2 text-white/50 text-sm bg-neutral-800 border border-neutral-700 p-2 rounded-lg relative">
           <span>📝</span>
-          <span>{selectedGuest.notes || "No notes"}</span>
+          {canEditNotes(selectedGuest.status) ? (
+            <input
+              type="text"
+              value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
+              onChange={(e) => handleNotesInputChange(selectedGuest.id, e.target.value, selectedGuest.notes)}
+              onFocus={() => setNotesFocused(true)}
+              onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
+              placeholder="Add notes..."
+              className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
+            />
+          ) : (
+            <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
+          )}
         </div>
+        {notesFocused && canEditNotes(selectedGuest.status) && (
+          <NoteSuggestions
+            query={notesSearchTerm}
+            currentValue={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
+            onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, getCurrentNotes(selectedGuest.id, selectedGuest.notes), suggestion)}
+            recentNotes={recentNotes}
+          />
+        )}
       </div>
 
-      {/* Order Products */}
+      {/* Order Items */}
       <ScrollArea className="flex-1 px-3">
-        <div className="py-2 space-y-1.5">
-          {selectedGuest.items.map((item, index) => {
-            const canSwipe = isTicketEditable(selectedGuest.status);
-            const isPaid = isPaidOrCompleted(selectedGuest.status);
-            const refundKey = `${selectedGuest.id}-${index}`;
-            const isRefunded = refundedProducts.has(refundKey);
-
-            const productContent = (
-              <div className={`p-3 rounded-xl border transition-all ${isRefunded ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'}`}>
+        <div className="py-2 space-y-2">
+          {getFilteredOrderItems(selectedGuest).map((item, index) => {
+            const itemId = `item-${index}-${item.name}`;
+            const isItemSwipeRefunded = refundedItems.has(itemId);
+            
+            // Get refunded quantity from persisted records
+            const refundedQty = getRefundedQtyForItem(selectedGuest.id, index);
+            const orderFullyRefunded = isFullyRefundedOrder(selectedGuest);
+            const isFullyRefunded = refundedQty >= item.qty || isItemSwipeRefunded || orderFullyRefunded;
+            const isPartiallyRefunded = !orderFullyRefunded && refundedQty > 0 && refundedQty < item.qty && !isItemSwipeRefunded;
+            const remainingQty = item.qty - refundedQty;
+            
+            const handleItemRefund = () => {
+              // Don't allow refund on already fully refunded items
+              if (isFullyRefunded) return;
+              handleSwipeRefund({
+                id: itemId,
+                type: 'item',
+                name: item.name,
+                price: item.price * (remainingQty > 0 ? remainingQty : item.qty)
+              });
+            };
+            
+            const handleModifierRefund = (modifier: ModifierItem, modIndex: number) => {
+              const modifierId = `mod-${index}-${modIndex}-${modifier.text}`;
+              // Don't allow refund on already refunded modifiers
+              if (isModifierRefunded(selectedGuest.id, index, modIndex)) return;
+              handleSwipeRefund({
+                id: modifierId,
+                type: 'modifier',
+                name: modifier.text,
+                price: modifier.price || 0
+              });
+            };
+            
+            // Wrap in swipeable container for paid tickets
+            const itemContent = (
+              <div className={`p-3 bg-neutral-800 rounded-xl border ${isFullyRefunded ? 'border-red-500/30' : 'border-neutral-700'} ${isFullyRefunded ? 'opacity-60' : ''}`}>
                 <div className="flex items-start justify-between">
                   <div className="flex items-start gap-2">
-                    <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold ${isRefunded ? 'bg-red-500/20 text-red-400' : item.isCancelled ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'}`}>
-                      {item.qty}
-                    </span>
-                    <div>
-                      <span className={`font-medium text-sm ${isRefunded ? 'text-white/40 line-through' : item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
-                      {item.modifiers.length > 0 && (
-                        <div className="mt-1 text-white/50 text-xs space-y-0.5">
-                          {item.modifiers.map((mod, mi) => {
-                            const modRefundKey = `${selectedGuest.id}-${index}-mod-${mi}`;
-                            const isModRefunded = refundedModifiers.has(modRefundKey);
-                            const canRefundMod = isPaid && showRefundMode && isRefundableModifier(mod) && !isModRefunded && !isRefunded;
-
-                            const modContent = (
-                              <div className={`flex items-center justify-between ${isModRefunded ? 'opacity-50' : ''}`}>
-                                <span className={isModRefunded ? 'line-through text-white/30' : ''}>{mod}</span>
-                                {isModRefunded && (
-                                  <span className="text-[9px] bg-red-500/20 text-red-400 border border-red-500/40 px-1 py-0.5 rounded font-medium ml-1">REFUNDED</span>
-                                )}
-                              </div>
-                            );
-
-                            if (canRefundMod) {
-                              return (
-                                <SwipeableRefundItem
-                                  key={mi}
-                                  onRefund={() => handleModifierRefundSwipe(index, item, mi, mod)}
-                                  label={mod}
-                                  isModifier
-                                >
-                                  {modContent}
-                                </SwipeableRefundItem>
-                              );
-                            }
-                            return <div key={mi}>{modContent}</div>;
-                          })}
-                        </div>
+                    {/* Quantity badge with refund indicator */}
+                    <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+                      {isPartiallyRefunded ? (
+                        <>
+                          <span className="w-6 h-6 bg-red-500 rounded flex items-center justify-center text-white text-sm font-bold line-through">
+                            {refundedQty}
+                          </span>
+                          <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                            {remainingQty}
+                          </span>
+                        </>
+                      ) : (
+                        <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold flex-shrink-0 ${isFullyRefunded ? 'bg-red-500 text-white line-through' : 'bg-white text-black'}`}>
+                          {item.qty}
+                        </span>
                       )}
-                      <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                        {isRefunded && (
-                          <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">REFUNDED</span>
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <span className={`font-medium text-sm ${isFullyRefunded ? 'line-through text-red-400' : 'text-white'}`}>
+                          {item.name}
+                        </span>
+                        {isFullyRefunded && (
+                          <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[9px] font-medium rounded">
+                            REFUNDED
+                          </span>
                         )}
-                        {item.noTax && !item.isCancelled && !isRefunded && (
-                          <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                        )}
-                        {item.isCancelled && !isRefunded && (
-                          <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
+                        {isPartiallyRefunded && (
+                          <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[9px] font-medium rounded">
+                            {refundedQty} REFUNDED
+                          </span>
                         )}
                       </div>
+                      {/* Rich modifiers with refund indicators */}
+                      {item.richModifiers && item.richModifiers.length > 0 ? (
+                        refundStep === 'closed' && !isFullyRefunded ? (
+                          <SwipeableModifierTree 
+                            modifiers={item.richModifiers} 
+                            onModifierRefund={handleModifierRefund}
+                            refundedItems={refundedItems}
+                            itemIndex={index}
+                          />
+                        ) : (
+                          <div className="mt-1.5">
+                            {item.richModifiers.map((mod, modIdx) => {
+                              const isModRefunded = isModifierRefunded(selectedGuest.id, index, modIdx) || isFullyRefunded;
+                              let prefix = '•';
+                              if (mod.type === 'remove') prefix = '-';
+                              else if (mod.type === 'add') prefix = '+';
+                              
+                              return (
+                                <div key={modIdx} className="flex items-center text-xs h-5">
+                                  <div className="relative w-4 h-full flex-shrink-0">
+                                    <div 
+                                      className={`absolute left-0 w-px ${isModRefunded ? 'bg-red-500/30' : 'bg-white/30'}`}
+                                      style={{ 
+                                        top: modIdx === 0 ? '0' : '-2px',
+                                        height: modIdx === item.richModifiers!.length - 1 ? '50%' : 'calc(100% + 2px)'
+                                      }}
+                                    />
+                                    <div className={`absolute left-0 top-1/2 w-2.5 h-px ${isModRefunded ? 'bg-red-500/30' : 'bg-white/30'}`} />
+                                  </div>
+                                  <div className="flex items-center flex-1 min-w-0">
+                                    <span className={`mr-1.5 w-2 text-center flex-shrink-0 ${isModRefunded ? 'text-red-400/40' : 'text-white/40'}`}>{prefix}</span>
+                                    <span className={`truncate ${isModRefunded ? 'line-through text-red-400' : mod.type === 'remove' ? 'text-white/40' : 'text-white/50'}`}>
+                                      {mod.text}
+                                    </span>
+                                    {mod.price && mod.price > 0 && (
+                                      <span className={`ml-auto pl-2 flex-shrink-0 ${isModRefunded ? 'line-through text-red-400' : 'text-white/60'}`}>{formatPrice(mod.price)}</span>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })}
+                          </div>
+                        )
+                      ) : item.modifiers.length > 0 && (
+                        <SimpleModifierTree modifiers={item.modifiers} size="xs" />
+                      )}
+                      {/* Item Notes - Flat inline list */}
+                      {item.notes && item.notes.length > 0 && (
+                        <div className="mt-1.5 flex items-center text-xs">
+                          <span className="text-white/40 mr-1.5">📝</span>
+                          <span className="text-white/50 italic">{item.notes.join(', ')}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
-                  <span className={`font-medium text-sm ${isRefunded ? 'text-white/30 line-through' : item.isCancelled ? 'text-white/30 line-through' : 'text-white'}`}>{formatPrice(item.price * item.qty)}</span>
+                  <div className="flex flex-col items-end">
+                    {isFullyRefunded ? (
+                      <span className="text-red-400 font-medium text-sm flex-shrink-0 line-through">
+                        {item.displayPrice}
+                      </span>
+                    ) : isPartiallyRefunded ? (
+                      <>
+                        <span className="text-red-400 font-medium flex-shrink-0 line-through text-xs">
+                          {formatPrice(item.price * refundedQty)}
+                        </span>
+                        <span className="text-white font-medium text-sm flex-shrink-0">
+                          {formatPrice(item.price * remainingQty)}
+                        </span>
+                      </>
+                    ) : (
+                      <span className="text-white font-medium text-sm flex-shrink-0">
+                        {item.displayPrice}
+                      </span>
+                    )}
+                  </div>
                 </div>
-                {item.seats.length > 0 && (
+                {selectedGuest.orderType === "Table" && (
                   <div className="flex items-center gap-1 mt-2">
                     <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                    {item.seats.map(seat => (
-                      <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                        {seat}
+                    {item.seats.length === 0 || item.seats.length === 4 ? (
+                      <span className="w-5 h-5 bg-white/10 rounded flex items-center justify-center">
+                        <Share2 className="w-3 h-3 text-white opacity-70" />
                       </span>
-                    ))}
+                    ) : (
+                      item.seats.map(seat => (
+                        <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                          {seat}
+                        </span>
+                      ))
+                    )}
                   </div>
                 )}
               </div>
             );
-
-            // For paid tickets: wrap with SwipeableRefundItem
-            if (isPaid && showRefundMode && !isRefunded && !item.isCancelled) {
+            
+            const isPaidTicket = selectedGuest.status === "PAID" || selectedGuest.paid;
+            const noTaxKey = `${selectedGuest.id}-${index}-${item.name}`;
+            
+            // For paid/closed tickets, wrap in swipeable container for refund (only if not fully refunded)
+            // For ordering/unpaid tickets, wrap in SwipeableCartItem for C and No Tax options
+            if (refundStep === 'closed' && isPaidTicket && !isFullyRefunded) {
               return (
                 <SwipeableRefundItem
                   key={index}
-                  onRefund={() => handleProductRefundSwipe(index, item)}
+                  onRefund={handleItemRefund}
                   label={item.name}
+                  disabled={isFullyRefunded}
                 >
-                  {productContent}
+                  {itemContent}
                 </SwipeableRefundItem>
               );
+            } else if (!isPaidTicket) {
+              return (
+                <SwipeableCartItem
+                  key={index}
+                  onDelete={() => {
+                    // Remove item from order
+                    setRemovedItems(prev => {
+                      const newSet = new Set(prev);
+                      newSet.add(noTaxKey);
+                      return newSet;
+                    });
+                    // Also remove from noTaxItems if it was there
+                    setNoTaxItems(prev => {
+                      const newSet = new Set(prev);
+                      newSet.delete(noTaxKey);
+                      return newSet;
+                    });
+                  }}
+                  onNoTax={() => {
+                    // Toggle no tax for item
+                    setNoTaxItems(prev => {
+                      const newSet = new Set(prev);
+                      if (newSet.has(noTaxKey)) {
+                        newSet.delete(noTaxKey);
+                      } else {
+                        newSet.add(noTaxKey);
+                      }
+                      return newSet;
+                    });
+                  }}
+                  showFire={false}
+                  showOrderType={false}
+                >
+                  {itemContent}
+                </SwipeableCartItem>
+              );
+            } else {
+              return <div key={index}>{itemContent}</div>;
             }
-
-            // For active tickets: wrap with SwipeableTicketItem
-            return (
-              <SwipeableTicketItem
-                key={index}
-                isNoTax={item.noTax}
-                isCancelled={item.isCancelled}
-                disabled={!canSwipe}
-                isOpen={activeSwipedProductIndex === index}
-                onSwipeStart={() => setActiveSwipedProductIndex(index)}
-                onNoTax={() => handleProductNoTax(index)}
-                onCancel={() => handleProductCancel(index)}
-              >
-                {productContent}
-              </SwipeableTicketItem>
-            );
           })}
         </div>
         <ScrollBar orientation="vertical" />
       </ScrollArea>
 
-      {/* Order Summary - mobile */}
-      <div className="px-3 py-1.5 border-t border-neutral-700/50">
-        <div className="text-xs rounded px-2 py-1.5 space-y-0.5" style={{ background: '#7575754D' }}>
-          <div className="flex justify-between gap-3">
-            <span className="text-white"><span className="font-medium">Sub Total</span> <span className="font-bold">{formatPrice(selectedGuest.subtotal)}</span></span>
-            {selectedGuest.discount > 0 && (
-              <span className="text-red-400"><span className="font-medium">Discount</span> <span className="font-bold">-{formatPrice(selectedGuest.discount)}</span></span>
-            )}
-          </div>
-          <div className="flex justify-between gap-3">
-            {selectedGuest.serviceCharge > 0 && (
-              <span className="text-white"><span className="font-medium">Service Charge</span> <span className="font-bold">+{formatPrice(selectedGuest.serviceCharge)}</span></span>
-            )}
-            {isTaxExempt ? (
-              <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-            ) : (
-              <span className="text-white"><span className="font-medium">Tax</span> <span className="font-bold">{formatPrice(selectedGuest.tax)}</span></span>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons - mobile */}
-      {selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED" ? (
-        <div className="px-3 py-2 border-t border-neutral-700/50">
-          <Button 
-            variant="secondary"
-            size="sm"
-            onClick={() => setShowTransferCheckDialog(true)}
-            className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5"
-          >
-            <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
-            Transfer Check
-          </Button>
-        </div>
-      ) : (
-        <div className="px-3 py-2 border-t border-neutral-700/50">
-          <ScrollArea className="w-full">
-            <div className="flex gap-2">
-              {[
-                { label: "Add Product", icon: customItemIcon, action: () => navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`) },
-                { label: "Discount", icon: discountBtnIcon, action: () => { setDiscountDialogView('mpin'); setShowDiscountDialog(true); }, highlight: !!selectedDiscountId },
-                { label: "No Tax", icon: noTaxBtnIcon, action: () => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true), highlight: isTaxExempt },
-                { label: "Receipt", icon: printIcon, action: () => setShowReceiptDialog(true) },
-                { label: "Transfer Check", icon: transferCheckIcon, action: () => setShowTransferCheckDialog(true) },
-              ].map(({ label, icon, action, highlight }: any) => (
-                <Button key={label} variant="secondary" size="sm" onClick={action} className={`text-xs rounded-[10px] ${highlight ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-7 px-3 whitespace-nowrap flex items-center gap-1.5`}>
-                  <img src={icon} alt="" className="w-4 h-4" />
-                  {label}
-                </Button>
-              ))}
+      {/* Order Summary with Tip Refund Indicator */}
+      {(() => {
+        const refundedTip = getRefundedTipAmount(selectedGuest.id);
+        const hasRefundedTip = refundedTip > 0;
+        const remainingTip = selectedGuest.tip - refundedTip;
+        const isFullTipRefunded = refundedTip >= selectedGuest.tip;
+        const totalRefunded = getTotalRefundedAmount(selectedGuest);
+        const isFullyRefunded = isFullyRefundedOrder(selectedGuest);
+        
+        return (
+          <div className="px-3 py-2 border-t border-neutral-700/50">
+            <div className="text-xs flex flex-wrap items-center gap-x-4 gap-y-1">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">Sub Total</span>
+                  <span className="text-foreground font-semibold">{formatPrice(selectedGuest.subtotal)}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">Discount</span>
+                  <span className="text-foreground font-semibold">{formatPrice(selectedGuest.discount)}</span>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">Service Charge</span>
+                  <span className="text-foreground font-semibold">{formatPrice(selectedGuest.serviceCharge)}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className="text-muted-foreground">Tax</span>
+                  <span className="text-foreground font-semibold">{formatPrice(selectedGuest.tax)}</span>
+                </div>
+              </div>
             </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
-        </div>
-      )}
+            {/* Total + Tip row - only for Paid or Completed tickets */}
+            {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.paid) && (
+              <div className="text-sm flex items-center gap-2 mt-2 pt-2 border-t border-white/10">
+                <span className="text-muted-foreground font-medium">Total</span>
+                <span className={`font-bold ${isFullyRefunded ? 'text-red-400 line-through' : 'text-foreground'}`}>{formatPrice(selectedGuest.total)}</span>
+                {selectedGuest.tip > 0 && (
+                  <>
+                    <span className="text-muted-foreground font-medium">+</span>
+                    <span className="text-muted-foreground font-medium">Tip</span>
+                    {hasRefundedTip ? (
+                      <div className="flex items-center gap-1">
+                        <span className="text-red-400 line-through text-xs">{formatPrice(refundedTip)}</span>
+                        {!isFullTipRefunded && (
+                          <span className="text-foreground font-bold">{formatPrice(remainingTip)}</span>
+                        )}
+                        {isFullTipRefunded && (
+                          <span className="px-1 py-0.5 bg-red-500/20 text-red-400 text-[9px] font-medium rounded">REFUNDED</span>
+                        )}
+                      </div>
+                    ) : (
+                      <span className="text-foreground font-bold">{formatPrice(selectedGuest.tip)}</span>
+                    )}
+                  </>
+                )}
+              </div>
+            )}
+            {/* Refunded amount row - show when there's any refund */}
+            {totalRefunded > 0 && refundStep === 'closed' && (
+              <div className="mt-2 pt-2 border-t border-white/10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <RotateCcw className="w-3 h-3 text-red-400" />
+                    <span className="text-xs text-muted-foreground">Refunded</span>
+                    <span className="text-sm text-red-400 font-bold">{formatPrice(totalRefunded)}</span>
+                  </div>
+                  {isFullyRefunded ? (
+                    <span className="px-2 py-1 bg-red-500/20 text-red-400 text-[10px] font-semibold rounded-full flex items-center gap-1">
+                      <Check className="w-3 h-3" />
+                      FULLY REFUNDED
+                    </span>
+                  ) : (
+                    <span className="px-2 py-1 bg-orange-500/20 text-orange-400 text-[10px] font-semibold rounded-full flex items-center gap-1">
+                      PARTIALLY REFUNDED
+                    </span>
+                  )}
+                </div>
+                {/* Refund transactions as horizontal chips */}
+                {(() => {
+                  const transactions = getRefundTransactionsForOrder(selectedGuest.id);
+                  if (transactions.length > 0) {
+                    const isExpanded = expandedRefundTransactions.has(selectedGuest.id);
+                    const displayedTransactions = isExpanded ? transactions : transactions.slice(0, 3);
+                    const hiddenCount = transactions.length - 3;
+                    
+                    return (
+                      <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                        {displayedTransactions.map((txn) => (
+                          <span key={txn.id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/5 rounded-full text-[10px] text-white/60">
+                            {getPaymentMethodIcon(txn.paymentType)}
+                            <span className="truncate max-w-[80px]">{txn.paymentMethod}</span>
+                            <span className="text-red-400 font-medium">{formatPrice(txn.amount)}</span>
+                          </span>
+                        ))}
+                        {transactions.length > 3 && (
+                          <button 
+                            onClick={() => toggleRefundTransactionsExpanded(selectedGuest.id)}
+                            className="text-[10px] text-orange-400 hover:text-orange-300 transition-colors"
+                          >
+                            {isExpanded ? 'Show less' : `+${hiddenCount} more`}
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* Bottom Actions */}
       <div className="px-3 py-3 border-t border-neutral-700/50 flex items-center gap-2">
-        {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED") ? (
-          showRefundMode ? (
-            <button 
-              onClick={() => setShowRefundDialog(true)}
-              className="flex-1 py-2.5 rounded-full text-white text-sm font-bold"
-              style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
-            >
-              REFUND
-            </button>
+        {selectedGuest.paid ? (
+          // Check if closed OR if there are any refunds on this ticket
+          (refundStep === 'closed' || getTotalRefundedAmount(selectedGuest) > 0) ? (
+            // Only show refund button if there's remaining amount to refund
+            getRemainingRefundableAmount(selectedGuest) > 0 ? (
+              <button 
+                onClick={handleOpenRefundModal}
+                className="flex-1 py-2.5 rounded-full text-white text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <RotateCcw className="w-4 h-4" />
+                  REFUND
+                </span>
+              </button>
+            ) : (
+              <button 
+                disabled
+                className="flex-1 py-2.5 rounded-full text-white/60 text-sm font-bold cursor-not-allowed opacity-60"
+                style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+              >
+                <span className="flex items-center justify-center gap-2">
+                  <Check className="w-4 h-4" />
+                  FULLY REFUNDED
+                </span>
+              </button>
+            )
           ) : (
             <>
               <button 
-                onClick={() => setShowTipDialog(true)}
-                className="flex-1 py-2.5 rounded-full text-white text-sm font-bold border border-white/20"
-                style={{ background: '#1B1C20' }}
+                onClick={() => setIsTipSheetOpen(true)}
+                className="flex-1 py-2.5 rounded-full text-white text-sm font-bold transition-colors hover:bg-neutral-700"
+                style={{ background: "#1B1C20" }}
               >
                 ADD TIP
               </button>
               <button 
-                onClick={() => setShowRefundMode(true)}
-                className="flex-1 py-2.5 rounded-full text-black text-sm font-bold"
-                style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
+                onClick={handleCloseTicket}
+                className="flex-1 py-2.5 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]" 
+                style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
               >
                 CLOSE
               </button>
@@ -1368,10 +2679,14 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
           )
         ) : (
           <>
-            <button className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors">
+            <button 
+              onClick={() => setIsClearDialogOpen(true)}
+              className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
+            >
               <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
             </button>
             <button 
+              onClick={() => setIsTipSheetOpen(true)}
               className="px-4 py-2.5 rounded-full flex items-center gap-1 text-white text-sm font-medium" 
               style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
             >
@@ -1379,15 +2694,11 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
               <span>FIRE</span>
             </button>
             <button 
+              onClick={() => setIsTipSheetOpen(true)}
               className="flex-1 py-2.5 rounded-full text-black text-sm font-bold" 
               style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
             >
-              {(() => {
-                const mobileTotal = isTaxExempt 
-                  ? selectedGuest.subtotal - selectedGuest.discount + selectedGuest.serviceCharge + (selectedGuest.tip ?? 0)
-                  : selectedGuest.total;
-                return `CHARGE ${formatPrice(mobileTotal)}`;
-              })()}
+              CHARGE {formatPrice(selectedGuest.total)}
             </button>
           </>
         )}
@@ -1395,850 +2706,3349 @@ const Tickets = ({ isClosedTicketsMode }: { isClosedTicketsMode?: boolean }) => 
     </div>
   );
 
-  // ===== FILTER TABS COMPONENT =====
-  const FilterTabs = ({ style = "default" }: { style?: "default" | "glass" }) => (
-    <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
-      {filters.map(filter => {
-        const count = getFilterCount(filter);
-        return (
-          <button 
-            key={filter} 
-            onClick={() => setActiveFilter(filter)} 
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`} 
-            style={activeFilter === filter 
-              ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } 
-              : style === "glass" 
-                ? { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
-                : { background: "#1B1C20" }
-            }
-          >
-            <span>{filter}</span>
-            {count > 0 && (
-              <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"}`}>
-                {count}
-              </span>
-            )}
-          </button>
-        );
-      })}
-    </div>
-  );
-
-
-
-  const handleMobileFilterApply = useCallback((filters: {
-    revenueCenter: string | null;
-    date: Date | undefined;
-    employee: string | null;
-    orderType: string | null;
-    orderStatus: string | null;
-    paymentType: string | null;
-  }) => {
-    setAdvFilterRevenueCenter(filters.revenueCenter);
-    setAdvFilterDate(filters.date);
-    setAdvFilterEmployee(filters.employee);
-    setAdvFilterOrderType(filters.orderType);
-    setAdvFilterOrderStatus(filters.orderStatus);
-    setAdvFilterPaymentType(filters.paymentType);
-  }, []);
-
-  const hasAnyAdvancedFilter = !!(advFilterRevenueCenter || advFilterDate || advFilterEmployee || advFilterOrderType || advFilterOrderStatus || advFilterPaymentType);
-
-  const resetAllAdvancedFilters = useCallback(() => {
-    setAdvFilterRevenueCenter(null);
-    setAdvFilterDate(undefined);
-    setAdvFilterEmployee(null);
-    setAdvFilterOrderType(null);
-    setAdvFilterOrderStatus(null);
-    setAdvFilterPaymentType(null);
-  }, []);
-
-  const handleSearchQueryChange = useCallback((q: string) => setSearchQuery(q), []);
-  const handleShowSearchChange = useCallback((v: boolean) => setShowSearch(v), []);
-  const handleShowFilterIconsChange = useCallback((v: boolean) => setShowFilterIcons(v), []);
-  const handleAdvFilterRevenueCenterChange = useCallback((v: string | null) => setAdvFilterRevenueCenter(v), []);
-  const handleAdvFilterDateChange = useCallback((v: Date | undefined) => setAdvFilterDate(v), []);
-  const handleAdvFilterEmployeeChange = useCallback((v: string | null) => setAdvFilterEmployee(v), []);
-  const handleAdvFilterOrderTypeChange = useCallback((v: string | null) => setAdvFilterOrderType(v), []);
-  const handleAdvFilterOrderStatusChange = useCallback((v: string | null) => setAdvFilterOrderStatus(v), []);
-  const handleAdvFilterPaymentTypeChange = useCallback((v: string | null) => setAdvFilterPaymentType(v), []);
-
-  // ===== RIGHT PANEL (shared between desktop & tablet) =====
-  const RightPanel = ({ width, isTablet = false }: { width: string; isTablet?: boolean }) => (
-    <div className={`${width} flex flex-col m-2 ml-0 min-w-0`}>
-      {/* Guest Header */}
-      <div className={`px-2 ${isTablet ? 'py-2' : 'py-3'}`}>
-        <div className="flex items-center justify-between mb-2">
-          <span className={`text-white font-medium ${isTablet ? 'text-sm' : ''}`}>{selectedGuest.name}</span>
-          <div className={`flex items-center gap-${isTablet ? '2' : '3'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'}`}>
-            {!isTablet && (
-              <div className="flex items-center gap-1">
-                <Phone className="w-3 h-3" />
-                <span>{selectedGuest.phone || "N/A"}</span>
-              </div>
-            )}
-            {isTablet && <Phone className="w-3 h-3" />}
-            <div className="flex items-center gap-1">
-              <span>⚡</span>
-              <span>{selectedGuest.time}</span>
+  // Mobile Layout
+  const mobileLayout = (
+    <div className="flex flex-col h-full bg-black">
+      {/* Header */}
+      <div className="relative flex items-center justify-between px-3 py-2.5 border-b border-neutral-700/50">
+        {showSearchInput ? (
+          <>
+            <div className="flex-1 flex items-center gap-2 px-2">
+              <Search className="w-4 h-4 text-white/50 flex-shrink-0" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search by name, order ID..."
+                className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/40"
+                autoFocus
+              />
             </div>
-          </div>
-        </div>
-        {selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED" ? (
-          <div className="flex gap-2">
-            <Button 
-              variant="secondary"
-              size="sm"
-              onClick={() => setShowTransferCheckDialog(true)}
-              className="text-xs rounded-[10px] bg-[#666666] hover:bg-[#666666] border border-sidebar-border h-7 px-3 whitespace-nowrap flex items-center gap-1.5"
+            <button 
+              onClick={() => { setShowSearchInput(false); setSearchQuery(""); }}
+              className="p-2 rounded-full hover:opacity-80 transition-opacity ml-2" 
+              style={{ background: "rgba(255, 255, 255, 0.2)", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
             >
-              <img src={transferCheckIcon} alt="" className="w-3.5 h-3.5" />
-              Transfer Check
-            </Button>
-          </div>
+              <X className="w-4 h-4 text-white" />
+            </button>
+          </>
         ) : (
-          <div className={`flex gap-2 overflow-x-auto scrollbar-hide ${isTablet ? 'flex-wrap' : ''}`}>
-            {[
-              { label: "Add Product", icon: customItemIcon, action: () => navigate(`/orders?orderId=${selectedGuest.id}&tableId=${selectedGuest.table}&mode=addItem`) },
-              { label: "Discount", icon: discountBtnIcon, action: () => { setDiscountDialogView('mpin'); setShowDiscountDialog(true); }, highlight: !!selectedDiscountId },
-              { label: "Receipt", icon: printIcon, action: () => setShowReceiptDialog(true) },
-              ...(!isTablet ? [
-                { label: "No Tax", icon: noTaxBtnIcon, action: () => isTaxExempt ? setIsTaxExempt(false) : setShowNoTaxDialog(true), highlight: isTaxExempt },
-                { label: "Register", icon: registerBtnIcon },
-              ] : []),
-              { label: "Transfer Check", icon: transferCheckIcon, action: () => setShowTransferCheckDialog(true) },
-            ].map(({ label, icon, action, highlight }: any) => (
-              <Button key={label} variant="secondary" size="sm" onClick={action} className={`text-xs rounded-[10px] ${highlight ? 'bg-orange-500/20 border-orange-500' : 'bg-[#666666] border-sidebar-border'} hover:bg-[#555555] border h-7 px-3 whitespace-nowrap flex items-center gap-1.5`}>
-                <img src={icon} alt="" className="w-4 h-4" />
-                {label}
-              </Button>
-            ))}
-          </div>
+          <>
+            <span className="text-white font-semibold text-lg pl-2">Tickets</span>
+            <div className="flex items-center gap-2 z-10">
+              <button 
+                onClick={() => setIsMobileFiltersOpen(true)}
+                className="relative p-2 rounded-full hover:opacity-80 transition-opacity active:scale-95" 
+                style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+              >
+                <ListFilter className="w-4 h-4 text-white" />
+                {hasMobileActiveFilters && (
+                  <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-white rounded-full" />
+                )}
+              </button>
+              <button 
+                onClick={() => setShowSearchInput(true)}
+                className="p-2 rounded-full hover:opacity-80 transition-opacity active:scale-95" 
+                style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+              >
+                <Search className="w-4 h-4 text-white" />
+              </button>
+            </div>
+          </>
         )}
       </div>
 
-      {/* Main Panel Box */}
-      <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
-        {/* Table Order Info */}
-        <div className={`${isTablet ? 'px-3 py-2' : 'px-4 py-3'} border-b border-white/10`}>
-          <div className={`flex items-center justify-between ${isTablet ? 'mb-1' : 'mb-2'}`}>
-            <div className="flex items-center gap-2">
-              <span className={`${isTablet ? 'px-1.5 py-0.5' : 'px-2 py-1'} bg-white/10 text-white text-xs rounded`}>{isTablet ? 'ORDER' : 'TABLE ORDER'}</span>
-              <span className={`text-white font-bold ${isTablet ? 'text-sm' : ''}`}>{selectedGuest.id}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              {!isTablet && <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />}
-              <span className={`text-white/50 ${isTablet ? 'text-xs' : 'text-sm'}`}>{selectedGuest.server}</span>
-            </div>
-          </div>
-          
-          {/* Seat Buttons */}
-          <div className={`flex items-center gap-${isTablet ? '1' : '2'}`}>
-            <button className={`${isTablet ? 'p-1' : 'p-1.5'} bg-white/10 rounded hover:bg-white/20 transition-colors`}>
-              <img src={seatIcon} alt="Seat" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'}`} />
+      {/* Active Filters Chips */}
+      {hasMobileActiveFilters && (
+        <div className="flex items-center gap-2 px-3 py-2 overflow-x-auto scrollbar-hide border-b border-white/5">
+          {mobileFilters.revenueCenter && (
+            <button
+              onClick={() => setMobileFilters(prev => ({ ...prev, revenueCenter: null }))}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs text-white whitespace-nowrap active:scale-95 transition-transform"
+              style={{ background: 'rgba(255, 255, 255, 0.15)' }}
+            >
+              <span>{mobileFilters.revenueCenter}</span>
+              <X className="w-3 h-3" />
             </button>
-            {!isTablet && (
-              <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
-                <img src={splitIcon} alt="Split" className="w-4 h-4" />
-              </button>
-            )}
-            {[1, 2, 3, 4].map(seat => (
-              <button 
-                key={seat} 
-                onClick={() => toggleSeat(seat)} 
-                className={`${isTablet ? 'w-6 h-6 text-xs' : 'w-7 h-7 text-sm'} rounded font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}
-              >
-                {seat}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Notes */}
-        {(isTablet ? selectedGuest.notes : true) && (
-          <div className={`${isTablet ? 'px-3 py-2' : 'px-4 py-3'} border-b border-white/10`}>
-            <div className={`flex items-center gap-2 text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} bg-white/10 ${isTablet ? 'p-1.5' : 'p-2'} rounded-lg`}>
-              <span>📝</span>
-              <span className={isTablet ? 'truncate' : ''}>{selectedGuest.notes || "No notes"}</span>
-            </div>
-          </div>
-        )}
-
-        {/* Transfer Info - matching Table Order right panel style */}
-        {selectedGuest.transferInfo && (
-          <div className={`${isTablet ? 'px-3 py-1.5' : 'px-3 py-1.5'} border-b border-white/10 flex-shrink-0`}>
-            <div className="flex items-center gap-2">
-              <img src={transferIcon} alt="Transfer" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} flex-shrink-0`} style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
-              <span className="text-xs font-medium" style={{ color: '#8AC4FF' }}>
-                {selectedGuest.transferInfo.type === 'sent' ? (
-                  selectedGuest.transferInfo.transferType === 'full'
-                    ? `Fully Transferred to ${selectedGuest.transferInfo.targetOrderName ? selectedGuest.transferInfo.targetOrderName + ' · ' : ''}Order #${selectedGuest.transferInfo.targetOrderId}`
-                    : `Transferred (${selectedGuest.transferInfo.itemCount}) item${(selectedGuest.transferInfo.itemCount || 0) > 1 ? 's' : ''} to Order #${selectedGuest.transferInfo.targetOrderId}`
-                ) : (
-                  selectedGuest.transferInfo.transferType === 'full'
-                    ? `Fully Transferred from ${selectedGuest.transferInfo.sourceTable && selectedGuest.transferInfo.sourceTable !== '--' ? selectedGuest.transferInfo.sourceTable + ' · ' : ''}Order #${selectedGuest.transferInfo.sourceOrderId}`
-                    : `${selectedGuest.transferInfo.itemCount} item${(selectedGuest.transferInfo.itemCount || 0) > 1 ? 's' : ''} transferred from Order #${selectedGuest.transferInfo.sourceOrderId}`
-                )}
+          )}
+          {mobileFilters.datePreset !== 'today' && (
+            <button
+              onClick={() => setMobileFilters(prev => ({ ...prev, datePreset: 'today', customDateStart: undefined, customDateEnd: undefined }))}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs text-white whitespace-nowrap active:scale-95 transition-transform"
+              style={{ background: 'rgba(255, 255, 255, 0.15)' }}
+            >
+              <span>
+                {mobileFilters.datePreset === 'custom' && mobileFilters.customDateStart && mobileFilters.customDateEnd
+                  ? `${format(mobileFilters.customDateStart, 'MM/dd')} - ${format(mobileFilters.customDateEnd, 'MM/dd')}`
+                  : mobileFilters.datePreset === 'yesterday' ? 'Yesterday'
+                  : mobileFilters.datePreset === 'this-week' ? 'This Week'
+                  : mobileFilters.datePreset === 'this-month' ? 'This Month'
+                  : mobileFilters.datePreset === 'last-7-days' ? 'Last 7 Days'
+                  : 'Custom'}
               </span>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+          {mobileFilters.employee && (
+            <button
+              onClick={() => setMobileFilters(prev => ({ ...prev, employee: null }))}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs text-white whitespace-nowrap active:scale-95 transition-transform"
+              style={{ background: 'rgba(255, 255, 255, 0.15)' }}
+            >
+              <span>{mobileFilters.employee}</span>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+          {mobileFilters.orderType && (
+            <button
+              onClick={() => setMobileFilters(prev => ({ ...prev, orderType: null }))}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs text-white whitespace-nowrap active:scale-95 transition-transform"
+              style={{ background: 'rgba(255, 255, 255, 0.15)' }}
+            >
+              <span>{mobileFilters.orderType}</span>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+          {mobileFilters.orderStatus && (
+            <button
+              onClick={() => setMobileFilters(prev => ({ ...prev, orderStatus: null }))}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs text-white whitespace-nowrap active:scale-95 transition-transform"
+              style={{ background: 'rgba(255, 255, 255, 0.15)' }}
+            >
+              <span>{mobileFilters.orderStatus}</span>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+          {mobileFilters.paymentType && (
+            <button
+              onClick={() => setMobileFilters(prev => ({ ...prev, paymentType: null }))}
+              className="flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs text-white whitespace-nowrap active:scale-95 transition-transform"
+              style={{ background: 'rgba(255, 255, 255, 0.15)' }}
+            >
+              <span>{mobileFilters.paymentType}</span>
+              <X className="w-3 h-3" />
+            </button>
+          )}
+          {/* Clear All */}
+          <button
+            onClick={clearMobileFilters}
+            className="flex items-center gap-1 px-2.5 py-1 rounded-full text-xs text-white/70 whitespace-nowrap active:scale-95 transition-transform"
+            style={{ background: 'rgba(239, 68, 68, 0.3)' }}
+          >
+            <span>Clear All</span>
+          </button>
+        </div>
+      )}
+
+      {/* Filter Tabs */}
+      <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
+        {filters.map(filter => {
+          const count = getFilterCount(filter);
+          return (
+            <button 
+              key={filter} 
+              onClick={() => setActiveFilter(filter)} 
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`} 
+              style={activeFilter === filter ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: "#1B1C20" }}
+            >
+              <span>{filter}</span>
+              {count > 0 && (
+                <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"}`}>
+                  {count}
+                </span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Guest Orders List */}
+      <ScrollArea className="flex-1 px-3">
+        <div className="space-y-2 pb-3">
+          {mobileFilteredOrders.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Search className="w-10 h-10 text-white/20 mb-3" />
+              <p className="text-white/60 text-base font-medium">No results found</p>
+              <p className="text-white/40 text-xs mt-1">
+                {searchQuery ? `No tickets match "${searchQuery}"` : "No tickets match the selected filters"}
+              </p>
+              {(searchQuery || hasMobileActiveFilters) && (
+                <button 
+                  onClick={() => { setSearchQuery(""); clearMobileFilters(); }}
+                  className="mt-3 px-3 py-1.5 rounded-full text-xs text-white active:bg-white/20 transition-colors"
+                  style={{ background: "#7575754D" }}
+                >
+                  Clear all filters
+                </button>
+              )}
             </div>
-          </div>
-        )}
-
-        {/* Order Items */}
-        <ScrollArea className={`flex-1 ${isTablet ? 'px-3' : 'px-4'}`}>
-          <div className={`py-2 space-y-${isTablet ? '1.5' : '2'}`}>
-            {/* For SENT orders: show original items with strikethrough */}
-            {selectedGuest.transferInfo?.type === 'sent' && selectedGuest.transferInfo.transferredItems && selectedGuest.transferInfo.transferredItems.map((item, index) => (
-              <div key={`sent-${index}`} className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} bg-white/5 border border-white/10 opacity-50`}>
-                <div className="flex items-start justify-between">
-                  <div className="flex items-start gap-2">
-                    <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} bg-white rounded flex items-center justify-center text-black font-bold`}>
-                      {item.qty}
-                    </span>
-                    <div>
-                      <span className={`text-white font-medium line-through ${isTablet ? 'text-sm' : ''}`}>{item.name}</span>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <img src={transferIcon} alt="Transfer" className="w-3 h-3" style={{ filter: 'brightness(0) saturate(100%) invert(68%) sepia(53%) saturate(456%) hue-rotate(182deg) brightness(103%) contrast(101%)' }} />
-                        <span className="text-[10px] text-[#8AC4FF]">Transferred to {selectedGuest.transferInfo!.targetOrderName || `Order #${selectedGuest.transferInfo!.targetOrderId}`}</span>
-                      </div>
-                    </div>
-                  </div>
-                  <span className={`text-white font-medium line-through ${isTablet ? 'text-sm' : ''}`}>{formatPrice(item.price * item.qty)}</span>
-                </div>
-              </div>
-            ))}
-
-            {/* For RECEIVED orders: show transferred items in blue shade */}
-            {selectedGuest.transferInfo?.type === 'received' && selectedGuest.transferInfo.transferredItems && (
-              <div className="mb-2 pb-2 border-b border-white/10">
-                {selectedGuest.transferInfo.transferredItems.map((item, index) => (
-                  <div key={`received-${index}`} className={`${isTablet ? 'p-2 rounded-lg mb-1' : 'p-3 rounded-xl mb-1.5'} border border-[#3B6A9E]`} style={{ background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' }}>
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-start gap-2">
-                        <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} bg-[#3B6A9E] rounded flex items-center justify-center text-white font-bold`}>
-                          {item.qty}
-                        </span>
-                        <span className={`text-white font-medium ${isTablet ? 'text-sm' : ''}`}>{item.name}</span>
-                      </div>
-                      <span className={`text-white/80 font-medium ${isTablet ? 'text-sm' : ''}`}>{formatPrice(item.price * item.qty)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* Regular items (for non-transferred orders OR remaining items on received orders) */}
-            {selectedGuest.items.map((item, index) => {
-              const canSwipe = isTicketEditable(selectedGuest.status);
-              const isPaid = isPaidOrCompleted(selectedGuest.status);
-              const refundKey = `${selectedGuest.id}-${index}`;
-              const isRefunded = refundedProducts.has(refundKey);
-
-              const productContent = (
-                <div className={`${isTablet ? 'p-2 rounded-lg' : 'p-3 rounded-xl'} border transition-all ${isRefunded ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.isCancelled ? 'opacity-50 border-red-500/30 bg-red-500/5' : item.noTax ? 'border-orange-500/40 bg-orange-500/5' : 'bg-white/5 border-white/10'}`}>
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-start gap-2">
-                      <span className={`${isTablet ? 'w-5 h-5 text-xs' : 'w-6 h-6 text-sm'} rounded flex items-center justify-center font-bold ${isRefunded ? 'bg-red-500/20 text-red-400' : item.isCancelled ? 'bg-red-500/20 text-red-400' : 'bg-white text-black'}`}>
-                        {item.qty}
-                      </span>
-                      <div>
-                        <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${isRefunded ? 'text-white/40 line-through' : item.isCancelled ? 'text-white/40 line-through' : 'text-white'}`}>{item.name}</span>
-                        {item.modifiers.length > 0 && (() => {
-                          const modExpandKey = `right-${selectedGuest.id}-${index}`;
-                          const isExpanded = expandedModifiers.has(modExpandKey);
-                          const showAll = !isTablet || isExpanded;
-                          const visibleMods = showAll ? item.modifiers.map((m, i) => ({ mod: m, origIndex: i })) : item.modifiers.slice(0, 2).map((m, i) => ({ mod: m, origIndex: i }));
-                          const hiddenCount = item.modifiers.length - 2;
-                          return (
-                            <div className={`mt-${isTablet ? '0.5' : '1'} text-white/50 ${isTablet ? 'text-xs' : 'text-sm'} space-y-0.5`}>
-                              {visibleMods.map(({ mod, origIndex: mi }) => {
-                                const modRefundKey = `${selectedGuest.id}-${index}-mod-${mi}`;
-                                const isModRefunded = refundedModifiers.has(modRefundKey);
-                                const canRefundMod = isPaid && showRefundMode && isRefundableModifier(mod) && !isModRefunded && !isRefunded;
-
-                                const modContent = (
-                                  <div className={`flex items-center justify-between ${isModRefunded ? 'opacity-50' : ''}`}>
-                                    <span className={isModRefunded ? 'line-through text-white/30' : ''}>{mod}</span>
-                                    {isModRefunded && (
-                                      <span className="text-[9px] bg-red-500/20 text-red-400 border border-red-500/40 px-1 py-0.5 rounded font-medium ml-1">REFUNDED</span>
-                                    )}
-                                  </div>
-                                );
-
-                                if (canRefundMod) {
-                                  return (
-                                    <SwipeableRefundItem
-                                      key={mi}
-                                      onRefund={() => handleModifierRefundSwipe(index, item, mi, mod)}
-                                      label={mod}
-                                      isModifier
-                                    >
-                                      {modContent}
-                                    </SwipeableRefundItem>
-                                  );
-                                }
-                                return <div key={mi}>{modContent}</div>;
-                              })}
-                              {isTablet && hiddenCount > 0 && (
-                                <button
-                                  onClick={(e) => toggleModifierExpand(modExpandKey, e)}
-                                  className="text-blue-400 hover:text-blue-300 transition-colors"
-                                >
-                                  {isExpanded ? 'Show less' : `+${hiddenCount} more`}
-                                </button>
-                              )}
-                            </div>
-                          );
-                        })()}
-                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
-                          {isRefunded && (
-                            <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">REFUNDED</span>
-                          )}
-                          {item.noTax && !item.isCancelled && !isRefunded && (
-                            <span className="text-[10px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
-                          )}
-                          {item.isCancelled && !isRefunded && (
-                            <span className="text-[10px] bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.5 rounded font-medium">Cancelled</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    <span className={`font-medium ${isTablet ? 'text-sm' : ''} ${isRefunded ? 'text-white/30 line-through' : item.isCancelled ? 'text-white/30 line-through' : 'text-white'}`}>{formatPrice(item.price * item.qty)}</span>
-                  </div>
-                  {!isTablet && item.seats.length > 0 && (
-                    <div className="flex items-center gap-1 mt-2">
-                      <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
-                      {item.seats.map(seat => (
-                        <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
-                          {seat}
-                        </span>
-                      ))}
-                    </div>
+          ) : mobileFilteredOrders.map(guest => (
+            <div key={guest.id} className="space-y-0">
+              <div className="relative rounded-xl cursor-pointer transition-all overflow-hidden bg-black">
+                {/* Swipe Action Buttons */}
+                <div className={`absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-2 md:hidden transition-opacity duration-200 ${(swipeStates[guest.id] || 0) < -20 ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                  {guest.status === "PAID" || guest.paid ? (
+                    <>
+                      <button 
+                        className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-receipt-gradient"
+                        onClick={(e) => { e.stopPropagation(); setIsReceiptDialogOpen(true); }}
+                      >
+                        <img src={receiptIcon} alt="" className="w-5 h-5 brightness-0 invert" />
+                      </button>
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors btn-neutral-gradient">
+                        <img src={registerIcon} alt="Register" className="w-5 h-5 object-contain brightness-0" />
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ backgroundColor: '#666666' }}>
+                        <img src={mergeIcon} alt="Merge" className="w-5 h-5 object-contain" />
+                      </button>
+                      <button className="w-10 h-10 flex items-center justify-center rounded-full transition-colors" style={{ background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)' }}>
+                        <img src={shareOrderIcon} alt="Transfer" className="w-5 h-5 object-contain" />
+                      </button>
+                    </>
                   )}
                 </div>
-              );
 
-              // For paid tickets: wrap with SwipeableRefundItem
-              if (isPaid && showRefundMode && !isRefunded && !item.isCancelled) {
-                return (
-                  <SwipeableRefundItem
-                    key={index}
-                    onRefund={() => handleProductRefundSwipe(index, item)}
-                    label={item.name}
-                  >
-                    {productContent}
-                  </SwipeableRefundItem>
-                );
-              }
-
-              // For active tickets: wrap with SwipeableTicketItem
-              return (
-                <SwipeableTicketItem
-                  key={index}
-                  isNoTax={item.noTax}
-                  isCancelled={item.isCancelled}
-                  disabled={!canSwipe}
-                  isOpen={activeSwipedProductIndex === index}
-                  onSwipeStart={() => setActiveSwipedProductIndex(index)}
-                  onNoTax={() => handleProductNoTax(index)}
-                  onCancel={() => handleProductCancel(index)}
+                {/* Swipeable card content */}
+                <div 
+                  className="relative transition-transform duration-200 ease-out md:transform-none bg-black rounded-xl select-none" 
+                  style={{ transform: `translateX(${swipeStates[guest.id] || 0}px)`, transition: isDraggingRef.current && currentCardId.current === guest.id ? "none" : "transform 0.2s ease-out" }} 
+                  onTouchStart={e => handleSwipeStart(e, guest)} 
+                  onTouchMove={handleSwipeMove} 
+                  onTouchEnd={e => handleSwipeEnd(true, e, guest)} 
+                  onTouchCancel={e => handleSwipeEnd(false, e, guest)} 
+                  onMouseDown={e => handleSwipeStart(e, guest)} 
+                  onMouseMove={handleSwipeMove} 
+                  onMouseUp={e => handleSwipeEnd(true, e, guest)} 
+                  onMouseLeave={e => handleSwipeEnd(false, e, guest)} 
+                  onClick={() => handleCardClick(guest)}
                 >
-                  {productContent}
-                </SwipeableTicketItem>
+                  <MobileTicketCard
+                    orderId={guest.id}
+                    checkId={guest.check === "--" ? "000" : guest.check.slice(-3)}
+                    guestName={guest.name}
+                    tableNumber={guest.table}
+                    partySize={guest.partySize}
+                    orderType={(guest.orderType as "Table" | "DineIn" | "Takeaway" | "Drive-thru") || "Table"}
+                    arrivedTime={guest.time}
+                    timer={formatElapsedTime(guest.createdAt, currentTime)}
+                    revenueCenter={guest.revenueCenter}
+                    serverName={guest.server}
+                    orderStatus={getDisplayStatus(guest)}
+                    totalAmount={guest.total}
+                    paymentStatus={guest.paymentType === "--" ? "Un Paid" : getDisplayPaymentType(guest)}
+                    gratuity={guest.tip}
+                    isSelected={selectedGuest.id === guest.id}
+                  />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <ScrollBar orientation="vertical" />
+      </ScrollArea>
+
+      {/* No CTA button */}
+
+      {/* Mobile Order Panel */}
+      {showMobileOrderPanel && <MobileOrderPanel />}
+    </div>
+  );
+
+  // Desktop Layout
+  const desktopLayout = (
+    <div className="flex h-full bg-black gap-2">
+      {/* Left Panel - Order List */}
+      <div className="flex flex-col w-[55%] rounded-r-[20px] overflow-hidden">
+        {/* Header - Inline filter options */}
+        <div className="flex items-center justify-between py-2 pr-2 border-b border-neutral-700/50">
+          {showSearchInput ? (
+            <>
+              <div className="flex-1 flex items-center gap-2 pl-3 pr-2">
+                <Search className="w-4 h-4 text-white/50 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name, order ID, or check..."
+                  className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/40"
+                  autoFocus
+                />
+              </div>
+              <button 
+                onClick={() => { setShowSearchInput(false); setSearchQuery(""); }}
+                className="p-2 rounded-full hover:opacity-80 transition-opacity ml-2" 
+                style={{ background: "rgba(255, 255, 255, 0.2)", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="text-white font-semibold text-lg pl-3">Tickets</span>
+              <div className="flex items-center gap-1">
+                {showFilterPanel && (
+                  <>
+                    {/* Revenue Center Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterRevenueCenter ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <DollarSign className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <div className="text-xs text-white/50 mb-2 px-2">Revenue Center</div>
+                        {filterOptions.revenueCenters.map(rc => (
+                          <button key={rc} onClick={() => setFilterRevenueCenter(filterRevenueCenter === rc ? null : rc)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterRevenueCenter === rc ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{rc}</button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Date Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterDate ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <Calendar className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <CalendarComponent mode="single" selected={filterDate} onSelect={setFilterDate} className="pointer-events-auto bg-neutral-800 text-white" />
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Employee Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterEmployee ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <Users className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <div className="text-xs text-white/50 mb-2 px-2">Employee</div>
+                        {filterOptions.employees.map(emp => (
+                          <button key={emp} onClick={() => setFilterEmployee(filterEmployee === emp ? null : emp)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterEmployee === emp ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{emp}</button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Order Type Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterOrderType ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <ClipboardList className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <div className="text-xs text-white/50 mb-2 px-2">Order Type</div>
+                        {filterOptions.orderTypes.map(type => (
+                          <button key={type} onClick={() => setFilterOrderType(filterOrderType === type ? null : type)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${filterOrderType === type ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>
+                            <OrderTypeIcon type={type} size="small" />
+                            {type}
+                          </button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Order Status Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterOrderStatus ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <CircleDollarSign className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <div className="text-xs text-white/50 mb-2 px-2">Order Status</div>
+                        {filterOptions.orderStatuses.map(status => (
+                          <button key={status} onClick={() => setFilterOrderStatus(filterOrderStatus === status ? null : status)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterOrderStatus === status ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{status}</button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Payment Type Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterPaymentType ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <Wallet className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <div className="text-xs text-white/50 mb-2 px-2">Payment Type</div>
+                        {filterOptions.paymentTypes.map(pt => (
+                          <button key={pt} onClick={() => setFilterPaymentType(filterPaymentType === pt ? null : pt)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterPaymentType === pt ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{pt}</button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Clear Filters Button - only show if filters are active */}
+                    {hasActiveFilters && (
+                      <button onClick={clearAllFilters} className="p-2 rounded-xl hover:bg-white/10 transition-colors" style={{ background: "rgba(239, 68, 68, 0.4)" }}>
+                        <RotateCcw className="w-4 h-4 text-white" />
+                      </button>
+                    )}
+                  </>
+                )}
+                <button 
+                  onClick={() => setShowFilterPanel(!showFilterPanel)}
+                  className="p-2 rounded-full hover:opacity-80 transition-opacity ml-1" 
+                  style={{ background: showFilterPanel ? "rgba(255, 255, 255, 0.2)" : "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                >
+                  {showFilterPanel ? <X className="w-4 h-4 text-white" /> : <SlidersHorizontal className="w-4 h-4 text-white" />}
+                </button>
+                <button 
+                  onClick={() => setShowSearchInput(true)}
+                  className="p-2 rounded-full hover:opacity-80 transition-opacity" 
+                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                >
+                  <Search className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="flex items-center gap-2 p-3 overflow-x-auto">
+          {filters.map(filter => {
+            const count = getFilterCount(filter);
+            return (
+              <button 
+                key={filter} 
+                onClick={() => setActiveFilter(filter)} 
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`} 
+                style={activeFilter === filter ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+              >
+                <span>{filter}</span>
+                {count > 0 && (
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"}`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Guest Orders List */}
+        <ScrollArea className="flex-1 px-3">
+          <div className="space-y-2 pb-3">
+            {filteredOrders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <Search className="w-12 h-12 text-white/20 mb-4" />
+                <p className="text-white/60 text-lg font-medium">No results found</p>
+                <p className="text-white/40 text-sm mt-1">
+                  {searchQuery ? `No tickets match "${searchQuery}"` : "No tickets match the selected filters"}
+                </p>
+                {(searchQuery || hasActiveFilters) && (
+                  <button 
+                    onClick={() => { setSearchQuery(""); clearAllFilters(); }}
+                    className="mt-4 px-4 py-2 rounded-full text-sm text-white hover:bg-white/10 transition-colors"
+                    style={{ background: "#7575754D" }}
+                  >
+                    Clear all filters
+                  </button>
+                )}
+              </div>
+            ) : filteredOrders.map(originalGuest => {
+              // Use selectedGuest for the selected item to reflect updated tip
+              const guest = originalGuest.id === selectedGuest.id ? selectedGuest : originalGuest;
+              return (
+              <div key={guest.id} className="space-y-0">
+                <div 
+                  onClick={() => setSelectedGuest(guest)} 
+                  className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} 
+                  style={{ backgroundColor: '#1B1C20' }}
+                >
+                  <div className="flex items-stretch w-full">
+                    {/* Column 1: Order Number Box */}
+                    <div className="flex-shrink-0 px-2 py-1.5 flex items-center">
+                      <div className="relative w-12 h-[58px] bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+                        <span className="text-lg font-bold text-white">{guest.id}</span>
+                        <span className="text-[10px] text-gray-400">{guest.check === "--" ? "000" : guest.check.slice(-3)}</span>
+                      </div>
+                    </div>
+
+                    {/* Column 2: Main Info - Horizontal Layout */}
+                    <div className="flex-1 min-w-0 py-1.5 pr-2 flex items-center">
+                      {/* Left Group: Name, Order Details, Revenue Center */}
+                      <div className="flex flex-col min-w-[180px]">
+                        {/* Row 1: Name · Table */}
+                        <div className="flex items-center gap-1.5">
+                          <span className="text-white font-semibold text-sm">{guest.name}</span>
+                          {guest.orderType === "Table" && (
+                            <>
+                              <span className="text-gray-400">·</span>
+                              <span className="text-white font-semibold text-sm">{guest.table}</span>
+                            </>
+                          )}
+                        </div>
+                        {/* Row 2: Party/OrderType, Time, Timer */}
+                        <div className="flex items-center gap-1 text-xs text-gray-400">
+                          <OrderTypeIcon type={guest.orderType} size="small" />
+                          {guest.orderType === "Table" ? (
+                            <span>Party of {guest.partySize},</span>
+                          ) : (
+                            <span>{guest.orderType},</span>
+                          )}
+                          <span>{guest.time}</span>
+                          <span className="text-gray-500">|</span>
+                          <span>{formatElapsedTime(guest.createdAt, currentTime)}</span>
+                        </div>
+                        {/* Row 3: Revenue Center */}
+                        <span className="text-white font-medium text-xs">{guest.revenueCenter}</span>
+                      </div>
+
+                      {/* Center Group: Server + Payment */}
+                      <div className="flex-1 flex flex-col items-center justify-center">
+                        <span className="text-gray-400 text-xs">{guest.server}</span>
+                        {hasSplitPayments(guest) ? (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <button className="text-xs text-white hover:text-white/80 transition-colors flex items-center gap-1">
+                                <span className="truncate max-w-[100px]">{formatPaymentMethodsDisplay(guest, true).primary}</span>
+                                {formatPaymentMethodsDisplay(guest, true).secondary && (
+                                  <span className="text-white/60">{formatPaymentMethodsDisplay(guest, true).secondary}</span>
+                                )}
+                              </button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-auto p-2 bg-neutral-800 border-neutral-700" align="center" onClick={(e) => e.stopPropagation()}>
+                              <div className="text-xs text-white/50 mb-1.5">Payment Methods</div>
+                              <div className="space-y-1">
+                                {guest.paymentMethods?.map(pm => (
+                                  <div key={pm.id} className="flex items-center justify-between gap-4 text-xs">
+                                    <span className="text-white flex items-center gap-1.5">
+                                      <span>{getPaymentMethodIcon(pm.type)}</span>
+                                      {pm.label}
+                                    </span>
+                                    <span className="text-white/70">{formatPrice(pm.amount)}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        ) : (
+                          <span className={`text-xs ${guest.paymentType === "--" ? "text-gray-400" : "text-white"}`}>
+                            {guest.paymentType === "--" ? "Un Paid" : guest.paymentType}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Right Group: Status, Amount, Tip */}
+                      <div className="flex flex-col items-end min-w-[80px]">
+                        {/* Row 1: Status */}
+                        <span className={`font-semibold text-xs ${getStatusColor(getDisplayStatus(guest))}`}>{getDisplayStatus(guest)}</span>
+                        {/* Row 2: Amount */}
+                        <span className="text-white font-semibold text-sm">{formatPrice(guest.total)}</span>
+                        {/* Row 3: Tip */}
+                        <span className="text-gray-400 text-xs">{formatPrice(guest.tip)}</span>
+                      </div>
+                    </div>
+
+                    {/* Column 3: Action Buttons */}
+                    <div className="flex-shrink-0 flex">
+                      <div className="flex flex-col rounded-r-xl overflow-hidden">
+                        {guest.status === "PAID" || guest.paid ? (
+                          <>
+                          <button 
+                              className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-receipt-gradient"
+                              onClick={(e) => { e.stopPropagation(); setIsReceiptDialogOpen(true); }}
+                            >
+                              <img src={receiptIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
+                            </button>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-neutral-gradient" onClick={e => e.stopPropagation()}>
+                              <img src={registerIcon} alt="Register" className="w-3.5 h-3.5 object-contain brightness-0" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient">
+                              <img src={arrowRightIcon} alt="Merge" className="w-3.5 h-3.5 object-contain" />
+                            </button>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-neutral-gradient" onClick={e => e.stopPropagation()}>
+                              <img src={shareOrderIcon} alt="Share" className="w-3.5 h-3.5 object-contain brightness-0" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
               );
             })}
           </div>
           <ScrollBar orientation="vertical" />
         </ScrollArea>
 
-        {/* Order Summary */}
-        <div className="p-2 border-t border-white/10 flex-shrink-0">
-          {(() => {
-            const totalDiscount = selectedGuest.discount + appliedDiscount;
-            const adjustedTax = isTaxExempt ? 0 : Math.max(0, selectedGuest.tax - appliedDiscount * 0.0735);
-            const chargeTotal = Math.max(0, selectedGuest.subtotal - totalDiscount + selectedGuest.serviceCharge + adjustedTax + (selectedGuest.tip ?? 0));
-            const discountName = selectedDiscountId ? discountTypes.find(d => d.id === selectedDiscountId)?.name : null;
+        {/* No CTA button */}
+      </div>
+
+      {/* Right Panel - Order Details */}
+      <div className="flex-1 flex flex-col">
+        {/* Guest Header */}
+        <div className="px-1 pb-2">
+          <div className="flex items-center justify-between text-xs mb-2 gap-2">
+            <input 
+              type="text" 
+              value={getCurrentGuestName(selectedGuest.id, selectedGuest.name)} 
+              onChange={e => handleGuestNameChange(selectedGuest.id, e.target.value)} 
+              placeholder="GUEST NAME" 
+              className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 font-medium text-white text-xs" 
+            />
+            <div className="flex items-center gap-0.5">
+              <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
+              <input 
+                type="tel" 
+                inputMode="tel" 
+                value={formatPhoneNumber(getCurrentGuestPhone(selectedGuest.id, selectedGuest.phone))} 
+                onChange={e => handleGuestPhoneChange(selectedGuest.id, e.target.value)} 
+                placeholder="(XXX) XXX-XXXX" 
+                className="bg-transparent outline-none placeholder:text-[#808080] w-28 min-w-0 text-white text-xs" 
+              />
+            </div>
+            <div className="flex items-center gap-0.5 whitespace-nowrap flex-shrink-0">
+              <img src={timeIcon} alt="Time" className="w-3 h-3" />
+              <span className="text-white text-xs">{selectedGuest.time}</span>
+            </div>
+          </div>
+          {!(selectedGuest.status === "PAID" || selectedGuest.paid) && (
+            <div className="flex gap-2 items-center">
+              <button className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1">
+                <img src={customItemIcon} alt="" className="w-3 h-3" />
+                Add Item
+              </button>
+              <button 
+                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${appliedDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
+                onClick={() => setIsDiscountDialogOpen(true)}
+              >
+                <img src={discountIcon} alt="" className="w-3 h-3" />
+                Discount {appliedDiscounts.length > 0 && `(${appliedDiscounts.length})`}
+              </button>
+              <button 
+                className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
+                onClick={() => setIsReceiptDialogOpen(true)}
+              >
+                <img src={receiptIcon} alt="" className="w-3 h-3" />
+                Receipt
+              </button>
+              <button 
+                className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
+              >
+                <img src={noTaxIcon} alt="" className="w-3 h-3" />
+                No Tax
+              </button>
+              <button 
+                className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
+              >
+                <img src={registerIcon} alt="" className="w-3 h-3" />
+                Register
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Main Panel Box */}
+        <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+          {/* Table Order Info */}
+          <div className="px-4 py-3 border-b border-white/10">
+            <div className={`flex items-center justify-between ${selectedGuest.orderType === "Table" ? "mb-2" : ""}`}>
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-1 bg-white/10 text-white text-xs rounded uppercase">
+                  {selectedGuest.orderType === "Table" ? `TABLE ${selectedGuest.table}` : selectedGuest.orderType}
+                </span>
+                {selectedGuest.orderType === "Table" && (
+                  <span className="flex items-center gap-1 text-white/60 text-xs">
+                    <Users className="w-3 h-3" />
+                    {selectedGuest.partySize}
+                  </span>
+                )}
+                <span className="text-white font-bold">{selectedGuest.id}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <img src={shareSeatsIcon} alt="Seats" className="w-4 h-4 opacity-60" />
+                <span className="text-white/50 text-sm">{selectedGuest.server}</span>
+              </div>
+            </div>
             
-            return (
-              <>
-                <div className={`text-xs rounded px-2 ${isTablet ? 'py-1' : 'py-1.5'} space-y-0.5`} style={{ background: '#7575754D', ...(isTablet ? {} : { boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }) }}>
-                  <div className="flex justify-between gap-3">
-                    <span className="text-white"><span className="font-medium">Sub Total</span> <span className="font-bold">{formatPrice(selectedGuest.subtotal)}</span></span>
-                    {totalDiscount > 0 && (
-                      <span className="text-red-400 flex items-center gap-1">
-                        <span className="font-medium" title={discountName || undefined}>Discount</span> 
-                        <span className="font-bold">-{formatPrice(totalDiscount)}</span>
-                        {appliedDiscount > 0 && (
-                          <button 
-                            onClick={() => setSelectedDiscountId(null)}
-                            className="w-4 h-4 rounded-full bg-red-500/20 hover:bg-red-500/40 flex items-center justify-center transition-colors ml-0.5"
-                          >
-                            <X className="w-2.5 h-2.5 text-red-400" />
-                          </button>
+            {/* Seat Buttons - Only for Table Orders */}
+            {selectedGuest.orderType === "Table" && (
+              <div className="flex items-center gap-2">
+                <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+                  <img src={seatIcon} alt="Seat" className="w-4 h-4" />
+                </button>
+                <button className="p-1.5 bg-white/10 rounded hover:bg-white/20 transition-colors">
+                  <img src={splitIcon} alt="Split" className="w-4 h-4" />
+                </button>
+                {[1, 2, 3, 4].map(seat => (
+                  <button 
+                    key={seat} 
+                    onClick={() => toggleSeat(seat)} 
+                    className={`w-7 h-7 rounded text-sm font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}
+                  >
+                    {seat}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Notes */}
+          <div className="px-4 py-3 border-b border-neutral-700/50 relative">
+            <div className="flex items-center gap-2 text-white/50 text-sm bg-neutral-800 border border-neutral-700 p-2 rounded-lg relative">
+              <span>📝</span>
+              {canEditNotes(selectedGuest.status) ? (
+                <input
+                  type="text"
+                  value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
+                  onChange={(e) => handleNotesInputChange(selectedGuest.id, e.target.value, selectedGuest.notes)}
+                  onFocus={() => setNotesFocused(true)}
+                  onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
+                  placeholder="Add notes..."
+                  className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-sm"
+                />
+              ) : (
+                <span className="flex-1">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
+              )}
+            </div>
+            {notesFocused && canEditNotes(selectedGuest.status) && (
+              <NoteSuggestions
+                query={notesSearchTerm}
+                currentValue={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
+                onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, getCurrentNotes(selectedGuest.id, selectedGuest.notes), suggestion)}
+                recentNotes={recentNotes}
+              />
+            )}
+          </div>
+
+          {/* Order Items */}
+          <ScrollArea className="flex-1 px-4">
+            <div className="py-2 space-y-2">
+              {getFilteredOrderItems(selectedGuest).map((item, index) => {
+                const itemId = `item-${index}-${item.name}`;
+                const isItemSwipeRefunded = refundedItems.has(itemId);
+                
+                // Get refunded quantity from persisted records
+                const refundedQty = getRefundedQtyForItem(selectedGuest.id, index);
+                const orderFullyRefunded = isFullyRefundedOrder(selectedGuest);
+                const isFullyRefunded = refundedQty >= item.qty || isItemSwipeRefunded || orderFullyRefunded;
+                const isPartiallyRefunded = !orderFullyRefunded && refundedQty > 0 && refundedQty < item.qty && !isItemSwipeRefunded;
+                const remainingQty = item.qty - refundedQty;
+                
+                const handleItemRefund = () => {
+                  // Don't allow refund on already fully refunded items
+                  if (isFullyRefunded) return;
+                  handleSwipeRefund({
+                    id: itemId,
+                    type: 'item',
+                    name: item.name,
+                    price: item.price * (remainingQty > 0 ? remainingQty : item.qty)
+                  });
+                };
+                
+                const handleModifierRefund = (modifier: ModifierItem, modIndex: number) => {
+                  const modifierId = `mod-${index}-${modIndex}-${modifier.text}`;
+                  // Don't allow refund on already refunded modifiers
+                  if (isModifierRefunded(selectedGuest.id, index, modIndex)) return;
+                  handleSwipeRefund({
+                    id: modifierId,
+                    type: 'modifier',
+                    name: modifier.text,
+                    price: modifier.price || 0
+                  });
+                };
+                
+                const noTaxKey = `${selectedGuest.id}-${index}-${item.name}`;
+                const hasNoTax = noTaxItems.has(noTaxKey);
+                const isRemoved = removedItems.has(noTaxKey);
+                
+                // Skip removed items in display
+                if (isRemoved) {
+                  return null;
+                }
+                
+                const itemContent = (
+                  <div className={`p-3 bg-neutral-800 rounded-xl border ${hasNoTax ? 'border-amber-500/50' : isFullyRefunded ? 'border-red-500/30' : 'border-neutral-700'} ${isFullyRefunded ? 'opacity-60' : ''}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2">
+                        {/* Quantity badge with refund indicator */}
+                        <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+                          {isPartiallyRefunded ? (
+                            <>
+                              <span className="w-6 h-6 bg-red-500 rounded flex items-center justify-center text-white text-sm font-bold line-through">
+                                {refundedQty}
+                              </span>
+                              <span className="w-6 h-6 bg-white rounded flex items-center justify-center text-black text-sm font-bold">
+                                {remainingQty}
+                              </span>
+                            </>
+                          ) : (
+                            <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold flex-shrink-0 ${isFullyRefunded ? 'bg-red-500 text-white line-through' : 'bg-white text-black'}`}>
+                              {item.qty}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <span className={`font-medium ${isFullyRefunded ? 'line-through text-red-400' : 'text-white'}`}>
+                              {item.name}
+                            </span>
+                            {hasNoTax && (
+                              <span className="px-1.5 py-0.5 bg-amber-500/20 text-amber-400 text-[9px] font-medium rounded">
+                                NO TAX
+                              </span>
+                            )}
+                            {isFullyRefunded && (
+                              <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[9px] font-medium rounded">
+                                REFUNDED
+                              </span>
+                            )}
+                            {isPartiallyRefunded && (
+                              <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[9px] font-medium rounded">
+                                {refundedQty} REFUNDED
+                              </span>
+                            )}
+                          </div>
+                          {/* Rich modifiers with refund indicators */}
+                          {item.richModifiers && item.richModifiers.length > 0 ? (
+                            refundStep === 'closed' && !isFullyRefunded ? (
+                              <SwipeableModifierTreeDesktop 
+                                modifiers={item.richModifiers} 
+                                onModifierRefund={handleModifierRefund}
+                                refundedItems={refundedItems}
+                                itemIndex={index}
+                              />
+                            ) : (
+                              <div className="mt-1.5 ml-1">
+                                {item.richModifiers.map((mod, modIdx) => {
+                                  const isModRefunded = isModifierRefunded(selectedGuest.id, index, modIdx) || isFullyRefunded;
+                                  let prefix = '•';
+                                  if (mod.type === 'remove') prefix = '-';
+                                  else if (mod.type === 'add') prefix = '+';
+                                  
+                                  return (
+                                    <div key={modIdx} className="flex items-center text-xs h-5">
+                                      <div className="relative w-4 h-full flex-shrink-0">
+                                        <div 
+                                          className={`absolute left-0 w-px ${isModRefunded ? 'bg-red-500/30' : 'bg-white/30'}`}
+                                          style={{ 
+                                            top: modIdx === 0 ? '0' : '-2px',
+                                            height: modIdx === item.richModifiers!.length - 1 ? '50%' : 'calc(100% + 2px)'
+                                          }}
+                                        />
+                                        <div className={`absolute left-0 top-1/2 w-2.5 h-px ${isModRefunded ? 'bg-red-500/30' : 'bg-white/30'}`} />
+                                      </div>
+                                      <div className="flex items-center flex-1 min-w-0">
+                                        <span className={`mr-1.5 w-2 text-center flex-shrink-0 ${isModRefunded ? 'text-red-400/40' : 'text-white/40'}`}>{prefix}</span>
+                                        <span className={`truncate ${isModRefunded ? 'line-through text-red-400' : mod.type === 'remove' ? 'text-white/40' : 'text-white/50'}`}>
+                                          {mod.text}
+                                        </span>
+                                        {mod.price && mod.price > 0 && (
+                                          <span className={`ml-auto pl-2 flex-shrink-0 ${isModRefunded ? 'line-through text-red-400' : 'text-white/60'}`}>{formatPrice(mod.price)}</span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )
+                          ) : item.modifiers.length > 0 && (
+                            <SimpleModifierTree modifiers={item.modifiers} size="sm" />
+                          )}
+                          {/* Item Notes - Flat inline list */}
+                          {item.notes && item.notes.length > 0 && (
+                            <div className="mt-1.5 flex items-center text-xs">
+                              <span className="text-white/40 mr-1.5">📝</span>
+                              <span className="text-white/50 italic">{item.notes.join(', ')}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        {isFullyRefunded ? (
+                          <span className="text-red-400 font-medium flex-shrink-0 line-through">
+                            {item.displayPrice}
+                          </span>
+                        ) : isPartiallyRefunded ? (
+                          <>
+                            <span className="text-red-400 font-medium flex-shrink-0 line-through text-xs">
+                              {formatPrice(item.price * refundedQty)}
+                            </span>
+                            <span className="text-white font-medium flex-shrink-0">
+                              {formatPrice(item.price * remainingQty)}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-white font-medium flex-shrink-0">
+                            {item.displayPrice}
+                          </span>
                         )}
-                      </span>
+                      </div>
+                    </div>
+                    {selectedGuest.orderType === "Table" && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <img src={seatIcon} alt="Seat" className="w-4 h-4 opacity-50" />
+                        {item.seats.length === 0 || item.seats.length === 4 ? (
+                          <span className="w-5 h-5 bg-white/10 rounded flex items-center justify-center">
+                            <Share2 className="w-3 h-3 text-white opacity-70" />
+                          </span>
+                        ) : (
+                          item.seats.map(seat => (
+                            <span key={seat} className="w-5 h-5 bg-white/10 rounded text-white text-xs flex items-center justify-center">
+                              {seat}
+                            </span>
+                          ))
+                        )}
+                      </div>
                     )}
                   </div>
-                  {!isTablet && (
-                    <div className="flex justify-between gap-3">
-                      {selectedGuest.serviceCharge > 0 && (
-                        <span className="text-white"><span className="font-medium">Service Charge</span> <span className="font-bold">+{formatPrice(selectedGuest.serviceCharge)}</span></span>
-                      )}
-                      {isTaxExempt ? (
-                        <span className="text-[9px] bg-orange-500/20 text-orange-400 border border-orange-500/40 px-1.5 py-0.5 rounded font-medium">No Tax</span>
+                );
+                
+                const isPaidTicket = selectedGuest.status === "PAID" || selectedGuest.paid;
+                
+                // For paid/closed tickets, wrap in swipeable container for refund (only if not fully refunded)
+                // For ordering/unpaid tickets, wrap in SwipeableCartItem for C and No Tax options
+                if (refundStep === 'closed' && isPaidTicket && !isFullyRefunded) {
+                  return (
+                    <SwipeableRefundItem
+                      key={index}
+                      onRefund={handleItemRefund}
+                      label={item.name}
+                      disabled={isFullyRefunded}
+                    >
+                      {itemContent}
+                    </SwipeableRefundItem>
+                  );
+                } else if (!isPaidTicket) {
+                  return (
+                    <SwipeableCartItem
+                      key={index}
+                      onDelete={() => {
+                        // Remove item from order
+                        setRemovedItems(prev => {
+                          const newSet = new Set(prev);
+                          newSet.add(noTaxKey);
+                          return newSet;
+                        });
+                        // Also remove from noTaxItems if it was there
+                        setNoTaxItems(prev => {
+                          const newSet = new Set(prev);
+                          newSet.delete(noTaxKey);
+                          return newSet;
+                        });
+                      }}
+                      onNoTax={() => {
+                        // Toggle no tax for item
+                        setNoTaxItems(prev => {
+                          const newSet = new Set(prev);
+                          if (newSet.has(noTaxKey)) {
+                            newSet.delete(noTaxKey);
+                          } else {
+                            newSet.add(noTaxKey);
+                          }
+                          return newSet;
+                        });
+                      }}
+                      showFire={false}
+                      showOrderType={false}
+                    >
+                      {itemContent}
+                    </SwipeableCartItem>
+                  );
+                } else {
+                  return <div key={index}>{itemContent}</div>;
+                }
+              })}
+            </div>
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
+
+          {/* Order Summary with Tip Refund Indicator */}
+          {(() => {
+            const totals = calculateAdjustedTotals(selectedGuest);
+            const refundedTip = getRefundedTipAmount(selectedGuest.id);
+            const hasRefundedTip = refundedTip > 0;
+            const remainingTip = selectedGuest.tip - refundedTip;
+            const isFullTipRefunded = refundedTip >= selectedGuest.tip;
+            const totalRefunded = getTotalRefundedAmount(selectedGuest);
+            const isFullyRefunded = isFullyRefundedOrder(selectedGuest);
+            
+            return (
+              <div className="p-2 border-t border-white/10 flex-shrink-0">
+                <div className="text-xs flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Sub Total</span>
+                      {totals.hasRemovedItems ? (
+                        <div className="flex items-center gap-1">
+                          <span className="text-white/40 line-through text-[10px]">{formatPrice(selectedGuest.subtotal)}</span>
+                          <span className="text-red-400 font-semibold">{formatPrice(totals.adjustedSubtotal)}</span>
+                        </div>
                       ) : (
-                        <span className="text-white"><span className="font-medium">Tax</span> <span className="font-bold">{formatPrice(adjustedTax)}</span></span>
+                        <span className="text-foreground font-semibold">{formatPrice(selectedGuest.subtotal)}</span>
                       )}
                     </div>
-                  )}
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Discount</span>
+                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.discount)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Service Charge</span>
+                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.serviceCharge)}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Tax</span>
+                      {totals.hasNoTaxItems || totals.hasRemovedItems ? (
+                        <div className="flex items-center gap-1">
+                          <span className="text-white/40 line-through text-[10px]">{formatPrice(totals.originalTax)}</span>
+                          <span className={`font-semibold ${totals.hasNoTaxItems ? 'text-amber-400' : 'text-red-400'}`}>{formatPrice(totals.adjustedTax)}</span>
+                        </div>
+                      ) : (
+                        <span className="text-foreground font-semibold">{formatPrice(selectedGuest.tax)}</span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-
-                {/* Bottom Actions */}
-                <div className={`${isTablet ? 'px-0 py-2' : 'px-2 py-3'} flex items-center gap-2`}>
-                  {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.status === "PARTIALLY REFUNDED") ? (
-                    showRefundMode ? (
-                      <button 
-                        onClick={() => setShowRefundDialog(true)}
-                        className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-white font-bold`}
-                        style={{ background: 'linear-gradient(180deg, #DC2626 0%, #991B1B 100%)' }}
-                      >
-                        REFUND
-                      </button>
-                    ) : (
+                {/* Total + Tip row - only for Paid or Completed tickets */}
+                {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.paid) && (
+                  <div className="text-sm flex items-center gap-2 mt-2 pt-2 border-t border-white/10">
+                    <span className="text-muted-foreground font-medium">Total</span>
+                    <span className={`font-bold ${isFullyRefunded ? 'text-red-400 line-through' : 'text-foreground'}`}>{formatPrice(selectedGuest.total)}</span>
+                    {selectedGuest.tip > 0 && (
                       <>
-                        <button 
-                          onClick={() => setShowTipDialog(true)}
-                          className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-white font-bold border border-white/20`}
-                          style={{ background: '#1B1C20' }}
-                        >
-                          ADD TIP
-                        </button>
-                        <button 
-                          onClick={() => setShowRefundMode(true)}
-                          className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
-                          style={{ background: 'linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)' }}
-                        >
-                          CLOSE
-                        </button>
+                        <span className="text-muted-foreground font-medium">+</span>
+                        <span className="text-muted-foreground font-medium">Tip</span>
+                        {hasRefundedTip ? (
+                          <div className="flex items-center gap-1">
+                            <span className="text-red-400 line-through text-xs">{formatPrice(refundedTip)}</span>
+                            {!isFullTipRefunded && (
+                              <span className="text-foreground font-bold">{formatPrice(remainingTip)}</span>
+                            )}
+                            {isFullTipRefunded && (
+                              <span className="px-1 py-0.5 bg-red-500/20 text-red-400 text-[9px] font-medium rounded">REFUNDED</span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-foreground font-bold">{formatPrice(selectedGuest.tip)}</span>
+                        )}
                       </>
-                    )
-                  ) : (
-                    <>
-                      <button className={`${isTablet ? 'w-7 h-7' : 'w-8 h-8'} rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors`}>
-                        <img src={clearIcon} alt="Clear" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
-                      </button>
-                      <button 
-                        className={`${isTablet ? 'px-3 py-1.5 text-xs' : 'px-4 py-2 text-sm'} rounded-full flex items-center gap-1 text-white font-medium`}
-                        style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}
-                      >
-                        <img src={fireIcon} alt="Fire" className={`${isTablet ? 'w-3 h-3' : 'w-4 h-4'} brightness-0 invert`} />
-                        <span>FIRE</span>
-                      </button>
-                      <button 
-                        className={`flex-1 ${isTablet ? 'py-1.5 text-xs' : 'py-2 text-sm'} rounded-full text-black font-bold`}
-                        style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
-                      >
-                        CHARGE {formatPrice(chargeTotal)}
-                      </button>
-                    </>
-                  )}
-                </div>
-              </>
+                    )}
+                  </div>
+                )}
+                {/* Refunded amount row - show when there's any refund */}
+                {totalRefunded > 0 && refundStep === 'closed' && (
+                  <div className="mt-2 pt-2 border-t border-white/10">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <RotateCcw className="w-3 h-3 text-red-400" />
+                        <span className="text-xs text-muted-foreground">Refunded</span>
+                        <span className="text-sm text-red-400 font-bold">{formatPrice(totalRefunded)}</span>
+                      </div>
+                      {isFullyRefunded ? (
+                        <span className="px-2 py-1 bg-red-500/20 text-red-400 text-[10px] font-semibold rounded-full flex items-center gap-1">
+                          <Check className="w-3 h-3" />
+                          FULLY REFUNDED
+                        </span>
+                      ) : (
+                        <span className="px-2 py-1 bg-orange-500/20 text-orange-400 text-[10px] font-semibold rounded-full flex items-center gap-1">
+                          PARTIALLY REFUNDED
+                        </span>
+                      )}
+                    </div>
+                    {/* Refund transactions as horizontal chips */}
+                    {(() => {
+                      const transactions = getRefundTransactionsForOrder(selectedGuest.id);
+                      if (transactions.length > 0) {
+                        const isExpanded = expandedRefundTransactions.has(selectedGuest.id);
+                        const displayedTransactions = isExpanded ? transactions : transactions.slice(0, 3);
+                        const hiddenCount = transactions.length - 3;
+                        
+                        return (
+                          <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                            {displayedTransactions.map((txn) => (
+                              <span key={txn.id} className="inline-flex items-center gap-1 px-2 py-0.5 bg-white/5 rounded-full text-[10px] text-white/60">
+                                {getPaymentMethodIcon(txn.paymentType)}
+                                <span className="truncate max-w-[80px]">{txn.paymentMethod}</span>
+                                <span className="text-red-400 font-medium">{formatPrice(txn.amount)}</span>
+                              </span>
+                            ))}
+                            {transactions.length > 3 && (
+                              <button 
+                                onClick={() => toggleRefundTransactionsExpanded(selectedGuest.id)}
+                                className="text-[10px] text-orange-400 hover:text-orange-300 transition-colors"
+                              >
+                                {isExpanded ? 'Show less' : `+${hiddenCount} more`}
+                              </button>
+                            )}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                )}
+              </div>
             );
           })()}
+
+          {/* Bottom Actions */}
+          <div className="px-4 py-3 border-t border-white/10 flex items-center gap-2">
+            {(refundStep === 'closed' || getTotalRefundedAmount(selectedGuest) > 0) && selectedGuest.paid ? (
+              // Only show refund button if there's remaining amount to refund
+              getRemainingRefundableAmount(selectedGuest) > 0 ? (
+                <button 
+                  onClick={handleOpenRefundModal}
+                  className="flex-1 py-2 rounded-full text-white text-sm font-bold transition-all hover:scale-[1.02]"
+                  style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <RotateCcw className="w-4 h-4" />
+                    REFUND
+                  </span>
+                </button>
+              ) : (
+                <button 
+                  disabled
+                  className="flex-1 py-2 rounded-full text-white/60 text-sm font-bold cursor-not-allowed opacity-60"
+                  style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <Check className="w-4 h-4" />
+                    FULLY REFUNDED
+                  </span>
+                </button>
+              )
+            ) : selectedGuest.paid ? (
+              <>
+                <button 
+                  onClick={() => setIsTipSheetOpen(true)}
+                  className="flex-1 py-2 rounded-full text-white text-sm font-bold transition-colors hover:bg-neutral-700"
+                  style={{ background: "#1B1C20" }}
+                >
+                  ADD TIP
+                </button>
+                <button 
+                  onClick={handleCloseTicket}
+                  className="flex-1 py-2 rounded-full text-black text-sm font-bold transition-all hover:scale-[1.02]" 
+                  style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+                >
+                  CLOSE
+                </button>
+              </>
+            ) : (
+              (() => {
+                const totals = calculateAdjustedTotals(selectedGuest);
+                return (
+                  <>
+                    <button 
+                      onClick={() => setIsClearDialogOpen(true)}
+                      className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
+                    >
+                      <img src={clearIcon} alt="Clear" className="w-4 h-4 brightness-0 invert" />
+                    </button>
+                    <button disabled className="px-4 py-2 rounded-full flex items-center gap-1 text-white text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed" style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}>
+                      <img src={fireIcon} alt="Fire" className="w-4 h-4 brightness-0 invert" />
+                      <span>FIRE</span>
+                    </button>
+                    <button 
+                      onClick={() => setIsTipSheetOpen(true)}
+                      className="flex-1 py-2 rounded-full text-black text-sm font-bold" 
+                      style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+                    >
+                      CHARGE {formatPrice(totals.hasNoTaxItems ? totals.adjustedTotal : selectedGuest.total)}
+                    </button>
+                  </>
+                );
+              })()
+            )}
+          </div>
         </div>
       </div>
     </div>
   );
-
-  // Mobile Layout
-  const MobileLayout = () => (
-    <div className="flex flex-col h-full bg-black">
-      {/* Mobile Header with filter icon opening bottom sheet */}
-      {showSearch ? (
-        <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
-          <div className="flex items-center gap-2 flex-1 mr-2">
-            <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
-            <input
-              autoFocus
-              type="text"
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              placeholder="Search by name, order ID, or check..."
-              className="bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none w-full"
-            />
-          </div>
-          <button
-            className="p-2 rounded-full hover:opacity-80"
-            style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-            onClick={() => { setShowSearch(false); setSearchQuery(""); }}
-          >
-            <X className="w-4 h-4 text-white" />
-          </button>
-        </div>
-      ) : (
-        <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
-          <span className="text-white font-semibold text-lg pl-2">Tickets</span>
-          <div className="flex items-center gap-1.5">
-            <button
-              className="p-2 rounded-full hover:opacity-80 relative"
-              style={hasAnyAdvancedFilter
-                ? { background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }
-                : { background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }
-              }
-              onClick={() => setShowMobileFilterSheet(true)}
-            >
-              <SlidersHorizontal className="w-4 h-4 text-white" />
-              {hasAnyAdvancedFilter && (
-                <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 text-[8px] text-white font-bold flex items-center justify-center">!</span>
-              )}
-            </button>
-            <button
-              className="p-2 rounded-full hover:opacity-80"
-              style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
-              onClick={() => setShowSearch(true)}
-            >
-              <Search className="w-4 h-4 text-white" />
-            </button>
-          </div>
-        </div>
-      )}
-      <FilterTabs />
-
-      {/* Guest Orders List */}
-      <ScrollArea className="flex-1 px-4">
-        <div className="space-y-3 pb-4">
-          {filteredOrders.map(guest => (
-            <TicketCard 
-              key={guest.id}
-              guest={guest} 
-              isSelected={selectedGuest.id === guest.id} 
-              onSelect={() => handleMobileOrderClick(guest)}
-              compact
-              showActions={false}
-              showSwipe
-            />
-          ))}
-        </div>
-        <ScrollBar orientation="vertical" />
-      </ScrollArea>
-
-      {showMobileOrderPanel && <MobileOrderPanel />}
-
-      <MobileFilterBottomSheet
-        isOpen={showMobileFilterSheet}
-        onClose={() => setShowMobileFilterSheet(false)}
-        advFilterRevenueCenter={advFilterRevenueCenter}
-        advFilterDate={advFilterDate}
-        advFilterEmployee={advFilterEmployee}
-        advFilterOrderType={advFilterOrderType}
-        advFilterOrderStatus={advFilterOrderStatus}
-        advFilterPaymentType={advFilterPaymentType}
-        onApply={handleMobileFilterApply}
-      />
-    </div>
-  );
-
-  // Transfer Left Panel - embedded in layout
-  const TransferLeftPanel = ({ isTablet = false }: { isTablet?: boolean }) => (
-    <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-      <TicketsTransferView
-        key={`${transferSource?.id}-${transferType}`}
-        sourceOrder={transferSource as any}
-        isEntireOrderTransfer={transferType === 'entire' || transferType === 'entireToOrder'}
-        transferTarget={transferType === 'entireToOrder' ? 'order' : 'table'}
-        onBack={closeTransferFlow}
-        orders={orders as any}
-        setOrders={updateOrders as any}
-        onTransferComplete={() => {
-          closeTransferFlow();
-          // Use setTimeout to read latest state after the setOrders update has been applied
-          setTimeout(() => {
-            const latestOrders = JSON.parse(localStorage.getItem('pos-unified-orders') || '[]');
-            const updated = latestOrders.find((o: any) => o.id === transferSource!.id);
-            if (updated) setSelectedGuest(updated);
-          }, 50);
-        }}
-        embedded
-      />
-    </div>
-  );
-
-  // Desktop Layout
-  const DesktopLayout = () => {
-    const isTransferActive = transferStep === 'active' && transferSource && transferType;
-    return (
-      <div className="flex h-full bg-black overflow-hidden">
-        {isTransferActive ? (
-          <TransferLeftPanel />
-        ) : (
-          <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-             <TicketsFilterBar showSearch={showSearch} searchQuery={searchQuery} showFilterIcons={showFilterIcons} advFilterRevenueCenter={advFilterRevenueCenter} advFilterDate={advFilterDate} advFilterEmployee={advFilterEmployee} advFilterOrderType={advFilterOrderType} advFilterOrderStatus={advFilterOrderStatus} advFilterPaymentType={advFilterPaymentType} onSearchQueryChange={handleSearchQueryChange} onShowSearchChange={handleShowSearchChange} onShowFilterIconsChange={handleShowFilterIconsChange} onAdvFilterRevenueCenterChange={handleAdvFilterRevenueCenterChange} onAdvFilterDateChange={handleAdvFilterDateChange} onAdvFilterEmployeeChange={handleAdvFilterEmployeeChange} onAdvFilterOrderTypeChange={handleAdvFilterOrderTypeChange} onAdvFilterOrderStatusChange={handleAdvFilterOrderStatusChange} onAdvFilterPaymentTypeChange={handleAdvFilterPaymentTypeChange} onResetAllAdvancedFilters={resetAllAdvancedFilters} hasAnyAdvancedFilter={hasAnyAdvancedFilter} />
-            <FilterTabs style="glass" />
-            <ScrollArea className="flex-1 px-1.5">
-              <div className="space-y-2 pb-3">
-                {filteredOrders.map(guest => (
-                  <TicketCard 
-                    key={guest.id}
-                    guest={guest} 
-                    isSelected={selectedGuest.id === guest.id} 
-                    onSelect={() => handleDesktopOrderClick(guest)}
-                    showActions
-                  />
-                ))}
-              </div>
-              <ScrollBar orientation="vertical" />
-            </ScrollArea>
-          </div>
-        )}
-        <RightPanel width="w-[345px]" />
-      </div>
-    );
-  };
 
   // Tablet Layout
-  const TabletLayout = () => {
-    const isTransferActive = transferStep === 'active' && transferSource && transferType;
-    return (
-      <div className="flex h-full bg-black overflow-hidden">
-        {isTransferActive ? (
-          <TransferLeftPanel isTablet />
-        ) : (
-          <div className="flex flex-col flex-1 m-2 rounded-[20px] overflow-hidden">
-            <TicketsFilterBar showSearch={showSearch} searchQuery={searchQuery} showFilterIcons={showFilterIcons} advFilterRevenueCenter={advFilterRevenueCenter} advFilterDate={advFilterDate} advFilterEmployee={advFilterEmployee} advFilterOrderType={advFilterOrderType} advFilterOrderStatus={advFilterOrderStatus} advFilterPaymentType={advFilterPaymentType} onSearchQueryChange={handleSearchQueryChange} onShowSearchChange={handleShowSearchChange} onShowFilterIconsChange={handleShowFilterIconsChange} onAdvFilterRevenueCenterChange={handleAdvFilterRevenueCenterChange} onAdvFilterDateChange={handleAdvFilterDateChange} onAdvFilterEmployeeChange={handleAdvFilterEmployeeChange} onAdvFilterOrderTypeChange={handleAdvFilterOrderTypeChange} onAdvFilterOrderStatusChange={handleAdvFilterOrderStatusChange} onAdvFilterPaymentTypeChange={handleAdvFilterPaymentTypeChange} onResetAllAdvancedFilters={resetAllAdvancedFilters} hasAnyAdvancedFilter={hasAnyAdvancedFilter} />
-            <FilterTabs />
-            <ScrollArea className="flex-1 px-1.5">
-              <div className="space-y-2 pb-3">
-                {filteredOrders.map(guest => (
-                  <TicketCard 
-                    key={guest.id}
-                    guest={guest} 
-                    isSelected={selectedGuest.id === guest.id} 
-                    onSelect={() => handleDesktopOrderClick(guest)}
-                    compact
-                    showActions
-                  />
+  const tabletLayout = (
+    <div className="flex h-full bg-black gap-2">
+      {/* Left Panel - Order List */}
+      <div className="flex flex-col flex-1 rounded-r-[20px] overflow-hidden">
+        {/* Header - Inline filter options */}
+        <div className="flex items-center justify-between py-2 pr-2 border-b border-neutral-700/50">
+          {showSearchInput ? (
+            <>
+              <div className="flex-1 flex items-center gap-2 pl-3 pr-2">
+                <Search className="w-4 h-4 text-white/50 flex-shrink-0" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by name, order ID, or check..."
+                  className="flex-1 bg-transparent text-white text-sm outline-none placeholder:text-white/40"
+                  autoFocus
+                />
+              </div>
+              <button 
+                onClick={() => { setShowSearchInput(false); setSearchQuery(""); }}
+                className="p-2 rounded-full hover:opacity-80 transition-opacity ml-2" 
+                style={{ background: "rgba(255, 255, 255, 0.2)", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+              >
+                <X className="w-4 h-4 text-white" />
+              </button>
+            </>
+          ) : (
+            <>
+              <span className="text-white font-semibold text-lg pl-3">Tickets</span>
+              <div className="flex items-center gap-1">
+                {showFilterPanel && (
+                  <>
+                    {/* Revenue Center Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterRevenueCenter ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <DollarSign className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <div className="text-xs text-white/50 mb-2 px-2">Revenue Center</div>
+                        {filterOptions.revenueCenters.map(rc => (
+                          <button key={rc} onClick={() => setFilterRevenueCenter(filterRevenueCenter === rc ? null : rc)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterRevenueCenter === rc ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{rc}</button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Date Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterDate ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <Calendar className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <CalendarComponent mode="single" selected={filterDate} onSelect={setFilterDate} className="pointer-events-auto bg-neutral-800 text-white" />
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Employee Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterEmployee ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <Users className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <div className="text-xs text-white/50 mb-2 px-2">Employee</div>
+                        {filterOptions.employees.map(emp => (
+                          <button key={emp} onClick={() => setFilterEmployee(filterEmployee === emp ? null : emp)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterEmployee === emp ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{emp}</button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Order Type Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterOrderType ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <ClipboardList className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <div className="text-xs text-white/50 mb-2 px-2">Order Type</div>
+                        {filterOptions.orderTypes.map(type => (
+                          <button key={type} onClick={() => setFilterOrderType(filterOrderType === type ? null : type)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors flex items-center gap-2 ${filterOrderType === type ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>
+                            <OrderTypeIcon type={type} size="small" />
+                            {type}
+                          </button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Order Status Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterOrderStatus ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <CircleDollarSign className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <div className="text-xs text-white/50 mb-2 px-2">Order Status</div>
+                        {filterOptions.orderStatuses.map(status => (
+                          <button key={status} onClick={() => setFilterOrderStatus(filterOrderStatus === status ? null : status)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterOrderStatus === status ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{status}</button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Payment Type Filter */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <button className={`p-2 rounded-xl hover:bg-white/10 transition-colors ${filterPaymentType ? 'ring-2 ring-white/50' : ''}`} style={{ background: "rgba(100, 100, 100, 0.4)" }}>
+                          <Wallet className="w-4 h-4 text-white" />
+                        </button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-48 p-2 bg-neutral-800 border-neutral-700 pointer-events-auto z-[100]" align="start">
+                        <div className="text-xs text-white/50 mb-2 px-2">Payment Type</div>
+                        {filterOptions.paymentTypes.map(pt => (
+                          <button key={pt} onClick={() => setFilterPaymentType(filterPaymentType === pt ? null : pt)} className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${filterPaymentType === pt ? 'bg-white text-black' : 'text-white hover:bg-white/10'}`}>{pt}</button>
+                        ))}
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {/* Clear Filters Button - only show if filters are active */}
+                    {hasActiveFilters && (
+                      <button onClick={clearAllFilters} className="p-2 rounded-xl hover:bg-white/10 transition-colors" style={{ background: "rgba(239, 68, 68, 0.4)" }}>
+                        <RotateCcw className="w-4 h-4 text-white" />
+                      </button>
+                    )}
+                  </>
+                )}
+                <button 
+                  onClick={() => setShowFilterPanel(!showFilterPanel)}
+                  className="p-2 rounded-full hover:opacity-80 transition-opacity ml-1" 
+                  style={{ background: showFilterPanel ? "rgba(255, 255, 255, 0.2)" : "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                >
+                  {showFilterPanel ? <X className="w-4 h-4 text-white" /> : <SlidersHorizontal className="w-4 h-4 text-white" />}
+                </button>
+                <button 
+                  onClick={() => setShowSearchInput(true)}
+                  className="p-2 rounded-full hover:opacity-80 transition-opacity" 
+                  style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}
+                >
+                  <Search className="w-4 h-4 text-white" />
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Filter Tabs */}
+        <div className="flex items-center gap-2 p-3 overflow-x-auto scrollbar-hide">
+          {filters.map(filter => {
+            const count = getFilterCount(filter);
+            return (
+              <button 
+                key={filter} 
+                onClick={() => setActiveFilter(filter)} 
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${activeFilter === filter ? "text-black" : "text-white"}`} 
+                style={activeFilter === filter ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : { background: "#1B1C20" }}
+              >
+                <span>{filter}</span>
+                {count > 0 && (
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeFilter === filter ? "bg-black text-white" : "bg-neutral-800"}`}>
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Guest Orders List - Mobile style cards */}
+        <ScrollArea className="flex-1 px-3">
+          <div className="space-y-2 pb-3">
+            {filteredOrders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <Search className="w-10 h-10 text-white/20 mb-3" />
+                <p className="text-white/60 text-base font-medium">No results found</p>
+                <p className="text-white/40 text-xs mt-1">
+                  {searchQuery ? `No tickets match "${searchQuery}"` : "No tickets match the selected filters"}
+                </p>
+                {(searchQuery || hasActiveFilters) && (
+                  <button 
+                    onClick={() => { setSearchQuery(""); clearAllFilters(); }}
+                    className="mt-3 px-3 py-1.5 rounded-full text-xs text-white hover:bg-white/10 transition-colors"
+                    style={{ background: "#7575754D" }}
+                  >
+                    Clear all filters
+                  </button>
+                )}
+              </div>
+            ) : filteredOrders.map(guest => (
+              <div key={guest.id} className="space-y-0">
+                <div onClick={() => setSelectedGuest(guest)} className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${selectedGuest.id === guest.id ? "border-white" : "border-neutral-700 hover:border-neutral-600"}`} style={{ backgroundColor: '#1B1C20' }}>
+                  <div className="flex items-stretch w-full">
+                    {/* Column 1: Order Number Box */}
+                    <div className="flex-shrink-0 px-2 py-2 flex items-center">
+                      <div className="relative w-12 h-[60px] bg-neutral-800 rounded-lg flex flex-col items-center justify-center border border-neutral-600">
+                        <span className="text-lg font-bold text-white">{guest.id}</span>
+                        <span className="text-xs text-gray-400">{guest.check === "--" ? "000" : guest.check.slice(-3)}</span>
+                      </div>
+                    </div>
+
+                    {/* Column 2: Left Info */}
+                    <div className="flex-1 min-w-0 py-2 pr-2">
+                      {/* Row 1: Name · Table */}
+                      <div className="flex items-center gap-1 text-sm">
+                        <span className="text-white font-semibold">{guest.name}</span>
+                        {guest.orderType === "Table" && (
+                          <>
+                            <span className="text-gray-400">·</span>
+                            <span className="text-white font-semibold">{guest.table}</span>
+                          </>
+                        )}
+                      </div>
+                      
+                      {/* Row 2: Order Type with Icon, Time */}
+                      <div className="flex items-center gap-1 mt-0.5 text-xs text-gray-400">
+                        <OrderTypeIcon type={guest.orderType} size="small" />
+                        {guest.orderType === "Table" ? (
+                          <span>Party of {guest.partySize},</span>
+                        ) : (
+                          <span>{guest.orderType},</span>
+                        )}
+                        <span>{guest.time}</span>
+                        <span className="text-gray-500">|</span>
+                        <span>{formatElapsedTime(guest.createdAt, currentTime)}</span>
+                      </div>
+                      
+                      {/* Row 3: Revenue Center */}
+                      <div className="mt-0.5 text-xs">
+                        <span className="text-white">{guest.revenueCenter}</span>
+                      </div>
+                    </div>
+
+                    {/* Column 3: Center Info - Employee & Payment */}
+                    <div className="flex flex-col items-center justify-center px-4 min-w-[100px]">
+                      <span className="text-gray-400 text-xs">{guest.server}</span>
+                      <span className={`text-xs mt-1 ${guest.paymentType === "--" ? "text-gray-400" : "text-white"}`}>
+                        {guest.paymentType === "--" ? "Un Paid" : guest.paymentType}
+                      </span>
+                    </div>
+
+                    {/* Column 4: Right Info - Status, Amount, Tip */}
+                    <div className="flex flex-col items-end justify-center pr-3 min-w-[80px]">
+                      <span className={`text-xs font-semibold ${getStatusColor(getDisplayStatus(guest))}`}>{getDisplayStatus(guest)}</span>
+                      <span className="text-white font-semibold text-sm mt-0.5">{formatPrice(guest.total)}</span>
+                      <span className="text-gray-400 text-xs">{formatPrice(guest.tip)}</span>
+                    </div>
+
+                    {/* Column 5: Action Buttons */}
+                    <div className="flex-shrink-0">
+                      <div className="flex flex-col rounded-r-xl overflow-hidden h-full">
+                        {guest.status === "PAID" || guest.paid ? (
+                          <>
+                            <button 
+                              className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-receipt-gradient"
+                              onClick={(e) => { e.stopPropagation(); setIsReceiptDialogOpen(true); }}
+                            >
+                              <img src={receiptIcon} alt="" className="w-4 h-4 brightness-0 invert" />
+                            </button>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-neutral-gradient" onClick={e => e.stopPropagation()}>
+                              <img src={registerIcon} alt="Register" className="w-4 h-4 object-contain brightness-0" />
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity border-b border-neutral-600 btn-action-gradient">
+                              <img src={arrowRightIcon} alt="Arrow" className="w-4 h-4 object-contain" />
+                            </button>
+                            <button className="flex-1 px-3 flex items-center justify-center hover:opacity-80 transition-opacity btn-neutral-gradient" onClick={e => e.stopPropagation()}>
+                              <img src={shareOrderIcon} alt="Share" className="w-4 h-4 object-contain brightness-0" />
+                            </button>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+          <ScrollBar orientation="vertical" />
+        </ScrollArea>
+
+        {/* No CTA button */}
+      </div>
+
+      {/* Right Panel - Order Details (condensed) */}
+      <div className="w-[280px] flex flex-col">
+        {/* Guest Header */}
+        <div className="px-1 pb-2">
+          <div className="flex items-center justify-between text-xs mb-2 gap-2">
+            <input 
+              type="text" 
+              value={getCurrentGuestName(selectedGuest.id, selectedGuest.name)} 
+              onChange={e => handleGuestNameChange(selectedGuest.id, e.target.value)} 
+              placeholder="GUEST NAME" 
+              className="bg-transparent outline-none placeholder:text-[#808080] w-20 min-w-0 font-medium text-white text-xs" 
+            />
+            <div className="flex items-center gap-0.5">
+              <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
+              <input 
+                type="tel" 
+                inputMode="tel" 
+                value={formatPhoneNumber(getCurrentGuestPhone(selectedGuest.id, selectedGuest.phone))} 
+                onChange={e => handleGuestPhoneChange(selectedGuest.id, e.target.value)} 
+                placeholder="(XXX) XXX-XXXX" 
+                className="bg-transparent outline-none placeholder:text-[#808080] w-24 min-w-0 text-white text-xs" 
+              />
+            </div>
+            <div className="flex items-center gap-0.5 whitespace-nowrap flex-shrink-0">
+              <img src={timeIcon} alt="Time" className="w-3 h-3" />
+              <span className="text-white text-xs">{selectedGuest.time}</span>
+            </div>
+          </div>
+          {!(selectedGuest.status === "PAID" || selectedGuest.paid) && (
+            <div className="flex gap-1 items-center flex-wrap">
+              <button className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1">
+                <img src={customItemIcon} alt="" className="w-3 h-3" />
+                Add Item
+              </button>
+              <button 
+                className={`h-6 px-2 hover:bg-[#555555] text-white text-[10px] rounded-[10px] border transition-colors flex items-center gap-1 ${appliedDiscounts.length > 0 ? 'bg-primary/30 border-primary' : 'bg-[#666666] border-sidebar-border'}`}
+                onClick={() => setIsDiscountDialogOpen(true)}
+              >
+                <img src={discountIcon} alt="" className="w-3 h-3" />
+                Discount {appliedDiscounts.length > 0 && `(${appliedDiscounts.length})`}
+              </button>
+              <button 
+                className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
+                onClick={() => setIsReceiptDialogOpen(true)}
+              >
+                <img src={receiptIcon} alt="" className="w-3 h-3" />
+                Receipt
+              </button>
+              <button 
+                className="h-6 px-2 bg-[#666666] hover:bg-[#555555] text-white text-[10px] rounded-[10px] border border-sidebar-border transition-colors flex items-center gap-1"
+              >
+                <img src={registerIcon} alt="" className="w-3 h-3" />
+                Register
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Main Panel Box */}
+        <div className="flex-1 flex flex-col rounded-[10px] overflow-hidden" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+          {/* Table Order Info */}
+          <div className="px-3 py-2 border-b border-white/10">
+            <div className={`flex items-center justify-between ${selectedGuest.orderType === "Table" ? "mb-1" : ""}`}>
+              <div className="flex items-center gap-2">
+                <span className="px-1.5 py-0.5 bg-white/10 text-white text-xs rounded uppercase">
+                  {selectedGuest.orderType === "Table" ? `TABLE ${selectedGuest.table}` : selectedGuest.orderType}
+                </span>
+                {selectedGuest.orderType === "Table" && (
+                  <span className="flex items-center gap-1 text-white/60 text-[10px]">
+                    <Users className="w-2.5 h-2.5" />
+                    {selectedGuest.partySize}
+                  </span>
+                )}
+                <span className="text-white font-bold text-sm">{selectedGuest.id}</span>
+              </div>
+              <span className="text-white/50 text-xs">{selectedGuest.server}</span>
+            </div>
+            
+            {/* Seat Buttons - Only for Table Orders */}
+            {selectedGuest.orderType === "Table" && (
+              <div className="flex items-center gap-1">
+                <button className="p-1 bg-white/10 rounded hover:bg-white/20 transition-colors">
+                  <img src={seatIcon} alt="Seat" className="w-3 h-3" />
+                </button>
+                {[1, 2, 3, 4].map(seat => (
+                  <button 
+                    key={seat} 
+                    onClick={() => toggleSeat(seat)}
+                    className={`w-6 h-6 rounded text-xs font-medium transition-colors ${selectedSeats.includes(seat) ? "bg-white text-black" : "bg-white/10 text-white hover:bg-white/20"}`}
+                  >
+                    {seat}
+                  </button>
                 ))}
               </div>
-              <ScrollBar orientation="vertical" />
-            </ScrollArea>
+            )}
           </div>
-        )}
-        <RightPanel width="w-[280px]" isTablet />
+
+          {/* Notes */}
+          <div className="px-3 py-2 border-b border-neutral-700/50 relative">
+            <div className="flex items-center gap-2 text-white/50 text-xs bg-neutral-800 border border-neutral-700 p-1.5 rounded-lg relative">
+              <span>📝</span>
+              {canEditNotes(selectedGuest.status) ? (
+                <input
+                  type="text"
+                  value={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
+                  onChange={(e) => handleNotesInputChange(selectedGuest.id, e.target.value, selectedGuest.notes)}
+                  onFocus={() => setNotesFocused(true)}
+                  onBlur={() => setTimeout(() => setNotesFocused(false), 150)}
+                  placeholder="Add notes..."
+                  className="flex-1 bg-transparent text-white/80 placeholder:text-white/40 outline-none text-xs"
+                />
+              ) : (
+                <span className="flex-1 truncate">{getCurrentNotes(selectedGuest.id, selectedGuest.notes) || "No notes"}</span>
+              )}
+            </div>
+            {notesFocused && canEditNotes(selectedGuest.status) && (
+              <NoteSuggestions
+                query={notesSearchTerm}
+                currentValue={getCurrentNotes(selectedGuest.id, selectedGuest.notes)}
+                onSelect={(suggestion) => handleNoteSuggestionSelect(selectedGuest.id, getCurrentNotes(selectedGuest.id, selectedGuest.notes), suggestion)}
+                recentNotes={recentNotes}
+              />
+            )}
+          </div>
+
+          {/* Order Items */}
+          <ScrollArea className="flex-1 px-3">
+            <div className="py-2 space-y-1.5">
+              {getFilteredOrderItems(selectedGuest).map((item, index) => {
+                const itemId = `item-${index}-${item.name}`;
+                const isItemSwipeRefunded = refundedItems.has(itemId);
+                
+                // Get refunded quantity from persisted records
+                const refundedQty = getRefundedQtyForItem(selectedGuest.id, index);
+                const orderFullyRefunded = isFullyRefundedOrder(selectedGuest);
+                const isFullyRefunded = refundedQty >= item.qty || isItemSwipeRefunded || orderFullyRefunded;
+                const isPartiallyRefunded = !orderFullyRefunded && refundedQty > 0 && refundedQty < item.qty && !isItemSwipeRefunded;
+                const remainingQty = item.qty - refundedQty;
+                
+                const handleItemRefund = () => {
+                  if (isFullyRefunded) return;
+                  handleSwipeRefund({
+                    id: itemId,
+                    type: 'item',
+                    name: item.name,
+                    price: item.price * (remainingQty > 0 ? remainingQty : item.qty)
+                  });
+                };
+                
+                const handleModifierRefund = (modifier: ModifierItem, modIndex: number) => {
+                  const modifierId = `mod-${index}-${modIndex}-${modifier.text}`;
+                  if (isModifierRefunded(selectedGuest.id, index, modIndex)) return;
+                  handleSwipeRefund({
+                    id: modifierId,
+                    type: 'modifier',
+                    name: modifier.text,
+                    price: modifier.price || 0
+                  });
+                };
+                
+                const itemContent = (
+                  <div className={`p-2 bg-neutral-800 rounded-lg border ${isFullyRefunded ? 'border-red-500/30' : 'border-neutral-700'} ${isFullyRefunded ? 'opacity-60' : ''}`}>
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-2">
+                        {/* Quantity badge with refund indicator */}
+                        <div className="flex flex-col items-center gap-0.5 flex-shrink-0">
+                          {isPartiallyRefunded ? (
+                            <>
+                              <span className="w-5 h-5 bg-red-500 rounded flex items-center justify-center text-white text-xs font-bold line-through">
+                                {refundedQty}
+                              </span>
+                              <span className="w-5 h-5 bg-white rounded flex items-center justify-center text-black text-xs font-bold">
+                                {remainingQty}
+                              </span>
+                            </>
+                          ) : (
+                            <span className={`w-5 h-5 rounded flex items-center justify-center text-xs font-bold flex-shrink-0 ${isFullyRefunded ? 'bg-red-500 text-white line-through' : 'bg-white text-black'}`}>
+                              {item.qty}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-1 flex-wrap">
+                            <span className={`font-medium text-sm ${isFullyRefunded ? 'line-through text-red-400' : 'text-white'}`}>
+                              {item.name}
+                            </span>
+                            {isFullyRefunded && (
+                              <span className="px-1 py-0.5 bg-red-500/20 text-red-400 text-[8px] font-medium rounded">
+                                REFUNDED
+                              </span>
+                            )}
+                          </div>
+                          {/* Rich modifiers with refund indicators */}
+                          {item.richModifiers && item.richModifiers.length > 0 ? (
+                            refundStep === 'closed' && !isFullyRefunded ? (
+                              <SwipeableModifierTreeDesktop 
+                                modifiers={item.richModifiers} 
+                                onModifierRefund={handleModifierRefund}
+                                refundedItems={refundedItems}
+                                itemIndex={index}
+                              />
+                            ) : (
+                              <div className="mt-1">
+                                {item.richModifiers.map((mod, modIdx) => {
+                                  const isModRefunded = isModifierRefunded(selectedGuest.id, index, modIdx) || isFullyRefunded;
+                                  let prefix = '•';
+                                  if (mod.type === 'remove') prefix = '-';
+                                  else if (mod.type === 'add') prefix = '+';
+                                  
+                                  return (
+                                    <div key={modIdx} className="flex items-center text-[10px] h-4">
+                                      <div className="relative w-3 h-full flex-shrink-0">
+                                        <div 
+                                          className={`absolute left-0 w-px ${isModRefunded ? 'bg-red-500/30' : 'bg-white/30'}`}
+                                          style={{ 
+                                            top: modIdx === 0 ? '0' : '-2px',
+                                            height: modIdx === item.richModifiers!.length - 1 ? '50%' : 'calc(100% + 2px)'
+                                          }}
+                                        />
+                                        <div className={`absolute left-0 top-1/2 w-2 h-px ${isModRefunded ? 'bg-red-500/30' : 'bg-white/30'}`} />
+                                      </div>
+                                      <div className="flex items-center flex-1 min-w-0">
+                                        <span className={`mr-1 w-2 text-center flex-shrink-0 ${isModRefunded ? 'text-red-400/40' : 'text-white/40'}`}>{prefix}</span>
+                                        <span className={`truncate ${isModRefunded ? 'line-through text-red-400' : mod.type === 'remove' ? 'text-white/40' : 'text-white/50'}`}>
+                                          {mod.text}
+                                        </span>
+                                        {mod.price && mod.price > 0 && (
+                                          <span className={`ml-auto pl-1 flex-shrink-0 ${isModRefunded ? 'line-through text-red-400' : 'text-white/60'}`}>{formatPrice(mod.price)}</span>
+                                        )}
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            )
+                          ) : item.modifiers.length > 0 && (
+                            <SimpleModifierTree modifiers={item.modifiers} size="xs" />
+                          )}
+                          {/* Item Notes - Flat inline list */}
+                          {item.notes && item.notes.length > 0 && (
+                            <div className="mt-1 flex items-center text-[10px]">
+                              <span className="text-white/40 mr-1">📝</span>
+                              <span className="text-white/50 italic">{item.notes.join(', ')}</span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex flex-col items-end">
+                        {isFullyRefunded ? (
+                          <span className="text-red-400 font-medium text-sm flex-shrink-0 line-through">
+                            {item.displayPrice}
+                          </span>
+                        ) : isPartiallyRefunded ? (
+                          <>
+                            <span className="text-red-400 font-medium flex-shrink-0 line-through text-[10px]">
+                              {formatPrice(item.price * refundedQty)}
+                            </span>
+                            <span className="text-white font-medium text-sm flex-shrink-0">
+                              {formatPrice(item.price * remainingQty)}
+                            </span>
+                          </>
+                        ) : (
+                          <span className="text-white font-medium text-sm flex-shrink-0">
+                            {item.displayPrice}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {selectedGuest.orderType === "Table" && (
+                      <div className="flex items-center gap-1 mt-2">
+                        <img src={seatIcon} alt="Seat" className="w-3 h-3 opacity-50" />
+                        {item.seats.length === 0 || item.seats.length === 4 ? (
+                          <span className="w-4 h-4 bg-white/10 rounded flex items-center justify-center">
+                            <Share2 className="w-2.5 h-2.5 text-white opacity-70" />
+                          </span>
+                        ) : (
+                          item.seats.map(seat => (
+                            <span key={seat} className="w-4 h-4 bg-white/10 rounded text-white text-[10px] flex items-center justify-center">
+                              {seat}
+                            </span>
+                          ))
+                        )}
+                      </div>
+                    )}
+                  </div>
+                );
+                
+                const isPaidTicket = selectedGuest.status === "PAID" || selectedGuest.paid;
+                const noTaxKey = `${selectedGuest.id}-${index}-${item.name}`;
+                
+                // For paid/closed tickets, wrap in swipeable container for refund (only if not fully refunded)
+                if (refundStep === 'closed' && isPaidTicket && !isFullyRefunded) {
+                  return (
+                    <SwipeableRefundItem
+                      key={index}
+                      onRefund={handleItemRefund}
+                      label={item.name}
+                      disabled={isFullyRefunded}
+                    >
+                      {itemContent}
+                    </SwipeableRefundItem>
+                  );
+                } else if (!isPaidTicket) {
+                  return (
+                    <SwipeableCartItem
+                      key={index}
+                      onDelete={() => {
+                        setRemovedItems(prev => {
+                          const newSet = new Set(prev);
+                          newSet.add(noTaxKey);
+                          return newSet;
+                        });
+                        setNoTaxItems(prev => {
+                          const newSet = new Set(prev);
+                          newSet.delete(noTaxKey);
+                          return newSet;
+                        });
+                      }}
+                      onNoTax={() => {
+                        setNoTaxItems(prev => {
+                          const newSet = new Set(prev);
+                          if (newSet.has(noTaxKey)) {
+                            newSet.delete(noTaxKey);
+                          } else {
+                            newSet.add(noTaxKey);
+                          }
+                          return newSet;
+                        });
+                      }}
+                      showFire={false}
+                      showOrderType={false}
+                    >
+                      {itemContent}
+                    </SwipeableCartItem>
+                  );
+                } else {
+                  return <div key={index}>{itemContent}</div>;
+                }
+              })}
+            </div>
+            <ScrollBar orientation="vertical" />
+          </ScrollArea>
+
+          {/* Order Summary with Tip Refund Indicator */}
+          {(() => {
+            const refundedTip = getRefundedTipAmount(selectedGuest.id);
+            const hasRefundedTip = refundedTip > 0;
+            const remainingTip = selectedGuest.tip - refundedTip;
+            const isFullTipRefunded = refundedTip >= selectedGuest.tip;
+            const totalRefunded = getTotalRefundedAmount(selectedGuest);
+            const isFullyRefunded = isFullyRefundedOrder(selectedGuest);
+            
+            return (
+              <div className="p-2 border-t border-white/10 flex-shrink-0">
+                <div className="text-xs flex flex-wrap items-center gap-x-4 gap-y-1">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Sub Total</span>
+                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.subtotal)}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Discount</span>
+                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.discount)}</span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Service Charge</span>
+                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.serviceCharge)}</span>
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <span className="text-muted-foreground">Tax</span>
+                      <span className="text-foreground font-semibold">{formatPrice(selectedGuest.tax)}</span>
+                    </div>
+                  </div>
+                </div>
+                {/* Total + Tip row - only for Paid or Completed tickets */}
+                {(selectedGuest.status === "PAID" || selectedGuest.status === "COMPLETED" || selectedGuest.paid) && (
+                  <div className="text-sm flex items-center gap-2 mt-2 pt-2 border-t border-white/10">
+                    <span className="text-muted-foreground font-medium">Total</span>
+                    <span className={`font-bold ${isFullyRefunded ? 'text-red-400 line-through' : 'text-foreground'}`}>{formatPrice(selectedGuest.total)}</span>
+                    {selectedGuest.tip > 0 && (
+                      <>
+                        <span className="text-muted-foreground font-medium">+</span>
+                        <span className="text-muted-foreground font-medium">Tip</span>
+                        {hasRefundedTip ? (
+                          <div className="flex items-center gap-1">
+                            <span className="text-red-400 line-through text-xs">{formatPrice(refundedTip)}</span>
+                            {!isFullTipRefunded && (
+                              <span className="text-foreground font-bold">{formatPrice(remainingTip)}</span>
+                            )}
+                            {isFullTipRefunded && (
+                              <span className="px-1 py-0.5 bg-red-500/20 text-red-400 text-[8px] font-medium rounded">REFUNDED</span>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-foreground font-bold">{formatPrice(selectedGuest.tip)}</span>
+                        )}
+                      </>
+                    )}
+                  </div>
+                )}
+                {/* Refunded amount row - show when there's any refund */}
+                {totalRefunded > 0 && refundStep === 'closed' && (
+                  <div className="mt-2 pt-2 border-t border-white/10">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <RotateCcw className="w-3 h-3 text-red-400" />
+                        <span className="text-[10px] text-muted-foreground">Refunded</span>
+                        <span className="text-xs text-red-400 font-bold">{formatPrice(totalRefunded)}</span>
+                      </div>
+                      {isFullyRefunded ? (
+                        <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[8px] font-semibold rounded-full flex items-center gap-1">
+                          <Check className="w-2.5 h-2.5" />
+                          FULLY REFUNDED
+                        </span>
+                      ) : (
+                        <span className="px-1.5 py-0.5 bg-orange-500/20 text-orange-400 text-[8px] font-semibold rounded-full flex items-center gap-1">
+                          PARTIALLY REFUNDED
+                        </span>
+                      )}
+                    </div>
+                    {/* Refund transactions as horizontal chips */}
+                    {(() => {
+                      const transactions = getRefundTransactionsForOrder(selectedGuest.id);
+                      if (transactions.length > 0) {
+                        const isExpanded = expandedRefundTransactions.has(selectedGuest.id);
+                        const displayedTransactions = isExpanded ? transactions : transactions.slice(0, 3);
+                        const hiddenCount = transactions.length - 3;
+                        
+                        return (
+                          <div className="mt-1.5 flex flex-wrap items-center gap-1">
+                            {displayedTransactions.map((txn) => (
+                              <span key={txn.id} className="inline-flex items-center gap-0.5 px-1.5 py-0.5 bg-white/5 rounded-full text-[9px] text-white/60">
+                                {getPaymentMethodIcon(txn.paymentType)}
+                                <span className="truncate max-w-[60px]">{txn.paymentMethod}</span>
+                                <span className="text-red-400 font-medium">{formatPrice(txn.amount)}</span>
+                              </span>
+                            ))}
+                            {transactions.length > 3 && (
+                              <button 
+                                onClick={() => toggleRefundTransactionsExpanded(selectedGuest.id)}
+                                className="text-[9px] text-orange-400 hover:text-orange-300 transition-colors"
+                              >
+                                {isExpanded ? 'Show less' : `+${hiddenCount} more`}
+                              </button>
+                            )}
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+
+          {/* Bottom Actions */}
+          <div className="px-3 py-2 border-t border-white/10 flex items-center gap-2">
+            {(refundStep === 'closed' || getTotalRefundedAmount(selectedGuest) > 0) && selectedGuest.paid ? (
+              // Only show refund button if there's remaining amount to refund
+              getRemainingRefundableAmount(selectedGuest) > 0 ? (
+                <button 
+                  onClick={handleOpenRefundModal}
+                  className="flex-1 py-1.5 rounded-full text-white text-xs font-bold transition-all hover:scale-[1.02]"
+                  style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <RotateCcw className="w-3 h-3" />
+                    REFUND
+                  </span>
+                </button>
+              ) : (
+                <button 
+                  disabled
+                  className="flex-1 py-1.5 rounded-full text-white/60 text-xs font-bold cursor-not-allowed opacity-60"
+                  style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+                >
+                  <span className="flex items-center justify-center gap-2">
+                    <Check className="w-3 h-3" />
+                    FULLY REFUNDED
+                  </span>
+                </button>
+              )
+            ) : selectedGuest.paid ? (
+              <>
+                <button 
+                  onClick={() => setIsTipSheetOpen(true)}
+                  className="flex-1 py-1.5 rounded-full text-white text-xs font-bold transition-colors hover:bg-neutral-700"
+                  style={{ background: "#1B1C20" }}
+                >
+                  ADD TIP
+                </button>
+                <button 
+                  onClick={handleCloseTicket}
+                  className="flex-1 py-1.5 rounded-full text-black text-xs font-bold transition-all hover:scale-[1.02]" 
+                  style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+                >
+                  CLOSE
+                </button>
+              </>
+            ) : (
+              <>
+                <button 
+                  onClick={() => setIsClearDialogOpen(true)}
+                  className="w-7 h-7 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-500 transition-colors"
+                >
+                  <img src={clearIcon} alt="Clear" className="w-3 h-3 brightness-0 invert" />
+                </button>
+                <button className="px-3 py-1.5 rounded-full flex items-center gap-1 text-white text-xs font-medium" style={{ background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)" }}>
+                  <img src={fireIcon} alt="Fire" className="w-3 h-3 brightness-0 invert" />
+                  <span>FIRE</span>
+                </button>
+                <button 
+                  onClick={() => setIsTipSheetOpen(true)}
+                  className="flex-1 py-1.5 rounded-full text-black text-xs font-bold" 
+                  style={{ background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" }}
+                >
+                  CHARGE {formatPrice(selectedGuest.total)}
+                </button>
+              </>
+            )}
+          </div>
+        </div>
       </div>
+    </div>
+  );
+
+  // Refund Modal Component - Responsive (Bottom Sheet on mobile, Dialog on desktop)
+  const RefundModal = () => {
+    // Get current step configuration
+    const getStepConfig = () => {
+      switch (refundStep) {
+        case 'type-selection':
+          return { title: 'Select Refund Type', onBack: undefined };
+        case 'full-refund':
+          return { title: 'Full Refund', onBack: () => setRefundStep('type-selection') };
+        case 'partial-refund':
+          return { title: 'Partial Refund', onBack: () => setRefundStep('type-selection') };
+        case 'custom-refund':
+          return { title: 'Custom Refund', onBack: () => setRefundStep('type-selection') };
+        case 'tip-refund':
+          return { title: 'Tip Refund', onBack: () => setRefundStep('type-selection') };
+        case 'item-refund':
+          return { 
+            title: swipeRefundTarget?.type === 'item' ? 'Item Refund' : 'Modifier Refund', 
+            onBack: () => {
+              setRefundStep('closed');
+              setIsRefundModalOpen(false);
+              setSwipeRefundTarget(null);
+            }
+          };
+        case 'confirmation':
+          return { title: 'Confirm Refund', onBack: () => setRefundStep('type-selection') };
+        case 'success':
+          return { title: 'Refund Successful', onBack: undefined };
+        default:
+          return { title: 'Refund', onBack: undefined };
+      }
+    };
+
+    const stepConfig = getStepConfig();
+
+    // Get footer for current step
+    const getStepFooter = () => {
+      switch (refundStep) {
+        case 'full-refund':
+          return (
+            <div className="p-4">
+              <button
+                onClick={handleProceedRefund}
+                className="w-full py-3 rounded-full text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+                style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+              >
+                PROCEED REFUND
+              </button>
+            </div>
+          );
+        case 'partial-refund':
+          return (
+            <div className="p-4">
+              <button
+                onClick={handleProceedRefund}
+                disabled={getTotalRefundSelectionsCount() === 0}
+                className={`w-full py-3 rounded-full font-bold text-sm transition-all ${
+                  getTotalRefundSelectionsCount() > 0 
+                    ? 'text-white hover:scale-[1.02] active:scale-[0.98]' 
+                    : 'text-white/50 cursor-not-allowed'
+                }`}
+                style={{ 
+                  background: getTotalRefundSelectionsCount() > 0 
+                    ? "linear-gradient(180deg, #F97316 0%, #C2410C 100%)" 
+                    : "linear-gradient(180deg, #525252 0%, #404040 100%)" 
+                }}
+              >
+                PROCEED REFUND {getTotalRefundSelectionsCount() > 0 && `(${formatPrice(getPartialRefundTotal(includeRefundTip))})`}
+              </button>
+            </div>
+          );
+        case 'custom-refund':
+          return (
+            <div className="p-4">
+              <button
+                onClick={handleProceedRefund}
+                disabled={!isCustomAmountValid()}
+                className={`w-full py-3 rounded-full font-bold text-sm transition-all ${
+                  isCustomAmountValid() 
+                    ? 'text-white hover:scale-[1.02] active:scale-[0.98]' 
+                    : 'text-white/50 cursor-not-allowed'
+                }`}
+                style={{ 
+                  background: isCustomAmountValid() 
+                    ? "linear-gradient(180deg, #A78BFA 0%, #7C3AED 100%)" 
+                    : "linear-gradient(180deg, #525252 0%, #404040 100%)" 
+                }}
+              >
+                PROCEED REFUND {isCustomAmountValid() && `(${formatPrice(getCustomRefundValue())})`}
+              </button>
+            </div>
+          );
+        case 'tip-refund':
+          return (
+            <div className="p-4">
+              <button
+                onClick={handleProceedRefund}
+                disabled={!isTipAmountValid()}
+                className={`w-full py-3 rounded-full font-bold text-sm transition-all ${
+                  isTipAmountValid() 
+                    ? 'text-white hover:scale-[1.02] active:scale-[0.98]' 
+                    : 'text-white/50 cursor-not-allowed'
+                }`}
+                style={{ 
+                  background: isTipAmountValid() 
+                    ? "linear-gradient(180deg, #FCD34D 0%, #F59E0B 100%)" 
+                    : "linear-gradient(180deg, #525252 0%, #404040 100%)" 
+                }}
+              >
+                PROCEED REFUND {isTipAmountValid() && `(${formatPrice(getTipRefundValue())})`}
+              </button>
+            </div>
+          );
+        case 'item-refund':
+          return (
+            <div className="p-4">
+              <button
+                onClick={handleProceedRefund}
+                className="w-full py-3 rounded-full text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+                style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+              >
+                PROCEED REFUND
+              </button>
+            </div>
+          );
+        case 'confirmation':
+          if (hasSplitPayments(selectedGuest)) {
+            return (
+              <div className="p-4">
+                <button
+                  onClick={() => {
+                    const validation = validateRefundAllocations(selectedGuest);
+                    if (validation.valid) {
+                      handleConfirmRefund();
+                    }
+                  }}
+                  disabled={!validateRefundAllocations(selectedGuest).valid}
+                  className={`w-full py-3 rounded-full font-bold text-sm transition-all ${
+                    validateRefundAllocations(selectedGuest).valid
+                      ? 'text-white hover:scale-[1.02] active:scale-[0.98]'
+                      : 'text-white/50 cursor-not-allowed'
+                  }`}
+                  style={{ 
+                    background: validateRefundAllocations(selectedGuest).valid
+                      ? "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)"
+                      : "linear-gradient(180deg, #525252 0%, #404040 100%)"
+                  }}
+                >
+                  CONFIRM REFUND ({formatPrice(getTotalAllocatedRefund())})
+                </button>
+              </div>
+            );
+          }
+          return (
+            <div className="p-4">
+              <button
+                onClick={handleConfirmRefund}
+                className="w-full py-3 rounded-full text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+                style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+              >
+                CONFIRM REFUND ({formatPrice(getRefundDisplayAmount())})
+              </button>
+            </div>
+          );
+        case 'success':
+          return (
+            <div className="p-4">
+              <button
+                onClick={handleCancelRefund}
+                className="w-full py-3 rounded-full text-white font-bold text-sm transition-all hover:scale-[1.02] active:scale-[0.98]"
+                style={{ background: "linear-gradient(180deg, #F59E0B 0%, #D97706 100%)" }}
+              >
+                DONE
+              </button>
+            </div>
+          );
+        default:
+          return null;
+      }
+    };
+
+    // Render step content (shared between Dialog and Bottom Sheet)
+    const renderStepContent = () => {
+      return (
+        <>
+          {refundStep === 'type-selection' && (
+            <>
+              {/* Split Payment Indicator - Chip-based Display */}
+              {hasSplitPayments(selectedGuest) && (
+                <div className="px-4 pt-4 pb-2">
+                  <div className="p-3 rounded-xl border border-amber-500/30 bg-amber-500/10">
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                      <span className="text-amber-400 text-sm font-medium">Payment Methods</span>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedGuest.paymentMethods?.map((pm) => (
+                        <div 
+                          key={pm.id} 
+                          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-neutral-800/80 border border-neutral-600/50"
+                        >
+                          <span className="text-white/70 text-sm">
+                            {getPaymentMethodIcon(pm.type)} {pm.label}
+                          </span>
+                          <span className="text-white font-medium text-sm">
+                            {formatPrice(pm.amount + (pm.tipAmount || 0))}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+              
+              {/* Refund Type Options */}
+              <div className="p-4 space-y-3">
+                  {/* Full Refund - disabled if order already fully refunded */}
+                  {isFullRefundAvailable(selectedGuest) ? (
+                    <button
+                      onClick={() => handleSelectRefundType('full')}
+                      className="w-full p-4 rounded-xl border border-neutral-700 hover:border-red-500/50 hover:bg-red-500/10 transition-all group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-red-500/20 flex items-center justify-center">
+                          <DollarSign className="w-6 h-6 text-red-400" />
+                        </div>
+                        <div className="text-left flex-1">
+                          <h3 className="text-white font-semibold group-hover:text-red-400 transition-colors">Full Refund</h3>
+                          <p className="text-white/50 text-sm">Refund the entire order amount</p>
+                        </div>
+                        <ChevronLeft className="w-5 h-5 text-white/30 rotate-180" />
+                      </div>
+                    </button>
+                  ) : (
+                    <div className="w-full p-4 rounded-xl border border-neutral-700/50 opacity-50 cursor-not-allowed">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-red-500/10 flex items-center justify-center">
+                          <DollarSign className="w-6 h-6 text-red-400/50" />
+                        </div>
+                        <div className="text-left flex-1">
+                          <h3 className="text-white/50 font-semibold">Full Refund</h3>
+                          <p className="text-white/30 text-sm">Already refunded</p>
+                        </div>
+                        <Check className="w-5 h-5 text-red-400/50" />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Partial Refund - disabled if nothing left to refund */}
+                  {isPartialRefundAvailable(selectedGuest) ? (
+                    <button
+                      onClick={() => handleSelectRefundType('partial')}
+                      className="w-full p-4 rounded-xl border border-neutral-700 hover:border-orange-500/50 hover:bg-orange-500/10 transition-all group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-orange-500/20 flex items-center justify-center">
+                          <Percent className="w-6 h-6 text-orange-400" />
+                        </div>
+                        <div className="text-left flex-1">
+                          <h3 className="text-white font-semibold group-hover:text-orange-400 transition-colors">Partial Refund</h3>
+                          <p className="text-white/50 text-sm">Refund specific items</p>
+                        </div>
+                        <ChevronLeft className="w-5 h-5 text-white/30 rotate-180" />
+                      </div>
+                    </button>
+                  ) : (
+                    <div className="w-full p-4 rounded-xl border border-neutral-700/50 opacity-50 cursor-not-allowed">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-orange-500/10 flex items-center justify-center">
+                          <Percent className="w-6 h-6 text-orange-400/50" />
+                        </div>
+                        <div className="text-left flex-1">
+                          <h3 className="text-white/50 font-semibold">Partial Refund</h3>
+                          <p className="text-white/30 text-sm">No items available to refund</p>
+                        </div>
+                        <Check className="w-5 h-5 text-orange-400/50" />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Tip Refund - only show if there's a tip and it hasn't been fully refunded */}
+                  {selectedGuest.tip > 0 && (
+                    isTipRefundAvailable(selectedGuest) ? (
+                      <button
+                        onClick={() => handleSelectRefundType('tip')}
+                        className="w-full p-4 rounded-xl border border-neutral-700 hover:border-amber-500/50 hover:bg-amber-500/10 transition-all group"
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-amber-500/20 flex items-center justify-center">
+                            <CircleDollarSign className="w-6 h-6 text-amber-400" />
+                          </div>
+                          <div className="text-left flex-1">
+                            <h3 className="text-white font-semibold group-hover:text-amber-400 transition-colors">Tip Refund</h3>
+                            <p className="text-white/50 text-sm">
+                              Refund tip amount ({formatPrice(getRemainingTipAmount(selectedGuest))})
+                              {getRefundedTipAmount(selectedGuest.id) > 0 && (
+                                <span className="text-red-400 ml-1">
+                                  ({formatPrice(getRefundedTipAmount(selectedGuest.id))} already refunded)
+                                </span>
+                              )}
+                            </p>
+                          </div>
+                          <ChevronLeft className="w-5 h-5 text-white/30 rotate-180" />
+                        </div>
+                      </button>
+                    ) : (
+                      <div className="w-full p-4 rounded-xl border border-neutral-700/50 opacity-50 cursor-not-allowed">
+                        <div className="flex items-center gap-4">
+                          <div className="w-12 h-12 rounded-full bg-amber-500/10 flex items-center justify-center">
+                            <CircleDollarSign className="w-6 h-6 text-amber-400/50" />
+                          </div>
+                          <div className="text-left flex-1">
+                            <h3 className="text-white/50 font-semibold">Tip Refund</h3>
+                            <p className="text-white/30 text-sm">Tip already refunded ({formatPrice(selectedGuest.tip)})</p>
+                          </div>
+                          <Check className="w-5 h-5 text-amber-400/50" />
+                        </div>
+                      </div>
+                    )
+                  )}
+                  
+                  {/* Custom Refund - disabled if nothing left to refund */}
+                  {isPartialRefundAvailable(selectedGuest) ? (
+                    <button
+                      onClick={() => handleSelectRefundType('custom')}
+                      className="w-full p-4 rounded-xl border border-neutral-700 hover:border-violet-500/50 hover:bg-violet-500/10 transition-all group"
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-violet-500/20 flex items-center justify-center">
+                          <FileText className="w-6 h-6 text-violet-400" />
+                        </div>
+                        <div className="text-left flex-1">
+                          <h3 className="text-white font-semibold group-hover:text-violet-400 transition-colors">Custom Refund</h3>
+                          <p className="text-white/50 text-sm">Enter a custom amount (max {formatPrice(getRemainingRefundableAmount(selectedGuest))})</p>
+                        </div>
+                        <ChevronLeft className="w-5 h-5 text-white/30 rotate-180" />
+                      </div>
+                    </button>
+                  ) : (
+                    <div className="w-full p-4 rounded-xl border border-neutral-700/50 opacity-50 cursor-not-allowed">
+                      <div className="flex items-center gap-4">
+                        <div className="w-12 h-12 rounded-full bg-violet-500/10 flex items-center justify-center">
+                          <FileText className="w-6 h-6 text-violet-400/50" />
+                        </div>
+                        <div className="text-left flex-1">
+                          <h3 className="text-white/50 font-semibold">Custom Refund</h3>
+                          <p className="text-white/30 text-sm">No remaining balance to refund</p>
+                        </div>
+                        <Check className="w-5 h-5 text-violet-400/50" />
+                      </div>
+                    </div>
+                  )}
+              </div>
+            </>
+          )}
+
+          {refundStep === 'full-refund' && (
+            <>
+              {/* Refund Amount */}
+              <div className="p-6 text-center border-b border-neutral-800">
+                <p className="text-white/50 text-sm mb-2">Refund Amount</p>
+                <div className="text-4xl font-bold text-white">
+                  {formatPrice(includeRefundTip ? selectedGuest.total + selectedGuest.tip : selectedGuest.total)}
+                </div>
+                {selectedGuest.tip > 0 && (
+                  <div className="text-white/40 text-xs mt-1">
+                    Total {formatPrice(selectedGuest.total)} {includeRefundTip && `+ Tip ${formatPrice(selectedGuest.tip)}`}
+                  </div>
+                )}
+                <p className="text-white/40 text-xs mt-2">
+                  Order #{selectedGuest.check} • {selectedGuest.name}
+                </p>
+              </div>
+              
+              {/* Include Tip Toggle */}
+              {selectedGuest.tip > 0 && (
+                <div className="px-4 py-3 border-b border-neutral-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <span className="text-white text-sm font-medium">Include Tip in Refund</span>
+                      <span className="text-white/50 text-xs">Tip amount: {formatPrice(selectedGuest.tip)}</span>
+                    </div>
+                    <Switch 
+                      checked={includeRefundTip}
+                      onCheckedChange={setIncludeRefundTip}
+                      className="data-[state=checked]:bg-orange-500"
+                    />
+                  </div>
+                </div>
+              )}
+              
+              {/* Refund Reason */}
+              <div className="p-4">
+                <label className="text-white/70 text-sm mb-3 block">Reason for Refund</label>
+                <div className="space-y-2">
+                  {refundReasons.map((reason) => (
+                    <button
+                      key={reason.value}
+                      onClick={() => setRefundReason(reason.value as RefundReason)}
+                      className={`w-full p-3 rounded-xl border text-left transition-all ${
+                        refundReason === reason.value 
+                          ? 'border-red-500 bg-red-500/10 text-white' 
+                          : 'border-neutral-700 text-white/70 hover:border-neutral-600'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          refundReason === reason.value ? 'border-red-500 bg-red-500' : 'border-neutral-600'
+                        }`}>
+                          {refundReason === reason.value && (
+                            <Check className="w-3 h-3 text-white" />
+                          )}
+                        </div>
+                        <span>{reason.label}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {refundStep === 'partial-refund' && (
+            <>
+              {/* Items List */}
+              <div className="p-4">
+                <p className="text-white/50 text-sm mb-3">Select items to refund</p>
+                <div className="space-y-2">
+                  {/* Empty state when all items are already refunded */}
+                  {selectedGuest.items.every((item, index) => {
+                    const refundedQty = getRefundedQtyForItem(selectedGuest.id, index);
+                    const remainingQty = item.qty - refundedQty;
+                    const hasRefundableModifiers = item.richModifiers?.some(
+                      (mod, modIndex) => mod.price && mod.price > 0 && !isModifierRefunded(selectedGuest.id, index, modIndex)
+                    );
+                    return remainingQty <= 0 && !hasRefundableModifiers;
+                  }) && (
+                    <div className="py-8 text-center">
+                      <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-neutral-800 flex items-center justify-center">
+                        <Check className="w-6 h-6 text-white/30" />
+                      </div>
+                      <p className="text-white/50 text-sm">All items have been refunded</p>
+                      <p className="text-white/30 text-xs mt-1">No items remaining for partial refund</p>
+                    </div>
+                  )}
+                  {selectedGuest.items.map((item, index) => {
+                    // Calculate remaining refundable quantity
+                    const refundedQty = getRefundedQtyForItem(selectedGuest.id, index);
+                    const remainingQty = item.qty - refundedQty;
+                    const isFullyRefundedItem = remainingQty <= 0;
+                    
+                    // Check for refundable modifiers (not already refunded)
+                    const hasRefundableModifiers = item.richModifiers?.some(
+                      (mod, modIndex) => mod.price && mod.price > 0 && !isModifierRefunded(selectedGuest.id, index, modIndex)
+                    );
+                    
+                    // Skip fully refunded items with no refundable modifiers
+                    if (isFullyRefundedItem && !hasRefundableModifiers) return null;
+                    
+                    const isSelected = selectedRefundItems.some(r => r.index === index);
+                    const refundItem = selectedRefundItems.find(r => r.index === index);
+                    const isExpanded = expandedRefundItems.has(index);
+                    const hasModifiers = item.richModifiers && item.richModifiers.length > 0;
+                    const hasPaidModifiers = item.richModifiers?.some(m => m.price && m.price > 0);
+                    const selectedModsCount = getSelectedModifiersCount(index);
+                    
+                    return (
+                      <div
+                        key={index}
+                        className={`rounded-xl border transition-all ${
+                          isSelected || selectedModsCount > 0
+                            ? 'border-orange-500 bg-orange-500/10' 
+                            : 'border-neutral-700 hover:border-neutral-600'
+                        }`}
+                      >
+                        {/* Item Row */}
+                        <div className="p-3">
+                          <div className="flex items-center gap-3">
+                            {/* Checkbox - disabled if item fully refunded */}
+                            {!isFullyRefundedItem ? (
+                              <div 
+                                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0 cursor-pointer ${
+                                  isSelected ? 'border-orange-500 bg-orange-500' : 'border-neutral-600'
+                                }`}
+                                onClick={() => toggleRefundItem(index, item)}
+                              >
+                                {isSelected && <Check className="w-3 h-3 text-white" />}
+                              </div>
+                            ) : (
+                              <div className="w-5 h-5 rounded border-2 border-neutral-700 bg-neutral-700/50 flex items-center justify-center flex-shrink-0">
+                                <Check className="w-3 h-3 text-white/30" />
+                              </div>
+                            )}
+                            
+                            {/* Item Info */}
+                            <div 
+                              className={`flex-1 min-w-0 ${!isFullyRefundedItem ? 'cursor-pointer' : ''}`}
+                              onClick={() => !isFullyRefundedItem && toggleRefundItem(index, item)}
+                            >
+                              <div className="flex items-center gap-2">
+                                <p className={`font-medium truncate ${
+                                  isFullyRefundedItem 
+                                    ? 'text-white/40 line-through' 
+                                    : (isSelected || selectedModsCount > 0 ? 'text-white' : 'text-white/70')
+                                }`}>
+                                  {item.name}
+                                </p>
+                                {isFullyRefundedItem && (
+                                  <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[10px] font-medium rounded flex-shrink-0">
+                                    REFUNDED
+                                  </span>
+                                )}
+                                {refundedQty > 0 && !isFullyRefundedItem && (
+                                  <span className="px-1.5 py-0.5 bg-orange-500/20 text-orange-400 text-[10px] font-medium rounded flex-shrink-0">
+                                    {refundedQty} REFUNDED
+                                  </span>
+                                )}
+                              </div>
+                              <p className="text-white/40 text-xs">
+                                {formatPrice(item.price)} each • {isFullyRefundedItem ? 'Fully refunded' : `Remaining: ${remainingQty} of ${item.qty}`}
+                              </p>
+                            </div>
+                            
+                            {/* Inline QTY selector when item selected */}
+                            {isSelected && refundItem && !isFullyRefundedItem && (
+                              <select
+                                value={refundItem.qty}
+                                onChange={(e) => {
+                                  e.stopPropagation();
+                                  updateRefundItemQty(index, parseInt(e.target.value));
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                                className="min-w-[52px] h-11 px-3 rounded-lg bg-neutral-700 hover:bg-neutral-600 text-white font-semibold text-sm appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-orange-500/50 pr-7 flex-shrink-0"
+                                style={{
+                                  backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+                                  backgroundRepeat: 'no-repeat',
+                                  backgroundPosition: 'right 10px center'
+                                }}
+                              >
+                                {Array.from({ length: remainingQty }, (_, i) => i + 1).map(qty => (
+                                  <option key={qty} value={qty}>{qty}</option>
+                                ))}
+                              </select>
+                            )}
+                            
+                            {/* Price */}
+                            {!isFullyRefundedItem && (
+                              <span className={`font-semibold flex-shrink-0 ${isSelected || selectedModsCount > 0 ? 'text-orange-400' : 'text-white/50'}`}>
+                                {formatPrice(item.price * (refundItem?.qty || remainingQty))}
+                              </span>
+                            )}
+                            
+                            {/* Expand/Collapse for items with paid modifiers */}
+                            {hasRefundableModifiers && (
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  toggleItemExpansion(index);
+                                }}
+                                className="p-1.5 rounded-full hover:bg-white/10 transition-colors flex-shrink-0"
+                              >
+                                <ChevronLeft className={`w-4 h-4 text-white/50 transition-transform ${isExpanded ? 'rotate-90' : '-rotate-90'}`} />
+                              </button>
+                            )}
+                          </div>
+                          
+                          {/* Selected modifiers indicator (when collapsed) */}
+                          {!isExpanded && selectedModsCount > 0 && (
+                            <div className="mt-2 ml-8 text-xs text-orange-400">
+                              {selectedModsCount} modifier{selectedModsCount > 1 ? 's' : ''} selected for refund
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Expanded Modifiers */}
+                        {isExpanded && item.richModifiers && item.richModifiers.length > 0 && (
+                          <div className="border-t border-neutral-700/50 px-3 pb-3">
+                            <div className="pt-2 space-y-1.5">
+                              {item.richModifiers.map((mod, modIndex) => {
+                                const hasPaidPrice = mod.price && mod.price > 0;
+                                const isModAlreadyRefunded = isModifierRefunded(selectedGuest.id, index, modIndex);
+                                const isModSelected = isModifierSelectedForRefund(index, modIndex);
+                                
+                                // Skip already refunded modifiers (they're read-only in order summary)
+                                if (isModAlreadyRefunded) {
+                                  return (
+                                    <div 
+                                      key={modIndex} 
+                                      className="flex items-center gap-2 py-1.5 pl-8 pr-2 rounded-lg opacity-50"
+                                    >
+                                      <div className="w-4 h-4 rounded border-2 border-neutral-700 bg-neutral-700/50 flex items-center justify-center flex-shrink-0">
+                                        <Check className="w-2.5 h-2.5 text-white/30" />
+                                      </div>
+                                      <span className="text-xs flex-shrink-0 text-white/40">
+                                        {mod.type === 'add' ? '+' : mod.type === 'remove' ? '–' : mod.type === 'side' ? '◆' : '•'}
+                                      </span>
+                                      <span className="text-sm flex-1 text-white/40 line-through">
+                                        {mod.text}
+                                      </span>
+                                      <span className="px-1.5 py-0.5 bg-red-500/20 text-red-400 text-[10px] font-medium rounded flex-shrink-0">
+                                        REFUNDED
+                                      </span>
+                                    </div>
+                                  );
+                                }
+                                
+                                return (
+                                  <div 
+                                    key={modIndex} 
+                                    className={`flex items-center gap-2 py-1.5 pl-8 pr-2 rounded-lg transition-colors ${
+                                      hasPaidPrice ? 'cursor-pointer hover:bg-white/5' : ''
+                                    } ${isModSelected ? 'bg-orange-500/10' : ''}`}
+                                    onClick={() => hasPaidPrice && toggleRefundModifier(index, modIndex, mod)}
+                                  >
+                                    {/* Modifier checkbox (only for paid modifiers) */}
+                                    {hasPaidPrice ? (
+                                      <div className={`w-4 h-4 rounded border-2 flex items-center justify-center transition-colors flex-shrink-0 ${
+                                        isModSelected ? 'border-orange-500 bg-orange-500' : 'border-neutral-600'
+                                      }`}>
+                                        {isModSelected && <Check className="w-2.5 h-2.5 text-white" />}
+                                      </div>
+                                    ) : (
+                                      <div className="w-4 h-4 flex-shrink-0" />
+                                    )}
+                                    
+                                    {/* Modifier type indicator */}
+                                    <span className={`text-xs flex-shrink-0 ${
+                                      mod.type === 'add' ? 'text-orange-400' : 
+                                      mod.type === 'remove' ? 'text-red-400' : 
+                                      mod.type === 'side' ? 'text-amber-400' :
+                                      'text-white/40'
+                                    }`}>
+                                      {mod.type === 'add' ? '+' : mod.type === 'remove' ? '–' : mod.type === 'side' ? '◆' : '•'}
+                                    </span>
+                                    
+                                    {/* Modifier name */}
+                                    <span className={`text-sm flex-1 ${isModSelected ? 'text-white' : 'text-white/60'}`}>
+                                      {mod.text}
+                                    </span>
+                                    
+                                    {/* Modifier price */}
+                                    {hasPaidPrice && (
+                                      <span className={`text-sm font-medium flex-shrink-0 ${isModSelected ? 'text-orange-400' : 'text-white/50'}`}>
+                                        {formatPrice(mod.price)}
+                                      </span>
+                                    )}
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Include Tip Toggle - only show if tip not fully refunded */}
+              {isTipRefundAvailable(selectedGuest) && (
+                <div className="px-4 py-3 border-t border-neutral-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <span className="text-white text-sm font-medium">Include Tip in Refund</span>
+                      <span className="text-white/50 text-xs">Remaining tip: {formatPrice(getRemainingTipAmount(selectedGuest))}</span>
+                    </div>
+                    <Switch 
+                      checked={includeRefundTip}
+                      onCheckedChange={setIncludeRefundTip}
+                      className="data-[state=checked]:bg-orange-500"
+                    />
+                  </div>
+                </div>
+              )}
+              {/* Show refunded tip indicator if tip was already refunded */}
+              {selectedGuest.tip > 0 && !isTipRefundAvailable(selectedGuest) && (
+                <div className="px-4 py-3 border-t border-neutral-800">
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-col">
+                      <span className="text-white/50 text-sm font-medium line-through">Tip</span>
+                      <span className="text-white/40 text-xs">{formatPrice(selectedGuest.tip)}</span>
+                    </div>
+                    <span className="px-2 py-1 bg-red-500/20 text-red-400 text-xs font-medium rounded">
+                      REFUNDED
+                    </span>
+                  </div>
+                </div>
+              )}
+              
+              {/* Refund Summary */}
+              <div className="p-4 border-t border-neutral-800 bg-neutral-800/50">
+                <div className="flex items-center justify-between mb-3">
+                  <span className="text-white/50 text-sm">Selections</span>
+                  <span className="text-white font-medium">
+                    {selectedRefundItems.length > 0 && `${selectedRefundItems.length} item${selectedRefundItems.length > 1 ? 's' : ''}`}
+                    {selectedRefundItems.length > 0 && selectedRefundModifiers.length > 0 && ', '}
+                    {selectedRefundModifiers.length > 0 && `${selectedRefundModifiers.length} modifier${selectedRefundModifiers.length > 1 ? 's' : ''}`}
+                    {selectedRefundItems.length === 0 && selectedRefundModifiers.length === 0 && '0'}
+                  </span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-white/50 text-sm">Items & Modifiers</span>
+                  <span className="text-white font-medium">{formatPrice(getPartialRefundTotal(false))}</span>
+                </div>
+                {includeRefundTip && isTipRefundAvailable(selectedGuest) && (
+                  <div className="flex items-center justify-between mt-1">
+                    <span className="text-white/50 text-sm">+ Tip</span>
+                    <span className="text-white font-medium">{formatPrice(getRemainingTipAmount(selectedGuest))}</span>
+                  </div>
+                )}
+                <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/10">
+                  <span className="text-white/70 text-sm font-medium">Refund total</span>
+                  <span className="text-orange-400 font-bold text-lg">{formatPrice(getPartialRefundTotal(includeRefundTip))}</span>
+                </div>
+              </div>
+              
+              {/* Refund Reason */}
+              <div className="p-4 border-t border-neutral-800">
+                <label className="text-white/70 text-sm mb-2 block">Reason for Refund</label>
+                <select 
+                  value={refundReason}
+                  onChange={(e) => setRefundReason(e.target.value as RefundReason)}
+                  className="w-full p-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white text-sm focus:outline-none focus:border-orange-500"
+                >
+                  {refundReasons.map(reason => (
+                    <option key={reason.value} value={reason.value}>{reason.label}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          {refundStep === 'custom-refund' && (
+            <>
+              {/* Amount Display */}
+              {/* Amount Display */}
+              <div className="p-6 text-center border-b border-neutral-800">
+                <p className="text-white/50 text-sm mb-2">Enter Refund Amount</p>
+                <div className={`text-4xl font-bold text-white flex items-center justify-center ${shakeCustomAmount ? 'animate-shake text-red-400' : ''}`}>
+                  <span className="text-white/50 mr-1">$</span>
+                  <span>{customRefundAmount || "0.00"}</span>
+                </div>
+                <p className="text-white/40 text-xs mt-2">
+                  Max refund: {formatPrice(selectedGuest.total)}
+                </p>
+                {parseFloat(customRefundAmount) > selectedGuest.total && (
+                  <p className="text-red-400 text-xs mt-1">
+                    Amount exceeds order total
+                  </p>
+                )}
+              </div>
+              
+              {/* Numeric Keypad */}
+              <div className="p-4">
+                <div className="grid grid-cols-3 gap-2">
+                  {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'backspace'].map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => handleKeypadInput(key)}
+                      className={`h-14 rounded-xl font-semibold text-lg transition-all active:scale-95 ${
+                        key === 'backspace' 
+                          ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
+                          : 'bg-neutral-800 text-white hover:bg-neutral-700'
+                      }`}
+                    >
+                      {key === 'backspace' ? (
+                        <RotateCcw className="w-5 h-5 mx-auto" />
+                      ) : key}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Clear Button */}
+                <button
+                  onClick={() => handleKeypadInput('clear')}
+                  className="w-full mt-2 py-3 rounded-xl bg-neutral-800 text-white/70 hover:bg-neutral-700 text-sm font-medium transition-all"
+                >
+                  Clear
+                </button>
+              </div>
+              
+              {/* Refund Reason */}
+              <div className="p-4 border-t border-neutral-800">
+                <label className="text-white/70 text-sm mb-2 block">Reason for Refund</label>
+                <select 
+                  value={refundReason}
+                  onChange={(e) => setRefundReason(e.target.value as RefundReason)}
+                  className="w-full p-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white text-sm focus:outline-none focus:border-violet-500"
+                >
+                  {refundReasons.map(reason => (
+                    <option key={reason.value} value={reason.value}>{reason.label}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          {refundStep === 'tip-refund' && (
+            <>
+              {/* Amount Display */}
+              <div className="p-6 text-center border-b border-neutral-800">
+                <p className="text-white/50 text-sm mb-2">Tip Refund Amount</p>
+                <div className={`text-4xl font-bold text-white flex items-center justify-center ${shakeTipAmount ? 'animate-shake text-red-400' : ''}`}>
+                  <span className="text-white/50 mr-1">$</span>
+                  <span>{tipRefundAmount || "0.00"}</span>
+                </div>
+                <p className="text-white/40 text-xs mt-2">
+                  Original tip: {formatPrice(selectedGuest.tip)}
+                </p>
+                {parseFloat(tipRefundAmount) > selectedGuest.tip && (
+                  <p className="text-red-400 text-xs mt-1">
+                    Amount exceeds original tip
+                  </p>
+                )}
+              </div>
+              
+              {/* Numeric Keypad */}
+              <div className="p-4">
+                <div className="grid grid-cols-3 gap-2">
+                  {['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', 'backspace'].map((key) => (
+                    <button
+                      key={key}
+                      onClick={() => handleTipKeypadInput(key)}
+                      className={`h-14 rounded-xl font-semibold text-lg transition-all active:scale-95 ${
+                        key === 'backspace' 
+                          ? 'bg-red-500/20 text-red-400 hover:bg-red-500/30' 
+                          : 'bg-neutral-800 text-white hover:bg-neutral-700'
+                      }`}
+                    >
+                      {key === 'backspace' ? (
+                        <Delete className="w-5 h-5 mx-auto" />
+                      ) : key}
+                    </button>
+                  ))}
+                </div>
+                
+                {/* Quick amount buttons */}
+                <div className="flex gap-2 mt-3">
+                  <button
+                    onClick={() => setTipRefundAmount(selectedGuest.tip.toFixed(2))}
+                    className="flex-1 py-2 rounded-xl bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 text-sm font-medium transition-all"
+                  >
+                    Full Tip ({formatPrice(selectedGuest.tip)})
+                  </button>
+                  <button
+                    onClick={() => handleTipKeypadInput('clear')}
+                    className="flex-1 py-2 rounded-xl bg-neutral-800 text-white/70 hover:bg-neutral-700 text-sm font-medium transition-all"
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+              
+              {/* Refund Reason */}
+              <div className="p-4 border-t border-neutral-800">
+                <label className="text-white/70 text-sm mb-2 block">Reason for Refund</label>
+                <select 
+                  value={refundReason}
+                  onChange={(e) => setRefundReason(e.target.value as RefundReason)}
+                  className="w-full p-3 rounded-xl bg-neutral-800 border border-neutral-700 text-white text-sm focus:outline-none focus:border-amber-500"
+                >
+                  {tipRefundReasons.map(reason => (
+                    <option key={reason.value} value={reason.value}>{reason.label}</option>
+                  ))}
+                </select>
+              </div>
+            </>
+          )}
+
+          {refundStep === 'item-refund' && swipeRefundTarget && (
+            <>
+              {/* Refund Amount */}
+              <div className="p-6 text-center border-b border-neutral-800">
+                <p className="text-white/50 text-sm mb-2">Refund Amount</p>
+                <div className="text-4xl font-bold text-white">
+                  {formatPrice(swipeRefundTarget.price)}
+                </div>
+                <p className="text-white/70 text-sm mt-2">
+                  {swipeRefundTarget.name}
+                </p>
+                <p className="text-white/40 text-xs mt-1">
+                  Order #{selectedGuest.check} • {selectedGuest.name}
+                </p>
+              </div>
+              
+              {/* Refund Reason */}
+              <div className="p-4">
+                <label className="text-white/70 text-sm mb-3 block">Reason for Refund</label>
+                <div className="space-y-2">
+                  {refundReasons.map((reason) => (
+                    <button
+                      key={reason.value}
+                      onClick={() => setRefundReason(reason.value as RefundReason)}
+                      className={`w-full p-3 rounded-xl border text-left transition-all ${
+                        refundReason === reason.value 
+                          ? 'border-red-500 bg-red-500/10 text-white' 
+                          : 'border-neutral-700 text-white/70 hover:border-neutral-600'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center ${
+                          refundReason === reason.value ? 'border-red-500 bg-red-500' : 'border-neutral-600'
+                        }`}>
+                          {refundReason === reason.value && (
+                            <Check className="w-3 h-3 text-white" />
+                          )}
+                        </div>
+                        <span>{reason.label}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Confirmation Step for Split Payments */}
+          {refundStep === 'confirmation' && hasSplitPayments(selectedGuest) && (
+            <>
+              {/* Total Refund Amount */}
+              <div className="p-4 text-center border-b border-neutral-800">
+                <p className="text-white/50 text-sm mb-1">Total Refund Amount</p>
+                <div className="text-3xl font-bold text-white">
+                  {formatPrice(getTotalAllocatedRefund())}
+                </div>
+                <p className="text-white/40 text-xs mt-1">
+                  Order #{selectedGuest.check} • {selectedGuest.name}
+                </p>
+              </div>
+              
+              {/* Payment Breakdown */}
+              <div className="px-4 pt-4 pb-4">
+                <label className="text-white/70 text-sm mb-3 block">Refund Breakdown by Payment Method</label>
+                <div className="space-y-2">
+                  {selectedGuest.paymentMethods?.map((pm) => {
+                    const allocation = refundAllocations.find(a => a.paymentMethodId === pm.id);
+                    const totalRefund = (allocation?.refundAmount || 0) + (allocation?.tipRefundAmount || 0);
+                    const maxRefund = pm.amount + (pm.tipAmount || 0);
+                    
+                    return (
+                      <div 
+                        key={pm.id}
+                        className="p-3 rounded-xl border border-neutral-700 bg-neutral-800/50"
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">{getPaymentMethodIcon(pm.type)}</span>
+                            <div>
+                              <p className="text-white text-sm font-medium">{pm.label}</p>
+                              <p className="text-white/40 text-xs">
+                                Paid: {formatPrice(pm.amount)}
+                                {pm.tipAmount && pm.tipAmount > 0 && ` + Tip: ${formatPrice(pm.tipAmount)}`}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <p className={`text-sm font-bold ${totalRefund > 0 ? 'text-red-400' : 'text-white/40'}`}>
+                              -{formatPrice(totalRefund)}
+                            </p>
+                            <p className="text-white/40 text-xs">of {formatPrice(maxRefund)}</p>
+                          </div>
+                        </div>
+                        
+                        {/* Detailed breakdown - Inline refund summary */}
+                        {allocation && (allocation.refundAmount > 0 || allocation.tipRefundAmount > 0) && (
+                          <div className="mt-3 pt-3 border-t border-neutral-700/50 flex items-center gap-4">
+                            {allocation.refundAmount > 0 && (
+                              <span className="text-sm">
+                                <span className="text-white/70">Order </span>
+                                <span className="text-white">{formatPrice(allocation.refundAmount)}</span>
+                              </span>
+                            )}
+                            {allocation.tipRefundAmount > 0 && (
+                              <span className="text-sm">
+                                <span className="text-white/70">Tip </span>
+                                <span className="text-white">{formatPrice(allocation.tipRefundAmount)}</span>
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Remaining after refund - De-emphasized */}
+                        <div className="mt-2 pt-2 border-t border-neutral-700/30 flex justify-between">
+                          <span className="text-white/30 text-xs">Remaining after refund</span>
+                          <span className="text-white/40 text-xs">
+                            {formatPrice(maxRefund - totalRefund)}
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+              
+              {/* Validation Errors */}
+              {(() => {
+                const validation = validateRefundAllocations(selectedGuest);
+                if (!validation.valid) {
+                  return (
+                    <div className="px-4 pb-4">
+                      <div className="p-3 rounded-xl border border-red-500/50 bg-red-500/10">
+                        <p className="text-red-400 text-sm font-medium mb-1">Invalid Allocation</p>
+                        {validation.errors.map((error, i) => (
+                          <p key={i} className="text-red-400/70 text-xs">{error}</p>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
+                return null;
+              })()}
+              
+              {/* Refund Reason Summary */}
+              <div className="px-4 pb-4">
+                <div className="p-3 rounded-xl bg-neutral-800/50 border border-neutral-700">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/50 text-sm">Reason</span>
+                    <span className="text-white text-sm">{refundReasons.find(r => r.value === refundReason)?.label}</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* Confirmation Step for Single Payment Orders */}
+          {refundStep === 'confirmation' && !hasSplitPayments(selectedGuest) && (
+            <>
+              {/* Total Refund Amount */}
+              <div className="p-4 text-center border-b border-neutral-800">
+                <p className="text-white/50 text-sm mb-1">Total Refund Amount</p>
+                <div className="text-3xl font-bold text-white">
+                  {formatPrice(getRefundDisplayAmount())}
+                </div>
+                <p className="text-white/40 text-xs mt-1">
+                  Order #{selectedGuest.check} • {selectedGuest.name}
+                </p>
+              </div>
+              
+              {/* Payment Method Card */}
+              <div className="px-4 pt-4 pb-4">
+                <label className="text-white/70 text-sm mb-3 block">Refund Details</label>
+                <div className="p-3 rounded-xl border border-neutral-700 bg-neutral-800/50">
+                  {/* Payment Method Header */}
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{getPaymentMethodIcon(selectedGuest.paymentType as "cash" | "credit_card" | "debit_card" | "gift_card")}</span>
+                      <div>
+                        <p className="text-white text-sm font-medium">
+                          {selectedGuest.paymentType === 'cash' ? 'Cash' : 
+                           selectedGuest.paymentType === 'credit' ? 'Credit Card' :
+                           selectedGuest.paymentType === 'gift' ? 'Gift Card' : 
+                           selectedGuest.paymentType === 'credit_card' ? 'Credit Card' :
+                           selectedGuest.paymentType === 'debit_card' ? 'Debit Card' :
+                           selectedGuest.paymentType === 'gift_card' ? 'Gift Card' : 
+                           selectedGuest.paymentType}
+                        </p>
+                        <p className="text-white/40 text-xs">
+                          Original: {formatPrice(selectedGuest.total)}
+                          {selectedGuest.tip > 0 && ` + Tip: ${formatPrice(selectedGuest.tip)}`}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-red-400">
+                        −{formatPrice(getRefundDisplayAmount())}
+                      </p>
+                      <p className="text-white/40 text-xs">of {formatPrice(selectedGuest.total + selectedGuest.tip)}</p>
+                    </div>
+                  </div>
+                  
+                  {/* Detailed breakdown - Prominent refund line items */}
+                  {(() => {
+                    // Calculate order refund based on available data
+                    const isTipOnlyRefund = parseFloat(tipRefundAmount) > 0 && !swipeRefundTarget && selectedRefundItems.length === 0 && parseFloat(customRefundAmount) <= 0;
+                    const orderRefund = isTipOnlyRefund ? 0 : 
+                      (swipeRefundTarget ? swipeRefundTarget.price :
+                       selectedRefundItems.length > 0 ? getPartialRefundTotal(false) :
+                       parseFloat(customRefundAmount) > 0 ? getCustomRefundValue() :
+                       selectedGuest.total);
+                    // Calculate tip refund
+                    const tipRefund = parseFloat(tipRefundAmount) > 0 
+                      ? getTipRefundValue() 
+                      : (includeRefundTip ? selectedGuest.tip : 0);
+                    const totalOriginal = selectedGuest.total + selectedGuest.tip;
+                    const remaining = totalOriginal - orderRefund - tipRefund;
+                    
+                    return (
+                      <>
+                        {(orderRefund > 0 || tipRefund > 0) && (
+                          <div className="mt-3 pt-3 border-t border-neutral-700/50 flex items-center gap-4">
+                            {orderRefund > 0 && (
+                              <span className="text-sm">
+                                <span className="text-white/70">Order </span>
+                                <span className="text-white">{formatPrice(orderRefund)}</span>
+                              </span>
+                            )}
+                            {tipRefund > 0 && (
+                              <span className="text-sm">
+                                <span className="text-white/70">Tip </span>
+                                <span className="text-white">{formatPrice(tipRefund)}</span>
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        
+                        {/* Remaining after refund - De-emphasized */}
+                        <div className="mt-2 pt-2 border-t border-neutral-700/30 flex justify-between">
+                          <span className="text-white/30 text-xs">Remaining after refund</span>
+                          <span className="text-white/40 text-xs">
+                            {formatPrice(remaining > 0 ? remaining : 0)}
+                          </span>
+                        </div>
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+              
+              {/* Refund Reason Summary */}
+              <div className="px-4 pb-4">
+                <div className="p-3 rounded-xl bg-neutral-800/50 border border-neutral-700">
+                  <div className="flex justify-between items-center">
+                    <span className="text-white/50 text-sm">Reason</span>
+                    <span className="text-white text-sm">{refundReasons.find(r => r.value === refundReason)?.label || tipRefundReasons.find(r => r.value === refundReason)?.label}</span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+
+          {refundStep === 'success' && (
+            <>
+              <div className="p-8 text-center">
+                {/* Success Tick Icon */}
+                <img src={successTick} alt="Success" className="w-24 h-24 mb-4 mx-auto" />
+                <h2 className="text-white text-xl font-semibold mb-2">Refund Successful</h2>
+                <p className="text-amber-400 text-3xl font-bold">
+                  {swipeRefundTarget 
+                    ? formatPrice(swipeRefundTarget.price)
+                    : hasSplitPayments(selectedGuest) && refundAllocations.length > 0
+                      ? formatPrice(getTotalAllocatedRefund())
+                      : formatPrice(getRefundDisplayAmount())
+                  }
+                </p>
+                {/* Show split payment breakdown in success - chip style with staggered animation */}
+                {hasSplitPayments(selectedGuest) && refundAllocations.length > 0 && (
+                  <motion.div 
+                    className="mt-4 flex flex-wrap justify-center gap-2"
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                      hidden: {},
+                      visible: {
+                        transition: {
+                          staggerChildren: 0.1
+                        }
+                      }
+                    }}
+                  >
+                    {selectedGuest.paymentMethods?.map((pm) => {
+                      const allocation = refundAllocations.find(a => a.paymentMethodId === pm.id);
+                      const totalRefund = (allocation?.refundAmount || 0) + (allocation?.tipRefundAmount || 0);
+                      if (totalRefund <= 0) return null;
+                      return (
+                        <motion.div 
+                          key={pm.id} 
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-neutral-800 border border-neutral-700"
+                          variants={{
+                            hidden: { opacity: 0, y: 10, scale: 0.9 },
+                            visible: { opacity: 1, y: 0, scale: 1 }
+                          }}
+                          transition={{ duration: 0.3, ease: "easeOut" }}
+                        >
+                          <span className="text-white/70 text-sm">{getPaymentMethodIcon(pm.type)}</span>
+                          <span className="text-white text-sm font-medium">{pm.label}:</span>
+                          <span className="text-amber-400 text-sm font-semibold">-{formatPrice(totalRefund)}</span>
+                        </motion.div>
+                      );
+                    })}
+                  </motion.div>
+                )}
+              </div>
+              
+              {/* Receipt Options */}
+              <div className="px-4 pb-4">
+                <p className="text-white/50 text-sm text-center mb-3">Send refund receipt</p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      console.log('Print refund receipt');
+                      handleCancelRefund();
+                    }}
+                    className="flex-1 py-3 px-4 rounded-xl bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Printer className="w-5 h-5 text-white" />
+                    <span className="text-white font-medium">Print</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleCancelRefund();
+                      setTimeout(() => setIsReceiptDialogOpen(true), 100);
+                    }}
+                    className="flex-1 py-3 px-4 rounded-xl bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <MessageSquare className="w-5 h-5 text-white" />
+                    <span className="text-white font-medium">Text</span>
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleCancelRefund();
+                      setTimeout(() => setIsReceiptDialogOpen(true), 100);
+                    }}
+                    className="flex-1 py-3 px-4 rounded-xl bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Mail className="w-5 h-5 text-white" />
+                    <span className="text-white font-medium">Email</span>
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </>
+      );
+    };
+
+    // Responsive: Bottom Sheet on mobile, Dialog on desktop
+    if (isMobile) {
+      return (
+        <RefundBottomSheet
+          open={isRefundModalOpen}
+          onOpenChange={setIsRefundModalOpen}
+          title={stepConfig.title}
+          onBack={stepConfig.onBack}
+          onClose={handleCancelRefund}
+          footer={getStepFooter()}
+          preventDismiss={refundStep !== 'type-selection' && refundStep !== 'success'}
+        >
+          {renderStepContent()}
+        </RefundBottomSheet>
+      );
+    }
+
+    return (
+      <Dialog open={isRefundModalOpen} onOpenChange={setIsRefundModalOpen}>
+        <DialogContent hideCloseButton className="sm:max-w-md bg-neutral-900 border-neutral-700 p-0 max-h-[90vh] flex flex-col overflow-hidden">
+          <RefundModalLayout
+            title={stepConfig.title}
+            onBack={stepConfig.onBack}
+            onClose={handleCancelRefund}
+            footer={getStepFooter()}
+          >
+            {renderStepContent()}
+          </RefundModalLayout>
+        </DialogContent>
+      </Dialog>
     );
   };
 
   // Responsive rendering
   return (
-    <div className="w-full max-w-full overflow-x-hidden h-full">
+    <>
       {/* Mobile */}
       <div className="md:hidden h-full">
-        <MobileLayout />
+        {mobileLayout}
       </div>
       
       {/* Tablet */}
       <div className="hidden md:block lg:hidden h-full">
-        <TabletLayout />
+        {tabletLayout}
       </div>
       
       {/* Desktop */}
       <div className="hidden lg:block h-full">
-        <DesktopLayout />
+        {desktopLayout}
       </div>
 
-      {/* Merge & Transfer Dialogs */}
-      <MergeDialog />
-      <TransferIntentDialog />
-
-      {/* Mobile Transfer View - still full screen on mobile */}
-      {transferStep === 'active' && transferSource && transferType && (
-        <div className="fixed inset-0 z-[60] bg-black md:hidden">
-          <TicketsTransferView
-            sourceOrder={transferSource as any}
-            isEntireOrderTransfer={transferType === 'entire' || transferType === 'entireToOrder'}
-            transferTarget={transferType === 'entireToOrder' ? 'order' : 'table'}
-            onBack={closeTransferFlow}
-            orders={orders as any}
-            setOrders={updateOrders as any}
-            onTransferComplete={() => {
-              closeTransferFlow();
-              setTimeout(() => {
-                const latestOrders = JSON.parse(localStorage.getItem('pos-unified-orders') || '[]');
-                const updated = latestOrders.find((o: any) => o.id === transferSource.id);
-                if (updated) setSelectedGuest(updated);
-              }, 50);
-            }}
-          />
-        </div>
-      )}
-      {/* Discount Dialog with integrated MPIN - same as TableOrderDetails */}
-      {showDiscountDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-md mx-4 overflow-hidden animate-scale-in">
-            {discountDialogView === 'mpin' ? (
-              <AccessRestrictedModal
-                subtitle="Manager approval required to apply discount."
-                onBack={() => { setShowDiscountDialog(false); setDiscountDialogView('mpin'); }}
-                onSuccess={() => setDiscountDialogView('discounts')}
-              />
-            ) : (
-              <>
-                <div className="flex items-center justify-between p-4 border-b border-neutral-700">
-                  <h2 className="text-white text-lg font-semibold">Select Discount</h2>
-                  <button onClick={() => setShowDiscountDialog(false)} className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors">
-                    <X className="w-5 h-5 text-neutral-400" />
-                  </button>
-                </div>
-
-                <div className="p-2 max-h-[400px] overflow-y-auto space-y-1" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
-                  {discountTypes.map((discountType) => {
-                    const subtotal = selectedGuest?.items.filter(it => !it.isCancelled).reduce((sum, it) => sum + it.price * it.qty, 0) || 0;
-                    const discountAmount = discountType.fixedAmount || (subtotal * ((discountType.percentage || 0) / 100));
-                    const isSelected = selectedDiscountId === discountType.id;
-                    const IconComponent = getDiscountIcon(discountType.icon);
-                    
-                    return (
-                      <button key={discountType.id} onClick={() => setSelectedDiscountId(isSelected ? null : discountType.id)}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
-                          isSelected ? 'bg-orange-500/20 border border-orange-500' : 'bg-neutral-800 border border-transparent hover:bg-neutral-700'
-                        }`}>
-                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${isSelected ? 'bg-orange-500/30' : 'bg-neutral-700'}`}>
-                          <IconComponent className="w-4 h-4 text-neutral-400" />
-                        </div>
-                        <div className="flex-1 text-left">
-                          <div className="text-white text-sm font-medium">{discountType.name}</div>
-                        </div>
-                        <div className={`text-xs font-semibold px-2 py-0.5 rounded-full ${isSelected ? 'bg-orange-500/30 text-orange-300' : 'bg-neutral-700 text-neutral-300'}`}>
-                          {discountType.percentage ? `${discountType.percentage}% off` : `$${discountType.fixedAmount?.toFixed(2)} off`}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-
-                <div className="p-3 border-t border-neutral-700">
-                  <button onClick={() => { setShowDiscountDialog(false); toast.success('Discount applied'); }} className="w-full py-2.5 bg-white hover:bg-neutral-100 text-black font-semibold rounded-lg transition-colors text-sm">
-                    Apply
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-      {/* Transfer Check Dialog */}
-      <TransferCheckDialog
-        isOpen={showTransferCheckDialog}
-        onClose={() => setShowTransferCheckDialog(false)}
-        currentServer={selectedGuest?.server || ""}
-        onTransfer={(newServerName) => {
-          if (selectedGuest) {
-            const updatedGuest = { ...selectedGuest, server: newServerName };
-            setSelectedGuest(updatedGuest);
-            updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? updatedGuest : o));
-            toast.success(`Check transferred to ${newServerName}`);
-          }
-          setShowTransferCheckDialog(false);
-        }}
+      {/* Tip Bottom Sheet */}
+      <TipBottomSheet
+        isOpen={isTipSheetOpen}
+        onClose={() => setIsTipSheetOpen(false)}
+        totalAmount={selectedGuest.total}
+        onSelectTip={handleTipSelect}
+        existingTip={selectedGuest.tip || 0}
+        skipReceiptMode={isClosedTicketsMode && selectedGuest.paid}
       />
 
-      {/* Receipt Dialog - same as TableOrderDetails */}
-      <ReceiptDialog
-        open={showReceiptDialog}
-        onOpenChange={setShowReceiptDialog}
-        orderTotal={selectedGuest?.total || 0}
-        orderId={selectedGuest?.id}
-        mergedOrderIds={(selectedGuest as any)?.mergedFrom ? [selectedGuest!.id, ...(selectedGuest as any).mergedFrom.map((m: any) => m.orderId)] : undefined}
-        guestName={selectedGuest?.name}
-        items={selectedGuest?.items?.map(item => ({
-          name: item.name,
-          price: item.price * item.qty,
-          qty: item.qty
-        }))}
+      {/* Refund Modal */}
+      <RefundModal />
+
+      {/* Mobile Filters Bottom Sheet */}
+      <MobileFiltersSheet
+        isOpen={isMobileFiltersOpen}
+        onClose={() => setIsMobileFiltersOpen(false)}
+        filters={mobileFilters}
+        onApplyFilters={handleMobileFiltersApply}
+        options={filterOptions}
       />
 
-      {/* No Tax Confirmation Dialog - matches New Order exactly */}
-      {showNoTaxDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-neutral-900 rounded-xl border border-neutral-700 w-[90%] max-w-[300px] mx-4 overflow-hidden animate-scale-in">
-            <div className="p-6 text-center">
-              <h2 className="text-white text-lg font-semibold mb-2">Disable Tax?</h2>
-              <p className="text-neutral-400 text-sm">Are you sure you want to remove tax from this order?</p>
-            </div>
-            <div className="flex border-t border-neutral-700">
-              <button
-                onClick={() => setShowNoTaxDialog(false)}
-                className="flex-1 py-3 text-white font-medium hover:bg-neutral-800 transition-colors border-r border-neutral-700"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  setIsTaxExempt(true);
-                  setShowNoTaxDialog(false);
-                }}
-                className="flex-1 py-3 text-orange-500 font-medium hover:bg-neutral-800 transition-colors"
-              >
-                Remove
-              </button>
+      {/* Receipt Options Dialog */}
+      <ReceiptOptionsDialog
+        open={isReceiptDialogOpen}
+        onOpenChange={setIsReceiptDialogOpen}
+        onPrint={() => console.log('Print receipt')}
+        onText={() => console.log('Text receipt')}
+        onEmail={() => console.log('Email receipt')}
+        onNoReceipt={() => console.log('No receipt')}
+      />
+
+      {/* Discount Dialog */}
+      <DiscountDialog
+        open={isDiscountDialogOpen}
+        onOpenChange={setIsDiscountDialogOpen}
+        onApplyDiscounts={setAppliedDiscounts}
+        currentDiscounts={appliedDiscounts}
+        subtotal={selectedGuest.subtotal}
+      />
+
+      {/* Clear Order Confirmation Dialog */}
+      <Dialog open={isClearDialogOpen} onOpenChange={setIsClearDialogOpen}>
+        <DialogContent className="sm:max-w-md bg-neutral-900 border-neutral-700 p-0 overflow-hidden">
+          <div className="p-6">
+            <div className="flex flex-col items-center text-center">
+              <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mb-4">
+                <img src={clearIcon} alt="Clear" className="w-8 h-8" />
+              </div>
+              <h2 className="text-white text-xl font-semibold mb-2">Clear Order?</h2>
+              <p className="text-white/60 text-sm mb-6">
+                This will remove all items from order #{selectedGuest.id}. This action cannot be undone.
+              </p>
+              <div className="flex gap-3 w-full">
+                <button
+                  onClick={() => setIsClearDialogOpen(false)}
+                  className="flex-1 py-3 rounded-full text-white text-sm font-bold transition-colors hover:bg-neutral-700"
+                  style={{ background: "#1B1C20" }}
+                >
+                  CANCEL
+                </button>
+                <button
+                  onClick={handleClearOrder}
+                  className="flex-1 py-3 rounded-full text-white text-sm font-bold transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  style={{ background: "linear-gradient(180deg, #EF4444 0%, #B91C1C 100%)" }}
+                >
+                  CLEAR ORDER
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        </DialogContent>
+      </Dialog>
 
-      {/* Tip Dialog - reuses same component as Table Order */}
-      <TipDialog
-        open={showTipDialog}
-        onOpenChange={setShowTipDialog}
-        orderTotal={selectedGuest?.total || 0}
-        existingTip={selectedGuest?.tip || 0}
-        onTipSelected={(tip) => {
-          if (selectedGuest) {
-            const updatedGuest = { ...selectedGuest, tip: tip };
-            const totals = recalcTotals(updatedGuest.items, updatedGuest);
-            const finalGuest = { ...updatedGuest, ...totals };
-            setSelectedGuest(finalGuest);
-            updateOrders(prev => prev.map(o => o.id === selectedGuest.id ? finalGuest : o));
-            toast.success(`Tip of ${formatPrice(tip)} added`);
-          }
-        }}
+      {/* Refund Confirmation Dialog */}
+      <AppleAlertDialog
+        open={showRefundConfirmation}
+        onOpenChange={setShowRefundConfirmation}
+        onConfirm={handleConfirmRefund}
+        title="Refund Order"
+        description="Are you sure you want to refund this order?"
+        cancelText="Cancel"
+        confirmText="Confirm Refund"
       />
-
-      {/* Refund Dialog - reuses same component as Table Order */}
-      <RefundDialog
-        open={showRefundDialog}
-        onOpenChange={setShowRefundDialog}
-        orderTotal={selectedGuest?.subtotal || 0}
-        tipAmount={selectedGuest?.tip || 0}
-        orderId={selectedGuest?.id}
-        guestName={selectedGuest?.name}
-        orderItems={selectedGuest?.items?.map(item => ({
-          name: item.name,
-          price: item.price,
-          qty: item.qty,
-          modifiers: item.modifiers?.map((mod, idx) => ({
-            name: mod,
-            price: idx % 2 === 1 ? (idx + 1) * 1.5 : 0
-          }))
-        }))}
-        onRefundComplete={(amount, reason) => {
-          console.log("Refund completed:", amount, reason);
-          setShowRefundMode(false);
-        }}
-      />
-
-      {/* Item-level Refund Dialog */}
-      <ItemRefundDialog
-        open={showItemRefundDialog}
-        onOpenChange={setShowItemRefundDialog}
-        itemName={itemRefundTarget?.modifierName || itemRefundTarget?.item.name || ''}
-        itemPrice={itemRefundTarget?.modifierPrice ?? itemRefundTarget?.item.price ?? 0}
-        itemQty={itemRefundTarget?.modifierIndex !== undefined ? 1 : (itemRefundTarget?.item.qty || 1)}
-        isModifier={itemRefundTarget?.modifierIndex !== undefined}
-        onRefundComplete={handleItemRefundComplete}
-      />
-    </div>
+    </>
   );
 };
 

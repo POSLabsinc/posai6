@@ -56,6 +56,9 @@ All colors MUST be HSL.
     --sidebar-border: 220 13% 91%;
 
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --stat-surface: 0 0% 0% / 0.08;
+    --stat-inset-shadow: inset 4px 4px 24px 0px rgba(0, 0, 0, 0.08);
   }
 
   .dark {
@@ -96,6 +99,9 @@ All colors MUST be HSL.
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    --stat-surface: 0 0% 46% / 0.3;
+    --stat-inset-shadow: inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15);
   }
 }
 
@@ -219,3 +225,160 @@ All colors MUST be HSL.
 .animate-shake {
   animation: shake 0.4s ease-in-out;
 }
+
+/* Clock Out / Clock In PIN pad keypad buttons (3D style) */
+@keyframes keypad-bounce {
+  0% { transform: translateY(0) scale(1); }
+  40% { transform: translateY(-2px) scale(1.02); }
+  70% { transform: translateY(1px) scale(0.99); }
+  100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+.keypad-btn-3d {
+  position: relative;
+  background: linear-gradient(to bottom, hsl(0, 0%, 98%) 0%, hsl(0, 0%, 96%) 15%, hsl(0, 0%, 88%) 100%);
+  border-top: 2px solid hsl(0, 0%, 100%); border-left: 2px solid hsl(0, 0%, 95%); border-right: 3px solid hsl(0, 0%, 68%); border-bottom: 4px solid hsl(0, 0%, 58%);
+  box-shadow: inset 0 1px 0 0 hsla(0, 0%, 100%, 0.9);
+  transform: translateY(0);
+  transition: background 0.08s ease-out, border 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.keypad-btn-3d:hover { background: linear-gradient(to bottom, hsl(0, 0%, 96%) 0%, hsl(0, 0%, 94%) 15%, hsl(0, 0%, 86%) 100%); }
+.keypad-btn-3d:active {
+  background: linear-gradient(to bottom, hsl(0, 0%, 85%) 0%, hsl(0, 0%, 90%) 100%);
+  border-top: 3px solid hsl(0, 0%, 62%); border-left: 2px solid hsl(0, 0%, 68%); border-right: 2px solid hsl(0, 0%, 92%); border-bottom: 2px solid hsl(0, 0%, 98%);
+  box-shadow: inset 0 2px 4px hsla(0, 0%, 0%, 0.15);
+  animation: none;
+}
+.keypad-btn-3d:focus:not(:active) { animation: keypad-bounce 0.2s ease-out; }
+.keypad-btn-3d-enter {
+  position: relative;
+  background: linear-gradient(to bottom, hsl(0, 0%, 100%) 0%, hsl(0, 0%, 97%) 15%, hsl(0, 0%, 90%) 100%);
+  border-top: 2px solid hsl(0, 0%, 100%); border-left: 2px solid hsl(0, 0%, 96%); border-right: 4px solid hsl(0, 0%, 65%); border-bottom: 5px solid hsl(0, 0%, 52%);
+  box-shadow: inset 0 1px 0 0 hsla(0, 0%, 100%, 0.95);
+  transform: translateY(0);
+  transition: background 0.08s ease-out, border 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.keypad-btn-3d-enter:hover { background: linear-gradient(to bottom, hsl(0, 0%, 98%) 0%, hsl(0, 0%, 95%) 15%, hsl(0, 0%, 88%) 100%); }
+.keypad-btn-3d-enter:active {
+  background: linear-gradient(to bottom, hsl(0, 0%, 84%) 0%, hsl(0, 0%, 90%) 100%);
+  border-top: 4px solid hsl(0, 0%, 58%); border-left: 3px solid hsl(0, 0%, 65%); border-right: 2px solid hsl(0, 0%, 94%); border-bottom: 2px solid hsl(0, 0%, 100%);
+  box-shadow: inset 0 3px 6px hsla(0, 0%, 0%, 0.18);
+  animation: none;
+}
+.keypad-btn-3d-enter:focus:not(:active) { animation: keypad-bounce 0.2s ease-out; }
+.keypad-btn-3d-clockin {
+  position: relative;
+  background: linear-gradient(to bottom, hsl(160, 84%, 46%) 0%, hsl(160, 84%, 42%) 15%, hsl(160, 84%, 32%) 100%);
+  border-top: 2px solid hsl(160, 70%, 58%); border-left: 2px solid hsl(160, 75%, 52%); border-right: 3px solid hsl(160, 90%, 22%); border-bottom: 4px solid hsl(160, 90%, 18%);
+  box-shadow: inset 0 1px 0 0 hsla(160, 70%, 65%, 0.5);
+  transform: translateY(0);
+  transition: background 0.08s ease-out, border 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.keypad-btn-3d-clockin:hover { background: linear-gradient(to bottom, hsl(160, 84%, 44%) 0%, hsl(160, 84%, 40%) 15%, hsl(160, 84%, 30%) 100%); }
+.keypad-btn-3d-clockin:active {
+  background: linear-gradient(to bottom, hsl(160, 84%, 28%) 0%, hsl(160, 84%, 36%) 100%);
+  border-top: 3px solid hsl(160, 90%, 20%); border-left: 2px solid hsl(160, 90%, 24%); border-right: 2px solid hsl(160, 70%, 48%); border-bottom: 2px solid hsl(160, 70%, 55%);
+  box-shadow: inset 0 2px 4px hsla(160, 90%, 10%, 0.3);
+  animation: none;
+}
+.keypad-btn-3d-clockin:focus:not(:active) { animation: keypad-bounce 0.2s ease-out; }
+.keypad-btn-3d-clockin:disabled {
+  background: linear-gradient(to bottom, hsl(160, 35%, 52%) 0%, hsl(160, 35%, 48%) 15%, hsl(160, 35%, 42%) 100%);
+  border-top: 2px solid hsl(160, 30%, 58%); border-left: 2px solid hsl(160, 30%, 54%); border-right: 3px solid hsl(160, 40%, 35%); border-bottom: 4px solid hsl(160, 40%, 30%);
+  opacity: 0.7;
+}
+.keypad-btn-3d-clockout {
+  position: relative;
+  background: linear-gradient(to bottom, hsl(0, 75%, 62%) 0%, hsl(0, 80%, 56%) 15%, hsl(0, 84%, 45%) 100%);
+  border-top: 2px solid hsl(0, 65%, 72%); border-left: 2px solid hsl(0, 70%, 66%); border-right: 3px solid hsl(0, 90%, 35%); border-bottom: 4px solid hsl(0, 90%, 28%);
+  box-shadow: inset 0 1px 0 0 hsla(0, 60%, 78%, 0.5);
+  transform: translateY(0);
+  transition: background 0.08s ease-out, border 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.keypad-btn-3d-clockout:hover { background: linear-gradient(to bottom, hsl(0, 75%, 60%) 0%, hsl(0, 80%, 54%) 15%, hsl(0, 84%, 43%) 100%); }
+.keypad-btn-3d-clockout:active {
+  background: linear-gradient(to bottom, hsl(0, 84%, 40%) 0%, hsl(0, 80%, 50%) 100%);
+  border-top: 3px solid hsl(0, 90%, 32%); border-left: 2px solid hsl(0, 90%, 38%); border-right: 2px solid hsl(0, 65%, 62%); border-bottom: 2px solid hsl(0, 60%, 70%);
+  box-shadow: inset 0 2px 4px hsla(0, 90%, 15%, 0.3);
+  animation: none;
+}
+.keypad-btn-3d-clockout:focus:not(:active) { animation: keypad-bounce 0.2s ease-out; }
+.keypad-btn-3d-clockout:disabled {
+  background: linear-gradient(to bottom, hsl(0, 45%, 60%) 0%, hsl(0, 45%, 55%) 15%, hsl(0, 50%, 48%) 100%);
+  border-top: 2px solid hsl(0, 40%, 65%); border-left: 2px solid hsl(0, 40%, 62%); border-right: 3px solid hsl(0, 55%, 40%); border-bottom: 4px solid hsl(0, 55%, 35%);
+  opacity: 0.7;
+}
+.keypad-btn-3d-break {
+  position: relative;
+  background: linear-gradient(to bottom, hsl(0, 0%, 94%) 0%, hsl(0, 0%, 90%) 15%, hsl(0, 0%, 78%) 100%);
+  border-top: 2px solid hsl(0, 0%, 98%); border-left: 2px solid hsl(0, 0%, 94%); border-right: 3px solid hsl(0, 0%, 62%); border-bottom: 4px solid hsl(0, 0%, 52%);
+  box-shadow: inset 0 1px 0 0 hsla(0, 0%, 100%, 0.85);
+  transform: translateY(0);
+  transition: background 0.08s ease-out, border 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.keypad-btn-3d-break:hover { background: linear-gradient(to bottom, hsl(0, 0%, 92%) 0%, hsl(0, 0%, 88%) 15%, hsl(0, 0%, 76%) 100%); }
+.keypad-btn-3d-break:active {
+  background: linear-gradient(to bottom, hsl(0, 0%, 74%) 0%, hsl(0, 0%, 82%) 100%);
+  border-top: 3px solid hsl(0, 0%, 56%); border-left: 2px solid hsl(0, 0%, 62%); border-right: 2px solid hsl(0, 0%, 90%); border-bottom: 2px solid hsl(0, 0%, 96%);
+  box-shadow: inset 0 2px 4px hsla(0, 0%, 0%, 0.15);
+  animation: none;
+}
+.keypad-btn-3d-break:focus:not(:active) { animation: keypad-bounce 0.2s ease-out; }
+.keypad-btn-3d-break:disabled {
+  background: linear-gradient(to bottom, hsl(0, 0%, 88%) 0%, hsl(0, 0%, 84%) 15%, hsl(0, 0%, 76%) 100%);
+  border-top: 2px solid hsl(0, 0%, 92%); border-left: 2px solid hsl(0, 0%, 88%); border-right: 3px solid hsl(0, 0%, 68%); border-bottom: 4px solid hsl(0, 0%, 60%);
+  opacity: 0.6;
+}
+.keypad-btn-3d-dark {
+  position: relative;
+  background: linear-gradient(to bottom, hsl(0, 0%, 52%) 0%, hsl(0, 0%, 46%) 15%, hsl(0, 0%, 34%) 100%);
+  border-top: 2px solid hsl(0, 0%, 60%); border-left: 2px solid hsl(0, 0%, 55%); border-right: 3px solid hsl(0, 0%, 24%); border-bottom: 4px solid hsl(0, 0%, 18%);
+  box-shadow: inset 0 1px 0 0 hsla(0, 0%, 65%, 0.4);
+  transform: translateY(0);
+  transition: background 0.08s ease-out, border 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.keypad-btn-3d-dark:hover { background: linear-gradient(to bottom, hsl(0, 0%, 50%) 0%, hsl(0, 0%, 44%) 15%, hsl(0, 0%, 32%) 100%); }
+.keypad-btn-3d-dark:active {
+  background: linear-gradient(to bottom, hsl(0, 0%, 30%) 0%, hsl(0, 0%, 38%) 100%);
+  border-top: 3px solid hsl(0, 0%, 20%); border-left: 2px solid hsl(0, 0%, 26%); border-right: 2px solid hsl(0, 0%, 50%); border-bottom: 2px solid hsl(0, 0%, 58%);
+  box-shadow: inset 0 2px 4px hsla(0, 0%, 0%, 0.3);
+  animation: none;
+}
+.keypad-btn-3d-dark:focus:not(:active) { animation: keypad-bounce 0.2s ease-out; }
+.keypad-btn-3d-revenue {
+  position: relative;
+  background: linear-gradient(to bottom, hsl(0, 0%, 96%) 0%, hsl(0, 0%, 92%) 15%, hsl(0, 0%, 82%) 100%);
+  border-top: 2px solid hsl(0, 0%, 100%); border-left: 2px solid hsl(0, 0%, 95%); border-right: 3px solid hsl(0, 0%, 68%); border-bottom: 4px solid hsl(0, 0%, 58%);
+  box-shadow: inset 0 1px 0 0 hsla(0, 0%, 100%, 0.9);
+  transform: translateY(0);
+  transition: background 0.08s ease-out, border 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.keypad-btn-3d-revenue:hover { background: linear-gradient(to bottom, hsl(0, 0%, 94%) 0%, hsl(0, 0%, 90%) 15%, hsl(0, 0%, 80%) 100%); }
+.keypad-btn-3d-revenue:active {
+  background: linear-gradient(to bottom, hsl(0, 0%, 78%) 0%, hsl(0, 0%, 86%) 100%);
+  border-top: 3px solid hsl(0, 0%, 62%); border-left: 2px solid hsl(0, 0%, 68%); border-right: 2px solid hsl(0, 0%, 92%); border-bottom: 2px solid hsl(0, 0%, 98%);
+  box-shadow: inset 0 2px 4px hsla(0, 0%, 0%, 0.12);
+  animation: none;
+}
+.keypad-btn-3d-revenue:focus:not(:active) { animation: keypad-bounce 0.2s ease-out; }
+.keypad-btn-3d-outlined {
+  position: relative;
+  background: linear-gradient(to bottom, hsla(0, 0%, 100%, 0.12) 0%, hsla(0, 0%, 100%, 0.06) 15%, hsla(0, 0%, 100%, 0.02) 100%);
+  border-top: 2px solid hsla(0, 0%, 100%, 0.9); border-left: 2px solid hsla(0, 0%, 100%, 0.7); border-right: 3px solid hsla(0, 0%, 100%, 0.3); border-bottom: 4px solid hsla(0, 0%, 100%, 0.2);
+  box-shadow: inset 0 1px 0 0 hsla(0, 0%, 100%, 0.2);
+  transform: translateY(0);
+  transition: background 0.08s ease-out, border 0.08s ease-out, box-shadow 0.08s ease-out;
+}
+.keypad-btn-3d-outlined:hover { background: linear-gradient(to bottom, hsla(0, 0%, 100%, 0.16) 0%, hsla(0, 0%, 100%, 0.10) 15%, hsla(0, 0%, 100%, 0.04) 100%); }
+.keypad-btn-3d-outlined:active {
+  background: linear-gradient(to bottom, hsla(0, 0%, 100%, 0.04) 0%, hsla(0, 0%, 100%, 0.08) 100%);
+  border-top: 3px solid hsla(0, 0%, 100%, 0.25); border-left: 2px solid hsla(0, 0%, 100%, 0.35); border-right: 2px solid hsla(0, 0%, 100%, 0.7); border-bottom: 2px solid hsla(0, 0%, 100%, 0.85);
+  box-shadow: inset 0 2px 4px hsla(0, 0%, 0%, 0.2);
+  animation: none;
+}
+.keypad-btn-3d-outlined:focus:not(:active) { animation: keypad-bounce 0.2s ease-out; }

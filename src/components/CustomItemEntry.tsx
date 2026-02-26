@@ -109,7 +109,7 @@ const CustomItemEntry = ({ onAddToCart, onCancel, className = "" }: CustomItemEn
     <div className={`flex flex-col h-full ${className}`}>
       {/* Header with back button */}
       <div className="flex items-center justify-between px-4 pt-4 pb-2">
-        <h2 className="text-lg font-semibold text-white">Custom Product</h2>
+        <h2 className="text-lg font-semibold text-white">Custom Item</h2>
         {onCancel && (
           <Button
             variant="ghost"
@@ -135,7 +135,7 @@ const CustomItemEntry = ({ onAddToCart, onCancel, className = "" }: CustomItemEn
         >
           <span className="text-xs text-neutral-400 uppercase mr-2 w-12">Name</span>
           <span className={`flex-1 text-base ${itemName ? 'text-white' : 'text-neutral-500'}`}>
-            {itemName || 'Enter Product Description'}
+            {itemName || 'Enter Item Description'}
           </span>
         </div>
 

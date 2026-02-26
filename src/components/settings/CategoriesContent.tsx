@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
+import { useAppearance } from "@/contexts/AppearanceContext";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,8 +15,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import infoIcon from "@/assets/icons/info.png";
-import categoriesIcon from "@/assets/icons/menu-categories.png";
 import AddCategoryContent from "./AddCategoryContent";
 import EditCategoryContent from "./EditCategoryContent";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
@@ -52,6 +51,7 @@ const defaultCategories: Category[] = [
 const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { getIconBgColor } = useAppearance();
   const [showAddScreen, setShowAddScreen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [categories, setCategories] = useState<Category[]>(() => {
@@ -185,52 +185,60 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
   if (!isMobile) {
     return (
       <div className="h-full flex flex-col overflow-hidden bg-background">
-        {showHeader && onBack && (
-          <div className="px-6 pt-5">
-            <button
-              onClick={onBack}
-              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-              aria-label="Back"
-            >
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
+        {showHeader && (
+          <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+                aria-label="Back"
+              >
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+            )}
+            {!onBack && <div className="w-8 h-8" />}
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+              <h1 className="text-base font-medium text-foreground">
+                {showArchived ? "Archived Categories" : "Categories"}
+              </h1>
+            </div>
+            <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+              <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
+            </div>
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
-          {/* Header card */}
-          <section className="mt-4 rounded-[28px] bg-[hsl(var(--surface-2))] px-10 py-8 text-center">
-            <div 
-              className="mx-auto mb-4 h-14 w-14 rounded-2xl flex items-center justify-center"
-              style={{ backgroundColor: "#9436FF" }}
-            >
-              <img src={categoriesIcon} alt="Categories" className="h-8 w-8 object-contain" />
-            </div>
-            <h1 className="text-2xl font-semibold leading-tight text-foreground">Categories</h1>
-            <p className="mx-auto mt-2 max-w-3xl text-[15px] leading-relaxed text-[hsl(var(--text-subtle))]">
-              Organize your menu items into categories for easy navigation and management.
+        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6 pt-4">
+          {/* Description */}
+          <div className="mb-4 px-1">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {showArchived
+                ? "View and restore your archived categories."
+                : "Organize your menu items into categories for easy navigation and management."}
             </p>
-          </section>
+          </div>
 
-          {/* Search + actions row */}
-          <section className="mt-6 flex items-center gap-4">
-            <div className="flex-1 rounded-full bg-[hsl(var(--surface-1))] px-5 py-3 flex items-center gap-3">
-              <Search className="h-5 w-5 text-[hsl(var(--text-subtle))]" />
+          {/* Search + Archive + Add row */}
+          <section className="flex items-center gap-2 lg:gap-4 mb-6">
+            <div className="flex-1 min-w-0 rounded-full bg-[hsl(var(--surface-1))] px-5 py-3 flex items-center gap-3">
+              <Search className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
               <input
                 type="text"
                 placeholder="Search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 bg-transparent text-foreground placeholder:text-[hsl(var(--text-subtle))] outline-none text-[15px]"
+                className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-[hsl(var(--text-subtle))] outline-none text-[15px]"
               />
-              <Mic className="h-5 w-5 text-[hsl(var(--text-subtle))]" />
+              <Mic className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
             </div>
-
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
 
             <button
               onClick={() => setShowArchived((v) => !v)}
-              className="h-12 rounded-full px-7 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity"
+              className={`h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border active:opacity-70 transition-all ${
+                showArchived
+                  ? "bg-neutral-700 border-neutral-600"
+                  : "bg-transparent border-neutral-700/50"
+              } text-foreground`}
             >
               <Archive className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Archive</span>
@@ -238,7 +246,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
 
             <button
               onClick={() => setShowAddScreen(true)}
-              className="h-12 rounded-full px-10 flex items-center justify-center gap-2 bg-[hsl(var(--surface-3))] text-foreground active:opacity-70 transition-opacity"
+              className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-[hsl(var(--surface-3))] text-foreground active:opacity-70 transition-opacity"
             >
               <Plus className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Add</span>
@@ -246,7 +254,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           </section>
 
           {/* Table */}
-          <section className="mt-6 rounded-2xl bg-[hsl(var(--surface-2))] overflow-hidden">
+          <section className="mt-6 rounded-2xl bg-[#26262699] overflow-hidden">
             <div className="grid grid-cols-[1.5fr_1fr_1fr_80px_24px] items-center px-8 py-5 border-b border-[hsl(var(--surface-border))]">
               <span className="text-[15px] font-semibold text-foreground">Category Name</span>
               <span className="text-[15px] font-semibold text-foreground text-center">Parent</span>
@@ -259,13 +267,19 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
               filteredItems.map((item, index) => (
                 <div key={item.id}>
                   {index > 0 && <div className="h-px bg-[hsl(var(--surface-border))]" />}
-                  <button onClick={() => setEditingCategory(item)} className="grid grid-cols-[1.5fr_1fr_1fr_80px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors text-left">
-                    <span className="text-[15px] text-foreground">{item.name}</span>
-                    <span className="text-[15px] text-foreground text-center">{item.parent}</span>
-                    <span className="text-[15px] text-foreground text-center">{item.position}</span>
-                    <span className="text-[15px] text-[hsl(var(--text-subtle))] text-right">{item.course ?? "-"}</span>
-                    <ChevronRight className="h-5 w-5 text-[hsl(var(--text-subtle))] justify-self-end" />
-                  </button>
+                  <SwipeableSettingsItem
+                    onTap={() => showArchived ? setItemToArchive(item) : setEditingCategory(item)}
+                    onArchive={() => handleArchiveItem(item)}
+                    isArchived={item.archived}
+                  >
+                    <div className="grid grid-cols-[1.5fr_1fr_1fr_80px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors cursor-pointer">
+                      <span className="text-[15px] text-foreground">{item.name}</span>
+                      <span className="text-[15px] text-foreground text-center">{item.parent}</span>
+                      <span className="text-[15px] text-foreground text-center">{item.position}</span>
+                      <span className="text-[15px] text-[hsl(var(--text-subtle))] text-right">{item.course ?? "-"}</span>
+                      <ChevronRight className="h-5 w-5 text-[hsl(var(--text-subtle))] justify-self-end" />
+                    </div>
+                  </SwipeableSettingsItem>
                 </div>
               ))
             ) : (
@@ -278,7 +292,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
 
         {/* Archive Confirmation Dialog */}
         <AlertDialog open={!!itemToArchive} onOpenChange={() => setItemToArchive(null)}>
-          <AlertDialogContent className="bg-[hsl(var(--surface-2))] border-[hsl(var(--surface-border))]">
+          <AlertDialogContent className="bg-[#26262699] border-[hsl(var(--surface-border))]">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-foreground">
                 {itemToArchive?.archived ? "Restore Category" : "Archive Category"}
@@ -317,26 +331,26 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
             </button>
           )}
           <div className="flex items-center gap-1">
-            <h1 className="text-lg font-semibold text-foreground">Categories</h1>
-            <button
-              onClick={() => {
-                toast({
-                  description: "Organize your menu items into categories for easy navigation and management.",
-                  duration: 4000,
-                });
-              }}
-              className="active:opacity-70 transition-opacity"
-            >
-              <img src={infoIcon} alt="Info" className="w-5 h-5" />
-            </button>
+            <h1 className="text-lg font-semibold text-foreground">
+              {showArchived ? "Archived Categories" : "Categories"}
+            </h1>
           </div>
         </div>
       )}
 
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-4">
+        {/* Description */}
+        <div className="mb-4 px-1">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {showArchived
+              ? "View and restore your archived categories."
+              : "Organize your menu items into categories for easy navigation and management."}
+          </p>
+        </div>
+
         {/* Action Buttons */}
         <div className="flex gap-3 mb-4">
-          <button 
+          <button
             onClick={() => setShowArchived(!showArchived)}
             className={`flex-1 py-4 rounded-full flex items-center justify-center gap-2 transition-colors ${
               showArchived 
@@ -362,7 +376,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           <div className="grid grid-cols-[1fr_60px_50px_40px] items-center py-4 px-4 border-b border-neutral-700/50">
             <span className="text-neutral-400 text-sm font-medium text-left">Name</span>
             <span className="text-neutral-400 text-sm font-medium text-center">Parent</span>
-            <span className="text-neutral-400 text-sm font-medium text-center">Pos</span>
+            <span className="text-neutral-400 text-sm font-medium text-center">Point of Sale</span>
             <span className="text-neutral-400 text-sm font-medium text-right pr-5">Crs</span>
           </div>
 
@@ -408,7 +422,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
             className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base"
           />
           <Mic className="w-5 h-5 text-neutral-500 mr-2" />
-          <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          <AnimatedAIIcon size={20} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
         </div>
       </div>
 

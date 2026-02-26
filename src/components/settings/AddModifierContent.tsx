@@ -108,10 +108,10 @@ const AddModifierContent = ({ onBack, onSave }: AddModifierContentProps) => {
       <div className="flex-1 overflow-y-auto scrollbar-hide pt-6 px-6 pb-28">
         {/* APPLIES TO */}
         <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3 block">
+          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">
             Applies To
           </span>
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          <div className="bg-neutral-800/60 rounded-full overflow-hidden">
             <button 
               className="w-full flex items-center justify-between py-3.5 px-4 active:opacity-70 transition-opacity"
               onClick={() => setShowOrderTypeSheet(true)}
@@ -142,7 +142,7 @@ const AddModifierContent = ({ onBack, onSave }: AddModifierContentProps) => {
 
         {/* MODIFIER DETAILS */}
         <div className="mb-1">
-          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3 block">
+          <span className="text-xs font-medium text-neutral-500 tracking-wider mb-3 block">
             Modifier Details
           </span>
           <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
@@ -270,7 +270,7 @@ const AddModifierContent = ({ onBack, onSave }: AddModifierContentProps) => {
           </div>
         </div>
         <p className="text-neutral-500 text-sm px-1 mt-1.5 mb-6">
-          When Has Options is enabled, you can create multiple choices under a single modifier. For example, Size (Small, Medium, Large) or Sauce Choice (BBQ, Mayo, Ketchup). Name – Enter the option name that staff will see on the POS. Price – Set the additional price for that option, if applicable. Leave it as zero if there is no extra charge. Add Option – Add more choices under the same modifier.
+          When Has Options is enabled, you can create multiple choices under a single modifier. For example, Size (Small, Medium, Large) or Sauce Choice (BBQ, Mayo, Ketchup). Name – Enter the option name that staff will see on the Point of Sale. Price – Set the additional price for that option, if applicable. Leave it as zero if there is no extra charge. Add Option – Add more choices under the same modifier.
         </p>
       </div>
     </div>

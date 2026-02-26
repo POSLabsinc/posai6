@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, Receipt, User, Clock, ArrowRightLeft, CreditCard, AlertTriangle, CheckCircle2 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import dineInIcon from "@/assets/icons/order-types/dine-in.svg";
 import takeOutIcon from "@/assets/icons/order-types/take-out.svg";
 import deliveryIcon from "@/assets/icons/order-types/delivery.svg";
@@ -182,18 +181,19 @@ export const ClockOutValidationMobile = ({
       setShowEmployeePicker(false);
       setShowBulkReassignConfirm(null);
       setShowGroupHelper(false);
-      if (MOCK_UNPAID_CHECKS.length > 0) {
-        setActiveTab('unpaid');
-      } else {
-        setActiveTab('open');
-      }
+      // Default tab selection based on which currently has items
+      setActiveTab(prev => {
+        if (prev === 'unpaid' && unpaidChecks.length === 0 && openChecks.length > 0) return 'open';
+        if (prev === 'open' && openChecks.length === 0 && unpaidChecks.length > 0) return 'unpaid';
+        return prev;
+      });
     }
   }, [isOpen]);
 
   const currentChecks = activeTab === 'unpaid' ? unpaidChecks : openChecks;
   const unpaidCount = unpaidChecks.length;
   const openCount = openChecks.length;
-  const allChecksResolved = unpaidCount === 0 && openCount === 0;
+  const allChecksResolved = unpaidChecks.filter(c => !c.transferredTo).length === 0 && openCount === 0;
 
   const transferredChecks = currentChecks.filter(c => c.transferredTo);
   const nonTransferredChecks = currentChecks.filter(c => !c.transferredTo);
@@ -298,11 +298,6 @@ export const ClockOutValidationMobile = ({
     return 'Transfer';
   };
 
-  useEffect(() => {
-    if (allChecksResolved && isOpen) {
-      onClose();
-    }
-  }, [allChecksResolved, isOpen, onClose]);
 
   const handleCheckToggle = (checkId: string) => {
     const check = currentChecks.find(c => c.id === checkId);

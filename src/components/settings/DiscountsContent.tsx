@@ -18,6 +18,7 @@ import {
 import AddDiscountContent from "./AddDiscountContent";
 import EditDiscountContent from "./EditDiscountContent";
 import SwipeableDiscountItem from "./SwipeableDiscountItem";
+import { useAppearance } from "@/contexts/AppearanceContext";
 import infoIcon from "@/assets/icons/info.png";
 import discountsIcon from "@/assets/icons/discounts.png";
 
@@ -30,6 +31,7 @@ interface Discount {
   applicableTo?: string;
   applicableProducts?: string[];
   requiresManagerPin?: boolean;
+  scheduleEnabled?: boolean;
 }
 
 interface DiscountsContentProps {
@@ -50,6 +52,7 @@ const defaultDiscounts: Discount[] = [
 const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { getIconBgColor } = useAppearance();
   
   // Use settings sync hook to listen for AI-driven updates
   const [discounts, setDiscounts] = useSettingsSync<Discount[]>(
@@ -74,6 +77,8 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     type: "Percentage" | "Fixed";
     applicableTo: string;
     applicableProducts: string[];
+    requiresManagerPin: boolean;
+    scheduleEnabled: boolean;
   }) => {
     const newDiscount: Discount = {
       id: Date.now().toString(),
@@ -81,8 +86,10 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
       amount: discountData.amount,
       type: discountData.type,
       applicableTo: discountData.applicableTo,
-      applicableProducts: discountData.applicableProducts,
+      applicableProducts: discountData.applicableProducts ?? [],
       archived: false,
+      requiresManagerPin: discountData.requiresManagerPin,
+      scheduleEnabled: discountData.scheduleEnabled,
     };
     saveDiscounts([...discounts, newDiscount]);
     setShowAddScreen(false);
@@ -285,23 +292,27 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       {/* Back Button */}
       {onBack && (
-        <div className="px-6 pt-5">
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
           <button
             onClick={onBack}
             className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Discounts</h1>
+          <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+          </div>
         </div>
       )}
 
-      <div className="px-6 pt-4 pb-8">
+      <div className={`px-6 ${onBack ? 'pt-4' : 'pt-0'} pb-8`}>
         {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-6 mb-6 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'}`}>
+        <div className="bg-neutral-800/60 rounded-2xl p-6 mb-6 flex flex-col items-start">
           {/* Discounts Icon */}
           <div 
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ backgroundColor: "#00B6FA" }}
+            style={{ backgroundColor: getIconBgColor("#00B6FA") }}
           >
             <img src={discountsIcon} alt="Discounts" className="w-8 h-8 object-contain" />
           </div>
@@ -310,7 +321,7 @@ const DiscountsContent = ({ showHeader = true, onBack, onAIClick }: DiscountsCon
           <h1 className="text-xl font-semibold text-foreground mb-2">Discounts</h1>
 
           {/* Description */}
-          <p className="text-base text-neutral-400 leading-relaxed max-w-2xl">
+          <p className="text-base text-neutral-400 leading-relaxed w-full">
             Discounts allow you to offer price reductions on orders, items, or special promotions to attract and reward customers.
           </p>
         </div>

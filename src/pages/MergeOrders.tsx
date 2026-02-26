@@ -17,9 +17,6 @@ import shareSeatsIcon from "@/assets/icons/share-seats.png";
 import seatIcon from "@/assets/icons/seat-icon.png";
 import splitIcon from "@/assets/icons/split-icon.png";
 import dineInIcon from "@/assets/icons/dine-in.png";
-import receiptIcon from "@/assets/icons/receipt-icon.svg";
-import registerIcon from "@/assets/icons/register.svg";
-import discountBtnIcon from "@/assets/icons/discount-icon.svg";
 
 // Helper to calculate order totals for an order
 const getOrderTotals = (order: Order) => {
@@ -429,22 +426,18 @@ const MergeOrders = () => {
             </div>
           </div>
         </div>
-        <div className="flex gap-1.5">
-          <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
-            <img src={receiptIcon} alt="" className="w-3 h-3" />
+        <div className="flex gap-1.5 flex-wrap">
+          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
             Add Item
           </button>
-          <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
-            <img src={discountBtnIcon} alt="" className="w-3 h-3" />
+          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
             Discount
           </button>
-          <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
-            <img src={receiptIcon} alt="" className="w-3 h-3" />
+          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
             Receipt
           </button>
-          <button className="text-[10px] rounded-[10px] bg-[#666666] hover:bg-[#555555] border border-sidebar-border h-6 px-3 whitespace-nowrap flex items-center gap-1.5 text-white transition-colors">
-            <img src={registerIcon} alt="" className="w-3 h-3" />
-            Register
+          <button className="px-2 py-1 bg-neutral-700 text-white text-[10px] rounded-full hover:bg-neutral-600 transition-colors">
+            Cash Register
           </button>
         </div>
       </div>

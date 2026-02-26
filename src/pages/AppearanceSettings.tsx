@@ -6,68 +6,13 @@ import { Slider } from "@/components/ui/slider";
 import { useTheme } from "next-themes";
 import { useState, useEffect, useRef } from "react";
 import { useAppearance, IconStyle, IconSize, MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_BRIGHTNESS, MAX_BRIGHTNESS } from "@/contexts/AppearanceContext";
+import SettingsIcon from "@/components/settings/SettingsIcon";
+import { useScheduledTheme } from "@/hooks/useScheduledTheme";
+import ScheduleTimePicker from "@/components/settings/ScheduleTimePicker";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
+import POSThemePreview from "@/components/settings/POSThemePreview";
 
-// Theme preview images
-import darkThemePreview from "@/assets/theme-previews/dark-theme.png";
-import lightThemePreview from "@/assets/theme-previews/light-theme.png";
-import systemThemePreview from "@/assets/theme-previews/system-theme.png";
-
-type ThemeOption = 'dark' | 'light' | 'system';
-
-const ThemePreview = ({ 
-  theme, 
-  isSelected, 
-  previewImage,
-  onClick 
-}: { 
-  theme: string; 
-  isSelected: boolean;
-  previewImage: string;
-  onClick: () => void;
-}) => (
-  <button 
-    onClick={onClick}
-    className="flex flex-col items-center gap-2 active:opacity-70 transition-opacity"
-  >
-    {/* Preview Card */}
-    <div 
-      className={`w-full aspect-[3/4] rounded-2xl overflow-hidden border-2 ${
-        isSelected ? 'border-white' : 'border-transparent'
-      }`}
-    >
-      <img 
-        src={previewImage} 
-        alt={`${theme} theme preview`}
-        className="w-full h-full object-cover"
-      />
-    </div>
-    
-    {/* Theme label */}
-    <span className="text-base font-medium text-foreground capitalize">{theme}</span>
-    
-    {/* Radio indicator */}
-    <div 
-      className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-        isSelected 
-          ? 'border-white bg-white' 
-          : 'border-neutral-500 bg-transparent'
-      }`}
-    >
-      {isSelected && (
-        <svg width="12" height="9" viewBox="0 0 14 10" fill="none">
-          <path 
-            d="M1 5L5 9L13 1" 
-            stroke="black" 
-            strokeWidth="2" 
-            strokeLinecap="round" 
-            strokeLinejoin="round"
-          />
-        </svg>
-      )}
-    </div>
-  </button>
-);
+type ThemeOption = 'dark' | 'light';
 
 interface OverlayDropdownProps<T extends string> {
   options: T[];
@@ -166,18 +111,15 @@ const AppearanceSettings = () => {
   // State for all settings
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');
   const [automaticTheme, setAutomaticTheme] = useState(false);
+  const { scheduleEnabled, lightStart, lightEnd, setScheduleEnabled, setLightStart, setLightEnd } = useScheduledTheme();
   
   // Dropdown states
   const [iconStyleDropdownOpen, setIconStyleDropdownOpen] = useState(false);
   const [iconSizeDropdownOpen, setIconSizeDropdownOpen] = useState(false);
 
-  // Sync with next-themes on mount
   useEffect(() => {
     if (theme === 'light') {
       setSelectedTheme('light');
-    } else if (theme === 'system') {
-      setSelectedTheme('system');
-      setAutomaticTheme(true);
     } else {
       setSelectedTheme('dark');
     }
@@ -186,22 +128,13 @@ const AppearanceSettings = () => {
   const handleThemeChange = (newTheme: ThemeOption) => {
     setSelectedTheme(newTheme);
     setTheme(newTheme);
-    
-    // Update automatic toggle based on selection
-    if (newTheme === 'system') {
-      setAutomaticTheme(true);
-    } else {
-      setAutomaticTheme(false);
-    }
+    setAutomaticTheme(false);
   };
 
   const handleAutomaticToggle = (checked: boolean) => {
     setAutomaticTheme(checked);
-    if (checked) {
-      setSelectedTheme('system');
-      setTheme('system');
-    } else {
-      // When turning off automatic, default to dark
+    setScheduleEnabled(checked);
+    if (!checked) {
       setSelectedTheme('dark');
       setTheme('dark');
     }
@@ -236,25 +169,16 @@ const AppearanceSettings = () => {
           <h2 className="text-base font-medium text-neutral-500 mb-4 px-1">App Theme</h2>
           
           <div className="bg-neutral-800/60 rounded-2xl p-4">
-            {/* Theme Options - reduced gap */}
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              <ThemePreview 
-                theme="dark" 
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <POSThemePreview 
+                variant="dark" 
                 isSelected={selectedTheme === 'dark'}
-                previewImage={darkThemePreview}
                 onClick={() => handleThemeChange('dark')}
               />
-              <ThemePreview 
-                theme="light" 
+              <POSThemePreview 
+                variant="light" 
                 isSelected={selectedTheme === 'light'}
-                previewImage={lightThemePreview}
                 onClick={() => handleThemeChange('light')}
-              />
-              <ThemePreview 
-                theme="system" 
-                isSelected={selectedTheme === 'system'}
-                previewImage={systemThemePreview}
-                onClick={() => handleThemeChange('system')}
               />
             </div>
             
@@ -269,16 +193,28 @@ const AppearanceSettings = () => {
                 onCheckedChange={handleAutomaticToggle}
               />
             </div>
+
+            {/* Schedule Time Picker - shown when automatic is on */}
+            {automaticTheme && (
+              <ScheduleTimePicker
+                lightStart={lightStart}
+                lightEnd={lightEnd}
+                onStartChange={setLightStart}
+                onEndChange={setLightEnd}
+              />
+            )}
           </div>
           
           {/* Description */}
           <p className="text-sm text-neutral-500 mt-3 px-1 leading-relaxed">
-            Automatically switches between light and dark mode based on your device settings.
+            {automaticTheme 
+              ? "Theme switches automatically at the scheduled times."
+              : "Automatically switches between light and dark mode based on your device settings."}
           </p>
         </div>
 
         {/* Icon Style & Size Section */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
           {/* Icon Style */}
           <div className="flex items-center justify-between w-full py-4 px-5">
             <span className="text-lg font-medium text-foreground">Icon Style</span>
@@ -314,17 +250,17 @@ const AppearanceSettings = () => {
             />
           </div>
         </div>
+        <p className="text-sm text-neutral-500 mt-1.5 px-1 mb-6 leading-relaxed">
+          Select the visual style of icons used in the Point of Sale.
+        </p>
 
         {/* Text Size & Bold Section */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
           {/* Text Size with Slider */}
           <div className="py-4 px-5">
             <span className="text-lg font-medium text-foreground block mb-4">Text Size</span>
             <div className="flex items-center gap-4">
-              {/* Small A indicator */}
               <span className="text-sm text-neutral-400 font-medium flex-shrink-0">A</span>
-              
-              {/* Slider */}
               <div className="flex-1">
                 <Slider
                   value={[textSize]}
@@ -335,16 +271,12 @@ const AppearanceSettings = () => {
                   className="w-full"
                 />
               </div>
-              
-              {/* Large A indicator */}
               <span className="text-2xl text-foreground font-medium flex-shrink-0">A</span>
             </div>
           </div>
           
-          {/* Divider */}
           <div className="h-px bg-neutral-700/50 mx-5" />
           
-          {/* Bold Text */}
           <div className="flex items-center justify-between py-4 px-5">
             <span className="text-lg font-medium text-foreground">Bold text</span>
             <Switch 
@@ -353,6 +285,9 @@ const AppearanceSettings = () => {
             />
           </div>
         </div>
+        <p className="text-sm text-neutral-500 mt-1.5 px-1 mb-6 leading-relaxed">
+          Change the size of text across the Point of Sale. This improves readability for staff and reduces order mistakes.
+        </p>
 
         {/* Brightness Section */}
         <div className="mb-4">
@@ -386,36 +321,41 @@ const AppearanceSettings = () => {
           </p>
         </div>
 
-        {/* Theme Presets & Fonts */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-6">
+        {/* Theme Presets */}
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
           <button
             onClick={() => navigate('/settings/system/theme-presets')}
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
           >
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#F59E0B" }}>
-                <img src={themePresetsIcon} alt="Theme Presets" className="w-5 h-5" />
-              </div>
+              <SettingsIcon bgColor="#F59E0B" iconSrc={themePresetsIcon} iconAlt="Theme Presets" />
               <span className="text-foreground text-lg font-medium">Theme Presets</span>
             </div>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>
-          
-          <div className="h-px bg-neutral-700/50 mx-4" />
-          
+        </div>
+        <p className="text-xs text-neutral-500 mb-6 px-1">
+          Choose from a variety of layout styles to customize your Point of Sale interface.
+        </p>
+
+        {/* Fonts */}
+        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
           <button
             onClick={() => navigate('/settings/system/fonts')}
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
           >
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: "#6366F1" }}>
+              <SettingsIcon bgColor="#6366F1">
                 <span className="text-white text-lg font-bold">Aa</span>
-              </div>
+              </SettingsIcon>
               <span className="text-foreground text-lg font-medium">Fonts</span>
             </div>
             <ChevronRight className="w-5 h-5 text-neutral-500" />
           </button>
         </div>
+        <p className="text-xs text-neutral-500 px-1">
+          Select a font family to personalize the look and feel of your display.
+        </p>
       </div>
     </div>
   );

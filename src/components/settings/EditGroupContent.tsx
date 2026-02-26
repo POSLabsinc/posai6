@@ -10,14 +10,16 @@ import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 interface EditGroupContentProps {
   showHeader?: boolean;
   onBack?: () => void;
+  groupId?: string;
 }
 
 const STORAGE_KEY = "groups-settings";
 
-const EditGroupContent = ({ showHeader = true, onBack }: EditGroupContentProps) => {
+const EditGroupContent = ({ showHeader = true, onBack, groupId: groupIdProp }: EditGroupContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { id: idFromParams } = useParams<{ id: string }>();
+  const id = groupIdProp ?? idFromParams ?? undefined;
   const [groupName, setGroupName] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [groupType, setGroupType] = useState<"Add-On" | "Modifier">("Add-On");
@@ -141,8 +143,8 @@ const EditGroupContent = ({ showHeader = true, onBack }: EditGroupContentProps) 
         )}
 
         <div className="flex-1 overflow-y-auto scrollbar-hide pt-6 px-6 pb-28">
-          <h2 className="text-xs font-semibold tracking-wider text-[hsl(var(--text-subtle))] uppercase mb-3">Group Information</h2>
-          <section className="rounded-2xl bg-[hsl(var(--surface-2))] overflow-hidden mb-6">
+          <h2 className="text-xs font-semibold tracking-wider text-[hsl(var(--text-subtle))] mb-3">Group Information</h2>
+          <section className="rounded-2xl bg-[#26262699] overflow-hidden mb-6">
             <div className="flex items-center justify-between w-full px-8 py-5">
               <span className="text-[15px] text-foreground">Group Name</span>
               <div className="flex items-center gap-2">
@@ -217,8 +219,8 @@ const EditGroupContent = ({ showHeader = true, onBack }: EditGroupContentProps) 
             )}
           </section>
 
-          <h2 className="text-xs font-semibold tracking-wider text-[hsl(var(--text-subtle))] uppercase mb-3">Modifier Group Advanced</h2>
-          <section className="rounded-2xl bg-[hsl(var(--surface-2))] overflow-hidden mb-6">
+          <h2 className="text-xs font-semibold tracking-wider text-[hsl(var(--text-subtle))] mb-3">Modifier Group Advanced</h2>
+          <section className="rounded-2xl bg-[#26262699] overflow-hidden mb-6">
             <div className="flex items-center justify-between w-full px-8 py-5">
               <span className="text-[15px] text-foreground">Maximum Number of Selections</span>
               <Switch checked={hasMaxSelections} onCheckedChange={setHasMaxSelections} />
@@ -263,7 +265,7 @@ const EditGroupContent = ({ showHeader = true, onBack }: EditGroupContentProps) 
       )}
 
       <div className="flex-1 overflow-y-auto scrollbar-hide px-4 pb-28">
-        <h2 className="text-xs font-semibold tracking-wider text-neutral-500 uppercase mb-3">Group Information</h2>
+        <h2 className="text-xs font-semibold tracking-wider text-neutral-500 mb-3">Group Information</h2>
         <section className="rounded-2xl bg-neutral-800/60 overflow-hidden mb-6">
           <div className="flex items-center justify-between w-full py-4 px-4">
             <span className="text-foreground text-base font-medium">Group Name</span>
@@ -339,7 +341,7 @@ const EditGroupContent = ({ showHeader = true, onBack }: EditGroupContentProps) 
           )}
         </section>
 
-        <h2 className="text-xs font-semibold tracking-wider text-neutral-500 uppercase mb-3">Modifier Group Advanced</h2>
+        <h2 className="text-xs font-semibold tracking-wider text-neutral-500 mb-3">Modifier Group Advanced</h2>
         <section className="rounded-2xl bg-neutral-800/60 overflow-hidden mb-6">
           <div className="flex items-center justify-between w-full py-4 px-4">
             <span className="text-foreground text-base font-medium">Maximum Number of Selections</span>

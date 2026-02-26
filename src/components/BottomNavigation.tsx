@@ -3,6 +3,7 @@ import dashboardIcon from "@/assets/icons/dashboard.png";
 import newOrderIcon from "@/assets/icons/new-order.png";
 import tableOrderIcon from "@/assets/icons/table-order.png";
 import ticketsIcon from "@/assets/icons/tickets.png";
+import voucherIcon from "@/assets/icons/gift-card-new.svg";
 import settingsIcon from "@/assets/icons/settings.png";
 
 const navItems = [
@@ -10,6 +11,7 @@ const navItems = [
   { to: "/orders", icon: newOrderIcon, label: "New Order" },
   { to: "/tableorder", icon: tableOrderIcon, label: "Table Order" },
   { to: "/tickets", icon: ticketsIcon, label: "Tickets" },
+  { to: "/voucher", icon: voucherIcon, label: "Voucher" },
   { to: "/settings", icon: settingsIcon, label: "Settings" },
 ];
 

@@ -9,7 +9,11 @@ const ProductsRoute = () => {
   
   if (isMobile) {
     return (
-      <ProductsContent showHeader={true} onBack={() => navigate('/settings/menu')} />
+      <ProductsContent
+        showHeader={true}
+        onBack={() => navigate('/settings/menu')}
+        onAdd={() => navigate('/settings/menu/products/add')}
+      />
     );
   }
   
@@ -17,3 +21,4 @@ const ProductsRoute = () => {
 };
 
 export default ProductsRoute;
+

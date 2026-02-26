@@ -495,8 +495,8 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
       });
       setSeatWalkInDialog(false);
       setSelectedTableId(null);
-      // Navigate to orders
-      navigate(`/orders?tableId=${tableForAction.id}&partySize=${walkInGuests}`);
+      // Navigate to orders with seats & guests for Order section
+      navigate(`/orders?tableId=${tableForAction.id}&partySize=${walkInGuests}&seats=${tableForAction.seats}&guests=${walkInGuests}`);
     }
   };
 
@@ -569,7 +569,9 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
 
   const handleGuestSelect = (tableId: string, guestCount: number) => {
     setGuestDropdownTable(null);
-    navigate(`/orders?tableId=${tableId}&partySize=${guestCount}`);
+    const table = tables.find((t) => t.id === tableId);
+    const seats = table?.seats ?? guestCount;
+    navigate(`/orders?tableId=${tableId}&partySize=${guestCount}&seats=${seats}&guests=${guestCount}`);
   };
 
   // Table action popover content

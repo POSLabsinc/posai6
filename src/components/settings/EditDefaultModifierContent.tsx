@@ -8,14 +8,16 @@ import { toast } from "@/hooks/use-toast";
 interface EditDefaultModifierContentProps {
   showHeader?: boolean;
   onBack?: () => void;
+  modifierId?: string;
 }
 
 const STORAGE_KEY = "default-modifiers-settings";
 
-const EditDefaultModifierContent = ({ showHeader = true, onBack }: EditDefaultModifierContentProps) => {
+const EditDefaultModifierContent = ({ showHeader = true, onBack, modifierId: modifierIdProp }: EditDefaultModifierContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { id } = useParams<{ id: string }>();
+  const { id: idFromParams } = useParams<{ id: string }>();
+  const id = modifierIdProp ?? idFromParams ?? undefined;
   const [name, setName] = useState("");
   const [type, setType] = useState<"Normal" | "Exceptional">("Normal");
 
@@ -75,7 +77,7 @@ const EditDefaultModifierContent = ({ showHeader = true, onBack }: EditDefaultMo
         )}
 
         <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
-          <section className="rounded-2xl bg-[hsl(var(--surface-2))] overflow-hidden mt-6">
+          <section className="rounded-2xl bg-[#26262699] overflow-hidden mt-6">
             <div className="flex items-center justify-between w-full px-8 py-5">
               <span className="text-[15px] text-foreground">Default Modifier Name</span>
               <div className="flex items-center gap-2">

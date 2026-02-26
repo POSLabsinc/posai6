@@ -48,7 +48,6 @@ const SingleVoucherStep = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [activeFilter, setActiveFilter] = useState<string>('all');
   const [touched, setTouched] = useState({ voucherName: false, value: false });
-  const [voucherValueType, setVoucherValueType] = useState<'fixed' | 'percentage'>('fixed');
 
   const numericValue = posCurrencyToNumber(valueDigits);
   const minimumOrderValue = posCurrencyToNumber(minimumOrderDigits);
@@ -141,25 +140,16 @@ const SingleVoucherStep = ({
   if (!isCustomMode) {
     return (
       <div className="space-y-3">
-        {/* Search + Create */}
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search voucher templates..."
-              className="w-full bg-neutral-800 border border-neutral-700 rounded-lg pl-10 pr-3 py-2.5 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors"
-            />
-          </div>
-          <button
-            onClick={handleSelectCustom}
-            className="flex items-center gap-1.5 px-3 py-2.5 rounded-lg border border-dashed border-emerald-500/50 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 text-sm font-medium transition-all whitespace-nowrap"
-          >
-            <Plus className="w-4 h-4" />
-            Create Voucher
-          </button>
+        {/* Search */}
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-500" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search voucher templates..."
+            className="w-full bg-neutral-800 border border-neutral-700 rounded-lg pl-10 pr-3 py-2.5 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-500 transition-colors"
+          />
         </div>
 
         {/* Category Filters */}
@@ -186,6 +176,23 @@ const SingleVoucherStep = ({
         {/* Cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto scrollbar-hide p-1">
           {/* Custom Voucher Card */}
+          {showCustomCard && (
+            <button
+              onClick={handleSelectCustom}
+              className="text-left border-2 border-dashed border-neutral-600 hover:border-emerald-500/50 rounded-2xl p-4 transition-all duration-300 hover:bg-emerald-500/5 group relative overflow-hidden"
+            >
+              <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(52,211,153,0.3) 10px, rgba(52,211,153,0.3) 11px)' }} />
+              <div className="relative flex flex-col items-center justify-center py-3 gap-2">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                  <Plus className="w-5 h-5 text-emerald-400" />
+                </div>
+                <div className="text-center">
+                  <span className="text-emerald-400 font-semibold text-sm block">Custom Voucher</span>
+                  <span className="text-neutral-500 text-[11px]">Create your own voucher</span>
+                </div>
+              </div>
+            </button>
+          )}
 
           {showTemplateCards && filteredTypes.map((config, idx) => {
             const selected = isTemplateSelected && voucherName === config.name;
@@ -286,7 +293,6 @@ const SingleVoucherStep = ({
   }
 
   // ---- CUSTOM FORM VIEW ----
-
   return (
     <div className="space-y-3">
       <button
@@ -294,48 +300,34 @@ const SingleVoucherStep = ({
           onVoucherNameChange('', false);
           setSearchQuery('');
           setTouched({ voucherName: false, value: false });
-          setVoucherValueType('fixed');
         }}
         className="text-neutral-400 hover:text-white text-xs transition-colors flex items-center gap-1"
       >
         ← Back to templates
       </button>
 
-      <div className="grid grid-cols-3 gap-x-3">
-        <div className="col-span-2">
-          <label className={labelClass}>Voucher Name <span className="text-red-400">*</span></label>
-          <input
-            type="text"
-            value={voucherName}
-            onChange={(e) => onVoucherNameChange(e.target.value.slice(0, 50), true)}
-            placeholder="Enter custom voucher name"
-            autoFocus
-            onBlur={() => setTouched(p => ({ ...p, voucherName: true }))}
-            className={`${inputClass} ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
-          />
-          {touched.voucherName && !voucherName.trim() && <p className="text-red-400 text-xs mt-1">Voucher name is required</p>}
-        </div>
-        <div>
-          <label className={labelClass}>Voucher Type</label>
-          <Select value={voucherValueType} onValueChange={(v) => setVoucherValueType(v as 'fixed' | 'percentage')}>
-            <SelectTrigger className="w-full bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-            <SelectContent className="bg-neutral-800 border-neutral-600 z-[9999]">
-              <SelectItem value="fixed" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Fixed Amount</SelectItem>
-              <SelectItem value="percentage" className="text-white hover:bg-neutral-700 focus:bg-neutral-700 focus:text-white">Percentage (%)</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+      <div>
+        <label className={labelClass}>Voucher Name <span className="text-red-400">*</span></label>
+        <input
+          type="text"
+          value={voucherName}
+          onChange={(e) => onVoucherNameChange(e.target.value.slice(0, 50), true)}
+          placeholder="Enter custom voucher name"
+          autoFocus
+          onBlur={() => setTouched(p => ({ ...p, voucherName: true }))}
+          className={`${inputClass} ${touched.voucherName && !voucherName.trim() ? 'border-red-500' : ''}`}
+        />
+        {touched.voucherName && !voucherName.trim() && <p className="text-red-400 text-xs mt-1">Voucher name is required</p>}
       </div>
 
       {/* Row 1 */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
         <VoucherCurrencyInput
-          label={voucherValueType === 'percentage' ? "Redeemable (%)" : "Redeemable Value"}
+          label="Redeemable Value"
           required
           rawDigits={valueDigits}
           onRawDigitsChange={(d) => { onValueDigitsChange(d); setTouched(p => ({ ...p, value: true })); }}
           error={touched.value && numericValue <= 0 ? "Amount required" : undefined}
-          symbolOverride={voucherValueType === 'percentage' ? '%' : undefined}
         />
         <VoucherCurrencyInput
           label="Service Fee"
@@ -380,8 +372,8 @@ const SingleVoucherStep = ({
 
       <div className="bg-neutral-800/50 border border-neutral-700 rounded-xl p-4 space-y-2">
         <div className="flex justify-between text-sm">
-          <span className="text-neutral-400">{voucherValueType === 'percentage' ? 'Redeemable (%)' : 'Redeemable Value'}</span>
-          <span className="text-white">{voucherValueType === 'percentage' ? `${numericValue}%` : `${CURRENCY_SYMBOL}${numericValue.toFixed(2)}`}</span>
+          <span className="text-neutral-400">Redeemable Value</span>
+          <span className="text-white">{CURRENCY_SYMBOL}{numericValue.toFixed(2)}</span>
         </div>
         {computedServiceFee > 0 && (
           <div className="flex justify-between text-sm">

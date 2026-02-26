@@ -4,6 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import hardwarePrinterIcon from "@/assets/icons/hardware-printer.png";
+import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface PrinterAdvancedContentProps {
   showHeader?: boolean;
@@ -12,6 +13,7 @@ interface PrinterAdvancedContentProps {
 
 const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedContentProps) => {
   const isMobile = useIsMobile();
+  const { getIconBgColor } = useAppearance();
   const [settings, setSettings] = useState({
     autoPrintBills: true,
     showSingleItems: false,
@@ -72,23 +74,27 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
 
   return (
     <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      {showHeader && onBack && (
-        <div className="px-6 pt-5">
-          <button
-            onClick={onBack}
-            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-          >
-            <ChevronLeft className="w-4 h-4 text-foreground" />
-          </button>
+      {showHeader && (
+        <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+          {onBack && (
+            <button
+              onClick={onBack}
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+            >
+              <ChevronLeft className="w-5 h-5 text-foreground" />
+            </button>
+          )}
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Advanced Settings</h1>
+          <div className="w-8 h-8" />
         </div>
       )}
 
-      <div className="pt-6 px-6 pb-28">
+      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
         {/* Header Card */}
-        <div className={`bg-neutral-800/60 rounded-2xl p-6 flex flex-col ${isMobile ? 'items-start' : 'items-center text-center'} mb-6`}>
+        <div className="bg-neutral-800/60 rounded-2xl p-6 flex flex-col items-start mb-6">
           <div
             className="w-16 h-16 rounded-2xl flex items-center justify-center mb-3"
-            style={{ backgroundColor: "#5E4DD8" }}
+            style={{ backgroundColor: getIconBgColor("#5E4DD8") }}
           >
             <img src={hardwarePrinterIcon} alt="Advanced Settings" className="w-7 h-7 object-contain" />
           </div>
@@ -97,7 +103,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         </div>
 
         {/* Bills */}
-        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">Bills</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Bills</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
           <ToggleRow label="Auto-Print Bills" settingKey="autoPrintBills" />
           <ToggleRow label="Show Single Items" settingKey="showSingleItems" />
@@ -109,7 +115,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         </p>
 
         {/* Receipts */}
-        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">Receipts</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Receipts</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
           <ToggleRow label="Auto-Print Receipt" settingKey="autoPrintReceipt" />
           <ToggleRow label="Auto-Print Refund" settingKey="autoPrintRefund" />
@@ -123,7 +129,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         </p>
 
         {/* Kitchen Tickets */}
-        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">Kitchen Tickets</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Kitchen Tickets</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
           <ToggleRow label="Large Item Text" settingKey="largeItemText" />
           <ToggleRow label="Large Order Number" settingKey="largeOrderNumber" />
@@ -135,7 +141,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         </p>
 
         {/* Modifiers */}
-        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">Modifiers</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Modifiers</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
           <div>
             <button
@@ -206,7 +212,7 @@ const PrinterAdvancedContent = ({ showHeader = true, onBack }: PrinterAdvancedCo
         />
 
         {/* Signatures & Tips */}
-        <p className="text-xs font-medium text-neutral-500 uppercase tracking-wider mb-3">Signatures & Tips</p>
+        <p className="text-xs font-medium text-neutral-500 tracking-wider mb-3">Signatures & Tips</p>
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
           <ToggleRow label="Signature & Tip Line" settingKey="signatureTipLine" />
           <div className="h-px bg-neutral-700/50 mx-4" />

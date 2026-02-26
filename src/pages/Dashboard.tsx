@@ -672,12 +672,12 @@ const OrderPanelContent = ({
             }}
           >
             <div className="flex justify-between gap-3">
-              <span className="text-foreground"><span className="font-medium">Sub Total</span> <span className="font-bold">${subtotal.toFixed(2)}</span></span>
-              <span className="text-white"><span className="font-medium">Discount</span> <span className="font-bold">${discount.toFixed(2)}</span></span>
+              <span className="text-foreground">Sub Total: <span className="font-medium">${subtotal.toFixed(2)}</span></span>
+              <span className="text-white">Discount: <span className="font-medium">${discount.toFixed(2)}</span></span>
             </div>
             <div className="flex justify-between gap-3">
-              <span className="text-foreground"><span className="font-medium">Service Charge</span> <span className="font-bold text-primary">+${serviceCharge.toFixed(2)}</span></span>
-              <span className="text-foreground"><span className="font-medium">Tax</span> <span className="font-bold">${tax.toFixed(2)}</span></span>
+              <span className="text-foreground">Service Charge: <span className="font-medium text-primary">+${serviceCharge.toFixed(2)}</span></span>
+              <span className="text-foreground">Tax: <span className="font-medium">${tax.toFixed(2)}</span></span>
             </div>
           </div>
         </div>
@@ -1906,7 +1906,6 @@ const Dashboard = () => {
         open={showTipDialog}
         onOpenChange={setShowTipDialog}
         orderTotal={selectedOrder?.total || 0}
-        existingTip={Number(selectedOrder?.tip) || 0}
         onTipSelected={(tip) => {
           console.log("Tip selected:", tip);
         }}

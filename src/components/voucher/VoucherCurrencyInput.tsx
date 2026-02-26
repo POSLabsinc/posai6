@@ -2,14 +2,14 @@ import { useState, useRef, useCallback } from "react";
 import { CURRENCY_SYMBOL } from "./voucherConstants";
 
 interface VoucherCurrencyInputProps {
+  /** Raw POS digit string (e.g. "2500" = $25.00) stored as integer cents */
   rawDigits: string;
+  /** Called with new raw digits string (integer cents) */
   onRawDigitsChange: (digits: string) => void;
   label: string;
   required?: boolean;
   error?: string;
   warning?: string;
-  /** Override the currency symbol (e.g. "%" for percentage vouchers) */
-  symbolOverride?: string;
 }
 
 /** Convert raw POS cents string → display string for editing */
@@ -91,9 +91,7 @@ const VoucherCurrencyInput = ({
   required,
   error,
   warning,
-  symbolOverride,
 }: VoucherCurrencyInputProps) => {
-  const symbol = symbolOverride || CURRENCY_SYMBOL;
   const [localValue, setLocalValue] = useState<string | null>(null);
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -174,7 +172,7 @@ const VoucherCurrencyInput = ({
       </label>
       <div className={`relative w-full bg-neutral-800 border rounded-lg transition-colors ${borderClass}`}>
         <span className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 text-sm pointer-events-none">
-          {symbol}
+          {CURRENCY_SYMBOL}
         </span>
         <input
           ref={inputRef}
@@ -182,7 +180,7 @@ const VoucherCurrencyInput = ({
           inputMode="decimal"
           autoComplete="off"
           value={displayValue}
-          placeholder={symbolOverride === '%' ? "0" : "0.00"}
+          placeholder="0.00"
           onChange={handleChange}
           onFocus={handleFocus}
           onBlur={handleBlur}

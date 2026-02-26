@@ -307,21 +307,24 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                     {days.map((day, di) => {
                       const dateStr = dayStrs[di];
                       const isToday = dateStr === todayStr;
+                      const isPast = dateStr < todayStr;
                       const dayShifts = emp.shifts.get(dateStr) || [];
 
                       return (
                         <div
                           key={di}
                           onClick={() => {
-                            if (dayShifts.length === 0) handleCellClick(day, emp.id, emp.name);
+                            if (dayShifts.length === 0 && !isPast) handleCellClick(day, emp.id, emp.name);
                           }}
                           className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 ${
                             isToday ? "bg-primary/5" : ""
-                          } ${dayShifts.length === 0 ? "cursor-pointer hover:bg-muted/20 transition-colors" : ""}`}
+                          } ${isPast ? "opacity-40" : ""} ${dayShifts.length === 0 && !isPast ? "cursor-pointer hover:bg-muted/20 transition-colors" : ""}`}
                         >
                           {dayShifts.map((s) => {
                             const shiftRole = s.job_type || s.shift_type || group.role;
-                            const colors = getShiftBlockColor(shiftRole);
+                            const colors = isPast
+                              ? { bg: "bg-muted/20", border: "border-border/30", text: "text-muted-foreground", textSub: "text-muted-foreground/70" }
+                              : getShiftBlockColor(shiftRole);
                             return (
                               <button
                                 key={s.id}

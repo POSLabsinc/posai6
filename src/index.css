@@ -59,6 +59,7 @@ All colors MUST be HSL.
 
     --stat-surface: 0 0% 0% / 0.08;
     --stat-inset-shadow: inset 4px 4px 24px 0px rgba(0, 0, 0, 0.08);
+    --calendar-border: 0 0% 30.2%;
   }
 
   .dark {
@@ -98,6 +99,7 @@ All colors MUST be HSL.
     --sidebar-accent: 240 3.7% 15.9%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
+    --calendar-border: 0 0% 30.2%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     --stat-surface: 0 0% 46% / 0.3;

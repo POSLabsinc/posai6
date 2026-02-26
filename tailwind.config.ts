@@ -61,6 +61,7 @@ export default {
           DEFAULT: "hsl(var(--header))",
           foreground: "hsl(var(--header-foreground))",
         },
+        "calendar-border": "hsl(var(--calendar-border))",
       },
       borderRadius: {
         lg: "var(--radius)",

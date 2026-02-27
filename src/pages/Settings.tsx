@@ -81,7 +81,17 @@ const getContentForRoute = (
   showAIChat: boolean,
   setShowAIChat: (show: boolean) => void,
   onShiftExpandChange?: (expanded: boolean) => void,
-  isShiftExpanded?: boolean
+  isShiftExpanded?: boolean,
+  shiftStateProps?: {
+    viewMode: "card" | "day" | "week" | "month";
+    setViewMode: (v: "card" | "day" | "week" | "month") => void;
+    currentWeek: Date;
+    setCurrentWeek: (d: Date) => void;
+    currentDate: Date;
+    setCurrentDate: (d: Date) => void;
+    currentMonth: Date;
+    setCurrentMonth: (d: Date) => void;
+  }
 ) => {
   // If AI chat is active, show it in the right panel
   if (showAIChat) {
@@ -306,7 +316,7 @@ const getContentForRoute = (
     return <AddEmployeeContent showHeader={true} onBack={() => navigate('/settings/workforce/employee')} />;
   }
   if (pathname === '/settings/workforce/shift') {
-    return <ShiftContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} isExpanded={isShiftExpanded} onExpandChange={onShiftExpandChange} />;
+    return <ShiftContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} isExpanded={isShiftExpanded} onExpandChange={onShiftExpandChange} {...shiftStateProps} />;
   }
   if (pathname === '/settings/workforce/shift/add') {
     return <AddShiftContent showHeader={true} onBack={() => navigate('/settings/workforce/shift')} />;
@@ -324,6 +334,10 @@ const Settings = () => {
   const isMobile = useIsMobile();
   const [showAIChat, setShowAIChat] = useState(false);
   const [isShiftExpanded, setIsShiftExpanded] = useState(false);
+  const [shiftViewMode, setShiftViewMode] = useState<"card" | "day" | "week" | "month">("week");
+  const [shiftCurrentWeek, setShiftCurrentWeek] = useState<Date>(new Date());
+  const [shiftCurrentDate, setShiftCurrentDate] = useState<Date>(new Date());
+  const [shiftCurrentMonth, setShiftCurrentMonth] = useState<Date>(new Date());
 
   // Reset shift expanded when navigating away
   useEffect(() => {
@@ -395,7 +409,7 @@ const Settings = () => {
       <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden">
         <div className="flex flex-1 h-full overflow-hidden">
           <div className="w-full h-full overflow-y-auto scrollbar-hide">
-            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded)}
+            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded, { viewMode: shiftViewMode, setViewMode: setShiftViewMode, currentWeek: shiftCurrentWeek, setCurrentWeek: setShiftCurrentWeek, currentDate: shiftCurrentDate, setCurrentDate: setShiftCurrentDate, currentMonth: shiftCurrentMonth, setCurrentMonth: setShiftCurrentMonth })}
           </div>
         </div>
       </div>
@@ -418,7 +432,7 @@ const Settings = () => {
       {!isMobile && (
         <div className="flex flex-1 h-full overflow-hidden">
           <div className="w-full h-full overflow-y-auto scrollbar-hide">
-            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded)}
+            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded, { viewMode: shiftViewMode, setViewMode: setShiftViewMode, currentWeek: shiftCurrentWeek, setCurrentWeek: setShiftCurrentWeek, currentDate: shiftCurrentDate, setCurrentDate: setShiftCurrentDate, currentMonth: shiftCurrentMonth, setCurrentMonth: setShiftCurrentMonth })}
           </div>
         </div>
       )}

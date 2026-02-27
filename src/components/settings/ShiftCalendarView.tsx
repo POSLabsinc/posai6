@@ -478,7 +478,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                     );
                   }) : (!isPast && hoveredOpenShiftCell === cellKey && (
                     <div className="w-full text-center rounded-md px-2 py-1.5 border border-dashed border-primary/30 bg-primary/5 transition-all animate-in fade-in-0 duration-150">
-                      <span className="text-[10px] font-medium text-primary block">No Open Shift</span>
+                      <span className="text-[10px] font-medium text-primary block">Available</span>
                       <span className="text-[10px] text-primary/70 block">{(() => { const s = SettingsManager.getControlCenterSettings(); return `${s.businessHoursStart} - ${s.businessHoursEnd}`; })()}</span>
                     </div>
                   ))}

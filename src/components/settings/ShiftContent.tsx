@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Search, Plus, Mic, Clock, CalendarDays, Maximize2, Minimize2, SlidersHorizontal, X, Download, Printer, Info } from "lucide-react";
+import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays, addMonths, subMonths } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useShiftCards, ShiftCardData } from "@/hooks/use-shift-cards";
@@ -331,12 +332,33 @@ const ShiftContent = ({
             >
               <Printer className="w-4.5 h-4.5 text-foreground" />
             </button>
-            <button
-              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50 transition-colors hover:bg-neutral-700/60"
-              aria-label="Info"
-            >
-              <Info className="w-4.5 h-4.5 text-foreground" />
-            </button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50 transition-colors hover:bg-neutral-700/60"
+                  aria-label="Info"
+                >
+                  <Info className="w-4.5 h-4.5 text-foreground" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-56 p-3 rounded-xl border border-border/60 bg-background shadow-xl">
+                <p className="text-xs font-semibold text-foreground mb-2">Role Colors</p>
+                <div className="flex flex-col gap-1.5">
+                  {[
+                    { role: "Manager", dot: "bg-green-500" },
+                    { role: "Server", dot: "bg-blue-500" },
+                    { role: "Bartender", dot: "bg-orange-500" },
+                    { role: "Kitchen", dot: "bg-amber-500" },
+                    { role: "Host", dot: "bg-rose-500" },
+                  ].map((r) => (
+                    <div key={r.role} className="flex items-center gap-2">
+                      <span className={`w-3 h-3 rounded-full ${r.dot}`} />
+                      <span className="text-xs text-foreground">{r.role}</span>
+                    </div>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
             {/* Expand/Collapse */}
             <button
               onClick={() => onExpandChange?.(!isExpanded)}

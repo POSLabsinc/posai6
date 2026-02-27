@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, X, Check, Clock, Plus, Calendar as CalendarIcon, Copy } from "lucide-react";
 import { format } from "date-fns";
@@ -57,6 +57,8 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const editId = searchParams.get("edit");
+  const isEditMode = !!editId;
   const prefillDate = searchParams.get("shift_date") || searchParams.get("date");
 
   const to12h = (t: string | null, fallback: string): string => {
@@ -97,6 +99,27 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
 
   const goBack = onBack || (() => navigate("/settings/workforce/shift"));
 
+  // Load existing data in edit mode
+  useEffect(() => {
+    if (!editId) return;
+    const shifts = JSON.parse(localStorage.getItem("pos_open_shifts") || "[]");
+    const os = shifts.find((s: any) => s.id === editId);
+    if (os) {
+      setShiftName(os.shiftName || "");
+      setShiftType(os.shiftType || "");
+      setSelectedDate(os.date ? new Date(os.date + "T00:00:00") : undefined);
+      setSelectedDays(os.selectedDays || []);
+      setDaySelectionMode(os.daySelectionMode || "all");
+      setDayStartTime(os.startTime || "09:00 AM");
+      setDayEndTime(os.endTime || "05:00 PM");
+      setNextDay(os.nextDay || false);
+      setRecurring(os.recurring || false);
+      setAllowOvertime(os.allowOvertime || false);
+      if (os.breaks) setBreaks(os.breaks);
+      setShiftNote(os.shiftNote || "");
+    }
+  }, [editId]);
+
   const MAX_NOTE_WORDS = 1000;
   const wordCount = shiftNote.trim() ? shiftNote.trim().split(/\s+/).length : 0;
   const isFormEmpty = !shiftName.trim() && !shiftType && !shiftNote.trim();
@@ -108,7 +131,7 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
     if (!selectedDate) { toast.error("Please select a date"); return; }
 
     const openShift = {
-      id: Date.now().toString(),
+      id: isEditMode ? editId : Date.now().toString(),
       shiftName,
       shiftType,
       date: format(selectedDate, "yyyy-MM-dd"),
@@ -124,10 +147,16 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
     };
 
     const existing = JSON.parse(localStorage.getItem("pos_open_shifts") || "[]");
-    existing.push(openShift);
-    localStorage.setItem("pos_open_shifts", JSON.stringify(existing));
+    if (isEditMode) {
+      const updated = existing.map((s: any) => s.id === editId ? openShift : s);
+      localStorage.setItem("pos_open_shifts", JSON.stringify(updated));
+      toast.success("Open shift updated successfully");
+    } else {
+      existing.push(openShift);
+      localStorage.setItem("pos_open_shifts", JSON.stringify(existing));
+      toast.success("Open shift created successfully");
+    }
     window.dispatchEvent(new Event("open-shifts-updated"));
-    toast.success("Open shift created successfully");
     goBack();
   };
 
@@ -213,7 +242,7 @@ const AddOpenShiftContent = ({ showHeader = true, onBack }: AddOpenShiftContentP
           <button onClick={handleCreate} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Add Open Shift</h1>
+          <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">{isEditMode ? "Edit Open Shift" : "Add Open Shift"}</h1>
         </div>
       )}
 

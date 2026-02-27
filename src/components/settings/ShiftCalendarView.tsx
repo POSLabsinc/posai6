@@ -286,10 +286,20 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
             <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-calendar-border" style={{ width: NAME_COL_W }}>
               <span className="text-sm font-semibold text-foreground">Events</span>
             </div>
-            {days.map((_, i) => {
+            {days.map((day, i) => {
               const isToday = dayStrs[i] === todayStr;
+              const isPast = dayStrs[i] < todayStr;
               return (
-                <div key={i} className={`flex-1 border-r border-calendar-border last:border-r-0 ${isToday ? "bg-primary/5" : ""}`} />
+                <div
+                  key={i}
+                  className={`flex-1 border-r border-calendar-border last:border-r-0 ${isToday ? "bg-primary/5" : ""} ${!isPast ? "cursor-pointer hover:bg-accent/20 transition-colors" : ""}`}
+                  onClick={() => {
+                    if (!isPast) {
+                      const params = new URLSearchParams({ date: dayStrs[i], start_time: "09:00" });
+                      navigate(`/settings/workforce/shift/add-event?${params.toString()}`);
+                    }
+                  }}
+                />
               );
             })}
           </div>

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useRef } from "react";
 import { format, startOfWeek, addDays } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,7 +101,8 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
   const todayStr = format(new Date(), "yyyy-MM-dd");
 
   const [expandedRoles, setExpandedRoles] = useState<Set<string>>(new Set());
-  const [dragOverCell, setDragOverCell] = useState<string | null>(null); // "empId-dateStr"
+  const [dragOverCell, setDragOverCell] = useState<string | null>(null);
+  const [hoveredCell, setHoveredCell] = useState<string | null>(null);
 
   const startStr = dayStrs[0];
   const endStr = dayStrs[6];
@@ -356,14 +357,24 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                             if (dayShifts.length === 0 && !isPast) handleCellClick(day, emp.id, emp.name);
                           }}
                           onDragOver={!isPast ? (e) => handleDragOver(e, emp.id, dateStr) : undefined}
-                          onDragLeave={handleDragLeave}
+                          onDragLeave={() => { handleDragLeave(); setHoveredCell(null); }}
                           onDrop={!isPast ? (e) => handleDrop(e, emp.id, dateStr, emp.name) : undefined}
+                          onMouseEnter={() => {
+                            if (dayShifts.length === 0 && !isPast) setHoveredCell(`${emp.id}-${dateStr}`);
+                          }}
+                          onMouseLeave={() => setHoveredCell(null)}
                           className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 transition-colors ${
                             isToday ? "bg-primary/5" : ""
                           } ${isPast ? "opacity-40" : ""} ${
                             isDropTarget ? "bg-primary/10 ring-2 ring-inset ring-primary/30" : ""
                           } ${dayShifts.length === 0 && !isPast ? "cursor-pointer hover:bg-muted/20" : ""}`}
                         >
+                          {dayShifts.length === 0 && !isPast && hoveredCell === `${emp.id}-${dateStr}` && (
+                            <div className="w-full text-center rounded-md px-2 py-1.5 border border-dashed border-primary/30 bg-primary/5 transition-all animate-in fade-in-0 duration-150">
+                              <span className="text-[10px] font-medium text-primary block">Available</span>
+                              <span className="text-[10px] text-primary/70 block">9:00 AM - 10:00 PM</span>
+                            </div>
+                          )}
                           {dayShifts.map((s) => {
                             const shiftRole = s.job_type || s.shift_type || group.role;
                             const colors = isPast

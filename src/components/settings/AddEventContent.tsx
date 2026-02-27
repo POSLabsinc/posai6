@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Clock, Calendar as CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
@@ -16,6 +16,7 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const editId = searchParams.get("edit");
   const prefillDate = searchParams.get("date");
   const prefillStartTime = searchParams.get("start_time");
 
@@ -68,13 +69,34 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
   const [showEndDateTimePicker, setShowEndDateTimePicker] = useState(false);
   const [repeat, setRepeat] = useState("Never");
   const [showRepeatPicker, setShowRepeatPicker] = useState(false);
+  const isEditing = !!editId;
+
+  // Load existing event data when editing
+  useEffect(() => {
+    if (!editId) return;
+    try {
+      const events = JSON.parse(localStorage.getItem("pos_events") || "[]");
+      const ev = events.find((e: any) => e.id === editId);
+      if (ev) {
+        setEventTitle(ev.title || "");
+        setDescription(ev.description || "");
+        setEventDate(ev.date ? new Date(ev.date + "T00:00:00") : undefined);
+        setStartTime(ev.startTime || initialStartTime);
+        setEndTime(ev.endTime || addOneHour(initialStartTime));
+        setMultiDay(ev.multiDay || false);
+        setEndDate(ev.endDate ? new Date(ev.endDate + "T00:00:00") : undefined);
+        setEndDateTime(ev.endDateTime || "05:00 PM");
+        setRepeat(ev.repeat || "Never");
+      }
+    } catch {}
+  }, [editId]);
 
   const goBack = onBack || (() => navigate("/settings/workforce/shift"));
 
   const isFormEmpty = !eventTitle.trim() && !description.trim();
 
   const handleCreate = () => {
-    if (isFormEmpty) {
+    if (!isEditing && isFormEmpty) {
       goBack();
       return;
     }
@@ -83,10 +105,9 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
       return;
     }
 
-    // For now, store event in localStorage (can be migrated to DB later)
     const events = JSON.parse(localStorage.getItem("pos_events") || "[]");
-    const newEvent = {
-      id: crypto.randomUUID(),
+    const eventData = {
+      id: isEditing ? editId : crypto.randomUUID(),
       title: eventTitle.trim(),
       description: description.trim(),
       date: eventDate ? format(eventDate, "yyyy-MM-dd") : format(new Date(), "yyyy-MM-dd"),
@@ -98,10 +119,17 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
       repeat,
       createdAt: new Date().toISOString(),
     };
-    events.push(newEvent);
+
+    if (isEditing) {
+      const idx = events.findIndex((e: any) => e.id === editId);
+      if (idx >= 0) events[idx] = eventData;
+      else events.push(eventData);
+    } else {
+      events.push(eventData);
+    }
     localStorage.setItem("pos_events", JSON.stringify(events));
     window.dispatchEvent(new Event("events-updated"));
-    toast.success("Event created successfully");
+    toast.success(isEditing ? "Event updated successfully" : "Event created successfully");
     goBack();
   };
 
@@ -203,7 +231,7 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
           <button onClick={handleCreate} className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">Add Event</h1>
+          <h1 className="text-base font-semibold text-foreground absolute left-1/2 -translate-x-1/2">{isEditing ? "Edit Event" : "Add Event"}</h1>
         </div>
       )}
 

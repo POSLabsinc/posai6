@@ -7,6 +7,7 @@ import { ChevronRight } from "lucide-react";
 import { ShiftCardData } from "@/hooks/use-shift-cards";
 import { toast } from "@/hooks/use-toast";
 import { SettingsManager } from "@/lib/settingsManager";
+import AppleAlertDialog from "@/components/AppleAlertDialog";
 
 interface ShiftCalendarViewProps {
   cards: ShiftCardData[];
@@ -128,6 +129,9 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
   const [hoveredCell, setHoveredCell] = useState<string | null>(null);
   const [hoveredEventCell, setHoveredEventCell] = useState<string | null>(null);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [showEventActions, setShowEventActions] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   // Load events from localStorage and listen for updates
   const loadEvents = useCallback(() => {
@@ -256,6 +260,34 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
     navigate(`/settings/workforce/shift/edit?id=${shiftId}`);
   };
 
+  const handleEventClick = (ev: CalendarEvent, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedEvent(ev);
+    setShowEventActions(true);
+  };
+
+  const handleEditEvent = () => {
+    if (!selectedEvent) return;
+    setShowEventActions(false);
+    const params = new URLSearchParams({
+      edit: selectedEvent.id,
+      date: selectedEvent.date,
+      start_time: selectedEvent.startTime,
+    });
+    navigate(`/settings/workforce/shift/add-event?${params.toString()}`);
+  };
+
+  const handleDeleteEvent = () => {
+    if (!selectedEvent) return;
+    const events = JSON.parse(localStorage.getItem("pos_events") || "[]");
+    const updated = events.filter((ev: CalendarEvent) => ev.id !== selectedEvent.id);
+    localStorage.setItem("pos_events", JSON.stringify(updated));
+    window.dispatchEvent(new Event("events-updated"));
+    toast({ title: "Event deleted" });
+    setShowDeleteConfirm(false);
+    setSelectedEvent(null);
+  };
+
   // Drag and drop handlers
   const handleDragStart = useCallback((e: React.DragEvent, shift: WeekShift) => {
     e.dataTransfer.setData("application/json", JSON.stringify({ shiftId: shift.id, fromEmployee: shift.employee_id, fromDate: shift.shift_date }));
@@ -371,7 +403,11 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                   {hasEvents ? dayEvents.map((ev, ei) => {
                     const colors = getEventColor(ei);
                     return (
-                      <div key={ev.id + ei} className={`w-full rounded-md px-1.5 py-1 border ${colors.bg} ${colors.border}`}>
+                      <div
+                        key={ev.id + ei}
+                        onClick={(e) => handleEventClick(ev, e)}
+                        className={`w-full rounded-md px-1.5 py-1 border cursor-pointer hover:ring-1 hover:ring-white/20 transition-all ${colors.bg} ${colors.border}`}
+                      >
                         <span className={`text-[10px] font-semibold ${colors.text} block truncate`}>{ev.title}</span>
                         <span className={`text-[10px] ${colors.textSub} block truncate`}>{ev.startTime} - {ev.endTime}</span>
                       </div>
@@ -574,6 +610,58 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
           );
         })}
       </div>
+
+      {/* Event Action Sheet */}
+      {showEventActions && selectedEvent && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowEventActions(false)}>
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-[#2C2C2E]/95 backdrop-blur-xl rounded-[14px] w-[270px] overflow-hidden shadow-2xl">
+              <div className="pt-5 pb-4 px-4 space-y-1">
+                <h3 className="text-[17px] font-semibold text-white text-center tracking-[-0.4px]">{selectedEvent.title}</h3>
+                <p className="text-[13px] text-[#EBEBF599] text-center leading-[18px]">
+                  {selectedEvent.startTime} - {selectedEvent.endTime}
+                </p>
+              </div>
+              <div className="border-t border-[#545458]/50">
+                <button
+                  onClick={handleEditEvent}
+                  className="w-full h-11 text-[17px] font-normal text-[#0A84FF] tracking-[-0.4px] hover:bg-[#545458]/30 transition-colors"
+                >
+                  Edit
+                </button>
+              </div>
+              <div className="border-t border-[#545458]/50">
+                <button
+                  onClick={() => { setShowEventActions(false); setShowDeleteConfirm(true); }}
+                  className="w-full h-11 text-[17px] font-normal text-[#FF453A] tracking-[-0.4px] hover:bg-[#545458]/30 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+              <div className="border-t border-[#545458]/50">
+                <button
+                  onClick={() => setShowEventActions(false)}
+                  className="w-full h-11 text-[17px] font-semibold text-white/70 tracking-[-0.4px] hover:bg-[#545458]/30 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation */}
+      <AppleAlertDialog
+        open={showDeleteConfirm}
+        onOpenChange={setShowDeleteConfirm}
+        onConfirm={handleDeleteEvent}
+        title="Delete Event"
+        description={`Are you sure you want to delete "${selectedEvent?.title}"? This action cannot be undone.`}
+        cancelText="Cancel"
+        confirmText="Delete"
+      />
     </div>
   );
 };

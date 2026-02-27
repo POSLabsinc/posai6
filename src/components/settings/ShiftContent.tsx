@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Plus, Mic, Clock, CalendarDays, Maximize2, Minimize2, SlidersHorizontal, X, Download, Printer, Info } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Plus, Mic, Clock, CalendarDays, Maximize2, Minimize2, SlidersHorizontal, X, Download, Printer, Info, FileText, FileSpreadsheet, Table } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays, addMonths, subMonths } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
@@ -56,6 +57,10 @@ const ShiftContent = ({
   const [showFilterPopover, setShowFilterPopover] = useState(false);
   const [filterTab, setFilterTab] = useState<"jobType" | "shift">("jobType");
   const [filterSearch, setFilterSearch] = useState("");
+  const [showExportPopover, setShowExportPopover] = useState(false);
+  const [includePayRates, setIncludePayRates] = useState(false);
+  const [includeNotes, setIncludeNotes] = useState(true);
+  const exportPopoverRef = useRef<HTMLDivElement>(null);
   const filterPopoverRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -68,6 +73,17 @@ const ShiftContent = ({
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [showFilterPopover]);
+
+  useEffect(() => {
+    if (!showExportPopover) return;
+    const handler = (e: MouseEvent) => {
+      if (exportPopoverRef.current && !exportPopoverRef.current.contains(e.target as Node)) {
+        setShowExportPopover(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showExportPopover]);
 
   const currentWeek = currentWeekProp ?? localCurrentWeek;
   const setCurrentWeek = setCurrentWeekProp ?? localSetCurrentWeek;
@@ -97,6 +113,40 @@ const ShiftContent = ({
     setSelectedShifts((prev) =>
     prev.includes(s) ? prev.filter((r) => r !== s) : [...prev, s]
     );
+  };
+
+  const viewLabel = viewMode === "card" ? "Cards View" : viewMode === "day" ? "Day View" : viewMode === "month" ? "Month View" : "Week View";
+
+  const handleExportCSV = () => {
+    const rows: string[][] = [];
+    const headers = ["Shift Name", "Badge", "Time Range", "Date Range", "Days", "Employees"];
+    if (includePayRates) headers.push("Pay Rate");
+    if (includeNotes) headers.push("Notes");
+    rows.push(headers);
+
+    filteredCards.forEach((card) => {
+      const row = [
+        card.name,
+        card.badge,
+        card.timeRange,
+        card.dateRange,
+        card.days.join(", "),
+        card.employees.map((e) => e.name).join(", "),
+      ];
+      if (includePayRates) row.push("");
+      if (includeNotes) row.push("");
+      rows.push(row);
+    });
+
+    const csvContent = rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `shift-schedule-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowExportPopover(false);
   };
 
   // Client-side filtering
@@ -319,12 +369,71 @@ const ShiftContent = ({
 
           {/* Action Icons */}
           <div className="flex items-center gap-2">
-            <button
-              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50 transition-colors hover:bg-neutral-700/60"
-              aria-label="Download"
-            >
-              <Download className="w-4.5 h-4.5 text-foreground" />
-            </button>
+            <div className="relative" ref={exportPopoverRef}>
+              <button
+                onClick={() => setShowExportPopover(!showExportPopover)}
+                className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50 transition-colors hover:bg-neutral-700/60"
+                aria-label="Download"
+              >
+                <Download className="w-4.5 h-4.5 text-foreground" />
+              </button>
+
+              {showExportPopover && (
+                <div className="absolute top-12 right-0 z-[60] w-[320px] bg-card border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+                  {/* Header */}
+                  <div className="px-4 pt-4 pb-2 flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <Download className="w-5 h-5 text-foreground" />
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">Export Schedule - {viewLabel}</p>
+                        <p className="text-xs text-muted-foreground mt-0.5">Export schedule in different formats</p>
+                      </div>
+                    </div>
+                    <button onClick={() => setShowExportPopover(false)} className="text-muted-foreground hover:text-foreground">
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* Toggles */}
+                  <div className="px-4 py-3 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-foreground">Include Pay Rates</span>
+                      <Switch checked={includePayRates} onCheckedChange={setIncludePayRates} />
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-foreground">Include Notes</span>
+                      <Switch checked={includeNotes} onCheckedChange={setIncludeNotes} />
+                    </div>
+                  </div>
+
+                  {/* Export Buttons */}
+                  <div className="px-4 pb-2 space-y-1">
+                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted/40 transition-colors border border-border/50">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                      Export as PDF
+                    </button>
+                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted/40 transition-colors border border-border/50">
+                      <FileSpreadsheet className="w-4 h-4 text-muted-foreground" />
+                      Export as Excel
+                    </button>
+                    <button
+                      onClick={handleExportCSV}
+                      className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted/40 transition-colors border border-border/50"
+                    >
+                      <Table className="w-4 h-4 text-muted-foreground" />
+                      Export as CSV
+                    </button>
+                  </div>
+
+                  {/* Footer */}
+                  <div className="px-4 py-3 border-t border-border/40">
+                    <p className="text-[11px] text-muted-foreground">
+                      Current schedule: {viewLabel} for {viewMode === "day" ? format(currentDate, "dd/MM/yyyy") : viewMode === "month" ? format(currentMonth, "MMMM yyyy") : `${format(weekStart, "dd/MM/yyyy")} - ${format(weekEnd, "dd/MM/yyyy")}`} - {filteredCards.length} shifts
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
             <button
               onClick={() => window.print()}
               className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50 transition-colors hover:bg-neutral-700/60"

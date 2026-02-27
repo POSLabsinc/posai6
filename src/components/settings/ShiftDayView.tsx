@@ -462,7 +462,19 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
             <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-calendar-border" style={{ width: NAME_COL_WIDTH }}>
               <span className="text-sm font-semibold text-foreground">Events</span>
             </div>
-            <div className="flex-1 relative">
+            <div
+              className="flex-1 relative cursor-pointer hover:bg-accent/20 transition-colors"
+              style={{ width: HOURS.length * COL_WIDTH }}
+              onClick={(e) => {
+                const rect = e.currentTarget.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const hourIndex = Math.floor(x / COL_WIDTH);
+                const hour = HOURS[Math.min(hourIndex, HOURS.length - 1)];
+                const h24 = hour.toString().padStart(2, "0") + ":00";
+                const params = new URLSearchParams({ date: dateStr, start_time: h24 });
+                navigate(`/settings/workforce/shift/add-event?${params.toString()}`);
+              }}
+            >
               <GridLines />
             </div>
           </div>

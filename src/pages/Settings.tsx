@@ -71,6 +71,7 @@ import AddEmployeeContent from "@/components/settings/AddEmployeeContent";
 import ShiftContent from "@/components/settings/ShiftContent";
 import AddShiftContent from "@/components/settings/AddShiftContent";
 import EditShiftContent from "@/components/settings/EditShiftContent";
+import AddEventContent from "@/components/settings/AddEventContent";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 // Map routes to content components for the right panel
@@ -323,6 +324,9 @@ const getContentForRoute = (
   }
   if (pathname === '/settings/workforce/shift/edit') {
     return <EditShiftContent showHeader={true} onBack={() => navigate('/settings/workforce/shift')} />;
+  }
+  if (pathname === '/settings/workforce/shift/add-event') {
+    return <AddEventContent showHeader={true} onBack={() => navigate('/settings/workforce/shift')} />;
   }
   // Default to Account panel
   return <AccountPanel showHeader={true} />;

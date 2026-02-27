@@ -15,6 +15,14 @@ interface ShiftContentProps {
   onAIClick?: () => void;
   isExpanded?: boolean;
   onExpandChange?: (expanded: boolean) => void;
+  viewMode?: "card" | "day" | "week" | "month";
+  setViewMode?: (v: "card" | "day" | "week" | "month") => void;
+  currentWeek?: Date;
+  setCurrentWeek?: (d: Date) => void;
+  currentDate?: Date;
+  setCurrentDate?: (d: Date) => void;
+  currentMonth?: Date;
+  setCurrentMonth?: (d: Date) => void;
 }
 
 const ShiftContent = ({
@@ -22,19 +30,38 @@ const ShiftContent = ({
   onBack,
   onAIClick,
   isExpanded = false,
-  onExpandChange
+  onExpandChange,
+  viewMode: viewModeProp,
+  setViewMode: setViewModeProp,
+  currentWeek: currentWeekProp,
+  setCurrentWeek: setCurrentWeekProp,
+  currentDate: currentDateProp,
+  setCurrentDate: setCurrentDateProp,
+  currentMonth: currentMonthProp,
+  setCurrentMonth: setCurrentMonthProp,
 }: ShiftContentProps) => {
   const navigate = useNavigate();
-  const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
-  const [searchQuery, setSearchQuery] = useState("");
-  const [viewMode, setViewMode] = useState<"card" | "day" | "week" | "month">("week");
-  const [currentDate, setCurrentDate] = useState<Date>(new Date());
-  const [currentMonth, setCurrentMonth] = useState<Date>(new Date());
+
+  // Use lifted state from props if provided, otherwise fall back to local state
+  const [localCurrentWeek, localSetCurrentWeek] = useState<Date>(new Date());
+  const [localSearchQuery, setSearchQuery] = useState("");
+  const [localViewMode, localSetViewMode] = useState<"card" | "day" | "week" | "month">("week");
+  const [localCurrentDate, localSetCurrentDate] = useState<Date>(new Date());
+  const [localCurrentMonth, localSetCurrentMonth] = useState<Date>(new Date());
   const [showJobTypeDropdown, setShowJobTypeDropdown] = useState(false);
   const [showShiftDropdown, setShowShiftDropdown] = useState(false);
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
   const [selectedShifts, setSelectedShifts] = useState<string[]>([]);
-  
+
+  const currentWeek = currentWeekProp ?? localCurrentWeek;
+  const setCurrentWeek = setCurrentWeekProp ?? localSetCurrentWeek;
+  const searchQuery = localSearchQuery;
+  const viewMode = viewModeProp ?? localViewMode;
+  const setViewMode = setViewModeProp ?? localSetViewMode;
+  const currentDate = currentDateProp ?? localCurrentDate;
+  const setCurrentDate = setCurrentDateProp ?? localSetCurrentDate;
+  const currentMonth = currentMonthProp ?? localCurrentMonth;
+  const setCurrentMonth = setCurrentMonthProp ?? localSetCurrentMonth;
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });

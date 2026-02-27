@@ -1,6 +1,7 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Search, Plus, Mic, Clock, CalendarDays, Maximize2, Minimize2, SlidersHorizontal, X, Download, Printer, Info, FileText, FileSpreadsheet, Table } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { Switch } from "@/components/ui/switch";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays, addMonths, subMonths } from "date-fns";
@@ -117,35 +118,98 @@ const ShiftContent = ({
 
   const viewLabel = viewMode === "card" ? "Cards View" : viewMode === "day" ? "Day View" : viewMode === "month" ? "Month View" : "Week View";
 
-  const handleExportCSV = () => {
-    const rows: string[][] = [];
-    const headers = ["Shift Name", "Badge", "Time Range", "Date Range", "Days", "Employees"];
-    if (includePayRates) headers.push("Pay Rate");
-    if (includeNotes) headers.push("Notes");
-    rows.push(headers);
+  const fetchExportData = useCallback(async () => {
+    const startStr = viewMode === "day" ? format(currentDate, "yyyy-MM-dd") : viewMode === "month" ? format(new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1), "yyyy-MM-dd") : format(weekStart, "yyyy-MM-dd");
+    const endStr = viewMode === "day" ? format(currentDate, "yyyy-MM-dd") : viewMode === "month" ? format(new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0), "yyyy-MM-dd") : format(weekEnd, "yyyy-MM-dd");
 
-    filteredCards.forEach((card) => {
-      const row = [
-        card.name,
-        card.badge,
-        card.timeRange,
-        card.dateRange,
-        card.days.join(", "),
-        card.employees.map((e) => e.name).join(", "),
-      ];
-      if (includePayRates) row.push("");
-      if (includeNotes) row.push("");
-      rows.push(row);
+    const { data: shifts } = await (supabase as any)
+      .from("employee_shifts")
+      .select("*")
+      .gte("shift_date", startStr)
+      .lte("shift_date", endStr);
+
+    const { data: employees } = await (supabase as any)
+      .from("employees")
+      .select("id, full_name, role, hourly_rate");
+
+    const empMap = new Map<string, any>();
+    (employees || []).forEach((e: any) => empMap.set(e.id, e));
+
+    return (shifts || []).map((s: any) => {
+      const emp = empMap.get(s.employee_id);
+      return {
+        employee: emp?.full_name || "Unassigned",
+        role: emp?.role || "",
+        shiftType: s.shift_type || "Regular",
+        date: s.shift_date,
+        startTime: s.start_time || "",
+        endTime: s.end_time || "",
+        section: s.assign_section || "",
+        payRate: s.pay_rate || emp?.hourly_rate || 0,
+        notes: s.shift_notes || "",
+        overtime: s.allow_overtime ? "Yes" : "No",
+        jobType: s.job_type || "",
+      };
     });
+  }, [viewMode, currentDate, currentMonth, weekStart, weekEnd]);
 
-    const csvContent = rows.map((r) => r.map((c) => `"${c.replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const buildRows = (data: any[]) => {
+    const headers = ["Employee", "Role", "Shift Type", "Date", "Start Time", "End Time", "Section", "Job Type"];
+    if (includePayRates) headers.push("Pay Rate ($)");
+    if (includeNotes) headers.push("Notes");
+    headers.push("Overtime");
+
+    const rows = data.map((d) => {
+      const row = [d.employee, d.role, d.shiftType, d.date, d.startTime, d.endTime, d.section, d.jobType];
+      if (includePayRates) row.push(String(d.payRate));
+      if (includeNotes) row.push(d.notes);
+      row.push(d.overtime);
+      return row;
+    });
+    return { headers, rows };
+  };
+
+  const handleExportCSV = async () => {
+    const data = await fetchExportData();
+    const { headers, rows } = buildRows(data);
+    const csvLines = [headers, ...rows].map((r) => r.map((c: string) => `"${c.replace(/"/g, '""')}"`).join(","));
+    const blob = new Blob([csvLines.join("\n")], { type: "text/csv;charset=utf-8;" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     a.download = `shift-schedule-${format(new Date(), "yyyy-MM-dd")}.csv`;
     a.click();
     URL.revokeObjectURL(url);
+    setShowExportPopover(false);
+  };
+
+  const handleExportExcel = async () => {
+    const data = await fetchExportData();
+    const { headers, rows } = buildRows(data);
+    const tableRows = rows.map((r) => `<tr>${r.map((c: string) => `<td>${c}</td>`).join("")}</tr>`).join("");
+    const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel"><head><meta charset="UTF-8"></head><body><table><thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${tableRows}</tbody></table></body></html>`;
+    const blob = new Blob([html], { type: "application/vnd.ms-excel" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `shift-schedule-${format(new Date(), "yyyy-MM-dd")}.xls`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setShowExportPopover(false);
+  };
+
+  const handleExportPDF = async () => {
+    const data = await fetchExportData();
+    const { headers, rows } = buildRows(data);
+    const dateLabel = viewMode === "day" ? format(currentDate, "dd MMM yyyy") : viewMode === "month" ? format(currentMonth, "MMMM yyyy") : `${format(weekStart, "dd MMM")} - ${format(weekEnd, "dd MMM yyyy")}`;
+    const tableRows = rows.map((r) => `<tr>${r.map((c: string) => `<td style="border:1px solid #ddd;padding:6px 8px;font-size:11px;">${c}</td>`).join("")}</tr>`).join("");
+    const html = `<html><head><title>Shift Schedule</title><style>body{font-family:Arial,sans-serif;padding:20px}h2{margin-bottom:4px}table{border-collapse:collapse;width:100%}th{border:1px solid #333;padding:6px 8px;font-size:11px;background:#f5f5f5;text-align:left}</style></head><body><h2>Shift Schedule</h2><p style="color:#666;margin-bottom:16px;">${viewLabel} • ${dateLabel} • ${data.length} shifts</p><table><thead><tr>${headers.map((h) => `<th>${h}</th>`).join("")}</tr></thead><tbody>${tableRows}</tbody></table></body></html>`;
+    const printWindow = window.open("", "_blank");
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+      printWindow.onload = () => { printWindow.print(); };
+    }
     setShowExportPopover(false);
   };
 
@@ -408,11 +472,11 @@ const ShiftContent = ({
 
                   {/* Export Buttons */}
                   <div className="px-4 pb-2 space-y-1">
-                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted/40 transition-colors border border-border/50">
+                    <button onClick={handleExportPDF} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted/40 transition-colors border border-border/50">
                       <FileText className="w-4 h-4 text-muted-foreground" />
                       Export as PDF
                     </button>
-                    <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted/40 transition-colors border border-border/50">
+                    <button onClick={handleExportExcel} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-foreground hover:bg-muted/40 transition-colors border border-border/50">
                       <FileSpreadsheet className="w-4 h-4 text-muted-foreground" />
                       Export as Excel
                     </button>

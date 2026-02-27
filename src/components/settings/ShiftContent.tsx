@@ -339,6 +339,8 @@ const ShiftContent = ({
           <ShiftCalendarView
             cards={filteredCards}
             currentWeek={currentWeek}
+            toolbarJobTypes={selectedJobTypes}
+            toolbarShifts={selectedShifts}
             onShiftClick={(card) => navigate(`/settings/workforce/shift/edit?id=${card.id}`)} /> :
 
           viewMode === "month" ?

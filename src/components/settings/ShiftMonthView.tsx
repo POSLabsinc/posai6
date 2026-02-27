@@ -122,7 +122,7 @@ const ShiftMonthView = ({ currentMonth }: ShiftMonthViewProps) => {
   const todayDate = new Date();
   const todayStr = format(todayDate, "yyyy-MM-dd");
   const DAY_HEADERS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-  const MAX_VISIBLE_SHIFTS = 3;
+  
 
   const handleCellClick = (day: Date) => {
     const dateStr = format(day, "yyyy-MM-dd");
@@ -162,8 +162,6 @@ const ShiftMonthView = ({ currentMonth }: ShiftMonthViewProps) => {
               const isCurrentDay = isToday(day);
               const isPast = isBefore(day, todayDate) && !isCurrentDay;
               const dayShifts = shiftsByDate.get(dateStr) || [];
-              const visibleShifts = dayShifts.slice(0, MAX_VISIBLE_SHIFTS);
-              const moreCount = dayShifts.length - MAX_VISIBLE_SHIFTS;
 
               return (
                 <div
@@ -190,9 +188,9 @@ const ShiftMonthView = ({ currentMonth }: ShiftMonthViewProps) => {
                     </span>
                   </div>
 
-                  {/* Shift cards */}
-                  <div className="flex flex-col gap-0.5 flex-1 min-h-0">
-                    {visibleShifts.map((shift) => {
+                  {/* Shift cards - scrollable */}
+                  <div className="flex flex-col gap-0.5 flex-1 min-h-0 overflow-y-auto scrollbar-hide">
+                    {dayShifts.map((shift) => {
                       const colors = isPast
                         ? { bg: "bg-muted/20", border: "border-border/30", text: "text-muted-foreground", sub: "text-muted-foreground/60" }
                         : getColor(shift.role);
@@ -200,7 +198,7 @@ const ShiftMonthView = ({ currentMonth }: ShiftMonthViewProps) => {
                         <button
                           key={shift.id}
                           onClick={(e) => handleShiftClick(e, shift.id)}
-                          className={`w-full text-left rounded-md px-1.5 py-1 border transition-colors hover:brightness-110 ${colors.bg} ${colors.border}`}
+                          className={`w-full text-left rounded-md px-1.5 py-1 border transition-colors hover:brightness-110 flex-shrink-0 ${colors.bg} ${colors.border}`}
                         >
                           <span className={`text-[10px] font-semibold block truncate leading-tight ${colors.text}`}>
                             {shift.role}
@@ -214,11 +212,6 @@ const ShiftMonthView = ({ currentMonth }: ShiftMonthViewProps) => {
                         </button>
                       );
                     })}
-                    {moreCount > 0 && (
-                      <span className="text-[9px] text-muted-foreground font-medium px-1">
-                        +{moreCount} more
-                      </span>
-                    )}
                   </div>
                 </div>
               );

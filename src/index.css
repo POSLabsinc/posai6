@@ -384,3 +384,25 @@ All colors MUST be HSL.
   animation: none;
 }
 .keypad-btn-3d-outlined:focus:not(:active) { animation: keypad-bounce 0.2s ease-out; }
+
+/* Print styles — only show shift calendar area */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  #shift-print-area,
+  #shift-print-area * {
+    visibility: visible !important;
+  }
+  #shift-print-area {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: white !important;
+  }
+}

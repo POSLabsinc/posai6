@@ -13,6 +13,8 @@ interface ShiftCalendarViewProps {
   cards: ShiftCardData[];
   currentWeek: Date;
   onShiftClick: (card: ShiftCardData) => void;
+  toolbarJobTypes?: string[];
+  toolbarShifts?: string[];
 }
 
 interface WeekShift {
@@ -116,7 +118,7 @@ const EVENT_COLORS = [
 
 const getEventColor = (index: number) => EVENT_COLORS[index % EVENT_COLORS.length];
 
-const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarViewProps) => {
+const ShiftCalendarView = ({ cards, currentWeek, onShiftClick, toolbarJobTypes = [], toolbarShifts = [] }: ShiftCalendarViewProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 1 });
@@ -265,13 +267,15 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
       shiftsByEmp.set(s.employee_id, list);
     });
 
-    // Filter employees
+    // Filter employees (combine local Week view filters + toolbar filters)
     let filteredEmployees = employees;
     if (selectedTeamMembers.size > 0) {
       filteredEmployees = filteredEmployees.filter(e => selectedTeamMembers.has(e.id));
     }
-    if (selectedJobFilters.size > 0) {
-      filteredEmployees = filteredEmployees.filter(e => selectedJobFilters.has(e.role || "Other"));
+    // Combine local job filters with toolbar job type filters
+    const combinedJobFilters = new Set([...selectedJobFilters, ...toolbarJobTypes]);
+    if (combinedJobFilters.size > 0) {
+      filteredEmployees = filteredEmployees.filter(e => combinedJobFilters.has(e.role || "Other"));
     }
 
     const roleMap = new Map<string, EmployeeInfo[]>();
@@ -286,7 +290,11 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
     roleMap.forEach((emps, role) => {
       let groupTotalHours = 0;
       const empRows = emps.map((emp) => {
-        const empShifts = shiftsByEmp.get(emp.id) || [];
+        let empShifts = shiftsByEmp.get(emp.id) || [];
+        // Filter shifts by toolbar shift type if active
+        if (toolbarShifts.length > 0) {
+          empShifts = empShifts.filter(s => toolbarShifts.includes(s.shift_type || ""));
+        }
         const byDate = new Map<string, WeekShift[]>();
         let totalHours = 0;
         empShifts.forEach((s) => {
@@ -305,7 +313,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
     });
 
     return groups;
-  }, [weekData, selectedTeamMembers, selectedJobFilters]);
+  }, [weekData, selectedTeamMembers, selectedJobFilters, toolbarJobTypes, toolbarShifts]);
 
   const toggleRole = (role: string) => {
     setExpandedRoles((prev) => {

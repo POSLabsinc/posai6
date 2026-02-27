@@ -80,7 +80,8 @@ const getContentForRoute = (
   locationState: any,
   showAIChat: boolean,
   setShowAIChat: (show: boolean) => void,
-  onShiftExpandChange?: (expanded: boolean) => void
+  onShiftExpandChange?: (expanded: boolean) => void,
+  isShiftExpanded?: boolean
 ) => {
   // If AI chat is active, show it in the right panel
   if (showAIChat) {
@@ -305,7 +306,7 @@ const getContentForRoute = (
     return <AddEmployeeContent showHeader={true} onBack={() => navigate('/settings/workforce/employee')} />;
   }
   if (pathname === '/settings/workforce/shift') {
-    return <ShiftContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} onExpandChange={onShiftExpandChange} />;
+    return <ShiftContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} isExpanded={isShiftExpanded} onExpandChange={onShiftExpandChange} />;
   }
   if (pathname === '/settings/workforce/shift/add') {
     return <AddShiftContent showHeader={true} onBack={() => navigate('/settings/workforce/shift')} />;
@@ -394,7 +395,7 @@ const Settings = () => {
       <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden">
         <div className="flex flex-1 h-full overflow-hidden">
           <div className="w-full h-full overflow-y-auto scrollbar-hide">
-            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded)}
+            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded)}
           </div>
         </div>
       </div>
@@ -417,7 +418,7 @@ const Settings = () => {
       {!isMobile && (
         <div className="flex flex-1 h-full overflow-hidden">
           <div className="w-full h-full overflow-y-auto scrollbar-hide">
-            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded)}
+            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded, isShiftExpanded)}
           </div>
         </div>
       )}

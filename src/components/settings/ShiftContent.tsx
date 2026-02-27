@@ -58,7 +58,7 @@ const ShiftContent = ({
   });
 
   return (
-    <div className={`h-full overflow-y-auto scrollbar-hide overscroll-contain transition-all duration-300 ${isExpanded ? "absolute inset-0 z-50 bg-background" : ""}`}>
+    <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
       <div className={`flex flex-col h-full transition-all duration-300 ${isExpanded ? "px-2 pb-4" : "px-4 pb-28"}`}>
         {/* Header */}
         {showHeader &&

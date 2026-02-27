@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays, Maximize2, Minimize2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Plus, Mic, Clock, CalendarDays, Maximize2, Minimize2 } from "lucide-react";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays, addMonths, subMonths } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useShiftCards, ShiftCardData } from "@/hooks/use-shift-cards";
@@ -234,10 +234,6 @@ const ShiftContent = ({
             {isExpanded ? <Minimize2 className="w-4.5 h-4.5 text-foreground" /> : <Maximize2 className="w-4.5 h-4.5 text-foreground" />}
           </button>
 
-          {/* Sort */}
-          <button className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50">
-            <ArrowDownUp className="w-5 h-5 text-foreground" />
-          </button>
         </div>
 
         {/* Shift Views — wrapped in a visually distinct container */}

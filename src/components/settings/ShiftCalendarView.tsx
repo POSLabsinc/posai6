@@ -134,6 +134,9 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [showEventActions, setShowEventActions] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [selectedOpenShift, setSelectedOpenShift] = useState<any | null>(null);
+  const [showOpenShiftActions, setShowOpenShiftActions] = useState(false);
+  const [showOpenShiftDeleteConfirm, setShowOpenShiftDeleteConfirm] = useState(false);
 
   // Load events from localStorage and listen for updates
   const loadEvents = useCallback(() => {
@@ -304,6 +307,35 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
     toast({ title: "Event deleted" });
     setShowDeleteConfirm(false);
     setSelectedEvent(null);
+  };
+
+  // Open Shift click, edit, delete handlers
+  const handleOpenShiftClick = (os: any, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setSelectedOpenShift(os);
+    setShowOpenShiftActions(true);
+  };
+
+  const handleEditOpenShift = () => {
+    if (!selectedOpenShift) return;
+    setShowOpenShiftActions(false);
+    const params = new URLSearchParams({
+      edit: selectedOpenShift.id,
+      date: selectedOpenShift.date,
+      start_time: selectedOpenShift.startTime,
+    });
+    navigate(`/settings/workforce/shift/add-open-shift?${params.toString()}`);
+  };
+
+  const handleDeleteOpenShift = () => {
+    if (!selectedOpenShift) return;
+    const shifts = JSON.parse(localStorage.getItem("pos_open_shifts") || "[]");
+    const updated = shifts.filter((s: any) => s.id !== selectedOpenShift.id);
+    localStorage.setItem("pos_open_shifts", JSON.stringify(updated));
+    window.dispatchEvent(new Event("open-shifts-updated"));
+    toast({ title: "Open shift deleted" });
+    setShowOpenShiftDeleteConfirm(false);
+    setSelectedOpenShift(null);
   };
 
   // Drag and drop handlers
@@ -550,6 +582,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                         key={os.id}
                         draggable={!isPast}
                         onDragStart={(e) => handleOpenShiftDragStart(e, os)}
+                        onClick={(e) => handleOpenShiftClick(os, e)}
                         className={`w-full rounded-md px-1.5 py-1 border cursor-grab active:cursor-grabbing hover:ring-1 hover:ring-white/20 transition-all ${colors.bg} ${colors.border}`}
                       >
                         <span className={`text-[10px] font-semibold ${colors.text} block truncate`}>{os.shiftName}</span>
@@ -790,6 +823,58 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
         onConfirm={handleDeleteEvent}
         title="Delete Event"
         description={`Are you sure you want to delete "${selectedEvent?.title}"? This action cannot be undone.`}
+        cancelText="Cancel"
+        confirmText="Delete"
+      />
+
+      {/* Open Shift Action Sheet */}
+      {showOpenShiftActions && selectedOpenShift && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={() => setShowOpenShiftActions(false)}>
+          <div className="absolute inset-0 bg-black/60" />
+          <div className="relative" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-[#2C2C2E]/95 backdrop-blur-xl rounded-[14px] w-[270px] overflow-hidden shadow-2xl">
+              <div className="pt-5 pb-4 px-4 space-y-1">
+                <h3 className="text-[17px] font-semibold text-white text-center tracking-[-0.4px]">{selectedOpenShift.shiftName}</h3>
+                <p className="text-[13px] text-[#EBEBF599] text-center leading-[18px]">
+                  {selectedOpenShift.startTime} - {selectedOpenShift.endTime}
+                </p>
+              </div>
+              <div className="border-t border-[#545458]/50">
+                <button
+                  onClick={handleEditOpenShift}
+                  className="w-full h-11 text-[17px] font-normal text-[#0A84FF] tracking-[-0.4px] hover:bg-[#545458]/30 transition-colors"
+                >
+                  Edit
+                </button>
+              </div>
+              <div className="border-t border-[#545458]/50">
+                <button
+                  onClick={() => { setShowOpenShiftActions(false); setShowOpenShiftDeleteConfirm(true); }}
+                  className="w-full h-11 text-[17px] font-normal text-[#FF453A] tracking-[-0.4px] hover:bg-[#545458]/30 transition-colors"
+                >
+                  Delete
+                </button>
+              </div>
+              <div className="border-t border-[#545458]/50">
+                <button
+                  onClick={() => setShowOpenShiftActions(false)}
+                  className="w-full h-11 text-[17px] font-semibold text-white/70 tracking-[-0.4px] hover:bg-[#545458]/30 transition-colors"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Open Shift Delete Confirmation */}
+      <AppleAlertDialog
+        open={showOpenShiftDeleteConfirm}
+        onOpenChange={setShowOpenShiftDeleteConfirm}
+        onConfirm={handleDeleteOpenShift}
+        title="Delete Open Shift"
+        description={`Are you sure you want to delete "${selectedOpenShift?.shiftName}"? This action cannot be undone.`}
         cancelText="Cancel"
         confirmText="Delete"
       />

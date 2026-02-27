@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Plus, Mic, Clock, CalendarDays, Maximize2, Minimize2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Plus, Mic, Clock, CalendarDays, Maximize2, Minimize2, SlidersHorizontal, X } from "lucide-react";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays, addMonths, subMonths } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useShiftCards, ShiftCardData } from "@/hooks/use-shift-cards";
@@ -52,6 +52,21 @@ const ShiftContent = ({
   const [showShiftDropdown, setShowShiftDropdown] = useState(false);
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
   const [selectedShifts, setSelectedShifts] = useState<string[]>([]);
+  const [showFilterPopover, setShowFilterPopover] = useState(false);
+  const [filterTab, setFilterTab] = useState<"jobType" | "shift">("jobType");
+  const [filterSearch, setFilterSearch] = useState("");
+  const filterPopoverRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showFilterPopover) return;
+    const handler = (e: MouseEvent) => {
+      if (filterPopoverRef.current && !filterPopoverRef.current.contains(e.target as Node)) {
+        setShowFilterPopover(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showFilterPopover]);
 
   const currentWeek = currentWeekProp ?? localCurrentWeek;
   const setCurrentWeek = setCurrentWeekProp ?? localSetCurrentWeek;
@@ -142,68 +157,117 @@ const ShiftContent = ({
 
         {/* Filters row */}
         <div className="flex items-center gap-2 mb-5 flex-wrap">
-          {/* Job Type dropdown */}
-          <div className="relative">
+          {/* Filter icon */}
+          <div className="relative" ref={filterPopoverRef}>
             <button
-              onClick={() => {setShowJobTypeDropdown(!showJobTypeDropdown);setShowShiftDropdown(false);}}
-              className={`h-10 rounded-full px-4 flex items-center gap-2 border text-sm font-medium transition-colors ${
-              selectedJobTypes.length > 0 ?
-              "bg-foreground text-background border-foreground" :
-              "bg-neutral-800/60 text-foreground border-neutral-700/50"}`
-              }>
-
-              Job Type {selectedJobTypes.length > 0 && `(${selectedJobTypes.length})`}
-              <ChevronRight className="w-3.5 h-3.5 rotate-90" />
+              onClick={() => setShowFilterPopover(!showFilterPopover)}
+              className={`w-10 h-10 rounded-full flex items-center justify-center border transition-colors ${
+                selectedJobTypes.length > 0 || selectedShifts.length > 0
+                  ? "bg-primary text-primary-foreground border-primary"
+                  : "bg-muted/50 text-muted-foreground border-border hover:bg-muted hover:text-foreground"
+              }`}
+              aria-label="Filter"
+            >
+              <SlidersHorizontal className="w-4.5 h-4.5" />
             </button>
-            {showJobTypeDropdown &&
-            <div className="absolute top-12 left-0 z-50 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-lg py-1 min-w-[140px]">
-                {jobTypes.map((jt) =>
-              <button
-                key={jt}
-                onClick={() => toggleJobType(jt)}
-                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                selectedJobTypes.includes(jt) ?
-                "text-foreground bg-neutral-800" :
-                "text-neutral-400 hover:text-foreground hover:bg-neutral-800/50"}`
-                }>
 
-                    {jt}
+            {showFilterPopover && (
+              <div className="absolute top-12 left-0 z-[60] w-[260px] bg-card border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+                {/* Header */}
+                <div className="px-4 pt-3 pb-2 flex items-center justify-between">
+                  <span className="text-sm font-semibold text-foreground">Filter</span>
+                  {(selectedJobTypes.length > 0 || selectedShifts.length > 0) && (
+                    <button
+                      onClick={() => { setSelectedJobTypes([]); setSelectedShifts([]); }}
+                      className="text-[11px] text-destructive font-medium hover:underline"
+                    >
+                      Reset
+                    </button>
+                  )}
+                </div>
+
+                {/* Tab Toggle */}
+                <div className="mx-3 mb-2 flex rounded-lg bg-muted/50 p-0.5">
+                  <button
+                    onClick={() => { setFilterTab("jobType"); setFilterSearch(""); }}
+                    className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-colors ${filterTab === "jobType" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+                  >
+                    Job Type
                   </button>
-              )}
-              </div>
-            }
-          </div>
-
-          {/* Shift dropdown */}
-          <div className="relative">
-            <button
-              onClick={() => {setShowShiftDropdown(!showShiftDropdown);setShowJobTypeDropdown(false);}}
-              className={`h-10 rounded-full px-4 flex items-center gap-2 border text-sm font-medium transition-colors ${
-              selectedShifts.length > 0 ?
-              "bg-foreground text-background border-foreground" :
-              "bg-neutral-800/60 text-foreground border-neutral-700/50"}`
-              }>
-
-              Shift {selectedShifts.length > 0 && `(${selectedShifts.length})`}
-              <ChevronRight className="w-3.5 h-3.5 rotate-90" />
-            </button>
-            {showShiftDropdown &&
-            <div className="absolute top-12 left-0 z-50 bg-neutral-900 border border-neutral-700/50 rounded-xl shadow-lg py-1 min-w-[140px]">
-                {shiftTypes.map((s) =>
-              <button
-                key={s}
-                onClick={() => toggleShift(s)}
-                className={`w-full text-left px-4 py-2.5 text-sm transition-colors ${
-                selectedShifts.includes(s) ?
-                "text-foreground bg-neutral-800" :
-                "text-neutral-400 hover:text-foreground hover:bg-neutral-800/50"}`
-                }>
-
-                    {s}
+                  <button
+                    onClick={() => { setFilterTab("shift"); setFilterSearch(""); }}
+                    className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-colors ${filterTab === "shift" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+                  >
+                    Shift
                   </button>
-              )}
+                </div>
+
+                {/* Search */}
+                <div className="mx-3 mb-2">
+                  <div className="flex items-center gap-2 rounded-lg bg-muted/40 px-2.5 py-1.5">
+                    <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                    <input
+                      type="text"
+                      placeholder={filterTab === "jobType" ? "Filter job types..." : "Filter shifts..."}
+                      value={filterSearch}
+                      onChange={(e) => setFilterSearch(e.target.value)}
+                      className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none"
+                    />
+                    {filterSearch && (
+                      <button onClick={() => setFilterSearch("")}>
+                        <X className="w-3 h-3 text-muted-foreground" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* List */}
+                <div className="max-h-[240px] overflow-y-auto scrollbar-hide">
+                  {filterTab === "jobType" ? (
+                    <>
+                      <button
+                        onClick={() => setSelectedJobTypes([])}
+                        className={`w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-colors hover:bg-muted/30 ${selectedJobTypes.length === 0 ? "bg-muted/20 text-foreground font-medium" : "text-foreground"}`}
+                      >
+                        All Job Types
+                      </button>
+                      {jobTypes
+                        .filter(jt => !filterSearch || jt.toLowerCase().includes(filterSearch.toLowerCase()))
+                        .map(jt => (
+                          <button
+                            key={jt}
+                            onClick={() => toggleJobType(jt)}
+                            className={`w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-colors hover:bg-muted/30 ${selectedJobTypes.includes(jt) ? "bg-muted/20 font-medium" : ""} text-foreground`}
+                          >
+                            {jt}
+                          </button>
+                        ))}
+                    </>
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setSelectedShifts([])}
+                        className={`w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-colors hover:bg-muted/30 ${selectedShifts.length === 0 ? "bg-muted/20 text-foreground font-medium" : "text-foreground"}`}
+                      >
+                        All Shifts
+                      </button>
+                      {shiftTypes
+                        .filter(s => !filterSearch || s.toLowerCase().includes(filterSearch.toLowerCase()))
+                        .map(s => (
+                          <button
+                            key={s}
+                            onClick={() => toggleShift(s)}
+                            className={`w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-colors hover:bg-muted/30 ${selectedShifts.includes(s) ? "bg-muted/20 font-medium" : ""} text-foreground`}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                    </>
+                  )}
+                </div>
+                <div className="h-1" />
               </div>
-            }
+            )}
           </div>
 
           {/* Date Navigation */}
@@ -293,10 +357,6 @@ const ShiftContent = ({
         </div>
       </div>
 
-      {/* Close dropdowns on outside click */}
-      {(showJobTypeDropdown || showShiftDropdown) &&
-      <div className="fixed inset-0 z-40" onClick={() => {setShowJobTypeDropdown(false);setShowShiftDropdown(false);}} />
-      }
     </div>);
 
 };

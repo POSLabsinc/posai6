@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays } from "lucide-react";
+import { ChevronLeft, ChevronRight, Search, Plus, ArrowDownUp, Mic, Clock, CalendarDays, Maximize2, Minimize2 } from "lucide-react";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useShiftCards, ShiftCardData } from "@/hooks/use-shift-cards";
@@ -28,6 +28,7 @@ const ShiftContent = ({
   const [showShiftDropdown, setShowShiftDropdown] = useState(false);
   const [selectedJobTypes, setSelectedJobTypes] = useState<string[]>([]);
   const [selectedShifts, setSelectedShifts] = useState<string[]>([]);
+  const [isExpanded, setIsExpanded] = useState(false);
 
   const weekStart = startOfWeek(currentWeek, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(currentWeek, { weekStartsOn: 0 });
@@ -57,8 +58,8 @@ const ShiftContent = ({
   });
 
   return (
-    <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
-      <div className="px-4 pb-28 flex flex-col h-full">
+    <div className={`h-full overflow-y-auto scrollbar-hide overscroll-contain transition-all duration-300 ${isExpanded ? "absolute inset-0 z-50 bg-background" : ""}`}>
+      <div className={`flex flex-col h-full transition-all duration-300 ${isExpanded ? "px-2 pb-4" : "px-4 pb-28"}`}>
         {/* Header */}
         {showHeader &&
         <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-0">
@@ -79,11 +80,13 @@ const ShiftContent = ({
         }
 
         {/* Description */}
+        {!isExpanded && (
         <div className="mb-4 px-1 pt-2">
           <p className="text-sm text-muted-foreground leading-relaxed">
             Refers to a scheduled period during which a specific group of employees works, ensuring continuous operations and productivity.
           </p>
         </div>
+        )}
 
         {/* Search + Add row */}
         <div className="flex items-center gap-2 mb-4">
@@ -214,6 +217,15 @@ const ShiftContent = ({
             )}
           </div>
 
+          {/* Expand/Collapse */}
+          <button
+            onClick={() => setIsExpanded(!isExpanded)}
+            className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50 transition-colors hover:bg-neutral-700/60"
+            aria-label={isExpanded ? "Collapse view" : "Expand view"}
+          >
+            {isExpanded ? <Minimize2 className="w-4.5 h-4.5 text-foreground" /> : <Maximize2 className="w-4.5 h-4.5 text-foreground" />}
+          </button>
+
           {/* Sort */}
           <button className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50">
             <ArrowDownUp className="w-5 h-5 text-foreground" />
@@ -221,7 +233,7 @@ const ShiftContent = ({
         </div>
 
         {/* Shift Views — wrapped in a visually distinct container */}
-        <div className="rounded-2xl border border-border/60 bg-muted/30 backdrop-blur-sm">
+        <div className={`rounded-2xl border border-border/60 bg-muted/30 backdrop-blur-sm transition-all duration-300 ${isExpanded ? "flex-1 min-h-0" : ""}`}>
           {isLoading ?
           <div className="px-4 py-12 text-center text-muted-foreground text-sm">
               Loading shifts...

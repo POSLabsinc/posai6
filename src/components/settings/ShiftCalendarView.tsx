@@ -128,7 +128,9 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
   const [dragOverCell, setDragOverCell] = useState<string | null>(null);
   const [hoveredCell, setHoveredCell] = useState<string | null>(null);
   const [hoveredEventCell, setHoveredEventCell] = useState<string | null>(null);
+  const [hoveredOpenShiftCell, setHoveredOpenShiftCell] = useState<string | null>(null);
   const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+  const [openShifts, setOpenShifts] = useState<any[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
   const [showEventActions, setShowEventActions] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
@@ -142,6 +144,22 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
   }, []);
 
   useEffect(() => { loadEvents(); }, [loadEvents]);
+
+  // Load open shifts from localStorage and listen for updates
+  const loadOpenShifts = useCallback(() => {
+    try {
+      const raw = localStorage.getItem("pos_open_shifts");
+      setOpenShifts(raw ? JSON.parse(raw) : []);
+    } catch { setOpenShifts([]); }
+  }, []);
+
+  useEffect(() => { loadOpenShifts(); }, [loadOpenShifts]);
+
+  useEffect(() => {
+    const handler = () => loadOpenShifts();
+    window.addEventListener("open-shifts-updated", handler);
+    return () => window.removeEventListener("open-shifts-updated", handler);
+  }, [loadOpenShifts]);
 
   useEffect(() => {
     const handler = () => loadEvents();
@@ -428,10 +446,43 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
             <div className="flex-shrink-0 px-4 py-3 flex items-center border-r border-calendar-border" style={{ width: NAME_COL_W }}>
               <span className="text-sm font-semibold text-foreground">Open Shifts</span>
             </div>
-            {days.map((_, i) => {
+            {days.map((day, i) => {
               const isToday = dayStrs[i] === todayStr;
+              const isPast = dayStrs[i] < todayStr;
+              const cellKey = `open-shift-${dayStrs[i]}`;
+              const dayOpenShifts = openShifts.filter((os: any) => os.date === dayStrs[i]);
+              const hasOpenShifts = dayOpenShifts.length > 0;
               return (
-                <div key={i} className={`flex-1 border-r border-calendar-border last:border-r-0 ${isToday ? "bg-primary/5" : ""}`} />
+                <div
+                  key={i}
+                  className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 transition-colors ${isToday ? "bg-primary/5" : ""} ${isPast ? "opacity-40" : ""} ${!isPast ? "cursor-pointer hover:bg-muted/20" : ""}`}
+                  onMouseEnter={() => { if (!isPast && !hasOpenShifts) setHoveredOpenShiftCell(cellKey); }}
+                  onMouseLeave={() => setHoveredOpenShiftCell(null)}
+                  onClick={() => {
+                    if (!isPast) {
+                      const params = new URLSearchParams({ date: dayStrs[i], start_time: "09:00" });
+                      navigate(`/settings/workforce/shift/add-open-shift?${params.toString()}`);
+                    }
+                  }}
+                >
+                  {hasOpenShifts ? dayOpenShifts.map((os: any, oi: number) => {
+                    const colors = getEventColor(oi);
+                    return (
+                      <div
+                        key={os.id}
+                        className={`w-full rounded-md px-1.5 py-1 border cursor-pointer hover:ring-1 hover:ring-white/20 transition-all ${colors.bg} ${colors.border}`}
+                      >
+                        <span className={`text-[10px] font-semibold ${colors.text} block truncate`}>{os.shiftName}</span>
+                        <span className={`text-[10px] ${colors.textSub} block truncate`}>{os.startTime} - {os.endTime}</span>
+                      </div>
+                    );
+                  }) : (!isPast && hoveredOpenShiftCell === cellKey && (
+                    <div className="w-full text-center rounded-md px-2 py-1.5 border border-dashed border-primary/30 bg-primary/5 transition-all animate-in fade-in-0 duration-150">
+                      <span className="text-[10px] font-medium text-primary block">No Open Shift</span>
+                      <span className="text-[10px] text-primary/70 block">{(() => { const s = SettingsManager.getControlCenterSettings(); return `${s.businessHoursStart} - ${s.businessHoursEnd}`; })()}</span>
+                    </div>
+                  ))}
+                </div>
               );
             })}
           </div>

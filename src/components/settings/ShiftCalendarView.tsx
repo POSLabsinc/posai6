@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import { format, startOfWeek, addDays } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -93,6 +93,28 @@ const formatTime12 = (t: string | null): string => {
   return `${h12}:${(m || 0).toString().padStart(2, "0")} ${ampm}`;
 };
 
+interface CalendarEvent {
+  id: string;
+  title: string;
+  description: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  multiDay: boolean;
+  endDate: string | null;
+  repeat: string;
+}
+
+const EVENT_COLORS = [
+  { bg: "bg-violet-500/15", border: "border-violet-500/40", text: "text-violet-400", textSub: "text-violet-400/70" },
+  { bg: "bg-cyan-500/15", border: "border-cyan-500/40", text: "text-cyan-400", textSub: "text-cyan-400/70" },
+  { bg: "bg-pink-500/15", border: "border-pink-500/40", text: "text-pink-400", textSub: "text-pink-400/70" },
+  { bg: "bg-amber-500/15", border: "border-amber-500/40", text: "text-amber-400", textSub: "text-amber-400/70" },
+  { bg: "bg-emerald-500/15", border: "border-emerald-500/40", text: "text-emerald-400", textSub: "text-emerald-400/70" },
+];
+
+const getEventColor = (index: number) => EVENT_COLORS[index % EVENT_COLORS.length];
+
 const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarViewProps) => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -105,6 +127,46 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
   const [dragOverCell, setDragOverCell] = useState<string | null>(null);
   const [hoveredCell, setHoveredCell] = useState<string | null>(null);
   const [hoveredEventCell, setHoveredEventCell] = useState<string | null>(null);
+  const [calendarEvents, setCalendarEvents] = useState<CalendarEvent[]>([]);
+
+  // Load events from localStorage and listen for updates
+  const loadEvents = useCallback(() => {
+    try {
+      const raw = localStorage.getItem("pos_events");
+      setCalendarEvents(raw ? JSON.parse(raw) : []);
+    } catch { setCalendarEvents([]); }
+  }, []);
+
+  useEffect(() => { loadEvents(); }, [loadEvents]);
+
+  useEffect(() => {
+    const handler = () => loadEvents();
+    window.addEventListener("events-updated", handler);
+    return () => window.removeEventListener("events-updated", handler);
+  }, [loadEvents]);
+
+  // Get events for a specific date (including multi-day and repeating)
+  const getEventsForDate = useCallback((dateStr: string): CalendarEvent[] => {
+    return calendarEvents.filter((ev) => {
+      // Direct match
+      if (ev.date === dateStr) return true;
+      // Multi-day range
+      if (ev.multiDay && ev.endDate && ev.date <= dateStr && ev.endDate >= dateStr) return true;
+      // Repeat logic
+      if (ev.repeat === "Daily" && ev.date <= dateStr) return true;
+      if (ev.repeat === "Weekly" && ev.date <= dateStr) {
+        const evDay = new Date(ev.date + "T00:00:00").getDay();
+        const targetDay = new Date(dateStr + "T00:00:00").getDay();
+        if (evDay === targetDay) return true;
+      }
+      if (ev.repeat === "Monthly" && ev.date <= dateStr) {
+        const evDate = new Date(ev.date + "T00:00:00").getDate();
+        const targetDate = new Date(dateStr + "T00:00:00").getDate();
+        if (evDate === targetDate) return true;
+      }
+      return false;
+    });
+  }, [calendarEvents]);
 
   const startStr = dayStrs[0];
   const endStr = dayStrs[6];
@@ -291,11 +353,13 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
               const isToday = dayStrs[i] === todayStr;
               const isPast = dayStrs[i] < todayStr;
               const cellKey = `event-${dayStrs[i]}`;
+              const dayEvents = getEventsForDate(dayStrs[i]);
+              const hasEvents = dayEvents.length > 0;
               return (
                 <div
                   key={i}
-                  className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex items-center justify-center transition-colors ${isToday ? "bg-primary/5" : ""} ${isPast ? "opacity-40" : ""} ${!isPast ? "cursor-pointer hover:bg-muted/20" : ""}`}
-                  onMouseEnter={() => { if (!isPast) setHoveredEventCell(cellKey); }}
+                  className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 transition-colors ${isToday ? "bg-primary/5" : ""} ${isPast ? "opacity-40" : ""} ${!isPast ? "cursor-pointer hover:bg-muted/20" : ""}`}
+                  onMouseEnter={() => { if (!isPast && !hasEvents) setHoveredEventCell(cellKey); }}
                   onMouseLeave={() => setHoveredEventCell(null)}
                   onClick={() => {
                     if (!isPast) {
@@ -304,12 +368,20 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                     }
                   }}
                 >
-                  {!isPast && hoveredEventCell === cellKey && (
+                  {hasEvents ? dayEvents.map((ev, ei) => {
+                    const colors = getEventColor(ei);
+                    return (
+                      <div key={ev.id + ei} className={`w-full rounded-md px-1.5 py-1 border ${colors.bg} ${colors.border}`}>
+                        <span className={`text-[10px] font-semibold ${colors.text} block truncate`}>{ev.title}</span>
+                        <span className={`text-[10px] ${colors.textSub} block truncate`}>{ev.startTime} - {ev.endTime}</span>
+                      </div>
+                    );
+                  }) : (!isPast && hoveredEventCell === cellKey && (
                     <div className="w-full text-center rounded-md px-2 py-1.5 border border-dashed border-primary/30 bg-primary/5 transition-all animate-in fade-in-0 duration-150">
                       <span className="text-[10px] font-medium text-primary block">No Event</span>
                       <span className="text-[10px] text-primary/70 block">{(() => { const s = SettingsManager.getControlCenterSettings(); return `${s.businessHoursStart} - ${s.businessHoursEnd}`; })()}</span>
                     </div>
-                  )}
+                  ))}
                 </div>
               );
             })}

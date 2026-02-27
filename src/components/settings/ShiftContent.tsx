@@ -350,7 +350,7 @@ const ShiftContent = ({
         </div>
 
         {/* Shift Views — wrapped in a visually distinct container */}
-        <div className={`rounded-2xl border border-border/60 bg-muted/30 backdrop-blur-sm transition-all duration-300 ${isExpanded ? "flex-1 min-h-0" : ""}`}>
+        <div id="shift-print-area" className={`rounded-2xl border border-border/60 bg-muted/30 backdrop-blur-sm transition-all duration-300 ${isExpanded ? "flex-1 min-h-0" : ""}`}>
           {isLoading ?
           <div className="px-4 py-12 text-center text-muted-foreground text-sm">
               Loading shifts...

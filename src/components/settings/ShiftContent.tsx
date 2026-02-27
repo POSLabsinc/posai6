@@ -325,6 +325,7 @@ const ShiftContent = ({
               <Download className="w-4.5 h-4.5 text-foreground" />
             </button>
             <button
+              onClick={() => window.print()}
               className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50 transition-colors hover:bg-neutral-700/60"
               aria-label="Print"
             >

@@ -3,7 +3,8 @@ import { format, startOfWeek, addDays } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight, SlidersHorizontal, Search, Users, X } from "lucide-react";
+import { ChevronRight, Search, Users, X } from "lucide-react";
+import filterIcon from "@/assets/icons/filter-icon.png";
 import { ShiftCardData } from "@/hooks/use-shift-cards";
 import { toast } from "@/hooks/use-toast";
 import { SettingsManager } from "@/lib/settingsManager";
@@ -535,7 +536,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick, toolbarJobTypes =
                   className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${hasActiveFilters ? "bg-primary text-primary-foreground" : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"}`}
                   aria-label="Filter"
                 >
-                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                  <img src={filterIcon} alt="Filter" className="w-3.5 h-3.5 invert" />
                 </button>
 
                 {/* Filter Popover */}

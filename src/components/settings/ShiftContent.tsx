@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { ChevronLeft, ChevronRight, Search, Plus, Mic, Clock, CalendarDays, Maximize2, Minimize2, X } from "lucide-react";
-import filterIcon from "@/assets/icons/filter-icon.png";
+import { ChevronLeft, ChevronRight, Search, Plus, Mic, Clock, CalendarDays, Maximize2, Minimize2, SlidersHorizontal, X } from "lucide-react";
 import { format, addWeeks, subWeeks, startOfWeek, endOfWeek, addDays, subDays, addMonths, subMonths } from "date-fns";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useShiftCards, ShiftCardData } from "@/hooks/use-shift-cards";
@@ -169,7 +168,7 @@ const ShiftContent = ({
               }`}
               aria-label="Filter"
             >
-              <img src={filterIcon} alt="Filter" className="w-4.5 h-4.5 invert" />
+              <SlidersHorizontal className="w-4.5 h-4.5" />
             </button>
 
             {showFilterPopover && (

@@ -355,6 +355,76 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
     }
   }, [queryClient]);
 
+  // Event drag and drop
+  const handleEventDragStart = useCallback((e: React.DragEvent, ev: CalendarEvent) => {
+    e.stopPropagation();
+    e.dataTransfer.setData("application/json", JSON.stringify({ type: "event", eventId: ev.id, fromDate: ev.date }));
+    e.dataTransfer.effectAllowed = "move";
+  }, []);
+
+  const handleEventDragOver = useCallback((e: React.DragEvent, dateStr: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverCell(`event-${dateStr}`);
+  }, []);
+
+  const handleEventDrop = useCallback((e: React.DragEvent, targetDate: string) => {
+    e.preventDefault();
+    setDragOverCell(null);
+    try {
+      const data = JSON.parse(e.dataTransfer.getData("application/json"));
+      if (data.type !== "event") return;
+      const { eventId, fromDate } = data;
+      if (fromDate === targetDate) return;
+
+      const events = JSON.parse(localStorage.getItem("pos_events") || "[]");
+      const updated = events.map((ev: any) => {
+        if (ev.id !== eventId) return ev;
+        const dayDiff = (new Date(targetDate + "T00:00:00").getTime() - new Date(fromDate + "T00:00:00").getTime()) / (1000 * 60 * 60 * 24);
+        const newEv = { ...ev, date: targetDate };
+        if (ev.multiDay && ev.endDate) {
+          const newEnd = new Date(ev.endDate + "T00:00:00");
+          newEnd.setDate(newEnd.getDate() + dayDiff);
+          newEv.endDate = format(newEnd, "yyyy-MM-dd");
+        }
+        return newEv;
+      });
+      localStorage.setItem("pos_events", JSON.stringify(updated));
+      window.dispatchEvent(new Event("events-updated"));
+      toast({ title: `Event moved to ${format(new Date(targetDate + "T00:00:00"), "EEE, MMM d")}` });
+    } catch { toast({ title: "Failed to move event", variant: "destructive" }); }
+  }, []);
+
+  // Open Shift drag and drop
+  const handleOpenShiftDragStart = useCallback((e: React.DragEvent, os: any) => {
+    e.stopPropagation();
+    e.dataTransfer.setData("application/json", JSON.stringify({ type: "openshift", openShiftId: os.id, fromDate: os.date }));
+    e.dataTransfer.effectAllowed = "move";
+  }, []);
+
+  const handleOpenShiftDragOver = useCallback((e: React.DragEvent, dateStr: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverCell(`openshift-${dateStr}`);
+  }, []);
+
+  const handleOpenShiftDrop = useCallback((e: React.DragEvent, targetDate: string) => {
+    e.preventDefault();
+    setDragOverCell(null);
+    try {
+      const data = JSON.parse(e.dataTransfer.getData("application/json"));
+      if (data.type !== "openshift") return;
+      const { openShiftId, fromDate } = data;
+      if (fromDate === targetDate) return;
+
+      const shifts = JSON.parse(localStorage.getItem("pos_open_shifts") || "[]");
+      const updated = shifts.map((s: any) => s.id === openShiftId ? { ...s, date: targetDate } : s);
+      localStorage.setItem("pos_open_shifts", JSON.stringify(updated));
+      window.dispatchEvent(new Event("open-shifts-updated"));
+      toast({ title: `Open shift moved to ${format(new Date(targetDate + "T00:00:00"), "EEE, MMM d")}` });
+    } catch { toast({ title: "Failed to move open shift", variant: "destructive" }); }
+  }, []);
+
   const NAME_COL_W = 160;
 
   if (isLoading) {
@@ -408,9 +478,12 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
               return (
                 <div
                   key={i}
-                  className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 transition-colors ${isToday ? "bg-primary/5" : ""} ${isPast ? "opacity-40" : ""} ${!isPast ? "cursor-pointer hover:bg-muted/20" : ""}`}
+                  className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 transition-colors ${isToday ? "bg-primary/5" : ""} ${isPast ? "opacity-40" : ""} ${!isPast ? "cursor-pointer hover:bg-muted/20" : ""} ${dragOverCell === `event-${dayStrs[i]}` ? "bg-primary/10 ring-2 ring-inset ring-primary/30" : ""}`}
                   onMouseEnter={() => { if (!isPast && !hasEvents) setHoveredEventCell(cellKey); }}
                   onMouseLeave={() => setHoveredEventCell(null)}
+                  onDragOver={!isPast ? (e) => handleEventDragOver(e, dayStrs[i]) : undefined}
+                  onDragLeave={() => { setDragOverCell(null); setHoveredEventCell(null); }}
+                  onDrop={!isPast ? (e) => handleEventDrop(e, dayStrs[i]) : undefined}
                   onClick={() => {
                     if (!isPast) {
                       const params = new URLSearchParams({ date: dayStrs[i], start_time: "09:00" });
@@ -423,8 +496,10 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                     return (
                       <div
                         key={ev.id + ei}
+                        draggable={!isPast}
+                        onDragStart={(e) => handleEventDragStart(e, ev)}
                         onClick={(e) => handleEventClick(ev, e)}
-                        className={`w-full rounded-md px-1.5 py-1 border cursor-pointer hover:ring-1 hover:ring-white/20 transition-all ${colors.bg} ${colors.border}`}
+                        className={`w-full rounded-md px-1.5 py-1 border cursor-grab active:cursor-grabbing hover:ring-1 hover:ring-white/20 transition-all ${colors.bg} ${colors.border}`}
                       >
                         <span className={`text-[10px] font-semibold ${colors.text} block truncate`}>{ev.title}</span>
                         <span className={`text-[10px] ${colors.textSub} block truncate`}>{ev.startTime} - {ev.endTime}</span>
@@ -455,9 +530,12 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
               return (
                 <div
                   key={i}
-                  className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 transition-colors ${isToday ? "bg-primary/5" : ""} ${isPast ? "opacity-40" : ""} ${!isPast ? "cursor-pointer hover:bg-muted/20" : ""}`}
+                  className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex flex-col justify-center gap-0.5 transition-colors ${isToday ? "bg-primary/5" : ""} ${isPast ? "opacity-40" : ""} ${!isPast ? "cursor-pointer hover:bg-muted/20" : ""} ${dragOverCell === `openshift-${dayStrs[i]}` ? "bg-primary/10 ring-2 ring-inset ring-primary/30" : ""}`}
                   onMouseEnter={() => { if (!isPast && !hasOpenShifts) setHoveredOpenShiftCell(cellKey); }}
                   onMouseLeave={() => setHoveredOpenShiftCell(null)}
+                  onDragOver={!isPast ? (e) => handleOpenShiftDragOver(e, dayStrs[i]) : undefined}
+                  onDragLeave={() => { setDragOverCell(null); setHoveredOpenShiftCell(null); }}
+                  onDrop={!isPast ? (e) => handleOpenShiftDrop(e, dayStrs[i]) : undefined}
                   onClick={() => {
                     if (!isPast) {
                       const params = new URLSearchParams({ date: dayStrs[i], start_time: "09:00" });
@@ -470,7 +548,9 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                     return (
                       <div
                         key={os.id}
-                        className={`w-full rounded-md px-1.5 py-1 border cursor-pointer hover:ring-1 hover:ring-white/20 transition-all ${colors.bg} ${colors.border}`}
+                        draggable={!isPast}
+                        onDragStart={(e) => handleOpenShiftDragStart(e, os)}
+                        className={`w-full rounded-md px-1.5 py-1 border cursor-grab active:cursor-grabbing hover:ring-1 hover:ring-white/20 transition-all ${colors.bg} ${colors.border}`}
                       >
                         <span className={`text-[10px] font-semibold ${colors.text} block truncate`}>{os.shiftName}</span>
                         <span className={`text-[10px] ${colors.textSub} block truncate`}>{os.startTime} - {os.endTime}</span>

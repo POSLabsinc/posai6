@@ -189,9 +189,11 @@ const AddShiftContent = ({ showHeader = true, onBack }: AddShiftContentProps) =>
   const MAX_NOTE_WORDS = 1000;
   const wordCount = shiftNote.trim() ? shiftNote.trim().split(/\s+/).length : 0;
 
+  const isFormEmpty = !shiftName.trim() && !shiftType && !jobRole && !shiftNote.trim();
+
   const handleCreate = async () => {
-    // If no data entered, just go back without saving
-    if (!shiftName.trim() && selectedEmployeeIds.length === 0) {
+    // If no meaningful data entered by user, just go back without saving
+    if (isFormEmpty) {
       goBack();
       return;
     }

@@ -12,12 +12,14 @@ interface ShiftContentProps {
   showHeader?: boolean;
   onBack?: () => void;
   onAIClick?: () => void;
+  onExpandChange?: (expanded: boolean) => void;
 }
 
 const ShiftContent = ({
   showHeader = true,
   onBack,
-  onAIClick
+  onAIClick,
+  onExpandChange
 }: ShiftContentProps) => {
   const navigate = useNavigate();
   const [currentWeek, setCurrentWeek] = useState<Date>(new Date());
@@ -219,7 +221,7 @@ const ShiftContent = ({
 
           {/* Expand/Collapse */}
           <button
-            onClick={() => setIsExpanded(!isExpanded)}
+            onClick={() => { const next = !isExpanded; setIsExpanded(next); onExpandChange?.(next); }}
             className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50 transition-colors hover:bg-neutral-700/60"
             aria-label={isExpanded ? "Collapse view" : "Expand view"}
           >

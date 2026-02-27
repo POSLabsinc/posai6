@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import SettingsNavigation from "@/components/SettingsNavigation";
 
@@ -79,7 +79,8 @@ const getContentForRoute = (
   navigate: (path: string) => void, 
   locationState: any,
   showAIChat: boolean,
-  setShowAIChat: (show: boolean) => void
+  setShowAIChat: (show: boolean) => void,
+  onShiftExpandChange?: (expanded: boolean) => void
 ) => {
   // If AI chat is active, show it in the right panel
   if (showAIChat) {
@@ -304,7 +305,7 @@ const getContentForRoute = (
     return <AddEmployeeContent showHeader={true} onBack={() => navigate('/settings/workforce/employee')} />;
   }
   if (pathname === '/settings/workforce/shift') {
-    return <ShiftContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} />;
+    return <ShiftContent showHeader={true} onBack={() => navigate('/settings/workforce')} onAIClick={() => setShowAIChat(true)} onExpandChange={onShiftExpandChange} />;
   }
   if (pathname === '/settings/workforce/shift/add') {
     return <AddShiftContent showHeader={true} onBack={() => navigate('/settings/workforce/shift')} />;
@@ -321,6 +322,14 @@ const Settings = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   const [showAIChat, setShowAIChat] = useState(false);
+  const [isShiftExpanded, setIsShiftExpanded] = useState(false);
+
+  // Reset shift expanded when navigating away
+  useEffect(() => {
+    if (location.pathname !== '/settings/workforce/shift') {
+      setIsShiftExpanded(false);
+    }
+  }, [location.pathname]);
 
   const handleUserProfileClick = () => {
     setShowAIChat(false); // Close AI chat when navigating
@@ -379,13 +388,13 @@ const Settings = () => {
   const isGuestBook = location.pathname === '/settings/guest-book';
   const isNotifications = location.pathname.startsWith('/settings/notifications/all') || location.pathname.startsWith('/settings/notifications/detail/');
 
-  // Full-screen mode: hide sidebar for Guest Book and Notifications
-  if (!isMobile && (isGuestBook || isNotifications)) {
+  // Full-screen mode: hide sidebar for Guest Book, Notifications, and expanded Shift
+  if (!isMobile && (isGuestBook || isNotifications || isShiftExpanded)) {
     return (
       <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden">
         <div className="flex flex-1 h-full overflow-hidden">
           <div className="w-full h-full overflow-y-auto scrollbar-hide">
-            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat)}
+            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded)}
           </div>
         </div>
       </div>
@@ -408,7 +417,7 @@ const Settings = () => {
       {!isMobile && (
         <div className="flex flex-1 h-full overflow-hidden">
           <div className="w-full h-full overflow-y-auto scrollbar-hide">
-            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat)}
+            {getContentForRoute(location.pathname, navigate, location.state, showAIChat, setShowAIChat, setIsShiftExpanded)}
           </div>
         </div>
       )}

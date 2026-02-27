@@ -104,6 +104,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
   const [expandedRoles, setExpandedRoles] = useState<Set<string>>(new Set());
   const [dragOverCell, setDragOverCell] = useState<string | null>(null);
   const [hoveredCell, setHoveredCell] = useState<string | null>(null);
+  const [hoveredEventCell, setHoveredEventCell] = useState<string | null>(null);
 
   const startStr = dayStrs[0];
   const endStr = dayStrs[6];
@@ -289,17 +290,27 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
             {days.map((day, i) => {
               const isToday = dayStrs[i] === todayStr;
               const isPast = dayStrs[i] < todayStr;
+              const cellKey = `event-${dayStrs[i]}`;
               return (
                 <div
                   key={i}
-                  className={`flex-1 border-r border-calendar-border last:border-r-0 ${isToday ? "bg-primary/5" : ""} ${!isPast ? "cursor-pointer hover:bg-accent/20 transition-colors" : ""}`}
+                  className={`flex-1 border-r border-calendar-border last:border-r-0 p-1 flex items-center justify-center transition-colors ${isToday ? "bg-primary/5" : ""} ${isPast ? "opacity-40" : ""} ${!isPast ? "cursor-pointer hover:bg-muted/20" : ""}`}
+                  onMouseEnter={() => { if (!isPast) setHoveredEventCell(cellKey); }}
+                  onMouseLeave={() => setHoveredEventCell(null)}
                   onClick={() => {
                     if (!isPast) {
                       const params = new URLSearchParams({ date: dayStrs[i], start_time: "09:00" });
                       navigate(`/settings/workforce/shift/add-event?${params.toString()}`);
                     }
                   }}
-                />
+                >
+                  {!isPast && hoveredEventCell === cellKey && (
+                    <div className="w-full text-center rounded-md px-2 py-1.5 border border-dashed border-primary/30 bg-primary/5 transition-all animate-in fade-in-0 duration-150">
+                      <span className="text-[10px] font-medium text-primary block">No Event</span>
+                      <span className="text-[10px] text-primary/70 block">{format(day, "MMM d")}</span>
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>

@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useRef } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { format, startOfWeek, addDays } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { ChevronRight } from "lucide-react";
 import { ShiftCardData } from "@/hooks/use-shift-cards";
 import { toast } from "@/hooks/use-toast";
+import { SettingsManager } from "@/lib/settingsManager";
 
 interface ShiftCalendarViewProps {
   cards: ShiftCardData[];
@@ -369,12 +370,15 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
                             isDropTarget ? "bg-primary/10 ring-2 ring-inset ring-primary/30" : ""
                           } ${dayShifts.length === 0 && !isPast ? "cursor-pointer hover:bg-muted/20" : ""}`}
                         >
-                          {dayShifts.length === 0 && !isPast && hoveredCell === `${emp.id}-${dateStr}` && (
-                            <div className="w-full text-center rounded-md px-2 py-1.5 border border-dashed border-primary/30 bg-primary/5 transition-all animate-in fade-in-0 duration-150">
-                              <span className="text-[10px] font-medium text-primary block">Available</span>
-                              <span className="text-[10px] text-primary/70 block">9:00 AM - 10:00 PM</span>
-                            </div>
-                          )}
+                          {dayShifts.length === 0 && !isPast && hoveredCell === `${emp.id}-${dateStr}` && (() => {
+                            const settings = SettingsManager.getControlCenterSettings();
+                            return (
+                              <div className="w-full text-center rounded-md px-2 py-1.5 border border-dashed border-primary/30 bg-primary/5 transition-all animate-in fade-in-0 duration-150">
+                                <span className="text-[10px] font-medium text-primary block">Available</span>
+                                <span className="text-[10px] text-primary/70 block">{settings.businessHoursStart} - {settings.businessHoursEnd}</span>
+                              </div>
+                            );
+                          })()}
                           {dayShifts.map((s) => {
                             const shiftRole = s.job_type || s.shift_type || group.role;
                             const colors = isPast

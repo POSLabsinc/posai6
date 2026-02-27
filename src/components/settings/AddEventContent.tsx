@@ -210,27 +210,23 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
       {/* Scrollable content */}
       <div className="flex-1 overflow-y-auto scrollbar-hide pb-6">
         {/* Main fields card */}
-        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
+        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden">
           {/* Event Title */}
-          <div className="px-4 py-3.5">
-            <div className="flex items-center justify-between">
-              <span className="text-sm text-foreground font-medium">Event Title</span>
-              <input
-                type="text"
-                placeholder="Enter"
-                value={eventTitle}
-                onChange={(e) => setEventTitle(e.target.value)}
-                className="text-right text-sm text-neutral-400 placeholder:text-neutral-500 bg-transparent outline-none w-40"
-              />
-            </div>
-            <p className="text-[11px] text-neutral-500 mt-1">Name of the event, e.g. "Staff Meeting" or "Holiday"</p>
+          <div className="flex items-center justify-between px-4 py-3.5">
+            <span className="text-sm text-foreground font-medium">Event Title</span>
+            <input
+              type="text"
+              placeholder="Enter"
+              value={eventTitle}
+              onChange={(e) => setEventTitle(e.target.value)}
+              className="text-right text-sm text-neutral-400 placeholder:text-neutral-500 bg-transparent outline-none w-40"
+            />
           </div>
           <Divider />
 
           {/* Description */}
           <div className="px-4 py-3.5">
-            <span className="text-sm text-foreground font-medium mb-1 block">Description</span>
-            <p className="text-[11px] text-neutral-500 mb-2">Add extra details or notes about this event (optional)</p>
+            <span className="text-sm text-foreground font-medium mb-2 block">Description</span>
             <textarea
               placeholder="Enter event description (optional)..."
               value={description}
@@ -240,25 +236,23 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
             />
           </div>
         </div>
+        <p className="text-[11px] text-neutral-500 mx-5 mt-1.5 mb-4">Enter the event name and an optional description with extra details or notes</p>
 
         {/* Date & Time card */}
-        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
+        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden">
           {/* Date */}
-          <div>
-            <button
-              onClick={() => setShowCalendar(!showCalendar)}
-              className="flex items-center justify-between w-full px-4 py-3.5"
-            >
-              <span className="text-sm text-foreground font-medium">Date</span>
-              <div className="flex items-center gap-1">
-                <span className="text-sm text-neutral-400">
-                  {eventDate ? format(eventDate, "MM/dd/yyyy") : "Select"}
-                </span>
-                <CalendarIcon className="w-4 h-4 text-neutral-500 shrink-0" />
-              </div>
-            </button>
-            <FieldHint text="The date when this event takes place" />
-          </div>
+          <button
+            onClick={() => setShowCalendar(!showCalendar)}
+            className="flex items-center justify-between w-full px-4 py-3.5"
+          >
+            <span className="text-sm text-foreground font-medium">Date</span>
+            <div className="flex items-center gap-1">
+              <span className="text-sm text-neutral-400">
+                {eventDate ? format(eventDate, "MM/dd/yyyy") : "Select"}
+              </span>
+              <CalendarIcon className="w-4 h-4 text-neutral-500 shrink-0" />
+            </div>
+          </button>
           {showCalendar && (
             <div className="px-2 pb-3 flex justify-center">
               <Calendar
@@ -273,69 +267,58 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
           <Divider />
 
           {/* Start Time */}
-          <div>
-            <button
-              onClick={() => { setShowStartTimePicker(!showStartTimePicker); setShowEndTimePicker(false); }}
-              className="flex items-center justify-between w-full px-4 py-3.5"
-            >
-              <span className="text-sm text-foreground font-medium">Start Time</span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm text-primary">{startTime}</span>
-                <Clock className="w-4 h-4 text-primary shrink-0" />
-              </div>
-            </button>
-            <FieldHint text="When the event begins" />
-          </div>
+          <button
+            onClick={() => { setShowStartTimePicker(!showStartTimePicker); setShowEndTimePicker(false); }}
+            className="flex items-center justify-between w-full px-4 py-3.5"
+          >
+            <span className="text-sm text-foreground font-medium">Start Time</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm text-primary">{startTime}</span>
+              <Clock className="w-4 h-4 text-primary shrink-0" />
+            </div>
+          </button>
           {showStartTimePicker && (
             <CompactTimePicker selectedTime={startTime} onTimeChange={setStartTime} />
           )}
           <Divider />
 
           {/* End Time */}
-          <div>
-            <button
-              onClick={() => { setShowEndTimePicker(!showEndTimePicker); setShowStartTimePicker(false); }}
-              className="flex items-center justify-between w-full px-4 py-3.5"
-            >
-              <span className="text-sm text-foreground font-medium">End Time</span>
-              <div className="flex items-center gap-1.5">
-                <span className="text-sm text-primary">{endTime}</span>
-                <Clock className="w-4 h-4 text-primary shrink-0" />
-              </div>
-            </button>
-            <FieldHint text="When the event ends" />
-          </div>
+          <button
+            onClick={() => { setShowEndTimePicker(!showEndTimePicker); setShowStartTimePicker(false); }}
+            className="flex items-center justify-between w-full px-4 py-3.5"
+          >
+            <span className="text-sm text-foreground font-medium">End Time</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm text-primary">{endTime}</span>
+              <Clock className="w-4 h-4 text-primary shrink-0" />
+            </div>
+          </button>
           {showEndTimePicker && (
             <CompactTimePicker selectedTime={endTime} onTimeChange={setEndTime} />
           )}
         </div>
+        <p className="text-[11px] text-neutral-500 mx-5 mt-1.5 mb-4">Choose the date and start/end times for this event</p>
 
         {/* Multi-Day Event */}
-        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
-          <div>
-            <ToggleRow label="Multi-Day Event" value={multiDay} onChange={() => setMultiDay(!multiDay)} />
-            <FieldHint text="Enable if this event spans across multiple days" />
-          </div>
+        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden">
+          <ToggleRow label="Multi-Day Event" value={multiDay} onChange={() => setMultiDay(!multiDay)} />
 
           {multiDay && (
             <>
               <Divider />
               {/* End Date */}
-              <div>
-                <button
-                  onClick={() => setShowEndCalendar(!showEndCalendar)}
-                  className="flex items-center justify-between w-full px-4 py-3.5"
-                >
-                  <span className="text-sm text-foreground font-medium">End Date</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-sm text-neutral-400">
-                      {endDate ? format(endDate, "MM/dd/yyyy") : "Select"}
-                    </span>
-                    <CalendarIcon className="w-4 h-4 text-neutral-500 shrink-0" />
-                  </div>
-                </button>
-                <FieldHint text="The last day of this multi-day event" />
-              </div>
+              <button
+                onClick={() => setShowEndCalendar(!showEndCalendar)}
+                className="flex items-center justify-between w-full px-4 py-3.5"
+              >
+                <span className="text-sm text-foreground font-medium">End Date</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-sm text-neutral-400">
+                    {endDate ? format(endDate, "MM/dd/yyyy") : "Select"}
+                  </span>
+                  <CalendarIcon className="w-4 h-4 text-neutral-500 shrink-0" />
+                </div>
+              </button>
               {showEndCalendar && (
                 <div className="px-2 pb-3 flex justify-center">
                   <Calendar
@@ -351,37 +334,33 @@ const AddEventContent = ({ showHeader = true, onBack }: AddEventContentProps) =>
               <Divider />
 
               {/* End Time (for multi-day) */}
-              <div>
-                <button
-                  onClick={() => setShowEndDateTimePicker(!showEndDateTimePicker)}
-                  className="flex items-center justify-between w-full px-4 py-3.5"
-                >
-                  <span className="text-sm text-foreground font-medium">End Time</span>
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-sm text-primary">{endDateTime}</span>
-                    <Clock className="w-4 h-4 text-primary shrink-0" />
-                  </div>
-                </button>
-                <FieldHint text="The ending time on the last day" />
-              </div>
+              <button
+                onClick={() => setShowEndDateTimePicker(!showEndDateTimePicker)}
+                className="flex items-center justify-between w-full px-4 py-3.5"
+              >
+                <span className="text-sm text-foreground font-medium">End Time</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-sm text-primary">{endDateTime}</span>
+                  <Clock className="w-4 h-4 text-primary shrink-0" />
+                </div>
+              </button>
               {showEndDateTimePicker && (
                 <CompactTimePicker selectedTime={endDateTime} onTimeChange={setEndDateTime} />
               )}
             </>
           )}
         </div>
+        <p className="text-[11px] text-neutral-500 mx-5 mt-1.5 mb-4">Enable for events spanning multiple days, then set the end date and time</p>
 
         {/* Repeat */}
-        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden mb-4">
-          <div>
-            <FieldRow
-              label="Repeat"
-              value={repeat}
-              onClick={() => setShowRepeatPicker(true)}
-            />
-            <FieldHint text="Set recurrence: Never, Daily, Weekly, or Monthly" />
-          </div>
+        <div className="mx-4 bg-[#26262699] rounded-2xl overflow-hidden">
+          <FieldRow
+            label="Repeat"
+            value={repeat}
+            onClick={() => setShowRepeatPicker(true)}
+          />
         </div>
+        <p className="text-[11px] text-neutral-500 mx-5 mt-1.5 mb-4">Set how often this event recurs: Never, Daily, Weekly, or Monthly</p>
       </div>
 
       {/* Repeat Popup */}

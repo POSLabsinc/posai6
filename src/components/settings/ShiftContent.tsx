@@ -319,7 +319,7 @@ const ShiftContent = ({
           {/* Expand/Collapse */}
           <button
             onClick={() => onExpandChange?.(!isExpanded)}
-            className="w-10 h-10 rounded-xl bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50 transition-colors hover:bg-neutral-700/60"
+            className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 border border-neutral-700/50 transition-colors hover:bg-neutral-700/60"
             aria-label={isExpanded ? "Collapse view" : "Expand view"}
           >
             {isExpanded ? <Minimize2 className="w-4.5 h-4.5 text-foreground" /> : <Maximize2 className="w-4.5 h-4.5 text-foreground" />}

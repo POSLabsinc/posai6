@@ -98,6 +98,8 @@ export interface ControlCenterSettings {
   hideEmployeeFeedback: boolean;
   hideSeatSelector: boolean;
   resetTablesDaily: boolean;
+  businessHoursStart: string;
+  businessHoursEnd: string;
 }
 
 export interface CheckoutOptionsSettings {
@@ -182,6 +184,8 @@ const defaultControlCenterSettings: ControlCenterSettings = {
   hideEmployeeFeedback: false,
   hideSeatSelector: false,
   resetTablesDaily: false,
+  businessHoursStart: "6:00 AM",
+  businessHoursEnd: "1:00 AM",
 };
 
 const defaultCheckoutOptionsSettings: CheckoutOptionsSettings = {
@@ -1930,6 +1934,8 @@ export function executeIntent(intent: SettingsIntent): { success: boolean; messa
         hideEmployeeFeedback: "Hide Employee Feedback",
         hideSeatSelector: "Hide Seat Selector",
         resetTablesDaily: "Reset Tables Daily",
+        businessHoursStart: "Business Hours Start",
+        businessHoursEnd: "Business Hours End",
       };
       const label = settingLabels[intent.setting] || intent.setting;
       return {

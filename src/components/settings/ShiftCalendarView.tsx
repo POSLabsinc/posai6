@@ -1,9 +1,9 @@
-import { useState, useMemo, useCallback, useEffect } from "react";
+import { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { format, startOfWeek, addDays } from "date-fns";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, SlidersHorizontal, Search, Users, X } from "lucide-react";
 import { ShiftCardData } from "@/hooks/use-shift-cards";
 import { toast } from "@/hooks/use-toast";
 import { SettingsManager } from "@/lib/settingsManager";
@@ -138,6 +138,28 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
   const [showOpenShiftActions, setShowOpenShiftActions] = useState(false);
   const [showOpenShiftDeleteConfirm, setShowOpenShiftDeleteConfirm] = useState(false);
 
+  // Filter state
+  const [showFilter, setShowFilter] = useState(false);
+  const [filterTab, setFilterTab] = useState<"team" | "jobs">("team");
+  const [filterSearch, setFilterSearch] = useState("");
+  const [selectedTeamMembers, setSelectedTeamMembers] = useState<Set<string>>(new Set());
+  const [selectedJobFilters, setSelectedJobFilters] = useState<Set<string>>(new Set());
+  const filterRef = useRef<HTMLDivElement>(null);
+
+  // Close filter on outside click
+  useEffect(() => {
+    if (!showFilter) return;
+    const handler = (e: MouseEvent) => {
+      if (filterRef.current && !filterRef.current.contains(e.target as Node)) {
+        setShowFilter(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [showFilter]);
+
+  const hasActiveFilters = selectedTeamMembers.size > 0 || selectedJobFilters.size > 0;
+
   // Load events from localStorage and listen for updates
   const loadEvents = useCallback(() => {
     try {
@@ -217,6 +239,21 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
     },
   });
 
+  // All employees for filter list
+  const allEmployees = useMemo(() => {
+    if (!weekData) return [];
+    return weekData.employees.map(e => ({ id: e.id, name: e.full_name, role: e.role || "Other" }));
+  }, [weekData]);
+
+  // All unique job types from shifts
+  const allJobTypes = useMemo(() => {
+    if (!weekData) return [];
+    const set = new Set<string>();
+    weekData.shifts.forEach(s => { if (s.job_type) set.add(s.job_type); if (s.shift_type) set.add(s.shift_type); });
+    weekData.employees.forEach(e => { if (e.role) set.add(e.role); });
+    return Array.from(set).sort();
+  }, [weekData]);
+
   const roleGroups = useMemo<RoleGroup[]>(() => {
     if (!weekData) return [];
     const { employees, shifts } = weekData;
@@ -228,8 +265,17 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
       shiftsByEmp.set(s.employee_id, list);
     });
 
+    // Filter employees
+    let filteredEmployees = employees;
+    if (selectedTeamMembers.size > 0) {
+      filteredEmployees = filteredEmployees.filter(e => selectedTeamMembers.has(e.id));
+    }
+    if (selectedJobFilters.size > 0) {
+      filteredEmployees = filteredEmployees.filter(e => selectedJobFilters.has(e.role || "Other"));
+    }
+
     const roleMap = new Map<string, EmployeeInfo[]>();
-    employees.forEach((emp) => {
+    filteredEmployees.forEach((emp) => {
       const role = emp.role || "Other";
       const list = roleMap.get(role) || [];
       list.push(emp);
@@ -259,7 +305,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
     });
 
     return groups;
-  }, [weekData]);
+  }, [weekData, selectedTeamMembers, selectedJobFilters]);
 
   const toggleRole = (role: string) => {
     setExpandedRoles((prev) => {
@@ -471,10 +517,134 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick }: ShiftCalendarVi
           {/* Day headers */}
           <div className="flex border-b border-calendar-border">
             <div
-              className="flex-shrink-0 px-4 py-3 text-xs font-semibold text-foreground border-r border-calendar-border"
+              className="flex-shrink-0 px-4 py-3 text-xs font-semibold text-foreground border-r border-calendar-border flex items-center justify-between relative"
               style={{ width: NAME_COL_W }}
             >
-              Team Member
+              <span>Team Member</span>
+              <div className="relative" ref={filterRef}>
+                <button
+                  onClick={() => setShowFilter(!showFilter)}
+                  className={`w-7 h-7 rounded-full flex items-center justify-center transition-colors ${hasActiveFilters ? "bg-primary text-primary-foreground" : "bg-muted/50 hover:bg-muted text-muted-foreground hover:text-foreground"}`}
+                  aria-label="Filter"
+                >
+                  <SlidersHorizontal className="w-3.5 h-3.5" />
+                </button>
+
+                {/* Filter Popover */}
+                {showFilter && (
+                  <div className="absolute top-9 left-0 z-[60] w-[260px] bg-card border border-border rounded-xl shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+                    {/* Header */}
+                    <div className="px-4 pt-3 pb-2 flex items-center justify-between">
+                      <span className="text-sm font-semibold text-foreground">Filter</span>
+                      {hasActiveFilters && (
+                        <button
+                          onClick={() => { setSelectedTeamMembers(new Set()); setSelectedJobFilters(new Set()); }}
+                          className="text-[11px] text-destructive font-medium hover:underline"
+                        >
+                          Reset
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Tab Toggle */}
+                    <div className="mx-3 mb-2 flex rounded-lg bg-muted/50 p-0.5">
+                      <button
+                        onClick={() => setFilterTab("team")}
+                        className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-colors ${filterTab === "team" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+                      >
+                        Team
+                      </button>
+                      <button
+                        onClick={() => setFilterTab("jobs")}
+                        className={`flex-1 text-xs font-medium py-1.5 rounded-md transition-colors ${filterTab === "jobs" ? "bg-background text-foreground shadow-sm" : "text-muted-foreground"}`}
+                      >
+                        Jobs
+                      </button>
+                    </div>
+
+                    {/* Search */}
+                    <div className="mx-3 mb-2">
+                      <div className="flex items-center gap-2 rounded-lg bg-muted/40 px-2.5 py-1.5">
+                        <Search className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
+                        <input
+                          type="text"
+                          placeholder={filterTab === "team" ? "Filter team members..." : "Filter jobs..."}
+                          value={filterSearch}
+                          onChange={(e) => setFilterSearch(e.target.value)}
+                          className="flex-1 bg-transparent text-xs text-foreground placeholder:text-muted-foreground outline-none"
+                        />
+                        {filterSearch && (
+                          <button onClick={() => setFilterSearch("")}>
+                            <X className="w-3 h-3 text-muted-foreground" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* List */}
+                    <div className="max-h-[240px] overflow-y-auto scrollbar-hide">
+                      {filterTab === "team" ? (
+                        <>
+                          <button
+                            onClick={() => setSelectedTeamMembers(new Set())}
+                            className={`w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-colors hover:bg-muted/30 ${selectedTeamMembers.size === 0 ? "bg-muted/20 text-foreground font-medium" : "text-foreground"}`}
+                          >
+                            <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                            All team members
+                          </button>
+                          {allEmployees
+                            .filter(e => !filterSearch || e.name.toLowerCase().includes(filterSearch.toLowerCase()))
+                            .map(emp => (
+                              <button
+                                key={emp.id}
+                                onClick={() => {
+                                  setSelectedTeamMembers(prev => {
+                                    const next = new Set(prev);
+                                    next.has(emp.id) ? next.delete(emp.id) : next.add(emp.id);
+                                    return next;
+                                  });
+                                }}
+                                className={`w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-colors hover:bg-muted/30 ${selectedTeamMembers.has(emp.id) ? "bg-muted/20" : ""}`}
+                              >
+                                <Users className="w-3.5 h-3.5 text-muted-foreground" />
+                                <span className="text-foreground truncate">{emp.name}</span>
+                                <span className="ml-auto text-[10px] px-1.5 py-0.5 rounded bg-muted/50 text-muted-foreground">{emp.role.toLowerCase()}</span>
+                              </button>
+                            ))}
+                        </>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => setSelectedJobFilters(new Set())}
+                            className={`w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-colors hover:bg-muted/30 ${selectedJobFilters.size === 0 ? "bg-muted/20 text-foreground font-medium" : "text-foreground"}`}
+                          >
+                            All jobs
+                          </button>
+                          {allJobTypes
+                            .filter(j => !filterSearch || j.toLowerCase().includes(filterSearch.toLowerCase()))
+                            .map(job => (
+                              <button
+                                key={job}
+                                onClick={() => {
+                                  setSelectedJobFilters(prev => {
+                                    const next = new Set(prev);
+                                    next.has(job) ? next.delete(job) : next.add(job);
+                                    return next;
+                                  });
+                                }}
+                                className={`w-full flex items-center gap-2.5 px-4 py-2 text-xs transition-colors hover:bg-muted/30 ${selectedJobFilters.has(job) ? "bg-muted/20" : ""}`}
+                              >
+                                <span className="text-foreground">{job}</span>
+                              </button>
+                            ))}
+                        </>
+                      )}
+                    </div>
+
+                    <div className="h-1" />
+                  </div>
+                )}
+              </div>
             </div>
             {days.map((day, i) => {
               const isToday = dayStrs[i] === todayStr;

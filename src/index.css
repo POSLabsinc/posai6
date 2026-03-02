@@ -55,10 +55,10 @@ All colors MUST be HSL.
     --calendar-border: 220 13% 91%;
 
     /* Semantic surface tokens for theme-aware components */
-    --surface: 0 0% 95%;
-    --surface-elevated: 0 0% 92%;
-    --surface-inset: 0 0% 97%;
-    --divider: 0 0% 88%;
+    --surface: 0 0% 97%;
+    --surface-elevated: 0 0% 100%;
+    --surface-inset: 0 0% 98%;
+    --divider: 0 0% 90%;
     --text-subtle: 0 0% 45%;
   }
 

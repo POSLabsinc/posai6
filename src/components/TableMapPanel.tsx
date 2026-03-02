@@ -110,7 +110,7 @@ const CircularChair = ({ angle, isOccupied, tableRadius }: { angle: number; isOc
     >
       <div 
         className={`w-6 h-3.5 rounded-t-full transition-colors ${
-          isOccupied ? "bg-blue-500 shadow-lg shadow-blue-500/30" : "bg-neutral-700 border border-neutral-600"
+          isOccupied ? "bg-blue-500 shadow-lg shadow-blue-500/30" : "bg-muted border border-border"
         }`}
       />
     </div>
@@ -155,7 +155,7 @@ const SquareChair = ({ side, position, isOccupied, tableSize }: {
     >
       <div 
         className={`w-6 h-3.5 rounded-t transition-colors ${
-          isOccupied ? "bg-blue-500 shadow-lg shadow-blue-500/30" : "bg-neutral-700 border border-neutral-600"
+          isOccupied ? "bg-blue-500 shadow-lg shadow-blue-500/30" : "bg-muted border border-border"
         }`}
       />
     </div>
@@ -198,7 +198,7 @@ const FloorPlanCircularTable = ({ table, isSelected, isHighlighted }: {
 
         <div 
           className={`rounded-full flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-110 ${
-            isSelected || isHighlighted ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
+            isSelected || isHighlighted ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-background" : ""
           } ${config.isReady ? "animate-pulse" : ""}`}
           style={{ 
             width: tableRadius * 2, 
@@ -210,7 +210,7 @@ const FloorPlanCircularTable = ({ table, isSelected, isHighlighted }: {
               : `0 4px 20px ${config.hexColor}40`
           }}
         >
-          <span className="text-white font-bold text-lg leading-none">{table.id}</span>
+          <span className="text-foreground font-bold text-lg leading-none">{table.id}</span>
           <span className="text-[12px] font-semibold mt-0.5" style={{ color: config.hexColor }}>
             {config.label}
           </span>
@@ -219,7 +219,7 @@ const FloorPlanCircularTable = ({ table, isSelected, isHighlighted }: {
               <div 
                 key={i}
                 className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  i < table.guests ? "bg-blue-400" : "bg-neutral-600"
+                  i < table.guests ? "bg-blue-400" : "bg-muted"
                 }`}
               />
             ))}
@@ -232,7 +232,7 @@ const FloorPlanCircularTable = ({ table, isSelected, isHighlighted }: {
             style={{ backgroundColor: 'rgba(23, 23, 23, 0.95)', border: `1px solid ${config.hexColor}50` }}
           >
             <Clock className="w-3 h-3" style={{ color: config.hexColor }} />
-            <span className="text-gray-300">{table.time}</span>
+            <span className="text-muted-foreground">{table.time}</span>
           </div>
         )}
       </div>
@@ -286,7 +286,7 @@ const FloorPlanSquareTable = ({ table, isSelected, isHighlighted }: {
 
         <div 
           className={`rounded-lg flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-110 ${
-            isSelected || isHighlighted ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
+            isSelected || isHighlighted ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-background" : ""
           } ${config.isReady ? "animate-pulse" : ""}`}
           style={{ 
             width: tableSize, 
@@ -298,7 +298,7 @@ const FloorPlanSquareTable = ({ table, isSelected, isHighlighted }: {
               : `0 4px 20px ${config.hexColor}40`
           }}
         >
-          <span className="text-white font-bold text-lg leading-none">{table.id}</span>
+          <span className="text-foreground font-bold text-lg leading-none">{table.id}</span>
           <span className="text-[12px] font-semibold mt-0.5" style={{ color: config.hexColor }}>
             {config.label}
           </span>
@@ -307,7 +307,7 @@ const FloorPlanSquareTable = ({ table, isSelected, isHighlighted }: {
               <div 
                 key={i}
                 className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  i < table.guests ? "bg-blue-400" : "bg-neutral-600"
+                  i < table.guests ? "bg-blue-400" : "bg-muted"
                 }`}
               />
             ))}
@@ -320,7 +320,7 @@ const FloorPlanSquareTable = ({ table, isSelected, isHighlighted }: {
             style={{ backgroundColor: 'rgba(23, 23, 23, 0.95)', border: `1px solid ${config.hexColor}50` }}
           >
             <Clock className="w-3 h-3" style={{ color: config.hexColor }} />
-            <span className="text-gray-300">{table.time}</span>
+            <span className="text-muted-foreground">{table.time}</span>
           </div>
         )}
       </div>
@@ -355,16 +355,16 @@ const GridTableCard = ({ table, isHighlighted, onClick, onGuestSelect, showGuest
       
       <div
         onClick={onClick}
-        className={`bg-neutral-900 rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-neutral-800 transition-all border-2 ${
+        className={`bg-surface-inset rounded-xl p-3 flex flex-col items-center cursor-pointer hover:bg-surface-elevated transition-all border-2 ${
           isHighlighted
             ? "border-orange-500 ring-2 ring-orange-500/50"
             : isReady 
               ? "border-emerald-500" 
-              : "border-neutral-800"
+              : "border-border"
         }`}
       >
-        <span className="text-3xl font-bold text-white mb-1">{table.id}</span>
-        <span className="text-gray-400 text-sm mb-2">{table.seats} Seats</span>
+        <span className="text-3xl font-bold text-foreground mb-1">{table.id}</span>
+        <span className="text-muted-foreground text-sm mb-2">{table.seats} Seats</span>
         
         <div className="flex gap-1 mb-2">
           {Array.from({ length: table.seats }).map((_, i) => (
@@ -374,11 +374,11 @@ const GridTableCard = ({ table, isHighlighted, onClick, onGuestSelect, showGuest
         
         <div className="mt-auto w-full">
           <div className="flex justify-end mb-1 min-h-[1rem] px-1">
-            {table.time && <span className="text-gray-500 text-xs">{table.time}</span>}
+            {table.time && <span className="text-muted-foreground text-xs">{table.time}</span>}
           </div>
           
           {showGuestSelection && table.status === "Available" ? (
-            <div className="w-full py-1 px-2 rounded-md border border-neutral-600 bg-neutral-700">
+            <div className="w-full py-1 px-2 rounded-md border border-border bg-muted">
               <div className="flex justify-center items-center gap-1">
                 <div className="w-6 h-6 flex-shrink-0 flex items-center justify-center">
                   <img src={chairIcon} alt="Select seats" className="w-4 h-4 object-contain" />
@@ -390,7 +390,7 @@ const GridTableCard = ({ table, isHighlighted, onClick, onGuestSelect, showGuest
                       e.stopPropagation();
                       onGuestSelect(i + 1);
                     }}
-                    className="w-6 h-6 flex-shrink-0 flex items-center justify-center text-xs font-bold text-white bg-neutral-600 rounded hover:bg-orange-500 transition-colors"
+                    className="w-6 h-6 flex-shrink-0 flex items-center justify-center text-xs font-bold text-foreground bg-surface-elevated rounded hover:bg-orange-500 transition-colors"
                   >
                     {i + 1}
                   </button>
@@ -398,7 +398,7 @@ const GridTableCard = ({ table, isHighlighted, onClick, onGuestSelect, showGuest
               </div>
             </div>
           ) : (
-            <div className={`w-full text-center py-1 rounded-md border ${isReady ? "border-emerald-500 bg-emerald-500/20" : `border-neutral-600 ${config.bgColor}`}`}>
+            <div className={`w-full text-center py-1 rounded-md border ${isReady ? "border-emerald-500 bg-emerald-500/20" : `border-border ${config.bgColor}`}`}>
               <span className={`text-xs font-medium ${isReady ? "text-emerald-400" : config.color}`}>
                 {table.status}
               </span>
@@ -412,7 +412,7 @@ const GridTableCard = ({ table, isHighlighted, onClick, onGuestSelect, showGuest
 
 // Status Legend
 const StatusLegend = () => (
-  <div className="flex flex-wrap items-center gap-3 px-4 py-2 bg-neutral-900/50 rounded-lg border border-neutral-800">
+  <div className="flex flex-wrap items-center gap-3 px-4 py-2 bg-surface-inset rounded-lg border border-border">
     {[
       { color: "#22c55e", label: "Available" },
       { color: "#a855f7", label: "Ordering" },
@@ -424,7 +424,7 @@ const StatusLegend = () => (
     ].map((status) => (
       <div key={status.label} className="flex items-center gap-1.5">
         <div className="w-2 h-2 rounded-full" style={{ backgroundColor: status.color }} />
-        <span className="text-[10px] text-neutral-400">{status.label}</span>
+        <span className="text-[10px] text-muted-foreground">{status.label}</span>
       </div>
     ))}
   </div>
@@ -581,10 +581,10 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
     return (
       <div className="w-56 p-0">
         {/* Header */}
-        <div className="px-4 py-3 border-b border-neutral-700">
+        <div className="px-4 py-3 border-b border-border">
           <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-white font-bold text-lg">Table {table.id}</h3>
+              <h3 className="text-foreground font-bold text-lg">Table {table.id}</h3>
               <p className="text-sm" style={{ color: config.hexColor }}>
                 {config.label} {table.guests > 0 && `• ${table.guests} guests`}
               </p>
@@ -593,7 +593,7 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
               className="w-10 h-10 rounded-lg flex items-center justify-center"
               style={{ backgroundColor: config.hexBgColor, border: `2px solid ${config.hexColor}` }}
             >
-              <span className="text-white font-bold text-sm">{table.seats}</span>
+              <span className="text-foreground font-bold text-sm">{table.seats}</span>
             </div>
           </div>
         </div>
@@ -605,21 +605,21 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
             <>
               <button
                 onClick={() => handleSeatWalkIn(table)}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-white hover:bg-neutral-800 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-foreground hover:bg-muted transition-colors"
               >
                 <UserPlus className="w-4 h-4 text-green-400" />
                 <span>Seat Walk-In</span>
               </button>
               <button
                 onClick={() => handleCreateReservation(table)}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-white hover:bg-neutral-800 transition-colors"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-foreground hover:bg-muted transition-colors"
               >
                 <CalendarPlus className="w-4 h-4 text-orange-400" />
                 <span>Create Reservation</span>
               </button>
               <button
                 onClick={() => handleBlockTable(table)}
-                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-white hover:bg-neutral-800 transition-colors border-t border-neutral-700"
+                className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-foreground hover:bg-muted transition-colors border-t border-border"
               >
                 <Lock className="w-4 h-4 text-red-400" />
                 <span>Block Table</span>
@@ -631,7 +631,7 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
           {table.status === "Blocked" && (
             <button
               onClick={() => handleUnblockTable(table)}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-white hover:bg-neutral-800 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-foreground hover:bg-muted transition-colors"
             >
               <Unlock className="w-4 h-4 text-green-400" />
               <span>Unblock Table</span>
@@ -642,7 +642,7 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
           {!["Available", "Blocked"].includes(table.status) && (
             <button
               onClick={() => handleViewOrder(table.id)}
-              className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-white hover:bg-neutral-800 transition-colors"
+              className="w-full flex items-center gap-3 px-4 py-2.5 text-left text-foreground hover:bg-muted transition-colors"
             >
               <Eye className="w-4 h-4 text-blue-400" />
               <span>View Order</span>
@@ -654,9 +654,9 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
   };
 
   return (
-    <div className="h-full flex flex-col bg-neutral-950">
+    <div className="h-full flex flex-col bg-background">
       {/* Status Legend - Fixed at top */}
-      <div className="sticky top-0 z-30 bg-neutral-950 border-b border-neutral-800">
+      <div className="sticky top-0 z-30 bg-background border-b border-border">
         <StatusLegend />
       </div>
 
@@ -665,7 +665,7 @@ const TableMapPanel = ({ viewMode, selectedReservation, onTableSelect, selectedT
         <div className="flex-1 relative overflow-auto">
           {/* Area labels */}
           <div className="absolute top-4 left-4 z-10">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-neutral-900/80 border border-neutral-800">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-surface-inset border border-border">
               <div className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
               <span className="text-amber-500 text-xs font-medium">Kitchen</span>
             </div>

@@ -210,6 +210,19 @@ All colors MUST be HSL.
   background-color: hsl(var(--muted)) !important;
 }
 
+/* Inline gradient dark backgrounds → white in light theme */
+:root:not(.dark) [style*="linear-gradient(180deg, #4D4D4D"],
+:root:not(.dark) [style*="linear-gradient(180deg, #4d4d4d"],
+:root:not(.dark) [style*="linear-gradient(180deg, rgb(77, 77, 77)"] {
+  background: hsl(var(--background)) !important;
+  border: 1px solid hsl(var(--border)) !important;
+}
+:root:not(.dark) [style*="linear-gradient(180deg, #1E3A5F"],
+:root:not(.dark) [style*="linear-gradient(180deg, rgb(30, 58, 95)"] {
+  background: linear-gradient(180deg, hsl(210 50% 92%) 0%, hsl(210 50% 88%) 100%) !important;
+  border: 1px solid hsl(210 50% 80%) !important;
+}
+
 /* Tailwind arbitrary bg-[#hex] dark color overrides */
 :root:not(.dark) .bg-\[\#1B1C20\],
 :root:not(.dark) .bg-\[\#1b1c20\] {

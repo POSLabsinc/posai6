@@ -137,33 +137,29 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
           <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
             <button
               onClick={onBack}
-              className="w-10 h-10 rounded-full bg-[hsl(var(--surface-1))] flex items-center justify-center active:opacity-70 transition-opacity"
+              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
               aria-label="Back"
             >
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
-            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
-              <h1 className="text-base font-medium text-foreground">
-                {showArchived ? "Archived Taxes" : "Taxes"}
-              </h1>
-            </div>
+            <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Taxes</h1>
             <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
               <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
             </div>
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6 pt-4">
+        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
           {/* Description */}
-          <div className="mb-4 px-1">
+          <div className="mt-4 mb-4 px-1">
             <p className="text-sm text-muted-foreground leading-relaxed">
               Taxes are levies imposed on financial transactions or income, collected by government authorities to fund public services and infrastructure.
             </p>
           </div>
 
           {/* Search + actions row */}
-          <section className="flex items-center gap-2 lg:gap-4 mb-6">
-            <div className="flex-1 min-w-0 rounded-full bg-[hsl(var(--surface-1))] px-5 py-3 flex items-center gap-3">
+          <section className="mt-6 flex items-center gap-2 lg:gap-4">
+            <div className="flex-1 min-w-0 rounded-full bg-neutral-800/60 px-5 py-3 flex items-center gap-3">
               <Search className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
               <input
                 type="text"
@@ -175,13 +171,11 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
               <Mic className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
             </div>
 
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
+
             <button
               onClick={() => setShowArchived((v) => !v)}
-              className={`h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border active:opacity-70 transition-all ${
-                showArchived
-                  ? "bg-neutral-700 border-neutral-600"
-                  : "bg-transparent border-neutral-700/50"
-              } text-foreground`}
+              className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-neutral-700/50 bg-transparent text-foreground active:opacity-70 transition-opacity"
             >
               <Archive className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Archive</span>
@@ -189,7 +183,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
 
             <button
               onClick={() => setShowAddScreen(true)}
-              className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-[hsl(var(--surface-3))] text-foreground active:opacity-70 transition-opacity"
+              className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-neutral-800/60 text-foreground active:opacity-70 transition-opacity"
             >
               <Plus className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Add</span>
@@ -197,8 +191,8 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
           </section>
 
           {/* Table */}
-          <section className="mt-6 rounded-2xl bg-[#26262699] overflow-hidden">
-            <div className="grid grid-cols-[1.2fr_140px_160px_24px] items-center px-8 py-5 border-b border-[hsl(var(--surface-border))]">
+          <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
+            <div className="grid grid-cols-[1.2fr_140px_160px_24px] items-center px-8 py-5 border-b border-neutral-700/50">
               <span className="text-[15px] font-semibold text-foreground">Tax Name</span>
               <span className="text-[15px] font-semibold text-foreground text-center">Amount</span>
               <span className="text-[15px] font-semibold text-foreground text-right">Type</span>
@@ -208,7 +202,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
             {filteredTaxes.length > 0 ? (
               filteredTaxes.map((tax, index) => (
                 <div key={tax.id}>
-                  {index > 0 && <div className="h-px bg-[hsl(var(--surface-border))]" />}
+                  {index > 0 && <div className="h-px bg-neutral-700/50" />}
                   {/* Keep swipe component (desktop users will just click; no behavior change) */}
                   <SwipeableTaxItem
                     onTap={() => setTaxToEdit(tax)}
@@ -234,7 +228,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
 
         {/* Archive Confirmation Dialog (unchanged) */}
         <AlertDialog open={!!taxToArchive} onOpenChange={() => setTaxToArchive(null)}>
-          <AlertDialogContent className="bg-[#26262699] border-[hsl(var(--surface-border))]">
+          <AlertDialogContent className="bg-neutral-800/60 border-neutral-700/50">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-foreground">
                 {taxToArchive?.archived ? "Restore Tax" : "Archive Tax"}
@@ -246,7 +240,7 @@ const TaxesContent = ({ showHeader = true, onBack, onAIClick }: TaxesContentProp
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="bg-[hsl(var(--surface-3))] text-foreground border-[hsl(var(--surface-border))] hover:bg-[hsl(var(--surface-3))]">
+              <AlertDialogCancel className="bg-neutral-700 text-foreground border-neutral-600 hover:bg-neutral-600">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction onClick={confirmArchiveTax} className="bg-primary text-primary-foreground hover:bg-primary/90">

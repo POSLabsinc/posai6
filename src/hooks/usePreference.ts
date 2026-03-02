@@ -19,7 +19,7 @@ export function usePreference(key: string, defaultValue: string) {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase
+      const { data } = await (supabase as any)
         .from("user_preferences")
         .select("preference_value")
         .eq("device_id", deviceId)
@@ -35,7 +35,7 @@ export function usePreference(key: string, defaultValue: string) {
   const update = useCallback(
     async (newValue: string) => {
       setValue(newValue);
-      await supabase
+      await (supabase as any)
         .from("user_preferences")
         .upsert(
           { device_id: deviceId, preference_key: key, preference_value: newValue },

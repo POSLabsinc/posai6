@@ -31,13 +31,13 @@ export const useEmployees = (showArchived: boolean = false) => {
   return useQuery({
     queryKey: ["employees", showArchived],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("employees")
         .select("*")
         .eq("is_archived", showArchived)
         .order("full_name");
       if (error) throw error;
-      return data as Employee[];
+      return (data || []) as Employee[];
     },
   });
 };
@@ -47,12 +47,12 @@ export const useAllEmployeeShiftsForDate = (date: Date) => {
   return useQuery({
     queryKey: ["all_employee_shifts", dateStr],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("employee_shifts")
         .select("*")
         .eq("shift_date", dateStr);
       if (error) throw error;
-      return (data as EmployeeShift[]) || [];
+      return (data || []) as EmployeeShift[];
     },
   });
 };
@@ -63,7 +63,7 @@ export const useEmployeeShifts = (employeeId: string | null, date: Date) => {
     queryKey: ["employee_shifts", employeeId, dateStr],
     queryFn: async () => {
       if (!employeeId) return null;
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("employee_shifts")
         .select("*")
         .eq("employee_id", employeeId)
@@ -82,7 +82,7 @@ export const useClockIn = () => {
     mutationFn: async ({ employeeId, date }: { employeeId: string; date: Date }) => {
       const dateStr = format(date, "yyyy-MM-dd");
       // Check if shift exists
-      const { data: existing } = await supabase
+      const { data: existing } = await (supabase as any)
         .from("employee_shifts")
         .select("id")
         .eq("employee_id", employeeId)
@@ -90,15 +90,15 @@ export const useClockIn = () => {
         .maybeSingle();
 
       if (existing) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from("employee_shifts")
           .update({ clock_in: new Date().toISOString() })
           .eq("id", existing.id);
         if (error) throw error;
       } else {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from("employee_shifts")
-          .insert({ employee_id: employeeId, shift_date: dateStr, clock_in: new Date().toISOString() });
+          .insert([{ employee_id: employeeId, shift_date: dateStr, clock_in: new Date().toISOString() }]);
         if (error) throw error;
       }
     },
@@ -114,7 +114,7 @@ export const useClockOut = () => {
   return useMutation({
     mutationFn: async ({ employeeId, date }: { employeeId: string; date: Date }) => {
       const dateStr = format(date, "yyyy-MM-dd");
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("employee_shifts")
         .update({ clock_out: new Date().toISOString() })
         .eq("employee_id", employeeId)
@@ -132,7 +132,7 @@ export const useAddEmployee = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (employee: { full_name: string; role: string; phone?: string; email?: string; hourly_rate?: number; pin?: string }) => {
-      const { error } = await supabase.from("employees").insert(employee);
+      const { error } = await (supabase as any).from("employees").insert([employee]);
       if (error) throw error;
     },
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["employees"] }),
@@ -142,7 +142,7 @@ export const useAddEmployee = () => {
 export const useEmployeeByPin = () => {
   return useMutation({
     mutationFn: async (pin: string) => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from("employees")
         .select("*")
         .eq("pin", pin)
@@ -158,7 +158,7 @@ export const useArchiveEmployee = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({ employeeId, archive }: { employeeId: string; archive: boolean }) => {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from("employees")
         .update({ is_archived: archive })
         .eq("id", employeeId);

@@ -7332,7 +7332,7 @@ const Orders = () => {
           {/* Mobile Add Guest Form Overlay */}
           {showAddGuestForm &&
         <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
-              <div className="w-full max-w-md h-[85vh] rounded-xl overflow-hidden relative" style={{ background: '#2A2A2A' }}>
+              <div className="w-full max-w-md h-[85vh] rounded-xl overflow-hidden relative bg-card">
                 <AddGuestForm
               onClose={() => setShowAddGuestForm(false)}
               onSave={(guestData) => {
@@ -7348,7 +7348,7 @@ const Orders = () => {
           {/* Mobile Create Voucher Form Overlay */}
           {showCreateVoucherForm &&
         <div className="fixed inset-0 z-[100] bg-black/50 flex items-center justify-center p-4">
-              <div className="w-full max-w-md h-[85vh] rounded-xl overflow-hidden relative" style={{ background: '#2A2A2A' }}>
+              <div className="w-full max-w-md h-[85vh] rounded-xl overflow-hidden relative bg-card">
                 <CreateVoucherForm
               onClose={() => setShowCreateVoucherForm(false)}
               onCreate={(voucherData) => {
@@ -7365,8 +7365,7 @@ const Orders = () => {
                 <div className="px-1.5 py-0.5 space-y-0.5">
                   {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
                       <div
-                  className={`rounded px-1.5 py-1 cursor-pointer ${item.isTransferred ? 'border border-[#3B6A9E]' : 'bg-neutral-800'}`}
-                  style={item.isTransferred ? { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } : undefined}
+                  className={`rounded px-1.5 py-1 cursor-pointer ${item.isTransferred ? 'border border-[#3B6A9E] bg-accent' : 'bg-muted'}`}
                   onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}>
 
                         <div className="flex items-center justify-between">
@@ -7974,10 +7973,8 @@ const Orders = () => {
                   </div>)}
               </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5 pb-4 md:pb-0">
                 {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border min-h-[38px] md:min-h-[42px]">
-                    <div className="flex-1 p-1.5 md:p-2" style={{
-                    background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)'
-                  }}>
-                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-white">
+                    <div className="flex-1 p-1.5 md:p-2 bg-muted">
+                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-foreground">
                         {(item as MenuItem).isOpenPrice && item.price === 0 ? "Open" : `$${item.price.toFixed(2)}`}
                       </span>
                       <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 flex items-center gap-1">
@@ -8551,10 +8548,7 @@ const Orders = () => {
                       </div> : <div className="py-1 space-y-1 md:space-y-1 lg:space-y-2">
                         {(isTableOrder ? filteredOrderItems : orderItems).map((item, index) => <SwipeableCartItem key={item.id} onDelete={() => removeFromCart(item.id)} onNoTax={() => handleToggleItemNoTax(item.id)} isNoTax={item.noTax || false} onFire={() => handleToggleItemFire(item.id)} isFired={item.isFired || false} itemOrderType={item.itemOrderType || "Dine In"} onOrderTypeChange={(type) => updateItemOrderType(item.id, type)} isOpen={activeSwipedItemId === item.id} onSwipeStart={() => setActiveSwipedItemId(item.id)}>
                             <div
-                      className={`p-2 md:p-1.5 lg:p-3 border rounded-md md:rounded lg:rounded-lg cursor-pointer ${item.isTransferred ? 'border-[#3B6A9E]' : 'border-sidebar-border'}`}
-                      style={item.isTransferred ?
-                      { background: 'linear-gradient(180deg, #1E3A5F 0%, #2A4A6F 100%)' } :
-                      { background: 'linear-gradient(180deg, #4D4D4D 0%, #616161 100%)' }}
+                      className={`p-2 md:p-1.5 lg:p-3 border rounded-md md:rounded lg:rounded-lg cursor-pointer ${item.isTransferred ? 'border-[#3B6A9E] bg-accent' : 'border-sidebar-border bg-muted'}`}
                       onClick={() => openCustomizationDialog({ id: item.id, name: item.name, price: item.price }, index)}>
 
                               <div className="flex flex-col">

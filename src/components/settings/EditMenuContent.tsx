@@ -41,16 +41,17 @@ const EditMenuContent = ({
   };
 
   const handleSave = () => {
-    if (!name.trim() || !originalMenu) return;
-    const updated: Menu = {
-      ...originalMenu,
-      name: name.trim(),
-      description: "",
-      enabled: originalMenu.enabled,
-      categories: selectedCategories,
-      updatedAt: new Date().toISOString(),
-    };
-    saveMenu(updated);
+    if (name.trim() && originalMenu) {
+      const updated: Menu = {
+        ...originalMenu,
+        name: name.trim(),
+        description: "",
+        enabled: originalMenu.enabled,
+        categories: selectedCategories,
+        updatedAt: new Date().toISOString(),
+      };
+      saveMenu(updated);
+    }
     onBack?.();
   };
 
@@ -68,7 +69,7 @@ const EditMenuContent = ({
       <div className="flex items-center justify-center py-4 px-4 relative">
         {onBack ? (
           <button
-            onClick={onBack}
+            onClick={handleSave}
             className="absolute left-4 w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity"
             aria-label="Back"
           >
@@ -171,14 +172,6 @@ const EditMenuContent = ({
         </div>
         <p className="text-muted-foreground text-xs px-1 mt-1 mb-6">Assign this menu to specific revenue centers.</p>
 
-        {/* Save Button */}
-        <button
-          onClick={handleSave}
-          disabled={!name.trim()}
-          className="w-full py-4 rounded-full bg-primary text-primary-foreground text-base font-semibold active:opacity-70 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed mb-4"
-        >
-          Save Changes
-        </button>
       </div>
 
       {/* Categories Sheet */}

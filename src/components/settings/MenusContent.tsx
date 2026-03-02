@@ -2,8 +2,10 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import { useMenus, deleteMenu, toggleMenuEnabled, Menu } from "@/lib/menuStore";
+import { useMenus, deleteMenu, Menu } from "@/lib/menuStore";
 import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -97,7 +99,13 @@ const MenusContent = ({
                   <div className="flex items-center gap-3 ml-2">
                     <Switch
                       checked={menu.enabled}
-                      onCheckedChange={() => toggleMenuEnabled(menu.id)}
+                      onCheckedChange={async () => {
+                        const { error } = await supabase
+                          .from("menus")
+                          .update({ enabled: !menu.enabled })
+                          .eq("id", menu.id);
+                        if (error) toast.error("Failed to update menu");
+                      }}
                     />
                     <button
                       onClick={() => setDeleteTarget(menu)}

@@ -102,35 +102,41 @@ const GroupsContent = ({ showHeader = true, onBack, onAIClick }: GroupsContentPr
   if (!isMobile) {
     return (
       <div className="h-full flex flex-col overflow-hidden bg-background">
-        {showHeader && onBack && (
-          <div className="px-6 pt-5">
-            <button
-              onClick={onBack}
-              className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
-              aria-label="Back"
-            >
-              <ChevronLeft className="w-5 h-5 text-foreground" />
-            </button>
+        {showHeader && (
+          <div className="flex items-center justify-between pt-4 pb-2 relative overflow-visible px-4">
+            {onBack && (
+              <button
+                onClick={onBack}
+                className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity"
+                aria-label="Back"
+              >
+                <ChevronLeft className="w-5 h-5 text-foreground" />
+              </button>
+            )}
+            {!onBack && <div className="w-8 h-8" />}
+            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-1.5">
+              <h1 className="text-base font-medium text-foreground">
+                {showArchived ? "Archived Groups" : "Groups"}
+              </h1>
+            </div>
+            <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
+              <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
+            </div>
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
-          {/* Header card */}
-          <section className="mt-4 rounded-[28px] bg-[#26262699] px-10 py-8 text-center">
-            <div 
-              className="mx-auto mb-4 h-14 w-14 rounded-2xl flex items-center justify-center"
-              style={{ backgroundColor: getIconBgColor("#000000") }}
-            >
-              <img src={groupsIcon} alt="Groups" className="h-8 w-8 object-contain" />
-            </div>
-            <h1 className="text-2xl font-semibold leading-tight text-foreground">Groups</h1>
-            <p className="mx-auto mt-2 max-w-3xl text-[15px] leading-relaxed text-[hsl(var(--text-subtle))]">
-              Create and manage item groups for promotions, special menus, and time-based offerings.
+        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6 pt-4">
+          {/* Description */}
+          <div className="mb-4 px-1">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {showArchived
+                ? "View and restore your archived groups."
+                : "Create and manage product groups for promotions, special menus, and time-based offerings."}
             </p>
-          </section>
+          </div>
 
           {/* Search + actions row */}
-          <section className="mt-6 flex items-center gap-2 lg:gap-4">
+          <section className="flex items-center gap-2 lg:gap-4 mb-6">
             <div className="flex-1 min-w-0 rounded-full bg-[hsl(var(--surface-1))] px-5 py-3 flex items-center gap-3">
               <Search className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
               <input
@@ -143,11 +149,13 @@ const GroupsContent = ({ showHeader = true, onBack, onAIClick }: GroupsContentPr
               <Mic className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
             </div>
 
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
-
             <button
               onClick={() => setShowArchived((v) => !v)}
-              className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-[hsl(var(--surface-border))] bg-transparent text-foreground active:opacity-70 transition-opacity"
+              className={`h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border active:opacity-70 transition-all ${
+                showArchived
+                  ? "bg-neutral-700 border-neutral-600"
+                  : "bg-transparent border-neutral-700/50"
+              } text-foreground`}
             >
               <Archive className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Archive</span>

@@ -64,13 +64,13 @@ export function useReportsData(
       setError(null);
       try {
         const [ordersRes, itemsRes] = await Promise.all([
-          supabase
+          (supabase as any)
             .from("orders")
             .select("*")
             .gte("created_at", startISO)
             .lte("created_at", endISO)
             .order("created_at", { ascending: false }),
-          supabase
+          (supabase as any)
             .from("order_items")
             .select("*, orders!inner(created_at)")
             .gte("orders.created_at", startISO)

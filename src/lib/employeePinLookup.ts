@@ -15,7 +15,7 @@ export interface EmployeePinResult {
  * Returns null if no matching employee found.
  */
 export async function lookupEmployeeByPin(pin: string): Promise<EmployeePinResult | null> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("employees")
     .select("id, full_name, role, phone, email, avatar_url, hourly_rate")
     .eq("pin", pin)
@@ -30,7 +30,7 @@ export async function lookupEmployeeByPin(pin: string): Promise<EmployeePinResul
  * Fetch all non-archived employees for display in employee selection lists.
  */
 export async function fetchAllActiveEmployees(): Promise<EmployeePinResult[]> {
-  const { data, error } = await supabase
+  const { data, error } = await (supabase as any)
     .from("employees")
     .select("id, full_name, role, phone, email, avatar_url, hourly_rate")
     .eq("is_archived", false)

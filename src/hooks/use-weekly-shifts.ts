@@ -24,7 +24,7 @@ export const useWeeklyShifts = (weekStart: Date) => {
   return useQuery({
     queryKey: ["weekly_shifts", startStr],
     queryFn: async () => {
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from("employee_shifts")
         .select("*")
         .gte("shift_date", startStr)

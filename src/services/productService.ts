@@ -21,9 +21,9 @@ export type ProductWithVariants = CustomProduct & {
 };
 
 export const createProduct = async (product: Omit<CustomProduct, 'id' | 'createdAt' | 'updatedAt'>, variants: Omit<ProductVariant, 'id' | 'product_id' | 'created_at' | 'updated_at'>[]) => {
-  const { data: productData, error: productError } = await (supabase as any)
+  const { data: productData, error: productError } = await supabase
     .from('products')
-    .insert([{
+    .insert({
       name: product.name,
       description: product.description,
       category: product.category,
@@ -43,14 +43,15 @@ export const createProduct = async (product: Omit<CustomProduct, 'id' | 'created
       add_ons: product.addOns,
       taxes: product.taxes,
       discounts: product.discounts,
-    }])
+      // menu_display_name, printer_name, default_modifiers, assigned_printers - map these if added to CustomProduct or handle locally
+    })
     .select()
     .single();
 
   if (productError) throw productError;
 
   if (variants.length > 0) {
-    const { error: variantsError } = await (supabase as any)
+    const { error: variantsError } = await supabase
       .from('product_variants')
       .insert(
         variants.map((v, index) => ({
@@ -75,9 +76,10 @@ export const createProduct = async (product: Omit<CustomProduct, 'id' | 'created
 
 // ── Fetch all products with their variants ──────────────────────────────
 export const fetchProducts = async (): Promise<ProductWithVariants[]> => {
-  const { data: products, error } = await (supabase as any)
+  const { data: products, error } = await supabase
     .from('products')
     .select('*, product_variants(*)');
+
   if (error) throw error;
   if (!products) return [];
 
@@ -161,7 +163,7 @@ export const calculateEffectivePrice = (
 };
 
 export const updateProduct = async (id: string, product: Partial<CustomProduct>, variants: ProductVariant[]) => {
-  const { error: productError } = await (supabase as any)
+  const { error: productError } = await supabase
     .from('products')
     .update({
       name: product.name,
@@ -188,7 +190,7 @@ export const updateProduct = async (id: string, product: Partial<CustomProduct>,
 
   if (productError) throw productError;
 
-  const { error: deleteError } = await (supabase as any)
+  const { error: deleteError } = await supabase
     .from('product_variants')
     .delete()
     .eq('product_id', id);
@@ -196,7 +198,7 @@ export const updateProduct = async (id: string, product: Partial<CustomProduct>,
   if (deleteError) throw deleteError;
 
   if (variants.length > 0) {
-    const { error: variantsError } = await (supabase as any)
+    const { error: variantsError } = await supabase
       .from('product_variants')
       .insert(
         variants.map((v, index) => ({

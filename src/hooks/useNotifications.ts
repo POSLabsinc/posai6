@@ -32,7 +32,7 @@ export function useNotifications() {
 
   const fetchNotifications = useCallback(async () => {
     setLoading(true);
-    const { data, error: err } = await (supabase as any)
+    const { data, error: err } = await supabase
       .from("notifications")
       .select("*")
       .order("created_at", { ascending: false });
@@ -114,9 +114,9 @@ export function useNotifications() {
   const totalUnread = notifications.filter((n) => !n.is_read).length;
 
   const markAsRead = useCallback(async (id: string) => {
-    const { error: err } = await (supabase as any)
+    const { error: err } = await supabase
       .from("notifications")
-      .update({ is_read: true })
+      .update({ is_read: true } as any)
       .eq("id", id);
 
     if (!err) {
@@ -127,9 +127,9 @@ export function useNotifications() {
   }, []);
 
   const markAllAsRead = useCallback(async () => {
-    const { error: err } = await (supabase as any)
+    const { error: err } = await supabase
       .from("notifications")
-      .update({ is_read: true })
+      .update({ is_read: true } as any)
       .eq("is_read", false);
 
     if (!err) {

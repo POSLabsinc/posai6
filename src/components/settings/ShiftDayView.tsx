@@ -314,7 +314,7 @@ const ShiftDayView = ({ currentDate }: ShiftDayViewProps) => {
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["shift_day_view", dateStr],
     queryFn: async () => {
-      const { data: employees, error: empErr } = await (supabase as any)
+      const { data: employees, error: empErr } = await supabase
         .from("employees")
         .select("id, full_name, role, avatar_url, hourly_rate")
         .eq("is_archived", false)

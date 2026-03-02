@@ -6,7 +6,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { Switch } from "@/components/ui/switch";
-import { useSupabaseMenus, toggleMenuEnabledDb, archiveMenuDb, unarchiveMenuDb, type DbMenu } from "@/hooks/useSupabaseMenus";
+import { useMenus, toggleMenuEnabled, archiveMenu, unarchiveMenu, type Menu } from "@/lib/menuStore";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -32,11 +32,11 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
   
-  const { menus } = useSupabaseMenus();
+  const menus = useMenus();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);
-  const [itemToArchive, setItemToArchive] = useState<DbMenu | null>(null);
+  const [itemToArchive, setItemToArchive] = useState<Menu | null>(null);
 
   const formatDate = (dateStr: string | undefined) => {
     if (!dateStr) return "—";
@@ -50,10 +50,10 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
   const confirmArchiveItem = () => {
     if (itemToArchive) {
       if (itemToArchive.archived) {
-        unarchiveMenuDb(itemToArchive.id);
+        unarchiveMenu(itemToArchive.id);
         toast({ description: `"${itemToArchive.name}" has been restored.`, duration: 3000 });
       } else {
-        archiveMenuDb(itemToArchive.id);
+        archiveMenu(itemToArchive.id);
         toast({ description: `"${itemToArchive.name}" has been archived.`, duration: 3000 });
       }
       setItemToArchive(null);
@@ -161,8 +161,8 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
                       className="grid grid-cols-[1.5fr_120px_120px_80px_24px] items-center px-8 py-5 w-full hover:bg-neutral-700/30 transition-colors cursor-pointer"
                     >
                       <span className="text-[15px] font-semibold text-foreground text-left">{item.name}</span>
-                      <span className="text-[15px] text-[hsl(var(--text-subtle))] text-center">{formatDate(item.created_at)}</span>
-                      <span className="text-[15px] text-[hsl(var(--text-subtle))] text-center">{formatDate(item.updated_at)}</span>
+                      <span className="text-[15px] text-[hsl(var(--text-subtle))] text-center">{formatDate(item.createdAt)}</span>
+                      <span className="text-[15px] text-[hsl(var(--text-subtle))] text-center">{formatDate(item.updatedAt)}</span>
                       <div className="flex justify-center" onClick={(e) => e.stopPropagation()}>
                         {showArchived ? (
                           <button
@@ -174,7 +174,7 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
                         ) : (
                           <Switch
                             checked={item.enabled}
-                            onCheckedChange={() => toggleMenuEnabledDb(item.id, item.enabled)}
+                            onCheckedChange={() => toggleMenuEnabled(item.id)}
                           />
                         )}
                       </div>
@@ -303,7 +303,7 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
                       ) : (
                         <Switch
                           checked={item.enabled}
-                          onCheckedChange={() => toggleMenuEnabledDb(item.id, item.enabled)}
+                          onCheckedChange={() => toggleMenuEnabled(item.id)}
                         />
                       )}
                     </div>

@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { OrderTypeSheet } from "@/components/ui/order-type-sheet";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
-import { useAllProductNames } from "@/hooks/useMenuDbHooks";
+import { getAllProductNames } from "@/lib/productStore";
 
 interface Tax {
   id: string;
@@ -45,7 +45,7 @@ const EditTaxContent = ({ tax, onBack, onSave }: EditTaxContentProps) => {
   const typeOptions = ["Exclusive", "Inclusive"];
 
   // Product list sourced from the unified product store (menu + custom products)
-  const allProducts = useAllProductNames();
+  const allProducts = getAllProductNames();
 
   const handleBack = () => {
     if (name && amount && type) {

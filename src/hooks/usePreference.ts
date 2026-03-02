@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
-const db = supabase as any;
 const DEVICE_ID_KEY = "pos_device_id";
 
 function getDeviceId(): string {
@@ -20,7 +19,7 @@ export function usePreference(key: string, defaultValue: string) {
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await db
+      const { data } = await supabase
         .from("user_preferences")
         .select("preference_value")
         .eq("device_id", deviceId)
@@ -36,7 +35,7 @@ export function usePreference(key: string, defaultValue: string) {
   const update = useCallback(
     async (newValue: string) => {
       setValue(newValue);
-      await db
+      await supabase
         .from("user_preferences")
         .upsert(
           { device_id: deviceId, preference_key: key, preference_value: newValue },

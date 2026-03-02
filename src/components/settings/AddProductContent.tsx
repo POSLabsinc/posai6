@@ -10,8 +10,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { toast } from "@/hooks/use-toast";
-import { CustomProduct } from "@/lib/productStore";
-import { useAllCategoryNames } from "@/hooks/useMenuDbHooks";
+import { getAllCategories, CustomProduct } from "@/lib/productStore";
 import { createProduct, updateProduct, ProductVariant } from "@/services/productService";
 
 interface AddProductContentProps {
@@ -112,7 +111,7 @@ const AddProductContent = ({ onBack, initialData, editId }: AddProductContentPro
   const [categoryError, setCategoryError] = useState("");
 
   // ── Derived data ─────────────────────────────────────────────────────
-  const existingCategories = useAllCategoryNames();
+  const existingCategories = getAllCategories();
 
   // ── Image upload ─────────────────────────────────────────────────────
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -161,7 +160,6 @@ const AddProductContent = ({ onBack, initialData, editId }: AddProductContentPro
       name: name.trim(),
       description: description.trim(),
       category: resolvedCategory,
-      categoryId: "", // Will be resolved by the service layer
       price: parseFloat(price) || 0,
       priceType,
       minPrice: undefined,

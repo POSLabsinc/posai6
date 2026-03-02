@@ -1,32 +1,14 @@
-// Product store - DB-backed version
-// Replaces localStorage-based product management with database queries.
-// Maintains the same exported API for backward compatibility.
-import { useState, useEffect, useMemo } from "react";
-import {
-  fetchProducts as fetchProductsDb,
-  insertProduct as insertProductDb,
-  updateProductDb,
-  deleteProductDb as deleteProductRemote,
-  toggleProductArchived,
-  type DbProduct,
-  type DbProductInsert,
-} from "@/lib/db/productDbService";
-import {
-  useDbProducts,
-  useDbCategories,
-  useLiveMenuCategoriesDb,
-  useAllCategoryNames as useAllCategoryNamesHook,
-  useAllProductNames as useAllProductNamesHook,
-} from "@/hooks/useMenuDbHooks";
-import type { DbCategory } from "@/lib/db/menuService";
+// Product store - single source of truth for all products (menu data + user-created)
+import { useState, useEffect } from "react";
+import { menuCategories, MenuItem, MenuCategory } from "@/data/menuData";
+import { getMenus, getActiveMenuId } from "@/lib/menuStore";
+import { calculateEffectivePrice, type ProductVariant } from "@/services/productService";
 
-// ── Legacy interfaces (kept for backward compat) ────────────────────────
 export interface CustomProduct {
   id: string;
   name: string;
   description: string;
-  category: string; // category name (resolved from category_id)
-  categoryId: string; // actual DB category UUID
+  category: string;
   price: number;
   priceType: "fixed" | "open";
   minPrice?: number;
@@ -45,19 +27,51 @@ export interface CustomProduct {
   addOns: string[];
   taxes: string[];
   discounts: string[];
-  isCustom: true;
+  isCustom: true; // flag to distinguish from menu items
   createdAt: string;
   updatedAt: string;
-  variants?: any[];
+  variants?: ProductVariant[]; // DB variants for timed pricing
   archived?: boolean;
 }
 
+const CUSTOM_PRODUCTS_KEY = "custom-products";
+const ARCHIVE_KEY = "products-archived-ids";
+
+// ── Custom products CRUD ────────────────────────────────────────────────
+export const getCustomProducts = (): CustomProduct[] => {
+  try {
+    const stored = localStorage.getItem(CUSTOM_PRODUCTS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch {
+    return [];
+  }
+};
+
+export const saveCustomProduct = (product: CustomProduct): void => {
+  const products = getCustomProducts();
+  const idx = products.findIndex((p) => p.id === product.id);
+  if (idx >= 0) {
+    products[idx] = product;
+  } else {
+    products.push(product);
+  }
+  localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(products));
+  // Notify listeners
+  window.dispatchEvent(new CustomEvent("products-updated"));
+};
+
+export const deleteCustomProduct = (id: string): void => {
+  const products = getCustomProducts().filter((p) => p.id !== id);
+  localStorage.setItem(CUSTOM_PRODUCTS_KEY, JSON.stringify(products));
+  window.dispatchEvent(new CustomEvent("products-updated"));
+};
+
+// ── Unified product list (menu items + custom products) ─────────────────
 export interface UnifiedProduct {
   id: string;
   name: string;
   price: number;
   category: string;
-  categoryId: string;
   sku: string;
   variant: number;
   archived: boolean;
@@ -67,188 +81,188 @@ export interface UnifiedProduct {
   imageUrl?: string;
 }
 
-// Keep MenuItem/MenuCategory types for New Order screen compatibility
-export interface MenuItem {
-  id: string;
-  name: string;
-  price: number;
-  image?: string;
-  description?: string;
-}
-
-export interface MenuCategory {
-  id: string;
-  name: string;
-  icon?: string;
-  items: MenuItem[];
-}
-
-// ── DB→Legacy converters ────────────────────────────────────────────────
-const dbToCustomProduct = (p: DbProduct, categoryName: string): CustomProduct => ({
-  id: p.id,
-  name: p.name,
-  description: p.description,
-  category: categoryName,
-  categoryId: p.category_id,
-  price: p.price,
-  priceType: p.price_type,
-  minPrice: p.min_price ?? undefined,
-  maxPrice: p.max_price ?? undefined,
-  sku: p.sku,
-  imageUrl: p.image_url || undefined,
-  active: p.active,
-  dineIn: p.dine_in,
-  takeaway: p.takeaway,
-  delivery: p.delivery,
-  addToMenu: true,
-  inventoryTracking: p.inventory_tracking,
-  negativeInventory: p.negative_inventory,
-  outOfStock: p.out_of_stock,
-  modifiers: [],
-  addOns: [],
-  taxes: [],
-  discounts: [],
-  isCustom: true,
-  createdAt: p.created_at,
-  updatedAt: p.updated_at,
-  archived: p.archived,
-});
-
-const dbToUnified = (p: DbProduct, categoryName: string): UnifiedProduct => ({
-  id: p.id,
-  name: p.name,
-  price: p.price,
-  category: categoryName,
-  categoryId: p.category_id,
-  sku: p.sku || p.id.substring(0, 8).toUpperCase(),
-  variant: 1,
-  archived: p.archived,
-  isCustom: true,
-  active: p.active,
-  description: p.description,
-  imageUrl: p.image_url || undefined,
-});
-
-// ── Async CRUD ──────────────────────────────────────────────────────────
-export const saveCustomProduct = async (product: CustomProduct): Promise<void> => {
+const getArchivedIds = (): Set<string> => {
   try {
-    const dbProduct: DbProductInsert = {
-      category_id: product.categoryId,
-      name: product.name,
-      description: product.description || "",
-      price: product.price,
-      price_type: product.priceType,
-      min_price: product.minPrice ?? null,
-      max_price: product.maxPrice ?? null,
-      sku: product.sku || "",
-      image_url: product.imageUrl || "",
-      active: product.active,
-      archived: product.archived || false,
-      dine_in: product.dineIn,
-      takeaway: product.takeaway,
-      delivery: product.delivery,
-      out_of_stock: product.outOfStock,
-      inventory_tracking: product.inventoryTracking,
-      negative_inventory: product.negativeInventory,
-      popular: false,
-      sort_order: 0,
+    const stored = localStorage.getItem(ARCHIVE_KEY);
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  } catch {
+    return new Set();
+  }
+};
+
+export const setArchivedId = (id: string, archived: boolean): void => {
+  const ids = getArchivedIds();
+  if (archived) ids.add(id);
+  else ids.delete(id);
+  localStorage.setItem(ARCHIVE_KEY, JSON.stringify([...ids]));
+  window.dispatchEvent(new CustomEvent("products-updated"));
+};
+
+export const getAllUnifiedProducts = (): UnifiedProduct[] => {
+  const archivedIds = getArchivedIds();
+  const seen = new Set<string>();
+  const products: UnifiedProduct[] = [];
+
+  // From menu data (the ordering screen source)
+  menuCategories.forEach((category) => {
+    category.items.forEach((item) => {
+      if (!seen.has(item.id)) {
+        seen.add(item.id);
+        products.push({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          category: category.name,
+          sku: item.id.toUpperCase(),
+          variant: 1,
+          archived: archivedIds.has(item.id),
+          isCustom: false,
+          description: item.description,
+          imageUrl: item.image,
+        });
+      }
+    });
+  });
+
+  // From custom products
+  getCustomProducts().forEach((cp) => {
+    if (!seen.has(cp.id)) {
+      seen.add(cp.id);
+      products.push({
+        id: cp.id,
+        name: cp.name,
+        price: cp.price,
+        category: cp.category,
+        sku: cp.sku || cp.id.toUpperCase(),
+        variant: 1,
+        archived: archivedIds.has(cp.id),
+        isCustom: true,
+        active: cp.active,
+        description: cp.description,
+        imageUrl: cp.imageUrl,
+      });
+    }
+  });
+
+  return products;
+};
+
+// ── Category list (menu categories + custom product categories) ──────────
+export const getAllCategories = (): string[] => {
+  const cats = new Set<string>(menuCategories.map((c) => c.name));
+  getCustomProducts().forEach((p) => {
+    if (p.category) cats.add(p.category);
+  });
+  return [...cats];
+};
+
+// ── Product names list for tax/discount applicable-products selectors ────
+export const getAllProductNames = (): string[] => {
+  const products = getAllUnifiedProducts().filter((p) => !p.archived);
+  const names = [...new Set(products.map((p) => p.name))];
+  return names;
+};
+
+// ── Live menu categories: static menu + active custom products merged ────
+// All active, non-archived custom products appear on the New Order screen.
+// Optionally filtered by the active menu's category list.
+// Optionally sorted by the menu sort preference.
+export const getLiveMenuCategories = (activeMenuId?: string | null, sortPreference?: string): MenuCategory[] => {
+  const archivedIds = getArchivedIds();
+  const customProducts = getCustomProducts().filter(
+    (cp) => cp.active !== false && !archivedIds.has(cp.id)
+  );
+
+  // Deep-clone static categories so we never mutate the original
+  let merged: MenuCategory[] = menuCategories.map((cat) => ({
+    ...cat,
+    items: [...cat.items],
+  }));
+
+  // Group custom products by category
+  customProducts.forEach((cp) => {
+    // Calculate effective price using timed pricing logic
+    const basePrice = cp.priceType === "open" ? (cp.minPrice ?? 0) : cp.price;
+    const effectivePrice = cp.variants && cp.variants.length > 0
+      ? calculateEffectivePrice(basePrice, cp.variants)
+      : basePrice;
+
+    const menuItem: MenuItem = {
+      id: cp.id,
+      name: cp.name,
+      price: effectivePrice,
+      image: cp.imageUrl ?? "",
+      description: cp.description,
     };
 
-    // Check if exists
-    const products = await fetchProductsDb();
-    const existing = products.find((p) => p.id === product.id);
+    const existing = merged.find(
+      (cat) => cat.name.toLowerCase() === cp.category.toLowerCase()
+    );
     if (existing) {
-      await updateProductDb(product.id, dbProduct);
+      if (!existing.items.find((i) => i.id === cp.id)) {
+        existing.items.push(menuItem);
+      }
     } else {
-      await insertProductDb(dbProduct);
+      merged.push({
+        id: `custom-cat-${cp.category.toLowerCase().replace(/\s+/g, "-")}`,
+        name: cp.category,
+        items: [menuItem],
+      });
     }
-  } catch (err) {
-    console.error("saveCustomProduct error:", err);
+  });
+
+  // ── Filter by active menu ──────────────────────────────────────────────
+  const resolvedActiveId = activeMenuId !== undefined ? activeMenuId : getActiveMenuId();
+  if (resolvedActiveId) {
+    const menus = getMenus();
+    const activeMenu = menus.find((m) => m.id === resolvedActiveId && m.enabled && !m.archived);
+    if (activeMenu && activeMenu.categories.length > 0) {
+      const allowedSet = new Set(activeMenu.categories.map((c) => c.toLowerCase()));
+      merged = merged.filter((cat) => allowedSet.has(cat.name.toLowerCase()));
+    }
   }
-};
 
-export const deleteCustomProduct = async (id: string): Promise<void> => {
-  try {
-    await deleteProductRemote(id);
-  } catch (err) {
-    console.error("deleteCustomProduct error:", err);
+  // ── Apply sort preference ──────────────────────────────────────────────
+  if (sortPreference === "Alphabetical") {
+    // Sort categories alphabetically
+    merged.sort((a, b) => a.name.localeCompare(b.name));
+    // Sort items within each category alphabetically
+    merged.forEach((cat) => {
+      cat.items.sort((a, b) => a.name.localeCompare(b.name));
+    });
+  } else if (sortPreference === "Popular") {
+    // Sort items by price descending as a proxy for popularity
+    // (in a real system this would use order count data)
+    merged.forEach((cat) => {
+      cat.items.sort((a, b) => b.price - a.price);
+    });
   }
+  // "Default" and "Drag & Drop" keep original order
+
+  return merged;
 };
 
-export const setArchivedId = async (id: string, archived: boolean): Promise<void> => {
-  try {
-    await toggleProductArchived(id, archived);
-  } catch (err) {
-    console.error("setArchivedId error:", err);
-  }
+// ── React hook: subscribes to products-updated + menus-updated and returns live categories ──
+export const useLiveMenuCategories = (sortPreference?: string): MenuCategory[] => {
+  const [categories, setCategories] = useState<MenuCategory[]>(() =>
+    getLiveMenuCategories(undefined, sortPreference)
+  );
+
+  useEffect(() => {
+    // Re-read active menu id fresh on every event so filtering is always current
+    const refresh = () => setCategories(getLiveMenuCategories(getActiveMenuId(), sortPreference));
+    window.addEventListener("products-updated", refresh);
+    window.addEventListener("menus-updated", refresh);
+    window.addEventListener("storage", refresh);
+    // Also refresh when called with new sortPreference
+    refresh();
+    return () => {
+      window.removeEventListener("products-updated", refresh);
+      window.removeEventListener("menus-updated", refresh);
+      window.removeEventListener("storage", refresh);
+    };
+  }, [sortPreference]);
+
+  return categories;
 };
 
-// ── Sync getters (for non-hook contexts — these are now async) ──────────
-export const getCustomProducts = async (): Promise<CustomProduct[]> => {
-  try {
-    const [products, cats] = await Promise.all([
-      fetchProductsDb(),
-      (await import("@/lib/db/menuService")).fetchCategories(),
-    ]);
-    const catMap = new Map(cats.map((c) => [c.id, c.name]));
-    return products.map((p) => dbToCustomProduct(p, catMap.get(p.category_id) || "Uncategorized"));
-  } catch {
-    return [];
-  }
-};
-
-export const getAllUnifiedProducts = async (): Promise<UnifiedProduct[]> => {
-  try {
-    const [products, cats] = await Promise.all([
-      fetchProductsDb(),
-      (await import("@/lib/db/menuService")).fetchCategories(),
-    ]);
-    const catMap = new Map(cats.map((c) => [c.id, c.name]));
-    return products.map((p) => dbToUnified(p, catMap.get(p.category_id) || "Uncategorized"));
-  } catch {
-    return [];
-  }
-};
-
-export const getAllCategories = async (): Promise<string[]> => {
-  try {
-    const cats = await (await import("@/lib/db/menuService")).fetchCategories();
-    return cats.map((c) => c.name);
-  } catch {
-    return [];
-  }
-};
-
-export const getAllProductNames = async (): Promise<string[]> => {
-  try {
-    const products = await fetchProductsDb();
-    return [...new Set(products.filter((p) => !p.archived && p.active).map((p) => p.name))];
-  } catch {
-    return [];
-  }
-};
-
-// ── React hooks ─────────────────────────────────────────────────────────
-export const useAllUnifiedProducts = (): UnifiedProduct[] => {
-  const { data: products } = useDbProducts();
-  const { data: categories } = useDbCategories();
-
-  return useMemo(() => {
-    const catMap = new Map(categories.map((c: DbCategory) => [c.id, c.name]));
-    return products.map((p) => dbToUnified(p, catMap.get(p.category_id) || "Uncategorized"));
-  }, [products, categories]);
-};
-
-export const useCustomProducts = (): CustomProduct[] => {
-  const { data: products } = useDbProducts();
-  const { data: categories } = useDbCategories();
-
-  return useMemo(() => {
-    const catMap = new Map(categories.map((c: DbCategory) => [c.id, c.name]));
-    return products.map((p) => dbToCustomProduct(p, catMap.get(p.category_id) || "Uncategorized"));
-  }, [products, categories]);
-};
-
-export const useLiveMenuCategories = useLiveMenuCategoriesDb;
-export { useAllCategoryNamesHook as useAllCategoryNames };
-export { useAllProductNamesHook as useAllProductNames };

@@ -224,7 +224,7 @@ const ShiftCalendarView = ({ cards, currentWeek, onShiftClick, toolbarJobTypes =
     queryKey: ["shift_week_view", startStr, endStr],
     queryFn: async () => {
       const [{ data: employees, error: empErr }, { data: shifts, error: shiftErr }] = await Promise.all([
-        (supabase as any)
+        supabase
           .from("employees")
           .select("id, full_name, role, avatar_url")
           .eq("is_archived", false)

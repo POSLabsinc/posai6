@@ -1,5 +1,7 @@
 import { supabase } from "@/integrations/supabase/client";
 
+const db = supabase as any;
+
 export interface EmployeePinResult {
   id: string;
   full_name: string;
@@ -10,12 +12,8 @@ export interface EmployeePinResult {
   hourly_rate: number;
 }
 
-/**
- * Look up an employee by their PIN from the database.
- * Returns null if no matching employee found.
- */
 export async function lookupEmployeeByPin(pin: string): Promise<EmployeePinResult | null> {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("employees")
     .select("id, full_name, role, phone, email, avatar_url, hourly_rate")
     .eq("pin", pin)
@@ -26,11 +24,8 @@ export async function lookupEmployeeByPin(pin: string): Promise<EmployeePinResul
   return data as EmployeePinResult;
 }
 
-/**
- * Fetch all non-archived employees for display in employee selection lists.
- */
 export async function fetchAllActiveEmployees(): Promise<EmployeePinResult[]> {
-  const { data, error } = await supabase
+  const { data, error } = await db
     .from("employees")
     .select("id, full_name, role, phone, email, avatar_url, hourly_rate")
     .eq("is_archived", false)

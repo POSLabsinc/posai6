@@ -4,8 +4,6 @@ import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import cashManagementIcon from "@/assets/icons/cash-management.png";
-import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface CashManagementContentProps {
   showHeader?: boolean;
@@ -39,7 +37,7 @@ const CashManagementContent = ({
 }: CashManagementContentProps) => {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  const { getIconBgColor } = useAppearance();
+  
   const [selectedDrawer, setSelectedDrawer] = useState("Point of Sale 1");
   const [openingCash, setOpeningCash] = useState("");
   const [showDrawerDropdown, setShowDrawerDropdown] = useState(false);
@@ -137,16 +135,10 @@ const CashManagementContent = ({
           </div>
         </div>
       )}
-      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
-        {/* Header Card */}
-        <div className="bg-neutral-800/60 rounded-2xl p-5 mb-6 flex flex-col items-start">
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4" style={{
-            backgroundColor: getIconBgColor("#F80063")
-          }}>
-            <img src={cashManagementIcon} alt="Cash Management" className="w-7 h-7 object-contain" />
-          </div>
-          <h1 className="text-xl font-semibold text-foreground mb-2">Cash management</h1>
-          <p className="text-base text-neutral-400 leading-relaxed w-full">
+      <div className="pt-4 px-6 pb-28">
+        {/* Description */}
+        <div className="mb-4 px-1">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Cash management focuses on efficiently handling cash flow, liquidity, and investments to ensure financial stability.
           </p>
         </div>

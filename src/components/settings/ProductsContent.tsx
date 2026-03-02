@@ -18,7 +18,7 @@ import {
 import infoIcon from "@/assets/icons/info.png";
 import productsIcon from "@/assets/icons/menu-products.png";
 import SwipeableSettingsItem from "./SwipeableSettingsItem";
-import { getAllUnifiedProducts, setArchivedId, UnifiedProduct } from "@/lib/productStore";
+import { useAllUnifiedProducts, setArchivedId, UnifiedProduct } from "@/lib/productStore";
 
 interface ProductsContentProps {
   showHeader?: boolean;
@@ -32,15 +32,8 @@ const ProductsContent = ({ showHeader = true, onBack, onAIClick, onAdd }: Produc
   const navigate = useNavigate();
   const { getIconBgColor } = useAppearance();
 
-  // Derive products from the unified store (menu + custom)
-  const [products, setProducts] = useState<UnifiedProduct[]>(() => getAllUnifiedProducts());
-
-  // Re-derive when products-updated fires
-  useEffect(() => {
-    const refresh = () => setProducts(getAllUnifiedProducts());
-    window.addEventListener("products-updated", refresh);
-    return () => window.removeEventListener("products-updated", refresh);
-  }, []);
+  // Derive products from the unified store (DB-backed with realtime)
+  const products = useAllUnifiedProducts();
 
   const [searchQuery, setSearchQuery] = useState("");
   const [showArchived, setShowArchived] = useState(false);

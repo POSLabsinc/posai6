@@ -148,8 +148,6 @@ const DefaultModifiersContent = ({ showHeader = true, onBack, onAIClick }: Defau
               <Mic className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
             </div>
 
-            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
-
             <button
               onClick={() => setShowArchived((v) => !v)}
               className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-neutral-700/50 bg-transparent text-foreground active:opacity-70 transition-opacity"

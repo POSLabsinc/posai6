@@ -42,7 +42,7 @@ function dateLabel(): string {
 }
 
 async function createNotification(params: CreateNotificationParams) {
-  const { error } = await supabase.from("notifications").insert({
+  const { error } = await (supabase as any).from("notifications").insert({
     title: params.title,
     preview: params.preview,
     headline: params.headline,

@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import { getMenus, saveMenu, Menu } from "@/lib/menuStore";
-import { getAllCategories } from "@/lib/productStore";
+import { useMenus, saveMenu, Menu } from "@/lib/menuStore";
+import { useAllCategoryNames } from "@/hooks/useMenuDbHooks";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { Switch } from "@/components/ui/switch";
 
@@ -21,8 +21,9 @@ const EditMenuContent = ({
   onNavigate,
   onAIClick,
 }: EditMenuContentProps) => {
-  const allCategories = getAllCategories();
-  const originalMenu = getMenus().find((m) => m.id === menuId);
+  const allCategories = useAllCategoryNames();
+  const menus = useMenus();
+  const originalMenu = menus.find((m) => m.id === menuId);
 
   const [name, setName] = useState(originalMenu?.name ?? "");
   const [activeForPOS, setActiveForPOS] = useState(false);

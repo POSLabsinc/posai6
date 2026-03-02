@@ -1,4 +1,5 @@
-import { useState, useRef, useEffect, useMemo } from "react";
+import { useState, useRef, useEffect, useMemo, useCallback } from "react";
+import { useActiveMenuData } from "@/hooks/useSupabaseMenus";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { Plus, Receipt, ArrowRightLeft, X, FileText, ChevronDown, MoreVertical, Gift, DollarSign, UserPlus, FolderOpen, AlertCircle, SplitSquareVertical, RotateCcw, Delete, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, MapPin, BadgeDollarSign, Tag, Users, Share2, Fingerprint, ScanFace, CreditCard, User, Link, QrCode, Banknote, Printer, MessageSquare, Mail, CheckCircle, Truck, ShoppingBag, Clipboard, ExternalLink, Utensils, UtensilsCrossed, ArrowLeft, Phone, AlertTriangle, RefreshCw, Send, Zap, Search, Check, Ticket } from "lucide-react";
 import PaymentDialog from "@/components/PaymentDialog";
@@ -114,15 +115,7 @@ import meatballsMarinaraImg from "@/assets/food/meatballs-marinara.png";
 import chickenParmesanImg from "@/assets/food/chicken-parmesan.png";
 import tunaTartareImg from "@/assets/food/tuna-tartare.png";
 const foodImages = [burgerGourmetImg, steakSlicedImg, asparagusPlatedImg, turkeySandwichImg, grilledChickenImg, shrimpRiceImg, macCheeseBowlImg, roastedChickenImg, fettuccinePestoImg, spaghettiTomatoImg, gnocchiCreamImg, rigatoniBasilImg, grilledPaniniImg, spaghettiMeatballsImg, ravioliCreamImg, crispyChickenBurgerImg, herbCrustedSalmonImg, meatballsMarinaraImg, chickenParmesanImg, tunaTartareImg];
-const menuList = ["BAKERY MENU", "BAR MENU", "HAPPY HOUR M/W", "Holiday Menu", "LE BRUNCH MENU", "LE DINER MENU"];
-const menuCategories: Record<string, string[]> = {
-  "BAKERY MENU": ["Breads", "Pastries", "Cakes", "Cookies", "Croissants", "Muffins", "Donuts", "Pies", "Tarts", "Scones", "Bagels"],
-  "BAR MENU": ["Food", "Desserts", "Drinks", "Beer", "Wine", "Cocktails", "Spirits", "Mocktails", "Whiskey", "Vodka", "Rum"],
-  "HAPPY HOUR M/W": ["Appetizers", "Wings", "Sliders", "Nachos", "Beer", "Wine", "Cocktails", "Shots", "Tacos", "Quesadillas", "Dips"],
-  "Holiday Menu": ["Starters", "Mains", "Sides", "Desserts", "Drinks", "Specials", "Platters", "Combos", "Turkey", "Ham", "Roasts"],
-  "LE BRUNCH MENU": ["Eggs", "Pancakes", "Waffles", "Omelettes", "Juice", "Coffee", "Mimosas", "Pastries", "Bacon", "Sausage", "Toast"],
-  "LE DINER MENU": ["Appetizers", "Soups", "Salads", "Entrees", "Steaks", "Seafood", "Pasta", "Desserts", "Risotto", "Duck", "Lamb"]
-};
+// menuList and menuCategories are now loaded from the database via useActiveMenuData() hook inside the Orders component
 const categorySubcategories: Record<string, string[]> = {
   // BAR MENU categories
   "Food": ["Appetizers", "Mains", "Sides", "Salads", "Soups", "Sandwiches", "Burgers", "Wraps", "Tacos", "Platters", "Kids Menu", "Specials"],
@@ -6028,6 +6021,9 @@ const Orders = () => {
   const { panelLayout } = usePanelPosition();
   const { getOrderBySessionId, updateOrderItems, fireOrder: fireSessionOrder, updateOrderStatus, saveSplitConfiguration: saveContextSplitConfig } = useSessionOrders();
 
+  // Load menus from database - only enabled, non-archived menus appear
+  const { menuList, menuCategories, loading: menusLoading } = useActiveMenuData();
+
   const addItemMode = searchParams.get('mode') === 'addItem';
   const transferNewMode = searchParams.get('mode') === 'transferNew';
   const transferItemsParam = searchParams.get('transferItems');
@@ -6054,7 +6050,7 @@ const Orders = () => {
   const isExistingOrderPaid = existingOrderPaymentStatus === 'Paid' || existingOrderPaymentStatus === 'PAID';
 
   // Helper to get first category and subcategory for a menu
-  const getFirstCategoryAndSubcategory = (menu: string) => {
+  const getFirstCategoryAndSubcategory = useCallback((menu: string) => {
     const categories = menuCategories[menu] || [];
     const firstCategory = categories[0] || "";
     const subcategories = categorySubcategories[firstCategory] || [];
@@ -6063,8 +6059,8 @@ const Orders = () => {
       firstCategory,
       firstSubcategory
     };
-  };
-  const defaultMenu = "BAR MENU";
+  }, [menuCategories]);
+  const defaultMenu = menuList[0] || "BAR MENU";
   const {
     firstCategory: defaultCategory,
     firstSubcategory: defaultSubcategory
@@ -6073,6 +6069,17 @@ const Orders = () => {
   const [activeSubcategory, setActiveSubcategory] = useState(defaultSubcategory);
   const [activeFoodCategory, setActiveFoodCategory] = useState("Appetizer");
   const [selectedMenu, setSelectedMenu] = useState(defaultMenu);
+
+  // When DB menus load and selectedMenu is not in the list, reset to first available
+  useEffect(() => {
+    if (!menusLoading && menuList.length > 0 && !menuList.includes(selectedMenu)) {
+      const newMenu = menuList[0];
+      setSelectedMenu(newMenu);
+      const { firstCategory, firstSubcategory } = getFirstCategoryAndSubcategory(newMenu);
+      setActiveCategory(firstCategory);
+      setActiveSubcategory(firstSubcategory);
+    }
+  }, [menuList, menusLoading, selectedMenu, getFirstCategoryAndSubcategory]);
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
   const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
@@ -7915,7 +7922,7 @@ const Orders = () => {
               <img src={burgerOpenIcon} alt="Open menu" className="w-6 md:w-8 lg:w-9 h-6 md:h-8 lg:h-9" />
             </Button>}
           {/* Categories */}
-          {menuCategories[selectedMenu].map((cat) => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
+          {(menuCategories[selectedMenu] || []).map((cat) => <Button key={cat} variant={activeCategory === cat ? "default" : "outline"} className={`rounded-full px-2.5 md:px-4 lg:px-6 h-7 md:h-8 lg:h-9 text-[11px] md:text-xs lg:text-sm whitespace-nowrap border-2 ${activeCategory === cat ? `${getCategoryBgColor(cat)} ${getCategoryHoverBgColor(cat)} text-white ${getCategoryBorderColor(cat)}` : `bg-header text-header-foreground ${getCategoryBorderColor(cat)} hover:bg-header/80`}`} onClick={() => handleCategoryChange(cat)}>
               {cat}
             </Button>)}
         </div>

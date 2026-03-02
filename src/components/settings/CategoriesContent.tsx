@@ -208,9 +208,9 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6 pt-4">
+        <div className="flex-1 overflow-y-auto scrollbar-hide px-6 pb-6">
           {/* Description */}
-          <div className="mb-4 px-1">
+          <div className="mt-4 mb-4 px-1">
             <p className="text-sm text-muted-foreground leading-relaxed">
               {showArchived
                 ? "View and restore your archived categories."
@@ -219,8 +219,8 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           </div>
 
           {/* Search + Archive + Add row */}
-          <section className="flex items-center gap-2 lg:gap-4 mb-6">
-            <div className="flex-1 min-w-0 rounded-full bg-[hsl(var(--surface-1))] px-5 py-3 flex items-center gap-3">
+          <section className="mt-6 flex items-center gap-2 lg:gap-4">
+            <div className="flex-1 min-w-0 rounded-full bg-neutral-800/60 px-5 py-3 flex items-center gap-3">
               <Search className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
               <input
                 type="text"
@@ -232,13 +232,11 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
               <Mic className="h-5 w-5 flex-shrink-0 text-[hsl(var(--text-subtle))]" />
             </div>
 
+            <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai', { state: { context: 'menu' } }))} />
+
             <button
               onClick={() => setShowArchived((v) => !v)}
-              className={`h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border active:opacity-70 transition-all ${
-                showArchived
-                  ? "bg-neutral-700 border-neutral-600"
-                  : "bg-transparent border-neutral-700/50"
-              } text-foreground`}
+              className="h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border border-neutral-700/50 bg-transparent text-foreground active:opacity-70 transition-opacity"
             >
               <Archive className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Archive</span>
@@ -246,7 +244,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
 
             <button
               onClick={() => setShowAddScreen(true)}
-              className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-[hsl(var(--surface-3))] text-foreground active:opacity-70 transition-opacity"
+              className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-neutral-800/60 text-foreground active:opacity-70 transition-opacity"
             >
               <Plus className="h-5 w-5" />
               <span className="text-[15px] font-semibold">Add</span>
@@ -254,8 +252,8 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
           </section>
 
           {/* Table */}
-          <section className="mt-6 rounded-2xl bg-[#26262699] overflow-hidden">
-            <div className="grid grid-cols-[1.5fr_1fr_1fr_80px_24px] items-center px-8 py-5 border-b border-[hsl(var(--surface-border))]">
+          <section className="mt-6 rounded-2xl bg-neutral-800/60 overflow-hidden">
+            <div className="grid grid-cols-[1.5fr_1fr_1fr_80px_24px] items-center px-8 py-5 border-b border-neutral-700/50">
               <span className="text-[15px] font-semibold text-foreground">Category Name</span>
               <span className="text-[15px] font-semibold text-foreground text-center">Parent</span>
               <span className="text-[15px] font-semibold text-foreground text-center">Category Position</span>
@@ -266,7 +264,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
             {filteredItems.length > 0 ? (
               filteredItems.map((item, index) => (
                 <div key={item.id}>
-                  {index > 0 && <div className="h-px bg-[hsl(var(--surface-border))]" />}
+                  {index > 0 && <div className="h-px bg-neutral-700/50" />}
                   <SwipeableSettingsItem
                     onTap={() => showArchived ? setItemToArchive(item) : setEditingCategory(item)}
                     onArchive={() => handleArchiveItem(item)}
@@ -292,7 +290,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
 
         {/* Archive Confirmation Dialog */}
         <AlertDialog open={!!itemToArchive} onOpenChange={() => setItemToArchive(null)}>
-          <AlertDialogContent className="bg-[#26262699] border-[hsl(var(--surface-border))]">
+          <AlertDialogContent className="bg-neutral-800/60 border-neutral-700/50">
             <AlertDialogHeader>
               <AlertDialogTitle className="text-foreground">
                 {itemToArchive?.archived ? "Restore Category" : "Archive Category"}
@@ -304,7 +302,7 @@ const CategoriesContent = ({ showHeader = true, onBack, onAIClick }: CategoriesC
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel className="bg-[hsl(var(--surface-3))] text-foreground border-[hsl(var(--surface-border))] hover:bg-[hsl(var(--surface-3))]">
+              <AlertDialogCancel className="bg-neutral-700 text-foreground border-neutral-600 hover:bg-neutral-600">
                 Cancel
               </AlertDialogCancel>
               <AlertDialogAction onClick={confirmArchiveItem} className="bg-primary text-primary-foreground hover:bg-primary/90">

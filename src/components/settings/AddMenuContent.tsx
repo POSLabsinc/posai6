@@ -37,18 +37,19 @@ const AddMenuContent = ({
   };
 
   const handleSave = () => {
-    if (!name.trim()) return;
-    const now = new Date().toISOString();
-    const menu: Menu = {
-      id: generateMenuId(),
-      name: name.trim(),
-      description: "",
-      enabled,
-      categories: selectedCategories,
-      createdAt: now,
-      updatedAt: now,
-    };
-    saveMenu(menu);
+    if (name.trim()) {
+      const now = new Date().toISOString();
+      const menu: Menu = {
+        id: generateMenuId(),
+        name: name.trim(),
+        description: "",
+        enabled,
+        categories: selectedCategories,
+        createdAt: now,
+        updatedAt: now,
+      };
+      saveMenu(menu);
+    }
     onBack?.();
   };
 
@@ -58,7 +59,7 @@ const AddMenuContent = ({
       <div className="flex items-center justify-center py-4 px-4 relative">
         {onBack ? (
           <button
-            onClick={onBack}
+            onClick={handleSave}
             className="absolute left-4 w-12 h-12 rounded-full bg-neutral-800 flex items-center justify-center active:opacity-70 transition-opacity"
             aria-label="Back"
           >
@@ -161,14 +162,6 @@ const AddMenuContent = ({
         </div>
         <p className="text-muted-foreground text-xs px-1 mt-1 mb-6">Assign this menu to specific revenue centers.</p>
 
-        {/* Save Button */}
-        <button
-          onClick={handleSave}
-          disabled={!name.trim()}
-          className="w-full py-4 rounded-full bg-primary text-primary-foreground text-base font-semibold active:opacity-70 transition-opacity disabled:opacity-40 disabled:cursor-not-allowed mb-4"
-        >
-          Save Menu
-        </button>
       </div>
 
       {/* Categories Sheet */}

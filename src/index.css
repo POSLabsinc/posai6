@@ -406,3 +406,8 @@ All colors MUST be HSL.
     background: white !important;
   }
 }
+
+/* Bold Text accessibility setting - applied globally when toggled on */
+.app-bold-text * {
+  font-weight: bold !important;
+}

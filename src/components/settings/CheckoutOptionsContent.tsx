@@ -5,8 +5,6 @@ import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
 import { SettingsManager, CheckoutOptionsSettings } from "@/lib/settingsManager";
-import checkoutOptionsIcon from "@/assets/icons/checkout-options.png";
-import { useAppearance } from "@/contexts/AppearanceContext";
 
 interface CheckoutOptionsContentProps {
   showHeader?: boolean;
@@ -17,7 +15,7 @@ interface CheckoutOptionsContentProps {
 const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: CheckoutOptionsContentProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const { getIconBgColor } = useAppearance();
+  
   
   // Load initial state from SettingsManager
   const [settings, setSettings] = useState<CheckoutOptionsSettings>(() => 
@@ -64,17 +62,10 @@ const CheckoutOptionsContent = ({ showHeader = true, onBack, onAIClick }: Checko
         </div>
       )}
 
-      <div className={`${showHeader ? 'pt-0' : 'pt-0'} px-6 pb-28`}>
-        {/* Header Card */}
-        <div className="bg-neutral-800/60 rounded-2xl p-5 mb-4 flex flex-col items-start">
-          <div 
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ backgroundColor: getIconBgColor("#000000") }}
-          >
-            <img src={checkoutOptionsIcon} alt="Checkout Options" className="w-7 h-7 object-contain" />
-          </div>
-          <h1 className="text-xl font-semibold text-foreground mb-2">Checkout Options</h1>
-          <p className="text-base text-neutral-400 leading-relaxed w-full">
+      <div className="pt-4 px-6 pb-28">
+        {/* Description */}
+        <div className="mb-4 px-1">
+          <p className="text-sm text-muted-foreground leading-relaxed">
             Configure the checkout flow and customer-facing options.
           </p>
         </div>

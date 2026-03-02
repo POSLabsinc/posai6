@@ -302,7 +302,7 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
           >
             <ChevronLeft className="w-5 h-5 text-foreground" />
           </button>
-          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">Service Charge</h1>
+          <h1 className="text-base font-medium text-foreground absolute left-1/2 -translate-x-1/2">{showArchived ? "Archived Service Charges" : "Service Charge"}</h1>
           <div className="overflow-visible flex items-center justify-center" style={{ width: 32, height: 32 }}>
             <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
           </div>
@@ -310,64 +310,49 @@ const ServiceChargeContent = ({ showHeader = true, onBack, onAIClick }: ServiceC
       )}
 
       <div className="px-6 pt-4 pb-8">
-        {/* Header Card */}
-        <div className="bg-neutral-800/60 rounded-2xl p-6 mb-6 flex flex-col items-start">
-          {/* Service Charge Icon */}
-          <div 
-            className="w-16 h-16 rounded-2xl flex items-center justify-center mb-4"
-            style={{ backgroundColor: getIconBgColor("#FF3F7D") }}
-          >
-            <img src={serviceChargeIcon} alt="Service Charge" className="w-8 h-8 object-contain" />
-          </div>
-
-          {/* Title */}
-          <h1 className="text-xl font-semibold text-foreground mb-2">Service Charge</h1>
-
-          {/* Description */}
-          <p className="text-base text-neutral-400 leading-relaxed max-w-2xl md:text-balance">
-            Configure automatic service charges for orders and specific scenarios like large parties, delivery fees, or private events.
+        {/* Description */}
+        <div className="mb-4 px-1">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            {showArchived
+              ? "View and restore your archived service charges."
+              : "Configure automatic service charges for orders and specific scenarios like large parties, delivery fees, or private events."}
           </p>
         </div>
 
-        {/* Search and Action Buttons Row */}
-        <div className="flex items-center gap-4 mb-6">
-          {/* Search Bar */}
-          <div className="flex-1 bg-neutral-800/60 rounded-full flex items-center px-4 py-3">
-            <Search className="w-5 h-5 text-neutral-500 mr-3" />
+        {/* Search + actions row */}
+        <section className="flex items-center gap-2 lg:gap-4 mb-6">
+          <div className="flex-1 min-w-0 rounded-full bg-neutral-800/60 px-5 py-3 flex items-center gap-3">
+            <Search className="h-5 w-5 flex-shrink-0 text-neutral-500" />
             <input
               type="text"
               placeholder="Search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-base"
+              className="flex-1 min-w-0 bg-transparent text-foreground placeholder:text-neutral-500 outline-none text-[15px]"
             />
-            <Mic className="w-5 h-5 text-neutral-500" />
+            <Mic className="h-5 w-5 flex-shrink-0 text-neutral-500" />
           </div>
 
-          <AnimatedAIIcon size={24} onClick={onAIClick || (() => navigate('/settings/ai'))} />
-
-          {/* Archive Button */}
-          <button 
-            onClick={() => setShowArchived(!showArchived)}
-            className={`px-6 py-3 rounded-full flex items-center gap-2 transition-colors ${
-              showArchived 
-                ? "bg-neutral-700 border border-neutral-600" 
-                : "bg-neutral-800/60 border border-neutral-700"
-            }`}
+          <button
+            onClick={() => setShowArchived((v) => !v)}
+            className={`h-12 rounded-full px-4 lg:px-7 flex-shrink-0 flex items-center justify-center gap-2 border active:opacity-70 transition-all ${
+              showArchived
+                ? "bg-neutral-700 border-neutral-600"
+                : "bg-transparent border-neutral-700/50"
+            } text-foreground`}
           >
-            <Archive className="w-5 h-5 text-foreground" />
-            <span className="text-foreground font-medium text-base">Archive</span>
+            <Archive className="h-5 w-5" />
+            <span className="text-[15px] font-semibold">Archive</span>
           </button>
 
-          {/* Add Button */}
-          <button 
+          <button
             onClick={() => setShowAddScreen(true)}
-            className="px-6 py-3 bg-neutral-800/60 rounded-full flex items-center gap-2 active:opacity-70 transition-opacity border border-neutral-700"
+            className="h-12 rounded-full px-5 lg:px-10 flex-shrink-0 flex items-center justify-center gap-2 bg-neutral-800/60 text-foreground active:opacity-70 transition-opacity"
           >
-            <Plus className="w-5 h-5 text-foreground" />
-            <span className="text-foreground font-medium text-base">Add</span>
+            <Plus className="h-5 w-5" />
+            <span className="text-[15px] font-semibold">Add</span>
           </button>
-        </div>
+        </section>
 
         {/* Service Charge Table */}
         <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">

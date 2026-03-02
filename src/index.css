@@ -42,24 +42,24 @@ All colors MUST be HSL.
     --header-foreground: 0 0% 100%;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
 
     --stat-surface: 0 0% 0% / 0.08;
     --stat-inset-shadow: inset 4px 4px 24px 0px rgba(0, 0, 0, 0.08);
     --calendar-border: 220 13% 91%;
+
+    /* Semantic surface tokens for theme-aware components */
+    --surface: 0 0% 95%;
+    --surface-elevated: 0 0% 92%;
+    --surface-inset: 0 0% 97%;
+    --divider: 0 0% 88%;
+    --text-subtle: 0 0% 45%;
   }
 
   .dark {
@@ -104,6 +104,13 @@ All colors MUST be HSL.
 
     --stat-surface: 0 0% 46% / 0.3;
     --stat-inset-shadow: inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15);
+
+    /* Semantic surface tokens for dark theme */
+    --surface: 0 0% 16%;
+    --surface-elevated: 0 0% 20%;
+    --surface-inset: 0 0% 10%;
+    --divider: 0 0% 28%;
+    --text-subtle: 0 0% 55%;
   }
 }
 
@@ -133,12 +140,20 @@ All colors MUST be HSL.
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid hsla(0, 0%, 100%, 0.15);
   }
+  :root:not(.dark) .glass {
+    background: hsla(0, 0%, 100%, 0.7);
+    border: 1px solid hsla(0, 0%, 0%, 0.08);
+  }
 
   .glass-dark {
     background: hsla(0, 0%, 0%, 0.3);
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid hsla(0, 0%, 100%, 0.1);
+  }
+  :root:not(.dark) .glass-dark {
+    background: hsla(0, 0%, 0%, 0.05);
+    border: 1px solid hsla(0, 0%, 0%, 0.1);
   }
 
   .glass-vibrant {
@@ -147,6 +162,11 @@ All colors MUST be HSL.
     -webkit-backdrop-filter: blur(16px) saturate(180%);
     border: 1px solid hsla(0, 0%, 100%, 0.2);
     box-shadow: 0 8px 32px hsla(0, 0%, 0%, 0.2);
+  }
+  :root:not(.dark) .glass-vibrant {
+    background: linear-gradient(135deg, hsla(0, 0%, 100%, 0.8), hsla(0, 0%, 100%, 0.6));
+    border: 1px solid hsla(0, 0%, 0%, 0.08);
+    box-shadow: 0 8px 32px hsla(0, 0%, 0%, 0.08);
   }
 
   .glass-glow {

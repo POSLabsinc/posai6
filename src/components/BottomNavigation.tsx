@@ -19,8 +19,8 @@ const BottomNavigation = () => {
   const location = useLocation();
 
   return (
-    <div className="md:hidden flex items-center justify-center bg-black">
-      <div className="flex items-center justify-around bg-neutral-900 py-1 w-full border-t border-sidebar-border">
+    <div className="md:hidden flex items-center justify-center bg-background">
+      <div className="flex items-center justify-around bg-surface-inset py-1 w-full border-t border-divider">
         {navItems.map((item) => {
           const isActive = location.pathname === item.to;
           return (
@@ -28,7 +28,7 @@ const BottomNavigation = () => {
               key={item.to}
               to={item.to}
               className={`flex flex-col items-center gap-0 px-3 py-1 ${
-                isActive ? "rounded-md border border-neutral-500 bg-transparent" : ""
+                isActive ? "rounded-md border border-divider bg-transparent" : ""
               }`}
             >
               <img
@@ -38,7 +38,7 @@ const BottomNavigation = () => {
               />
               <span
                 className={`text-[9px] ${
-                  isActive ? "font-medium text-white" : "text-neutral-400"
+                  isActive ? "font-medium text-foreground" : "text-muted-foreground"
                 }`}
               >
                 {item.label}

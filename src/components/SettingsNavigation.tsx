@@ -46,7 +46,7 @@ const SettingsItem = ({ iconSrc, label, iconBgColor, onClick, isActive, tourId }
     <button
       onClick={onClick}
       data-tour={tourId}
-      className={`flex items-center gap-4 w-full py-3 px-3 active:opacity-70 transition-all rounded-full ${isActive ? 'bg-neutral-800 dark:bg-neutral-700/60 text-white' : ''}`}
+      className={`flex items-center gap-4 w-full py-3 px-3 active:opacity-70 transition-all rounded-full ${isActive ? 'bg-surface-elevated dark:bg-neutral-700/60 text-foreground' : ''}`}
     >
       <div 
         className={`${containerSize} rounded-lg flex items-center justify-center transition-all`}
@@ -54,7 +54,7 @@ const SettingsItem = ({ iconSrc, label, iconBgColor, onClick, isActive, tourId }
       >
         <img src={iconSrc} alt={label} className={`${iconSizeClass} transition-all`} />
       </div>
-      <span className={`text-base font-medium ${isActive ? 'text-white' : 'text-foreground'}`}>{label}</span>
+      <span className={`text-base font-medium ${isActive ? 'text-foreground' : 'text-foreground'}`}>{label}</span>
     </button>
   );
 };
@@ -195,7 +195,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
           data-tour="profile"
           className="w-full active:opacity-70 transition-opacity text-left mb-5"
         >
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden">
+          <div className="bg-surface rounded-2xl overflow-hidden">
             <div className="flex items-center gap-4 p-4">
               <Avatar className="w-14 h-14">
                 <AvatarImage src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face" alt="Jim Hopper" />
@@ -206,7 +206,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
                 <p className="text-sm text-muted-foreground">Executive Assistant Manager</p>
               </div>
             </div>
-            <div className="h-px bg-neutral-700/50 mx-4" />
+            <div className="h-px bg-divider mx-4" />
             <div className="px-4 py-3 flex items-center gap-2">
               <span className="text-sm text-muted-foreground">Clocked In At 10:00 AM</span>
               <span className="w-2 h-2 rounded-full bg-orange-500"></span>
@@ -215,14 +215,14 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
         </button>
 
         {!hasResults && searchQuery && (
-          <div className="bg-neutral-800/60 rounded-2xl p-6 mb-4 text-center">
+          <div className="bg-surface rounded-2xl p-6 mb-4 text-center">
             <p className="text-muted-foreground">No settings found for "{searchQuery}"</p>
           </div>
         )}
 
         {/* Main Settings Group */}
         {mainItems.length > 0 && (
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
+          <div className="bg-surface rounded-2xl overflow-hidden mb-4">
             {mainItems.map((item, index) => (
               <div key={item.id}>
                 <MobileSettingsItem
@@ -233,7 +233,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
                   tourId={item.id}
                 />
                 {index < mainItems.length - 1 && (
-                  <div className="h-px bg-neutral-700/50 mx-4" />
+                  <div className="h-px bg-divider mx-4" />
                 )}
               </div>
             ))}
@@ -242,7 +242,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
 
         {/* System Settings Group */}
         {systemItems.length > 0 && (
-          <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-4">
+          <div className="bg-surface rounded-2xl overflow-hidden mb-4">
             {systemItems.map((item, index) => (
               <div key={item.id}>
                 <MobileSettingsItem
@@ -253,7 +253,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
                   tourId={item.id}
                 />
                 {index < systemItems.length - 1 && (
-                  <div className="h-px bg-neutral-700/50 mx-4" />
+                  <div className="h-px bg-divider mx-4" />
                 )}
               </div>
             ))}
@@ -264,7 +264,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
       {/* Floating Search Bar with AI Icon outside */}
       <div className="fixed bottom-20 left-4 right-4 z-50">
         <div className="flex items-center gap-3">
-          <div className="flex-1 bg-neutral-800/90 backdrop-blur-sm rounded-full px-4 py-2.5 flex items-center gap-3 shadow-lg border border-neutral-700/50">
+          <div className="flex-1 bg-surface/90 backdrop-blur-sm rounded-full px-4 py-2.5 flex items-center gap-3 shadow-lg border border-divider">
             <Search className="w-5 h-5 text-muted-foreground" />
             <input
               type="text"
@@ -300,7 +300,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
 
         {/* Inline Search Bar with AI Icon outside */}
         <div className="flex items-center gap-2 mb-4">
-          <div className="flex-1 min-w-0 bg-neutral-800 rounded-full px-4 py-2 flex items-center gap-3">
+          <div className="flex-1 min-w-0 bg-surface rounded-full px-4 py-2 flex items-center gap-3">
             <Search className="w-5 h-5 text-muted-foreground flex-shrink-0" />
             <input
               type="text"
@@ -348,7 +348,7 @@ const SettingsNavigation = ({ onUserProfileClick, onSettingsItemClick, onAIClick
 
 
         {!hasResults && searchQuery && (
-          <div className="bg-neutral-900 rounded-2xl p-6 mb-4 text-center">
+          <div className="bg-surface rounded-2xl p-6 mb-4 text-center">
             <p className="text-muted-foreground">No settings found for "{searchQuery}"</p>
           </div>
         )}

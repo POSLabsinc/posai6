@@ -234,7 +234,7 @@ const ShiftMonthView = ({ currentMonth }: ShiftMonthViewProps) => {
     queryKey: ["shift_month_view", startStr, endStr],
     queryFn: async () => {
       const [{ data: employees, error: empErr }, { data: shifts, error: shiftErr }] = await Promise.all([
-        supabase
+        (supabase as any)
           .from("employees")
           .select("id, full_name, role")
           .eq("is_archived", false),

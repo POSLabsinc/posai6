@@ -147,16 +147,162 @@ All colors MUST be HSL.
   background-color: hsl(var(--divider)) !important;
 }
 
-/* Inline style dark backgrounds (common card bg) */
-:root:not(.dark) [style*="#1B1C20"] {
+/* Inline style dark backgrounds — browsers convert hex to rgb() in DOM.
+   Match rgb(...) format for inline styles. */
+:root:not(.dark) [style*="background-color: rgb(27, 28, 32)"],
+:root:not(.dark) [style*="background-color: rgb(27,28,32)"] {
   background-color: hsl(var(--surface-elevated)) !important;
 }
-:root:not(.dark) [style*="#1b1c20"] {
+:root:not(.dark) [style*="background-color: rgb(42, 42, 42)"],
+:root:not(.dark) [style*="background-color: rgb(42,42,42)"] {
   background-color: hsl(var(--surface-elevated)) !important;
 }
+:root:not(.dark) [style*="background-color: rgb(39, 40, 44)"],
+:root:not(.dark) [style*="background-color: rgb(39,40,44)"] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) [style*="background-color: rgb(58, 58, 58)"],
+:root:not(.dark) [style*="background-color: rgb(58,58,58)"] {
+  background-color: hsl(var(--muted)) !important;
+}
+:root:not(.dark) [style*="background-color: rgb(44, 44, 46)"],
+:root:not(.dark) [style*="background-color: rgb(44,44,46)"] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) [style*="background-color: rgb(26, 26, 26)"],
+:root:not(.dark) [style*="background-color: rgb(26,26,26)"] {
+  background-color: hsl(var(--surface-inset)) !important;
+}
+:root:not(.dark) [style*="background-color: rgb(37, 37, 37)"],
+:root:not(.dark) [style*="background-color: rgb(37,37,37)"] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) [style*="background-color: rgb(45, 45, 45)"],
+:root:not(.dark) [style*="background-color: rgb(45,45,45)"] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) [style*="background-color: rgb(0, 0, 0)"] {
+  background-color: hsl(var(--background)) !important;
+}
+:root:not(.dark) [style*="background-color: rgb(17, 17, 17)"],
+:root:not(.dark) [style*="background-color: rgb(34, 34, 34)"],
+:root:not(.dark) [style*="background-color: rgb(51, 51, 51)"] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+/* Also keep hex matches for SSR / non-browser rendering */
+:root:not(.dark) [style*="#1B1C20"],
+:root:not(.dark) [style*="#1b1c20"],
 :root:not(.dark) [style*="#2A2A2A"],
-:root:not(.dark) [style*="#2a2a2a"] {
+:root:not(.dark) [style*="#2a2a2a"],
+:root:not(.dark) [style*="#27282C"],
+:root:not(.dark) [style*="#27282c"],
+:root:not(.dark) [style*="#2C2C2E"],
+:root:not(.dark) [style*="#2c2c2e"],
+:root:not(.dark) [style*="#1a1a1a"],
+:root:not(.dark) [style*="#1A1A1A"],
+:root:not(.dark) [style*="#252525"],
+:root:not(.dark) [style*="#2d2d2d"],
+:root:not(.dark) [style*="#2D2D2D"] {
   background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) [style*="#3A3A3A"],
+:root:not(.dark) [style*="#3a3a3a"] {
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* Tailwind arbitrary bg-[#hex] dark color overrides */
+:root:not(.dark) .bg-\[\#1B1C20\],
+:root:not(.dark) .bg-\[\#1b1c20\] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) .bg-\[\#27282C\],
+:root:not(.dark) .bg-\[\#27282c\] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) .bg-\[\#2C2C2E\],
+:root:not(.dark) .bg-\[\#2c2c2e\] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) .bg-\[\#1a1a1a\],
+:root:not(.dark) .bg-\[\#1A1A1A\] {
+  background-color: hsl(var(--surface-inset)) !important;
+}
+:root:not(.dark) .bg-\[\#2A2A2A\],
+:root:not(.dark) .bg-\[\#2a2a2a\] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) .bg-\[\#3A3A3A\],
+:root:not(.dark) .bg-\[\#3a3a3a\] {
+  background-color: hsl(var(--muted)) !important;
+}
+:root:not(.dark) .bg-\[\#1a1a2e\] {
+  background-color: hsl(var(--background)) !important;
+}
+:root:not(.dark) .bg-\[\#26262699\] {
+  background-color: hsl(var(--muted)) !important;
+}
+:root:not(.dark) .bg-\[\#252525\] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) .bg-\[\#2C2C2E\]\/95 {
+  background-color: hsl(var(--surface-elevated) / 0.97) !important;
+}
+
+/* Additional bg-neutral variants with opacity */
+:root:not(.dark) .bg-neutral-900\/80 {
+  background-color: hsl(var(--surface-inset) / 0.8) !important;
+}
+:root:not(.dark) .bg-neutral-800\/90 {
+  background-color: hsl(var(--surface-elevated) / 0.9) !important;
+}
+:root:not(.dark) .bg-neutral-800\/50 {
+  background-color: hsl(var(--surface-elevated) / 0.5) !important;
+}
+
+/* text-gray-* variants */
+:root:not(.dark) .text-gray-400,
+:root:not(.dark) .text-gray-500 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+:root:not(.dark) .text-gray-300 {
+  color: hsl(var(--foreground) / 0.7) !important;
+}
+:root:not(.dark) .text-gray-200 {
+  color: hsl(var(--foreground)) !important;
+}
+
+/* bg-zinc-* overrides */
+:root:not(.dark) .bg-zinc-900 {
+  background-color: hsl(var(--surface-inset)) !important;
+}
+:root:not(.dark) .bg-zinc-800 {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) .bg-zinc-700 {
+  background-color: hsl(var(--surface)) !important;
+}
+
+/* bg-slate-* overrides */
+:root:not(.dark) .bg-slate-900 {
+  background-color: hsl(var(--surface-inset)) !important;
+}
+:root:not(.dark) .bg-slate-800 {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) .bg-slate-700 {
+  background-color: hsl(var(--surface)) !important;
+}
+
+/* border-white opacity low values on dark bg — make them proper borders */
+:root:not(.dark) .border-white\/5,
+:root:not(.dark) .border-white\/8 {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Preserve white text on specific dark utility backgrounds used intentionally */
+:root:not(.dark) .bg-\[\#3B6A9E\] .text-white,
+:root:not(.dark) .bg-\[\#3B6A9E\].text-white {
+  color: white !important;
 }
 
 /* Hover state overrides */

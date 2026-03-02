@@ -2,7 +2,7 @@ import { useState } from "react";
 import { ChevronLeft, ChevronRight, Plus, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AnimatedAIIcon from "@/components/AnimatedAIIcon";
-import { useMenus, deleteMenu, toggleMenuEnabled, Menu } from "@/lib/menuStore";
+import { useSupabaseMenus, deleteMenuDb, toggleMenuEnabledDb, type DbMenu } from "@/hooks/useSupabaseMenus";
 import { Switch } from "@/components/ui/switch";
 import {
   AlertDialog,
@@ -28,13 +28,13 @@ const MenusContent = ({
   onNavigate,
   onAIClick,
 }: MenusContentProps) => {
-  const menus = useMenus();
-  const [deleteTarget, setDeleteTarget] = useState<Menu | null>(null);
+  const { menus } = useSupabaseMenus();
+  const [deleteTarget, setDeleteTarget] = useState<DbMenu | null>(null);
   const isMobile = useIsMobile();
 
   const handleDelete = () => {
     if (deleteTarget) {
-      deleteMenu(deleteTarget.id);
+      deleteMenuDb(deleteTarget.id);
       setDeleteTarget(null);
     }
   };
@@ -97,7 +97,7 @@ const MenusContent = ({
                   <div className="flex items-center gap-3 ml-2">
                     <Switch
                       checked={menu.enabled}
-                      onCheckedChange={() => toggleMenuEnabled(menu.id)}
+                      onCheckedChange={() => toggleMenuEnabledDb(menu.id, menu.enabled)}
                     />
                     <button
                       onClick={() => setDeleteTarget(menu)}

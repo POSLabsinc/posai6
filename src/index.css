@@ -124,6 +124,234 @@ All colors MUST be HSL.
   }
 }
 
+/* ===================================================================
+   LIGHT THEME DYNAMIC OVERRIDES
+   Remaps hardcoded dark-mode Tailwind utilities to semantic tokens
+   so ALL screens automatically adapt when light theme is active.
+   =================================================================== */
+
+/* --- Background overrides --- */
+:root:not(.dark) .bg-black:not(.preserve-dark) {
+  background-color: hsl(var(--background)) !important;
+}
+:root:not(.dark) .bg-neutral-900 {
+  background-color: hsl(var(--surface-inset)) !important;
+}
+:root:not(.dark) .bg-neutral-800 {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) .bg-neutral-700 {
+  background-color: hsl(var(--surface)) !important;
+}
+:root:not(.dark) .bg-neutral-600 {
+  background-color: hsl(var(--divider)) !important;
+}
+
+/* Inline style dark backgrounds (common card bg) */
+:root:not(.dark) [style*="#1B1C20"] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) [style*="#1b1c20"] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+:root:not(.dark) [style*="#2A2A2A"],
+:root:not(.dark) [style*="#2a2a2a"] {
+  background-color: hsl(var(--surface-elevated)) !important;
+}
+
+/* Hover state overrides */
+:root:not(.dark) .hover\:bg-neutral-700:hover {
+  background-color: hsl(var(--muted)) !important;
+}
+:root:not(.dark) .hover\:bg-neutral-800:hover {
+  background-color: hsl(var(--surface)) !important;
+}
+:root:not(.dark) .hover\:bg-neutral-600:hover {
+  background-color: hsl(var(--muted)) !important;
+}
+
+/* --- Border overrides --- */
+:root:not(.dark) .border-neutral-800 {
+  border-color: hsl(var(--border)) !important;
+}
+:root:not(.dark) .border-neutral-700 {
+  border-color: hsl(var(--border)) !important;
+}
+:root:not(.dark) .border-neutral-600 {
+  border-color: hsl(var(--border)) !important;
+}
+:root:not(.dark) .hover\:border-neutral-600:hover {
+  border-color: hsl(var(--border)) !important;
+}
+:root:not(.dark) .hover\:border-neutral-700:hover {
+  border-color: hsl(var(--border)) !important;
+}
+:root:not(.dark) .divide-neutral-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: hsl(var(--border)) !important;
+}
+:root:not(.dark) .divide-neutral-700 > :not([hidden]) ~ :not([hidden]) {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* --- Text overrides --- */
+:root:not(.dark) .text-white {
+  color: hsl(var(--foreground)) !important;
+}
+:root:not(.dark) .text-white\/90 {
+  color: hsl(var(--foreground)) !important;
+}
+:root:not(.dark) .text-white\/80 {
+  color: hsl(var(--foreground) / 0.85) !important;
+}
+:root:not(.dark) .text-white\/70 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+:root:not(.dark) .text-white\/60 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+:root:not(.dark) .text-white\/50 {
+  color: hsl(var(--text-subtle)) !important;
+}
+:root:not(.dark) .text-white\/40 {
+  color: hsl(var(--text-subtle)) !important;
+}
+:root:not(.dark) .text-white\/30 {
+  color: hsl(var(--text-subtle)) !important;
+}
+:root:not(.dark) .text-neutral-400 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+:root:not(.dark) .text-neutral-500 {
+  color: hsl(var(--muted-foreground)) !important;
+}
+:root:not(.dark) .text-neutral-300 {
+  color: hsl(var(--foreground) / 0.7) !important;
+}
+
+/* --- Ring / outline overrides --- */
+:root:not(.dark) .ring-white\/30 {
+  --tw-ring-color: hsl(var(--border)) !important;
+}
+
+/* --- Shadow overrides --- */
+:root:not(.dark) .shadow-black\/20 {
+  --tw-shadow-color: hsl(0 0% 0% / 0.08) !important;
+}
+:root:not(.dark) .shadow-black\/30 {
+  --tw-shadow-color: hsl(0 0% 0% / 0.1) !important;
+}
+
+/* ===================================================================
+   PRESERVE white text on intentionally colored backgrounds.
+   These rules have higher specificity to re-apply white text.
+   =================================================================== */
+:root:not(.dark) .bg-emerald-500 .text-white,
+:root:not(.dark) .bg-emerald-500.text-white,
+:root:not(.dark) .bg-emerald-600 .text-white,
+:root:not(.dark) .bg-emerald-600.text-white,
+:root:not(.dark) .bg-green-500 .text-white,
+:root:not(.dark) .bg-green-500.text-white,
+:root:not(.dark) .bg-green-600 .text-white,
+:root:not(.dark) .bg-green-600.text-white,
+:root:not(.dark) .bg-blue-500 .text-white,
+:root:not(.dark) .bg-blue-500.text-white,
+:root:not(.dark) .bg-blue-600 .text-white,
+:root:not(.dark) .bg-blue-600.text-white,
+:root:not(.dark) .bg-red-500 .text-white,
+:root:not(.dark) .bg-red-500.text-white,
+:root:not(.dark) .bg-red-600 .text-white,
+:root:not(.dark) .bg-red-600.text-white,
+:root:not(.dark) .bg-orange-500 .text-white,
+:root:not(.dark) .bg-orange-500.text-white,
+:root:not(.dark) .bg-purple-500 .text-white,
+:root:not(.dark) .bg-purple-500.text-white,
+:root:not(.dark) .bg-pink-500 .text-white,
+:root:not(.dark) .bg-pink-500.text-white,
+:root:not(.dark) .bg-yellow-500 .text-white,
+:root:not(.dark) .bg-yellow-500.text-white,
+:root:not(.dark) .bg-header .text-white,
+:root:not(.dark) .bg-header.text-white,
+:root:not(.dark) .bg-primary .text-white,
+:root:not(.dark) .bg-primary.text-white,
+:root:not(.dark) .bg-destructive .text-white,
+:root:not(.dark) .bg-destructive.text-white,
+:root:not(.dark) [class*="bg-gradient"] .text-white,
+:root:not(.dark) [class*="bg-gradient"].text-white,
+:root:not(.dark) [class*="bg-\[#22C55E"] .text-white,
+:root:not(.dark) [class*="bg-\[#22C55E"].text-white,
+:root:not(.dark) [class*="bg-\[#FF6B6B"] .text-white,
+:root:not(.dark) [class*="bg-\[#FF6B6B"].text-white,
+:root:not(.dark) [class*="bg-\[#9B59B6"] .text-white,
+:root:not(.dark) [class*="bg-\[#9B59B6"].text-white,
+:root:not(.dark) [class*="bg-\[#E91E8C"] .text-white,
+:root:not(.dark) [class*="bg-\[#E91E8C"].text-white,
+:root:not(.dark) [class*="bg-\[#666"] .text-white,
+:root:not(.dark) [class*="bg-\[#666"].text-white,
+:root:not(.dark) [class*="bg-\[#555"] .text-white,
+:root:not(.dark) [class*="bg-\[#555"].text-white {
+  color: white !important;
+}
+
+/* Also preserve white text/60 on colored backgrounds */
+:root:not(.dark) .bg-header .text-white\/60,
+:root:not(.dark) [class*="bg-\[#666"] .text-white\/60 {
+  color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Border-white variants should become border-foreground in light mode */
+:root:not(.dark) .border-white {
+  border-color: hsl(var(--foreground)) !important;
+}
+:root:not(.dark) .border-white\/10,
+:root:not(.dark) .border-white\/15,
+:root:not(.dark) .border-white\/20,
+:root:not(.dark) .border-white\/25 {
+  border-color: hsl(var(--border)) !important;
+}
+:root:not(.dark) .hover\:border-white:hover {
+  border-color: hsl(var(--foreground)) !important;
+}
+:root:not(.dark) .hover\:border-white\/40:hover {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Placeholder text override */
+:root:not(.dark) .placeholder\:text-white\/40::placeholder {
+  color: hsl(var(--text-subtle)) !important;
+}
+:root:not(.dark) .placeholder\:text-white\/50::placeholder {
+  color: hsl(var(--text-subtle)) !important;
+}
+
+/* Focus ring overrides */
+:root:not(.dark) .focus\:border-white:focus {
+  border-color: hsl(var(--foreground)) !important;
+}
+:root:not(.dark) .focus\:ring-white\/20:focus {
+  --tw-ring-color: hsl(var(--border)) !important;
+}
+
+/* bg-white/X opacity variants should adapt too */
+:root:not(.dark) .bg-white\/5 {
+  background-color: hsl(var(--foreground) / 0.05) !important;
+}
+:root:not(.dark) .bg-white\/10 {
+  background-color: hsl(var(--foreground) / 0.06) !important;
+}
+:root:not(.dark) .bg-white\/15,
+:root:not(.dark) .bg-white\/20 {
+  background-color: hsl(var(--foreground) / 0.08) !important;
+}
+:root:not(.dark) .hover\:bg-white\/10:hover {
+  background-color: hsl(var(--foreground) / 0.08) !important;
+}
+:root:not(.dark) .hover\:bg-white\/20:hover {
+  background-color: hsl(var(--foreground) / 0.1) !important;
+}
+:root:not(.dark) .hover\:text-white:hover {
+  color: hsl(var(--foreground)) !important;
+}
+
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none;

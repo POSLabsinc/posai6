@@ -89,7 +89,7 @@ const CircularChair = ({
         className={`w-5 h-3 rounded-t-full transition-colors ${
           isOccupied 
             ? "bg-blue-500 shadow-lg shadow-blue-500/30" 
-            : "bg-neutral-700 border border-neutral-600"
+            : "bg-muted border border-border"
         }`}
       />
     </div>
@@ -145,7 +145,7 @@ const SquareChair = ({
         className={`w-5 h-3 rounded-t transition-colors ${
           isOccupied 
             ? "bg-blue-500 shadow-lg shadow-blue-500/30" 
-            : "bg-neutral-700 border border-neutral-600"
+            : "bg-muted border border-border"
         }`}
       />
     </div>
@@ -199,7 +199,7 @@ const CircularTable = ({
         {/* Table surface */}
         <div 
           className={`rounded-full flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 ${
-            isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
+            isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-background" : ""
           }`}
           style={{ 
             width: tableRadius * 2, 
@@ -210,7 +210,7 @@ const CircularTable = ({
           }}
         >
           {/* Table ID */}
-          <span className="text-white font-bold text-lg leading-none">{table.id}</span>
+          <span className="text-foreground font-bold text-lg leading-none">{table.id}</span>
           
           {/* Status label */}
           <span 
@@ -226,7 +226,7 @@ const CircularTable = ({
               <div 
                 key={i}
                 className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  i < table.guests ? "bg-blue-400" : "bg-neutral-600"
+                  i < table.guests ? "bg-blue-400" : "bg-muted"
                 }`}
               />
             ))}
@@ -244,7 +244,7 @@ const CircularTable = ({
           }}
         >
           <Clock className="w-3 h-3" style={{ color: config.color }} />
-          <span className="text-gray-300">{table.time}</span>
+          <span className="text-muted-foreground">{table.time}</span>
         </div>
       )}
 
@@ -255,7 +255,7 @@ const CircularTable = ({
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
         >
           <div className="flex flex-col items-center">
-            <span className="text-xs text-gray-400 mb-2">Select guests</span>
+            <span className="text-xs text-muted-foreground mb-2">Select guests</span>
             <div className="flex flex-wrap gap-2 justify-center max-w-[140px]">
               {Array.from({ length: table.seats }).map((_, i) => (
                 <button
@@ -264,7 +264,7 @@ const CircularTable = ({
                     e.stopPropagation();
                     onGuestSelect(i + 1);
                   }}
-                  className="w-8 h-8 flex items-center justify-center text-sm font-bold text-white bg-neutral-700 rounded-full hover:bg-green-500 transition-all hover:scale-110"
+                  className="w-8 h-8 flex items-center justify-center text-sm font-bold text-foreground bg-muted rounded-full hover:bg-green-500 transition-all hover:scale-110"
                 >
                   {i + 1}
                 </button>
@@ -346,7 +346,7 @@ const SquareTable = ({
         {/* Table surface */}
         <div 
           className={`rounded-xl flex flex-col items-center justify-center transition-all duration-300 group-hover:scale-105 ${
-            isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-black" : ""
+            isSelected ? "ring-2 ring-orange-500 ring-offset-2 ring-offset-background" : ""
           }`}
           style={{ 
             width: tableSize, 
@@ -357,7 +357,7 @@ const SquareTable = ({
           }}
         >
           {/* Table ID */}
-          <span className="text-white font-bold text-lg leading-none">{table.id}</span>
+          <span className="text-foreground font-bold text-lg leading-none">{table.id}</span>
           
           {/* Status label */}
           <span 
@@ -373,7 +373,7 @@ const SquareTable = ({
               <div 
                 key={i}
                 className={`w-1.5 h-1.5 rounded-full transition-colors ${
-                  i < table.guests ? "bg-blue-400" : "bg-neutral-600"
+                  i < table.guests ? "bg-blue-400" : "bg-muted"
                 }`}
               />
             ))}
@@ -391,7 +391,7 @@ const SquareTable = ({
           }}
         >
           <Clock className="w-3 h-3" style={{ color: config.color }} />
-          <span className="text-gray-300">{table.time}</span>
+          <span className="text-muted-foreground">{table.time}</span>
         </div>
       )}
 
@@ -402,7 +402,7 @@ const SquareTable = ({
           style={{ backgroundColor: 'rgba(0, 0, 0, 0.85)' }}
         >
           <div className="flex flex-col items-center">
-            <span className="text-xs text-gray-400 mb-2">Select guests</span>
+            <span className="text-xs text-muted-foreground mb-2">Select guests</span>
             <div className="flex flex-wrap gap-2 justify-center max-w-[120px]">
               {Array.from({ length: table.seats }).map((_, i) => (
                 <button
@@ -411,7 +411,7 @@ const SquareTable = ({
                     e.stopPropagation();
                     onGuestSelect(i + 1);
                   }}
-                  className="w-8 h-8 flex items-center justify-center text-sm font-bold text-white bg-neutral-700 rounded hover:bg-green-500 transition-all hover:scale-110"
+                  className="w-8 h-8 flex items-center justify-center text-sm font-bold text-foreground bg-muted rounded hover:bg-green-500 transition-all hover:scale-110"
                 >
                   {i + 1}
                 </button>
@@ -436,19 +436,19 @@ const StatusLegend = () => {
   ];
 
   return (
-    <div className="flex items-center justify-center gap-4 py-3 px-4 bg-neutral-900/50 rounded-lg border border-neutral-800">
+    <div className="flex items-center justify-center gap-4 py-3 px-4 bg-surface-inset rounded-lg border border-border">
       {legendItems.map((item) => (
         <div key={item.status} className="flex items-center gap-1.5">
           <div 
             className="w-2.5 h-2.5 rounded-full"
             style={{ backgroundColor: item.color }}
           />
-          <span className="text-xs text-gray-400">{item.status}</span>
+          <span className="text-xs text-muted-foreground">{item.status}</span>
         </div>
       ))}
-      <div className="flex items-center gap-1.5 ml-2 pl-4 border-l border-neutral-700">
+      <div className="flex items-center gap-1.5 ml-2 pl-4 border-l border-border">
         <div className="w-3 h-2 rounded-t-sm bg-blue-500" />
-        <span className="text-xs text-gray-400">Occupied</span>
+        <span className="text-xs text-muted-foreground">Occupied</span>
       </div>
     </div>
   );
@@ -501,7 +501,7 @@ const TableOrderA = () => {
   };
 
   return (
-    <div className="flex flex-col h-full bg-black p-3">
+    <div className="flex flex-col h-full bg-background p-3">
       {/* Filter Bar */}
       <div className="flex items-center gap-2 mb-4">
         {/* Collapsible Controls */}
@@ -533,8 +533,8 @@ const TableOrderA = () => {
             </button>
 
             {/* Users Button */}
-            <button className="flex items-center justify-center bg-neutral-800 rounded-full p-1.5 hover:bg-neutral-700 transition-colors">
-              <Users className="w-4 h-4 text-white" />
+            <button className="flex items-center justify-center bg-surface-elevated rounded-full p-1.5 hover:bg-muted transition-colors">
+              <Users className="w-4 h-4 text-foreground" />
             </button>
 
             {/* Dining Area Dropdown */}
@@ -544,17 +544,17 @@ const TableOrderA = () => {
                   className="flex items-center gap-2 rounded-full px-3 py-1.5 hover:opacity-90 transition-opacity"
                   style={{ background: "linear-gradient(180deg, #B8B8B8 0%, #616161 100%)" }}
                 >
-                  <span className="text-white text-xs font-medium">{selectedArea}</span>
-                  <ChevronDown className="w-3 h-3 text-white" />
+                  <span className="text-foreground text-xs font-medium">{selectedArea}</span>
+                  <ChevronDown className="w-3 h-3 text-foreground" />
                 </button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="bg-neutral-800 border-neutral-700">
+              <DropdownMenuContent className="bg-surface-elevated border-border">
                 {diningAreas.map((area) => (
                   <DropdownMenuItem
                     key={area}
                     onClick={() => setSelectedArea(area)}
-                    className={`text-white hover:bg-neutral-700 cursor-pointer ${
-                      selectedArea === area ? "bg-neutral-700" : ""
+                    className={`text-foreground hover:bg-muted cursor-pointer ${
+                      selectedArea === area ? "bg-muted" : ""
                     }`}
                   >
                     {area}
@@ -583,8 +583,8 @@ const TableOrderA = () => {
                 onClick={() => setActiveFilter(filter)}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm whitespace-nowrap transition-all ${
                   activeFilter === filter
-                    ? "bg-white text-black font-medium"
-                    : "bg-neutral-800 text-gray-300 hover:bg-neutral-700"
+                    ? "bg-foreground text-background font-medium"
+                    : "bg-surface-elevated text-muted-foreground hover:bg-muted"
                 }`}
               >
                 {filter}

@@ -30,10 +30,10 @@ const ACTIVE_ICON_BTN_STYLE: React.CSSProperties = {
   background: "linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)",
 };
 const DROPDOWN_STYLE: React.CSSProperties = {
-  backgroundColor: "#2A2A2E",
-  border: "1px solid rgba(255,255,255,0.12)",
+  backgroundColor: "hsl(var(--surface-elevated))",
+  border: "1px solid hsl(var(--border))",
 };
-const DROPDOWN_ITEM_CLASS = "hover:bg-white/10 cursor-pointer";
+const DROPDOWN_ITEM_CLASS = "hover:bg-muted cursor-pointer";
 
 // ── small sub-components (stable, never re-created) ──
 const FilterDropdownWrapper = memo(({ label, children }: { label: string; children: React.ReactNode }) => (
@@ -43,8 +43,8 @@ const FilterDropdownWrapper = memo(({ label, children }: { label: string; childr
     className="!w-fit min-w-[140px] max-w-[220px] p-0 rounded-xl border-0 shadow-xl z-[100]"
     style={DROPDOWN_STYLE}
   >
-    <div className="px-3 py-2 border-b border-white/10">
-      <span className="text-white/50 text-xs font-medium">{label}</span>
+    <div className="px-3 py-2 border-b border-border">
+      <span className="text-muted-foreground text-xs font-medium">{label}</span>
     </div>
     <div className="py-1">{children}</div>
   </PopoverContent>
@@ -130,16 +130,16 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
 
   if (showSearch) {
     return (
-      <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+      <div className="relative flex items-center justify-between p-2 border-b border-border">
         <div className="flex items-center gap-2 flex-1 mr-2">
-          <Search className="w-4 h-4 text-neutral-400 flex-shrink-0" />
+          <Search className="w-4 h-4 text-muted-foreground flex-shrink-0" />
           <input
             autoFocus
             type="text"
             value={searchQuery}
             onChange={e => onSearchQueryChange(e.target.value)}
             placeholder="Search by name, order ID, or check..."
-            className="bg-transparent text-white text-sm placeholder:text-neutral-500 outline-none w-full"
+            className="bg-transparent text-foreground text-sm placeholder:text-muted-foreground outline-none w-full"
           />
         </div>
         <button
@@ -147,17 +147,17 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
           style={ICON_BTN_STYLE}
           onClick={() => { onShowSearchChange(false); onSearchQueryChange(""); }}
         >
-          <X className="w-4 h-4 text-white" />
+          <X className="w-4 h-4 text-foreground" />
         </button>
       </div>
     );
   }
 
   return (
-    <div className="relative flex items-center justify-between p-2 border-b border-neutral-700/50">
+    <div className="relative flex items-center justify-between p-2 border-b border-border">
       <div className="flex items-center gap-3">
         {leftElement}
-        <span className="text-white font-semibold text-lg pl-2">{title}</span>
+        <span className="text-foreground font-semibold text-lg pl-2">{title}</span>
       </div>
       <div className="flex items-center gap-1.5 z-10">
         {showFilterIcons && (
@@ -166,12 +166,12 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
             <Popover>
               <PopoverTrigger asChild>
                 <button className={ICON_BTN_CLASS} style={advFilterRevenueCenter ? ACTIVE_ICON_BTN_STYLE : ICON_BTN_STYLE} title="Revenue Center">
-                  <DollarSign className="w-4 h-4 text-white" />
+                  <DollarSign className="w-4 h-4 text-foreground" />
                 </button>
               </PopoverTrigger>
               <FilterDropdownWrapper label="Revenue Center">
                 {REVENUE_CENTER_OPTIONS.map(opt => (
-                  <button key={opt} onClick={() => toggleRevenueCenter(opt)} className={`w-full text-left px-3 py-2 text-sm ${advFilterRevenueCenter === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
+                  <button key={opt} onClick={() => toggleRevenueCenter(opt)} className={`w-full text-left px-3 py-2 text-sm ${advFilterRevenueCenter === opt ? 'text-orange-400' : 'text-foreground'} ${DROPDOWN_ITEM_CLASS}`}>
                     {opt}
                   </button>
                 ))}
@@ -182,7 +182,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
             <Popover>
               <PopoverTrigger asChild>
                 <button className={ICON_BTN_CLASS} style={advFilterDate ? ACTIVE_ICON_BTN_STYLE : ICON_BTN_STYLE} title="Date">
-                  <CalendarDays className="w-4 h-4 text-white" />
+                  <CalendarDays className="w-4 h-4 text-foreground" />
                 </button>
               </PopoverTrigger>
               <PopoverContent align="start" sideOffset={8} className="!w-fit p-0 rounded-xl border-0 shadow-xl z-[100]" style={DROPDOWN_STYLE}>
@@ -199,12 +199,12 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
             <Popover>
               <PopoverTrigger asChild>
                 <button className={ICON_BTN_CLASS} style={advFilterEmployee ? ACTIVE_ICON_BTN_STYLE : ICON_BTN_STYLE} title="Employee">
-                  <UsersRound className="w-4 h-4 text-white" />
+                  <UsersRound className="w-4 h-4 text-foreground" />
                 </button>
               </PopoverTrigger>
               <FilterDropdownWrapper label="Employee">
                 {EMPLOYEE_OPTIONS.map(opt => (
-                  <button key={opt} onClick={() => toggleEmployee(opt)} className={`w-full text-left px-3 py-2 text-sm ${advFilterEmployee === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
+                  <button key={opt} onClick={() => toggleEmployee(opt)} className={`w-full text-left px-3 py-2 text-sm ${advFilterEmployee === opt ? 'text-orange-400' : 'text-foreground'} ${DROPDOWN_ITEM_CLASS}`}>
                     {opt}
                   </button>
                 ))}
@@ -216,12 +216,12 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
             <Popover>
               <PopoverTrigger asChild>
                 <button className={ICON_BTN_CLASS} style={advFilterOrderType ? ACTIVE_ICON_BTN_STYLE : ICON_BTN_STYLE} title="Order Type">
-                  <ClipboardList className="w-4 h-4 text-white" />
+                  <ClipboardList className="w-4 h-4 text-foreground" />
                 </button>
               </PopoverTrigger>
               <FilterDropdownWrapper label="Order Type">
                 {ORDER_TYPE_OPTIONS.map(opt => (
-                  <button key={opt.label} onClick={() => toggleOrderType(opt.label)} className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 ${advFilterOrderType === opt.label ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
+                  <button key={opt.label} onClick={() => toggleOrderType(opt.label)} className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2.5 ${advFilterOrderType === opt.label ? 'text-orange-400' : 'text-foreground'} ${DROPDOWN_ITEM_CLASS}`}>
                     <img src={opt.icon} alt={opt.label} className="w-4 h-4 object-contain" />
                     {opt.label}
                   </button>
@@ -234,12 +234,12 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
             <Popover>
               <PopoverTrigger asChild>
                 <button className={ICON_BTN_CLASS} style={advFilterOrderStatus ? ACTIVE_ICON_BTN_STYLE : ICON_BTN_STYLE} title="Order Status">
-                  <CircleDollarSign className="w-4 h-4 text-white" />
+                  <CircleDollarSign className="w-4 h-4 text-foreground" />
                 </button>
               </PopoverTrigger>
               <FilterDropdownWrapper label="Order Status">
                 {ORDER_STATUS_OPTIONS.map(opt => (
-                  <button key={opt} onClick={() => toggleOrderStatus(opt)} className={`w-full text-left px-3 py-2 text-sm font-medium ${advFilterOrderStatus === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
+                  <button key={opt} onClick={() => toggleOrderStatus(opt)} className={`w-full text-left px-3 py-2 text-sm font-medium ${advFilterOrderStatus === opt ? 'text-orange-400' : 'text-foreground'} ${DROPDOWN_ITEM_CLASS}`}>
                     {opt}
                   </button>
                 ))}
@@ -250,12 +250,12 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
             <Popover>
               <PopoverTrigger asChild>
                 <button className={ICON_BTN_CLASS} style={advFilterPaymentType ? ACTIVE_ICON_BTN_STYLE : ICON_BTN_STYLE} title="Payment Type">
-                  <CreditCard className="w-4 h-4 text-white" />
+                  <CreditCard className="w-4 h-4 text-foreground" />
                 </button>
               </PopoverTrigger>
               <FilterDropdownWrapper label="Payment Type">
                 {PAYMENT_TYPE_OPTIONS.map(opt => (
-                  <button key={opt} onClick={() => togglePaymentType(opt)} className={`w-full text-left px-3 py-2 text-sm ${advFilterPaymentType === opt ? 'text-orange-400' : 'text-white'} ${DROPDOWN_ITEM_CLASS}`}>
+                  <button key={opt} onClick={() => togglePaymentType(opt)} className={`w-full text-left px-3 py-2 text-sm ${advFilterPaymentType === opt ? 'text-orange-400' : 'text-foreground'} ${DROPDOWN_ITEM_CLASS}`}>
                     {opt}
                   </button>
                 ))}
@@ -278,7 +278,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
                 style={ICON_BTN_STYLE}
                 onClick={() => onShowFilterIconsChange(false)}
               >
-                <X className="w-4 h-4 text-white" />
+                <X className="w-4 h-4 text-foreground" />
               </button>
             )}
           </>
@@ -289,9 +289,9 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
             style={ICON_BTN_STYLE}
             onClick={() => onShowFilterIconsChange(true)}
           >
-            <SlidersHorizontal className="w-4 h-4 text-white" />
+            <SlidersHorizontal className="w-4 h-4 text-foreground" />
             {hasAnyAdvancedFilter && (
-              <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 text-[8px] text-white font-bold flex items-center justify-center">!</span>
+              <span className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 rounded-full bg-amber-500 text-[8px] text-foreground font-bold flex items-center justify-center">!</span>
             )}
           </button>
         )}
@@ -300,7 +300,7 @@ const TicketsFilterBar = memo<TicketsFilterBarProps>(({
           style={ICON_BTN_STYLE}
           onClick={() => onShowSearchChange(true)}
         >
-          <Search className="w-4 h-4 text-white" />
+          <Search className="w-4 h-4 text-foreground" />
         </button>
       </div>
     </div>

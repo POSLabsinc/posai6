@@ -6,7 +6,8 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/hooks/use-toast";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { Switch } from "@/components/ui/switch";
-import { useMenus, toggleMenuEnabled, archiveMenu, unarchiveMenu, type Menu } from "@/lib/menuStore";
+import { useMenus, archiveMenu, unarchiveMenu, type Menu } from "@/lib/menuStore";
+import { supabase } from "@/integrations/supabase/client";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -174,7 +175,9 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
                         ) : (
                           <Switch
                             checked={item.enabled}
-                            onCheckedChange={() => toggleMenuEnabled(item.id)}
+                            onCheckedChange={async () => {
+                              await supabase.from("menus").update({ enabled: !item.enabled }).eq("id", item.id);
+                            }}
                           />
                         )}
                       </div>
@@ -303,7 +306,9 @@ const MenuItemsContent = ({ showHeader = true, onBack, onAIClick }: MenuItemsCon
                       ) : (
                         <Switch
                           checked={item.enabled}
-                          onCheckedChange={() => toggleMenuEnabled(item.id)}
+                          onCheckedChange={async () => {
+                            await supabase.from("menus").update({ enabled: !item.enabled }).eq("id", item.id);
+                          }}
                         />
                       )}
                     </div>

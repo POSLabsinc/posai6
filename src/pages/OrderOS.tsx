@@ -2250,8 +2250,7 @@ const OrderOS = () => {
     return (
       <div 
         onClick={() => setSelectedOrder(order)}
-        className={`rounded-xl border cursor-pointer transition-all overflow-hidden ${isSelected ? "border-white" : "border-neutral-700 hover:border-neutral-600"} ${isAccepting ? "animate-accept-order" : ""} ${isCancelling ? "animate-cancel-order" : ""}`}
-        style={{ backgroundColor: '#1B1C20' }}
+        className={`rounded-xl border cursor-pointer transition-all overflow-hidden bg-surface-elevated ${isSelected ? "border-primary" : "border-border hover:border-muted-foreground/40"} ${isAccepting ? "animate-accept-order" : ""} ${isCancelling ? "animate-cancel-order" : ""}`}
       >
         {/* On Hold Banner - Full width light yellow bar at top */}
         {isOnHold && (
@@ -2269,7 +2268,7 @@ const OrderOS = () => {
                 </PopoverTrigger>
                 <PopoverContent 
                   side="bottom" 
-                  className="w-auto px-3 py-2 bg-neutral-900 border-neutral-700 text-amber-500 text-xs font-medium"
+                  className="w-auto px-3 py-2 bg-surface border-border text-amber-500 text-xs font-medium"
                   onClick={(e) => e.stopPropagation()}
                 >
                   Awaiting Customer Response
@@ -2297,7 +2296,7 @@ const OrderOS = () => {
                   className="cursor-grab active:cursor-grabbing p-1 -ml-1 hover:bg-white/10 rounded transition-colors"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <GripVertical className="w-4 h-4 text-white/40" />
+                  <GripVertical className="w-4 h-4 text-muted-foreground" />
                 </div>
               )}
               <div className="flex flex-col">
@@ -2306,14 +2305,14 @@ const OrderOS = () => {
                     {order.orderType}{order.orderType === 'DINE IN' && order.tableNumber && ` • ${order.tableNumber}`}
                   </span>
                 </div>
-                <span className="text-white/60 text-xs">{order.itemCount} items</span>
+                <span className="text-muted-foreground text-xs">{order.itemCount} items</span>
               </div>
             </div>
-            <span className="text-2xl font-bold text-white">#{searchQuery ? highlightMatch(order.orderNumber.toString()) : order.orderNumber}</span>
+            <span className="text-2xl font-bold text-foreground">#{searchQuery ? highlightMatch(order.orderNumber.toString()) : order.orderNumber}</span>
           </div>
           
           <div className="flex items-center justify-between mb-2">
-            <span className="text-white font-medium">{searchQuery ? highlightMatch(order.customerName) : order.customerName}</span>
+            <span className="text-foreground font-medium">{searchQuery ? highlightMatch(order.customerName) : order.customerName}</span>
             <div className="flex items-center gap-2">
               {searchQuery && order.platform.toLowerCase().includes(searchQuery.toLowerCase()) && (
                 <span className="bg-[#FFD60A]/40 text-[#FFD60A] text-xs rounded px-1.5 py-0.5 font-medium capitalize">{order.platform}</span>
@@ -2331,7 +2330,7 @@ const OrderOS = () => {
             </div>
           )}
           
-          <div className="flex items-center gap-2 text-xs text-white/50 mb-3">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-3">
             <span>Ordered at {order.orderedAt}</span>
             {/* For scheduled orders waiting, hide delivery/ready time until window starts */}
             {!(order.isScheduled && order.isWaiting) && (
@@ -2445,7 +2444,7 @@ const OrderOS = () => {
         
         {/* Expanded Content */}
         {isExpanded && (
-          <div className="px-3 pb-3 border-t border-white/10 pt-3">
+          <div className="px-3 pb-3 border-t border-border pt-3">
             {/* Order Items */}
             <div className="space-y-2 mb-3">
               {order.items.map((item, idx) => {
@@ -2461,7 +2460,7 @@ const OrderOS = () => {
                         </span>
                         <div>
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className={isReported ? 'eighty-six-text' : 'text-white'}>{item.name}</span>
+                            <span className={isReported ? 'eighty-six-text' : 'text-foreground'}>{item.name}</span>
                             {isReported && (
                               <span className="eighty-six-badge eighty-six-badge-sm">
                                 <X size={8} strokeWidth={3} />
@@ -2491,14 +2490,14 @@ const OrderOS = () => {
                                       <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
                                     </div>
                                     <div className="flex items-center flex-1 min-w-0">
-                                      <span className={`mr-1.5 w-2 text-center flex-shrink-0 ${isRemove ? 'text-[#FF6B6B]' : 'text-white/40'}`}>
-                                        {prefix}
-                                      </span>
-                                      <span className={`truncate ${isRemove ? 'text-[#FF6B6B]' : 'text-white/50'}`}>
+                                       <span className={`mr-1.5 w-2 text-center flex-shrink-0 ${isRemove ? 'text-[#FF6B6B]' : 'text-muted-foreground'}`}>
+                                         {prefix}
+                                       </span>
+                                       <span className={`truncate ${isRemove ? 'text-[#FF6B6B]' : 'text-muted-foreground'}`}>
                                         {mod.text}
                                       </span>
                                       {mod.price && mod.price > 0 && (
-                                        <span className="ml-auto pl-2 text-white/60 flex-shrink-0">{formatPrice(mod.price)}</span>
+                                         <span className="ml-auto pl-2 text-muted-foreground flex-shrink-0">{formatPrice(mod.price)}</span>
                                       )}
                                     </div>
                                   </div>
@@ -2520,7 +2519,7 @@ const OrderOS = () => {
                           )}
                         </div>
                       </div>
-                      <span className={isReported ? 'eighty-six-text' : 'text-white'}>
+                       <span className={isReported ? 'eighty-six-text' : 'text-foreground'}>
                         {formatPrice(item.price * item.qty)}
                       </span>
                     </div>
@@ -2545,36 +2544,36 @@ const OrderOS = () => {
             )}
             
             {/* Payment Summary - Horizontal inline format with grid alignment */}
-            <div className="border-t border-white/10 pt-2 text-xs">
-              <div className="grid grid-cols-3 gap-y-1">
-                {/* Row 1: Sub, Del, Tax */}
-                <span className="text-white/60">Sub <span className="text-white">{formatPrice(order.subtotal)}</span></span>
-                <span className="text-white/60">{order.deliveryFee > 0 ? <>Del <span className="text-white">{formatPrice(order.deliveryFee)}</span></> : ''}</span>
-                <span className="text-white/60">Tax <span className="text-white">{formatPrice(order.tax)}</span></span>
+             <div className="border-t border-border pt-2 text-xs">
+               <div className="grid grid-cols-3 gap-y-1">
+                 {/* Row 1: Sub, Del, Tax */}
+                 <span className="text-muted-foreground">Sub <span className="text-foreground">{formatPrice(order.subtotal)}</span></span>
+                 <span className="text-muted-foreground">{order.deliveryFee > 0 ? <>Del <span className="text-foreground">{formatPrice(order.deliveryFee)}</span></> : ''}</span>
+                 <span className="text-muted-foreground">Tax <span className="text-foreground">{formatPrice(order.tax)}</span></span>
                 {/* Row 2: Tip, Discount */}
-                <span className="text-white/60">Tip <span className="text-white">{formatPrice(order.tip)}</span></span>
-                {order.discount > 0 ? (
-                  <span className="text-white/60">Disc <span className="text-[#FF6B6B]">-{formatPrice(order.discount)}</span></span>
-                ) : <span></span>}
-              </div>
-              <div className="flex justify-between text-white font-bold pt-2 mt-2 border-t border-white/10">
-                <span>Total</span>
-                <span>{formatPrice(order.total)}</span>
-              </div>
+                 <span className="text-muted-foreground">Tip <span className="text-foreground">{formatPrice(order.tip)}</span></span>
+                 {order.discount > 0 ? (
+                   <span className="text-muted-foreground">Disc <span className="text-[#FF6B6B]">-{formatPrice(order.discount)}</span></span>
+                 ) : <span></span>}
+               </div>
+               <div className="flex justify-between text-foreground font-bold pt-2 mt-2 border-t border-border">
+                 <span>Total</span>
+                 <span>{formatPrice(order.total)}</span>
+               </div>
             </div>
             
             {/* Print Buttons Row */}
             <div className="flex items-center gap-2 mt-3">
               <button 
                 onClick={(e) => handleCardAction(e, () => toast({ title: `Receipt printed for Order #${order.orderNumber}` }))}
-                className="flex-1 py-2 rounded-full text-white/80 text-sm font-medium border border-white/20 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
-              >
-                <Printer className="w-4 h-4" />
-                Receipt
-              </button>
-              <button 
-                onClick={(e) => handleCardAction(e, () => toast({ title: `KOT printed for Order #${order.orderNumber}` }))}
-                className="flex-1 py-2 rounded-full text-white/80 text-sm font-medium border border-white/20 hover:bg-white/10 transition-colors flex items-center justify-center gap-2"
+                 className="flex-1 py-2 rounded-full text-muted-foreground text-sm font-medium border border-border hover:bg-muted transition-colors flex items-center justify-center gap-2"
+               >
+                 <Printer className="w-4 h-4" />
+                 Receipt
+               </button>
+               <button 
+                 onClick={(e) => handleCardAction(e, () => toast({ title: `KOT printed for Order #${order.orderNumber}` }))}
+                 className="flex-1 py-2 rounded-full text-muted-foreground text-sm font-medium border border-border hover:bg-muted transition-colors flex items-center justify-center gap-2"
               >
                 <Printer className="w-4 h-4" />
                 KOT
@@ -2638,13 +2637,13 @@ const OrderOS = () => {
         {/* Expand/Collapse Toggle */}
         <button 
           onClick={(e) => { e.stopPropagation(); onToggleExpand(); }}
-          className="w-full py-1.5 flex items-center justify-center hover:bg-white/5 transition-colors border-t border-white/10"
-        >
-          {isExpanded ? (
-            <ChevronUp className="w-4 h-4 text-white/50" />
-          ) : (
-            <ChevronDown className="w-4 h-4 text-white/50" />
-          )}
+           className="w-full py-1.5 flex items-center justify-center hover:bg-muted transition-colors border-t border-border"
+         >
+           {isExpanded ? (
+             <ChevronUp className="w-4 h-4 text-muted-foreground" />
+           ) : (
+             <ChevronDown className="w-4 h-4 text-muted-foreground" />
+           )}
         </button>
       </div>
     );
@@ -2861,39 +2860,39 @@ const OrderOS = () => {
                 <ArrowDownUp className={`w-4 h-4 ${columnSortOptions[column.id] ? 'text-white' : 'text-white/60'}`} />
               </button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="bg-neutral-800 border-neutral-700 min-w-[140px] z-50">
-              <DropdownMenuItem 
-                onClick={() => setColumnSortOptions(prev => ({ ...prev, [column.id]: 'time' }))}
-                className="text-white hover:bg-white/10 cursor-pointer flex items-center justify-between"
-              >
-                <span>By Time</span>
-                {columnSortOptions[column.id] === 'time' && <Check className="w-4 h-4 text-white" />}
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => setColumnSortOptions(prev => ({ ...prev, [column.id]: 'order' }))}
-                className="text-white hover:bg-white/10 cursor-pointer flex items-center justify-between"
-              >
-                <span>By Order #</span>
-                {columnSortOptions[column.id] === 'order' && <Check className="w-4 h-4 text-white" />}
-              </DropdownMenuItem>
-              <DropdownMenuItem 
-                onClick={() => setColumnSortOptions(prev => ({ ...prev, [column.id]: 'total' }))}
-                className="text-white hover:bg-white/10 cursor-pointer flex items-center justify-between"
-              >
-                <span>By Total</span>
-                {columnSortOptions[column.id] === 'total' && <Check className="w-4 h-4 text-white" />}
-              </DropdownMenuItem>
-              {columnSortOptions[column.id] && (
-                <DropdownMenuItem 
-                  onClick={() => setColumnSortOptions(prev => {
-                    const next = { ...prev };
-                    delete next[column.id];
-                    return next;
-                  })}
-                  className="text-white/60 hover:bg-white/10 cursor-pointer border-t border-white/10 mt-1 pt-1"
-                >
-                  <span>Clear Sort</span>
-                </DropdownMenuItem>
+             <DropdownMenuContent align="end" className="bg-surface-elevated border-border min-w-[140px] z-50">
+               <DropdownMenuItem 
+                 onClick={() => setColumnSortOptions(prev => ({ ...prev, [column.id]: 'time' }))}
+                 className="text-foreground hover:bg-muted cursor-pointer flex items-center justify-between"
+               >
+                 <span>By Time</span>
+                 {columnSortOptions[column.id] === 'time' && <Check className="w-4 h-4 text-foreground" />}
+               </DropdownMenuItem>
+               <DropdownMenuItem 
+                 onClick={() => setColumnSortOptions(prev => ({ ...prev, [column.id]: 'order' }))}
+                 className="text-foreground hover:bg-muted cursor-pointer flex items-center justify-between"
+               >
+                 <span>By Order #</span>
+                 {columnSortOptions[column.id] === 'order' && <Check className="w-4 h-4 text-foreground" />}
+               </DropdownMenuItem>
+               <DropdownMenuItem 
+                 onClick={() => setColumnSortOptions(prev => ({ ...prev, [column.id]: 'total' }))}
+                 className="text-foreground hover:bg-muted cursor-pointer flex items-center justify-between"
+               >
+                 <span>By Total</span>
+                 {columnSortOptions[column.id] === 'total' && <Check className="w-4 h-4 text-foreground" />}
+               </DropdownMenuItem>
+               {columnSortOptions[column.id] && (
+                 <DropdownMenuItem 
+                   onClick={() => setColumnSortOptions(prev => {
+                     const next = { ...prev };
+                     delete next[column.id];
+                     return next;
+                   })}
+                   className="text-muted-foreground hover:bg-muted cursor-pointer border-t border-border mt-1 pt-1"
+                 >
+                   <span>Clear Sort</span>
+                 </DropdownMenuItem>
               )}
             </DropdownMenuContent>
           </DropdownMenu>
@@ -2909,7 +2908,7 @@ const OrderOS = () => {
             {columnOrders.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <span className="text-4xl mb-3">{column.emptyIcon}</span>
-                <p className="text-white/40 text-sm">{column.emptyText}</p>
+                <p className="text-muted-foreground text-sm">{column.emptyText}</p>
               </div>
             ) : (
               columnOrders.map(order => (
@@ -2949,53 +2948,53 @@ const OrderOS = () => {
     return (
       <div className="flex flex-col h-full">
         {/* Panel Header */}
-        <div className="p-4 border-b border-white/10">
+        <div className="p-4 border-b border-border">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-3">
-              <h2 className="text-white text-base font-bold">{selectedOrder.customerName}</h2>
-              <div className="flex items-center gap-1 text-white/60 text-sm">
+               <h2 className="text-foreground text-base font-bold">{selectedOrder.customerName}</h2>
+               <div className="flex items-center gap-1 text-muted-foreground text-sm">
                 <img src={phoneIcon} alt="Phone" className="w-3 h-3" />
                 <span>{selectedOrder.phone}</span>
               </div>
             </div>
             <button 
               onClick={() => setSelectedOrder(null)}
-              className="p-2 rounded-full hover:bg-white/10 transition-colors"
-            >
-              <X className="w-5 h-5 text-white/60" />
+               className="p-2 rounded-full hover:bg-muted transition-colors"
+             >
+               <X className="w-5 h-5 text-muted-foreground" />
             </button>
           </div>
           
           {/* Info Boxes */}
           <div className="flex items-center gap-2">
-            <div className="flex-1 p-2 bg-white/10 rounded-lg">
-              <div className="text-white/50 text-xs">Order #</div>
-              <div className="text-white font-bold">{selectedOrder.orderNumber}</div>
-            </div>
-            <div className="flex-1 p-2 bg-white/10 rounded-lg">
-              <div className="text-white/50 text-xs">Items</div>
-              <div className="text-white font-bold">{selectedOrder.itemCount}</div>
-            </div>
-            <div className="flex-1 p-2 bg-white/10 rounded-lg">
-              <div className="text-white/50 text-xs">
-                {selectedOrder.status === 'NEW' ? 'Est. Ready By' : 'Ready At'}
-              </div>
-              <div className={`font-bold ${selectedOrder.status === 'NEW' ? 'text-[#FF6B6B]' : 'text-white'}`}>
-                {selectedOrder.estimateReady}
-              </div>
-            </div>
+             <div className="flex-1 p-2 bg-muted rounded-lg">
+               <div className="text-muted-foreground text-xs">Order #</div>
+               <div className="text-foreground font-bold">{selectedOrder.orderNumber}</div>
+             </div>
+             <div className="flex-1 p-2 bg-muted rounded-lg">
+               <div className="text-muted-foreground text-xs">Items</div>
+               <div className="text-foreground font-bold">{selectedOrder.itemCount}</div>
+             </div>
+             <div className="flex-1 p-2 bg-muted rounded-lg">
+               <div className="text-muted-foreground text-xs">
+                 {selectedOrder.status === 'NEW' ? 'Est. Ready By' : 'Ready At'}
+               </div>
+               <div className={`font-bold ${selectedOrder.status === 'NEW' ? 'text-[#FF6B6B]' : 'text-foreground'}`}>
+                 {selectedOrder.estimateReady}
+               </div>
+             </div>
           </div>
         </div>
         
         {/* Order Summary Label */}
-        <div className="px-4 py-3 border-b border-white/10">
-          <div className="flex items-center justify-between">
-            <span className="text-white/50 text-xs uppercase tracking-wide">Order Summary</span>
-            <label className="flex items-center gap-2 text-xs text-white/60">
+         <div className="px-4 py-3 border-b border-border">
+           <div className="flex items-center justify-between">
+             <span className="text-muted-foreground text-xs uppercase tracking-wide">Order Summary</span>
+             <label className="flex items-center gap-2 text-xs text-muted-foreground">
               <input 
                 type="checkbox" 
                 checked={selectedOrder.addUtensils}
-                className="rounded border-white/30"
+                className="rounded border-border"
                 readOnly
               />
               Add utensils, straws, napkins, etc.
@@ -3021,7 +3020,7 @@ const OrderOS = () => {
                 <div key={idx} className="space-y-2">
                   {/* Remaining available items (if partial report) */}
                   {isPartiallyReported && (
-                    <div className="p-3 bg-neutral-800 rounded-xl border border-neutral-700">
+                    <div className="p-3 bg-surface-elevated rounded-xl border border-border">
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-2">
                           <span className="w-6 h-6 rounded flex items-center justify-center text-sm font-bold flex-shrink-0 bg-white text-black">
@@ -3029,7 +3028,7 @@ const OrderOS = () => {
                           </span>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-medium text-white">
+                              <span className="font-medium text-foreground">
                                 {item.name}
                               </span>
                             </div>
@@ -3054,14 +3053,14 @@ const OrderOS = () => {
                                         <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
                                       </div>
                                       <div className="flex items-center flex-1 min-w-0">
-                                        <span className={`mr-1.5 w-2 text-center flex-shrink-0 ${isAllergy ? 'text-[#FF6B6B]' : 'text-white/40'}`}>
-                                          {prefix}
-                                        </span>
-                                        <span className={`truncate ${isAllergy ? 'text-[#FF6B6B]' : 'text-white/50'}`}>
+                                         <span className={`mr-1.5 w-2 text-center flex-shrink-0 ${isAllergy ? 'text-[#FF6B6B]' : 'text-muted-foreground'}`}>
+                                           {prefix}
+                                         </span>
+                                         <span className={`truncate ${isAllergy ? 'text-[#FF6B6B]' : 'text-muted-foreground'}`}>
                                           {mod.text}
                                         </span>
                                         {mod.price && mod.price > 0 && (
-                                          <span className="ml-auto pl-2 text-white/60 flex-shrink-0">{formatPrice(mod.price)}</span>
+                                           <span className="ml-auto pl-2 text-muted-foreground flex-shrink-0">{formatPrice(mod.price)}</span>
                                         )}
                                       </div>
                                     </div>
@@ -3082,7 +3081,7 @@ const OrderOS = () => {
                             )}
                           </div>
                         </div>
-                        <span className="font-medium flex-shrink-0 text-white">
+                        <span className="font-medium flex-shrink-0 text-foreground">
                           {formatPrice(item.price * remainingQty)}
                         </span>
                       </div>
@@ -3091,7 +3090,7 @@ const OrderOS = () => {
                   
                   {/* Reported/unavailable items OR non-reported items */}
                   {(!isPartiallyReported || isReported) && (
-                    <div className={`p-3 rounded-xl border ${isReported ? 'eighty-six-card !p-3' : 'bg-neutral-800 border-neutral-700'}`}>
+                    <div className={`p-3 rounded-xl border ${isReported ? 'eighty-six-card !p-3' : 'bg-surface-elevated border-border'}`}>
                       <div className="flex items-start justify-between">
                         <div className="flex items-start gap-2">
                           <span className={`w-6 h-6 rounded flex items-center justify-center text-sm font-bold flex-shrink-0 ${isReported ? 'eighty-six-icon !w-6 !h-6' : 'bg-white text-black'}`}>
@@ -3099,7 +3098,7 @@ const OrderOS = () => {
                           </span>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 flex-wrap">
-                              <span className={`font-medium ${isReported ? 'eighty-six-text' : 'text-white'}`}>
+                              <span className={`font-medium ${isReported ? 'eighty-six-text' : 'text-foreground'}`}>
                                 {item.name}
                               </span>
                               {isReported && (
@@ -3131,14 +3130,14 @@ const OrderOS = () => {
                                         <div className="absolute left-0 top-1/2 w-2.5 h-px bg-white/30" />
                                       </div>
                                       <div className="flex items-center flex-1 min-w-0">
-                                        <span className={`mr-1.5 w-2 text-center flex-shrink-0 ${isAllergy ? 'text-[#FF6B6B]' : 'text-white/40'}`}>
-                                          {prefix}
-                                        </span>
-                                        <span className={`truncate ${isAllergy ? 'text-[#FF6B6B]' : 'text-white/50'}`}>
+                                         <span className={`mr-1.5 w-2 text-center flex-shrink-0 ${isAllergy ? 'text-[#FF6B6B]' : 'text-muted-foreground'}`}>
+                                           {prefix}
+                                         </span>
+                                         <span className={`truncate ${isAllergy ? 'text-[#FF6B6B]' : 'text-muted-foreground'}`}>
                                           {mod.text}
                                         </span>
                                         {mod.price && mod.price > 0 && (
-                                          <span className="ml-auto pl-2 text-white/60 flex-shrink-0">{formatPrice(mod.price)}</span>
+                                          <span className="ml-auto pl-2 text-muted-foreground flex-shrink-0">{formatPrice(mod.price)}</span>
                                         )}
                                       </div>
                                     </div>
@@ -3159,7 +3158,7 @@ const OrderOS = () => {
                             )}
                           </div>
                         </div>
-                        <span className={`font-medium flex-shrink-0 ${isReported ? 'eighty-six-text' : 'text-white'}`}>
+                        <span className={`font-medium flex-shrink-0 ${isReported ? 'eighty-six-text' : 'text-foreground'}`}>
                           {formatPrice(item.price * (isReported ? unavailableQty : item.qty))}
                         </span>
                       </div>
@@ -3190,44 +3189,44 @@ const OrderOS = () => {
         )}
         
         {/* Payment Summary - Horizontal grid format */}
-        <div className="px-4 py-3 border-t border-white/10 text-sm">
-          <div className="grid grid-cols-3 gap-y-1">
-            {/* Row 1: Sub, Del, Tax */}
-            <span className="text-white/60">Sub <span className="text-white">{formatPrice(selectedOrder.subtotal)}</span></span>
-            <span className="text-white/60">{selectedOrder.deliveryFee > 0 ? <>Del <span className="text-white">{formatPrice(selectedOrder.deliveryFee)}</span></> : ''}</span>
-            <span className="text-white/60">Tax <span className="text-white">{formatPrice(selectedOrder.tax)}</span></span>
-            {/* Row 2: Tip, Discount */}
-            <span className="text-white/60">Tip <span className="text-white">{formatPrice(selectedOrder.tip)}</span></span>
-            {selectedOrder.discount > 0 ? (
-              <span className="text-white/60">Disc <span className="text-[#FF6B6B]">-{formatPrice(selectedOrder.discount)}</span></span>
-            ) : <span></span>}
-          </div>
-          
-          {/* Show adjustment if items were reported */}
-          {hasAdjustments && (
-            <div className="flex justify-between text-sm pt-2 mt-2 border-t border-white/10">
-              <span className="text-white/60">Original Total</span>
-              <span className="text-white/60 line-through">{formatPrice(selectedOrder.total)}</span>
-            </div>
-          )}
-          {hasAdjustments && (
-            <div className="flex justify-between text-sm">
-              <span className="text-[#FF6B6B]">Adjustment</span>
-              <span className="text-[#FF6B6B]">
-                {orderReports.reduce((sum, r) => sum + r.priceImpact, 0) > 0 ? '+' : ''}
-                {formatPrice(orderReports.reduce((sum, r) => sum + r.priceImpact, 0))}
-              </span>
-            </div>
-          )}
-          
-          <div className={`flex justify-between text-base font-bold ${hasAdjustments ? 'pt-1' : 'pt-2 mt-2 border-t border-white/10'}`}>
-            <span className="text-white">Total Due</span>
-            <span className="text-white">{formatPrice(hasAdjustments ? adjustedTotal : selectedOrder.total)}</span>
-          </div>
-        </div>
+         <div className="px-4 py-3 border-t border-border text-sm">
+           <div className="grid grid-cols-3 gap-y-1">
+             {/* Row 1: Sub, Del, Tax */}
+             <span className="text-muted-foreground">Sub <span className="text-foreground">{formatPrice(selectedOrder.subtotal)}</span></span>
+             <span className="text-muted-foreground">{selectedOrder.deliveryFee > 0 ? <>Del <span className="text-foreground">{formatPrice(selectedOrder.deliveryFee)}</span></> : ''}</span>
+             <span className="text-muted-foreground">Tax <span className="text-foreground">{formatPrice(selectedOrder.tax)}</span></span>
+             {/* Row 2: Tip, Discount */}
+             <span className="text-muted-foreground">Tip <span className="text-foreground">{formatPrice(selectedOrder.tip)}</span></span>
+             {selectedOrder.discount > 0 ? (
+               <span className="text-muted-foreground">Disc <span className="text-[#FF6B6B]">-{formatPrice(selectedOrder.discount)}</span></span>
+             ) : <span></span>}
+           </div>
+           
+           {/* Show adjustment if items were reported */}
+           {hasAdjustments && (
+             <div className="flex justify-between text-sm pt-2 mt-2 border-t border-border">
+               <span className="text-muted-foreground">Original Total</span>
+               <span className="text-muted-foreground line-through">{formatPrice(selectedOrder.total)}</span>
+             </div>
+           )}
+           {hasAdjustments && (
+             <div className="flex justify-between text-sm">
+               <span className="text-[#FF6B6B]">Adjustment</span>
+               <span className="text-[#FF6B6B]">
+                 {orderReports.reduce((sum, r) => sum + r.priceImpact, 0) > 0 ? '+' : ''}
+                 {formatPrice(orderReports.reduce((sum, r) => sum + r.priceImpact, 0))}
+               </span>
+             </div>
+           )}
+           
+           <div className={`flex justify-between text-base font-bold ${hasAdjustments ? 'pt-1' : 'pt-2 mt-2 border-t border-border'}`}>
+             <span className="text-foreground">Total Due</span>
+             <span className="text-foreground">{formatPrice(hasAdjustments ? adjustedTotal : selectedOrder.total)}</span>
+           </div>
+         </div>
         
         {/* Action Buttons */}
-        <div className="px-4 py-3 border-t border-white/10">
+        <div className="px-4 py-3 border-t border-border">
           {/* Scheduled orders always show Accept/Cancel/Report regardless of status */}
           {selectedOrder.isScheduled && selectedOrder.isWaiting ? (
             <div className="flex items-center gap-2">
@@ -3324,7 +3323,7 @@ const OrderOS = () => {
                 </button>
               )}
               {(selectedOrder.status === 'COMPLETED' || selectedOrder.status === 'CANCELLED') && (
-                <button className="w-full py-3 rounded-full text-white text-sm font-bold border border-white/30 hover:bg-white/10 transition-colors">
+                <button className="w-full py-3 rounded-full text-foreground text-sm font-bold border border-border hover:bg-muted transition-colors">
                   Connect Printer
                 </button>
               )}
@@ -3337,11 +3336,11 @@ const OrderOS = () => {
 
   // Desktop Layout
   const desktopLayout = (
-    <div className="flex h-full bg-black gap-2">
+    <div className="flex h-full bg-background gap-2">
       {/* Left Section - Kanban Board */}
-      <div className="flex-1 flex flex-col rounded-[20px] overflow-hidden" style={{ background: "linear-gradient(180deg, rgba(78, 78, 78, 0.6) 0%, rgba(62, 62, 62, 0.6) 100%)", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+      <div className="flex-1 flex flex-col rounded-[20px] overflow-hidden bg-surface border border-border">
         {/* Header - Horizontally scrollable on smaller screens */}
-        <div className="overflow-x-auto scrollbar-hide border-b border-white/10">
+        <div className="overflow-x-auto scrollbar-hide border-b border-border">
           <div className="flex items-center justify-between p-3 min-w-max gap-3">
             {/* Mode Toggle */}
             <div className="flex items-center rounded-full p-1 shrink-0" style={{ background: "#7575754D", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
@@ -3356,7 +3355,7 @@ const OrderOS = () => {
                   style={activeMode === mode.id ? { background: "linear-gradient(180deg, #C2C2C2 0%, #FFFFFF 100%)" } : {}}
                 >
                   {mode.label}
-                  <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeMode === mode.id ? 'bg-black text-white' : 'bg-neutral-700'}`}>
+                  <span className={`px-1.5 py-0.5 rounded text-xs font-bold ${activeMode === mode.id ? 'bg-black text-white' : 'bg-surface-elevated'}`}>
                     {mode.count}
                   </span>
                 </button>
@@ -3542,7 +3541,7 @@ const OrderOS = () => {
       
       {/* Right Section - Order Detail Panel */}
       {selectedOrder && (
-        <div className="w-[380px] flex flex-col rounded-[20px] overflow-hidden animate-slide-in-right" style={{ background: "linear-gradient(180deg, rgba(78, 78, 78, 0.6) 0%, rgba(62, 62, 62, 0.6) 100%)", boxShadow: "inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)" }}>
+        <div className="w-[380px] flex flex-col rounded-[20px] overflow-hidden animate-slide-in-right bg-surface border border-border">
           <OrderDetailPanel />
         </div>
       )}
@@ -3551,9 +3550,9 @@ const OrderOS = () => {
 
   // Mobile Layout
   const mobileLayout = (
-    <div className="flex flex-col h-full bg-black">
-      {/* Header */}
-      <div className="flex items-center justify-between p-3 border-b border-white/10">
+     <div className="flex flex-col h-full bg-background">
+       {/* Header */}
+       <div className="flex items-center justify-between p-3 border-b border-border">
         {/* Vertical Mode Selector with Arrow Navigation */}
         <div className="flex items-center gap-2">
           <div className="flex items-center rounded-full p-0.5" style={{ background: "#7575754D" }}>
@@ -3600,7 +3599,7 @@ const OrderOS = () => {
               style={{ background: "#7575754D" }}
             >
               <span>{column.label}</span>
-              <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-neutral-800">
+              <span className="px-1.5 py-0.5 rounded text-xs font-bold bg-surface-elevated">
                 {count}
               </span>
             </button>

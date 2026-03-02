@@ -62,6 +62,13 @@ export default {
           foreground: "hsl(var(--header-foreground))",
         },
         "calendar-border": "hsl(var(--calendar-border))",
+        surface: {
+          DEFAULT: "hsl(var(--surface))",
+          elevated: "hsl(var(--surface-elevated))",
+          inset: "hsl(var(--surface-inset))",
+        },
+        divider: "hsl(var(--divider))",
+        "text-subtle": "hsl(var(--text-subtle))",
       },
       borderRadius: {
         lg: "var(--radius)",

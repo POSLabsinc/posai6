@@ -101,7 +101,7 @@ function LayoutContent({ children }: LayoutProps) {
 
   return (
     <div 
-      className="h-screen flex flex-col w-full overflow-hidden bg-black" 
+      className="h-screen flex flex-col w-full overflow-hidden bg-background" 
     >
       {/* Drop zones for drag and drop */}
       <SidebarDropZones />
@@ -127,7 +127,7 @@ function LayoutContent({ children }: LayoutProps) {
       {!isHeaderVisible && (
         <button 
           onClick={() => setIsHeaderVisible(true)} 
-          className="md:hidden mx-auto bg-neutral-700 hover:bg-neutral-600 px-8 py-px rounded-b-md transition-colors relative z-20"
+          className="md:hidden mx-auto bg-surface-elevated hover:bg-surface px-8 py-px rounded-b-md transition-colors relative z-20"
         >
           <ChevronDown className="w-2.5 h-2.5 text-muted-foreground" />
         </button>
@@ -149,7 +149,7 @@ function LayoutContent({ children }: LayoutProps) {
           </div>
         )}
 
-        <main className="flex-1 overflow-y-auto bg-black px-3 md:px-0">
+        <main className="flex-1 overflow-y-auto bg-background px-3 md:px-0">
           {children}
         </main>
 

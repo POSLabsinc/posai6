@@ -155,7 +155,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
           {onBack &&
         <button
           onClick={onBack}
-          className="w-10 h-10 rounded-full bg-neutral-800/60 flex items-center justify-center active:opacity-70 transition-opacity">
+          className="w-10 h-10 rounded-full bg-surface flex items-center justify-center active:opacity-70 transition-opacity">
               <ChevronLeft className="w-5 h-5 text-foreground" />
             </button>
         }
@@ -171,9 +171,9 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
 
         {/* App Theme Section */}
         <div className="mb-6">
-          <h2 className="text-base font-medium text-neutral-500 mb-4 px-1">App Theme</h2>
+          <h2 className="text-base font-medium text-muted-foreground mb-4 px-1">App Theme</h2>
           
-          <div className="bg-neutral-800/60 rounded-2xl p-4">
+          <div className="bg-surface rounded-2xl p-4">
             <div className="grid grid-cols-2 gap-4 mb-4">
               <POSThemePreview
                 variant="dark"
@@ -186,7 +186,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
                 onClick={() => handleThemeChange('light')} />
             </div>
             
-            <div className="h-px bg-neutral-700/50 mb-4" />
+            <div className="h-px bg-divider mb-4" />
             
             <div className="flex items-center justify-between">
               <span className="text-lg font-medium text-foreground">Automatic</span>
@@ -206,7 +206,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
             )}
           </div>
           
-          <p className="text-sm text-neutral-500 mt-3 px-1 leading-relaxed">
+          <p className="text-sm text-muted-foreground mt-3 px-1 leading-relaxed">
             {automaticTheme 
               ? "Theme switches automatically at the scheduled times."
               : "Automatically switches between light and dark mode based on your device settings."}
@@ -214,7 +214,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
         </div>
 
         {/* Icon Style & Size Section */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-surface rounded-2xl overflow-hidden mb-1">
           <div className="flex items-center justify-between w-full py-4 px-5">
             <span className="text-lg font-medium text-foreground">Icon Style</span>
             <OverlayDropdown
@@ -230,7 +230,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
 
           </div>
           
-          <div className="h-px bg-neutral-700/50 mx-5" />
+          <div className="h-px bg-divider mx-5" />
           
           <div className="flex items-center justify-between w-full py-4 px-5">
             <span className="text-lg font-medium text-foreground">Icon size</span>
@@ -247,16 +247,16 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
 
           </div>
         </div>
-        <p className="text-sm text-neutral-500 mt-1.5 px-1 mb-6 leading-relaxed">
+        <p className="text-sm text-muted-foreground mt-1.5 px-1 mb-6 leading-relaxed">
           Select the visual style of icons used in the Point of Sale.
         </p>
 
         {/* Text Size & Bold Section */}
-        <div className="bg-neutral-800/60 rounded-2xl overflow-hidden mb-1">
+        <div className="bg-surface rounded-2xl overflow-hidden mb-1">
           <div className="py-4 px-5">
             <span className="text-lg font-medium text-foreground block mb-4">Text Size</span>
             <div className="flex items-center gap-4">
-              <span className="text-sm text-neutral-400 font-medium flex-shrink-0">A</span>
+              <span className="text-sm text-muted-foreground font-medium flex-shrink-0">A</span>
               <div className="flex-1">
                 <Slider
                   value={[textSize]}
@@ -271,7 +271,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
             </div>
           </div>
           
-          <div className="h-px bg-neutral-700/50 mx-5" />
+          <div className="h-px bg-divider mx-5" />
           
           <div className="flex items-center justify-between py-4 px-5">
             <span className="text-lg font-medium text-foreground">Bold text</span>
@@ -281,17 +281,17 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
 
           </div>
         </div>
-        <p className="text-sm text-neutral-500 mt-1.5 px-1 mb-6 leading-relaxed">
+        <p className="text-sm text-muted-foreground mt-1.5 px-1 mb-6 leading-relaxed">
           Change the size of text across the Point of Sale. This improves readability for staff and reduces order mistakes.
         </p>
 
         {/* Brightness Section */}
         <div className="mb-4">
-          <h2 className="text-base font-medium text-neutral-500 mb-4 px-1">Brightness</h2>
+          <h2 className="text-base font-medium text-muted-foreground mb-4 px-1">Brightness</h2>
           
-          <div className="bg-neutral-800/60 rounded-2xl p-5">
+          <div className="bg-surface rounded-2xl p-5">
             <div className="flex items-center gap-4">
-              <Sun className="w-5 h-5 text-neutral-400 flex-shrink-0" strokeWidth={1.5} />
+              <Sun className="w-5 h-5 text-muted-foreground flex-shrink-0" strokeWidth={1.5} />
               <div className="flex-1">
                 <Slider
                   value={[brightness]}
@@ -302,17 +302,17 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
                   className="w-full" />
 
               </div>
-              <Sun className="w-7 h-7 text-neutral-300 flex-shrink-0" strokeWidth={1.5} />
+              <Sun className="w-7 h-7 text-foreground flex-shrink-0" strokeWidth={1.5} />
             </div>
           </div>
           
-          <p className="text-sm text-neutral-500 mt-3 px-1 leading-relaxed">
+          <p className="text-sm text-muted-foreground mt-3 px-1 leading-relaxed">
             Adjust screen brightness for better visibility in different lighting conditions.
           </p>
         </div>
 
         {/* Fonts */}
-        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
+        <div className="bg-surface rounded-full overflow-hidden mb-1.5">
           <button
             onClick={() => onNavigate ? onNavigate('/settings/system/fonts') : navigate('/settings/system/fonts')}
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
@@ -323,15 +323,15 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
               </SettingsIcon>
               <span className="text-foreground text-lg font-medium">Fonts</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-neutral-500" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
-        <p className="text-xs text-neutral-500 mb-6 px-1">
+        <p className="text-xs text-muted-foreground mb-6 px-1">
           Select a font family to personalize the look and feel of your display.
         </p>
 
         {/* Theme Presets */}
-        <div className="bg-neutral-800/60 rounded-full overflow-hidden mb-1.5">
+        <div className="bg-surface rounded-full overflow-hidden mb-1.5">
           <button
             onClick={() => onNavigate ? onNavigate('/settings/system/theme-presets') : navigate('/settings/system/theme-presets')}
             className="flex items-center justify-between w-full py-3.5 px-4 active:opacity-70 transition-opacity"
@@ -340,10 +340,10 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
               <SettingsIcon bgColor="#F59E0B" iconSrc={themePresetsIcon} iconAlt="Theme Presets" />
               <span className="text-foreground text-lg font-medium">Theme Presets</span>
             </div>
-            <ChevronRight className="w-5 h-5 text-neutral-500" />
+            <ChevronRight className="w-5 h-5 text-muted-foreground" />
           </button>
         </div>
-        <p className="text-xs text-neutral-500 px-1">
+        <p className="text-xs text-muted-foreground px-1">
           Choose from a variety of layout styles to customize your Point of Sale interface.
         </p>
       </div>

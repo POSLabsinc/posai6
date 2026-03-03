@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/drawer";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, ChevronDown, AlertCircle } from "lucide-react";
+import { Check, Briefcase, Heart, GraduationCap, Shield, Star, Clock, Cake, Sparkles, DollarSign, BadgeDollarSign, Wallet, Tag, LucideIcon, AlertCircle } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -66,13 +66,17 @@ const availableDiscounts: Discount[] = [
   { id: "military", name: "Military Discount", type: "percentage", value: 15, icon: Shield },
   { id: "loyalty", name: "Loyalty Member", type: "percentage", value: 5, icon: Star },
   { id: "happy-hour", name: "Happy Hour", type: "percentage", value: 25, icon: Clock },
-  { id: "birthday", name: "Birthday Special", type: "percentage", value: 100, icon: Cake, reasonRequired: true },
+  { id: "birthday", name: "Birthday Special", type: "percentage", value: 100, icon: Cake },
   { id: "first-visit", name: "First Visit", type: "percentage", value: 10, icon: Sparkles },
   { id: "manager-5", name: "Manager Comp $5", type: "amount", value: 5, icon: DollarSign },
   { id: "manager-10", name: "Manager Comp $10", type: "amount", value: 10, icon: BadgeDollarSign },
   { id: "manager-15", name: "Manager Comp $15", type: "amount", value: 15, icon: Wallet },
   { id: "promo-code", name: "Promo Code Discount", type: "percentage", value: 20, icon: Tag },
 ];
+
+// Auto-derive: 100% discounts always require a reason
+const isReasonRequired = (discount: Discount) =>
+  discount.reasonRequired || (discount.type === "percentage" && discount.value === 100);
 
 export function DiscountDialog({
   open,
@@ -101,7 +105,7 @@ export function DiscountDialog({
     // Validate all reason-required discounts
     const errors: Record<string, string> = {};
     for (const d of selectedDiscounts) {
-      if (d.reasonRequired && !reasonDataMap[d.id]?.reason) {
+      if (isReasonRequired(d) && !reasonDataMap[d.id]?.reason) {
         errors[d.id] = "Please select a reason.";
         setExpandedDiscountId(d.id);
       }
@@ -138,8 +142,10 @@ export function DiscountDialog({
         if (expandedDiscountId === discount.id) setExpandedDiscountId(null);
         return prev.filter(d => d.id !== discount.id);
       } else {
-        // Select: expand this discount
-        setExpandedDiscountId(discount.id);
+        // Select: only expand if reason is required (100% discounts)
+        if (isReasonRequired(discount)) {
+          setExpandedDiscountId(discount.id);
+        }
         return [...prev, discount];
       }
     });
@@ -180,14 +186,13 @@ export function DiscountDialog({
   const totalSavings = calculateTotalSavings();
 
   const hasValidationIssues = selectedDiscounts.some(
-    d => d.reasonRequired && !reasonDataMap[d.id]?.reason
+    d => isReasonRequired(d) && !reasonDataMap[d.id]?.reason
   );
 
   const ReasonSection = ({ discount }: { discount: Discount }) => {
     const data = reasonDataMap[discount.id] || { reason: null, notes: null };
     const error = validationErrors[discount.id];
-    const isRequired = discount.reasonRequired;
-    const [showReasonDropdown, setShowReasonDropdown] = useState(false);
+    const isRequired = isReasonRequired(discount);
 
     return (
       <motion.div
@@ -197,66 +202,36 @@ export function DiscountDialog({
         transition={{ duration: 0.25, ease: "easeInOut" }}
         className="overflow-hidden"
       >
-        <div className="px-3 pb-3 pt-1 space-y-3">
-          {/* Reason Selector */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-              Reason {isRequired && <span className="text-red-400">*</span>}
-            </label>
-            <div className="relative">
+        <div className="px-3 pb-3 pt-2 space-y-2">
+          {/* Reason Label */}
+          <label className="text-xs font-medium text-muted-foreground block">
+            Reason {isRequired && <span className="text-red-400">*</span>}
+          </label>
+
+          {/* Inline reason list */}
+          <div className="max-h-[200px] overflow-y-auto rounded-lg border border-border bg-neutral-800/50">
+            {DISCOUNT_REASONS.map((reason) => (
               <button
-                onClick={() => setShowReasonDropdown(!showReasonDropdown)}
-                className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border text-sm text-left transition-colors ${
-                  error
-                    ? "border-red-500/50 bg-red-500/5"
-                    : data.reason
-                    ? "border-primary/30 bg-primary/5 text-foreground"
-                    : "border-border bg-neutral-800/50 text-muted-foreground"
+                key={reason}
+                onClick={() => handleReasonSelect(discount.id, reason)}
+                className={`w-full text-left px-3 py-2.5 text-sm transition-colors border-b border-border/30 last:border-b-0 flex items-center justify-between ${
+                  data.reason === reason
+                    ? "bg-primary/15 text-primary font-medium"
+                    : "text-foreground hover:bg-neutral-700/50"
                 }`}
               >
-                <span>{data.reason || "Select a reason..."}</span>
-                <ChevronDown className={`w-4 h-4 transition-transform ${showReasonDropdown ? "rotate-180" : ""}`} />
+                <span>{reason}</span>
+                {data.reason === reason && <Check className="w-3.5 h-3.5 text-primary" />}
               </button>
-
-              <AnimatePresence>
-                {showReasonDropdown && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -4 }}
-                    transition={{ duration: 0.15 }}
-                    className="absolute z-50 mt-1 w-full bg-neutral-800 border border-border rounded-lg shadow-xl max-h-[200px] overflow-y-auto"
-                  >
-                    {DISCOUNT_REASONS.map((reason) => (
-                      <button
-                        key={reason}
-                        onClick={() => {
-                          handleReasonSelect(discount.id, reason);
-                          setShowReasonDropdown(false);
-                        }}
-                        className={`w-full text-left px-3 py-2.5 text-sm transition-colors border-b border-border/30 last:border-b-0 ${
-                          data.reason === reason
-                            ? "bg-primary/15 text-primary font-medium"
-                            : "text-foreground hover:bg-neutral-700/50"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <span>{reason}</span>
-                          {data.reason === reason && <Check className="w-3.5 h-3.5 text-primary" />}
-                        </div>
-                      </button>
-                    ))}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-            {error && (
-              <div className="flex items-center gap-1 mt-1.5">
-                <AlertCircle className="w-3 h-3 text-red-400" />
-                <p className="text-xs text-red-400">{error}</p>
-              </div>
-            )}
+            ))}
           </div>
+
+          {error && (
+            <div className="flex items-center gap-1">
+              <AlertCircle className="w-3 h-3 text-red-400" />
+              <p className="text-xs text-red-400">{error}</p>
+            </div>
+          )}
 
           {/* Notes Field - only shown when "Other" is selected */}
           {data.reason === "Other" && (
@@ -322,7 +297,7 @@ export function DiscountDialog({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {isSelected && discount.reasonRequired && !reasonDataMap[discount.id]?.reason && (
+            {isSelected && isReasonRequired(discount) && !reasonDataMap[discount.id]?.reason && (
               <span className="text-[10px] text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">Reason required</span>
             )}
             <span className="text-xs text-muted-foreground bg-neutral-700/60 px-2.5 py-1 rounded-full">

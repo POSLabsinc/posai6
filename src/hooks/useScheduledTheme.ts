@@ -73,10 +73,7 @@ export function useScheduledTheme() {
     const next = { ...config, enabled };
     setConfigState(next);
     saveConfig(next);
-    if (enabled) {
-      const inLight = isTimeInRange(new Date(), next.lightStart, next.lightEnd);
-      setTheme(inLight ? "light" : "dark");
-    }
+    // Don't change theme immediately - just enable/disable the schedule
   };
 
   const setLightStart = (time: string) => {

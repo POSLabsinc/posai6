@@ -70,7 +70,7 @@ const ScheduleTimePicker = ({ lightStart, lightEnd, onStartChange, onEndChange }
         >
           <div className="flex items-center gap-3">
             <Clock className="w-4 h-4 text-neutral-400" />
-            <span className="text-base text-foreground">Light Mode On</span>
+            <span className="text-base text-foreground">Light</span>
           </div>
           <span ref={startRef} className="text-base font-medium text-primary">
             {formatTime12(lightStart)}
@@ -86,7 +86,7 @@ const ScheduleTimePicker = ({ lightStart, lightEnd, onStartChange, onEndChange }
         >
           <div className="flex items-center gap-3">
             <Clock className="w-4 h-4 text-neutral-400" />
-            <span className="text-base text-foreground">Light Mode Off</span>
+            <span className="text-base text-foreground">Dark</span>
           </div>
           <span ref={endRef} className="text-base font-medium text-primary">
             {formatTime12(lightEnd)}

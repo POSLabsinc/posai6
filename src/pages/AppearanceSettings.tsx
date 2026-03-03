@@ -135,10 +135,7 @@ const AppearanceSettings = () => {
   const handleAutomaticToggle = (checked: boolean) => {
     setAutomaticTheme(checked);
     setScheduleEnabled(checked);
-    if (!checked) {
-      setSelectedTheme('dark');
-      setTheme('dark');
-    }
+    // Don't change theme on toggle - keep current theme
   };
 
   const iconStyleOptions: IconStyle[] = ['Default', 'Dark'];
@@ -202,14 +199,12 @@ const AppearanceSettings = () => {
                   scheduleType={scheduleType}
                   onTypeChange={setScheduleType}
                 />
-                {scheduleType === "custom" && (
-                  <ScheduleTimePicker
-                    lightStart={lightStart}
-                    lightEnd={lightEnd}
-                    onStartChange={setLightStart}
-                    onEndChange={setLightEnd}
-                  />
-                )}
+                <ScheduleTimePicker
+                  lightStart={lightStart}
+                  lightEnd={lightEnd}
+                  onStartChange={setLightStart}
+                  onEndChange={setLightEnd}
+                />
               </>
             )}
           </div>

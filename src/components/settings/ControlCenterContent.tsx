@@ -9,6 +9,7 @@ import { SettingsManager, ControlCenterSettings } from "@/lib/settingsManager";
 import { useAppearance, iconContainerSizeMap } from "@/contexts/AppearanceContext";
 import SettingsIcon from "@/components/settings/SettingsIcon";
 import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 
 // Import custom icons
 import controlCenterIcon from "@/assets/icons/control-center.png";
@@ -53,6 +54,8 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
     return "00:00";
   });
   const [showTimePicker, setShowTimePicker] = useState(false);
+  const [showRestartConfirm, setShowRestartConfirm] = useState(false);
+  const [pendingRestartValue, setPendingRestartValue] = useState(false);
   const timeRef = useRef<HTMLSpanElement>(null);
   const [timePickerPos, setTimePickerPos] = useState<{ top: number; left: number } | null>(null);
   const [autoLockTimer, setAutoLockTimer] = useState(() => loadSettings().autoLockTimer);
@@ -104,8 +107,19 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
 
   // Handler wrappers that persist changes
   const handleRestartAppChange = (value: boolean) => {
-    setRestartApp(value);
-    updateSetting('restartApp', value);
+    if (value) {
+      setPendingRestartValue(true);
+      setShowRestartConfirm(true);
+    } else {
+      setRestartApp(false);
+      updateSetting('restartApp', false);
+    }
+  };
+
+  const confirmRestartEnable = () => {
+    setRestartApp(true);
+    updateSetting('restartApp', true);
+    setShowRestartConfirm(false);
   };
 
   const handleAutoLockTimerChange = (value: string) => {
@@ -230,22 +244,18 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
     setShowTimePicker(false);
   };
 
-  // Schedule app restart at the set time
-  useEffect(() => {
-    if (!restartApp) return;
+  // Compute next restart display
+  const getNextRestartDisplay = (): string | null => {
+    if (!restartApp) return null;
+    return formatTime12(restartTime);
+  };
 
-    const checkRestart = () => {
-      const now = new Date();
-      const [h, m] = restartTime.split(":").map(Number);
-      if (now.getHours() === h && now.getMinutes() === m) {
-        window.location.reload();
-      }
-    };
-
-    const interval = setInterval(checkRestart, 30000); // check every 30s
-    return () => clearInterval(interval);
-  }, [restartApp, restartTime]);
-
+  const getLastRestartDisplay = (): string | null => {
+    const settings = loadSettings();
+    if (!settings.lastRestartTime) return null;
+    const d = new Date(settings.lastRestartTime);
+    return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  };
   return (
     <>
       <div className="h-full overflow-y-auto scrollbar-hide overscroll-contain">
@@ -313,8 +323,17 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
             )}
           </div>
           
-          <p className="text-neutral-500 text-sm mb-6 px-1">
-            For your convenience, the app will automatically restart two hours after the end-of-day time you set.
+          <p className="text-neutral-500 text-sm mb-1 px-1">
+            For your convenience, the app will automatically restart at the scheduled time daily.
+          </p>
+          {restartApp && (
+            <div className="text-neutral-500 text-xs mb-1 px-1 space-y-0.5">
+              {getNextRestartDisplay() && <p>Next restart: <span className="text-foreground font-medium">{getNextRestartDisplay()}</span></p>}
+              {getLastRestartDisplay() && <p>Last restart: <span className="text-foreground font-medium">{getLastRestartDisplay()}</span></p>}
+            </div>
+          )}
+          <p className="text-neutral-500 text-[11px] mb-6 px-1">
+            Active payments or checkouts will not be interrupted. Restart will be deferred until completion.
           </p>
 
            {/* Auto Lock Timer Section */}
@@ -520,6 +539,22 @@ const ControlCenterContent = ({ showHeader = true, onNavigate, onBack, onAIClick
         </>,
         document.body
       )}
+
+      {/* Confirmation Dialog for enabling auto-restart */}
+      <AlertDialog open={showRestartConfirm} onOpenChange={setShowRestartConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Enable Auto-Restart?</AlertDialogTitle>
+            <AlertDialogDescription>
+              The app will automatically restart daily at the scheduled time ({formatTime12(restartTime)}). Active payments will not be interrupted — restarts are deferred until checkout completes.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmRestartEnable}>Enable</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };

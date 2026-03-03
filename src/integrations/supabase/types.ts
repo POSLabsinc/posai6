@@ -74,6 +74,54 @@ export type Database = {
         }
         Relationships: []
       }
+      employees: {
+        Row: {
+          assigned_job_types: string[]
+          avatar_url: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          hourly_rate: number
+          id: string
+          is_archived: boolean
+          phone: string | null
+          pin: string
+          revenue_center: string
+          role: string
+          updated_at: string
+        }
+        Insert: {
+          assigned_job_types?: string[]
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          hourly_rate?: number
+          id?: string
+          is_archived?: boolean
+          phone?: string | null
+          pin?: string
+          revenue_center?: string
+          role?: string
+          updated_at?: string
+        }
+        Update: {
+          assigned_job_types?: string[]
+          avatar_url?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          hourly_rate?: number
+          id?: string
+          is_archived?: boolean
+          phone?: string | null
+          pin?: string
+          revenue_center?: string
+          role?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       menu_categories: {
         Row: {
           category_id: string

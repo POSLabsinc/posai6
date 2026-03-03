@@ -7195,7 +7195,8 @@ const Orders = () => {
             </div>
         }
 
-          {/* Order Notes */}
+          {/* Order Notes - only show when cart has products */}
+          {orderItems.length > 0 && (
           <div className="px-2 py-1.5 border-b border-sidebar-border">
             <OrderNotesAutocomplete
             value={orderNotes}
@@ -7203,6 +7204,7 @@ const Orders = () => {
             placeholder="Order notes and Allergies" />
 
           </div>
+          )}
           {transferNewMode &&
         <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2">
               <img src={transferIconPng} alt="Transferred" className="w-4 h-4 opacity-70" />
@@ -8541,7 +8543,8 @@ const Orders = () => {
                       <span className="text-xs underline">Edit</span>
                     </button>
               }
-                  {/* Order Notes */}
+                  {/* Order Notes - only show when cart has products */}
+                  {orderItems.length > 0 && (
                   <div className="px-2 py-1.5 border-b border-sidebar-border flex-shrink-0">
                     <OrderNotesAutocomplete
                   value={orderNotes}
@@ -8549,6 +8552,7 @@ const Orders = () => {
                   placeholder="Order notes" />
 
                   </div>
+                  )}
                   {transferNewMode &&
               <div className="px-3 py-1.5 border-b border-sidebar-border flex items-center gap-2 flex-shrink-0">
                       <img src={transferIconPng} alt="Transferred" className="w-4 h-4 opacity-70" />

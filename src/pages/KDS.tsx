@@ -147,6 +147,91 @@ const getTimerBadgeColor = (minutes: number) => {
   return "bg-neutral-500 text-white";
 };
 
+// ─── Messages Card ───
+const MessagesCard = () => {
+  const [messages, setMessages] = useState<any[]>([]);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const load = () => {
+      try {
+        const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
+        setMessages(queue.filter((m: any) => m.status !== "acknowledged"));
+      } catch {
+        setMessages([]);
+      }
+    };
+    load();
+    const interval = setInterval(load, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleAcknowledge = (id: string) => {
+    try {
+      const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
+      const updated = queue.map((m: any) => m.message_id === id ? { ...m, status: "acknowledged" } : m);
+      localStorage.setItem("kds_message_queue", JSON.stringify(updated));
+      setMessages(updated.filter((m: any) => m.status !== "acknowledged"));
+    } catch {}
+  };
+
+  if (messages.length === 0) return null;
+
+  return (
+    <div className="bg-neutral-900 rounded-xl border border-violet-600/60 overflow-hidden flex flex-col min-w-[240px] max-w-[280px] w-full">
+      {/* Header */}
+      <div className="bg-gradient-to-r from-violet-700 to-indigo-600 px-3 py-2 text-center">
+        <div className="text-white font-black text-sm tracking-widest uppercase flex items-center justify-center gap-2">
+          <Megaphone className="w-4 h-4" />
+          MESSAGES
+        </div>
+      </div>
+
+      {/* Count bar */}
+      <div className="bg-neutral-800 px-3 py-2 flex items-center justify-between">
+        <span className="text-[10px] text-neutral-400 font-mono">POS → Kitchen</span>
+        <div className="flex items-center gap-2">
+          <span className="text-4xl font-black text-white leading-none">{messages.length}</span>
+          <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-violet-500 text-white">NEW</span>
+        </div>
+      </div>
+
+      {/* Message list */}
+      <div className="flex-1 overflow-y-auto scrollbar-hide px-3 py-1 space-y-1.5 max-h-[300px]">
+        {messages.map((msg: any, i: number) => (
+          <div key={msg.message_id || i} className="border border-neutral-700 rounded-lg p-2 bg-neutral-800/50">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[10px] text-violet-400 font-semibold">
+                {msg.table_number || "General"}
+              </span>
+              <span className="text-[10px] text-neutral-500 font-mono">
+                {msg.timestamp ? format(new Date(msg.timestamp), "hh:mm a") : ""}
+              </span>
+            </div>
+            <p className="text-xs text-white leading-snug mb-1.5">{msg.message}</p>
+            <button
+              onClick={() => handleAcknowledge(msg.message_id)}
+              className="w-full text-[10px] font-bold py-1 rounded bg-violet-600 hover:bg-violet-500 text-white transition-colors"
+            >
+              ACKNOWLEDGE
+            </button>
+          </div>
+        ))}
+      </div>
+
+      {/* View All */}
+      <div className="p-2 border-t border-neutral-700">
+        <button
+          onClick={() => navigate("/kds/messages")}
+          className="w-full border-2 border-violet-600 text-violet-300 font-bold text-sm py-3 rounded-lg hover:bg-violet-900/30 transition-colors"
+        >
+          VIEW ALL MESSAGES
+        </button>
+      </div>
+    </div>
+  );
+};
+
 // ─── Item Summary ───
 const ItemSummary = ({ tickets }: { tickets: KDSTicket[] }) => {
   const summary = useMemo(() => {
@@ -159,7 +244,6 @@ const ItemSummary = ({ tickets }: { tickets: KDSTicket[] }) => {
         else map.set(key, { category: p.category, count: p.qty });
       })
     );
-    // Group by category
     const grouped = new Map<string, { name: string; count: number }[]>();
     map.forEach((val, name) => {
       const arr = grouped.get(val.category) || [];
@@ -508,6 +592,7 @@ const KDS = () => {
           {/* Scrollable ticket area */}
           <div className="flex-1 overflow-x-auto overflow-y-hidden">
             <div className="flex gap-3 p-3 h-full items-start">
+              <MessagesCard />
               {activeTickets.map(ticket => (
                 <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} />
               ))}

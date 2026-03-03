@@ -13,6 +13,7 @@ import { SessionOrderProvider } from "@/contexts/SessionOrderContext";
 import { UnifiedOrderProvider } from "@/contexts/UnifiedOrderContext";
 import { ThemePresetsProvider } from "@/contexts/ThemePresetsContext";
 import { useAutoRestart } from "@/hooks/useAutoRestart";
+import { AutoLockProvider } from "@/contexts/AutoLockContext";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
 import OrdersDesign1 from "./pages/OrdersDesign1";
@@ -63,6 +64,7 @@ const AppInner = () => {
   useAutoRestart();
   return (
     <BrowserRouter>
+      <AutoLockProvider>
       <Layout>
         <Routes>
           <Route path="/" element={<Dashboard />} />
@@ -111,6 +113,7 @@ const AppInner = () => {
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>
+      </AutoLockProvider>
     </BrowserRouter>
   );
 };

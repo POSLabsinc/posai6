@@ -1,5 +1,5 @@
 import { useCallback, useState, useEffect, useRef } from "react";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { User, UtensilsCrossed, Zap, Users, Truck, ShieldCheck, ArrowLeft, Delete, Loader2, Clock, MapPin, Briefcase, CheckCircle2, Monitor, Smartphone, KeyRound, AlertCircle, Send, ShieldX, Mail, MessageSquare, RefreshCw, Lock, Eye, EyeOff, Sun, Moon, Sunrise, Sunset, Fingerprint, ScanFace, Phone, X, ScanLine, Camera, HelpCircle, Info, FlaskConical, Timer, Wine, ChefHat, Sparkles } from "lucide-react";
 import { Html5Qrcode } from "html5-qrcode";
@@ -170,8 +170,6 @@ type DeviceType = "company" | "personal" | null;
 
 const Login = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const isFromAutoLock = (location.state as any)?.fromAutoLock === true;
   const { toast } = useToast();
   const [deviceType, setDeviceType] = useState<DeviceType>(null);
   const [showSplash, setShowSplash] = useState(false);
@@ -290,22 +288,14 @@ const Login = () => {
   // CRITICAL: Clear sessions SYNCHRONOUSLY before first render
   // This ensures no redirects can happen before sessions are cleared
   // Using useRef to ensure this only runs once
-  // Skip clearing when arriving from auto-lock (just locking, not logging out)
   const hasCleared = useRef(false);
   if (!hasCleared.current) {
     hasCleared.current = true;
-    if (!isFromAutoLock) {
-      localStorage.removeItem("pos_device_session");
-      localStorage.removeItem("pos_session");
-    }
+    localStorage.removeItem("pos_device_session");
+    localStorage.removeItem("pos_session");
   }
 
   useEffect(() => {
-    // If arriving from auto-lock, go directly to company device PIN screen
-    if (isFromAutoLock) {
-      setDeviceType("company");
-      return;
-    }
     // Reset all state to initial values on mount
     setDeviceType(null);
     setSelectedEmployee(null);

@@ -4,10 +4,13 @@ export interface EmployeePinResult {
   id: string;
   full_name: string;
   role: string;
+  pin: string;
   phone: string | null;
   email: string | null;
   avatar_url: string | null;
   hourly_rate: number;
+  assigned_job_types: string[];
+  revenue_center: string;
 }
 
 /**
@@ -17,7 +20,7 @@ export interface EmployeePinResult {
 export async function lookupEmployeeByPin(pin: string): Promise<EmployeePinResult | null> {
   const { data, error } = await (supabase as any)
     .from("employees")
-    .select("id, full_name, role, phone, email, avatar_url, hourly_rate")
+    .select("id, full_name, role, pin, phone, email, avatar_url, hourly_rate, assigned_job_types, revenue_center")
     .eq("pin", pin)
     .eq("is_archived", false)
     .maybeSingle();
@@ -27,12 +30,32 @@ export async function lookupEmployeeByPin(pin: string): Promise<EmployeePinResul
 }
 
 /**
+ * Update an employee's PIN in the database.
+ */
+export async function updateEmployeePin(employeeId: string, newPin: string): Promise<boolean> {
+  const { error } = await (supabase as any)
+    .from("employees")
+    .update({ pin: newPin })
+    .eq("id", employeeId);
+
+  return !error;
+}
+
+/**
+ * Validate that a PIN belongs to an active employee.
+ */
+export async function validateEmployeePin(pin: string): Promise<boolean> {
+  const employee = await lookupEmployeeByPin(pin);
+  return employee !== null;
+}
+
+/**
  * Fetch all non-archived employees for display in employee selection lists.
  */
 export async function fetchAllActiveEmployees(): Promise<EmployeePinResult[]> {
   const { data, error } = await (supabase as any)
     .from("employees")
-    .select("id, full_name, role, phone, email, avatar_url, hourly_rate")
+    .select("id, full_name, role, pin, phone, email, avatar_url, hourly_rate, assigned_job_types, revenue_center")
     .eq("is_archived", false)
     .order("full_name");
 

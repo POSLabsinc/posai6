@@ -9,6 +9,7 @@ import FingerprintAuthModal, { FingerprintInlineAuth } from "@/components/Finger
 import { FaceIDInlineAuth } from "@/components/FaceIDAuthModal";
 import { recordFailedAttempt, resetFailedAttempts, isLockedOut, getFailedCount } from "@/lib/pinAttemptTracker";
 import { getManagerPin } from "@/lib/pinManager";
+import { lookupEmployeeByPin } from "@/lib/employeePinLookup";
 import { SettingsManager } from "@/lib/settingsManager";
 import pinIndicatorIcon from "@/assets/icons/pin-indicator.svg";
 import pinIndicatorFilledIcon from "@/assets/icons/pin-indicator-filled.svg";
@@ -54,30 +55,7 @@ interface Employee {
   avatar?: string;
 }
 
-// Mock employee data (would come from API in production)
-const EMPLOYEES: Record<string, Employee> = {
-  "1234": {
-    id: "emp_001",
-    name: "John Smith",
-    assignedJobTypes: ["Server", "Host", "Bartender", "Manager", "Barista", "Runner"],
-    revenueCenter: "Dine Center",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face"
-  },
-  "5678": {
-    id: "emp_002",
-    name: "Sarah Kim",
-    assignedJobTypes: ["Bartender", "Manager", "Server", "Host", "Barista", "Runner"],
-    revenueCenter: "Bar Area",
-    avatar: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150&h=150&fit=crop&crop=face"
-  },
-  "9999": {
-    id: "emp_003",
-    name: "Mike Johnson",
-    assignedJobTypes: ["Manager", "Server", "Host", "Bartender", "Barista", "Runner"],
-    revenueCenter: "Main Hall",
-    avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face"
-  }
-};
+// Employee data is now fetched from the database via lookupEmployeeByPin
 
 // Emotion options with custom icons
 type EmotionKey = 'happy' | 'energized' | 'motivated' | 'emotional' | 'okay' | 'thankful';
@@ -246,14 +224,15 @@ export const ClockInOverlay = ({
     setPin("");
     setError("");
   };
-  const handleEnter = useCallback(() => {
+  const handleEnter = useCallback(async () => {
     if (pin.length !== PIN_LENGTH) {
       setError("Please enter a 4-digit PIN");
       return;
     }
     setIsVerifying(true);
-    setTimeout(() => {
-      if (pin === "1234") {
+    try {
+      const employee = await lookupEmployeeByPin(pin);
+      if (employee) {
         resetFailedAttempts();
         setPinLockedOut(false);
         onClose();
@@ -261,37 +240,45 @@ export const ClockInOverlay = ({
       } else {
         handleFailedResult();
       }
-      setIsVerifying(false);
-    }, 500);
+    } catch {
+      setError("Connection error. Please try again.");
+    }
+    setIsVerifying(false);
   }, [pin, onClose, onEnterPOS]);
-  const handleClockIn = () => {
+  const handleClockIn = async () => {
     if (pin.length !== PIN_LENGTH) {
       setError("Please enter your PIN first");
       return;
     }
     setIsVerifying(true);
-    setTimeout(() => {
-      const employee = EMPLOYEES[pin];
+    try {
+      const dbEmployee = await lookupEmployeeByPin(pin);
       
-      if (employee) {
+      if (dbEmployee) {
         resetFailedAttempts();
         setPinLockedOut(false);
-        // PIN valid - store employee and check job types
+        const employee: Employee = {
+          id: dbEmployee.id,
+          name: dbEmployee.full_name,
+          assignedJobTypes: dbEmployee.assigned_job_types || ["Server"],
+          revenueCenter: dbEmployee.revenue_center || "Dine Center",
+          avatar: dbEmployee.avatar_url || undefined,
+        };
         setValidatedEmployee(employee);
         setSelectedRevenueCenter(employee.revenueCenter);
         
-        // If only one job type, auto-select and complete clock-in
         if (employee.assignedJobTypes.length === 1) {
           completeClockIn(employee, employee.assignedJobTypes[0]);
         } else {
-          // Multiple job types - show selection screen
           setShowJobSelection(true);
         }
       } else {
         handleFailedResult();
       }
-      setIsVerifying(false);
-    }, 500);
+    } catch {
+      setError("Connection error. Please try again.");
+    }
+    setIsVerifying(false);
   };
 
   const handleJobSelection = (job: string) => {
@@ -332,14 +319,15 @@ export const ClockInOverlay = ({
     setPin("");
     setError("");
   };
-  const handleClockOut = () => {
+  const handleClockOut = async () => {
     if (pin.length !== PIN_LENGTH) {
       setError("Please enter your PIN first");
       return;
     }
     setIsVerifying(true);
-    setTimeout(() => {
-      if (pin === "1234") {
+    try {
+      const employee = await lookupEmployeeByPin(pin);
+      if (employee) {
         resetFailedAttempts();
         setPinLockedOut(false);
         const sessionData = localStorage.getItem("pos_session");
@@ -367,7 +355,7 @@ export const ClockInOverlay = ({
             clockOutTime,
             revenueCenter: session.revenueCenter || selectedRevenueCenter,
             jobType: session.jobType || selectedJobType,
-            employeeName: session.employeeName || "John Smith",
+            employeeName: session.employeeName || employee.full_name,
             totalMinutes: Math.max(0, totalMinutes),
             breakMinutes
           });
@@ -378,7 +366,7 @@ export const ClockInOverlay = ({
             clockOutTime,
             revenueCenter: selectedRevenueCenter,
             jobType: selectedJobType,
-            employeeName: "John Smith",
+            employeeName: employee.full_name,
             totalMinutes: 8 * 60 - 30,
             breakMinutes: 30
           });
@@ -388,17 +376,20 @@ export const ClockInOverlay = ({
       } else {
         handleFailedResult();
       }
-      setIsVerifying(false);
-    }, 500);
+    } catch {
+      setError("Connection error. Please try again.");
+    }
+    setIsVerifying(false);
   };
-  const handleBreak = () => {
+  const handleBreak = async () => {
     if (pin.length !== PIN_LENGTH) {
       setError("Please enter your PIN first");
       return;
     }
     setIsVerifying(true);
-    setTimeout(() => {
-      if (pin === "1234") {
+    try {
+      const employee = await lookupEmployeeByPin(pin);
+      if (employee) {
         resetFailedAttempts();
         setPinLockedOut(false);
         const sessionData = localStorage.getItem("pos_session");
@@ -430,8 +421,10 @@ export const ClockInOverlay = ({
       } else {
         handleFailedResult();
       }
-      setIsVerifying(false);
-    }, 500);
+    } catch {
+      setError("Connection error. Please try again.");
+    }
+    setIsVerifying(false);
   };
   const handleLogoutClick = () => {
     setShowLogoutConfirm(true);

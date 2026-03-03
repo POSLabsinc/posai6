@@ -39,7 +39,7 @@ export function AutoLockProvider({ children }: { children: ReactNode }) {
 
     timerRef.current = setTimeout(() => {
       // Navigate to the existing login/clock-in screen
-      navigate("/login", { replace: true });
+      navigate("/login", { replace: true, state: { fromAutoLock: true } });
     }, minutes * 60 * 1000);
   }, [clearTimer, navigate]);
 

@@ -46,17 +46,15 @@ const MessageKitchenDialog = ({ open, onOpenChange, tableId }: MessageKitchenDia
       employee_id: "default",
       employee_name: "Staff",
       table_id: selectedTable === "none" ? null : selectedTable,
+      table_number: selectedTable === "none" ? null : `Table ${selectedTable}`,
       timestamp: new Date().toISOString(),
+      status: "pending" as const,
     };
 
     try {
-      // For now, simulate the API call since /kds/messages endpoint needs to be created
-      // In production, this would be: await supabase.functions.invoke('kds-messages', { body: payload })
-      await new Promise((resolve) => setTimeout(resolve, 800));
-      
-      // Store in localStorage queue for offline support
+      // Store in localStorage for KDS Messages page to pick up
       const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-      queue.push({ ...payload, sent: true });
+      queue.push(payload);
       localStorage.setItem("kds_message_queue", JSON.stringify(queue));
 
       onOpenChange(false);

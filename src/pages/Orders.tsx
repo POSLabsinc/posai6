@@ -93,6 +93,7 @@ import SellVoucherScreen from "@/components/SellVoucherScreen";
 import CreateVoucherForm from "@/components/CreateVoucherForm";
 import OpenPriceDialog from "@/components/OpenPriceDialog";
 import { DiscountDialog, type Discount } from "@/components/DiscountDialog";
+import MessageKitchenDialog from "@/components/MessageKitchenDialog";
 
 // Food images - 20 custom images
 import burgerGourmetImg from "@/assets/food/burger-gourmet.png";
@@ -6165,6 +6166,7 @@ const Orders = () => {
   const [showTransferCheckDialog, setShowTransferCheckDialog] = useState(false);
   const [currentServerName, setCurrentServerName] = useState("Mia Jones");
   const [showAddGuestForm, setShowAddGuestForm] = useState(false);
+  const [showMessageKitchen, setShowMessageKitchen] = useState(false);
   const [showMPINDialog, setShowMPINDialog] = useState(false);
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
@@ -7174,7 +7176,7 @@ const Orders = () => {
                       <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />
                       Reopen Check
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                    <DropdownMenuItem onClick={() => setShowMessageKitchen(true)} className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                       <img src={messageKdsIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
                       Message Kitchen
                     </DropdownMenuItem>
@@ -8942,7 +8944,7 @@ const Orders = () => {
                     <img src={reopenCheckIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Reopen<br />Check</span>
                   </button>
-                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                  <button onClick={() => { setShowMessageKitchen(true); setIsOrderActionsSidebarOpen(false); }} className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
                     <img src={messageKdsIcon} alt="" className="w-5 h-5 brightness-0 invert" />
                     <span className="text-[9px] text-white text-center leading-tight">Message<br />Kitchen</span>
                   </button>
@@ -9296,6 +9298,11 @@ const Orders = () => {
           </div>
         </div>
     }
+    <MessageKitchenDialog
+      open={showMessageKitchen}
+      onOpenChange={setShowMessageKitchen}
+      tableId={tableIdFromParams}
+    />
     </div>;
 };
 export default Orders;

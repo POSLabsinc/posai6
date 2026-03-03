@@ -331,13 +331,13 @@ export function DiscountDialog({
           </div>
         </div>
       ) : (
-        <ScrollArea className="max-h-[50vh]">
+        <div className="max-h-[50vh] overflow-y-auto">
           <div className="p-3 space-y-2">
             {availableDiscounts.map((discount) => (
               <DiscountRow key={discount.id} discount={discount} />
             ))}
           </div>
-        </ScrollArea>
+        </div>
       )}
       {selectedDiscounts.length > 0 && (
         <div className="px-4 py-3 bg-primary/10 border-t border-primary/20">

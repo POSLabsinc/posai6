@@ -10,6 +10,7 @@ import SettingsIcon from "@/components/settings/SettingsIcon";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useScheduledTheme } from "@/hooks/useScheduledTheme";
 import ScheduleTimePicker from "@/components/settings/ScheduleTimePicker";
+import ScheduleTypeSelector from "@/components/settings/ScheduleTypeSelector";
 import appearanceIcon from "@/assets/icons/appearance.png";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
@@ -120,7 +121,7 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
   const [automaticTheme, setAutomaticTheme] = useState(false);
   const [iconStyleDropdownOpen, setIconStyleDropdownOpen] = useState(false);
   const [iconSizeDropdownOpen, setIconSizeDropdownOpen] = useState(false);
-  const { scheduleEnabled, lightStart, lightEnd, setScheduleEnabled, setLightStart, setLightEnd } = useScheduledTheme();
+  const { scheduleEnabled, scheduleType, lightStart, lightEnd, setScheduleEnabled, setScheduleType, setLightStart, setLightEnd } = useScheduledTheme();
 
   useEffect(() => {
     if (theme === 'light') {
@@ -195,14 +196,22 @@ const AppearanceSettingsContent = ({ showHeader = true, onBack, onAIClick, onNav
                 onCheckedChange={handleAutomaticToggle} />
             </div>
 
-            {/* Schedule Time Picker */}
+            {/* Schedule Options - shown when automatic is on */}
             {automaticTheme && (
-              <ScheduleTimePicker
-                lightStart={lightStart}
-                lightEnd={lightEnd}
-                onStartChange={setLightStart}
-                onEndChange={setLightEnd}
-              />
+              <>
+                <ScheduleTypeSelector
+                  scheduleType={scheduleType}
+                  onTypeChange={setScheduleType}
+                />
+                {scheduleType === "custom" && (
+                  <ScheduleTimePicker
+                    lightStart={lightStart}
+                    lightEnd={lightEnd}
+                    onStartChange={setLightStart}
+                    onEndChange={setLightEnd}
+                  />
+                )}
+              </>
             )}
           </div>
           

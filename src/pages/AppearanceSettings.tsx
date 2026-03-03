@@ -9,6 +9,7 @@ import { useAppearance, IconStyle, IconSize, MIN_TEXT_SIZE, MAX_TEXT_SIZE, MIN_B
 import SettingsIcon from "@/components/settings/SettingsIcon";
 import { useScheduledTheme } from "@/hooks/useScheduledTheme";
 import ScheduleTimePicker from "@/components/settings/ScheduleTimePicker";
+import ScheduleTypeSelector from "@/components/settings/ScheduleTypeSelector";
 import themePresetsIcon from "@/assets/icons/theme-presets.png";
 import POSThemePreview from "@/components/settings/POSThemePreview";
 
@@ -111,7 +112,7 @@ const AppearanceSettings = () => {
   // State for all settings
   const [selectedTheme, setSelectedTheme] = useState<ThemeOption>('dark');
   const [automaticTheme, setAutomaticTheme] = useState(false);
-  const { scheduleEnabled, lightStart, lightEnd, setScheduleEnabled, setLightStart, setLightEnd } = useScheduledTheme();
+  const { scheduleEnabled, scheduleType, lightStart, lightEnd, setScheduleEnabled, setScheduleType, setLightStart, setLightEnd } = useScheduledTheme();
   
   // Dropdown states
   const [iconStyleDropdownOpen, setIconStyleDropdownOpen] = useState(false);
@@ -194,14 +195,22 @@ const AppearanceSettings = () => {
               />
             </div>
 
-            {/* Schedule Time Picker - shown when automatic is on */}
+            {/* Schedule Options - shown when automatic is on */}
             {automaticTheme && (
-              <ScheduleTimePicker
-                lightStart={lightStart}
-                lightEnd={lightEnd}
-                onStartChange={setLightStart}
-                onEndChange={setLightEnd}
-              />
+              <>
+                <ScheduleTypeSelector
+                  scheduleType={scheduleType}
+                  onTypeChange={setScheduleType}
+                />
+                {scheduleType === "custom" && (
+                  <ScheduleTimePicker
+                    lightStart={lightStart}
+                    lightEnd={lightEnd}
+                    onStartChange={setLightStart}
+                    onEndChange={setLightEnd}
+                  />
+                )}
+              </>
             )}
           </div>
           

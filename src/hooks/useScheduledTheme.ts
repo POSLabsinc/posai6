@@ -3,14 +3,18 @@ import { useTheme } from "next-themes";
 
 const STORAGE_KEY = "scheduled-theme";
 
+export type ScheduleType = "sunset-sunrise" | "custom";
+
 interface ScheduleConfig {
   enabled: boolean;
+  scheduleType: ScheduleType;
   lightStart: string; // HH:MM format
   lightEnd: string;   // HH:MM format
 }
 
 const DEFAULT_CONFIG: ScheduleConfig = {
   enabled: false,
+  scheduleType: "sunset-sunrise",
   lightStart: "07:00",
   lightEnd: "19:00",
 };
@@ -87,11 +91,32 @@ export function useScheduledTheme() {
     saveConfig(next);
   };
 
+  const setScheduleType = (type: ScheduleType) => {
+    const next = { ...config, scheduleType: type };
+    setConfigState(next);
+    saveConfig(next);
+    if (next.enabled) {
+      if (type === "sunset-sunrise") {
+        // Default sunset-sunrise: light 06:00 - 18:00
+        const sunriseConfig = { ...next, lightStart: "06:00", lightEnd: "18:00" };
+        setConfigState(sunriseConfig);
+        saveConfig(sunriseConfig);
+        const inLight = isTimeInRange(new Date(), sunriseConfig.lightStart, sunriseConfig.lightEnd);
+        setTheme(inLight ? "light" : "dark");
+      } else {
+        const inLight = isTimeInRange(new Date(), next.lightStart, next.lightEnd);
+        setTheme(inLight ? "light" : "dark");
+      }
+    }
+  };
+
   return {
     scheduleEnabled: config.enabled,
+    scheduleType: config.scheduleType,
     lightStart: config.lightStart,
     lightEnd: config.lightEnd,
     setScheduleEnabled: setEnabled,
+    setScheduleType,
     setLightStart,
     setLightEnd,
   };

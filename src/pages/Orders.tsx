@@ -8925,6 +8925,10 @@ const Orders = () => {
                     <img src={reopenCheckIcon} alt="" className="w-5 h-5" />
                     <span className="text-[9px] text-white text-center leading-tight">Reopen<br />Check</span>
                   </button>
+                  <button className="flex-1 flex flex-col items-center justify-center gap-1 rounded-xl hover:bg-sidebar-accent transition-colors">
+                    <img src={messageKdsIcon} alt="" className="w-5 h-5 brightness-0 invert" />
+                    <span className="text-[9px] text-white text-center leading-tight">Message<br />Kitchen</span>
+                  </button>
                 </div>
               </div>
           }

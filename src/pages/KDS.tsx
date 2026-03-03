@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Home, Clock, ChefHat, Settings, Eye, Megaphone, SlidersHorizontal, Volume2, VolumeX, Maximize, Minimize, Menu, X, ChevronRight } from "lucide-react";
+import { Home, Clock, ChefHat, Settings, Eye, SlidersHorizontal, Volume2, VolumeX, Maximize, Minimize, Menu, X, ChevronRight } from "lucide-react";
+import messageKdsIcon from "@/assets/icons/message-kds.svg";
 import { format } from "date-fns";
 
 // ─── KDS Ticket Types ───
@@ -209,7 +210,7 @@ const KDSSidebar = ({ collapsed, onToggle }: { collapsed: boolean; onToggle: () 
     { icon: Home, label: "Home", path: "/" },
     { icon: Clock, label: "History", path: "/kds/history" },
     { icon: ChefHat, label: "Queue", path: "/kds" },
-    { icon: Megaphone, label: "Messages", path: "/kds/messages" },
+    { icon: ({ className }: { className?: string }) => <img src={messageKdsIcon} alt="Messages" className={`${className} invert`} />, label: "Messages", path: "/kds/messages" },
     { icon: Settings, label: "Settings", path: "/settings" },
     { icon: Eye, label: "View", path: "/kds/view" },
   ];
@@ -276,7 +277,7 @@ const TicketCard = ({ ticket, onBump, onSeen }: { ticket: KDSTicket; onBump: (id
       {/* Header */}
       <div className={`${isMessage ? "bg-gradient-to-r from-violet-700 to-indigo-600" : getHeaderColor(elapsed)} px-3 py-2 text-center`}>
         <div className="text-white font-black text-sm tracking-widest uppercase flex items-center justify-center gap-2">
-          {isMessage && <Megaphone className="w-4 h-4" />}
+          {isMessage && <img src={messageKdsIcon} alt="Message" className="w-4 h-4 invert" />}
           {isMessage ? "MESSAGE" : ticket.orderType}
         </div>
       </div>
@@ -360,19 +361,12 @@ const TicketCard = ({ ticket, onBump, onSeen }: { ticket: KDSTicket; onBump: (id
           >
             <ChevronRight className="w-4 h-4" /> ACKNOWLEDGE
           </button>
-        ) : ticket.products.some(p => p.status === "ready") ? (
-          <button
-            onClick={() => onBump(ticket.id)}
-            className="w-full bg-white text-black font-bold text-sm py-3 rounded-lg hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2"
-          >
-            <ChevronRight className="w-4 h-4" /> BUMP
-          </button>
         ) : (
           <button
             onClick={() => onSeen(ticket.id)}
-            className="w-full border-2 border-neutral-600 text-white font-bold text-sm py-3 rounded-lg hover:bg-neutral-800 transition-colors"
+            className="w-full bg-white text-black font-bold text-sm py-3 rounded-lg hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2"
           >
-            SEEN
+            <ChevronRight className="w-4 h-4" /> SEEN
           </button>
         )}
       </div>

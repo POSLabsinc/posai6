@@ -91,6 +91,7 @@ export function DiscountDialog({
   const [validationErrors, setValidationErrors] = useState<Record<string, string>>({});
   const isMobile = useIsMobile();
   const notesRef = useRef<HTMLTextAreaElement>(null);
+  const scrollRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (open) {
@@ -320,25 +321,18 @@ export function DiscountDialog({
     );
   };
 
-  const DiscountList = ({ isMobileView = false }: { isMobileView?: boolean }) => (
+  const listContent = (
+    <div ref={scrollRef} className="max-h-[50vh] overflow-y-auto scrollbar-hide">
+      <div className="p-3 space-y-2">
+        {availableDiscounts.map((discount) => (
+          <DiscountRow key={discount.id} discount={discount} />
+        ))}
+      </div>
+    </div>
+  );
+
+  const summaryAndApply = (
     <>
-      {isMobileView ? (
-        <div className="max-h-[50vh] overflow-y-auto">
-          <div className="p-3 space-y-2">
-            {availableDiscounts.map((discount) => (
-              <DiscountRow key={discount.id} discount={discount} isMobileView />
-            ))}
-          </div>
-        </div>
-      ) : (
-        <div className="max-h-[50vh] overflow-y-auto">
-          <div className="p-3 space-y-2">
-            {availableDiscounts.map((discount) => (
-              <DiscountRow key={discount.id} discount={discount} />
-            ))}
-          </div>
-        </div>
-      )}
       {selectedDiscounts.length > 0 && (
         <div className="px-4 py-3 bg-primary/10 border-t border-primary/20">
           <div className="flex items-center justify-between">
@@ -357,7 +351,6 @@ export function DiscountDialog({
           </div>
         </div>
       )}
-
       <div className="p-4 pt-2 border-t border-sidebar-border">
         <Button
           onClick={handleApply}
@@ -378,7 +371,8 @@ export function DiscountDialog({
               Select Discounts
             </DrawerTitle>
           </DrawerHeader>
-          <DiscountList isMobileView={true} />
+          {listContent}
+          {summaryAndApply}
         </DrawerContent>
       </Drawer>
     );
@@ -392,7 +386,8 @@ export function DiscountDialog({
             Select Discounts
           </DialogTitle>
         </DialogHeader>
-        <DiscountList />
+        {listContent}
+        {summaryAndApply}
       </DialogContent>
     </Dialog>
   );

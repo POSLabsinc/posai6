@@ -471,7 +471,7 @@ const KDS = () => {
           tableNumber: msg.table_number || "General",
           serverName: msg.employee_name || "Staff",
           createdAt: new Date(msg.timestamp || Date.now()),
-          products: [{ qty: 1, name: msg.message, category: "MESSAGE", modifiers: [], status: "pending" as const }],
+          products: [{ qty: 1, name: msg.message_text || msg.message, category: "MESSAGE", modifiers: [], status: "pending" as const }],
           status: "active" as const,
           priority: "normal" as const,
           type: "MESSAGE",

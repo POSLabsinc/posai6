@@ -1,4 +1,4 @@
-import { Settings, Gift, CalendarCheck } from "lucide-react";
+import { Settings } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAppearance } from "@/contexts/AppearanceContext";
 
@@ -43,8 +43,6 @@ const menuItems = [
   { title: "Orders", url: "/orders", icon: orderIcon },
   { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
   { title: "Tickets", url: "/tickets", icon: ticketIcon },
-  { title: "Voucher", url: "/voucher", icon: null, lucideIcon: Gift },
-  { title: "Reservations", url: "/reservations", icon: null, lucideIcon: CalendarCheck },
   { title: "orderOS", url: "/orderos", icon: orderosIcon },
   { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, isSettings: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Settings, Sparkles, GripVertical, Lock, Unlock, Move, X, Gift, CalendarCheck } from "lucide-react";
+import { Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
 import { toast } from "@/hooks/use-toast";
@@ -18,11 +18,8 @@ const menuItems = [
   { title: "Orders", url: "/orders", icon: orderIcon },
   { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
   { title: "Tickets", url: "/tickets", icon: ticketIcon },
-  { title: "Voucher", url: "/voucher", icon: null, lucideIcon: Gift },
-  { title: "Reservations", url: "/reservations", icon: null, lucideIcon: CalendarCheck },
   { title: "orderOS", url: "/orderos", icon: homeIcon },
   { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, isSettings: true },
-  { title: "Liquid Glass", url: "/liquid-dashboard", icon: null, lucideIcon: Sparkles, isGlass: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];
 
@@ -253,14 +250,6 @@ export function DraggableSidebar() {
                       to={item.url}
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                       activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
-                    >
-                      <item.lucideIcon className="h-5 w-5" />
-                    </NavLink>
-                  ) : item.isGlass ? (
-                    <NavLink
-                      to={item.url}
-                      className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-gradient-to-br hover:from-orange-500/20 hover:to-amber-400/20 transition-all`}
-                      activeClassName="bg-gradient-to-br from-orange-500/30 to-amber-400/30 text-orange-400 border-2 border-white"
                     >
                       <item.lucideIcon className="h-5 w-5" />
                     </NavLink>

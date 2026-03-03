@@ -147,91 +147,6 @@ const getTimerBadgeColor = (minutes: number) => {
   return "bg-neutral-500 text-white";
 };
 
-// ─── Messages Card ───
-const MessagesCard = () => {
-  const [messages, setMessages] = useState<any[]>([]);
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const load = () => {
-      try {
-        const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-        setMessages(queue.filter((m: any) => m.status !== "acknowledged"));
-      } catch {
-        setMessages([]);
-      }
-    };
-    load();
-    const interval = setInterval(load, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const handleAcknowledge = (id: string) => {
-    try {
-      const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
-      const updated = queue.map((m: any) => m.message_id === id ? { ...m, status: "acknowledged" } : m);
-      localStorage.setItem("kds_message_queue", JSON.stringify(updated));
-      setMessages(updated.filter((m: any) => m.status !== "acknowledged"));
-    } catch {}
-  };
-
-  if (messages.length === 0) return null;
-
-  return (
-    <div className="bg-neutral-900 rounded-xl border border-violet-600/60 overflow-hidden flex flex-col min-w-[240px] max-w-[280px] w-full">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-violet-700 to-indigo-600 px-3 py-2 text-center">
-        <div className="text-white font-black text-sm tracking-widest uppercase flex items-center justify-center gap-2">
-          <Megaphone className="w-4 h-4" />
-          MESSAGES
-        </div>
-      </div>
-
-      {/* Count bar */}
-      <div className="bg-neutral-800 px-3 py-2 flex items-center justify-between">
-        <span className="text-[10px] text-neutral-400 font-mono">POS → Kitchen</span>
-        <div className="flex items-center gap-2">
-          <span className="text-4xl font-black text-white leading-none">{messages.length}</span>
-          <span className="text-xs font-bold px-1.5 py-0.5 rounded bg-violet-500 text-white">NEW</span>
-        </div>
-      </div>
-
-      {/* Message list */}
-      <div className="flex-1 overflow-y-auto scrollbar-hide px-3 py-1 space-y-1.5 max-h-[300px]">
-        {messages.map((msg: any, i: number) => (
-          <div key={msg.message_id || i} className="border border-neutral-700 rounded-lg p-2 bg-neutral-800/50">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-[10px] text-violet-400 font-semibold">
-                {msg.table_number || "General"}
-              </span>
-              <span className="text-[10px] text-neutral-500 font-mono">
-                {msg.timestamp ? format(new Date(msg.timestamp), "hh:mm a") : ""}
-              </span>
-            </div>
-            <p className="text-xs text-white leading-snug mb-1.5">{msg.message}</p>
-            <button
-              onClick={() => handleAcknowledge(msg.message_id)}
-              className="w-full text-[10px] font-bold py-1 rounded bg-violet-600 hover:bg-violet-500 text-white transition-colors"
-            >
-              ACKNOWLEDGE
-            </button>
-          </div>
-        ))}
-      </div>
-
-      {/* View All */}
-      <div className="p-2 border-t border-neutral-700">
-        <button
-          onClick={() => navigate("/kds/messages")}
-          className="w-full border-2 border-violet-600 text-violet-300 font-bold text-sm py-3 rounded-lg hover:bg-violet-900/30 transition-colors"
-        >
-          VIEW ALL MESSAGES
-        </button>
-      </div>
-    </div>
-  );
-};
-
 // ─── Item Summary ───
 const ItemSummary = ({ tickets }: { tickets: KDSTicket[] }) => {
   const summary = useMemo(() => {
@@ -334,6 +249,7 @@ const ProductStatusIcon = ({ status }: { status: string }) => {
 
 // ─── Ticket Card ───
 const TicketCard = ({ ticket, onBump, onSeen }: { ticket: KDSTicket; onBump: (id: string) => void; onSeen: (id: string) => void }) => {
+  const isMessage = (ticket as any).type === "MESSAGE";
   const [elapsed, setElapsed] = useState(getElapsedMinutes(ticket.createdAt));
 
   useEffect(() => {
@@ -352,74 +268,99 @@ const TicketCard = ({ ticket, onBump, onSeen }: { ticket: KDSTicket; onBump: (id
     return map;
   }, [ticket.products]);
 
-  const categoryOrder = ["APPETIZER", "ENTREE", "DESSERT"];
+  const categoryOrder = ["MESSAGE", "APPETIZER", "ENTREE", "DESSERT"];
   const timeStr = format(ticket.createdAt, "hh:mm:ss a");
-  const secondaryTime = format(new Date(ticket.createdAt.getTime() + 2 * 3600000 + 9 * 60000 + 6000), "hh:mm:ss");
 
   return (
-    <div className="bg-neutral-900 rounded-xl border border-neutral-700 overflow-hidden flex flex-col min-w-[240px] max-w-[280px] w-full">
+    <div className={`bg-neutral-900 rounded-xl border overflow-hidden flex flex-col min-w-[240px] max-w-[280px] w-full ${isMessage ? "border-violet-600/60" : "border-neutral-700"}`}>
       {/* Header */}
-      <div className={`${getHeaderColor(elapsed)} px-3 py-2 text-center`}>
-        <div className="text-white font-black text-sm tracking-widest uppercase">{ticket.orderType}</div>
+      <div className={`${isMessage ? "bg-gradient-to-r from-violet-700 to-indigo-600" : getHeaderColor(elapsed)} px-3 py-2 text-center`}>
+        <div className="text-white font-black text-sm tracking-widest uppercase flex items-center justify-center gap-2">
+          {isMessage && <Megaphone className="w-4 h-4" />}
+          {isMessage ? "MESSAGE" : ticket.orderType}
+        </div>
       </div>
 
-      {/* Time & Order Number */}
+      {/* Time & Order Number / Sender */}
       <div className="bg-neutral-800 px-3 py-2 flex items-center justify-between">
         <div className="flex flex-col">
           <span className="text-[10px] text-neutral-400 font-mono">{timeStr}</span>
-          <span className="text-[10px] text-neutral-500 font-mono">{secondaryTime}</span>
+          {isMessage ? (
+            <span className="text-[10px] text-violet-400 font-semibold">{ticket.tableNumber || "General"}</span>
+          ) : (
+            <span className="text-[10px] text-neutral-500 font-mono">{format(new Date(ticket.createdAt.getTime() + 2 * 3600000 + 9 * 60000 + 6000), "hh:mm:ss")}</span>
+          )}
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-4xl font-black text-white leading-none">{ticket.orderNumber}</span>
-          <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${getTimerBadgeColor(elapsed)}`}>{elapsed}</span>
+          {isMessage ? (
+            <span className="text-lg font-black text-violet-300 leading-none">MSG</span>
+          ) : (
+            <>
+              <span className="text-4xl font-black text-white leading-none">{ticket.orderNumber}</span>
+              <span className={`text-xs font-bold px-1.5 py-0.5 rounded ${getTimerBadgeColor(elapsed)}`}>{elapsed}</span>
+            </>
+          )}
         </div>
       </div>
 
-      {/* Products */}
+      {/* Products / Message Content */}
       <div className="flex-1 overflow-y-auto scrollbar-hide px-3 py-1 space-y-0.5">
-        {categoryOrder.map(cat => {
-          const products = grouped.get(cat);
-          if (!products) return null;
-          return (
-            <div key={cat}>
-              <div className="bg-neutral-700 text-center text-[10px] font-bold text-neutral-300 uppercase tracking-wider py-0.5 rounded my-1">
-                {cat}
-              </div>
-              {products.map((p, idx) => (
-                <div key={idx} className="py-1 border-b border-neutral-800 last:border-0">
-                  <div className="flex items-start justify-between gap-1">
-                    <span className="text-xs text-white font-medium">
-                      {p.qty} x {p.name}
-                    </span>
-                    <ProductStatusIcon status={p.status} />
-                  </div>
-                  {p.modifiers.length > 0 && (
-                    <div className="mt-0.5 space-y-0">
-                      {p.modifiers.map((mod, mi) => (
-                        <div key={mi} className={`text-[10px] pl-3 ${
-                          mod.type === "allergy" ? "text-red-400" :
-                          mod.type === "remove" ? "text-red-300 line-through" :
-                          mod.type === "add" ? "text-neutral-400" :
-                          "text-neutral-400"
-                        }`}>
-                          {mod.type === "allergy" ? `· Allergies : ${mod.name}` :
-                           mod.type === "remove" ? `- ${mod.name}` :
-                           mod.type === "add" ? `+ ${mod.name}` :
-                           mod.name}
-                        </div>
-                      ))}
-                    </div>
-                  )}
+        {isMessage ? (
+          <div className="py-3">
+            <p className="text-sm text-white leading-relaxed">{ticket.products[0]?.name}</p>
+            <p className="text-[10px] text-neutral-500 mt-2">From: {ticket.serverName}</p>
+          </div>
+        ) : (
+          categoryOrder.map(cat => {
+            const products = grouped.get(cat);
+            if (!products) return null;
+            return (
+              <div key={cat}>
+                <div className="bg-neutral-700 text-center text-[10px] font-bold text-neutral-300 uppercase tracking-wider py-0.5 rounded my-1">
+                  {cat}
                 </div>
-              ))}
-            </div>
-          );
-        })}
+                {products.map((p, idx) => (
+                  <div key={idx} className="py-1 border-b border-neutral-800 last:border-0">
+                    <div className="flex items-start justify-between gap-1">
+                      <span className="text-xs text-white font-medium">
+                        {p.qty} x {p.name}
+                      </span>
+                      <ProductStatusIcon status={p.status} />
+                    </div>
+                    {p.modifiers.length > 0 && (
+                      <div className="mt-0.5 space-y-0">
+                        {p.modifiers.map((mod, mi) => (
+                          <div key={mi} className={`text-[10px] pl-3 ${
+                            mod.type === "allergy" ? "text-red-400" :
+                            mod.type === "remove" ? "text-red-300 line-through" :
+                            "text-neutral-400"
+                          }`}>
+                            {mod.type === "allergy" ? `· Allergies : ${mod.name}` :
+                             mod.type === "remove" ? `- ${mod.name}` :
+                             mod.type === "add" ? `+ ${mod.name}` :
+                             mod.name}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            );
+          })
+        )}
       </div>
 
-      {/* Bump / Seen Button */}
+      {/* Action Button */}
       <div className="p-2 border-t border-neutral-700">
-        {ticket.products.some(p => p.status === "ready") ? (
+        {isMessage ? (
+          <button
+            onClick={() => onBump(ticket.id)}
+            className="w-full bg-violet-600 hover:bg-violet-500 text-white font-bold text-sm py-3 rounded-lg transition-colors flex items-center justify-center gap-2"
+          >
+            <ChevronRight className="w-4 h-4" /> ACKNOWLEDGE
+          </button>
+        ) : ticket.products.some(p => p.status === "ready") ? (
           <button
             onClick={() => onBump(ticket.id)}
             className="w-full bg-white text-black font-bold text-sm py-3 rounded-lg hover:bg-neutral-200 transition-colors flex items-center justify-center gap-2"
@@ -482,6 +423,7 @@ const KDS = () => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [knownIds, setKnownIds] = useState<Set<string>>(() => new Set(tickets.map(t => t.id)));
+  const [messageTickets, setMessageTickets] = useState<KDSTicket[]>([]);
 
   // Poll localStorage for new fired orders every 2 seconds
   useEffect(() => {
@@ -492,7 +434,6 @@ const KDS = () => {
         if (realTickets.length > 0) {
           const newOnes = realTickets.filter(t => !knownIds.has(t.id));
           if (newOnes.length > 0) {
-            // Play notification sound for new tickets
             if (soundEnabled) {
               try {
                 const audio = new Audio("/notification.mp3");
@@ -501,7 +442,6 @@ const KDS = () => {
               } catch {}
             }
             setTickets(prev => {
-              // Remove mock tickets if we have real ones, and merge
               const isMockOnly = prev.every(t => t.id.startsWith("kds-") && !t.id.startsWith("kds-live-"));
               const base = isMockOnly ? [] : prev;
               return [...newOnes, ...base];
@@ -518,12 +458,50 @@ const KDS = () => {
     return () => clearInterval(interval);
   }, [knownIds, soundEnabled]);
 
+  // Poll localStorage for kitchen messages every 2 seconds
+  useEffect(() => {
+    const load = () => {
+      try {
+        const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
+        const active = queue.filter((m: any) => m.status !== "acknowledged");
+        const converted: KDSTicket[] = active.map((msg: any) => ({
+          id: `msg-${msg.message_id}`,
+          orderNumber: 0,
+          orderType: "DINE IN" as const,
+          tableNumber: msg.table_number || "General",
+          serverName: msg.employee_name || "Staff",
+          createdAt: new Date(msg.timestamp || Date.now()),
+          products: [{ qty: 1, name: msg.message, category: "MESSAGE", modifiers: [], status: "pending" as const }],
+          status: "active" as const,
+          priority: "normal" as const,
+          type: "MESSAGE",
+        }));
+        setMessageTickets(converted);
+      } catch {
+        setMessageTickets([]);
+      }
+    };
+    load();
+    const interval = setInterval(load, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
   const activeTickets = tickets.filter(t => t.status === "active");
+  const allActiveTickets = [...messageTickets, ...activeTickets];
   const totalInQueue = activeTickets.reduce((sum, t) => sum + t.products.filter(p => p.status === "pending" || p.status === "cooking").length, 0);
 
   const handleBump = useCallback((id: string) => {
+    // Handle message acknowledge
+    if (id.startsWith("msg-")) {
+      const messageId = id.replace("msg-", "");
+      try {
+        const queue = JSON.parse(localStorage.getItem("kds_message_queue") || "[]");
+        const updated = queue.map((m: any) => m.message_id === messageId ? { ...m, status: "acknowledged" } : m);
+        localStorage.setItem("kds_message_queue", JSON.stringify(updated));
+      } catch {}
+      return;
+    }
     setTickets(prev => prev.map(t => t.id === id ? { ...t, status: "bumped" as const } : t));
-    // Also update localStorage queue
     try {
       const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
       const updated = queue.map((entry: any) =>
@@ -592,11 +570,10 @@ const KDS = () => {
           {/* Scrollable ticket area */}
           <div className="flex-1 overflow-x-auto overflow-y-hidden">
             <div className="flex gap-3 p-3 h-full items-start">
-              <MessagesCard />
-              {activeTickets.map(ticket => (
+              {allActiveTickets.map(ticket => (
                 <TicketCard key={ticket.id} ticket={ticket} onBump={handleBump} onSeen={handleSeen} />
               ))}
-              {activeTickets.length === 0 && (
+              {allActiveTickets.length === 0 && (
                 <div className="flex-1 flex flex-col items-center justify-center text-neutral-500 gap-3">
                   <ChefHat className="w-20 h-20 opacity-20" />
                   <p className="text-xl font-semibold">All caught up!</p>

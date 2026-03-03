@@ -7848,33 +7848,32 @@ const Orders = () => {
                 </button>
               </div>)
           }
-          </div> ) :
-        showInlineCustomization && selectedItemForCustomization ?
-        isProductInfoFullScreen ?
-        // Full-screen product info overlay on mobile
-        <div className="fixed inset-0 z-50 bg-neutral-900 md:hidden flex flex-col" style={{ bottom: '56px' }}>
-              <InlineItemCustomization
-            item={selectedItemForCustomization}
-            itemImage={selectedItemImage}
-            onAddToCart={handleInlineAddToCart}
-            onCancel={handleInlineCancel}
-            onViewChange={handleInlineViewChange}
-            className="h-full" />
-
-            </div> :
-
-        <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
-              <InlineItemCustomization
-            item={selectedItemForCustomization}
-            itemImage={selectedItemImage}
-            onAddToCart={handleInlineAddToCart}
-            onCancel={handleInlineCancel}
-            onViewChange={handleInlineViewChange}
-            className="h-full" />
-
-            </div> :
-
+           </div> ) :
         <>
+        {/* Mobile-only inline customization (hidden on desktop) */}
+        {showInlineCustomization && selectedItemForCustomization && (
+          isProductInfoFullScreen ?
+          <div className="fixed inset-0 z-50 bg-neutral-900 md:hidden flex flex-col" style={{ bottom: '56px' }}>
+                <InlineItemCustomization
+              item={selectedItemForCustomization}
+              itemImage={selectedItemImage}
+              onAddToCart={handleInlineAddToCart}
+              onCancel={handleInlineCancel}
+              onViewChange={handleInlineViewChange}
+              className="h-full" />
+              </div> :
+          <div className="flex-1 flex flex-col md:hidden overflow-y-auto scrollbar-hide">
+                <InlineItemCustomization
+              item={selectedItemForCustomization}
+              itemImage={selectedItemImage}
+              onAddToCart={handleInlineAddToCart}
+              onCancel={handleInlineCancel}
+              onViewChange={handleInlineViewChange}
+              className="h-full" />
+              </div>
+        )}
+        {/* Categories + menu grid (always visible on desktop, hidden on mobile when inline customization is open) */}
+        <div className={showInlineCustomization && selectedItemForCustomization ? 'hidden md:contents' : 'contents'}>
         {/* Main Categories - Hidden in search mode on mobile */}
         <div className={`relative flex flex-wrap items-center gap-1 md:gap-1.5 lg:gap-2 pr-10 md:pr-12 lg:pr-14 ${isSearchMode ? 'hidden md:flex' : ''}`}>
           {/* Desktop Search Button - Top Right Corner */}
@@ -7882,7 +7881,6 @@ const Orders = () => {
             <button
                 className="cursor-pointer"
                 onClick={() => setIsDesktopSearchOpen(true)}>
-
               <img src={searchIcon} alt="Search" className="w-8 h-8 lg:w-9 lg:h-9" />
             </button>
           </div>
@@ -7959,45 +7957,29 @@ const Orders = () => {
                         <Plus className="w-2.5 md:w-3 h-2.5 md:h-3 text-white" strokeWidth={3} />
                       </button>
                     </div>
-                    <div className="p-0.5 md:p-1 bg-neutral-900 flex items-center justify-between gap-1" onClick={() => openCustomizationDialog(item, index)}>
-                      <span className="text-[11px] md:text-xs font-medium text-white uppercase leading-tight line-clamp-1 flex-1 flex items-center gap-1">
-                        {item.name}
-                        {(item as MenuItem).isOpenPrice && (
-                          <span className="px-1.5 py-0.5 rounded text-[9px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 shrink-0">Open Price</span>
-                        )}
-                      </span>
-                      <span className="text-[10px] md:text-[11px] text-orange-400 font-semibold shrink-0">
-                        {(item as MenuItem).isOpenPrice && item.price === 0 ? "Open" : `$${item.price.toFixed(2)}`}
-                      </span>
+                    <div className="bg-neutral-800 px-1.5 py-1 flex flex-col min-h-0">
+                      <span className="text-white text-[10px] md:text-xs font-medium truncate">{item.name}</span>
+                      <span className="text-orange-400 text-[10px] md:text-xs font-bold">${item.price.toFixed(2)}</span>
                     </div>
                   </div>)}
-              </div> : <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-1 md:gap-1.5 pb-4 md:pb-0">
-                {filteredItems.map((item, index) => <div key={item.id} onClick={() => openCustomizationDialog(item, index)} className="flex items-stretch bg-sidebar-accent rounded-md overflow-hidden hover:bg-sidebar-accent/80 transition-colors cursor-pointer border border-sidebar-border min-h-[38px] md:min-h-[42px]">
-                    <div className="flex-1 p-1.5 md:p-2 bg-muted">
-                      <span className="float-right text-[9px] md:text-[10px] ml-1 text-foreground">
-                        {(item as MenuItem).isOpenPrice && item.price === 0 ? "Open" : `$${item.price.toFixed(2)}`}
-                      </span>
-                      <span className="text-[10px] md:text-[11px] font-bold leading-tight uppercase text-foreground line-clamp-2 flex items-center gap-1">
-                        {item.name}
-                        {(item as MenuItem).isOpenPrice && (
-                          <span className="px-1.5 py-0.5 rounded text-[8px] font-semibold bg-orange-500/20 text-orange-400 border border-orange-500/30 shrink-0">Open Price</span>
-                        )}
-                      </span>
+              </div> : <div className={`grid ${isSearchMode ? 'grid-cols-1 md:grid-cols-3' : 'grid-cols-1 md:grid-cols-3'} gap-0`}>
+                {filteredItems.map((item, index) => <div key={item.id} className="flex items-center justify-between bg-header hover:bg-accent/50 cursor-pointer transition-colors group border-b border-r border-sidebar-border" onClick={() => openCustomizationDialog(item, index)}>
+                    <div className="flex items-center gap-2 flex-1 min-w-0 py-1 md:py-1.5 lg:py-2 px-2 md:px-3 lg:px-4">
+                      <span className="text-header-foreground text-[11px] md:text-xs lg:text-sm font-semibold truncate uppercase tracking-wide">{item.name}</span>
+                      {item.isOpenPrice && <span className="flex-shrink-0 inline-flex items-center px-1.5 md:px-2 py-0.5 rounded text-[8px] md:text-[9px] lg:text-[10px] font-bold tracking-wider uppercase bg-orange-500/20 text-orange-400 border border-orange-500/30">Open Price</span>}
+                      <span className="text-header-foreground text-[11px] md:text-xs lg:text-sm font-medium flex-shrink-0 ml-auto">{item.isOpenPrice ? 'Open' : `$${item.price.toFixed(2)}`}</span>
                     </div>
                     <button onClick={(e) => {
                     e.stopPropagation();
                     addToCart(item);
-                  }} className="w-6 md:w-8 text-white flex-shrink-0 flex items-center justify-center" style={{
-                    background: 'linear-gradient(180deg, #FF9E65 0%, #FF5E00 100%)'
-                  }}>
+                  }} className="w-8 md:w-10 lg:w-12 h-full bg-orange-500 hover:bg-orange-600 flex items-center justify-center transition-colors flex-shrink-0">
                       <Plus className="w-2.5 md:w-3 h-2.5 md:h-3" strokeWidth={4} />
                     </button>
                   </div>)}
               </div>;
             })()}
         </ScrollArea>
-        </>}
-        
+        </div>
         {/* Desktop/Tablet Search Bar - At Bottom */}
         {isDesktopSearchOpen && <div className="hidden md:flex items-center gap-2 px-3 py-2.5 bg-neutral-900 border-t border-neutral-700 flex-shrink-0">
           <div className="flex-1 flex items-center gap-2 bg-neutral-800 rounded-lg px-3 py-2">
@@ -8032,6 +8014,7 @@ const Orders = () => {
             <X className="w-4 h-4 text-white" />
           </Button>
         </div>}
+        </>}
       </div>
       </div>
 

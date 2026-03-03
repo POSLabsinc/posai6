@@ -97,6 +97,13 @@ function LayoutContent({ children }: LayoutProps) {
     setHeaderTouchStart(null);
   };
 
+  const isKDSRoute = location.pathname.startsWith('/kds');
+
+  // KDS routes have their own layout - render children directly
+  if (isKDSRoute) {
+    return <div className="h-screen w-full overflow-hidden bg-background">{children}</div>;
+  }
+
   const isHorizontal = position === 'top' || position === 'bottom';
 
   return (

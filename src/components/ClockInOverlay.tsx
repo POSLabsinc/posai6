@@ -1,12 +1,15 @@
 import { useState, useEffect, useCallback } from "react";
 import { format, differenceInMinutes, differenceInHours } from "date-fns";
-import { Sun, Fingerprint, ScanFace, ChevronDown, Check, Clock, MapPin, Briefcase, X, Timer, LogOut, Coffee, ArrowLeft, EyeOff } from "lucide-react";
+import { Sun, Fingerprint, ScanFace, ChevronDown, Check, Clock, MapPin, Briefcase, X, Timer, LogOut, Coffee, ArrowLeft, EyeOff, Lock, ShieldAlert } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { useIsMobile } from "@/hooks/use-mobile";
 import AppleAlertDialog from "@/components/AppleAlertDialog";
 import FingerprintAuthModal, { FingerprintInlineAuth } from "@/components/FingerprintAuthModal";
 import { FaceIDInlineAuth } from "@/components/FaceIDAuthModal";
+import { recordFailedAttempt, resetFailedAttempts, isLockedOut, getFailedCount } from "@/lib/pinAttemptTracker";
+import { getManagerPin } from "@/lib/pinManager";
+import { SettingsManager } from "@/lib/settingsManager";
 import pinIndicatorIcon from "@/assets/icons/pin-indicator.svg";
 import pinIndicatorFilledIcon from "@/assets/icons/pin-indicator-filled.svg";
 import happyIcon from "@/assets/icons/emotions/happy.svg";
@@ -169,6 +172,12 @@ export const ClockInOverlay = ({
   // Face ID auth state - inline mode (replaces keypad)
   const [showFaceIDScan, setShowFaceIDScan] = useState(false);
 
+  // PIN lockout state - after 10 failed attempts, require manager PIN
+  const [pinLockedOut, setPinLockedOut] = useState(() => isLockedOut());
+  const [managerPin, setManagerPin] = useState("");
+  const [managerPinError, setManagerPinError] = useState(false);
+  const failedCountDisplay = getFailedCount();
+
   // Check if user is clocked in on mount and when overlay opens
   useEffect(() => {
     if (isOpen) {
@@ -223,11 +232,20 @@ export const ClockInOverlay = ({
     setIsVerifying(true);
     setTimeout(() => {
       if (pin === "1234") {
+        resetFailedAttempts();
+        setPinLockedOut(false);
         onClose();
         onEnterPOS();
       } else {
-        setError("Invalid PIN. Please try again.");
-        setPin("");
+        const locked = recordFailedAttempt();
+        if (locked) {
+          setPinLockedOut(true);
+          setPin("");
+          setError("");
+        } else {
+          setError(`Invalid PIN. Please try again. (${getFailedCount()}/10)`);
+          setPin("");
+        }
       }
       setIsVerifying(false);
     }, 500);
@@ -242,6 +260,8 @@ export const ClockInOverlay = ({
       const employee = EMPLOYEES[pin];
       
       if (employee) {
+        resetFailedAttempts();
+        setPinLockedOut(false);
         // PIN valid - store employee and check job types
         setValidatedEmployee(employee);
         setSelectedRevenueCenter(employee.revenueCenter);
@@ -254,8 +274,15 @@ export const ClockInOverlay = ({
           setShowJobSelection(true);
         }
       } else {
-        setError("Invalid PIN. Please try again.");
-        setPin("");
+        const locked = recordFailedAttempt();
+        if (locked) {
+          setPinLockedOut(true);
+          setPin("");
+          setError("");
+        } else {
+          setError(`Invalid PIN. Please try again. (${getFailedCount()}/10)`);
+          setPin("");
+        }
       }
       setIsVerifying(false);
     }, 500);
@@ -307,6 +334,8 @@ export const ClockInOverlay = ({
     setIsVerifying(true);
     setTimeout(() => {
       if (pin === "1234") {
+        resetFailedAttempts();
+        setPinLockedOut(false);
         const sessionData = localStorage.getItem("pos_session");
         const clockOutTime = new Date();
         if (sessionData) {
@@ -351,8 +380,15 @@ export const ClockInOverlay = ({
         localStorage.removeItem("pos_session");
         setIsClockedIn(false);
       } else {
-        setError("Invalid PIN. Please try again.");
-        setPin("");
+        const locked = recordFailedAttempt();
+        if (locked) {
+          setPinLockedOut(true);
+          setPin("");
+          setError("");
+        } else {
+          setError(`Invalid PIN. Please try again. (${getFailedCount()}/10)`);
+          setPin("");
+        }
       }
       setIsVerifying(false);
     }, 500);
@@ -365,6 +401,8 @@ export const ClockInOverlay = ({
     setIsVerifying(true);
     setTimeout(() => {
       if (pin === "1234") {
+        resetFailedAttempts();
+        setPinLockedOut(false);
         const sessionData = localStorage.getItem("pos_session");
         if (sessionData) {
           const session = JSON.parse(sessionData);
@@ -392,8 +430,15 @@ export const ClockInOverlay = ({
         onClose();
         onEnterPOS();
       } else {
-        setError("Invalid PIN. Please try again.");
-        setPin("");
+        const locked = recordFailedAttempt();
+        if (locked) {
+          setPinLockedOut(true);
+          setPin("");
+          setError("");
+        } else {
+          setError(`Invalid PIN. Please try again. (${getFailedCount()}/10)`);
+          setPin("");
+        }
       }
       setIsVerifying(false);
     }, 500);
@@ -829,6 +874,114 @@ export const ClockInOverlay = ({
         </button>
       </div>
     </motion.div>;
+
+  // Handle manager PIN digit press
+  const handleManagerPinDigit = (digit: string) => {
+    if (managerPin.length >= 4 || managerPinError) return;
+    const newPin = managerPin + digit;
+    setManagerPin(newPin);
+
+    if (newPin.length === 4) {
+      if (newPin === getManagerPin()) {
+        // Manager PIN correct - unlock
+        resetFailedAttempts();
+        setPinLockedOut(false);
+        setManagerPin("");
+        setManagerPinError(false);
+        setPin("");
+        setError("");
+      } else {
+        setManagerPinError(true);
+        setTimeout(() => {
+          setManagerPin("");
+          setManagerPinError(false);
+        }, 800);
+      }
+    }
+  };
+
+  const handleManagerPinDelete = () => {
+    if (managerPinError) return;
+    setManagerPin((prev) => prev.slice(0, -1));
+  };
+
+  const handleManagerPinClear = () => {
+    setManagerPin("");
+    setManagerPinError(false);
+  };
+
+  // Render manager PIN lockout screen
+  const renderManagerPinLockout = () => (
+    <motion.div
+      key="manager-pin-lockout"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.2 }}
+      className="flex flex-col items-center h-full"
+    >
+      {/* Lock icon */}
+      <div className="w-16 h-16 rounded-full bg-destructive/15 flex items-center justify-center mb-3">
+        <ShieldAlert className="w-8 h-8 text-destructive" />
+      </div>
+
+      <h3 className="text-foreground text-lg font-bold mb-1 text-center">Device Locked</h3>
+      <p className="text-muted-foreground text-sm text-center mb-4">
+        Too many incorrect PIN attempts. Enter Manager PIN to unlock.
+      </p>
+
+      {/* Manager PIN dots */}
+      <div className="flex items-center justify-center gap-3 mb-4">
+        {[0, 1, 2, 3].map((i) => (
+          <span
+            key={i}
+            className={`text-3xl font-bold select-none transition-colors duration-200 ${
+              managerPinError
+                ? i < managerPin.length ? "text-destructive" : "text-muted-foreground/30"
+                : i < managerPin.length ? "text-foreground" : "text-muted-foreground/30"
+            }`}
+          >
+            ✱
+          </span>
+        ))}
+      </div>
+
+      {managerPinError && (
+        <p className="text-destructive text-sm mb-2 text-center">Incorrect Manager PIN</p>
+      )}
+
+      {/* Numeric keypad */}
+      <div className="grid grid-cols-3 gap-2 w-full max-w-[280px]">
+        {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
+          <button
+            key={digit}
+            onClick={() => handleManagerPinDigit(digit)}
+            className="h-14 keypad-btn-3d rounded-lg text-black text-xl font-semibold"
+          >
+            {digit}
+          </button>
+        ))}
+        <button
+          onClick={handleManagerPinClear}
+          className="h-14 keypad-btn-3d rounded-lg text-red-500 text-xl font-bold"
+        >
+          C
+        </button>
+        <button
+          onClick={() => handleManagerPinDigit("0")}
+          className="h-14 keypad-btn-3d rounded-lg text-black text-xl font-semibold"
+        >
+          0
+        </button>
+        <button
+          onClick={handleManagerPinDelete}
+          className="h-14 keypad-btn-3d rounded-lg text-black text-base font-bold"
+        >
+          ⌫
+        </button>
+      </div>
+    </motion.div>
+  );
 
   // Render keypad
   const renderKeypad = () => <motion.div key="keypad" initial={{
@@ -1270,7 +1423,7 @@ export const ClockInOverlay = ({
                 authType={isClockedIn ? 'clock_out' : 'clock_in'}
               />
             ) : (
-              renderKeypad()
+              pinLockedOut ? renderManagerPinLockout() : renderKeypad()
             )}
           </AnimatePresence>
         </div>
@@ -1450,7 +1603,7 @@ export const ClockInOverlay = ({
               </div>
             ) : (
               <div className="w-full max-w-[400px]">
-                {renderKeypad()}
+                {pinLockedOut ? renderManagerPinLockout() : renderKeypad()}
               </div>
             )}
         </AnimatePresence>

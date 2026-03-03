@@ -258,29 +258,31 @@ export function DiscountDialog({
             )}
           </div>
 
-          {/* Notes Field */}
-          <div>
-            <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
-              Notes (optional)
-            </label>
-            <textarea
-              ref={notesRef}
-              value={data.notes || ""}
-              onChange={(e) => handleNotesChange(discount.id, e.target.value)}
-              placeholder={data.reason === "Other" ? "Please specify." : "Add any extra refund notes."}
-              maxLength={200}
-              rows={3}
-              className="w-full px-3 py-2.5 rounded-lg border border-border bg-neutral-800/50 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary/50 transition-colors"
-              onFocus={() => {
-                setTimeout(() => {
-                  notesRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
-                }, 150);
-              }}
-            />
-            <p className="text-[10px] text-muted-foreground text-right mt-0.5">
-              {(data.notes || "").length}/200
-            </p>
-          </div>
+          {/* Notes Field - only shown when "Other" is selected */}
+          {data.reason === "Other" && (
+            <div>
+              <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
+                Notes (optional)
+              </label>
+              <textarea
+                ref={notesRef}
+                value={data.notes || ""}
+                onChange={(e) => handleNotesChange(discount.id, e.target.value)}
+                placeholder="Please specify."
+                maxLength={200}
+                rows={3}
+                className="w-full px-3 py-2.5 rounded-lg border border-border bg-neutral-800/50 text-sm text-foreground placeholder:text-muted-foreground resize-none focus:outline-none focus:border-primary/50 transition-colors"
+                onFocus={() => {
+                  setTimeout(() => {
+                    notesRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                  }, 150);
+                }}
+              />
+              <p className="text-[10px] text-muted-foreground text-right mt-0.5">
+                {(data.notes || "").length}/200
+              </p>
+            </div>
+          )}
         </div>
       </motion.div>
     );

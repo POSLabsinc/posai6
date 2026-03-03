@@ -317,23 +317,18 @@ export function DiscountDialog({
                 <discount.icon className="w-4 h-4 text-muted-foreground" />
               )}
             </div>
-            <div className="text-left">
-              <p className="text-sm font-medium text-foreground">
-                {discount.name}
-              </p>
-              <p className="text-xs text-muted-foreground">
-                {discount.type === "percentage"
-                  ? `${discount.value}% off`
-                  : `$${discount.value.toFixed(2)} off`}
-              </p>
-            </div>
+            <p className="text-sm font-medium text-foreground">
+              {discount.name}
+            </p>
           </div>
           <div className="flex items-center gap-2">
             {isSelected && discount.reasonRequired && !reasonDataMap[discount.id]?.reason && (
               <span className="text-[10px] text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">Reason required</span>
             )}
-            <span className="text-sm font-semibold text-primary">
-              -${discountAmount.toFixed(2)}
+            <span className="text-xs text-muted-foreground bg-neutral-700/60 px-2.5 py-1 rounded-full">
+              {discount.type === "percentage"
+                ? `${discount.value}% off`
+                : `$${discount.value.toFixed(2)} off`}
             </span>
           </div>
         </button>

@@ -355,19 +355,100 @@ const TicketCard = ({ ticket, onBump, onSeen }: { ticket: KDSTicket; onBump: (id
   );
 };
 
+// ─── Convert localStorage KDS queue entries to KDSTicket ───
+const convertQueueToTickets = (queue: any[]): KDSTicket[] => {
+  return queue
+    .filter((entry: any) => entry.status === "active")
+    .map((entry: any) => ({
+      id: entry.sessionId || `kds-live-${entry.orderNumber}`,
+      orderNumber: entry.orderNumber || 0,
+      orderType: (entry.orderType || "DINE IN") as KDSTicket["orderType"],
+      tableNumber: entry.tableNumber || null,
+      serverName: entry.serverName || "Staff",
+      createdAt: new Date(entry.createdAt),
+      products: (entry.items || []).map((item: any) => ({
+        qty: item.qty || 1,
+        name: item.name,
+        category: "ENTREE" as const,
+        modifiers: (item.modifiers || []).map((m: string) => ({
+          name: m,
+          type: "note" as const,
+        })),
+        status: "pending" as const,
+      })),
+      status: "active" as const,
+      priority: "normal" as const,
+    }));
+};
+
 // ─── Main KDS Page ───
 const KDS = () => {
-  const [tickets, setTickets] = useState<KDSTicket[]>(generateMockTickets);
+  const [tickets, setTickets] = useState<KDSTicket[]>(() => {
+    // Load real orders from KDS queue, fall back to mock data
+    try {
+      const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
+      const real = convertQueueToTickets(queue);
+      return real.length > 0 ? real : generateMockTickets();
+    } catch {
+      return generateMockTickets();
+    }
+  });
   const [showSummary, setShowSummary] = useState(true);
   const [soundEnabled, setSoundEnabled] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [knownIds, setKnownIds] = useState<Set<string>>(() => new Set(tickets.map(t => t.id)));
+
+  // Poll localStorage for new fired orders every 2 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      try {
+        const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
+        const realTickets = convertQueueToTickets(queue);
+        if (realTickets.length > 0) {
+          const newOnes = realTickets.filter(t => !knownIds.has(t.id));
+          if (newOnes.length > 0) {
+            // Play notification sound for new tickets
+            if (soundEnabled) {
+              try {
+                const audio = new Audio("/notification.mp3");
+                audio.volume = 0.5;
+                audio.play().catch(() => {});
+              } catch {}
+            }
+            setTickets(prev => {
+              // Remove mock tickets if we have real ones, and merge
+              const isMockOnly = prev.every(t => t.id.startsWith("kds-") && !t.id.startsWith("kds-live-"));
+              const base = isMockOnly ? [] : prev;
+              return [...newOnes, ...base];
+            });
+            setKnownIds(prev => {
+              const next = new Set(prev);
+              newOnes.forEach(t => next.add(t.id));
+              return next;
+            });
+          }
+        }
+      } catch {}
+    }, 2000);
+    return () => clearInterval(interval);
+  }, [knownIds, soundEnabled]);
 
   const activeTickets = tickets.filter(t => t.status === "active");
   const totalInQueue = activeTickets.reduce((sum, t) => sum + t.products.filter(p => p.status === "pending" || p.status === "cooking").length, 0);
 
   const handleBump = useCallback((id: string) => {
     setTickets(prev => prev.map(t => t.id === id ? { ...t, status: "bumped" as const } : t));
+    // Also update localStorage queue
+    try {
+      const queue = JSON.parse(localStorage.getItem("kds_ticket_queue") || "[]");
+      const updated = queue.map((entry: any) =>
+        (entry.sessionId === id || `kds-live-${entry.orderNumber}` === id)
+          ? { ...entry, status: "bumped" }
+          : entry
+      );
+      localStorage.setItem("kds_ticket_queue", JSON.stringify(updated));
+    } catch {}
   }, []);
 
   const handleSeen = useCallback((id: string) => {

@@ -118,17 +118,44 @@ export function SessionOrderProvider({ children }: { children: ReactNode }) {
 
   const fireOrder = (sessionId: string, checkNumber?: string) => {
     const check = checkNumber || `${Date.now() % 100000}`;
-    setSessionOrders(prev => 
-      prev.map(order => 
+    setSessionOrders(prev => {
+      const updated = prev.map(order => 
         order.sessionId === sessionId 
-          ? { 
-              ...order, 
-              status: 'ORDERED',
-              check
-            } 
+          ? { ...order, status: 'ORDERED', check } 
           : order
-      )
-    );
+      );
+
+      // Push fired order into KDS ticket queue for real-time display
+      const firedOrder = updated.find(o => o.sessionId === sessionId);
+      if (firedOrder && firedOrder.items.length > 0) {
+        try {
+          const existing: any[] = JSON.parse(localStorage.getItem('kds_ticket_queue') || '[]');
+          // Avoid duplicates
+          if (!existing.some((t: any) => t.sessionId === sessionId)) {
+            existing.push({
+              sessionId: firedOrder.sessionId,
+              orderNumber: parseInt(firedOrder.id.replace(/\D/g, '')) || Date.now() % 10000,
+              orderType: (firedOrder.orderType || 'Dine-In').toUpperCase().replace('-', ' '),
+              tableNumber: firedOrder.table || null,
+              serverName: firedOrder.server || 'Staff',
+              guestName: firedOrder.name || 'Guest',
+              createdAt: new Date().toISOString(),
+              items: firedOrder.items.map(item => ({
+                qty: item.qty,
+                name: item.name,
+                modifiers: item.modifiers || [],
+              })),
+              status: 'active',
+            });
+            localStorage.setItem('kds_ticket_queue', JSON.stringify(existing));
+          }
+        } catch (e) {
+          console.error('Failed to push KDS ticket:', e);
+        }
+      }
+
+      return updated;
+    });
   };
 
   const getOrdersByTable = (tableId: string): SessionOrder[] => {

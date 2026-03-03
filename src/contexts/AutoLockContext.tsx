@@ -2,7 +2,6 @@ import { createContext, useContext, useEffect, useRef, useCallback, useState, Re
 import { useNavigate, useLocation } from "react-router-dom";
 import { SettingsManager } from "@/lib/settingsManager";
 import { resetFailedAttempts } from "@/lib/pinAttemptTracker";
-import { getManagerPin } from "@/lib/pinManager";
 import { Lock } from "lucide-react";
 import ManagerPinScreen from "@/components/ManagerPinScreen";
 
@@ -178,7 +177,6 @@ export function AutoLockProvider({ children }: { children: ReactNode }) {
             <div className="w-full">
               <ManagerPinScreen
                 onSuccess={handleUnlock}
-                correctPin={getManagerPin()}
               />
             </div>
           </div>

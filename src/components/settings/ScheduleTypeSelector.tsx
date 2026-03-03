@@ -8,7 +8,7 @@ interface ScheduleTypeSelectorProps {
 
 const ScheduleTypeSelector = ({ scheduleType, onTypeChange }: ScheduleTypeSelectorProps) => {
   return (
-    <div className="mt-3 space-y-0 bg-neutral-800/40 dark:bg-neutral-800/40 rounded-xl overflow-hidden">
+    <div className="mt-3 space-y-0 bg-neutral-200/60 dark:bg-neutral-800/40 rounded-xl overflow-hidden">
       <button
         className="flex items-center justify-between w-full py-3 px-4 active:opacity-70 transition-opacity"
         onClick={() => onTypeChange("sunset-sunrise")}
@@ -19,7 +19,7 @@ const ScheduleTypeSelector = ({ scheduleType, onTypeChange }: ScheduleTypeSelect
         )}
       </button>
 
-      <div className="h-px bg-neutral-700/50 mx-4" />
+      <div className="h-px bg-neutral-300/60 dark:bg-neutral-700/50 mx-4" />
 
       <button
         className="flex items-center justify-between w-full py-3 px-4 active:opacity-70 transition-opacity"

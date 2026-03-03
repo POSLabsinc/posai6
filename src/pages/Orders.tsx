@@ -6073,6 +6073,19 @@ const Orders = () => {
   const [selectedMenu, setSelectedMenu] = useState(defaultMenu);
   const [isMenuSelectOpen, setIsMenuSelectOpen] = useState(false);
   const [orderItems, setOrderItems] = useState<OrderItem[]>(initialOrderItems);
+
+  // Sync active category/subcategory when menu data loads from DB
+  useEffect(() => {
+    if (menuList.length > 0 && menuCategories[selectedMenu]?.length) {
+      const cats = menuCategories[selectedMenu];
+      if (!activeCategory || !cats.includes(activeCategory)) {
+        const firstCat = cats[0] || "";
+        setActiveCategory(firstCat);
+        const subs = categorySubcategories[firstCat] || [];
+        setActiveSubcategory(subs[0] || "");
+      }
+    }
+  }, [menuList, menuCategories, selectedMenu]);
   const [existingItems, setExistingItems] = useState<OrderItem[]>([]);
   const [horizontalScrollMode, setHorizontalScrollMode] = useState(false);
   const [thumbnailViewMode, setThumbnailViewMode] = useState(false);

@@ -428,7 +428,7 @@ const Settings = () => {
     <div className="h-full flex gap-0 md:gap-[2px] p-0 md:p-[10px] overflow-hidden">
 
       {/* Left Panel - Settings Navigation with independent scroll */}
-      <div className="w-full md:w-[260px] lg:w-[300px] md:flex-shrink-0 md:bg-neutral-800/40 md:rounded-2xl h-full overflow-hidden">
+      <div className="w-full md:w-[260px] lg:w-[300px] md:flex-shrink-0 md:bg-surface/60 md:rounded-2xl h-full overflow-hidden">
         <SettingsNavigation 
           onUserProfileClick={handleUserProfileClick}
           onSettingsItemClick={handleSettingsItemClick}

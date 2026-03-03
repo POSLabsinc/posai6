@@ -8,7 +8,6 @@ import AppleAlertDialog from "@/components/AppleAlertDialog";
 import FingerprintAuthModal, { FingerprintInlineAuth } from "@/components/FingerprintAuthModal";
 import { FaceIDInlineAuth } from "@/components/FaceIDAuthModal";
 import { recordFailedAttempt, resetFailedAttempts, isLockedOut, getFailedCount } from "@/lib/pinAttemptTracker";
-import { getManagerPin } from "@/lib/pinManager";
 import { lookupEmployeeByPin } from "@/lib/employeePinLookup";
 import { SettingsManager } from "@/lib/settingsManager";
 import pinIndicatorIcon from "@/assets/icons/pin-indicator.svg";
@@ -859,14 +858,15 @@ export const ClockInOverlay = ({
     </motion.div>;
 
   // Handle manager PIN digit press
-  const handleManagerPinDigit = (digit: string) => {
+  const handleManagerPinDigit = async (digit: string) => {
     if (managerPin.length >= 4 || managerPinError) return;
     const newPin = managerPin + digit;
     setManagerPin(newPin);
 
     if (newPin.length === 4) {
-      if (newPin === getManagerPin()) {
-        // Manager PIN correct - unlock
+      const employee = await lookupEmployeeByPin(newPin);
+      if (employee) {
+        // PIN matched an employee in the database - unlock
         resetFailedAttempts();
         setPinLockedOut(false);
         setManagerPin("");

@@ -1,24 +1,25 @@
 import { useState } from "react";
 import { Fingerprint, ScanFace } from "lucide-react";
+import { lookupEmployeeByPin } from "@/lib/employeePinLookup";
 
 interface ManagerPinScreenProps {
   onSuccess: () => void;
-  correctPin?: string;
+  correctPin?: string; // Deprecated - now validates against database
 }
 
-const MANAGER_PIN = "1234";
-
-const ManagerPinScreen = ({ onSuccess, correctPin = MANAGER_PIN }: ManagerPinScreenProps) => {
+const ManagerPinScreen = ({ onSuccess }: ManagerPinScreenProps) => {
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
 
-  const handleDigit = (digit: string) => {
+  const handleDigit = async (digit: string) => {
     if (pin.length >= 4 || error) return;
     const newPin = pin + digit;
     setPin(newPin);
 
     if (newPin.length === 4) {
-      if (newPin === correctPin) {
+      // Validate against the database
+      const employee = await lookupEmployeeByPin(newPin);
+      if (employee) {
         onSuccess();
       } else {
         setError(true);
@@ -41,7 +42,6 @@ const ManagerPinScreen = ({ onSuccess, correctPin = MANAGER_PIN }: ManagerPinScr
   };
 
   const handleBiometric = () => {
-    // Simulate biometric success
     onSuccess();
   };
 

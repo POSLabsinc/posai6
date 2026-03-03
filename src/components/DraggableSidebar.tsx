@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Settings, GripVertical, Lock, Unlock, Move, X, Megaphone } from "lucide-react";
+import { Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
 import { toast } from "@/hooks/use-toast";
@@ -19,7 +19,7 @@ const menuItems = [
   { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
   { title: "Tickets", url: "/tickets", icon: ticketIcon },
   { title: "orderOS", url: "/orderos", icon: homeIcon },
-  { title: "Messages", url: "/kds/messages", icon: null, lucideIcon: Megaphone },
+  
   { title: "Settings", url: "/settings", icon: null, lucideIcon: Settings, isSettings: true },
   { title: "Version", url: "/globe", icon: versionIcon, isLast: true },
 ];

@@ -177,6 +177,28 @@ export const ClockInOverlay = ({
   const [managerPin, setManagerPin] = useState("");
   const [managerPinError, setManagerPinError] = useState(false);
   const failedCountDisplay = getFailedCount();
+  const [warning, setWarning] = useState("");
+
+  // Helper: handle failed PIN attempt result
+  const handleFailedResult = () => {
+    const locked = recordFailedAttempt();
+    if (locked) {
+      setPinLockedOut(true);
+      setPin("");
+      setError("");
+      setWarning("");
+    } else {
+      const count = getFailedCount();
+      if (count >= 7) {
+        setWarning(`⚠️ Warning: ${10 - count} attempt${10 - count === 1 ? '' : 's'} remaining before device locks!`);
+        setError(`Invalid PIN. (${count}/10)`);
+      } else {
+        setWarning("");
+        setError(`Invalid PIN. Please try again. (${count}/10)`);
+      }
+      setPin("");
+    }
+  };
 
   // Check if user is clocked in on mount and when overlay opens
   useEffect(() => {
@@ -237,15 +259,7 @@ export const ClockInOverlay = ({
         onClose();
         onEnterPOS();
       } else {
-        const locked = recordFailedAttempt();
-        if (locked) {
-          setPinLockedOut(true);
-          setPin("");
-          setError("");
-        } else {
-          setError(`Invalid PIN. Please try again. (${getFailedCount()}/10)`);
-          setPin("");
-        }
+        handleFailedResult();
       }
       setIsVerifying(false);
     }, 500);
@@ -274,15 +288,7 @@ export const ClockInOverlay = ({
           setShowJobSelection(true);
         }
       } else {
-        const locked = recordFailedAttempt();
-        if (locked) {
-          setPinLockedOut(true);
-          setPin("");
-          setError("");
-        } else {
-          setError(`Invalid PIN. Please try again. (${getFailedCount()}/10)`);
-          setPin("");
-        }
+        handleFailedResult();
       }
       setIsVerifying(false);
     }, 500);
@@ -380,15 +386,7 @@ export const ClockInOverlay = ({
         localStorage.removeItem("pos_session");
         setIsClockedIn(false);
       } else {
-        const locked = recordFailedAttempt();
-        if (locked) {
-          setPinLockedOut(true);
-          setPin("");
-          setError("");
-        } else {
-          setError(`Invalid PIN. Please try again. (${getFailedCount()}/10)`);
-          setPin("");
-        }
+        handleFailedResult();
       }
       setIsVerifying(false);
     }, 500);
@@ -430,15 +428,7 @@ export const ClockInOverlay = ({
         onClose();
         onEnterPOS();
       } else {
-        const locked = recordFailedAttempt();
-        if (locked) {
-          setPinLockedOut(true);
-          setPin("");
-          setError("");
-        } else {
-          setError(`Invalid PIN. Please try again. (${getFailedCount()}/10)`);
-          setPin("");
-        }
+        handleFailedResult();
       }
       setIsVerifying(false);
     }, 500);
@@ -1019,7 +1009,12 @@ export const ClockInOverlay = ({
           </div>)}
       </div>
 
-      {error && <p className="text-red-500 text-center text-sm mb-2">{error}</p>}
+      {error && <p className="text-red-500 text-center text-sm mb-1">{error}</p>}
+      {warning && (
+        <div className="bg-amber-500/15 border border-amber-500/30 rounded-lg px-3 py-2 mb-2 mx-2">
+          <p className="text-amber-400 text-center text-xs font-medium">{warning}</p>
+        </div>
+      )}
 
       <div className="flex-1 overflow-y-auto min-h-0 relative">
         <div className="grid grid-cols-3 gap-2">

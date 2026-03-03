@@ -8,8 +8,8 @@ import {
   Dialog,
   DialogContent,
 } from "@/components/ui/dialog";
-import { validateCurrentPin, updateManagerPin } from "@/lib/pinManager";
 import { recordFailedAttempt, resetFailedAttempts } from "@/lib/pinAttemptTracker";
+import { lookupEmployeeByPin, updateEmployeePin } from "@/lib/employeePinLookup";
 import { notifyPinUpdated } from "@/lib/notificationService";
 
 type PinStep = "current" | "new" | "confirm";
@@ -27,6 +27,7 @@ const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
   const [newPin, setNewPin] = useState("");
   const [confirmPin, setConfirmPin] = useState("");
   const [error, setError] = useState("");
+  const [matchedEmployeeId, setMatchedEmployeeId] = useState<string | null>(null);
 
   const resetState = () => {
     setStep("current");
@@ -34,6 +35,7 @@ const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
     setNewPin("");
     setConfirmPin("");
     setError("");
+    setMatchedEmployeeId(null);
   };
 
   const getCurrentValue = () => {
@@ -88,12 +90,16 @@ const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
 
   const handlePinComplete = async (pin: string) => {
     if (step === "current") {
-      if (!validateCurrentPin(pin)) {
+      // Validate the current PIN against the database
+      const employee = await lookupEmployeeByPin(pin);
+      if (!employee) {
         recordFailedAttempt();
         setError("Incorrect current PIN");
         setCurrentPin("");
         return;
       }
+      // Store employee ID for later PIN update
+      setMatchedEmployeeId(employee.id);
       resetFailedAttempts();
       setStep("new");
     } else if (step === "new") {
@@ -105,7 +111,19 @@ const ChangePinDialog = ({ open, onOpenChange }: ChangePinDialogProps) => {
         return;
       }
 
-      updateManagerPin(newPin);
+      if (!matchedEmployeeId) {
+        setError("Session expired. Please start over.");
+        resetState();
+        return;
+      }
+
+      // Update PIN in the database
+      const success = await updateEmployeePin(matchedEmployeeId, newPin);
+      if (!success) {
+        setError("Failed to update PIN. Please try again.");
+        setConfirmPin("");
+        return;
+      }
 
       // Persist notification to database
       notifyPinUpdated();

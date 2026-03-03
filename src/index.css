@@ -55,7 +55,7 @@ All colors MUST be HSL.
     --calendar-border: 220 13% 91%;
 
     /* Semantic surface tokens for theme-aware components */
-    --surface: 0 0% 97%;
+    --surface: 0 0% 94%;
     --surface-elevated: 0 0% 100%;
     --surface-inset: 0 0% 98%;
     --divider: 0 0% 90%;
@@ -283,6 +283,27 @@ All colors MUST be HSL.
 :root:not(.dark) .bg-neutral-800\/50 {
   background-color: hsl(var(--surface-elevated) / 0.5) !important;
 }
+:root:not(.dark) .bg-neutral-800\/40 {
+  background-color: hsl(0 0% 92%) !important;
+}
+:root:not(.dark) .bg-neutral-800\/60 {
+  background-color: hsl(0 0% 93%) !important;
+}
+:root:not(.dark) .bg-neutral-700\/50 {
+  background-color: hsl(0 0% 88%) !important;
+}
+:root:not(.dark) .bg-neutral-700\/40 {
+  background-color: hsl(0 0% 90%) !important;
+}
+:root:not(.dark) .bg-neutral-700\/30 {
+  background-color: hsl(0 0% 92%) !important;
+}
+:root:not(.dark) .hover\:bg-neutral-700\/30:hover {
+  background-color: hsl(0 0% 89%) !important;
+}
+:root:not(.dark) .bg-neutral-700\/60 {
+  background-color: hsl(0 0% 90%) !important;
+}
 
 /* text-gray-* variants */
 :root:not(.dark) .text-gray-400,
@@ -346,6 +367,9 @@ All colors MUST be HSL.
   border-color: hsl(var(--border)) !important;
 }
 :root:not(.dark) .border-neutral-700 {
+  border-color: hsl(var(--border)) !important;
+}
+:root:not(.dark) .border-neutral-700\/50 {
   border-color: hsl(var(--border)) !important;
 }
 :root:not(.dark) .border-neutral-600 {

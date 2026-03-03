@@ -52,6 +52,7 @@ import Voucher from "./pages/Voucher";
 import OrderOS from "./pages/OrderOS";
 import ClosedTickets from "./pages/ClosedTickets";
 import Login from "./pages/Login";
+import KDSMessages from "./pages/KDSMessages";
 
 const queryClient = new QueryClient();
 
@@ -103,6 +104,7 @@ const AppInner = () => {
           <Route path="/reports" element={<Reports />} />
           <Route path="/orderos" element={<OrderOS />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/kds/messages" element={<KDSMessages />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </Layout>

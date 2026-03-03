@@ -2,6 +2,7 @@ import { createContext, useContext, useEffect, useRef, useCallback, useState, Re
 import { useNavigate, useLocation } from "react-router-dom";
 import { SettingsManager } from "@/lib/settingsManager";
 import { resetFailedAttempts } from "@/lib/pinAttemptTracker";
+import { getManagerPin } from "@/lib/pinManager";
 import { Lock } from "lucide-react";
 import ManagerPinScreen from "@/components/ManagerPinScreen";
 
@@ -13,15 +14,47 @@ const AutoLockContext = createContext<AutoLockContextType>({ resetTimer: () => {
 
 const ACTIVITY_EVENTS = ["mousedown", "mousemove", "keydown", "touchstart", "scroll", "click"];
 
-// Routes that should NOT trigger auto-lock (user is already at login/auth)
+// Routes that should NOT trigger auto-lock
 const EXEMPT_ROUTES = ["/login", "/signup", "/auth"];
+
+function LiveClock() {
+  const [time, setTime] = useState(new Date());
+
+  useEffect(() => {
+    const interval = setInterval(() => setTime(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const hours = time.getHours();
+  const minutes = time.getMinutes();
+  const ampm = hours >= 12 ? "PM" : "AM";
+  const displayHours = hours % 12 || 12;
+  const displayMinutes = minutes.toString().padStart(2, "0");
+
+  const dateStr = time.toLocaleDateString("en-US", {
+    weekday: "long",
+    month: "long",
+    day: "numeric",
+  });
+
+  return (
+    <div className="flex flex-col items-center gap-1 mb-6">
+      <span className="text-6xl font-light text-foreground tracking-tight">
+        {displayHours}:{displayMinutes}
+      </span>
+      <span className="text-lg text-muted-foreground font-medium">{ampm}</span>
+      <span className="text-sm text-muted-foreground mt-1">{dateStr}</span>
+    </div>
+  );
+}
 
 export function AutoLockProvider({ children }: { children: ReactNode }) {
   const navigate = useNavigate();
   const location = useLocation();
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const settingsRef = useRef(SettingsManager.getControlCenterSettings());
-  const [showLockoutOverlay, setShowLockoutOverlay] = useState(false);
+  const [isLocked, setIsLocked] = useState(false);
+  const [lockReason, setLockReason] = useState<"timer" | "pin-lockout">("timer");
 
   const isExempt = EXEMPT_ROUTES.some((r) => location.pathname.startsWith(r));
 
@@ -43,10 +76,10 @@ export function AutoLockProvider({ children }: { children: ReactNode }) {
     if (isNaN(minutes) || minutes <= 0) return;
 
     timerRef.current = setTimeout(() => {
-      // Lock the app — navigate to login
-      navigate("/login", { replace: true });
+      setLockReason("timer");
+      setIsLocked(true);
     }, minutes * 60 * 1000);
-  }, [clearTimer, navigate]);
+  }, [clearTimer]);
 
   const resetTimer = useCallback(() => {
     if (!isExempt) {
@@ -56,7 +89,7 @@ export function AutoLockProvider({ children }: { children: ReactNode }) {
 
   // Listen for user activity
   useEffect(() => {
-    if (isExempt) {
+    if (isExempt || isLocked) {
       clearTimer();
       return;
     }
@@ -67,7 +100,6 @@ export function AutoLockProvider({ children }: { children: ReactNode }) {
       window.addEventListener(event, handler, { passive: true });
     });
 
-    // Start initial timer
     startTimer();
 
     return () => {
@@ -76,7 +108,7 @@ export function AutoLockProvider({ children }: { children: ReactNode }) {
       });
       clearTimer();
     };
-  }, [isExempt, resetTimer, startTimer, clearTimer]);
+  }, [isExempt, isLocked, resetTimer, startTimer, clearTimer]);
 
   // Listen for settings changes
   useEffect(() => {
@@ -93,11 +125,12 @@ export function AutoLockProvider({ children }: { children: ReactNode }) {
     };
   }, [resetTimer]);
 
-  // Listen for PIN lockout event (10 failed attempts) — show overlay instead of navigating
+  // Listen for PIN lockout event (10 failed attempts)
   useEffect(() => {
     const handlePinLockout = () => {
       clearTimer();
-      setShowLockoutOverlay(true);
+      setLockReason("pin-lockout");
+      setIsLocked(true);
     };
 
     window.addEventListener("pin-lockout", handlePinLockout);
@@ -108,7 +141,7 @@ export function AutoLockProvider({ children }: { children: ReactNode }) {
 
   const handleUnlock = useCallback(() => {
     resetFailedAttempts();
-    setShowLockoutOverlay(false);
+    setIsLocked(false);
     startTimer();
   }, [startTimer]);
 
@@ -116,24 +149,37 @@ export function AutoLockProvider({ children }: { children: ReactNode }) {
     <AutoLockContext.Provider value={{ resetTimer }}>
       {children}
 
-      {/* POS Locked overlay — shown after 10 failed PIN attempts */}
-      {showLockoutOverlay && (
-        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background/95 backdrop-blur-sm">
-          <div className="flex flex-col items-center gap-6 w-full max-w-sm px-6">
-            {/* Lock icon + title */}
-            <div className="flex flex-col items-center gap-3">
-              <div className="w-16 h-16 rounded-full bg-destructive/15 flex items-center justify-center">
-                <Lock className="w-8 h-8 text-destructive" />
-              </div>
-              <h1 className="text-2xl font-bold text-foreground">POS Locked</h1>
-              <p className="text-sm text-muted-foreground text-center">
-                Too many incorrect PIN attempts.<br />Enter the Manager PIN to unlock.
-              </p>
-            </div>
+      {/* Lock screen overlay */}
+      {isLocked && (
+        <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background">
+          <div className="flex flex-col items-center gap-4 w-full max-w-sm px-6">
+            {/* Live Clock */}
+            <LiveClock />
 
-            {/* Reuse the existing ManagerPinScreen */}
+            {/* Lock icon + message */}
+            {lockReason === "pin-lockout" && (
+              <div className="flex flex-col items-center gap-2 mb-2">
+                <div className="w-14 h-14 rounded-full bg-destructive/15 flex items-center justify-center">
+                  <Lock className="w-7 h-7 text-destructive" />
+                </div>
+                <p className="text-sm text-muted-foreground text-center">
+                  Too many incorrect PIN attempts
+                </p>
+              </div>
+            )}
+
+            {lockReason === "timer" && (
+              <p className="text-sm text-muted-foreground text-center mb-2">
+                Enter PIN to unlock
+              </p>
+            )}
+
+            {/* PIN Screen */}
             <div className="w-full">
-              <ManagerPinScreen onSuccess={handleUnlock} />
+              <ManagerPinScreen
+                onSuccess={handleUnlock}
+                correctPin={getManagerPin()}
+              />
             </div>
           </div>
         </div>

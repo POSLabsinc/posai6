@@ -86,6 +86,7 @@ export interface AppearanceSettings {
 export interface ControlCenterSettings {
   restartApp: boolean;
   restartTime: string;
+  lastRestartTime: string | null;
   autoLockTimer: string;
   switchToKDS: boolean;
   debugMode: boolean;
@@ -172,6 +173,7 @@ const defaultMenuItems: MenuItem[] = [
 const defaultControlCenterSettings: ControlCenterSettings = {
   restartApp: false,
   restartTime: "12:00 AM",
+  lastRestartTime: null,
   autoLockTimer: "30",
   switchToKDS: false,
   debugMode: false,
@@ -1922,6 +1924,7 @@ export function executeIntent(intent: SettingsIntent): { success: boolean; messa
       const settingLabels: Record<keyof ControlCenterSettings, string> = {
         restartApp: "Restart App",
         restartTime: "Restart Time",
+        lastRestartTime: "Last Restart Time",
         autoLockTimer: "Auto Lock Timer",
         switchToKDS: "Switch To KDS",
         debugMode: "Debug Mode",

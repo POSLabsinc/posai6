@@ -54,6 +54,7 @@ import openOrdersIcon from "@/assets/icons/open-orders.svg";
 import allergyIcon from "@/assets/icons/allergy.svg";
 import splitCheckIcon from "@/assets/icons/split-check.svg";
 import reopenCheckIcon from "@/assets/icons/reopen-check.svg";
+import messageKdsIcon from "@/assets/icons/message-kds.svg";
 import transferCheckIcon from "@/assets/icons/transfer-check.svg";
 import transferIconPng from "@/assets/icons/transfer-icon.png";
 import newOrderIcon from "@/assets/icons/new-order.png";
@@ -7159,6 +7160,10 @@ const Orders = () => {
                     <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
                       <img src={reopenCheckIcon} alt="" className="w-3.5 h-3.5" />
                       Reopen Check
+                    </DropdownMenuItem>
+                    <DropdownMenuItem className="text-white hover:bg-neutral-700 cursor-pointer text-xs py-2 px-3 flex items-center gap-2">
+                      <img src={messageKdsIcon} alt="" className="w-3.5 h-3.5 brightness-0 invert" />
+                      Message Kitchen
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>

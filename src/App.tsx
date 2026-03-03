@@ -11,6 +11,7 @@ import { FontProvider } from "@/contexts/FontContext";
 import { PanelPositionProvider } from "@/contexts/PanelPositionContext";
 import { SessionOrderProvider } from "@/contexts/SessionOrderContext";
 import { UnifiedOrderProvider } from "@/contexts/UnifiedOrderContext";
+import { ThemePresetsProvider } from "@/contexts/ThemePresetsContext";
 import { useAutoRestart } from "@/hooks/useAutoRestart";
 import Dashboard from "./pages/Dashboard";
 import Orders from "./pages/Orders";
@@ -124,9 +125,11 @@ const App = () => (
           <PanelPositionProvider>
             <SessionOrderProvider>
             <UnifiedOrderProvider>
+            <ThemePresetsProvider>
               <Toaster />
               <Sonner />
               <AppInner />
+            </ThemePresetsProvider>
             </UnifiedOrderProvider>
           </SessionOrderProvider>
           </PanelPositionProvider>

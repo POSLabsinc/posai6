@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
+import { COUNTRY_CODES, type CountryCodeEntry } from "@/components/voucher/voucherConstants";
+import { formatPhone } from "@/components/voucher/voucherHelpers";
 import { 
   Check, ChevronDown, X, Tag, CreditCard, User, Gift, Link, QrCode, 
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
@@ -166,6 +168,11 @@ export function PaymentDialog({
   const [selectedVoucherIndices, setSelectedVoucherIndices] = useState<Set<number>>(new Set());
   // Current contact input for assignment
   const [assignContactInput, setAssignContactInput] = useState('');
+  // Country code for phone input in voucher assignment
+  const [assignCountry, setAssignCountry] = useState<CountryCodeEntry>(COUNTRY_CODES[0]);
+  const [showAssignCountryDropdown, setShowAssignCountryDropdown] = useState(false);
+  const [assignCountrySearch, setAssignCountrySearch] = useState('');
+  const assignCountryRef = useRef<HTMLDivElement>(null);
   // Track recent recipients used in this session
   const [recentRecipients, setRecentRecipients] = useState<string[]>([]);
   // Dynamic payment methods
@@ -358,6 +365,9 @@ export function PaymentDialog({
       setVoucherAssignments({});
       setSelectedVoucherIndices(new Set());
       setAssignContactInput('');
+      setAssignCountry(COUNTRY_CODES[0]);
+      setShowAssignCountryDropdown(false);
+      setAssignCountrySearch('');
       setRecentRecipients([]);
       // Reset split check states
       setSplitMode('evenly');
@@ -379,6 +389,19 @@ export function PaymentDialog({
       setMobilePaymentSelectionActive(true);
     }
   }, [open, total]);
+
+  // Close country dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (assignCountryRef.current && !assignCountryRef.current.contains(event.target as Node)) {
+        setShowAssignCountryDropdown(false);
+      }
+    };
+    if (showAssignCountryDropdown) {
+      document.addEventListener('mousedown', handleClickOutside);
+      return () => document.removeEventListener('mousedown', handleClickOutside);
+    }
+  }, [showAssignCountryDropdown]);
 
   // Calculate payment amount from quantities
   useEffect(() => {
@@ -1117,7 +1140,42 @@ export function PaymentDialog({
                     </div>
 
                     {/* Floating action panel when vouchers are selected */}
-                    {selectedCount > 0 && (
+                    {selectedCount > 0 && (() => {
+                      const isPhone = voucherDeliveryMethod === 'text';
+                      const phoneDigits = assignContactInput.replace(/\D/g, '');
+                      const isPhoneValid = isPhone ? phoneDigits.length === assignCountry.phoneLength : assignContactInput.trim().length > 0;
+                      const displayValue = isPhone ? formatPhone(phoneDigits, assignCountry.format) : assignContactInput;
+                      const filteredAssignCountries = COUNTRY_CODES.filter(c =>
+                        c.name.toLowerCase().includes(assignCountrySearch.toLowerCase()) ||
+                        c.dial.includes(assignCountrySearch) ||
+                        c.code.toLowerCase().includes(assignCountrySearch.toLowerCase())
+                      );
+
+                      const handleAssign = () => {
+                        if (isPhone && !isPhoneValid) {
+                          toast.error(`Please enter a valid ${assignCountry.phoneLength}-digit phone number`);
+                          return;
+                        }
+                        if (!isPhone && !assignContactInput.trim()) {
+                          toast.error('Please enter an email address');
+                          return;
+                        }
+                        const contactLabel = isPhone ? `${assignCountry.dial} ${displayValue}` : assignContactInput.trim();
+                        const newAssignments = { ...voucherAssignments };
+                        selectedVoucherIndices.forEach(idx => {
+                          newAssignments[idx] = contactLabel;
+                        });
+                        setVoucherAssignments(newAssignments);
+                        setRecentRecipients(prev => {
+                          if (prev.includes(contactLabel)) return prev;
+                          return [contactLabel, ...prev].slice(0, 5);
+                        });
+                        setSelectedVoucherIndices(new Set());
+                        setAssignContactInput('');
+                        toast.success(`${selectedCount} voucher${selectedCount !== 1 ? 's' : ''} assigned`);
+                      };
+
+                      return (
                       <div className="bg-neutral-800 border border-neutral-600 rounded-lg p-3 mb-4">
                         <p className="text-white text-sm font-medium mb-2">
                           {selectedCount} voucher{selectedCount !== 1 ? 's' : ''} selected
@@ -1131,7 +1189,17 @@ export function PaymentDialog({
                               {recentRecipients.map((r, i) => (
                                 <button
                                   key={i}
-                                  onClick={() => setAssignContactInput(r)}
+                                  onClick={() => {
+                                    // For recent recipients, directly assign
+                                    const newAssignments = { ...voucherAssignments };
+                                    selectedVoucherIndices.forEach(idx => {
+                                      newAssignments[idx] = r;
+                                    });
+                                    setVoucherAssignments(newAssignments);
+                                    setSelectedVoucherIndices(new Set());
+                                    setAssignContactInput('');
+                                    toast.success(`${selectedCount} voucher${selectedCount !== 1 ? 's' : ''} assigned to ${r}`);
+                                  }}
                                   className="px-2.5 py-1 bg-neutral-700 hover:bg-neutral-600 text-neutral-300 text-xs rounded-md transition-colors"
                                 >
                                   {r}
@@ -1141,53 +1209,124 @@ export function PaymentDialog({
                           </div>
                         )}
 
-                        <input
-                          type={voucherDeliveryMethod === 'email' ? 'email' : 'tel'}
-                          value={assignContactInput}
-                          onChange={(e) => setAssignContactInput(e.target.value)}
-                          placeholder={voucherDeliveryMethod === 'email' ? 'Enter email address' : 'Enter phone number'}
-                          className="w-full bg-neutral-900 border border-neutral-600 rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-400 mb-2"
-                          autoFocus
-                        />
-                        <div className="flex gap-2">
+                        {/* Input row: country code + phone + assign button */}
+                        <div className="flex gap-2 items-stretch">
+                          {isPhone ? (
+                            <>
+                              {/* Country code selector */}
+                              <div ref={assignCountryRef} className="relative">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setShowAssignCountryDropdown(!showAssignCountryDropdown);
+                                    setAssignCountrySearch('');
+                                  }}
+                                  className="flex items-center gap-1 h-full px-2 bg-neutral-900 border border-neutral-600 rounded-lg hover:bg-neutral-700 transition-colors"
+                                >
+                                  <span className="text-base">{assignCountry.flag}</span>
+                                  <span className="text-neutral-300 text-xs">{assignCountry.dial}</span>
+                                  <ChevronDown className="w-3 h-3 text-neutral-500" />
+                                </button>
+                                {showAssignCountryDropdown && (
+                                  <div className="absolute top-full left-0 mt-1 w-56 bg-neutral-800 border border-neutral-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                                    <div className="p-1.5 border-b border-neutral-700">
+                                      <div className="flex items-center gap-1.5 bg-neutral-700/50 rounded px-2 py-1.5">
+                                        <Search className="w-3.5 h-3.5 text-neutral-400" />
+                                        <input
+                                          type="text"
+                                          value={assignCountrySearch}
+                                          onChange={(e) => setAssignCountrySearch(e.target.value)}
+                                          placeholder="Search..."
+                                          className="flex-1 bg-transparent text-white text-xs placeholder:text-neutral-400 outline-none"
+                                          autoFocus
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="max-h-40 overflow-y-auto">
+                                      {filteredAssignCountries.map((c) => (
+                                        <button
+                                          key={c.code}
+                                          type="button"
+                                          onClick={() => {
+                                            setAssignCountry(c);
+                                            setShowAssignCountryDropdown(false);
+                                            setAssignContactInput('');
+                                          }}
+                                          className={`w-full flex items-center gap-2 px-3 py-2 hover:bg-neutral-700 transition-colors text-left text-xs ${
+                                            assignCountry.code === c.code ? 'bg-neutral-700' : ''
+                                          }`}
+                                        >
+                                          <span>{c.flag}</span>
+                                          <span className="text-white flex-1">{c.name}</span>
+                                          <span className="text-neutral-400">{c.dial}</span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                              {/* Phone input with clear X */}
+                              <div className="flex-1 relative">
+                                <input
+                                  type="tel"
+                                  inputMode="numeric"
+                                  value={displayValue}
+                                  onChange={(e) => setAssignContactInput(e.target.value.replace(/\D/g, '').slice(0, assignCountry.phoneLength))}
+                                  placeholder={assignCountry.placeholder}
+                                  className="w-full bg-neutral-900 border border-neutral-600 rounded-lg px-3 py-2.5 pr-8 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-400"
+                                  autoFocus
+                                />
+                                {assignContactInput && (
+                                  <button
+                                    onClick={() => setAssignContactInput('')}
+                                    className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 transition-colors"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                )}
+                              </div>
+                            </>
+                          ) : (
+                            /* Email input with clear X */
+                            <div className="flex-1 relative">
+                              <input
+                                type="email"
+                                value={assignContactInput}
+                                onChange={(e) => setAssignContactInput(e.target.value)}
+                                placeholder="Enter email address"
+                                className="w-full bg-neutral-900 border border-neutral-600 rounded-lg px-3 py-2.5 pr-8 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-400"
+                                autoFocus
+                              />
+                              {assignContactInput && (
+                                <button
+                                  onClick={() => setAssignContactInput('')}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-neutral-300 transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          )}
+                          {/* Assign button */}
                           <button
-                            onClick={() => {
-                              if (!assignContactInput.trim()) {
-                                toast.error(`Please enter ${voucherDeliveryMethod === 'email' ? 'an email' : 'a phone number'}`);
-                                return;
-                              }
-                              // Assign selected vouchers to this contact
-                              const newAssignments = { ...voucherAssignments };
-                              selectedVoucherIndices.forEach(idx => {
-                                newAssignments[idx] = assignContactInput.trim();
-                              });
-                              setVoucherAssignments(newAssignments);
-                              // Add to recent recipients if not already there
-                              setRecentRecipients(prev => {
-                                const contact = assignContactInput.trim();
-                                if (prev.includes(contact)) return prev;
-                                return [contact, ...prev].slice(0, 5);
-                              });
-                              setSelectedVoucherIndices(new Set());
-                              setAssignContactInput('');
-                              toast.success(`${selectedCount} voucher${selectedCount !== 1 ? 's' : ''} assigned`);
-                            }}
-                            className="flex-1 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium text-sm rounded-lg transition-colors"
+                            onClick={handleAssign}
+                            disabled={!isPhoneValid}
+                            className={`px-4 py-2.5 font-medium text-xs rounded-lg transition-colors whitespace-nowrap ${
+                              isPhoneValid
+                                ? 'bg-green-600 hover:bg-green-700 text-white'
+                                : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'
+                            }`}
                           >
-                            Assign Recipient
-                          </button>
-                          <button
-                            onClick={() => {
-                              setSelectedVoucherIndices(new Set());
-                              setAssignContactInput('');
-                            }}
-                            className="px-4 py-2.5 border border-neutral-600 hover:bg-neutral-700 text-neutral-400 text-sm rounded-lg transition-colors"
-                          >
-                            Clear
+                            Assign
                           </button>
                         </div>
+                        {/* Phone validation hint */}
+                        {isPhone && phoneDigits.length > 0 && phoneDigits.length < assignCountry.phoneLength && (
+                          <p className="text-amber-400/70 text-[10px] mt-1">{assignCountry.hint}</p>
+                        )}
                       </div>
-                    )}
+                      );
+                    })()}
 
                     {/* Grouped summary - show when some assignments exist */}
                     {Object.keys(groupedByRecipient).length > 0 && (

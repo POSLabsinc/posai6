@@ -29,7 +29,7 @@ const menuItems = [
 export function DraggableSidebar() {
   const { position, setIsDragging, isLocked, setIsLocked, isAnimating, hasSeenOnboarding, dismissOnboarding } = useSidebarPosition();
   const isHorizontal = position === 'top' || position === 'bottom';
-  const { isVoucherMode } = useVoucherMode();
+  const { isVoucherMode, setIsVoucherMode } = useVoucherMode();
   const location = useLocation();
   const isOrdersVoucherMode = isVoucherMode && location.pathname === '/orders';
   const [showOnboarding, setShowOnboarding] = useState(false);
@@ -262,6 +262,7 @@ export function DraggableSidebar() {
                   ) : isOrdersVoucherMode && item.url === '/orders' ? (
                     <Link
                       to={item.url}
+                      onClick={() => setIsVoucherMode(false)}
                       className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
                     >
                       <img src={item.icon as string} alt={item.title} className="w-6 h-6" />

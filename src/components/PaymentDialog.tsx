@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { toast } from "sonner";
 import { 
   Check, ChevronDown, X, Tag, CreditCard, User, Gift, Link, QrCode, 
   ArrowRightCircle, Banknote, Grid3X3, Delete, Printer, MessageSquare, 
@@ -48,6 +49,7 @@ export interface PaymentDialogProps {
   subtotal: number;
   tax: number;
   total: number;
+  containsVoucher?: boolean;
   onPaymentComplete?: (paymentHistory: PaymentHistoryItem[]) => void;
   onSaveSplit?: (config: {
     mode: 'seat' | 'evenly' | 'custom';
@@ -128,6 +130,7 @@ export function PaymentDialog({
   subtotal,
   tax,
   total,
+  containsVoucher = false,
   onPaymentComplete,
   onSaveSplit,
 }: PaymentDialogProps) {
@@ -140,7 +143,9 @@ export function PaymentDialog({
   const [amountQuantities, setAmountQuantities] = useState<Record<number, number>>({});
   const [paidAmount, setPaidAmount] = useState(0);
   const [paymentHistory, setPaymentHistory] = useState<PaymentHistoryItem[]>([]);
-
+  
+  // Voucher delivery step: shows voucher send modal before receipt
+  const [voucherDeliveryDone, setVoucherDeliveryDone] = useState(false);
   // Dynamic payment methods
   const [visiblePaymentMethods, setVisiblePaymentMethods] = useState<PaymentMethodType[]>(initialPaymentMethods);
   const [dropdownPaymentMethods, setDropdownPaymentMethods] = useState<PaymentMethodType[]>(initialOtherPaymentMethods);
@@ -324,6 +329,7 @@ export function PaymentDialog({
       setVoucherAppliedAmount(0);
       setTextReceiptStep('receipt');
       setEmailReceiptStep('receipt');
+      setVoucherDeliveryDone(false);
       // Reset split check states
       setSplitMode('evenly');
       setNumberOfChecks(2);
@@ -868,6 +874,64 @@ export function PaymentDialog({
               : `max-h-[90vh] ${selectedPaymentMethod === 'split-check' ? 'w-full' : 'w-[480px]'}`
         }`}>
           {paymentProcessed ? (
+            // Voucher Delivery Modal - shown before receipt when order contains voucher
+            containsVoucher && !voucherDeliveryDone ? (
+              <div className="flex-1 flex flex-col items-center py-8 px-6">
+                {/* Success Icon */}
+                <img src={tickSuccessIcon} alt="Success" className="w-14 h-14 mb-4" />
+                
+                <p className="text-neutral-300 text-sm mb-2">
+                  <span className="text-green-500 font-medium">${totalPaid.toFixed(2)}</span> has been successfully processed
+                </p>
+
+                {/* Change Due */}
+                {isFullyPaid && (
+                  <div className="w-full max-w-xs mb-6 border-2 border-green-500 rounded-lg p-4 bg-green-500/10">
+                    <p className="text-green-500 text-sm text-center mb-1">Change Due</p>
+                    <p className="text-green-500 text-3xl font-bold text-center">
+                      ${Math.abs(remainingDue).toFixed(2)}
+                    </p>
+                  </div>
+                )}
+
+                {/* Voucher Send Options */}
+                <div className="w-full max-w-xs">
+                  <h3 className="text-white font-semibold text-center mb-4">How would you like to send the voucher?</h3>
+                  <div className="flex gap-4 justify-center mb-4">
+                    <button 
+                      onClick={() => {
+                        toast.success('Voucher sent to printer');
+                        setVoucherDeliveryDone(true);
+                      }}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                    >
+                      <Printer className="w-6 h-6 text-neutral-400" />
+                      <span className="text-neutral-400 text-sm">Print Voucher</span>
+                    </button>
+                    <button 
+                      onClick={() => {
+                        toast.success('Voucher sent via SMS');
+                        setVoucherDeliveryDone(true);
+                      }}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                    >
+                      <MessageSquare className="w-6 h-6 text-neutral-400" />
+                      <span className="text-neutral-400 text-sm">Text Voucher</span>
+                    </button>
+                    <button 
+                      onClick={() => {
+                        toast.success('Voucher sent via Email');
+                        setVoucherDeliveryDone(true);
+                      }}
+                      className="flex-1 flex flex-col items-center gap-2 py-4 px-6 border border-neutral-600 rounded-lg hover:bg-neutral-800 transition-colors"
+                    >
+                      <Mail className="w-6 h-6 text-neutral-400" />
+                      <span className="text-neutral-400 text-sm">Email Voucher</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ) :
             // Receipt Screen with Text/Email input handling
             textReceiptStep === 'phone-input' ? (
               // Text Receipt Phone Input Screen

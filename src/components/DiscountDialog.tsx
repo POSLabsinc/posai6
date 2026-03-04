@@ -190,7 +190,7 @@ export function DiscountDialog({
     d => isReasonRequired(d) && !reasonDataMap[d.id]?.reason
   );
 
-  const ReasonSection = ({ discount }: { discount: Discount }) => {
+  const renderReasonSection = (discount: Discount) => {
     const data = reasonDataMap[discount.id] || { reason: null, notes: null };
     const error = validationErrors[discount.id];
     const isRequired = isReasonRequired(discount);
@@ -204,12 +204,10 @@ export function DiscountDialog({
         className="overflow-hidden"
       >
         <div className="px-3 pb-3 pt-2 space-y-2">
-          {/* Reason Label */}
           <label className="text-xs font-medium text-muted-foreground block">
             Reason {isRequired && <span className="text-red-400">*</span>}
           </label>
 
-          {/* Inline reason list */}
           <div className="max-h-[200px] overflow-y-auto rounded-lg border border-border bg-neutral-800/50">
             {DISCOUNT_REASONS.map((reason) => (
               <button
@@ -234,7 +232,6 @@ export function DiscountDialog({
             </div>
           )}
 
-          {/* Notes Field - only shown when "Other" is selected */}
           {data.reason === "Other" && (
             <div>
               <label className="text-xs font-medium text-muted-foreground mb-1.5 block">
@@ -264,69 +261,61 @@ export function DiscountDialog({
     );
   };
 
-  const DiscountRow = ({ discount, isMobileView }: { discount: Discount; isMobileView?: boolean }) => {
-    const discountAmount = calculateDiscountAmount(discount);
-    const isSelected = selectedDiscounts.some(d => d.id === discount.id);
-    const isExpanded = isSelected && expandedDiscountId === discount.id;
-
-    return (
-      <div key={discount.id} className="relative">
-        <button
-          onClick={() => {
-            toggleDiscount(discount);
-          }}
-          className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
-            isSelected
-              ? `bg-primary/20 border border-primary ${isExpanded ? "rounded-b-none" : ""}`
-              : "bg-neutral-800 hover:bg-neutral-700 border border-transparent"
-          }`}
-        >
-          <div className="flex items-center gap-3">
-            <div
-              className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                isSelected ? "bg-primary" : "bg-neutral-700"
-              }`}
-            >
-              {isSelected ? (
-                <Check className="w-4 h-4 text-primary-foreground" />
-              ) : (
-                <discount.icon className="w-4 h-4 text-muted-foreground" />
-              )}
-            </div>
-            <p className="text-sm font-medium text-foreground">
-              {discount.name}
-            </p>
-          </div>
-          <div className="flex items-center gap-2">
-            {isSelected && isReasonRequired(discount) && !reasonDataMap[discount.id]?.reason && (
-              <span className="text-[10px] text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">Reason required</span>
-            )}
-            <span className="text-xs text-muted-foreground bg-neutral-700/60 px-2.5 py-1 rounded-full">
-              {discount.type === "percentage"
-                ? `${discount.value}% off`
-                : `$${discount.value.toFixed(2)} off`}
-            </span>
-          </div>
-        </button>
-
-        {/* Inline Reason Expansion */}
-        <AnimatePresence>
-          {isExpanded && (
-            <div className={`border border-t-0 border-primary rounded-b-lg bg-primary/10`}>
-              <ReasonSection discount={discount} />
-            </div>
-          )}
-        </AnimatePresence>
-      </div>
-    );
-  };
-
   const listContent = (
     <div ref={scrollRef} className="max-h-[50vh] overflow-y-auto scrollbar-hide">
       <div className="p-3 space-y-2">
-        {availableDiscounts.map((discount) => (
-          <DiscountRow key={discount.id} discount={discount} />
-        ))}
+        {availableDiscounts.map((discount) => {
+          const isSelected = selectedDiscounts.some(d => d.id === discount.id);
+          const isExpanded = isSelected && expandedDiscountId === discount.id;
+
+          return (
+            <div key={discount.id} className="relative">
+              <button
+                onClick={() => toggleDiscount(discount)}
+                className={`w-full flex items-center justify-between p-3 rounded-lg transition-colors ${
+                  isSelected
+                    ? `bg-primary/20 border border-primary ${isExpanded ? "rounded-b-none" : ""}`
+                    : "bg-neutral-800 hover:bg-neutral-700 border border-transparent"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      isSelected ? "bg-primary" : "bg-neutral-700"
+                    }`}
+                  >
+                    {isSelected ? (
+                      <Check className="w-4 h-4 text-primary-foreground" />
+                    ) : (
+                      <discount.icon className="w-4 h-4 text-muted-foreground" />
+                    )}
+                  </div>
+                  <p className="text-sm font-medium text-foreground">
+                    {discount.name}
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  {isSelected && isReasonRequired(discount) && !reasonDataMap[discount.id]?.reason && (
+                    <span className="text-[10px] text-amber-400 bg-amber-400/10 px-1.5 py-0.5 rounded">Reason required</span>
+                  )}
+                  <span className="text-xs text-muted-foreground bg-neutral-700/60 px-2.5 py-1 rounded-full">
+                    {discount.type === "percentage"
+                      ? `${discount.value}% off`
+                      : `$${discount.value.toFixed(2)} off`}
+                  </span>
+                </div>
+              </button>
+
+              <AnimatePresence>
+                {isExpanded && (
+                  <div className="border border-t-0 border-primary rounded-b-lg bg-primary/10">
+                    {renderReasonSection(discount)}
+                  </div>
+                )}
+              </AnimatePresence>
+            </div>
+          );
+        })}
       </div>
     </div>
   );

@@ -398,13 +398,16 @@ const MultiVoucherStep = ({
                     </div>
                   </div>
                   {idx === 0 && (
-                    <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
-                      <SelectTrigger className="w-[140px] bg-neutral-800/40 border-neutral-700/50 text-white h-[42px] rounded-lg text-xs flex-shrink-0"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="fixed">Fixed Amount</SelectItem>
-                        <SelectItem value="percentage">Percentage (%)</SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <div className="flex flex-col gap-1 flex-shrink-0">
+                      <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider">Voucher Type</span>
+                      <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
+                        <SelectTrigger className="w-[140px] bg-neutral-800/40 border-neutral-700/50 text-white h-[42px] rounded-lg text-xs"><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="fixed">Fixed Amount</SelectItem>
+                          <SelectItem value="percentage">Percentage (%)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   )}
                   {customEntries.length > 1 && (
                     <button onClick={() => removeBuilderEntry(idx)} className="text-neutral-500 hover:text-red-400 transition-colors flex-shrink-0">

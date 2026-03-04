@@ -1053,7 +1053,7 @@ export function PaymentDialog({
                   };
 
                   return (
-                  <div className="w-full max-w-md">
+                  <div className="w-full max-w-lg">
                     <div className="flex items-center gap-2 mb-4">
                       <button 
                         onClick={() => {

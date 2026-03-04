@@ -9,6 +9,7 @@ import ManagerPinScreen from "@/components/ManagerPinScreen";
 import BottomNavigation from "@/components/BottomNavigation";
 import endOfDayIcon from "@/assets/icons/end-of-day.png";
 import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
+import { CompactInlineTimePicker } from "@/components/ui/compact-inline-time-picker";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePreference } from "@/hooks/usePreference";
@@ -201,15 +202,23 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
             <>
               <div className="h-px bg-border mx-4" />
               <button
-                onClick={() => setShowTimePicker(true)}
+                onClick={() => setShowTimePicker(!showTimePicker)}
                 className="w-full flex items-center justify-between py-3.5 px-4"
               >
                 <span className="text-foreground text-base">Auto End of Day Time</span>
                 <div className="flex items-center gap-1">
                   <span className="text-muted-foreground text-sm">{autoEndOfDayTime}</span>
-                  <ChevronRight size={18} className="text-muted-foreground" />
+                  <ChevronRight size={18} className={`text-muted-foreground transition-transform ${showTimePicker ? 'rotate-90' : ''}`} />
                 </div>
               </button>
+              {showTimePicker && (
+                <div className="px-4 pb-3">
+                  <CompactInlineTimePicker
+                    selectedTime={autoEndOfDayTime}
+                    onTimeChange={(time) => updateAutoEndOfDayTime(time)}
+                  />
+                </div>
+              )}
             </>
           )}
         </div>
@@ -227,15 +236,23 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
             <>
               <div className="h-px bg-border mx-4" />
               <button
-                onClick={() => setShowAutoRunTimePicker(true)}
+                onClick={() => setShowAutoRunTimePicker(!showAutoRunTimePicker)}
                 className="w-full flex items-center justify-between py-3.5 px-4"
               >
                 <span className="text-foreground text-base">Auto Run End of Day</span>
                 <div className="flex items-center gap-1">
                   <span className="text-muted-foreground text-sm">{autoRunTime}</span>
-                  <ChevronRight size={18} className="text-muted-foreground" />
+                  <ChevronRight size={18} className={`text-muted-foreground transition-transform ${showAutoRunTimePicker ? 'rotate-90' : ''}`} />
                 </div>
               </button>
+              {showAutoRunTimePicker && (
+                <div className="px-4 pb-3">
+                  <CompactInlineTimePicker
+                    selectedTime={autoRunTime}
+                    onTimeChange={(time) => updateAutoRunTime(time)}
+                  />
+                </div>
+              )}
             </>
           )}
         </div>
@@ -320,26 +337,8 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
         singleSelect
       />
 
-      {/* Time Picker */}
-      <AppleWheelTimePicker
-        isOpen={showTimePicker}
-        onClose={() => setShowTimePicker(false)}
-        onConfirm={(time) => {
-          updateAutoEndOfDayTime(time);
-          setShowTimePicker(false);
-        }}
-        selectedTime={autoEndOfDayTime}
-      />
-      {/* Auto Run End of Day Time Picker */}
-      <AppleWheelTimePicker
-        isOpen={showAutoRunTimePicker}
-        onClose={() => setShowAutoRunTimePicker(false)}
-        onConfirm={(time) => {
-          updateAutoRunTime(time);
-          setShowAutoRunTimePicker(false);
-        }}
-        selectedTime={autoRunTime}
-      />
+
+
       <MultiSelectSheet
         isOpen={showEmployeePicker}
         onClose={(items) => {

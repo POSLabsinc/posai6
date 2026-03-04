@@ -106,9 +106,9 @@ All colors MUST be HSL.
     --stat-inset-shadow: inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15);
 
     /* Semantic surface tokens for dark theme */
-    --surface: 0 0% 16%;
-    --surface-elevated: 0 0% 20%;
-    --surface-inset: 0 0% 10%;
+    --surface: 220 15% 11%;
+    --surface-elevated: 220 12% 14%;
+    --surface-inset: 220 18% 8%;
     --divider: 0 0% 28%;
     --text-subtle: 0 0% 55%;
   }

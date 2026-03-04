@@ -369,26 +369,24 @@ const MultiVoucherStep = ({
           />
         </div>
 
-        {/* Common Voucher Type */}
-        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto] gap-3">
-          <div>
-            <label className={labelClass}>Voucher Type <span className="text-red-400">*</span></label>
-            <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
-              <SelectTrigger className="w-full min-w-[160px] bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg"><SelectValue /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="fixed">Fixed Amount</SelectItem>
-                <SelectItem value="percentage">Percentage (%)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
         {/* ===== SHARED MODE (ON) ===== */}
         {sharedRulesOn && (
           <>
-            {/* Custom Voucher Names List */}
+            {/* Voucher Names + Voucher Type row */}
             <div className="space-y-2">
-              <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider block">Voucher Names</span>
+              <div className="flex items-center justify-between gap-3">
+                <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider">Voucher Names</span>
+                <div className="flex items-center gap-2">
+                  <label className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider">Voucher Type <span className="text-red-400">*</span></label>
+                  <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
+                    <SelectTrigger className="w-[150px] bg-neutral-800 border-neutral-600 text-white h-[34px] rounded-lg text-xs"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fixed">Fixed Amount</SelectItem>
+                      <SelectItem value="percentage">Percentage (%)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
               {customEntries.map((ce, idx) => (
                 <div key={ce.id} className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
                   <input
@@ -505,24 +503,33 @@ const MultiVoucherStep = ({
 
             {/* Full per-entry form */}
             <div className="space-y-3">
-              <div className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
-                <input
-                  type="text"
-                  value={entry.voucherName}
-                  onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })}
-                  placeholder="Enter custom voucher name"
-                  autoFocus
-                  className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
-                />
-                <div className="flex items-center gap-1.5 flex-shrink-0">
-                  <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                    <Minus className="w-3.5 h-3.5" />
-                  </button>
-                  <span className="text-white font-bold text-sm w-6 text-center">{entry.quantity}</span>
-                  <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                    <Plus className="w-3.5 h-3.5" />
-                  </button>
+              <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-1 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
+                  <input
+                    type="text"
+                    value={entry.voucherName}
+                    onChange={(e) => updateCurrentEntry({ voucherName: e.target.value.slice(0, 50) })}
+                    placeholder="Enter custom voucher name"
+                    autoFocus
+                    className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
+                  />
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
+                    <button onClick={() => updateCurrentEntry({ quantity: Math.max(1, entry.quantity - 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Minus className="w-3.5 h-3.5" />
+                    </button>
+                    <span className="text-white font-bold text-sm w-6 text-center">{entry.quantity}</span>
+                    <button onClick={() => updateCurrentEntry({ quantity: Math.min(50, entry.quantity + 1) })} className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                      <Plus className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
+                <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
+                  <SelectTrigger className="w-[150px] bg-neutral-800 border-neutral-600 text-white h-[42px] rounded-lg text-xs flex-shrink-0"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="fixed">Fixed Amount</SelectItem>
+                    <SelectItem value="percentage">Percentage (%)</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-x-3 gap-y-3">
                 <VoucherCurrencyInput

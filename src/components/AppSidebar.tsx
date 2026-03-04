@@ -1,6 +1,8 @@
 import { Settings } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAppearance } from "@/contexts/AppearanceContext";
+import { useVoucherMode } from "@/contexts/VoucherModeContext";
+import { useLocation } from "react-router-dom";
 
 import {
   Sidebar,
@@ -39,7 +41,7 @@ const logoSizeMap: Record<string, string> = {
 const logoItem = { title: "Home", url: "/home", icon: logoIcon, isLogo: true };
 
 const menuItems = [
-  { title: "Dashboard", url: "/", icon: dashboardIcon },
+  { title: "Dashboard", url: "/", icon: dashboardIcon, exact: true },
   { title: "Orders", url: "/orders", icon: orderIcon },
   { title: "Table Order", url: "/tableorder", icon: tableManagementIcon },
   { title: "Tickets", url: "/tickets", icon: ticketIcon },
@@ -50,9 +52,14 @@ const menuItems = [
 
 export function AppSidebar() {
   const { iconSize } = useAppearance();
+  const { isVoucherMode } = useVoucherMode();
+  const location = useLocation();
   const imgSize = navIconSizeMap[iconSize as string] || navIconSizeMap.Default;
   const lucideSize = navLucideSizeMap[iconSize as string] || navLucideSizeMap.Default;
   const logoSize = logoSizeMap[iconSize as string] || logoSizeMap.Default;
+
+  // When in voucher mode on the orders page, suppress active highlight on Orders nav
+  const isOrdersVoucherMode = isVoucherMode && location.pathname === '/orders';
 
   return (
     <Sidebar collapsible="none" className="w-20 border-r-0">
@@ -91,10 +98,10 @@ export function AppSidebar() {
                   <item.lucideIcon className={lucideSize} />
                 </NavLink>
               ) : (
-                <NavLink
+              <NavLink
                   to={item.url}
                   className="w-full h-full flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors"
-                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
+                  activeClassName={isOrdersVoucherMode && item.url === '/orders' ? '' : 'bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white'}
                 >
                   {item.lucideIcon ? (
                     <item.lucideIcon className={lucideSize} />

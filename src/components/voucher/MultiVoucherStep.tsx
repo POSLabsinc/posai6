@@ -374,19 +374,7 @@ const MultiVoucherStep = ({
           <>
             {/* Voucher Names + Voucher Type row */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between gap-3">
-                <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider">Voucher Names</span>
-                <div className="flex items-center gap-2">
-                  <label className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider">Voucher Type <span className="text-red-400">*</span></label>
-                  <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
-                    <SelectTrigger className="w-[150px] bg-neutral-800 border-neutral-600 text-white h-[34px] rounded-lg text-xs"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="fixed">Fixed Amount</SelectItem>
-                      <SelectItem value="percentage">Percentage (%)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider">Voucher Names</span>
               {customEntries.map((ce, idx) => (
                 <div key={ce.id} className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
                   <input
@@ -407,6 +395,13 @@ const MultiVoucherStep = ({
                       <Plus className="w-3.5 h-3.5" />
                     </button>
                   </div>
+                  <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
+                    <SelectTrigger className="w-[140px] bg-neutral-800 border-neutral-600 text-white h-[34px] rounded-lg text-xs flex-shrink-0"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fixed">Fixed Amount</SelectItem>
+                      <SelectItem value="percentage">Percentage (%)</SelectItem>
+                    </SelectContent>
+                  </Select>
                   {customEntries.length > 1 && (
                     <button onClick={() => removeBuilderEntry(idx)} className="text-neutral-500 hover:text-red-400 transition-colors flex-shrink-0">
                       <X className="w-4 h-4" />

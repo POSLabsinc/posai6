@@ -162,6 +162,11 @@ export function PaymentDialog({
   const [voucherDeliveryMethod, setVoucherDeliveryMethod] = useState<'print' | 'text' | 'email' | null>(null);
   const [voucherSendMode, setVoucherSendMode] = useState<'choose-method' | 'send-all' | 'send-individual'>('choose-method');
   const [voucherSendAllContact, setVoucherSendAllContact] = useState('');
+  // Country code for "Send All" phone input
+  const [sendAllCountry, setSendAllCountry] = useState<CountryCodeEntry>(COUNTRY_CODES[0]);
+  const [showSendAllCountryDropdown, setShowSendAllCountryDropdown] = useState(false);
+  const [sendAllCountrySearch, setSendAllCountrySearch] = useState('');
+  const sendAllCountryRef = useRef<HTMLDivElement>(null);
   // Smart distribution: maps voucher index -> recipient contact string
   const [voucherAssignments, setVoucherAssignments] = useState<Record<number, string>>({});
   // Currently selected voucher indices for batch assignment
@@ -362,6 +367,9 @@ export function PaymentDialog({
       setVoucherDeliveryMethod(null);
       setVoucherSendMode('choose-method');
       setVoucherSendAllContact('');
+      setSendAllCountry(COUNTRY_CODES[0]);
+      setShowSendAllCountryDropdown(false);
+      setSendAllCountrySearch('');
       setVoucherAssignments({});
       setSelectedVoucherIndices(new Set());
       setAssignContactInput('');
@@ -390,18 +398,21 @@ export function PaymentDialog({
     }
   }, [open, total]);
 
-  // Close country dropdown when clicking outside
+  // Close country dropdowns when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (assignCountryRef.current && !assignCountryRef.current.contains(event.target as Node)) {
         setShowAssignCountryDropdown(false);
       }
+      if (sendAllCountryRef.current && !sendAllCountryRef.current.contains(event.target as Node)) {
+        setShowSendAllCountryDropdown(false);
+      }
     };
-    if (showAssignCountryDropdown) {
+    if (showAssignCountryDropdown || showSendAllCountryDropdown) {
       document.addEventListener('mousedown', handleClickOutside);
       return () => document.removeEventListener('mousedown', handleClickOutside);
     }
-  }, [showAssignCountryDropdown]);
+  }, [showAssignCountryDropdown, showSendAllCountryDropdown]);
 
   // Calculate payment amount from quantities
   useEffect(() => {
@@ -1002,6 +1013,9 @@ export function PaymentDialog({
                           setVoucherSendMode('choose-method');
                           setVoucherDeliveryMethod(null);
                           setVoucherSendAllContact('');
+                          setSendAllCountry(COUNTRY_CODES[0]);
+                          setShowSendAllCountryDropdown(false);
+                          setSendAllCountrySearch('');
                         }}
                         className="w-8 h-8 rounded-full hover:bg-neutral-700 flex items-center justify-center transition-colors"
                       >
@@ -1015,28 +1029,119 @@ export function PaymentDialog({
                         ? `Send all ${voucherCount} vouchers to:` 
                         : `Send voucher to:`}
                     </p>
-                    <input
-                      type={voucherDeliveryMethod === 'email' ? 'email' : 'tel'}
-                      value={voucherSendAllContact}
-                      onChange={(e) => setVoucherSendAllContact(e.target.value)}
-                      placeholder={voucherDeliveryMethod === 'email' ? 'Enter email address' : 'Enter phone number'}
-                      className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-400 mb-4"
-                      autoFocus
-                    />
 
-                    <button
-                      onClick={() => {
-                        if (!voucherSendAllContact.trim()) {
-                          toast.error(`Please enter ${voucherDeliveryMethod === 'email' ? 'an email address' : 'a phone number'}`);
-                          return;
-                        }
-                        toast.success(`${voucherCount} voucher${voucherCount > 1 ? 's' : ''} sent to ${voucherSendAllContact}`);
-                        setVoucherDeliveryDone(true);
-                      }}
-                      className="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-semibold rounded-lg transition-colors mb-3"
-                    >
-                      Send {voucherCount > 1 ? `All ${voucherCount} Vouchers` : 'Voucher'}
-                    </button>
+                    {(() => {
+                      const isSendAllPhone = voucherDeliveryMethod === 'text';
+                      const sendAllDigits = voucherSendAllContact.replace(/\D/g, '');
+                      const sendAllDisplayValue = isSendAllPhone ? formatPhone(sendAllDigits, sendAllCountry.format) : voucherSendAllContact;
+                      const isSendAllValid = isSendAllPhone ? sendAllDigits.length === sendAllCountry.phoneLength : voucherSendAllContact.trim().length > 0;
+                      const filteredSendAllCountries = COUNTRY_CODES.filter(c =>
+                        c.name.toLowerCase().includes(sendAllCountrySearch.toLowerCase()) ||
+                        c.dial.includes(sendAllCountrySearch) ||
+                        c.code.toLowerCase().includes(sendAllCountrySearch.toLowerCase())
+                      );
+
+                      return (
+                        <>
+                          <div className="flex gap-2 items-stretch mb-4">
+                            {isSendAllPhone && (
+                              <div ref={sendAllCountryRef} className="relative">
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setShowSendAllCountryDropdown(!showSendAllCountryDropdown);
+                                    setSendAllCountrySearch('');
+                                  }}
+                                  className="flex items-center gap-1 h-full px-2 bg-neutral-900 border border-neutral-600 rounded-lg hover:bg-neutral-700 transition-colors"
+                                >
+                                  <span className="text-base">{sendAllCountry.flag}</span>
+                                  <span className="text-neutral-300 text-xs">{sendAllCountry.dial}</span>
+                                  <ChevronDown className="w-3 h-3 text-neutral-500" />
+                                </button>
+                                {showSendAllCountryDropdown && (
+                                  <div className="absolute top-full left-0 mt-1 w-56 bg-neutral-800 border border-neutral-700 rounded-lg shadow-xl z-50 overflow-hidden">
+                                    <div className="p-1.5 border-b border-neutral-700">
+                                      <div className="flex items-center gap-1.5 bg-neutral-900 rounded px-2 py-1">
+                                        <Search className="w-3 h-3 text-neutral-500" />
+                                        <input
+                                          type="text"
+                                          value={sendAllCountrySearch}
+                                          onChange={(e) => setSendAllCountrySearch(e.target.value)}
+                                          placeholder="Search..."
+                                          className="bg-transparent text-white text-xs placeholder:text-neutral-500 focus:outline-none w-full"
+                                          autoFocus
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="max-h-40 overflow-y-auto">
+                                      {filteredSendAllCountries.map(c => (
+                                        <button
+                                          key={c.code}
+                                          onClick={() => {
+                                            setSendAllCountry(c);
+                                            setShowSendAllCountryDropdown(false);
+                                            setVoucherSendAllContact('');
+                                          }}
+                                          className={`w-full flex items-center gap-2 px-3 py-1.5 text-left hover:bg-neutral-700 transition-colors ${c.code === sendAllCountry.code ? 'bg-neutral-700' : ''}`}
+                                        >
+                                          <span className="text-sm">{c.flag}</span>
+                                          <span className="text-white text-xs flex-1">{c.name}</span>
+                                          <span className="text-neutral-400 text-xs">{c.dial}</span>
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            <div className="flex-1 relative">
+                              <input
+                                type={isSendAllPhone ? 'tel' : 'email'}
+                                value={sendAllDisplayValue}
+                                onChange={(e) => {
+                                  if (isSendAllPhone) {
+                                    setVoucherSendAllContact(e.target.value.replace(/\D/g, '').slice(0, sendAllCountry.phoneLength));
+                                  } else {
+                                    setVoucherSendAllContact(e.target.value);
+                                  }
+                                }}
+                                placeholder={isSendAllPhone ? sendAllCountry.format.replace(/X/g, '0') : 'Enter email address'}
+                                className="w-full bg-neutral-800 border border-neutral-600 rounded-lg px-4 py-3 text-white text-sm placeholder:text-neutral-500 focus:outline-none focus:border-neutral-400 pr-8"
+                                autoFocus
+                              />
+                              {voucherSendAllContact && (
+                                <button
+                                  onClick={() => setVoucherSendAllContact('')}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-neutral-500 hover:text-white transition-colors"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          <button
+                            onClick={() => {
+                              if (isSendAllPhone && !isSendAllValid) {
+                                toast.error(`Please enter a valid ${sendAllCountry.phoneLength}-digit phone number`);
+                                return;
+                              }
+                              if (!isSendAllValid) {
+                                toast.error('Please enter a valid email address');
+                                return;
+                              }
+                              const contactLabel = isSendAllPhone ? `${sendAllCountry.dial} ${sendAllDisplayValue}` : voucherSendAllContact.trim();
+                              toast.success(`${voucherCount} voucher${voucherCount > 1 ? 's' : ''} sent to ${contactLabel}`);
+                              setVoucherDeliveryDone(true);
+                            }}
+                            disabled={!isSendAllValid}
+                            className={`w-full py-3 font-semibold rounded-lg transition-colors mb-3 ${isSendAllValid ? 'bg-green-600 hover:bg-green-700 text-white' : 'bg-neutral-700 text-neutral-500 cursor-not-allowed'}`}
+                          >
+                            Send {voucherCount > 1 ? `All ${voucherCount} Vouchers` : 'Voucher'}
+                          </button>
+                        </>
+                      );
+                    })()}
 
                     {voucherCount > 1 && (
                       <button

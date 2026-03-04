@@ -312,7 +312,7 @@ const SingleVoucherStep = ({
           {touched.voucherName && !voucherName.trim() && <p className="text-red-400 text-xs mt-1">Voucher name is required</p>}
         </div>
         <div>
-          <label className={labelClass}>Voucher Type</label>
+          <label className={labelClass}>Voucher Type <span className="text-red-400">*</span></label>
           <Select value={voucherType} onValueChange={(v) => setVoucherType(v as 'fixed' | 'percentage')}>
             <SelectTrigger className="w-full min-w-[160px] bg-neutral-800 border-neutral-600 text-white h-[46px] rounded-lg">
               <SelectValue />

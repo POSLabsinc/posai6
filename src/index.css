@@ -60,6 +60,8 @@ All colors MUST be HSL.
     --surface-inset: 0 0% 98%;
     --divider: 0 0% 90%;
     --text-subtle: 0 0% 45%;
+    --panel-glass: 0 0% 90%;
+    --panel-glass-shadow: inset 4px 4px 24px 0px rgba(0, 0, 0, 0.06);
   }
 
   .dark {
@@ -111,6 +113,8 @@ All colors MUST be HSL.
     --surface-inset: 220 18% 8%;
     --divider: 0 0% 28%;
     --text-subtle: 0 0% 55%;
+    --panel-glass: 220 15% 13%;
+    --panel-glass-shadow: inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15);
   }
 }
 

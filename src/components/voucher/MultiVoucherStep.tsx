@@ -376,32 +376,36 @@ const MultiVoucherStep = ({
             <div className="space-y-2">
               <span className="text-neutral-400 text-[10px] font-semibold uppercase tracking-wider">Voucher Names</span>
               {customEntries.map((ce, idx) => (
-                <div key={ce.id} className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2">
-                  <input
-                    type="text"
-                    value={ce.voucherName}
-                    onChange={(e) => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, voucherName: e.target.value.slice(0, 50) } : c))}
-                    placeholder={`Voucher Name #${idx + 1}`}
-                    className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
-                  />
-                  <div className="flex items-center gap-1.5 flex-shrink-0">
-                    <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c))}
-                      className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                      <Minus className="w-3.5 h-3.5" />
-                    </button>
-                    <span className="text-white font-bold text-sm w-6 text-center">{ce.quantity}</span>
-                    <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.min(50, c.quantity + 1) } : c))}
-                      className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
-                      <Plus className="w-3.5 h-3.5" />
-                    </button>
+                <div key={ce.id} className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 bg-neutral-800/40 border border-neutral-700/50 rounded-lg px-3 py-2 flex-1">
+                    <input
+                      type="text"
+                      value={ce.voucherName}
+                      onChange={(e) => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, voucherName: e.target.value.slice(0, 50) } : c))}
+                      placeholder={`Voucher Name #${idx + 1}`}
+                      className="flex-1 bg-transparent text-white text-sm placeholder:text-neutral-500 focus:outline-none"
+                    />
+                    <div className="flex items-center gap-1.5 flex-shrink-0">
+                      <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.max(1, c.quantity - 1) } : c))}
+                        className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                        <Minus className="w-3.5 h-3.5" />
+                      </button>
+                      <span className="text-white font-bold text-sm w-6 text-center">{ce.quantity}</span>
+                      <button onClick={() => setCustomEntries(prev => prev.map((c, i) => i === idx ? { ...c, quantity: Math.min(50, c.quantity + 1) } : c))}
+                        className="w-7 h-7 rounded-lg bg-neutral-700 hover:bg-neutral-600 flex items-center justify-center text-white transition-colors">
+                        <Plus className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-                  <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
-                    <SelectTrigger className="w-[140px] bg-neutral-800 border-neutral-600 text-white h-[34px] rounded-lg text-xs flex-shrink-0"><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="fixed">Fixed Amount</SelectItem>
-                      <SelectItem value="percentage">Percentage (%)</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  {idx === 0 && (
+                    <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
+                      <SelectTrigger className="w-[140px] bg-neutral-800/40 border-neutral-700/50 text-white h-[42px] rounded-lg text-xs flex-shrink-0"><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="fixed">Fixed Amount</SelectItem>
+                        <SelectItem value="percentage">Percentage (%)</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
                   {customEntries.length > 1 && (
                     <button onClick={() => removeBuilderEntry(idx)} className="text-neutral-500 hover:text-red-400 transition-colors flex-shrink-0">
                       <X className="w-4 h-4" />
@@ -519,7 +523,7 @@ const MultiVoucherStep = ({
                   </div>
                 </div>
                 <Select value={commonVoucherType} onValueChange={(v) => setCommonVoucherType(v as 'fixed' | 'percentage')}>
-                  <SelectTrigger className="w-[150px] bg-neutral-800 border-neutral-600 text-white h-[42px] rounded-lg text-xs flex-shrink-0"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="w-[140px] bg-neutral-800/40 border-neutral-700/50 text-white h-[42px] rounded-lg text-xs flex-shrink-0"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="fixed">Fixed Amount</SelectItem>
                     <SelectItem value="percentage">Percentage (%)</SelectItem>

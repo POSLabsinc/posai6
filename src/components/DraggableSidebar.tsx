@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { Settings, GripVertical, Lock, Unlock, Move, X } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
+import { Link, useLocation } from "react-router-dom";
 import { useSidebarPosition } from "@/contexts/SidebarPositionContext";
+import { useVoucherMode } from "@/contexts/VoucherModeContext";
 import { toast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -27,6 +29,9 @@ const menuItems = [
 export function DraggableSidebar() {
   const { position, setIsDragging, isLocked, setIsLocked, isAnimating, hasSeenOnboarding, dismissOnboarding } = useSidebarPosition();
   const isHorizontal = position === 'top' || position === 'bottom';
+  const { isVoucherMode } = useVoucherMode();
+  const location = useLocation();
+  const isOrdersVoucherMode = isVoucherMode && location.pathname === '/orders';
   const [showOnboarding, setShowOnboarding] = useState(false);
 
   // Show onboarding after a short delay for new users
@@ -254,6 +259,13 @@ export function DraggableSidebar() {
                     >
                       <item.lucideIcon className="h-5 w-5" />
                     </NavLink>
+                  ) : isOrdersVoucherMode && item.url === '/orders' ? (
+                    <Link
+                      to={item.url}
+                      className={`${isHorizontal ? 'h-full w-full' : 'w-full h-full'} flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors`}
+                    >
+                      <img src={item.icon as string} alt={item.title} className="w-6 h-6" />
+                    </Link>
                   ) : (
                     <NavLink
                       to={item.url}

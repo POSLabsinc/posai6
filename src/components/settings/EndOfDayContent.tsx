@@ -101,7 +101,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
             {SUMMARY_STATS.map((stat) => (
               <div
                 key={stat.label}
-                className="bg-card rounded-2xl p-4 flex flex-col items-center text-center"
+                className="bg-surface rounded-2xl p-4 flex flex-col items-center text-center"
               >
                 <span className="text-muted-foreground text-xs font-medium mb-2 leading-tight">{stat.label}</span>
                 <span className="text-foreground text-base font-semibold">{stat.value}</span>
@@ -111,7 +111,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
 
           {/* Things to do */}
           <p className="text-muted-foreground text-sm mb-3 px-2">Things to do</p>
-          <div className="bg-card rounded-2xl overflow-hidden mb-6">
+          <div className="bg-surface rounded-2xl overflow-hidden mb-6">
             {THINGS_TO_DO.map((item, index) => (
               <div key={item.label}>
                 <button className="w-full flex items-center justify-between py-3.5 px-4">
@@ -155,7 +155,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
     <div className="relative flex flex-col h-full bg-background">
       <div className={`flex-1 overflow-y-auto ${showHeader ? 'pt-6' : 'pt-0'} px-6 pb-28`}>
         {/* Header card */}
-        <div className="bg-card rounded-2xl p-6 mb-4 flex flex-col items-start">
+        <div className="bg-surface rounded-2xl p-6 mb-4 flex flex-col items-start">
           <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-3" style={{ backgroundColor: getIconBgColor("#7300FF") }}>
             <img src={endOfDayIcon} alt="End of Day" className="w-8 h-8" />
           </div>
@@ -181,7 +181,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
         {/* End Of Day Device */}
         <button
           onClick={() => setShowDevicePicker(true)}
-          className="w-full bg-card rounded-full py-3.5 px-4 flex items-center justify-between mb-6"
+          className="w-full bg-surface rounded-full py-3.5 px-4 flex items-center justify-between mb-6"
         >
           <span className="text-foreground text-base">End Of Day Device</span>
           <div className="flex items-center gap-1">
@@ -192,7 +192,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
 
         {/* Schedule & Reminders */}
         <p className="text-muted-foreground text-sm mb-3 px-2">Schedule & Reminders</p>
-        <div className={`bg-card ${endOfDayReminder === "true" ? 'rounded-2xl' : 'rounded-full'} overflow-hidden mb-1`}>
+        <div className={`bg-surface ${endOfDayReminder === "true" ? 'rounded-2xl' : 'rounded-full'} overflow-hidden mb-1`}>
           <div className="py-3.5 px-4 flex items-center justify-between">
             <span className="text-foreground text-base">End Of Day Reminder</span>
             <Switch checked={endOfDayReminder === "true"} onCheckedChange={(v) => updateEndOfDayReminder(v ? "true" : "false")} />
@@ -218,7 +218,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
         {/* Automatic Actions */}
         {/* Run End Of Day - separate section */}
         <p className="text-muted-foreground text-sm mb-3 px-2">Automatic Actions</p>
-        <div className={`bg-card ${runEndOfDay === "true" ? 'rounded-2xl' : 'rounded-full'} overflow-hidden mb-1`}>
+        <div className={`bg-surface ${runEndOfDay === "true" ? 'rounded-2xl' : 'rounded-full'} overflow-hidden mb-1`}>
           <div className="py-3.5 px-4 flex items-center justify-between">
             <span className="text-foreground text-base">Run End Of Day</span>
             <Switch checked={runEndOfDay === "true"} onCheckedChange={(v) => updateRunEndOfDay(v ? "true" : "false")} />
@@ -244,7 +244,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
         </p>
 
         {/* Other Automatic Actions */}
-        <div className="bg-card rounded-2xl overflow-hidden mb-6">
+        <div className="bg-surface rounded-2xl overflow-hidden mb-6">
           {[
             { label: "Clock Out Employees", value: clockOutEmployees === "true", setter: (v: boolean) => updateClockOutEmployees(v ? "true" : "false") },
             { label: "Close Cash Drawer", value: closeCashDrawer === "true", setter: (v: boolean) => updateCloseCashDrawer(v ? "true" : "false") },
@@ -263,7 +263,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
 
         {/* Reports & Printing */}
         <p className="text-muted-foreground text-sm mb-3 px-2">Reports & Printing</p>
-        <div className="bg-card rounded-2xl overflow-hidden mb-6">
+        <div className="bg-surface rounded-2xl overflow-hidden mb-6">
           <div className="flex items-center justify-between py-3.5 px-4">
             <span className="text-foreground text-base">Print End Of Day Report</span>
             <Switch checked={printReport === "true"} onCheckedChange={(v) => updatePrintReport(v ? "true" : "false")} />

@@ -1025,13 +1025,15 @@ export const ClockInOverlay = ({
           </button>
         </div>
 
-        <div className="grid grid-cols-3 gap-2 mt-2">
+        <div className={`grid ${SettingsManager.getControlCenterSettings().hideBreakButton ? 'grid-cols-2' : 'grid-cols-3'} gap-2 mt-2`}>
           <button onClick={handleClockOut} disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn} className="h-12 md:h-14 lg:h-16 keypad-btn-3d-clockout rounded-lg text-white text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed">
             Clock Out
           </button>
-          <button onClick={handleBreak} disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn} className="h-12 md:h-14 lg:h-16 keypad-btn-3d-break rounded-lg text-black text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed">
-            Break
-          </button>
+          {!SettingsManager.getControlCenterSettings().hideBreakButton && (
+            <button onClick={handleBreak} disabled={isVerifying || pin.length !== PIN_LENGTH || !isClockedIn} className="h-12 md:h-14 lg:h-16 keypad-btn-3d-break rounded-lg text-black text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed">
+              Break
+            </button>
+          )}
           <button onClick={handleClockIn} disabled={isVerifying || pin.length !== PIN_LENGTH || isClockedIn} className="h-12 md:h-14 lg:h-16 keypad-btn-3d-clockin rounded-lg text-white text-xs md:text-sm lg:text-base font-bold disabled:cursor-not-allowed">
             Clock In
           </button>

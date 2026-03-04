@@ -6916,7 +6916,7 @@ const Orders = () => {
         </div>
 
         {/* Background Container for Order Content */}
-        <div className={`flex flex-col rounded-lg overflow-hidden mx-1 transition-all duration-300 border border-white ${isOrderPanelExpanded ? 'flex-1 min-h-0' : 'min-h-0'}`} style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}>
+        <div className={`flex flex-col bg-[#7575754D] border border-white rounded-lg overflow-hidden mx-1 transition-all duration-300 ${isOrderPanelExpanded ? 'flex-1 min-h-0' : 'min-h-0'}`}>
           {/* Order Type & Guest Info */}
           {isTableOrder ?
         <>
@@ -8886,7 +8886,10 @@ const Orders = () => {
             {/* Right Side Actions Sidebar */}
             {isOrderActionsSidebarOpen && !showCreateVoucherForm &&
           <div className="w-[70px] flex flex-col flex-shrink-0 animate-slide-in-right">
-                <div className="flex-1 flex flex-col rounded-2xl p-1.5 gap-1 bg-neutral-800 border border-neutral-700">
+                <div className="flex-1 flex flex-col rounded-2xl p-1.5 gap-1" style={{
+              background: '#7575754D',
+              boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)'
+            }}>
                   {/* Transfer Check - Only show when items in cart */}
                   {orderItems.length > 0 &&
               <button

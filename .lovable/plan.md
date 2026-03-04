@@ -1,23 +1,23 @@
 
 
-## Plan: Fix Panel Background Colors to Match Screenshot
+## Plan: Display Messages as Standard KDS Ticket Cards
 
-The user wants to revert to the original background colors instead of the `--panel-glass` CSS variable approach.
+**Goal**: Remove the separate `MessagesCard` component and instead render each pending kitchen message as a regular ticket card in the KDS grid, styled consistently with order tickets but with a distinct visual indicator (e.g., violet header instead of time-based colors).
 
-### Target Colors
-- **Left Nav Bar & Right Order Panel**: `#7575754D` (semi-transparent grey) with `inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)` box-shadow
-- **Right Side 3-Dot Actions Sidebar**: `bg-neutral-800` (#262626) with `border-neutral-700` (#404040)
+### Changes (single file: `src/pages/KDS.tsx`)
 
-### Changes
+1. **Remove the `MessagesCard` component** entirely.
 
-**1. `src/components/DraggableSidebar.tsx` (line 156)**
-- Change `style={{ background: 'hsl(var(--panel-glass))', boxShadow: 'var(--panel-glass-shadow)' }}` to `style={{ background: '#7575754D', boxShadow: 'inset 4px 4px 24px 0px rgba(255, 255, 255, 0.15)' }}`
+2. **Convert messages to KDS tickets**: In the main KDS component, poll `kds_message_queue` from localStorage (as currently done in MessagesCard), and map each active message into a `KDSTicket`-compatible object with:
+   - `orderNumber`: "MSG" or a short label
+   - `type`: "MESSAGE" 
+   - A single product entry containing the message text
+   - Violet/indigo header color to distinguish from food orders
+   - "ACKNOWLEDGE" button in place of "BUMP"
 
-**2. `src/pages/Orders.tsx`**
-- **Line 6919** (order content container): Replace `style={{ background: 'hsl(var(--panel-glass))', boxShadow: 'var(--panel-glass-shadow)', border: '1px solid white' }}` with `className` using `bg-[#7575754D] border border-white` and inline box-shadow
-- **Lines 8154-8157** (mobile order content): Same change — replace panel-glass with `#7575754D`
-- **Lines 8787-8789** (summary section): Same change
-- **Lines 8889-8892** (right-side 3-dot actions sidebar): Change from `panel-glass` to `bg-neutral-800 border border-neutral-700` with appropriate styling
+3. **Merge message tickets into the main ticket list**, rendering them alongside real order tickets in the grid using the same `TicketCard` layout (or a slight variant that handles the message type).
 
-**3. `src/index.css`** — Keep the CSS variables as-is (they may still be used elsewhere); the specific components just override them.
+4. **Remove the `<MessagesCard />` reference** from the grid JSX.
+
+This keeps the KDS grid uniform — every card follows the same layout pattern — while messages remain visually distinguishable via their header color and "MESSAGE" label.
 

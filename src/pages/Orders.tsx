@@ -6173,9 +6173,16 @@ const Orders = () => {
   const [showPriceOverrideDialog, setShowPriceOverrideDialog] = useState(false);
   const [showVoucherDialog, setShowVoucherDialog] = useState(false);
   const [voucherModeLocal, setVoucherModeLocal] = useState(false);
-  const { setIsVoucherMode: setVoucherModeCtx } = useVoucherMode();
+  const { isVoucherMode: voucherModeCtx, setIsVoucherMode: setVoucherModeCtx } = useVoucherMode();
   const voucherMode = voucherModeLocal;
   const setVoucherMode = (v: boolean) => { setVoucherModeLocal(v); setVoucherModeCtx(v); };
+
+  // Sync context changes (e.g. from sidebar) back to local state
+  useEffect(() => {
+    if (!voucherModeCtx && voucherModeLocal) {
+      setVoucherModeLocal(false);
+    }
+  }, [voucherModeCtx]);
   const [editingVoucherData, setEditingVoucherData] = useState<import('@/components/VoucherDialog').VoucherInitialData | null>(null);
   const [voucherDialogInitialView, setVoucherDialogInitialView] = useState<'sell' | 'redeem'>('sell');
   const [showOpenPriceDialog, setShowOpenPriceDialog] = useState(false);

@@ -2,6 +2,7 @@ import { useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
 import { toast } from "sonner";
+import { printEndOfDayReport } from "@/utils/eodReportPrinter";
 
 const CHECK_INTERVAL_MS = 15_000; // 15 seconds
 const EOD_LAST_RUN_KEY = "pos_eod_last_run";
@@ -44,6 +45,8 @@ interface EodPrefs {
   cancelUnpaid: boolean;
   clockOut: boolean;
   closeCash: boolean;
+  printReport: boolean;
+  includeEmployeeData: boolean;
 }
 
 async function fetchEodPrefs(): Promise<EodPrefs> {
@@ -61,6 +64,8 @@ async function fetchEodPrefs(): Promise<EodPrefs> {
       "eod_cancel_unpaid",
       "eod_clock_out",
       "eod_close_cash",
+      "eod_print_report",
+      "eod_include_employee",
     ]);
 
   const map: Record<string, string> = {};
@@ -77,6 +82,8 @@ async function fetchEodPrefs(): Promise<EodPrefs> {
     cancelUnpaid: map["eod_cancel_unpaid"] === "true",
     clockOut: map["eod_clock_out"] === "true",
     closeCash: map["eod_close_cash"] === "true",
+    printReport: map["eod_print_report"] === "true",
+    includeEmployeeData: map["eod_include_employee"] === "true",
   };
 }
 
@@ -138,6 +145,16 @@ export function useEndOfDayScheduler() {
       // Close cash drawer
       if (prefs.closeCash) {
         actions.push("cash drawer closed");
+      }
+
+      // Print End of Day Report
+      if (prefs.printReport) {
+        try {
+          await printEndOfDayReport(orders, prefs.includeEmployeeData);
+          actions.push("report printed" + (prefs.includeEmployeeData ? " (with employee data)" : ""));
+        } catch {
+          actions.push("report print failed");
+        }
       }
 
       // Record that we ran EOD today

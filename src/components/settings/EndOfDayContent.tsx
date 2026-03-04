@@ -12,6 +12,7 @@ import { AppleWheelTimePicker } from "@/components/ui/apple-wheel-time-picker";
 import { MultiSelectSheet } from "@/components/ui/multi-select-sheet";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { usePreference } from "@/hooks/usePreference";
+import { useUnifiedOrders } from "@/contexts/UnifiedOrderContext";
 
 const DEVICES = ["POS 1.1", "POS 1.2", "POS 2.1", "POS 2.2", "POS 3.1"];
 const EMPLOYEES = ["John Smith", "Jane Doe", "Mike Johnson", "Sarah Williams", "David Brown", "Emily Davis", "Chris Wilson", "Amanda Taylor"];
@@ -74,9 +75,27 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
   const { value: autoEndOfDayTime, update: updateAutoEndOfDayTime } = usePreference("eod_reminder_time", "11:00 PM");
   const { value: autoRunTime, update: updateAutoRunTime } = usePreference("eod_auto_run_time", "11:00 PM");
   const { value: selectedEmployeesStr, update: updateSelectedEmployees } = usePreference("eod_report_recipients", "[]");
+  const { orders, updateOrders } = useUnifiedOrders();
 
   const selectedEmployees: string[] = (() => { try { return JSON.parse(selectedEmployeesStr); } catch { return []; } })();
   const setSelectedEmployees = (employees: string[]) => updateSelectedEmployees(JSON.stringify(employees));
+
+  const handleClosePaidOrders = (enabled: boolean) => {
+    updateClosePaidOrders(enabled ? "true" : "false");
+    if (enabled) {
+      // Auto-close all paid orders immediately
+      const paidCount = orders.filter(o => o.status === "PAID").length;
+      if (paidCount > 0) {
+        updateOrders(prev => prev.map(o => 
+          o.status === "PAID" ? { ...o, status: "Closed" } : o
+        ));
+        toast({
+          title: "Paid Orders Closed",
+          description: `${paidCount} paid order${paidCount > 1 ? 's' : ''} have been closed.`,
+        });
+      }
+    }
+  };
 
   if (showSummary) {
     return (
@@ -248,7 +267,7 @@ const EndOfDayContent = ({ showHeader = true, onBack, onAIClick }: EndOfDayConte
           {[
             { label: "Clock Out Employees", value: clockOutEmployees === "true", setter: (v: boolean) => updateClockOutEmployees(v ? "true" : "false") },
             { label: "Close Cash Drawer", value: closeCashDrawer === "true", setter: (v: boolean) => updateCloseCashDrawer(v ? "true" : "false") },
-            { label: "Close Paid Orders", value: closePaidOrders === "true", setter: (v: boolean) => updateClosePaidOrders(v ? "true" : "false") },
+            { label: "Close Paid Orders", value: closePaidOrders === "true", setter: handleClosePaidOrders },
             { label: "Cancel Unpaid Tickets", value: cancelUnpaidTickets === "true", setter: (v: boolean) => updateCancelUnpaidTickets(v ? "true" : "false") },
           ].map((item, index, arr) => (
             <div key={item.label}>

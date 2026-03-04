@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import { SettingsManager } from "@/lib/settingsManager";
 import { useNavigate } from "react-router-dom";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Users, Grid, List, ChevronDown, LayoutList, Clock, MapPin, RotateCcw, Merge, Link, Unlink, ArrowUpDown, Eye, UserPlus, Armchair, X, Settings, Plus, Trash2, GripVertical, Pencil, FolderOpen, Save, Check, FileText } from "lucide-react";
@@ -148,8 +149,59 @@ const canMerge = (table1: TableType, table2: TableType): { allowed: boolean; rea
   return { allowed: false, reason: "These tables cannot be merged" };
 };
 
+// Check if tables should be reset daily
+const shouldResetTablesDaily = (): boolean => {
+  const settings = SettingsManager.getControlCenterSettings();
+  if (!settings.resetTablesDaily) return false;
+  
+  const lastResetKey = 'pos-tables-last-daily-reset';
+  const lastReset = localStorage.getItem(lastResetKey);
+  const today = new Date().toDateString();
+  
+  if (lastReset === today) return false;
+  
+  // Mark as reset for today
+  localStorage.setItem(lastResetKey, today);
+  return true;
+};
+
 // Load saved positions from localStorage or use defaults
 const loadSavedPositions = (): TableType[] => {
+  // Check if daily reset is needed
+  if (shouldResetTablesDaily()) {
+    // Clear session orders as well
+    localStorage.removeItem('pos-session-orders');
+    // Reset table positions to defaults (keep layout/coordinates, reset status)
+    const saved = localStorage.getItem('tablePositions');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        const resetTables = defaultTables.map(table => {
+          const savedTable = parsed.find((t: TableType) => t.id === table.id);
+          return {
+            ...table,
+            // Keep layout positions from saved data
+            x: savedTable?.x ?? table.x,
+            y: savedTable?.y ?? table.y,
+            mergedWith: null,
+            isMergeSource: false,
+            mergeGroupId: undefined,
+            // Reset operational state
+            status: "Available" as const,
+            time: "",
+            guests: 0,
+            occupiedSeats: [],
+          };
+        });
+        localStorage.setItem('tablePositions', JSON.stringify(resetTables));
+        return resetTables;
+      } catch (e) {
+        console.error('Error during daily table reset:', e);
+      }
+    }
+    return defaultTables.map(t => ({ ...t, status: "Available" as const, time: "", guests: 0, occupiedSeats: [], mergedWith: null, isMergeSource: false }));
+  }
+  
   try {
     const saved = localStorage.getItem('tablePositions');
     if (saved) {

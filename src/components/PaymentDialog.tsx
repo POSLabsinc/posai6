@@ -1200,44 +1200,68 @@ export function PaymentDialog({
                       </span>
                     </div>
 
-                    {/* Voucher chips - word cloud layout with varied sizes */}
-                    <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
-                      {Array.from({ length: voucherCount }, (_, vIdx) => {
-                        const isAssigned = voucherAssignments[vIdx] !== undefined;
-                        const isSelected = selectedVoucherIndices.has(vIdx);
-                        const assignedTo = voucherAssignments[vIdx];
-                        const label = getVoucherLabel(vIdx);
-                        // Consistent chip size for all vouchers
-                        const sizeClass = 'text-xs px-3 py-2';
-                        
-                        return (
-                          <button
-                            key={vIdx}
-                            disabled={isAssigned}
-                            onClick={() => {
-                              setSelectedVoucherIndices(prev => {
-                                const next = new Set(prev);
-                                if (next.has(vIdx)) next.delete(vIdx);
-                                else next.add(vIdx);
-                                return next;
-                              });
-                            }}
-                            className={`relative rounded-full font-medium transition-all border whitespace-nowrap ${sizeClass} ${
-                              isAssigned
-                                ? 'bg-green-600/20 border-green-600/40 text-green-300 cursor-default'
-                                : isSelected
+                    {/* Assigned vouchers grouped by recipient */}
+                    {Object.keys(groupedByRecipient).length > 0 && (
+                      <div className="space-y-2 mb-4">
+                        {Object.entries(groupedByRecipient).map(([contact, indices]) => (
+                          <div key={contact} className="bg-green-600/10 border border-green-600/30 rounded-lg px-3 py-2">
+                            <div className="flex items-center justify-between mb-1.5">
+                              <span className="text-green-400 text-xs font-medium">{contact}</span>
+                              <button
+                                onClick={() => {
+                                  const newAssignments = { ...voucherAssignments };
+                                  indices.forEach(idx => delete newAssignments[idx]);
+                                  setVoucherAssignments(newAssignments);
+                                }}
+                                className="text-neutral-500 hover:text-red-400 transition-colors p-0.5"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+                            <div className="flex flex-wrap gap-1.5">
+                              {indices.map(idx => (
+                                <span key={idx} className="rounded-full text-[11px] px-2.5 py-1 bg-green-600/20 border border-green-600/40 text-green-300 font-medium">
+                                  {getVoucherLabel(idx)}
+                                </span>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Unassigned voucher chips */}
+                    {remainingCount > 0 && (
+                      <div className="flex flex-wrap items-center justify-center gap-2 mb-4">
+                        {Array.from({ length: voucherCount }, (_, vIdx) => {
+                          if (voucherAssignments[vIdx] !== undefined) return null;
+                          const isSelected = selectedVoucherIndices.has(vIdx);
+                          const label = getVoucherLabel(vIdx);
+                          const sizeClass = 'text-xs px-3 py-2';
+                          
+                          return (
+                            <button
+                              key={vIdx}
+                              onClick={() => {
+                                setSelectedVoucherIndices(prev => {
+                                  const next = new Set(prev);
+                                  if (next.has(vIdx)) next.delete(vIdx);
+                                  else next.add(vIdx);
+                                  return next;
+                                });
+                              }}
+                              className={`relative rounded-full font-medium transition-all border whitespace-nowrap ${sizeClass} ${
+                                isSelected
                                   ? 'bg-blue-600/30 border-blue-500 text-blue-200 ring-1 ring-blue-500 scale-105'
                                   : 'bg-neutral-800 border-neutral-600 text-neutral-300 hover:border-neutral-400 hover:bg-neutral-700'
-                            }`}
-                          >
-                            <span>{label}</span>
-                            {isAssigned && (
-                              <span className="ml-1 text-[10px] text-green-400/70">→ {assignedTo.length > 12 ? assignedTo.slice(0, 12) + '…' : assignedTo}</span>
-                            )}
-                          </button>
-                        );
-                      })}
-                    </div>
+                              }`}
+                            >
+                              {label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
 
                     {/* Floating action panel when vouchers are selected */}
                     {selectedCount > 0 && (() => {
@@ -1428,31 +1452,7 @@ export function PaymentDialog({
                       );
                     })()}
 
-                    {/* Grouped summary - show when some assignments exist */}
-                    {Object.keys(groupedByRecipient).length > 0 && (
-                      <div className="space-y-2 mb-4">
-                        <p className="text-neutral-500 text-xs font-medium uppercase tracking-wide">Distribution Summary</p>
-                        {Object.entries(groupedByRecipient).map(([contact, indices]) => (
-                          <div key={contact} className="flex items-center justify-between bg-neutral-800/60 border border-neutral-700 rounded-lg px-3 py-2">
-                            <div>
-                              <p className="text-white text-sm">{contact}</p>
-                              <p className="text-neutral-500 text-xs">{indices.length} voucher{indices.length !== 1 ? 's' : ''}</p>
-                            </div>
-                            <button
-                              onClick={() => {
-                                // Unassign all vouchers for this recipient
-                                const newAssignments = { ...voucherAssignments };
-                                indices.forEach(idx => delete newAssignments[idx]);
-                                setVoucherAssignments(newAssignments);
-                              }}
-                              className="text-neutral-500 hover:text-red-400 transition-colors p-1"
-                            >
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    )}
+                    {/* Distribution summary removed - grouped inline above */}
 
                     {/* Send button */}
                     <button

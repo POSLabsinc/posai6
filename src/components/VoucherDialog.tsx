@@ -472,23 +472,6 @@ const VoucherDialog = ({
                 companyProfile={selectedCompany}
               />
 
-              <div className="mt-3 border border-neutral-700 rounded-lg p-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Gift className="w-4 h-4 text-neutral-400" />
-                    <div>
-                      <span className="text-white text-sm font-medium">Gift via System Link</span>
-                      <p className="text-neutral-500 text-xs">Voucher link sent to customer. Transfers tracked in-system only.</p>
-                    </div>
-                  </div>
-                  <Switch checked={isGift} onCheckedChange={setIsGift} />
-                </div>
-                {isGift && (
-                  <p className="text-amber-400/80 text-xs mt-2">
-                    Recipient must activate via the system link. Forwarding outside the system will prevent activation.
-                  </p>
-                )}
-              </div>
             </>
           )}
 

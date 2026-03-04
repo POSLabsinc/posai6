@@ -2,7 +2,7 @@ import { Settings } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAppearance } from "@/contexts/AppearanceContext";
 import { useVoucherMode } from "@/contexts/VoucherModeContext";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 
 import {
   Sidebar,
@@ -97,11 +97,18 @@ export function AppSidebar() {
                 >
                   <item.lucideIcon className={lucideSize} />
                 </NavLink>
-              ) : (
-              <NavLink
+              ) : isOrdersVoucherMode && item.url === '/orders' ? (
+                <Link
                   to={item.url}
                   className="w-full h-full flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors"
-                  activeClassName={isOrdersVoucherMode && item.url === '/orders' ? '' : 'bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white'}
+                >
+                  <img src={item.icon as string} alt={item.title} className={imgSize} />
+                </Link>
+              ) : (
+                <NavLink
+                  to={item.url}
+                  className="w-full h-full flex items-center justify-center rounded-xl hover:bg-sidebar-accent transition-colors"
+                  activeClassName="bg-sidebar-accent text-sidebar-accent-foreground border-2 border-white"
                 >
                   {item.lucideIcon ? (
                     <item.lucideIcon className={lucideSize} />
